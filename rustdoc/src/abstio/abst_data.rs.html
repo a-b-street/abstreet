@@ -202,10 +202,6 @@
 <span id="202">202</span>
 <span id="203">203</span>
 <span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -268,15 +264,11 @@
                     <span class="kw">if</span> <span class="ident">data_packs</span>.<span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;gb/&quot;</span>)) {
                         <span class="kw">continue</span>;
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;kc_2016_lidar.tif&quot;</span>)
-                    <span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;seattle_contours.geojson&quot;</span>)
-                {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;kc_2016_lidar.tif&quot;</span>) {
                     <span class="kw">if</span> <span class="ident">data_packs</span>.<span class="ident">input</span>.<span class="ident">contains</span>(<span class="string">&quot;us/seattle&quot;</span>) {
                         <span class="kw">continue</span>;
                     }
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">data_packs</span>.<span class="ident">input</span>.<span class="ident">is_empty</span>() {
-                    <span class="comment">// All of the SRTM files land here. Hard to associate them with a country or</span>
-                    <span class="comment">// city code, and it seems like we may want to share these between cities.</span>
                     <span class="kw">continue</span>;
                 }
             }

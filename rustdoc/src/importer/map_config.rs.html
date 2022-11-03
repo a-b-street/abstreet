@@ -107,9 +107,6 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -215,11 +212,8 @@
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         },
-        <span class="comment">// The underlying elevation source works well in Seattle, but is half-baked (and uses low</span>
-        <span class="comment">// resolution SRTM) elsewhere. Since the results aren&#39;t good and the cost of running this</span>
-        <span class="comment">// isn&#39;t cheap, only keep it for two places</span>
-        <span class="ident">elevation</span>: <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;san_francisco&quot;</span>),
+        <span class="comment">// We only have one city-specific elevation source working well enough to keep.</span>
+        <span class="ident">elevation</span>: <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>),
     }
 }
 </code></pre></div>
