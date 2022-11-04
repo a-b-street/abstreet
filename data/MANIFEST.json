@@ -440,6 +440,16 @@
       "uncompressed_size_bytes": 16982280,
       "compressed_size_bytes": 2932099
     },
+    "data/input/gb/burnley/osm/lancashire-latest.osm.pbf": {
+      "checksum": "ce08acc8b6bd4d3cf46f56c3d8f10212",
+      "uncompressed_size_bytes": 35798897,
+      "compressed_size_bytes": 35770419
+    },
+    "data/input/gb/burnley/raw_maps/center.bin": {
+      "checksum": "0bbc369e1974ea3163be3a07c5a53a4c",
+      "uncompressed_size_bytes": 5765283,
+      "compressed_size_bytes": 1051225
+    },
     "data/input/gb/cambridge/osm/cambridgeshire-latest.osm.pbf": {
       "checksum": "fc78b2ebc96bfcd24d5117926c7b9e87",
       "uncompressed_size_bytes": 23006168,
@@ -2384,6 +2394,16 @@
       "checksum": "7abf4449d0853447cb664ee208c18ce9",
       "uncompressed_size_bytes": 8540401,
       "compressed_size_bytes": 2210836
+    },
+    "data/system/gb/burnley/maps/center.bin": {
+      "checksum": "8dfa4b744e573a4351180ac29eebf3a2",
+      "uncompressed_size_bytes": 26299487,
+      "compressed_size_bytes": 10088796
+    },
+    "data/system/gb/burnley/scenarios/center/background.bin": {
+      "checksum": "1a06278ed615bdc48c56ef8ca8fa4dc9",
+      "uncompressed_size_bytes": 3376995,
+      "compressed_size_bytes": 864878
     },
     "data/system/gb/cambridge/maps/north.bin": {
       "checksum": "56fc86cf82ba11ae9d91cb06cb7ead21",
