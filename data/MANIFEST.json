@@ -935,6 +935,11 @@
       "uncompressed_size_bytes": 14002261,
       "compressed_size_bytes": 2678197
     },
+    "data/input/gb/london/raw_maps/islington_hackney.bin": {
+      "checksum": "8d0bd7a7f01ed216f044e46ed295a25b",
+      "uncompressed_size_bytes": 15650639,
+      "compressed_size_bytes": 2917164
+    },
     "data/input/gb/london/raw_maps/kennington.bin": {
       "checksum": "568d83e0f10bf3d1de3a887a8790a802",
       "uncompressed_size_bytes": 2206202,
@@ -2991,9 +2996,9 @@
       "compressed_size_bytes": 4475998
     },
     "data/system/gb/london/city.bin": {
-      "checksum": "93821f81a89116b7993a0e75743897a6",
-      "uncompressed_size_bytes": 3274329,
-      "compressed_size_bytes": 1743936
+      "checksum": "0db44ee59cceeef8086dc3cc6110d727",
+      "uncompressed_size_bytes": 3585915,
+      "compressed_size_bytes": 1889581
     },
     "data/system/gb/london/maps/barking_and_dagenham.bin": {
       "checksum": "aa5963fd585a6380ac4887156ea61008",
@@ -3094,6 +3099,11 @@
       "checksum": "2dbe6b5062e3fa9886da55d2e53516d1",
       "uncompressed_size_bytes": 32579216,
       "compressed_size_bytes": 12056608
+    },
+    "data/system/gb/london/maps/islington_hackney.bin": {
+      "checksum": "9a5b50068a9918ed7f7f3bd5725de3af",
+      "uncompressed_size_bytes": 38347247,
+      "compressed_size_bytes": 14232716
     },
     "data/system/gb/london/maps/kennington.bin": {
       "checksum": "bf64fa4b7f9daf44472600783fdb3066",
@@ -3269,6 +3279,11 @@
       "checksum": "66b6b129e41333e67d2aa1babfe41ce7",
       "uncompressed_size_bytes": 59635664,
       "compressed_size_bytes": 15717298
+    },
+    "data/system/gb/london/scenarios/islington_hackney/background.bin": {
+      "checksum": "268206612345d5422185341acb5e82da",
+      "uncompressed_size_bytes": 43323244,
+      "compressed_size_bytes": 11675315
     },
     "data/system/gb/london/scenarios/kennington/background.bin": {
       "checksum": "4fc27d5ef6fd6a70b3b0cffe36d5abd2",
