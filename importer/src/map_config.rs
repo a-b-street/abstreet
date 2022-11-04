@@ -103,7 +103,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         } else {
             None
         },
-        // We only have one city-specific elevation source working well enough to keep.
-        elevation: name.city == CityName::new("us", "seattle"),
+        // We only have a few elevation sources working
+        elevation: name.city == CityName::new("us", "seattle") || name.city.country == "gb",
     }
 }
