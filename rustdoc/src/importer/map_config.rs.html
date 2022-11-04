@@ -212,8 +212,8 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>},
-        <span class="comment">// We only have one city-specific elevation source working well enough to keep.
-        </span>elevation: name.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>),
+        <span class="comment">// We only have a few elevation sources working
+        </span>elevation: name.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>) || name.city.country == <span class="string">&quot;gb&quot;</span>,
     }
 }
 </code></pre></div>
