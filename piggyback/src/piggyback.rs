@@ -100,9 +100,10 @@ impl PiggybackDemo {
     pub fn spawn_traffic(&mut self) {
         let mut rng = sim::SimFlags::for_test("spawn_traffic").make_rng();
         let mut timer = Timer::new("spawn traffic");
-        sim::ScenarioGenerator::small_run(&self.map)
-            .generate(&self.map, &mut rng, &mut timer)
-            .instantiate(&mut self.sim, &self.map, &mut rng, &mut timer);
+        let scenario =
+            sim::ScenarioGenerator::small_run(&self.map).generate(&self.map, &mut rng, &mut timer);
+        self.sim
+            .instantiate(&scenario, &self.map, &mut rng, &mut timer);
     }
 
     /// Reset the traffic simulation.
