@@ -405,6 +405,16 @@
       "uncompressed_size_bytes": 15416705,
       "compressed_size_bytes": 3454375
     },
+    "data/input/gb/bournemouth/osm/dorset-latest.osm.pbf": {
+      "checksum": "76125c77bdbc786cfc4348bf091c0765",
+      "uncompressed_size_bytes": 30165306,
+      "compressed_size_bytes": 30134724
+    },
+    "data/input/gb/bournemouth/raw_maps/center.bin": {
+      "checksum": "2556e631fe1236b8baa8e7ae6fbf0e1c",
+      "uncompressed_size_bytes": 14992271,
+      "compressed_size_bytes": 3105144
+    },
     "data/input/gb/bradford/osm/west-yorkshire-latest.osm.pbf": {
       "checksum": "9457f7b0c887a55a070402a736aded6a",
       "uncompressed_size_bytes": 38746071,
@@ -2364,6 +2374,16 @@
       "checksum": "4ee0a3d746d0e13c12c73fda1b0f91a2",
       "uncompressed_size_bytes": 10605410,
       "compressed_size_bytes": 2758476
+    },
+    "data/system/gb/bournemouth/maps/center.bin": {
+      "checksum": "f54820f6601625df8675bdf38e98cb0b",
+      "uncompressed_size_bytes": 43880289,
+      "compressed_size_bytes": 17108865
+    },
+    "data/system/gb/bournemouth/scenarios/center/background.bin": {
+      "checksum": "493021c73c2a6cf38d0b0e15ce86e4ae",
+      "uncompressed_size_bytes": 8844145,
+      "compressed_size_bytes": 2365995
     },
     "data/system/gb/bradford/maps/center.bin": {
       "checksum": "377396ed02cbb919edc14051a930aed6",
