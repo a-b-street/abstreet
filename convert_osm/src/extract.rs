@@ -2,7 +2,7 @@ use osm::{OsmID, RelationID, WayID};
 
 use abstutil::{MultiMap, Tags, Timer};
 use geom::{Distance, FindClosest, Polygon, Pt2D, Ring};
-use osm2streets::{osm, NamePerLanguage};
+use osm2streets::{osm, DrivingSide, NamePerLanguage};
 use raw_map::{Amenity, AreaType, RawArea, RawBuilding, RawMap, RawParkingLot};
 
 use crate::Options;
@@ -44,6 +44,13 @@ pub fn extract_osm(
         map.streets.gps_bounds = doc.gps_bounds.clone();
         map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();
     }
+    // Calculate DrivingSide from some arbitrary point
+    map.streets.config.driving_side =
+        if driving_side::is_left_handed(map.streets.gps_bounds.get_rectangle()[0].into()) {
+            DrivingSide::Left
+        } else {
+            DrivingSide::Right
+        };
 
     let mut out = OsmExtract::new();
     let mut amenity_points = Vec::new();

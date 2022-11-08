@@ -629,6 +629,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "csv",
+ "driving-side",
  "fs-err",
  "geom",
  "kml",
@@ -1009,6 +1010,15 @@ name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
+
+[[package]]
+name = "driving-side"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/osm2lanes#997d5ed09c4ec5775111d3dcd306d83aaf50696a"
+dependencies = [
+ "geo",
+ "geojson",
+]
 
 [[package]]
 name = "dwrote"
@@ -2924,7 +2934,7 @@ dependencies = [
 [[package]]
 name = "osm-tag-schemes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#25ac3ccdc862d82293de05c0c3973047d214ea49"
+source = "git+https://github.com/a-b-street/osm2lanes#997d5ed09c4ec5775111d3dcd306d83aaf50696a"
 dependencies = [
  "osm-tags",
  "strum 0.24.1",
@@ -2933,7 +2943,7 @@ dependencies = [
 [[package]]
 name = "osm-tags"
 version = "0.1.1"
-source = "git+https://github.com/a-b-street/osm2lanes#25ac3ccdc862d82293de05c0c3973047d214ea49"
+source = "git+https://github.com/a-b-street/osm2lanes#997d5ed09c4ec5775111d3dcd306d83aaf50696a"
 dependencies = [
  "kstring",
 ]
@@ -2941,7 +2951,7 @@ dependencies = [
 [[package]]
 name = "osm2lanes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#25ac3ccdc862d82293de05c0c3973047d214ea49"
+source = "git+https://github.com/a-b-street/osm2lanes#997d5ed09c4ec5775111d3dcd306d83aaf50696a"
 dependencies = [
  "celes",
  "locale-codes",
@@ -2953,7 +2963,7 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#670bd72acd6d82ef43f325b8f64b12f6700ba68e"
+source = "git+https://github.com/a-b-street/osm2streets#3230590a4062491e3b1146931217b54618454a57"
 dependencies = [
  "aabb-quadtree",
  "abstutil",
@@ -3977,10 +3987,11 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#670bd72acd6d82ef43f325b8f64b12f6700ba68e"
+source = "git+https://github.com/a-b-street/osm2streets#3230590a4062491e3b1146931217b54618454a57"
 dependencies = [
  "abstutil",
  "anyhow",
+ "driving-side",
  "geom",
  "log",
  "osm2streets",

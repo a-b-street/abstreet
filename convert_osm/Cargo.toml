@@ -9,6 +9,7 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 csv = "1.1.4"
+driving-side = { git = "https://github.com/a-b-street/osm2lanes" }
 fs-err = { workspace = true }
 geom = { path = "../geom" }
 kml = { path = "../kml" }

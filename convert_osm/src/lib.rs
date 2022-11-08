@@ -31,7 +31,8 @@ pub fn convert(
     timer.start("create RawMap from input data");
 
     let mut map = RawMap::blank(name);
-    // Do this early. Calculating Roads uses DrivingSide, for example!
+    // Note that DrivingSide is still incorrect. It'll be set in extract_osm, before Road::new
+    // happens in split_ways.
     map.streets.config = opts.map_config.clone();
 
     if let Some(ref path) = clip_path {

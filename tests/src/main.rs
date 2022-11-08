@@ -59,7 +59,7 @@ fn import_map(path: String) -> Map {
         path,
         name,
         clip,
-        convert_osm::Options::default_for_side(map_model::DrivingSide::Right),
+        convert_osm::Options::default(),
         &mut timer,
     );
     Map::create_from_raw(raw, map_model::RawToMapOptions::default(), &mut timer)

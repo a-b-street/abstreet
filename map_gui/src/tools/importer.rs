@@ -49,14 +49,6 @@ impl<A: AppLike + 'static> ImportCity<A> {
                     "Copy the JSON text on the right into your clipboard".text_widget(ctx),
                 ])
                 .margin_below(16),
-                Toggle::choice(
-                    ctx,
-                    "left handed driving",
-                    "drive on the left",
-                    "right",
-                    None,
-                    false,
-                ),
                 Widget::row(vec![
                     "Name the map:".text_widget(ctx).centered_vert(),
                     TextBox::widget(ctx, "new_map_name", generate_new_map_name(), true, 20),
@@ -121,9 +113,6 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                         "--geojson-path=boundary.geojson".to_string(),
                         format!("--map-name={}", name),
                     ];
-                    if self.panel.is_checked("left handed driving") {
-                        args.push("--drive-on-left".to_string());
-                    }
                     if self.panel.is_checked("source") {
                         args.push("--use-geofabrik".to_string());
                     }

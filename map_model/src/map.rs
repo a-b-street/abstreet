@@ -147,7 +147,7 @@ impl Map {
             bus_routes_on_roads: MultiMap::new(),
             gps_bounds: GPSBounds::new(),
             bounds: Bounds::new(),
-            config: MapConfig::default_for_side(DrivingSide::Right),
+            config: MapConfig::default(),
             pathfinder: Pathfinder::empty(),
             pathfinder_dirty: false,
             routing_params: RoutingParams::default(),

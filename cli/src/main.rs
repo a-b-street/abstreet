@@ -152,9 +152,6 @@ enum Command {
         /// code), with the city as "oneshot." This name shouldn't contain spaces or be empty.
         #[structopt(long)]
         map_name: String,
-        /// Do people drive on the left side of the road in this map?
-        #[structopt(long)]
-        drive_on_left: bool,
         /// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.
         #[structopt(long)]
         use_geofabrik: bool,
@@ -174,9 +171,6 @@ enum Command {
         /// derived from the .osm file, but borders will likely be broken or missing.
         #[structopt(long)]
         clip_path: Option<String>,
-        /// Do people drive on the left side of the road in this map?
-        #[structopt(long)]
-        drive_on_left: bool,
         /// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
         #[structopt(long)]
         filter_crosswalks: bool,
@@ -283,7 +277,6 @@ async fn main() -> Result<()> {
         Command::OneStepImport {
             geojson_path,
             map_name,
-            drive_on_left,
             use_geofabrik,
             filter_crosswalks,
             create_uk_travel_demand_model,
@@ -291,7 +284,6 @@ async fn main() -> Result<()> {
             one_step_import::run(
                 geojson_path,
                 map_name,
-                driving_side(drive_on_left),
                 use_geofabrik,
                 filter_crosswalks,
                 create_uk_travel_demand_model,
@@ -301,7 +293,6 @@ async fn main() -> Result<()> {
         Command::OneshotImport {
             osm_input,
             clip_path,
-            drive_on_left,
             filter_crosswalks,
             create_uk_travel_demand_model,
             opts,
@@ -309,7 +300,6 @@ async fn main() -> Result<()> {
             importer::oneshot(
                 osm_input,
                 clip_path,
-                driving_side(drive_on_left),
                 filter_crosswalks,
                 create_uk_travel_demand_model,
                 opts,
@@ -428,12 +418,4 @@ fn prebake_scenario(path: String) {
     let scenario: synthpop::Scenario = abstio::must_read_object(path, &mut timer);
     let map = map_model::Map::load_synchronously(scenario.map_name.path(), &mut timer);
     sim::prebake::prebake(&map, scenario, &mut timer);
-}
-
-fn driving_side(drive_on_left: bool) -> map_model::DrivingSide {
-    if drive_on_left {
-        map_model::DrivingSide::Left
-    } else {
-        map_model::DrivingSide::Right
-    }
 }

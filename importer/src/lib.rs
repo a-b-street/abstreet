@@ -49,7 +49,6 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
 pub async fn oneshot(
     osm_path: String,
     clip: Option<String>,
-    driving_side: map_model::DrivingSide,
     filter_crosswalks: bool,
     create_uk_travel_demand_model: bool,
     opts: RawToMapOptions,
@@ -57,7 +56,7 @@ pub async fn oneshot(
     let mut timer = abstutil::Timer::new("oneshot");
     println!("- Running convert_osm on {}", osm_path);
     let name = abstutil::basename(&osm_path);
-    let mut options = convert_osm::Options::default_for_side(driving_side);
+    let mut options = convert_osm::Options::default();
     options.filter_crosswalks = filter_crosswalks;
     let raw = convert_osm::convert(
         osm_path,

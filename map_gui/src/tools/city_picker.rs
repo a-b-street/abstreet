@@ -529,15 +529,12 @@ fn chose_city<A: AppLike + 'static>(
 fn reimport_city<A: AppLike + 'static>(ctx: &mut EventCtx, app: &A) -> Transition<A> {
     let name = format!("updated_{}", app.map().get_name().as_filename());
 
-    let mut args = vec![
+    let args = vec![
         crate::tools::find_exe("cli"),
         "one-step-import".to_string(),
         "--geojson-path=boundary.json".to_string(),
         format!("--map-name={}", name),
     ];
-    if app.map().get_config().driving_side == map_model::DrivingSide::Left {
-        args.push("--drive-on-left".to_string());
-    }
 
     // Write the current map boundary
     abstio::write_json(

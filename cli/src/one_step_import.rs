@@ -6,7 +6,6 @@ use geom::LonLat;
 pub async fn run(
     geojson_path: String,
     name: String,
-    driving_side: map_model::DrivingSide,
     use_geofabrik: bool,
     filter_crosswalks: bool,
     create_uk_travel_demand_model: bool,
@@ -65,7 +64,6 @@ pub async fn run(
     importer::oneshot(
         osm,
         Some(geojson_path),
-        driving_side,
         filter_crosswalks,
         create_uk_travel_demand_model,
         map_model::RawToMapOptions::default(),
