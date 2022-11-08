@@ -195,17 +195,6 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::io::Write;
 
 <span class="kw">use </span>anyhow::Result;
@@ -257,14 +246,6 @@
                     <span class="string">&quot;Copy the JSON text on the right into your clipboard&quot;</span>.text_widget(ctx),
                 ])
                 .margin_below(<span class="number">16</span>),
-                Toggle::choice(
-                    ctx,
-                    <span class="string">&quot;left handed driving&quot;</span>,
-                    <span class="string">&quot;drive on the left&quot;</span>,
-                    <span class="string">&quot;right&quot;</span>,
-                    <span class="prelude-val">None</span>,
-                    <span class="bool-val">false</span>,
-                ),
                 Widget::row(<span class="macro">vec!</span>[
                     <span class="string">&quot;Name the map:&quot;</span>.text_widget(ctx).centered_vert(),
                     TextBox::widget(ctx, <span class="string">&quot;new_map_name&quot;</span>, generate_new_map_name(), <span class="bool-val">true</span>, <span class="number">20</span>),
@@ -329,9 +310,6 @@
                         <span class="string">&quot;--geojson-path=boundary.geojson&quot;</span>.to_string(),
                         <span class="macro">format!</span>(<span class="string">&quot;--map-name={}&quot;</span>, name),
                     ];
-                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;left handed driving&quot;</span>) {
-                        args.push(<span class="string">&quot;--drive-on-left&quot;</span>.to_string());
-                    }
                     <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;source&quot;</span>) {
                         args.push(<span class="string">&quot;--use-geofabrik&quot;</span>.to_string());
                     }

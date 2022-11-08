@@ -444,7 +444,7 @@
         path,
         name,
         clip,
-        convert_osm::Options::default_for_side(map_model::DrivingSide::Right),
+        convert_osm::Options::default(),
         <span class="kw-2">&amp;mut </span>timer,
     );
     Map::create_from_raw(raw, map_model::RawToMapOptions::default(), <span class="kw-2">&amp;mut </span>timer)

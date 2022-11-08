@@ -349,7 +349,6 @@
 <span id="349">349</span>
 <span id="350">350</span>
 <span id="351">351</span>
-<span id="352">352</span>
 </pre><pre class="rust"><code><span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka
 //! `./data/` and `./importer/config` must exist.
 
@@ -401,7 +400,6 @@
 </span><span class="kw">pub async fn </span>oneshot(
     osm_path: String,
     clip: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    driving_side: map_model::DrivingSide,
     filter_crosswalks: bool,
     create_uk_travel_demand_model: bool,
     opts: RawToMapOptions,
@@ -409,7 +407,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>timer = abstutil::Timer::new(<span class="string">&quot;oneshot&quot;</span>);
     <span class="macro">println!</span>(<span class="string">&quot;- Running convert_osm on {}&quot;</span>, osm_path);
     <span class="kw">let </span>name = abstutil::basename(<span class="kw-2">&amp;</span>osm_path);
-    <span class="kw">let </span><span class="kw-2">mut </span>options = convert_osm::Options::default_for_side(driving_side);
+    <span class="kw">let </span><span class="kw-2">mut </span>options = convert_osm::Options::default();
     options.filter_crosswalks = filter_crosswalks;
     <span class="kw">let </span>raw = convert_osm::convert(
         osm_path,

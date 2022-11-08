@@ -105,8 +105,6 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
 </pre><pre class="rust"><code><span class="kw">use </span>abstio::{CityName, MapName};
 <span class="kw">use </span>abstutil::Timer;
 <span class="kw">use </span>geom::Distance;
@@ -130,10 +128,8 @@
 
     convert_osm::Options {
         map_config: osm2streets::MapConfig {
-            driving_side: <span class="kw">match </span>name.city.country.as_ref() {
-                <span class="string">&quot;au&quot; </span>| <span class="string">&quot;gb&quot; </span>| <span class="string">&quot;in&quot; </span>| <span class="string">&quot;jp&quot; </span>| <span class="string">&quot;nz&quot; </span>| <span class="string">&quot;sg&quot; </span>=&gt; DrivingSide::Left,
-                <span class="kw">_ </span>=&gt; DrivingSide::Right,
-            },
+            <span class="comment">// osm2streets will set this anyway, it doesn&#39;t matter here
+            </span>driving_side: DrivingSide::Right,
             bikes_can_use_bus_lanes: name.city.country != <span class="string">&quot;pl&quot;</span>,
             inferred_sidewalks: name.city.country != <span class="string">&quot;pl&quot;</span>,
             street_parking_spot_length: <span class="kw">if </span>name.city == CityName::new(<span class="string">&quot;ca&quot;</span>, <span class="string">&quot;montreal&quot;</span>) {

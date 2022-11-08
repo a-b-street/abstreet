@@ -72,8 +72,6 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 
 <span class="kw">use </span>abstio::CityName;
@@ -82,7 +80,6 @@
 <span class="kw">pub async fn </span>run(
     geojson_path: String,
     name: String,
-    driving_side: map_model::DrivingSide,
     use_geofabrik: bool,
     filter_crosswalks: bool,
     create_uk_travel_demand_model: bool,
@@ -141,7 +138,6 @@
     importer::oneshot(
         osm,
         <span class="prelude-val">Some</span>(geojson_path),
-        driving_side,
         filter_crosswalks,
         create_uk_travel_demand_model,
         map_model::RawToMapOptions::default(),

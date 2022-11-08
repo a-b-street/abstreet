@@ -419,24 +419,6 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a
 //! single executable to reduce the cost of static linking in the release&#39;s file size.
 
@@ -591,9 +573,6 @@
         /// code), with the city as &quot;oneshot.&quot; This name shouldn&#39;t contain spaces or be empty.
         </span><span class="attribute">#[structopt(long)]
         </span>map_name: String,
-        <span class="doccomment">/// Do people drive on the left side of the road in this map?
-        </span><span class="attribute">#[structopt(long)]
-        </span>drive_on_left: bool,
         <span class="doccomment">/// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.
         </span><span class="attribute">#[structopt(long)]
         </span>use_geofabrik: bool,
@@ -613,9 +592,6 @@
         /// derived from the .osm file, but borders will likely be broken or missing.
         </span><span class="attribute">#[structopt(long)]
         </span>clip_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
-        <span class="doccomment">/// Do people drive on the left side of the road in this map?
-        </span><span class="attribute">#[structopt(long)]
-        </span>drive_on_left: bool,
         <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
         </span><span class="attribute">#[structopt(long)]
         </span>filter_crosswalks: bool,
@@ -722,7 +698,6 @@
         Command::OneStepImport {
             geojson_path,
             map_name,
-            drive_on_left,
             use_geofabrik,
             filter_crosswalks,
             create_uk_travel_demand_model,
@@ -730,7 +705,6 @@
             one_step_import::run(
                 geojson_path,
                 map_name,
-                driving_side(drive_on_left),
                 use_geofabrik,
                 filter_crosswalks,
                 create_uk_travel_demand_model,
@@ -740,7 +714,6 @@
         Command::OneshotImport {
             osm_input,
             clip_path,
-            drive_on_left,
             filter_crosswalks,
             create_uk_travel_demand_model,
             opts,
@@ -748,7 +721,6 @@
             importer::oneshot(
                 osm_input,
                 clip_path,
-                driving_side(drive_on_left),
                 filter_crosswalks,
                 create_uk_travel_demand_model,
                 opts,
@@ -867,14 +839,6 @@
     <span class="kw">let </span>scenario: synthpop::Scenario = abstio::must_read_object(path, <span class="kw-2">&amp;mut </span>timer);
     <span class="kw">let </span>map = map_model::Map::load_synchronously(scenario.map_name.path(), <span class="kw-2">&amp;mut </span>timer);
     sim::prebake::prebake(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>timer);
-}
-
-<span class="kw">fn </span>driving_side(drive_on_left: bool) -&gt; map_model::DrivingSide {
-    <span class="kw">if </span>drive_on_left {
-        map_model::DrivingSide::Left
-    } <span class="kw">else </span>{
-        map_model::DrivingSide::Right
-    }
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -187,6 +187,7 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
+<span id="190">190</span>
 </pre><pre class="rust"><code><span class="attribute">#[macro_use]
 </span><span class="kw">extern crate </span>anyhow;
 <span class="attribute">#[macro_use]
@@ -220,7 +221,8 @@
     timer.start(<span class="string">&quot;create RawMap from input data&quot;</span>);
 
     <span class="kw">let </span><span class="kw-2">mut </span>map = RawMap::blank(name);
-    <span class="comment">// Do this early. Calculating Roads uses DrivingSide, for example!
+    <span class="comment">// Note that DrivingSide is still incorrect. It&#39;ll be set in extract_osm, before Road::new
+    // happens in split_ways.
     </span>map.streets.config = opts.map_config.clone();
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) = clip_path {

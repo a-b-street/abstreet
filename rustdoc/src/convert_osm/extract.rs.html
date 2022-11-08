@@ -387,11 +387,18 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
 </pre><pre class="rust"><code><span class="kw">use </span>osm::{OsmID, RelationID, WayID};
 
 <span class="kw">use </span>abstutil::{MultiMap, Tags, Timer};
 <span class="kw">use </span>geom::{Distance, FindClosest, Polygon, Pt2D, Ring};
-<span class="kw">use </span>osm2streets::{osm, NamePerLanguage};
+<span class="kw">use </span>osm2streets::{osm, DrivingSide, NamePerLanguage};
 <span class="kw">use </span>raw_map::{Amenity, AreaType, RawArea, RawBuilding, RawMap, RawParkingLot};
 
 <span class="kw">use </span><span class="kw">crate</span>::Options;
@@ -433,6 +440,13 @@
         </span>map.streets.gps_bounds = doc.gps_bounds.clone();
         map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();
     }
+    <span class="comment">// Calculate DrivingSide from some arbitrary point
+    </span>map.streets.config.driving_side =
+        <span class="kw">if </span>driving_side::is_left_handed(map.streets.gps_bounds.get_rectangle()[<span class="number">0</span>].into()) {
+            DrivingSide::Left
+        } <span class="kw">else </span>{
+            DrivingSide::Right
+        };
 
     <span class="kw">let </span><span class="kw-2">mut </span>out = OsmExtract::new();
     <span class="kw">let </span><span class="kw-2">mut </span>amenity_points = Vec::new();
