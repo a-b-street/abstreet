@@ -107,6 +107,7 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
 </pre><pre class="rust"><code><span class="kw">use </span>geom::{Distance, PolyLine, Polygon, Pt2D, Ring};
 
 <span class="kw">use crate</span>::{Color, EventCtx, GfxCtx};
@@ -117,13 +118,16 @@
 </span><span class="kw">pub struct </span>Lasso {
     points: Vec&lt;Pt2D&gt;,
     polygon: <span class="prelude-ty">Option</span>&lt;Polygon&gt;,
+    threshold: Distance,
 }
 
 <span class="kw">impl </span>Lasso {
-    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    <span class="doccomment">/// How far do points need to be spaced apart to add?
+    </span><span class="kw">pub fn </span>new(threshold: Distance) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             points: Vec::new(),
             polygon: <span class="prelude-val">None</span>,
+            threshold,
         }
     }
 
@@ -144,16 +148,14 @@
 
         <span class="kw">if </span>ctx.redo_mouseover() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
-                <span class="kw">if </span><span class="self">self</span>.points.last().as_ref().unwrap().dist_to(pt) &gt; Distance::meters(<span class="number">0.1</span>) {
+                <span class="kw">if </span><span class="self">self</span>.points.last().as_ref().unwrap().dist_to(pt) &gt; <span class="self">self</span>.threshold {
                     <span class="self">self</span>.points.push(pt);
 
                     <span class="comment">// TODO It&#39;s better if the user doesn&#39;t close the polygon themselves. When they
                     // try to, usually the result is the smaller polygon chunk
                     </span><span class="kw">let </span><span class="kw-2">mut </span>copy = <span class="self">self</span>.points.clone();
                     copy.push(copy[<span class="number">0</span>]);
-                    <span class="self">self</span>.polygon = Ring::new(copy)
-                        .ok()
-                        .map(|ring| ring.into_polygon().simplify(<span class="number">1.0</span>));
+                    <span class="self">self</span>.polygon = Ring::new(copy).ok().map(|ring| ring.into_polygon());
                 }
             }
         }

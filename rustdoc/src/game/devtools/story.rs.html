@@ -675,7 +675,7 @@
                 }
                 <span class="string">&quot;Draw freehand&quot; </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(Box::new(DrawFreehand {
-                        lasso: Lasso::new(),
+                        lasso: Lasso::new(Distance::meters(<span class="number">1.0</span>)),
                         new_idx: <span class="self">self</span>.story.markers.len(),
                     }));
                 }

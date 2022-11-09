@@ -427,7 +427,7 @@
 
 <span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use </span>geom::Polygon;
+<span class="kw">use </span>geom::{Distance, Polygon};
 <span class="kw">use </span>map_gui::tools::DrawSimpleRoadLabels;
 <span class="kw">use </span>widgetry::mapspace::{World, WorldOutcome};
 <span class="kw">use </span>widgetry::tools::{Lasso, PopupMsg};
@@ -723,7 +723,7 @@
                     ));
                 }
                 <span class="string">&quot;Select freehand&quot; </span>=&gt; {
-                    <span class="self">self</span>.lasso = <span class="prelude-val">Some</span>(Lasso::new());
+                    <span class="self">self</span>.lasso = <span class="prelude-val">Some</span>(Lasso::new(Distance::meters(<span class="number">1.0</span>)));
                     <span class="self">self</span>.left_panel = make_panel_for_lasso(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel.top_panel);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
