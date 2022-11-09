@@ -8,13 +8,16 @@ use crate::{Color, EventCtx, GfxCtx};
 pub struct Lasso {
     points: Vec<Pt2D>,
     polygon: Option<Polygon>,
+    threshold: Distance,
 }
 
 impl Lasso {
-    pub fn new() -> Self {
+    /// How far do points need to be spaced apart to add?
+    pub fn new(threshold: Distance) -> Self {
         Self {
             points: Vec::new(),
             polygon: None,
+            threshold,
         }
     }
 
@@ -35,16 +38,14 @@ impl Lasso {
 
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if self.points.last().as_ref().unwrap().dist_to(pt) > Distance::meters(0.1) {
+                if self.points.last().as_ref().unwrap().dist_to(pt) > self.threshold {
                     self.points.push(pt);
 
                     // TODO It's better if the user doesn't close the polygon themselves. When they
                     // try to, usually the result is the smaller polygon chunk
                     let mut copy = self.points.clone();
                     copy.push(copy[0]);
-                    self.polygon = Ring::new(copy)
-                        .ok()
-                        .map(|ring| ring.into_polygon().simplify(1.0));
+                    self.polygon = Ring::new(copy).ok().map(|ring| ring.into_polygon());
                 }
             }
         }

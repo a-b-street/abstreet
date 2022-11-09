@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use anyhow::Result;
 
-use geom::Polygon;
+use geom::{Distance, Polygon};
 use map_gui::tools::DrawSimpleRoadLabels;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{Lasso, PopupMsg};
@@ -298,7 +298,7 @@ impl State<App> for SelectBoundary {
                     ));
                 }
                 "Select freehand" => {
-                    self.lasso = Some(Lasso::new());
+                    self.lasso = Some(Lasso::new(Distance::meters(1.0)));
                     self.left_panel = make_panel_for_lasso(ctx, &self.appwide_panel.top_panel);
                 }
                 _ => unreachable!(),
