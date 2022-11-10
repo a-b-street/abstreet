@@ -238,7 +238,16 @@ impl Tessellation {
     pub fn difference(&self, other: &Tessellation) -> Result<Vec<Polygon>> {
         use geo::BooleanOps;
 
-        crate::polygon::from_multi(self.to_geo().difference(&other.to_geo()))
+        // TODO Remove after https://github.com/georust/geo/issues/913
+        match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            crate::polygon::from_multi(self.to_geo().difference(&other.to_geo()))
+        })) {
+            Ok(result) => result,
+            Err(err) => {
+                println!("BooleanOps crashed: {err:?}");
+                bail!("BooleanOps crashed: {err}");
+            }
+        }
     }
 }
 

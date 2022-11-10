@@ -269,11 +269,27 @@ impl Polygon {
     }
 
     pub fn intersection(&self, other: &Self) -> Result<Vec<Self>> {
-        from_multi(self.to_geo().intersection(&other.to_geo()))
+        match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            from_multi(self.to_geo().intersection(&other.to_geo()))
+        })) {
+            Ok(result) => result,
+            Err(err) => {
+                println!("BooleanOps crashed: {err:?}");
+                bail!("BooleanOps crashed: {err}");
+            }
+        }
     }
 
     pub fn difference(&self, other: &Self) -> Result<Vec<Self>> {
-        from_multi(self.to_geo().difference(&other.to_geo()))
+        match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            from_multi(self.to_geo().difference(&other.to_geo()))
+        })) {
+            Ok(result) => result,
+            Err(err) => {
+                println!("BooleanOps crashed: {err:?}");
+                bail!("BooleanOps crashed: {err}");
+            }
+        }
     }
 
     pub fn convex_hull(list: Vec<Self>) -> Result<Self> {
