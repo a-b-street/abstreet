@@ -524,6 +524,22 @@
 <span id="524">524</span>
 <span id="525">525</span>
 <span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>anyhow::Result;
@@ -795,11 +811,27 @@
     }
 
     <span class="kw">pub fn </span>intersection(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
-        from_multi(<span class="self">self</span>.to_geo().intersection(<span class="kw-2">&amp;</span>other.to_geo()))
+        <span class="kw">match </span>std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            from_multi(<span class="self">self</span>.to_geo().intersection(<span class="kw-2">&amp;</span>other.to_geo()))
+        })) {
+            <span class="prelude-val">Ok</span>(result) =&gt; result,
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;BooleanOps crashed: {err:?}&quot;</span>);
+                <span class="macro">bail!</span>(<span class="string">&quot;BooleanOps crashed: {err}&quot;</span>);
+            }
+        }
     }
 
     <span class="kw">pub fn </span>difference(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
-        from_multi(<span class="self">self</span>.to_geo().difference(<span class="kw-2">&amp;</span>other.to_geo()))
+        <span class="kw">match </span>std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            from_multi(<span class="self">self</span>.to_geo().difference(<span class="kw-2">&amp;</span>other.to_geo()))
+        })) {
+            <span class="prelude-val">Ok</span>(result) =&gt; result,
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;BooleanOps crashed: {err:?}&quot;</span>);
+                <span class="macro">bail!</span>(<span class="string">&quot;BooleanOps crashed: {err}&quot;</span>);
+            }
+        }
     }
 
     <span class="kw">pub fn </span>convex_hull(list: Vec&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {

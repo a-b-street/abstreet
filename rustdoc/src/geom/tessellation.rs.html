@@ -253,6 +253,15 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
@@ -493,7 +502,16 @@
     </span><span class="kw">pub fn </span>difference(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Tessellation) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Polygon&gt;&gt; {
         <span class="kw">use </span>geo::BooleanOps;
 
-        <span class="kw">crate</span>::polygon::from_multi(<span class="self">self</span>.to_geo().difference(<span class="kw-2">&amp;</span>other.to_geo()))
+        <span class="comment">// TODO Remove after https://github.com/georust/geo/issues/913
+        </span><span class="kw">match </span>std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            <span class="kw">crate</span>::polygon::from_multi(<span class="self">self</span>.to_geo().difference(<span class="kw-2">&amp;</span>other.to_geo()))
+        })) {
+            <span class="prelude-val">Ok</span>(result) =&gt; result,
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;BooleanOps crashed: {err:?}&quot;</span>);
+                <span class="macro">bail!</span>(<span class="string">&quot;BooleanOps crashed: {err}&quot;</span>);
+            }
+        }
     }
 }
 
