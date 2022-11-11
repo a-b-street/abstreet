@@ -2,6 +2,7 @@ use abstutil::prettyprint_usize;
 use geom::Duration;
 use map_gui::tools::{InputWaypoints, WaypointID};
 use map_model::connectivity::WalkingOptions;
+use map_model::PathConstraints;
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -30,7 +31,7 @@ impl BusExperiment {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         let mut state = BusExperiment {
             panel: Panel::empty(ctx),
-            waypoints: InputWaypoints::new(app),
+            waypoints: InputWaypoints::new(app, vec![PathConstraints::Car, PathConstraints::Bus]),
             world: World::unbounded(),
         };
         state.recalculate_everything(ctx, app);

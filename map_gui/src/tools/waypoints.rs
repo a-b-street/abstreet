@@ -1,4 +1,5 @@
 use geom::{Circle, Distance, FindClosest, Pt2D};
+use map_model::{LaneID, PathConstraints, Position};
 use synthpop::TripEndpoint;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -12,7 +13,8 @@ use crate::AppLike;
 /// Panel and the World, since there's probably more stuff there too.
 pub struct InputWaypoints {
     waypoints: Vec<Waypoint>,
-    snap_to_endpts: FindClosest<TripEndpoint>,
+    snap_to_main_endpts: FindClosest<TripEndpoint>,
+    snap_to_road_endpts: FindClosest<LaneID>,
     max_waypts: Option<usize>,
 }
 
@@ -28,29 +30,38 @@ struct Waypoint {
 
 impl InputWaypoints {
     /// Allows any number of waypoints
-    pub fn new(app: &dyn AppLike) -> InputWaypoints {
+    pub fn new(app: &dyn AppLike, snap_to_lanes_for: Vec<PathConstraints>) -> InputWaypoints {
         let map = app.map();
-        let mut snap_to_endpts = FindClosest::new(map.get_bounds());
+
+        let mut snap_to_main_endpts = FindClosest::new(map.get_bounds());
         for i in map.all_intersections() {
             if i.is_border() {
-                snap_to_endpts.add_polygon(TripEndpoint::Border(i.id), &i.polygon);
+                snap_to_main_endpts.add_polygon(TripEndpoint::Border(i.id), &i.polygon);
             }
         }
         for b in map.all_buildings() {
-            snap_to_endpts.add_polygon(TripEndpoint::Building(b.id), &b.polygon);
+            snap_to_main_endpts.add_polygon(TripEndpoint::Building(b.id), &b.polygon);
+        }
+
+        let mut snap_to_road_endpts = FindClosest::new(map.get_bounds());
+        for l in map.all_lanes() {
+            if snap_to_lanes_for.iter().any(|c| c.can_use(l, map)) {
+                snap_to_road_endpts.add_polygon(l.id, &l.get_thick_polygon());
+            }
         }
 
         InputWaypoints {
             waypoints: Vec::new(),
-            snap_to_endpts,
+            snap_to_main_endpts,
+            snap_to_road_endpts,
             max_waypts: None,
         }
     }
 
     /// Only allow drawing routes with 2 waypoints. If a route is loaded with more than that, it
     /// can be modified.
-    pub fn new_max_2(app: &dyn AppLike) -> Self {
-        let mut i = Self::new(app);
+    pub fn new_max_2(app: &dyn AppLike, snap_to_lanes_for: Vec<PathConstraints>) -> Self {
+        let mut i = Self::new(app, snap_to_lanes_for);
         i.max_waypts = Some(2);
         i
     }
@@ -147,7 +158,7 @@ impl InputWaypoints {
                 if Some(self.waypoints.len()) == self.max_waypts {
                     return false;
                 }
-                if let Some((at, _)) = self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)) {
+                if let Some(at) = self.snap(app, pt) {
                     self.waypoints.push(Waypoint::new(app, at));
                     return true;
                 }
@@ -158,10 +169,7 @@ impl InputWaypoints {
                 cursor,
                 ..
             } => {
-                if let Some((at, _)) = self
-                    .snap_to_endpts
-                    .closest_pt(cursor, Distance::meters(30.0))
-                {
+                if let Some(at) = self.snap(app, cursor) {
                     if self.waypoints[idx].at != at {
                         self.waypoints[idx] = Waypoint::new(app, at);
                         return true;
@@ -196,6 +204,27 @@ impl InputWaypoints {
         }
 
         false
+    }
+
+    fn snap(&self, app: &dyn AppLike, cursor: Pt2D) -> Option<TripEndpoint> {
+        // Prefer buildings and borders. Some maps have few buildings, or have roads not near
+        // buildings, so snap to positions along lanes as a fallback.
+        let threshold = Distance::meters(30.0);
+        if let Some((at, _)) = self.snap_to_main_endpts.closest_pt(cursor, threshold) {
+            return Some(at);
+        }
+        let (l, _) = self.snap_to_road_endpts.closest_pt(cursor, threshold)?;
+        // Try to find the most appropriate position along the lane
+        let pl = &app.map().get_l(l).lane_center_pts;
+        Some(TripEndpoint::SuddenlyAppear(
+            if let Some((dist, _)) = pl.dist_along_of_point(pl.project_pt(cursor)) {
+                // Rounding error can snap slightly past the end
+                Position::new(l, dist.min(pl.length()))
+            } else {
+                // If we couldn't figure it out for some reason, just use the middle
+                Position::new(l, pl.length() / 2.0)
+            },
+        ))
     }
 
     pub fn get_waypoint_color(&self, idx: usize) -> Color {
@@ -255,7 +284,11 @@ impl Waypoint {
                     i.name(app.opts().language.as_ref(), map),
                 )
             }
-            TripEndpoint::SuddenlyAppear(pos) => (pos.pt(map), pos.to_string()),
+            TripEndpoint::SuddenlyAppear(pos) => (
+                pos.pt(map),
+                map.get_parent(pos.lane())
+                    .get_name(app.opts().language.as_ref()),
+            ),
         };
         Waypoint { at, label, center }
     }

@@ -2,7 +2,7 @@ use geom::{Duration, Polygon};
 use map_gui::tools::{
     DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
-use map_model::{PathV2, PathfinderCache};
+use map_model::{PathConstraints, PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
 use widgetry::{
@@ -60,7 +60,7 @@ impl RoutePlanner {
         let mut rp = RoutePlanner {
             appwide_panel: AppwidePanel::new(ctx, app, Mode::RoutePlanner),
             left_panel: Panel::empty(ctx),
-            waypoints: InputWaypoints::new_max_2(app),
+            waypoints: InputWaypoints::new_max_2(app, vec![PathConstraints::Car]),
             files: TripManagement::new(app),
             world: World::unbounded(),
             show_main_roads: ctx.upload(batch),
@@ -399,8 +399,8 @@ impl State<App> for RoutePlanner {
         app.session.layers.draw(g, app);
 
         g.redraw(&self.show_main_roads);
-        self.world.draw(g);
         self.draw_routes.draw(g);
+        self.world.draw(g);
         app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);

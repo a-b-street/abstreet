@@ -100,7 +100,8 @@ impl TripEndpoint {
                             }
                         })
                     }
-                    TripEndpoint::SuddenlyAppear(_) => unreachable!(),
+                    // This can also be an ending, despite the naming
+                    TripEndpoint::SuddenlyAppear(pos) => Some(pos),
                 }
             }
         }
