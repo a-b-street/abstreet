@@ -53,16 +53,21 @@ fn make_filters_along_path(
                 .map(|pair| pair.0)
                 .unwrap_or(road.center_pts.length() / 2.0);
 
-            if app.session.filter_type != FilterType::BusGate
+            let mut filter_type = app.session.filter_type;
+            if filter_type != FilterType::BusGate
                 && !app.per_map.map.get_bus_routes_on_road(*r).is_empty()
             {
-                bus_roads.push((*r, dist));
-                continue;
+                if app.session.layers.autofix_bus_gates {
+                    filter_type = FilterType::BusGate;
+                } else {
+                    bus_roads.push((*r, dist));
+                    continue;
+                }
             }
 
             mut_edits!(app)
                 .roads
-                .insert(*r, RoadFilter::new_by_user(dist, app.session.filter_type));
+                .insert(*r, RoadFilter::new_by_user(dist, filter_type));
         }
     }
     for i in &neighbourhood.interior_intersections {

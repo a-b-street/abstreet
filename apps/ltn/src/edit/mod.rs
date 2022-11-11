@@ -13,7 +13,7 @@ use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
     Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    RewriteColor, State, Text, Texture, Widget,
+    RewriteColor, State, Text, Texture, Toggle, Widget,
 };
 
 use crate::{
@@ -291,7 +291,8 @@ impl ResolveBusGate {
         app: &mut App,
         roads: Vec<(RoadID, Distance)>,
     ) -> Box<dyn State<App>> {
-        // TODO This'll mess up the panel, but we don't have easy access to the panel here
+        // TODO This'll mess up the placement, but we don't have easy access to the bottom panel
+        // here
         app.session.layers.show_bus_routes(ctx, &app.cs, None);
 
         let mut txt = Text::new();
@@ -312,14 +313,8 @@ impl ResolveBusGate {
 
         let panel = Panel::new_builder(Widget::col(vec![
             txt.into_widget(ctx),
-            Widget::row(vec![
-                // TODO Just have pictures?
-                ctx.style()
-                    .btn_solid_primary
-                    .text("Place bus gates")
-                    .build_def(ctx),
-                ctx.style().btn_outline.text("Cancel").build_def(ctx),
-            ]),
+            Toggle::checkbox(ctx, "Don't show this warning again", None, true),
+            ctx.style().btn_solid_primary.text("OK").build_def(ctx),
         ]))
         .build(ctx);
 
@@ -329,16 +324,20 @@ impl ResolveBusGate {
 
 impl State<App> for ResolveBusGate {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            if x == "Place bus gates" {
-                app.per_map.proposals.before_edit();
-                for (r, dist) in self.roads.drain(..) {
-                    mut_edits!(app)
-                        .roads
-                        .insert(r, RoadFilter::new_by_user(dist, FilterType::BusGate));
-                }
-                redraw_all_filters(ctx, app);
+        if let Outcome::Clicked(_) = self.panel.event(ctx) {
+            // OK is the only choice
+            app.session.layers.autofix_bus_gates =
+                self.panel.is_checked("Don't show this warning again");
+            // Force the panel to show the new checkbox state
+            app.session.layers.show_bus_routes(ctx, &app.cs, None);
+
+            app.per_map.proposals.before_edit();
+            for (r, dist) in self.roads.drain(..) {
+                mut_edits!(app)
+                    .roads
+                    .insert(r, RoadFilter::new_by_user(dist, FilterType::BusGate));
             }
+            redraw_all_filters(ctx, app);
 
             return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
         }
