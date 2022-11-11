@@ -369,7 +369,15 @@ impl DiagonalFilter {
         // road
         let pt1 = pl1.must_shift_right(r1.get_half_width()).last_pt();
         let pt2 = pl2.must_shift_left(r2.get_half_width()).last_pt();
-        Line::must_new(pt1, pt2)
+        match Line::new(pt1, pt2) {
+            Ok(line) => line,
+            // Very rarely, this line is too small. If that happens, just draw something roughly in
+            // the right place
+            Err(_) => Line::must_new(
+                pt1,
+                pt1.project_away(r1.get_half_width(), pt1.angle_to(pt2)),
+            ),
+        }
     }
 
     pub fn allows_turn(&self, from: RoadID, to: RoadID) -> bool {
