@@ -258,6 +258,8 @@ impl DiagonalFilter {
     pub fn cycle_through_alternatives(app: &mut App, i: IntersectionID) {
         let map = &app.per_map.map;
         let mut roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+        // Don't consider non-driveable roads for the 4-way calculation even
+        roads.retain(|r| crate::is_driveable(map.get_r(*r), map));
 
         if roads.len() == 4 {
             // 4-way intersections are the only place where true diagonal filters can be placed
@@ -285,10 +287,7 @@ impl DiagonalFilter {
             // But skip roads that're aren't filterable
             roads.retain(|r| {
                 let road = map.get_r(*r);
-                // Include non-driveable roads in this check, since we haven't filtered those out yet
-                road.oneway_for_driving().is_none()
-                    && !road.is_deadend_for_driving(map)
-                    && crate::is_driveable(road, map)
+                road.oneway_for_driving().is_none() && !road.is_deadend_for_driving(map)
             });
 
             // TODO I triggered this case somewhere in Kennington when drawing free-hand. Look for
