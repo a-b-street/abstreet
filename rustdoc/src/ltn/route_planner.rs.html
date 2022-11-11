@@ -423,7 +423,7 @@
 <span class="kw">use </span>map_gui::tools::{
     DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
-<span class="kw">use </span>map_model::{PathV2, PathfinderCache};
+<span class="kw">use </span>map_model::{PathConstraints, PathV2, PathfinderCache};
 <span class="kw">use </span>synthpop::{TripEndpoint, TripMode};
 <span class="kw">use </span>widgetry::mapspace::World;
 <span class="kw">use </span>widgetry::{
@@ -481,7 +481,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>rp = RoutePlanner {
             appwide_panel: AppwidePanel::new(ctx, app, Mode::RoutePlanner),
             left_panel: Panel::empty(ctx),
-            waypoints: InputWaypoints::new_max_2(app),
+            waypoints: InputWaypoints::new_max_2(app, <span class="macro">vec!</span>[PathConstraints::Car]),
             files: TripManagement::new(app),
             world: World::unbounded(),
             show_main_roads: ctx.upload(batch),
@@ -820,8 +820,8 @@
         app.session.layers.draw(g, app);
 
         g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.show_main_roads);
-        <span class="self">self</span>.world.draw(g);
         <span class="self">self</span>.draw_routes.draw(g);
+        <span class="self">self</span>.world.draw(g);
         app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);

@@ -152,6 +152,7 @@
 <span id="152">152</span>
 <span id="153">153</span>
 <span id="154">154</span>
+<span id="155">155</span>
 </pre><pre class="rust"><code><span class="kw">use </span>geom::Pt2D;
 <span class="kw">use </span>map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest, Position};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -254,7 +255,8 @@
                             }
                         })
                     }
-                    TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="comment">// This can also be an ending, despite the naming
+                    </span>TripEndpoint::SuddenlyAppear(pos) =&gt; <span class="prelude-val">Some</span>(pos),
                 }
             }
         }

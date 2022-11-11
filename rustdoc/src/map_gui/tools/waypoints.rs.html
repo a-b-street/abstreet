@@ -264,7 +264,41 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
 </pre><pre class="rust"><code><span class="kw">use </span>geom::{Circle, Distance, FindClosest, Pt2D};
+<span class="kw">use </span>map_model::{LaneID, PathConstraints, Position};
 <span class="kw">use </span>synthpop::TripEndpoint;
 <span class="kw">use </span>widgetry::mapspace::{ObjectID, World, WorldOutcome};
 <span class="kw">use </span>widgetry::{
@@ -278,7 +312,8 @@
 /// Panel and the World, since there&#39;s probably more stuff there too.
 </span><span class="kw">pub struct </span>InputWaypoints {
     waypoints: Vec&lt;Waypoint&gt;,
-    snap_to_endpts: FindClosest&lt;TripEndpoint&gt;,
+    snap_to_main_endpts: FindClosest&lt;TripEndpoint&gt;,
+    snap_to_road_endpts: FindClosest&lt;LaneID&gt;,
     max_waypts: <span class="prelude-ty">Option</span>&lt;usize&gt;,
 }
 
@@ -294,29 +329,38 @@
 
 <span class="kw">impl </span>InputWaypoints {
     <span class="doccomment">/// Allows any number of waypoints
-    </span><span class="kw">pub fn </span>new(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; InputWaypoints {
+    </span><span class="kw">pub fn </span>new(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, snap_to_lanes_for: Vec&lt;PathConstraints&gt;) -&gt; InputWaypoints {
         <span class="kw">let </span>map = app.map();
-        <span class="kw">let </span><span class="kw-2">mut </span>snap_to_endpts = FindClosest::new(map.get_bounds());
+
+        <span class="kw">let </span><span class="kw-2">mut </span>snap_to_main_endpts = FindClosest::new(map.get_bounds());
         <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
             <span class="kw">if </span>i.is_border() {
-                snap_to_endpts.add_polygon(TripEndpoint::Border(i.id), <span class="kw-2">&amp;</span>i.polygon);
+                snap_to_main_endpts.add_polygon(TripEndpoint::Border(i.id), <span class="kw-2">&amp;</span>i.polygon);
             }
         }
         <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
-            snap_to_endpts.add_polygon(TripEndpoint::Building(b.id), <span class="kw-2">&amp;</span>b.polygon);
+            snap_to_main_endpts.add_polygon(TripEndpoint::Building(b.id), <span class="kw-2">&amp;</span>b.polygon);
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>snap_to_road_endpts = FindClosest::new(map.get_bounds());
+        <span class="kw">for </span>l <span class="kw">in </span>map.all_lanes() {
+            <span class="kw">if </span>snap_to_lanes_for.iter().any(|c| c.can_use(l, map)) {
+                snap_to_road_endpts.add_polygon(l.id, <span class="kw-2">&amp;</span>l.get_thick_polygon());
+            }
         }
 
         InputWaypoints {
             waypoints: Vec::new(),
-            snap_to_endpts,
+            snap_to_main_endpts,
+            snap_to_road_endpts,
             max_waypts: <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Only allow drawing routes with 2 waypoints. If a route is loaded with more than that, it
     /// can be modified.
-    </span><span class="kw">pub fn </span>new_max_2(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">Self</span>::new(app);
+    </span><span class="kw">pub fn </span>new_max_2(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, snap_to_lanes_for: Vec&lt;PathConstraints&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">Self</span>::new(app, snap_to_lanes_for);
         i.max_waypts = <span class="prelude-val">Some</span>(<span class="number">2</span>);
         i
     }
@@ -413,7 +457,7 @@
                 <span class="kw">if </span><span class="prelude-val">Some</span>(<span class="self">self</span>.waypoints.len()) == <span class="self">self</span>.max_waypts {
                     <span class="kw">return </span><span class="bool-val">false</span>;
                 }
-                <span class="kw">if let </span><span class="prelude-val">Some</span>((at, <span class="kw">_</span>)) = <span class="self">self</span>.snap_to_endpts.closest_pt(pt, Distance::meters(<span class="number">30.0</span>)) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(at) = <span class="self">self</span>.snap(app, pt) {
                     <span class="self">self</span>.waypoints.push(Waypoint::new(app, at));
                     <span class="kw">return </span><span class="bool-val">true</span>;
                 }
@@ -424,10 +468,7 @@
                 cursor,
                 ..
             } =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>((at, <span class="kw">_</span>)) = <span class="self">self
-                    </span>.snap_to_endpts
-                    .closest_pt(cursor, Distance::meters(<span class="number">30.0</span>))
-                {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(at) = <span class="self">self</span>.snap(app, cursor) {
                     <span class="kw">if </span><span class="self">self</span>.waypoints[idx].at != at {
                         <span class="self">self</span>.waypoints[idx] = Waypoint::new(app, at);
                         <span class="kw">return </span><span class="bool-val">true</span>;
@@ -463,6 +504,27 @@
 
         <span class="bool-val">false
     </span>}
+
+    <span class="kw">fn </span>snap(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, cursor: Pt2D) -&gt; <span class="prelude-ty">Option</span>&lt;TripEndpoint&gt; {
+        <span class="comment">// Prefer buildings and borders. Some maps have few buildings, or have roads not near
+        // buildings, so snap to positions along lanes as a fallback.
+        </span><span class="kw">let </span>threshold = Distance::meters(<span class="number">30.0</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((at, <span class="kw">_</span>)) = <span class="self">self</span>.snap_to_main_endpts.closest_pt(cursor, threshold) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(at);
+        }
+        <span class="kw">let </span>(l, <span class="kw">_</span>) = <span class="self">self</span>.snap_to_road_endpts.closest_pt(cursor, threshold)<span class="question-mark">?</span>;
+        <span class="comment">// Try to find the most appropriate position along the lane
+        </span><span class="kw">let </span>pl = <span class="kw-2">&amp;</span>app.map().get_l(l).lane_center_pts;
+        <span class="prelude-val">Some</span>(TripEndpoint::SuddenlyAppear(
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((dist, <span class="kw">_</span>)) = pl.dist_along_of_point(pl.project_pt(cursor)) {
+                <span class="comment">// Rounding error can snap slightly past the end
+                </span>Position::new(l, dist.min(pl.length()))
+            } <span class="kw">else </span>{
+                <span class="comment">// If we couldn&#39;t figure it out for some reason, just use the middle
+                </span>Position::new(l, pl.length() / <span class="number">2.0</span>)
+            },
+        ))
+    }
 
     <span class="kw">pub fn </span>get_waypoint_color(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; Color {
         <span class="kw">let </span>total_waypoints = <span class="self">self</span>.waypoints.len();
@@ -521,7 +583,11 @@
                     i.name(app.opts().language.as_ref(), map),
                 )
             }
-            TripEndpoint::SuddenlyAppear(pos) =&gt; (pos.pt(map), pos.to_string()),
+            TripEndpoint::SuddenlyAppear(pos) =&gt; (
+                pos.pt(map),
+                map.get_parent(pos.lane())
+                    .get_name(app.opts().language.as_ref()),
+            ),
         };
         Waypoint { at, label, center }
     }

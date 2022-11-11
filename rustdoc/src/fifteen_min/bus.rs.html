@@ -157,10 +157,12 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
 </pre><pre class="rust"><code><span class="kw">use </span>abstutil::prettyprint_usize;
 <span class="kw">use </span>geom::Duration;
 <span class="kw">use </span>map_gui::tools::{InputWaypoints, WaypointID};
 <span class="kw">use </span>map_model::connectivity::WalkingOptions;
+<span class="kw">use </span>map_model::PathConstraints;
 <span class="kw">use </span>synthpop::{TripEndpoint, TripMode};
 <span class="kw">use </span>widgetry::mapspace::{ObjectID, World, WorldOutcome};
 <span class="kw">use </span>widgetry::{
@@ -189,7 +191,7 @@
     <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>state = BusExperiment {
             panel: Panel::empty(ctx),
-            waypoints: InputWaypoints::new(app),
+            waypoints: InputWaypoints::new(app, <span class="macro">vec!</span>[PathConstraints::Car, PathConstraints::Bus]),
             world: World::unbounded(),
         };
         state.recalculate_everything(ctx, app);
