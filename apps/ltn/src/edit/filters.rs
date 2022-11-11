@@ -79,21 +79,26 @@ pub fn handle_world_outcome(
                 let pt_on_line = road.center_pts.project_pt(cursor_pt);
                 let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
 
-                // If we have a one-way bus route, the one-way resolver will win and we won't warn
-                // about bus gates. Oh well.
-                if app.session.filter_type != FilterType::BusGate
+                let mut filter_type = app.session.filter_type;
+
+                if filter_type != FilterType::BusGate
                     && !app.per_map.map.get_bus_routes_on_road(r).is_empty()
                 {
-                    app.per_map.proposals.cancel_empty_edit();
-                    return EditOutcome::Transition(Transition::Push(
-                        super::ResolveBusGate::new_state(ctx, app, vec![(r, distance)]),
-                    ));
+                    if app.session.layers.autofix_bus_gates {
+                        filter_type = FilterType::BusGate;
+                    } else {
+                        // If we have a one-way bus route, the one-way resolver will win and we
+                        // won't warn about bus gates. Oh well.
+                        app.per_map.proposals.cancel_empty_edit();
+                        return EditOutcome::Transition(Transition::Push(
+                            super::ResolveBusGate::new_state(ctx, app, vec![(r, distance)]),
+                        ));
+                    }
                 }
 
-                mut_edits!(app).roads.insert(
-                    r,
-                    RoadFilter::new_by_user(distance, app.session.filter_type),
-                );
+                mut_edits!(app)
+                    .roads
+                    .insert(r, RoadFilter::new_by_user(distance, filter_type));
             }
             redraw_all_filters(ctx, app);
             EditOutcome::Transition(Transition::Recreate)

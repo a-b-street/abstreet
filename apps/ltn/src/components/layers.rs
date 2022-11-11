@@ -20,6 +20,9 @@ pub struct Layers {
     panel_cache_key: (Mode, bool, bool, Option<f64>),
     show_bus_routes: bool,
     pub show_crossing_time: bool,
+
+    // For the design LTN mode
+    pub autofix_bus_gates: bool,
 }
 
 impl Layers {
@@ -31,6 +34,7 @@ impl Layers {
             panel_cache_key: (Mode::Impact, false, false, None),
             show_bus_routes: false,
             show_crossing_time: false,
+            autofix_bus_gates: false,
         }
     }
 
@@ -63,12 +67,15 @@ impl Layers {
             }
             Outcome::Changed(x) => {
                 if x == "show bus routes" {
-                    self.show_bus_routes = self.panel.is_checked("show bus routes");
+                    self.show_bus_routes = self.panel.is_checked(&x);
                     self.update_panel(ctx, cs, bottom_panel);
                     return Some(Transition::Keep);
                 } else if x == "show time to nearest crossing" {
-                    self.show_crossing_time =
-                        self.panel.is_checked("show time to nearest crossing");
+                    self.show_crossing_time = self.panel.is_checked(&x);
+                    self.update_panel(ctx, cs, bottom_panel);
+                    return Some(Transition::Keep);
+                } else if x == "Use bus gates when needed" {
+                    self.autofix_bus_gates = self.panel.is_checked(&x);
                     self.update_panel(ctx, cs, bottom_panel);
                     return Some(Transition::Keep);
                 }
@@ -158,7 +165,7 @@ impl Layers {
                     .build_widget(ctx, "hide layers")
                     .align_right(),
             ]),
-            self.panel_cache_key.0.legend(ctx, cs),
+            self.panel_cache_key.0.legend(ctx, cs, self),
             {
                 let checkbox = Toggle::checkbox(ctx, "show bus routes", None, self.show_bus_routes);
                 if self.show_bus_routes {
@@ -242,7 +249,7 @@ fn make_zoom_controls(ctx: &mut EventCtx) -> Widget {
 }
 
 impl Mode {
-    fn legend(&self, ctx: &mut EventCtx, cs: &ColorScheme) -> Widget {
+    fn legend(&self, ctx: &mut EventCtx, cs: &ColorScheme, layers: &Layers) -> Widget {
         // TODO Light/dark buildings? Traffic signals?
 
         Widget::col(match self {
@@ -287,6 +294,12 @@ impl Mode {
                 ]),
                 // TODO Entry/exit arrows?
                 // TODO Dashed roads are walk/bike
+                Toggle::checkbox(
+                    ctx,
+                    "Use bus gates when needed",
+                    None,
+                    layers.autofix_bus_gates,
+                ),
             ],
             Mode::SelectBoundary => vec![
                 entry(ctx, colors::HIGHLIGHT_BOUNDARY, "boundary road"),
