@@ -423,6 +423,14 @@
 <span id="423">423</span>
 <span id="424">424</span>
 <span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>auto;
 <span class="kw">mod </span>existing;
 
@@ -794,7 +802,15 @@
         // road
         </span><span class="kw">let </span>pt1 = pl1.must_shift_right(r1.get_half_width()).last_pt();
         <span class="kw">let </span>pt2 = pl2.must_shift_left(r2.get_half_width()).last_pt();
-        Line::must_new(pt1, pt2)
+        <span class="kw">match </span>Line::new(pt1, pt2) {
+            <span class="prelude-val">Ok</span>(line) =&gt; line,
+            <span class="comment">// Very rarely, this line is too small. If that happens, just draw something roughly in
+            // the right place
+            </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; Line::must_new(
+                pt1,
+                pt1.project_away(r1.get_half_width(), pt1.angle_to(pt2)),
+            ),
+        }
     }
 
     <span class="kw">pub fn </span>allows_turn(<span class="kw-2">&amp;</span><span class="self">self</span>, from: RoadID, to: RoadID) -&gt; bool {
