@@ -430,7 +430,6 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
-<span id="433">433</span>
 </pre><pre class="rust"><code><span class="kw">pub mod </span>auto;
 <span class="kw">mod </span>existing;
 
@@ -691,6 +690,8 @@
     </span><span class="kw">pub fn </span>cycle_through_alternatives(app: <span class="kw-2">&amp;mut </span>App, i: IntersectionID) {
         <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
         <span class="kw">let </span><span class="kw-2">mut </span>roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+        <span class="comment">// Don&#39;t consider non-driveable roads for the 4-way calculation even
+        </span>roads.retain(|r| <span class="kw">crate</span>::is_driveable(map.get_r(<span class="kw-2">*</span>r), map));
 
         <span class="kw">if </span>roads.len() == <span class="number">4 </span>{
             <span class="comment">// 4-way intersections are the only place where true diagonal filters can be placed
@@ -718,10 +719,7 @@
             // But skip roads that&#39;re aren&#39;t filterable
             </span>roads.retain(|r| {
                 <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>r);
-                <span class="comment">// Include non-driveable roads in this check, since we haven&#39;t filtered those out yet
-                </span>road.oneway_for_driving().is_none()
-                    &amp;&amp; !road.is_deadend_for_driving(map)
-                    &amp;&amp; <span class="kw">crate</span>::is_driveable(road, map)
+                road.oneway_for_driving().is_none() &amp;&amp; !road.is_deadend_for_driving(map)
             });
 
             <span class="comment">// TODO I triggered this case somewhere in Kennington when drawing free-hand. Look for
