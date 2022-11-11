@@ -1,5 +1,5 @@
 use map_gui::tools::{InputWaypoints, TripManagement, TripManagementState, WaypointID};
-use map_model::RoutingParams;
+use map_model::{PathConstraints, RoutingParams};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     ControlState, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Toggle, Widget,
@@ -63,7 +63,7 @@ impl TripPlanner {
             layers,
 
             input_panel: Panel::empty(ctx),
-            waypoints: InputWaypoints::new(app),
+            waypoints: InputWaypoints::new(app, vec![PathConstraints::Bike]),
             main_route: RouteDetails::main_route(ctx, app, Vec::new()).details,
             files: TripManagement::new(app),
             alt_routes: Vec::new(),
