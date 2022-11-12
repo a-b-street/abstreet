@@ -199,20 +199,8 @@ impl ResolveOneWayAndFilter {
 
         let panel = Panel::new_builder(Widget::col(vec![
             txt.into_widget(ctx),
-            Widget::row(vec![
-                ctx.style()
-                    .btn_solid_primary
-                    .text(if roads.len() == 1 {
-                        "Change to a two-way street and add a filter".to_string()
-                    } else {
-                        format!(
-                            "Change {} one-way streets to two-way and add filters",
-                            roads.len()
-                        )
-                    })
-                    .build_def(ctx),
-                ctx.style().btn_outline.text("Cancel").build_def(ctx),
-            ]),
+            Toggle::checkbox(ctx, "Don't show this warning again", None, true),
+            ctx.style().btn_solid_primary.text("OK").build_def(ctx),
         ]))
         .build(ctx);
 
@@ -222,48 +210,12 @@ impl ResolveOneWayAndFilter {
 
 impl State<App> for ResolveOneWayAndFilter {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            if x == "Cancel" {
-                return Transition::Pop;
-            }
+        if let Outcome::Clicked(_) = self.panel.event(ctx) {
+            // OK is the only choice
+            app.session.layers.autofix_one_ways =
+                self.panel.is_checked("Don't show this warning again");
 
-            let driving_side = app.per_map.map.get_config().driving_side;
-            let mut edits = app.per_map.map.get_edits().clone();
-            for r in &self.roads {
-                edits
-                    .commands
-                    .push(app.per_map.map.edit_road_cmd(*r, |new| {
-                        LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
-                        // Maybe we just flipped a one-way forwards to a one-way backwards. So one more
-                        // time to make it two-way
-                        if LaneSpec::oneway_for_driving(&new.lanes_ltr) == Some(Direction::Back) {
-                            LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
-                        }
-                    }));
-            }
-            ctx.loading_screen("apply edits", |_, timer| {
-                app.per_map.map.must_apply_edits(edits, timer);
-            });
-
-            app.per_map.proposals.before_edit();
-
-            for r in &self.roads {
-                let r = *r;
-                let road = app.per_map.map.get_r(r);
-                let r_edit = app.per_map.map.get_r_edit(r);
-                if r_edit == EditRoad::get_orig_from_osm(road, app.per_map.map.get_config()) {
-                    mut_edits!(app).one_ways.remove(&r);
-                } else {
-                    mut_edits!(app).one_ways.insert(r, r_edit);
-                }
-
-                mut_edits!(app).roads.insert(
-                    r,
-                    RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
-                );
-            }
-
-            redraw_all_filters(ctx, app);
+            fix_oneway_and_add_filter(ctx, app, &self.roads);
 
             return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
         }
@@ -278,6 +230,46 @@ impl State<App> for ResolveOneWayAndFilter {
         grey_out_map(g, app);
         self.panel.draw(g);
     }
+}
+
+fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[RoadID]) {
+    let driving_side = app.per_map.map.get_config().driving_side;
+    let mut edits = app.per_map.map.get_edits().clone();
+    for r in roads {
+        edits
+            .commands
+            .push(app.per_map.map.edit_road_cmd(*r, |new| {
+                LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
+                // Maybe we just flipped a one-way forwards to a one-way backwards. So one more
+                // time to make it two-way
+                if LaneSpec::oneway_for_driving(&new.lanes_ltr) == Some(Direction::Back) {
+                    LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
+                }
+            }));
+    }
+    ctx.loading_screen("apply edits", |_, timer| {
+        app.per_map.map.must_apply_edits(edits, timer);
+    });
+
+    app.per_map.proposals.before_edit();
+
+    for r in roads {
+        let r = *r;
+        let road = app.per_map.map.get_r(r);
+        let r_edit = app.per_map.map.get_r_edit(r);
+        if r_edit == EditRoad::get_orig_from_osm(road, app.per_map.map.get_config()) {
+            mut_edits!(app).one_ways.remove(&r);
+        } else {
+            mut_edits!(app).one_ways.insert(r, r_edit);
+        }
+
+        mut_edits!(app).roads.insert(
+            r,
+            RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
+        );
+    }
+
+    redraw_all_filters(ctx, app);
 }
 
 struct ResolveBusGate {

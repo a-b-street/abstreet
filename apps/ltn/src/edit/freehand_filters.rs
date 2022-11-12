@@ -43,7 +43,11 @@ fn make_filters_along_path(
         }
         if let Some((pt, _)) = road.center_pts.intersection(&path) {
             if road.oneway_for_driving().is_some() {
-                oneways.push(*r);
+                if app.session.layers.autofix_one_ways {
+                    super::fix_oneway_and_add_filter(ctx, app, &[*r]);
+                } else {
+                    oneways.push(*r);
+                }
                 continue;
             }
 
