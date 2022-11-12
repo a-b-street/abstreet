@@ -115,6 +115,16 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
 </pre><pre class="rust"><code><span class="kw">use </span>widgetry::mapspace::{World, WorldOutcome};
 <span class="kw">use </span>widgetry::tools::open_browser;
 <span class="kw">use </span>widgetry::{lctrl, EventCtx, Key, Text, Transition};
@@ -177,40 +187,50 @@
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) =&gt; {
             <span class="kw">let </span>road = map.get_r(r);
             <span class="comment">// The world doesn&#39;t contain non-driveable roads, so no need to check for that error
-            </span><span class="kw">if </span>road.oneway_for_driving().is_some() {
-                <span class="kw">return </span>EditOutcome::Transition(Transition::Push(
-                    <span class="kw">super</span>::ResolveOneWayAndFilter::new_state(ctx, <span class="macro">vec!</span>[r]),
-                ));
-            }
-            <span class="kw">if </span>road.is_deadend_for_driving(<span class="kw-2">&amp;</span>app.per_map.map) {
+            </span><span class="kw">if </span>road.is_deadend_for_driving(<span class="kw-2">&amp;</span>app.per_map.map) {
                 <span class="kw">return </span>EditOutcome::error(ctx, <span class="string">&quot;You can&#39;t filter a dead-end&quot;</span>);
+            }
+
+            <span class="comment">// Place the filter on the part of the road that was clicked
+            // These calls shouldn&#39;t fail -- since we clicked a road, the cursor must be in
+            // map-space. And project_pt returns a point that&#39;s guaranteed to be on the polyline.
+            </span><span class="kw">let </span>cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
+            <span class="kw">let </span>pt_on_line = road.center_pts.project_pt(cursor_pt);
+            <span class="kw">let </span>(distance, <span class="kw">_</span>) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
+
+            <span class="kw">if </span>road.oneway_for_driving().is_some() {
+                <span class="kw">if </span>app.session.layers.autofix_one_ways {
+                    <span class="kw">super</span>::fix_oneway_and_add_filter(ctx, app, <span class="kw-2">&amp;</span>[(r, distance)]);
+                    <span class="kw">return </span>EditOutcome::Transition(Transition::Recreate);
+                }
+
+                <span class="kw">return </span>EditOutcome::Transition(Transition::Push(
+                    <span class="kw">super</span>::ResolveOneWayAndFilter::new_state(ctx, <span class="macro">vec!</span>[(r, distance)]),
+                ));
             }
 
             app.per_map.proposals.before_edit();
             <span class="kw">if </span><span class="macro">mut_edits!</span>(app).roads.remove(<span class="kw-2">&amp;</span>r).is_none() {
-                <span class="comment">// Place the filter on the part of the road that was clicked
-                // These calls shouldn&#39;t fail -- since we clicked a road, the cursor must be in
-                // map-space. And project_pt returns a point that&#39;s guaranteed to be on the
-                // polyline.
-                </span><span class="kw">let </span>cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
-                <span class="kw">let </span>pt_on_line = road.center_pts.project_pt(cursor_pt);
-                <span class="kw">let </span>(distance, <span class="kw">_</span>) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
+                <span class="kw">let </span><span class="kw-2">mut </span>filter_type = app.session.filter_type;
 
-                <span class="comment">// If we have a one-way bus route, the one-way resolver will win and we won&#39;t warn
-                // about bus gates. Oh well.
-                </span><span class="kw">if </span>app.session.filter_type != FilterType::BusGate
+                <span class="kw">if </span>filter_type != FilterType::BusGate
                     &amp;&amp; !app.per_map.map.get_bus_routes_on_road(r).is_empty()
                 {
-                    app.per_map.proposals.cancel_empty_edit();
-                    <span class="kw">return </span>EditOutcome::Transition(Transition::Push(
-                        <span class="kw">super</span>::ResolveBusGate::new_state(ctx, app, <span class="macro">vec!</span>[(r, distance)]),
-                    ));
+                    <span class="kw">if </span>app.session.layers.autofix_bus_gates {
+                        filter_type = FilterType::BusGate;
+                    } <span class="kw">else </span>{
+                        <span class="comment">// If we have a one-way bus route, the one-way resolver will win and we
+                        // won&#39;t warn about bus gates. Oh well.
+                        </span>app.per_map.proposals.cancel_empty_edit();
+                        <span class="kw">return </span>EditOutcome::Transition(Transition::Push(
+                            <span class="kw">super</span>::ResolveBusGate::new_state(ctx, app, <span class="macro">vec!</span>[(r, distance)]),
+                        ));
+                    }
                 }
 
-                <span class="macro">mut_edits!</span>(app).roads.insert(
-                    r,
-                    RoadFilter::new_by_user(distance, app.session.filter_type),
-                );
+                <span class="macro">mut_edits!</span>(app)
+                    .roads
+                    .insert(r, RoadFilter::new_by_user(distance, filter_type));
             }
             redraw_all_filters(ctx, app);
             EditOutcome::Transition(Transition::Recreate)
