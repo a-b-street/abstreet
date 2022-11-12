@@ -23,6 +23,7 @@ pub struct Layers {
 
     // For the design LTN mode
     pub autofix_bus_gates: bool,
+    pub autofix_one_ways: bool,
 }
 
 impl Layers {
@@ -35,6 +36,7 @@ impl Layers {
             show_bus_routes: false,
             show_crossing_time: false,
             autofix_bus_gates: false,
+            autofix_one_ways: false,
         }
     }
 
@@ -76,6 +78,10 @@ impl Layers {
                     return Some(Transition::Keep);
                 } else if x == "Use bus gates when needed" {
                     self.autofix_bus_gates = self.panel.is_checked(&x);
+                    self.update_panel(ctx, cs, bottom_panel);
+                    return Some(Transition::Keep);
+                } else if x == "Fix one-way streets when needed" {
+                    self.autofix_one_ways = self.panel.is_checked(&x);
                     self.update_panel(ctx, cs, bottom_panel);
                     return Some(Transition::Keep);
                 }
@@ -299,6 +305,12 @@ impl Mode {
                     "Use bus gates when needed",
                     None,
                     layers.autofix_bus_gates,
+                ),
+                Toggle::checkbox(
+                    ctx,
+                    "Fix one-way streets when needed",
+                    None,
+                    layers.autofix_one_ways,
                 ),
             ],
             Mode::SelectBoundary => vec![
