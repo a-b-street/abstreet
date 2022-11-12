@@ -60,30 +60,30 @@ pub fn handle_world_outcome(
         WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
             let road = map.get_r(r);
             // The world doesn't contain non-driveable roads, so no need to check for that error
-            if road.oneway_for_driving().is_some() {
-                if app.session.layers.autofix_one_ways {
-                    super::fix_oneway_and_add_filter(ctx, app, &[r]);
-                    return EditOutcome::Transition(Transition::Recreate);
-                }
-
-                return EditOutcome::Transition(Transition::Push(
-                    super::ResolveOneWayAndFilter::new_state(ctx, vec![r]),
-                ));
-            }
             if road.is_deadend_for_driving(&app.per_map.map) {
                 return EditOutcome::error(ctx, "You can't filter a dead-end");
             }
 
+            // Place the filter on the part of the road that was clicked
+            // These calls shouldn't fail -- since we clicked a road, the cursor must be in
+            // map-space. And project_pt returns a point that's guaranteed to be on the polyline.
+            let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
+            let pt_on_line = road.center_pts.project_pt(cursor_pt);
+            let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
+
+            if road.oneway_for_driving().is_some() {
+                if app.session.layers.autofix_one_ways {
+                    super::fix_oneway_and_add_filter(ctx, app, &[(r, distance)]);
+                    return EditOutcome::Transition(Transition::Recreate);
+                }
+
+                return EditOutcome::Transition(Transition::Push(
+                    super::ResolveOneWayAndFilter::new_state(ctx, vec![(r, distance)]),
+                ));
+            }
+
             app.per_map.proposals.before_edit();
             if mut_edits!(app).roads.remove(&r).is_none() {
-                // Place the filter on the part of the road that was clicked
-                // These calls shouldn't fail -- since we clicked a road, the cursor must be in
-                // map-space. And project_pt returns a point that's guaranteed to be on the
-                // polyline.
-                let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
-                let pt_on_line = road.center_pts.project_pt(cursor_pt);
-                let (distance, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
-
                 let mut filter_type = app.session.filter_type;
 
                 if filter_type != FilterType::BusGate
