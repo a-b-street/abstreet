@@ -42,20 +42,20 @@ fn make_filters_along_path(
             continue;
         }
         if let Some((pt, _)) = road.center_pts.intersection(&path) {
-            if road.oneway_for_driving().is_some() {
-                if app.session.layers.autofix_one_ways {
-                    super::fix_oneway_and_add_filter(ctx, app, &[*r]);
-                } else {
-                    oneways.push(*r);
-                }
-                continue;
-            }
-
             let dist = road
                 .center_pts
                 .dist_along_of_point(pt)
                 .map(|pair| pair.0)
                 .unwrap_or(road.center_pts.length() / 2.0);
+
+            if road.oneway_for_driving().is_some() {
+                if app.session.layers.autofix_one_ways {
+                    super::fix_oneway_and_add_filter(ctx, app, &[(*r, dist)]);
+                } else {
+                    oneways.push((*r, dist));
+                }
+                continue;
+            }
 
             let mut filter_type = app.session.filter_type;
             if filter_type != FilterType::BusGate

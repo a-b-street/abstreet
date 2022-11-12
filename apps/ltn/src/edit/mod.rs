@@ -186,11 +186,11 @@ fn road_name(app: &App, road: &Road) -> String {
 
 struct ResolveOneWayAndFilter {
     panel: Panel,
-    roads: Vec<RoadID>,
+    roads: Vec<(RoadID, Distance)>,
 }
 
 impl ResolveOneWayAndFilter {
-    fn new_state(ctx: &mut EventCtx, roads: Vec<RoadID>) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx, roads: Vec<(RoadID, Distance)>) -> Box<dyn State<App>> {
         let mut txt = Text::new();
         txt.add_line(Line("Warning").small_heading());
         txt.add_line("A modal filter cannot be placed on a one-way street.");
@@ -232,10 +232,10 @@ impl State<App> for ResolveOneWayAndFilter {
     }
 }
 
-fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[RoadID]) {
+fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[(RoadID, Distance)]) {
     let driving_side = app.per_map.map.get_config().driving_side;
     let mut edits = app.per_map.map.get_edits().clone();
-    for r in roads {
+    for (r, _) in roads {
         edits
             .commands
             .push(app.per_map.map.edit_road_cmd(*r, |new| {
@@ -253,7 +253,7 @@ fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[RoadID]
 
     app.per_map.proposals.before_edit();
 
-    for r in roads {
+    for (r, dist) in roads {
         let r = *r;
         let road = app.per_map.map.get_r(r);
         let r_edit = app.per_map.map.get_r_edit(r);
@@ -263,10 +263,9 @@ fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[RoadID]
             mut_edits!(app).one_ways.insert(r, r_edit);
         }
 
-        mut_edits!(app).roads.insert(
-            r,
-            RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
-        );
+        mut_edits!(app)
+            .roads
+            .insert(r, RoadFilter::new_by_user(*dist, app.session.filter_type));
     }
 
     redraw_all_filters(ctx, app);
