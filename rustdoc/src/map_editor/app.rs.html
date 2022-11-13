@@ -397,10 +397,6 @@
 <span id="397">397</span>
 <span id="398">398</span>
 <span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
 </pre><pre class="rust"><code><span class="kw">use </span>geom::{Distance, Line, Polygon, Pt2D};
 <span class="kw">use </span>osm2streets::{osm, Transformation};
 <span class="kw">use </span>widgetry::mapspace::WorldOutcome;
@@ -609,9 +605,6 @@
                     ) =&gt; {
                         app.model.toggle_i(ctx, i);
                     }
-                    WorldOutcome::Keypress(<span class="string">&quot;debug intersection geometry&quot;</span>, ID::Intersection(i)) =&gt; {
-                        app.model.debug_intersection_geometry(ctx, i);
-                    }
                     WorldOutcome::Keypress(<span class="string">&quot;debug in OSM&quot;</span>, ID::Intersection(i)) =&gt; {
                         open_browser(i.to_string());
                     }
@@ -780,7 +773,6 @@
             app.model.map.streets.boundary_polygon.clone(),
         );
         app.model.world.draw(g);
-        g.redraw(<span class="kw-2">&amp;</span>app.model.draw_extra);
 
         <span class="kw">match </span><span class="self">self</span>.mode {
             Mode::Neutral | Mode::SetBoundaryPt1 =&gt; {}

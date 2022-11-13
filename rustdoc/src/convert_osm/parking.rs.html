@@ -238,6 +238,9 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
 </pre><pre class="rust"><code><span class="kw">use </span>abstutil::{Tags, Timer};
 <span class="kw">use </span>geom::{Distance, FindClosest, PolyLine};
 <span class="kw">use </span>kml::ExtraShapes;
@@ -264,7 +267,7 @@
                         .is_any(osm::HIGHWAY, <span class="macro">vec!</span>[<span class="string">&quot;residential&quot;</span>, <span class="string">&quot;tertiary&quot;</span>])
                     &amp;&amp; !r.osm_tags.is(<span class="string">&quot;foot&quot;</span>, <span class="string">&quot;no&quot;</span>)
                     &amp;&amp; id.osm_way_id.<span class="number">0 </span>% <span class="number">100 </span>&lt;= pct
-                    &amp;&amp; r.length() &gt;= Distance::meters(<span class="number">20.0</span>)
+                    &amp;&amp; r.untrimmed_length() &gt;= Distance::meters(<span class="number">20.0</span>)
                 {
                     <span class="kw">if </span>r.oneway_for_driving().is_some() {
                         r.osm_tags.remove(osm::PARKING_BOTH);
@@ -307,14 +310,17 @@
         <span class="kw">if </span>r.is_light_rail() || r.is_footway() || r.is_service() {
             <span class="kw">continue</span>;
         }
-        <span class="kw">let </span>center = PolyLine::must_new(r.osm_center_points.clone());
         closest.add(
             (<span class="kw-2">*</span>id, <span class="bool-val">true</span>),
-            center.must_shift_right(DIRECTED_ROAD_THICKNESS).points(),
+            r.untrimmed_center_line
+                .must_shift_right(DIRECTED_ROAD_THICKNESS)
+                .points(),
         );
         closest.add(
             (<span class="kw-2">*</span>id, <span class="bool-val">false</span>),
-            center.must_shift_left(DIRECTED_ROAD_THICKNESS).points(),
+            r.untrimmed_center_line
+                .must_shift_left(DIRECTED_ROAD_THICKNESS)
+                .points(),
         );
     }
 

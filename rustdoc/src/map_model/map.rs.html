@@ -1000,6 +1000,8 @@
 <span id="1000">1000</span>
 <span id="1001">1001</span>
 <span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.
 
 </span><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
@@ -1009,7 +1011,7 @@
 
 <span class="kw">use </span>abstio::{CityName, MapName};
 <span class="kw">use </span>abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
-<span class="kw">use </span>geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
+<span class="kw">use </span>geom::{Bounds, Distance, Duration, GPSBounds, PolyLine, Polygon, Pt2D, Ring, Time};
 <span class="kw">use </span>raw_map::RawMap;
 
 <span class="kw">use crate</span>::{
@@ -1184,6 +1186,7 @@
         raw.streets.intersections.insert(
             i1,
             osm2streets::Intersection::new(
+                i1,
                 Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>),
                 IntersectionComplexity::MapEdge,
                 ControlType::Border,
@@ -1192,6 +1195,7 @@
         raw.streets.intersections.insert(
             i2,
             osm2streets::Intersection::new(
+                i2,
                 Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>),
                 IntersectionComplexity::MapEdge,
                 ControlType::Border,
@@ -1200,14 +1204,14 @@
         <span class="kw">let </span><span class="kw-2">mut </span>tags = Tags::empty();
         tags.insert(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
         tags.insert(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
-        raw.streets.roads.insert(
+        raw.streets.insert_road(
             OriginalRoad::new(<span class="number">2</span>, (i1.<span class="number">0</span>, i2.<span class="number">0</span>)),
             osm2streets::Road::new(
-                <span class="macro">vec!</span>[Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>), Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>)],
+                OriginalRoad::new(<span class="number">2</span>, (i1.<span class="number">0</span>, i2.<span class="number">0</span>)),
+                PolyLine::must_new(<span class="macro">vec!</span>[Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>), Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>)]),
                 tags,
                 <span class="kw-2">&amp;</span>raw.streets.config,
-            )
-            .unwrap(),
+            ),
         );
 
         raw.buildings.insert(

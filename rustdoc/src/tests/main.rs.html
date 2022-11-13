@@ -383,6 +383,10 @@
 <span id="383">383</span>
 <span id="384">384</span>
 <span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Integration tests
 
 </span><span class="kw">use </span>std::io::Write;
@@ -406,10 +410,14 @@
     )))<span class="question-mark">?</span>;
     test_map_importer()<span class="question-mark">?</span>;
     check_proposals()<span class="question-mark">?</span>;
-    ab_test_spurious_diff()<span class="question-mark">?</span>;
+    <span class="kw">if </span><span class="bool-val">false </span>{
+        ab_test_spurious_diff()<span class="question-mark">?</span>;
+    }
     bus_test()<span class="question-mark">?</span>;
     bus_route_test()<span class="question-mark">?</span>;
-    smoke_test()<span class="question-mark">?</span>;
+    <span class="kw">if </span><span class="bool-val">false </span>{
+        smoke_test()<span class="question-mark">?</span>;
+    }
     <span class="prelude-val">Ok</span>(())
 }
 

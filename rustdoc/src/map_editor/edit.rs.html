@@ -222,6 +222,16 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
 </pre><pre class="rust"><code><span class="kw">use </span>geom::{ArrowCap, Distance};
 <span class="kw">use </span>osm2streets::OriginalRoad;
 <span class="kw">use </span>widgetry::{
@@ -241,10 +251,17 @@
         <span class="kw">let </span>road = <span class="kw-2">&amp;</span>app.model.map.streets.roads[<span class="kw-2">&amp;</span>r];
 
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = app.model.map.streets.trimmed_road_geometry(r) {
+        <span class="kw">if </span>app.model.intersection_geom {
             batch.push(
                 Color::BLACK,
-                pl.make_arrow(Distance::meters(<span class="number">1.0</span>), ArrowCap::Triangle),
+                road.trimmed_center_line
+                    .make_arrow(Distance::meters(<span class="number">1.0</span>), ArrowCap::Triangle),
+            );
+        } <span class="kw">else </span>{
+            batch.push(
+                Color::BLACK,
+                road.untrimmed_center_line
+                    .make_arrow(Distance::meters(<span class="number">1.0</span>), ArrowCap::Triangle),
             );
         }
 
@@ -254,10 +271,13 @@
         }
         txt.add_line(Line(<span class="macro">format!</span>(
             <span class="string">&quot;Length before trimming: {}&quot;</span>,
-            road.untrimmed_road_geometry().<span class="number">0</span>.length()
+            road.untrimmed_length()
         )));
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = app.model.map.streets.trimmed_road_geometry(r) {
-            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;Length after trimming: {}&quot;</span>, pl.length())));
+        <span class="kw">if </span>app.model.intersection_geom {
+            txt.add_line(Line(<span class="macro">format!</span>(
+                <span class="string">&quot;Length after trimming: {}&quot;</span>,
+                road.trimmed_center_line.length()
+            )));
         }
         <span class="kw">for </span>(rt, to) <span class="kw">in </span><span class="kw-2">&amp;</span>road.turn_restrictions {
             <span class="macro">info!</span>(<span class="string">&quot;Simple turn restriction {:?} to {}&quot;</span>, rt, to);

@@ -172,7 +172,7 @@
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>fs_err::File;
 
-<span class="kw">use </span>geom::{Distance, PolyLine};
+<span class="kw">use </span>geom::Distance;
 <span class="kw">use </span>osm2streets::OriginalRoad;
 <span class="kw">use </span>raw_map::RawMap;
 
@@ -241,32 +241,32 @@
     <span class="kw">let </span><span class="kw-2">mut </span>f = BufWriter::new(File::create(<span class="macro">format!</span>(<span class="string">&quot;{input}/query&quot;</span>))<span class="question-mark">?</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>ids = Vec::new();
     <span class="kw">for </span>(id, r) <span class="kw">in </span><span class="kw-2">&amp;</span>map.streets.roads {
-        <span class="comment">// TODO Handle cul-de-sacs
-        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = PolyLine::new(r.osm_center_points.clone()) {
-            ids.push(<span class="kw-2">*</span>id);
-            <span class="comment">// Sample points along the road. Smaller step size gives more detail, but is slower.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
-            <span class="kw">for </span>(pt, <span class="kw">_</span>) <span class="kw">in </span>pl.step_along(Distance::meters(<span class="number">5.0</span>), Distance::ZERO) {
-                pts.push(pt);
-            }
-            <span class="comment">// Always ask for the intersection
-            </span><span class="kw">if </span><span class="kw-2">*</span>pts.last().unwrap() != pl.last_pt() {
-                pts.push(pl.last_pt());
-            }
-            <span class="kw">for </span>(idx, gps) <span class="kw">in </span>map
-                .streets
-                .gps_bounds
-                .convert_back(<span class="kw-2">&amp;</span>pts)
-                .into_iter()
-                .enumerate()
-            {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{},{}&quot;</span>, gps.x(), gps.y())<span class="question-mark">?</span>;
-                <span class="kw">if </span>idx != pts.len() - <span class="number">1 </span>{
-                    <span class="macro">write!</span>(f, <span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
-                }
-            }
-            <span class="macro">writeln!</span>(f)<span class="question-mark">?</span>;
+        ids.push(<span class="kw-2">*</span>id);
+        <span class="comment">// Sample points along the road. Smaller step size gives more detail, but is slower.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+        <span class="kw">for </span>(pt, <span class="kw">_</span>) <span class="kw">in </span>r
+            .untrimmed_center_line
+            .step_along(Distance::meters(<span class="number">5.0</span>), Distance::ZERO)
+        {
+            pts.push(pt);
         }
+        <span class="comment">// Always ask for the intersection
+        </span><span class="kw">if </span><span class="kw-2">*</span>pts.last().unwrap() != r.untrimmed_center_line.last_pt() {
+            pts.push(r.untrimmed_center_line.last_pt());
+        }
+        <span class="kw">for </span>(idx, gps) <span class="kw">in </span>map
+            .streets
+            .gps_bounds
+            .convert_back(<span class="kw-2">&amp;</span>pts)
+            .into_iter()
+            .enumerate()
+        {
+            <span class="macro">write!</span>(f, <span class="string">&quot;{},{}&quot;</span>, gps.x(), gps.y())<span class="question-mark">?</span>;
+            <span class="kw">if </span>idx != pts.len() - <span class="number">1 </span>{
+                <span class="macro">write!</span>(f, <span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
+            }
+        }
+        <span class="macro">writeln!</span>(f)<span class="question-mark">?</span>;
     }
     <span class="prelude-val">Ok</span>(ids)
 }
@@ -314,7 +314,7 @@
     </span><span class="kw">for </span>(id, road) <span class="kw">in </span><span class="kw-2">&amp;mut </span>map.streets.roads {
         <span class="kw">let </span>rise = map.streets.intersections[<span class="kw-2">&amp;</span>id.i2].elevation
             - map.streets.intersections[<span class="kw-2">&amp;</span>id.i1].elevation;
-        <span class="kw">let </span>run = road.length();
+        <span class="kw">let </span>run = road.untrimmed_length();
         <span class="kw">if </span>!(rise / run).is_finite() {
             <span class="comment">// TODO Warn?
             </span><span class="kw">continue</span>;

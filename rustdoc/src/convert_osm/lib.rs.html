@@ -197,7 +197,7 @@
 
 <span class="kw">use </span>abstio::MapName;
 <span class="kw">use </span>abstutil::{Tags, Timer};
-<span class="kw">use </span>geom::{GPSBounds, LonLat, Polygon, Ring};
+<span class="kw">use </span>geom::{GPSBounds, LonLat, PolyLine, Polygon, Ring};
 <span class="kw">use </span>osm2streets::{osm, OriginalRoad, Road};
 <span class="kw">use </span>raw_map::RawMap;
 
@@ -334,14 +334,14 @@
     map.streets.insert_road(
         id,
         Road::new(
-            <span class="macro">vec!</span>[
+            id,
+            PolyLine::must_new(<span class="macro">vec!</span>[
                 map.streets.intersections[<span class="kw-2">&amp;</span>i1].point,
                 map.streets.intersections[<span class="kw-2">&amp;</span>i2].point,
-            ],
+            ]),
             tags,
             <span class="kw-2">&amp;</span>map.streets.config,
-        )
-        .unwrap(),
+        ),
     );
 }
 
