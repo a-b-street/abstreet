@@ -17,10 +17,17 @@ impl EditRoad {
         let road = &app.model.map.streets.roads[&r];
 
         let mut batch = GeomBatch::new();
-        if let Ok(pl) = app.model.map.streets.trimmed_road_geometry(r) {
+        if app.model.intersection_geom {
             batch.push(
                 Color::BLACK,
-                pl.make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
+                road.trimmed_center_line
+                    .make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
+            );
+        } else {
+            batch.push(
+                Color::BLACK,
+                road.untrimmed_center_line
+                    .make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
             );
         }
 
@@ -30,10 +37,13 @@ impl EditRoad {
         }
         txt.add_line(Line(format!(
             "Length before trimming: {}",
-            road.untrimmed_road_geometry().0.length()
+            road.untrimmed_length()
         )));
-        if let Ok(pl) = app.model.map.streets.trimmed_road_geometry(r) {
-            txt.add_line(Line(format!("Length after trimming: {}", pl.length())));
+        if app.model.intersection_geom {
+            txt.add_line(Line(format!(
+                "Length after trimming: {}",
+                road.trimmed_center_line.length()
+            )));
         }
         for (rt, to) in &road.turn_restrictions {
             info!("Simple turn restriction {:?} to {}", rt, to);

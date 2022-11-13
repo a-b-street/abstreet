@@ -9,7 +9,7 @@ use abstutil::{MultiMap, Timer};
 use geom::{
     Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Speed, EPSILON_DIST,
 };
-use osm2streets::{initial, Transformation};
+use osm2streets::Transformation;
 use raw_map::RawMap;
 
 pub use self::parking_lots::snap_driveway;
@@ -45,10 +45,6 @@ impl Map {
         raw.streets
             .apply_transformations(Transformation::abstreet(), timer);
 
-        timer.start("raw_map to InitialMap");
-        let initial_map = initial::InitialMap::new(&raw.streets, timer);
-        timer.stop("raw_map to InitialMap");
-
         let mut map = Map {
             roads: Vec::new(),
             intersections: Vec::new(),
@@ -75,14 +71,15 @@ impl Map {
         };
         map.edits = map.new_edits();
 
-        let road_id_mapping: BTreeMap<OriginalRoad, RoadID> = initial_map
+        let road_id_mapping: BTreeMap<OriginalRoad, RoadID> = raw
+            .streets
             .roads
             .keys()
             .enumerate()
             .map(|(idx, id)| (*id, RoadID(idx)))
             .collect();
         let mut intersection_id_mapping: BTreeMap<osm::NodeID, IntersectionID> = BTreeMap::new();
-        for (idx, i) in initial_map.intersections.values().enumerate() {
+        for (idx, i) in raw.streets.intersections.values().enumerate() {
             let id = IntersectionID(idx);
             map.intersections.push(Intersection {
                 id,
@@ -107,22 +104,21 @@ impl Map {
             intersection_id_mapping.insert(i.id, id);
         }
 
-        timer.start_iter("expand roads to lanes", initial_map.roads.len());
-        for (_, r) in initial_map.roads {
+        timer.start_iter("expand roads to lanes", raw.streets.roads.len());
+        for r in raw.streets.roads.values() {
             timer.next();
 
             let road_id = road_id_mapping[&r.id];
-            let i1 = intersection_id_mapping[&r.src_i];
-            let i2 = intersection_id_mapping[&r.dst_i];
+            let i1 = intersection_id_mapping[&r.id.i1];
+            let i2 = intersection_id_mapping[&r.id.i2];
 
-            let raw_road = &raw.streets.roads[&r.id];
-            let barrier_nodes = snap_nodes_to_line(&raw_road.barrier_nodes, &r.trimmed_center_pts);
+            let barrier_nodes = snap_nodes_to_line(&r.barrier_nodes, &r.trimmed_center_line);
             let crossing_nodes =
-                snap_nodes_with_data_to_line(&raw_road.crossing_nodes, &r.trimmed_center_pts);
+                snap_nodes_with_data_to_line(&r.crossing_nodes, &r.trimmed_center_line);
             let mut road = Road {
                 id: road_id,
-                osm_tags: raw_road.osm_tags.clone(),
-                turn_restrictions: raw_road
+                osm_tags: r.osm_tags.clone(),
+                turn_restrictions: r
                     .turn_restrictions
                     .iter()
                     .filter_map(|(rt, to)| {
@@ -130,7 +126,7 @@ impl Map {
                         road_id_mapping.get(to).map(|to| (*rt, *to))
                     })
                     .collect(),
-                complicated_turn_restrictions: raw_road
+                complicated_turn_restrictions: r
                     .complicated_turn_restrictions
                     .iter()
                     .filter_map(|(via, to)| {
@@ -149,16 +145,16 @@ impl Map {
                     .collect(),
                 orig_id: r.id,
                 lanes: Vec::new(),
-                center_pts: r.trimmed_center_pts,
-                untrimmed_center_pts: raw_road.untrimmed_road_geometry().0,
+                center_pts: r.trimmed_center_line.clone(),
+                untrimmed_center_pts: r.untrimmed_road_geometry().0,
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
-                zorder: raw_road.get_zorder(),
+                zorder: r.get_zorder(),
                 access_restrictions: AccessRestrictions::new(),
-                percent_incline: raw_road.percent_incline,
-                crosswalk_forward: raw_road.crosswalk_forward,
-                crosswalk_backward: raw_road.crosswalk_backward,
+                percent_incline: r.percent_incline,
+                crosswalk_forward: r.crosswalk_forward,
+                crosswalk_backward: r.crosswalk_backward,
                 transit_stops: BTreeSet::new(),
                 barrier_nodes,
                 crossing_nodes,
@@ -166,7 +162,7 @@ impl Map {
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();
 
-            road.recreate_lanes(raw_road.lane_specs_ltr.clone());
+            road.recreate_lanes(r.lane_specs_ltr.clone());
             for lane in &road.lanes {
                 map.intersections[lane.src_i.0].outgoing_lanes.push(lane.id);
                 map.intersections[lane.dst_i.0].incoming_lanes.push(lane.id);

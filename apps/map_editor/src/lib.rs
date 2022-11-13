@@ -1,6 +1,11 @@
 //! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the
 //! full Map. It's useful for debugging maps imported from OSM, and for drawing synthetic maps for
 //! testing.
+//!
+//! TODO It's a bit unmaintained / rarely used. Two big problems using it:
+//! - Intersection geometry isn't recalculated constantly as changes are made
+//! - The app will run out of GPU memory up-front on huge maps, because of storing objects for
+//!   every road and intersections
 
 #[macro_use]
 extern crate log;
@@ -45,7 +50,7 @@ fn run(mut settings: Settings) {
     widgetry::run(settings, |ctx| {
         let args = Args::from_iter(abstutil::cli_args());
         let mut app = App {
-            model: model::Model::blank(ctx),
+            model: model::Model::blank(),
         };
         app.model.include_bldgs = args.include_buildings;
 

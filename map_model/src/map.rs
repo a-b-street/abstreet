@@ -7,7 +7,7 @@ use petgraph::graphmap::{DiGraphMap, UnGraphMap};
 
 use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
-use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
+use geom::{Bounds, Distance, Duration, GPSBounds, PolyLine, Polygon, Pt2D, Ring, Time};
 use raw_map::RawMap;
 
 use crate::{
@@ -182,6 +182,7 @@ impl Map {
         raw.streets.intersections.insert(
             i1,
             osm2streets::Intersection::new(
+                i1,
                 Pt2D::new(30.0, 30.0),
                 IntersectionComplexity::MapEdge,
                 ControlType::Border,
@@ -190,6 +191,7 @@ impl Map {
         raw.streets.intersections.insert(
             i2,
             osm2streets::Intersection::new(
+                i2,
                 Pt2D::new(70.0, 70.0),
                 IntersectionComplexity::MapEdge,
                 ControlType::Border,
@@ -201,11 +203,11 @@ impl Map {
         raw.streets.roads.insert(
             OriginalRoad::new(2, (i1.0, i2.0)),
             osm2streets::Road::new(
-                vec![Pt2D::new(30.0, 30.0), Pt2D::new(70.0, 70.0)],
+                OriginalRoad::new(2, (i1.0, i2.0)),
+                PolyLine::must_new(vec![Pt2D::new(30.0, 30.0), Pt2D::new(70.0, 70.0)]),
                 tags,
                 &raw.streets.config,
-            )
-            .unwrap(),
+            ),
         );
 
         raw.buildings.insert(
