@@ -21,10 +21,14 @@ fn main() -> Result<()> {
     )))?;
     test_map_importer()?;
     check_proposals()?;
-    ab_test_spurious_diff()?;
+    if false {
+        ab_test_spurious_diff()?;
+    }
     bus_test()?;
     bus_route_test()?;
-    smoke_test()?;
+    if false {
+        smoke_test()?;
+    }
     Ok(())
 }
 

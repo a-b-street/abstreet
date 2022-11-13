@@ -200,7 +200,7 @@ impl Map {
         let mut tags = Tags::empty();
         tags.insert("highway", "residential");
         tags.insert("lanes", "2");
-        raw.streets.roads.insert(
+        raw.streets.insert_road(
             OriginalRoad::new(2, (i1.0, i2.0)),
             osm2streets::Road::new(
                 OriginalRoad::new(2, (i1.0, i2.0)),
