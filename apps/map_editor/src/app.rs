@@ -206,9 +206,6 @@ impl State<App> for MainState {
                     ) => {
                         app.model.toggle_i(ctx, i);
                     }
-                    WorldOutcome::Keypress("debug intersection geometry", ID::Intersection(i)) => {
-                        app.model.debug_intersection_geometry(ctx, i);
-                    }
                     WorldOutcome::Keypress("debug in OSM", ID::Intersection(i)) => {
                         open_browser(i.to_string());
                     }
@@ -377,7 +374,6 @@ impl State<App> for MainState {
             app.model.map.streets.boundary_polygon.clone(),
         );
         app.model.world.draw(g);
-        g.redraw(&app.model.draw_extra);
 
         match self.mode {
             Mode::Neutral | Mode::SetBoundaryPt1 => {}

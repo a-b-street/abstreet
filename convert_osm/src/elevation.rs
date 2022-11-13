@@ -4,7 +4,7 @@ use std::process::Command;
 use anyhow::Result;
 use fs_err::File;
 
-use geom::{Distance, PolyLine};
+use geom::Distance;
 use osm2streets::OriginalRoad;
 use raw_map::RawMap;
 
@@ -73,32 +73,32 @@ fn generate_input(input: &str, map: &RawMap) -> Result<Vec<OriginalRoad>> {
     let mut f = BufWriter::new(File::create(format!("{input}/query"))?);
     let mut ids = Vec::new();
     for (id, r) in &map.streets.roads {
-        // TODO Handle cul-de-sacs
-        if let Ok(pl) = PolyLine::new(r.osm_center_points.clone()) {
-            ids.push(*id);
-            // Sample points along the road. Smaller step size gives more detail, but is slower.
-            let mut pts = Vec::new();
-            for (pt, _) in pl.step_along(Distance::meters(5.0), Distance::ZERO) {
-                pts.push(pt);
-            }
-            // Always ask for the intersection
-            if *pts.last().unwrap() != pl.last_pt() {
-                pts.push(pl.last_pt());
-            }
-            for (idx, gps) in map
-                .streets
-                .gps_bounds
-                .convert_back(&pts)
-                .into_iter()
-                .enumerate()
-            {
-                write!(f, "{},{}", gps.x(), gps.y())?;
-                if idx != pts.len() - 1 {
-                    write!(f, " ")?;
-                }
-            }
-            writeln!(f)?;
+        ids.push(*id);
+        // Sample points along the road. Smaller step size gives more detail, but is slower.
+        let mut pts = Vec::new();
+        for (pt, _) in r
+            .untrimmed_center_line
+            .step_along(Distance::meters(5.0), Distance::ZERO)
+        {
+            pts.push(pt);
         }
+        // Always ask for the intersection
+        if *pts.last().unwrap() != r.untrimmed_center_line.last_pt() {
+            pts.push(r.untrimmed_center_line.last_pt());
+        }
+        for (idx, gps) in map
+            .streets
+            .gps_bounds
+            .convert_back(&pts)
+            .into_iter()
+            .enumerate()
+        {
+            write!(f, "{},{}", gps.x(), gps.y())?;
+            if idx != pts.len() - 1 {
+                write!(f, " ")?;
+            }
+        }
+        writeln!(f)?;
     }
     Ok(ids)
 }
@@ -146,7 +146,7 @@ fn scrape_output(output: &str, map: &mut RawMap, ids: Vec<OriginalRoad>) -> Resu
     for (id, road) in &mut map.streets.roads {
         let rise = map.streets.intersections[&id.i2].elevation
             - map.streets.intersections[&id.i1].elevation;
-        let run = road.length();
+        let run = road.untrimmed_length();
         if !(rise / run).is_finite() {
             // TODO Warn?
             continue;

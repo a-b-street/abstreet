@@ -24,7 +24,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
                         .is_any(osm::HIGHWAY, vec!["residential", "tertiary"])
                     && !r.osm_tags.is("foot", "no")
                     && id.osm_way_id.0 % 100 <= pct
-                    && r.length() >= Distance::meters(20.0)
+                    && r.untrimmed_length() >= Distance::meters(20.0)
                 {
                     if r.oneway_for_driving().is_some() {
                         r.osm_tags.remove(osm::PARKING_BOTH);
@@ -67,14 +67,17 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         if r.is_light_rail() || r.is_footway() || r.is_service() {
             continue;
         }
-        let center = PolyLine::must_new(r.osm_center_points.clone());
         closest.add(
             (*id, true),
-            center.must_shift_right(DIRECTED_ROAD_THICKNESS).points(),
+            r.untrimmed_center_line
+                .must_shift_right(DIRECTED_ROAD_THICKNESS)
+                .points(),
         );
         closest.add(
             (*id, false),
-            center.must_shift_left(DIRECTED_ROAD_THICKNESS).points(),
+            r.untrimmed_center_line
+                .must_shift_left(DIRECTED_ROAD_THICKNESS)
+                .points(),
         );
     }
 
