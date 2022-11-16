@@ -815,7 +815,7 @@
             <span class="prelude-val">Ok</span>(result) =&gt; result,
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="macro">println!</span>(<span class="string">&quot;BooleanOps crashed: {err:?}&quot;</span>);
-                <span class="macro">bail!</span>(<span class="string">&quot;BooleanOps crashed: {err}&quot;</span>);
+                <span class="macro">bail!</span>(<span class="string">&quot;BooleanOps crashed: {err:?}&quot;</span>);
             }
         }
     }
@@ -827,7 +827,7 @@
             <span class="prelude-val">Ok</span>(result) =&gt; result,
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="macro">println!</span>(<span class="string">&quot;BooleanOps crashed: {err:?}&quot;</span>);
-                <span class="macro">bail!</span>(<span class="string">&quot;BooleanOps crashed: {err}&quot;</span>);
+                <span class="macro">bail!</span>(<span class="string">&quot;BooleanOps crashed: {err:?}&quot;</span>);
             }
         }
     }
