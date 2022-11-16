@@ -241,6 +241,10 @@
 <span id="241">241</span>
 <span id="242">242</span>
 <span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>anyhow::Result;
@@ -438,7 +442,11 @@
     <span class="kw">for </span>(polygon, tags) <span class="kw">in
         </span>Polygon::from_geojson_bytes(<span class="kw-2">&amp;</span>abstio::slurp_file(path)<span class="question-mark">?</span>, gps_bounds, require_in_bounds)<span class="question-mark">?
     </span>{
-        zones.insert(tags.get_result(<span class="string">&quot;geo_code&quot;</span>)<span class="question-mark">?</span>.to_string(), polygon);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(code) = tags.get(<span class="string">&quot;geo_code&quot;</span>) {
+            zones.insert(code.to_string(), polygon);
+        } <span class="kw">else </span>{
+            <span class="macro">bail!</span>(<span class="string">&quot;Input is missing geo_code: {:?}&quot;</span>, tags);
+        }
     }
     <span class="prelude-val">Ok</span>(zones)
 }

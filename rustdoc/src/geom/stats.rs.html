@@ -348,7 +348,7 @@
 
         <span class="macro">format!</span>(
             <span class="string">&quot;{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, mean {}, max {}&quot;</span>,
-            abstutil::prettyprint_usize(<span class="self">self</span>.count),
+            <span class="kw">crate</span>::utils::prettyprint_usize(<span class="self">self</span>.count),
             <span class="self">self</span>.select(Statistic::P50).unwrap(),
             <span class="self">self</span>.select(Statistic::P90).unwrap(),
             <span class="self">self</span>.select(Statistic::P99).unwrap(),

@@ -902,7 +902,7 @@
 <span class="kw">use </span>structopt::StructOpt;
 
 <span class="kw">use </span>abstio::MapName;
-<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>abstutil::{Tags, Timer};
 <span class="kw">use </span>geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time};
 <span class="kw">use </span>map_gui::colors::ColorScheme;
 <span class="kw">use </span>map_gui::options::Options;
@@ -1786,7 +1786,7 @@
         map.get_gps_bounds(),
         require_in_bounds,
     )<span class="question-mark">? </span>{
-        map.hack_add_area(AreaType::StudyArea, polygon, tags);
+        map.hack_add_area(AreaType::StudyArea, polygon, Tags::new(tags));
     }
     <span class="prelude-val">Ok</span>(())
 }

@@ -539,14 +539,12 @@
 <span id="539">539</span>
 <span id="540">540</span>
 <span id="541">541</span>
-<span id="542">542</span>
-</pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
+<span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>geo::{Area, BooleanOps, Contains, ConvexHull, Intersects, SimplifyVWPreserve};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
-
-<span class="kw">use </span>abstutil::Tags;
 
 <span class="kw">use crate</span>::{
     Angle, Bounds, CornerRadii, Distance, GPSBounds, LonLat, PolyLine, Pt2D, Ring, Tessellation,
@@ -977,7 +975,7 @@
         raw_bytes: <span class="kw-2">&amp;</span>[u8],
         gps_bounds: <span class="kw-2">&amp;</span>GPSBounds,
         require_in_bounds: bool,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(<span class="self">Self</span>, Tags)&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(<span class="self">Self</span>, BTreeMap&lt;String, String&gt;)&gt;&gt; {
         <span class="kw">let </span>raw_string = std::str::from_utf8(raw_bytes)<span class="question-mark">?</span>;
         <span class="kw">let </span>geojson = raw_string.parse::&lt;geojson::GeoJson&gt;()<span class="question-mark">?</span>;
         <span class="kw">let </span>features = <span class="kw">match </span>geojson {
@@ -1010,10 +1008,10 @@
                     <span class="kw">continue</span>;
                 };
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(ring) = Ring::new(pts) {
-                    <span class="kw">let </span><span class="kw-2">mut </span>tags = Tags::empty();
+                    <span class="kw">let </span><span class="kw-2">mut </span>tags = BTreeMap::new();
                     <span class="kw">for </span>(key, value) <span class="kw">in </span>feature.properties_iter() {
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = value.as_str() {
-                            tags.insert(key, value);
+                            tags.insert(key.to_string(), value.to_string());
                         }
                     }
                     results.push((ring.into_polygon(), tags));

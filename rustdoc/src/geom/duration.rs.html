@@ -436,14 +436,11 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
-<span id="439">439</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::{cmp, ops};
 
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>instant::Instant;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
-
-<span class="kw">use </span>abstutil::elapsed_seconds;
 
 <span class="kw">use crate</span>::{deserialize_f64, serialize_f64, trim_f64, Distance, Speed, UnitFmt};
 
@@ -586,7 +583,8 @@
 
     <span class="doccomment">/// Returns the duration elapsed from this moment in real time.
     </span><span class="kw">pub fn </span>realtime_elapsed(since: Instant) -&gt; Duration {
-        Duration::seconds(elapsed_seconds(since))
+        <span class="kw">let </span>dt = since.elapsed();
+        Duration::seconds((dt.as_secs() <span class="kw">as </span>f64) + (f64::from(dt.subsec_nanos()) * <span class="number">1e-9</span>))
     }
 
     <span class="doccomment">/// Rounds a duration up to the nearest whole number multiple.

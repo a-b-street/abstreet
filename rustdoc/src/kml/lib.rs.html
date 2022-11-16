@@ -222,6 +222,9 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
 </pre><pre class="rust"><code><span class="comment">// TODO Time to rename this crate
 
 </span><span class="attribute">#[macro_use]
@@ -428,18 +431,21 @@
         <span class="kw">let </span>bytes = abstio::slurp_file(path)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>shapes = Vec::new();
 
-        <span class="kw">for </span>(polygon, tags) <span class="kw">in </span>Polygon::from_geojson_bytes(<span class="kw-2">&amp;</span>bytes, gps_bounds, require_in_bounds)<span class="question-mark">? </span>{
+        <span class="kw">for </span>(polygon, attributes) <span class="kw">in
+            </span>Polygon::from_geojson_bytes(<span class="kw-2">&amp;</span>bytes, gps_bounds, require_in_bounds)<span class="question-mark">?
+        </span>{
             shapes.push(ExtraShape {
                 <span class="comment">// Awkward, but we have to convert back
                 </span>points: gps_bounds.convert_back(polygon.get_outer_ring().points()),
-                attributes: tags.into_inner(),
+                attributes,
             });
         }
-        <span class="kw">for </span>(pl, tags) <span class="kw">in </span>PolyLine::from_geojson_bytes(<span class="kw-2">&amp;</span>bytes, gps_bounds, require_in_bounds)<span class="question-mark">? </span>{
+        <span class="kw">for </span>(pl, attributes) <span class="kw">in </span>PolyLine::from_geojson_bytes(<span class="kw-2">&amp;</span>bytes, gps_bounds, require_in_bounds)<span class="question-mark">?
+        </span>{
             shapes.push(ExtraShape {
                 <span class="comment">// Awkward, but we have to convert back
                 </span>points: gps_bounds.convert_back(pl.points()),
-                attributes: tags.into_inner(),
+                attributes,
             });
         }
 

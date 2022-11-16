@@ -194,6 +194,9 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(clippy::new_without_default)]
 
 #[macro_use]
@@ -237,6 +240,7 @@
 <span class="kw">mod </span>stats;
 <span class="kw">mod </span>tessellation;
 <span class="kw">mod </span>time;
+<span class="kw">mod </span>utils;
 
 <span class="comment">// About 0.4 inches... which is quite tiny on the scale of things. :)
 </span><span class="kw">pub const </span>EPSILON_DIST: Distance = Distance::const_meters(<span class="number">0.01</span>);
@@ -373,9 +377,10 @@
             <span class="kw">let </span>input = rng.gen_range(-<span class="number">214_000.00</span>..<span class="number">214_000.0</span>);
             <span class="kw">let </span>trimmed = trim_f64(input);
             <span class="kw">let </span>json_roundtrip: f64 =
-                abstutil::from_json(abstutil::to_json(<span class="kw-2">&amp;</span>trimmed).as_bytes()).unwrap();
+                serde_json::from_slice(serde_json::to_string(<span class="kw-2">&amp;</span>trimmed).unwrap().as_bytes())
+                    .unwrap();
             <span class="kw">let </span>bincode_roundtrip: f64 =
-                abstutil::from_binary(<span class="kw-2">&amp;</span>abstutil::to_binary(<span class="kw-2">&amp;</span>trimmed)).unwrap();
+                bincode::deserialize(<span class="kw-2">&amp;</span>bincode::serialize(<span class="kw-2">&amp;</span>trimmed).unwrap()).unwrap();
             <span class="macro">assert_eq!</span>(json_roundtrip, trimmed);
             <span class="macro">assert_eq!</span>(bincode_roundtrip, trimmed);
         }
@@ -384,8 +389,9 @@
         </span><span class="kw">let </span>input = <span class="number">1.2345678</span>;
         <span class="kw">let </span>trimmed = trim_f64(input);
         <span class="kw">let </span>json_roundtrip: f64 =
-            abstutil::from_json(abstutil::to_json(<span class="kw-2">&amp;</span>trimmed).as_bytes()).unwrap();
-        <span class="kw">let </span>bincode_roundtrip: f64 = abstutil::from_binary(<span class="kw-2">&amp;</span>abstutil::to_binary(<span class="kw-2">&amp;</span>trimmed)).unwrap();
+            serde_json::from_slice(serde_json::to_string(<span class="kw-2">&amp;</span>trimmed).unwrap().as_bytes()).unwrap();
+        <span class="kw">let </span>bincode_roundtrip: f64 =
+            bincode::deserialize(<span class="kw-2">&amp;</span>bincode::serialize(<span class="kw-2">&amp;</span>trimmed).unwrap()).unwrap();
         <span class="macro">assert_eq!</span>(json_roundtrip, <span class="number">1.2346</span>);
         <span class="macro">assert_eq!</span>(bincode_roundtrip, <span class="number">1.2346</span>);
     }
