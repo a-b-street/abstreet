@@ -274,7 +274,7 @@ impl Polygon {
             Ok(result) => result,
             Err(err) => {
                 println!("BooleanOps crashed: {err:?}");
-                bail!("BooleanOps crashed: {err}");
+                bail!("BooleanOps crashed: {err:?}");
             }
         }
     }
@@ -286,7 +286,7 @@ impl Polygon {
             Ok(result) => result,
             Err(err) => {
                 println!("BooleanOps crashed: {err:?}");
-                bail!("BooleanOps crashed: {err}");
+                bail!("BooleanOps crashed: {err:?}");
             }
         }
     }
