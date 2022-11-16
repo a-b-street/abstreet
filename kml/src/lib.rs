@@ -204,18 +204,21 @@ impl ExtraShapes {
         let bytes = abstio::slurp_file(path)?;
         let mut shapes = Vec::new();
 
-        for (polygon, tags) in Polygon::from_geojson_bytes(&bytes, gps_bounds, require_in_bounds)? {
+        for (polygon, attributes) in
+            Polygon::from_geojson_bytes(&bytes, gps_bounds, require_in_bounds)?
+        {
             shapes.push(ExtraShape {
                 // Awkward, but we have to convert back
                 points: gps_bounds.convert_back(polygon.get_outer_ring().points()),
-                attributes: tags.into_inner(),
+                attributes,
             });
         }
-        for (pl, tags) in PolyLine::from_geojson_bytes(&bytes, gps_bounds, require_in_bounds)? {
+        for (pl, attributes) in PolyLine::from_geojson_bytes(&bytes, gps_bounds, require_in_bounds)?
+        {
             shapes.push(ExtraShape {
                 // Awkward, but we have to convert back
                 points: gps_bounds.convert_back(pl.points()),
-                attributes: tags.into_inner(),
+                attributes,
             });
         }
 

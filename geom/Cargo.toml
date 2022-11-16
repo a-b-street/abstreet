@@ -6,7 +6,6 @@ edition = "2021"
 
 [dependencies]
 aabb-quadtree = "0.1.0"
-abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 earcutr = "0.1.1"
 fs-err = { workspace = true }
@@ -20,5 +19,6 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 
 [dev-dependencies]
+bincode = { workspace = true }
 rand = { workspace = true }
 rand_xorshift = { workspace = true }

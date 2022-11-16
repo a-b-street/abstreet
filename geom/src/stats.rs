@@ -150,7 +150,7 @@ impl<T: HgramValue<T>> Histogram<T> {
 
         format!(
             "{} count, 50%ile {}, 90%ile {}, 99%ile {}, min {}, mean {}, max {}",
-            abstutil::prettyprint_usize(self.count),
+            crate::utils::prettyprint_usize(self.count),
             self.select(Statistic::P50).unwrap(),
             self.select(Statistic::P90).unwrap(),
             self.select(Statistic::P99).unwrap(),

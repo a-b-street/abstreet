@@ -41,6 +41,7 @@ mod speed;
 mod stats;
 mod tessellation;
 mod time;
+mod utils;
 
 // About 0.4 inches... which is quite tiny on the scale of things. :)
 pub const EPSILON_DIST: Distance = Distance::const_meters(0.01);
@@ -177,9 +178,10 @@ mod tests {
             let input = rng.gen_range(-214_000.00..214_000.0);
             let trimmed = trim_f64(input);
             let json_roundtrip: f64 =
-                abstutil::from_json(abstutil::to_json(&trimmed).as_bytes()).unwrap();
+                serde_json::from_slice(serde_json::to_string(&trimmed).unwrap().as_bytes())
+                    .unwrap();
             let bincode_roundtrip: f64 =
-                abstutil::from_binary(&abstutil::to_binary(&trimmed)).unwrap();
+                bincode::deserialize(&bincode::serialize(&trimmed).unwrap()).unwrap();
             assert_eq!(json_roundtrip, trimmed);
             assert_eq!(bincode_roundtrip, trimmed);
         }
@@ -188,8 +190,9 @@ mod tests {
         let input = 1.2345678;
         let trimmed = trim_f64(input);
         let json_roundtrip: f64 =
-            abstutil::from_json(abstutil::to_json(&trimmed).as_bytes()).unwrap();
-        let bincode_roundtrip: f64 = abstutil::from_binary(&abstutil::to_binary(&trimmed)).unwrap();
+            serde_json::from_slice(serde_json::to_string(&trimmed).unwrap().as_bytes()).unwrap();
+        let bincode_roundtrip: f64 =
+            bincode::deserialize(&bincode::serialize(&trimmed).unwrap()).unwrap();
         assert_eq!(json_roundtrip, 1.2346);
         assert_eq!(bincode_roundtrip, 1.2346);
     }

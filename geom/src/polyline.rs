@@ -1,11 +1,9 @@
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::fmt;
 
 use anyhow::{Context, Result};
 use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
-
-use abstutil::Tags;
 
 use crate::{
     Angle, Bounds, Circle, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, LonLat, Polygon,
@@ -1093,7 +1091,7 @@ impl PolyLine {
         raw_bytes: &[u8],
         gps_bounds: &GPSBounds,
         require_in_bounds: bool,
-    ) -> Result<Vec<(Self, Tags)>> {
+    ) -> Result<Vec<(Self, BTreeMap<String, String>)>> {
         let raw_string = std::str::from_utf8(raw_bytes)?;
         let geojson = raw_string.parse::<geojson::GeoJson>()?;
         let features = match geojson {
@@ -1122,10 +1120,10 @@ impl PolyLine {
                 } else {
                     continue;
                 };
-                let mut tags = Tags::empty();
+                let mut tags = BTreeMap::new();
                 for (key, value) in feature.properties_iter() {
                     if let Some(value) = value.as_str() {
-                        tags.insert(key, value);
+                        tags.insert(key.to_string(), value.to_string());
                     }
                 }
                 results.push((Self::unchecked_new(pts), tags));

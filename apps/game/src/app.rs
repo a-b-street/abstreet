@@ -6,7 +6,7 @@ use maplit::btreemap;
 use structopt::StructOpt;
 
 use abstio::MapName;
-use abstutil::Timer;
+use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
@@ -890,7 +890,7 @@ fn add_study_area(map: &mut Map, name: &str) -> Result<()> {
         map.get_gps_bounds(),
         require_in_bounds,
     )? {
-        map.hack_add_area(AreaType::StudyArea, polygon, tags);
+        map.hack_add_area(AreaType::StudyArea, polygon, Tags::new(tags));
     }
     Ok(())
 }

@@ -195,7 +195,11 @@ fn parse_zones(gps_bounds: &GPSBounds, path: String) -> Result<HashMap<String, P
     for (polygon, tags) in
         Polygon::from_geojson_bytes(&abstio::slurp_file(path)?, gps_bounds, require_in_bounds)?
     {
-        zones.insert(tags.get_result("geo_code")?.to_string(), polygon);
+        if let Some(code) = tags.get("geo_code") {
+            zones.insert(code.to_string(), polygon);
+        } else {
+            bail!("Input is missing geo_code: {:?}", tags);
+        }
     }
     Ok(zones)
 }

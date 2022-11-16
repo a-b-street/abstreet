@@ -1,10 +1,9 @@
+use std::collections::BTreeMap;
 use std::fmt;
 
 use anyhow::Result;
 use geo::{Area, BooleanOps, Contains, ConvexHull, Intersects, SimplifyVWPreserve};
 use serde::{Deserialize, Serialize};
-
-use abstutil::Tags;
 
 use crate::{
     Angle, Bounds, CornerRadii, Distance, GPSBounds, LonLat, PolyLine, Pt2D, Ring, Tessellation,
@@ -435,7 +434,7 @@ impl Polygon {
         raw_bytes: &[u8],
         gps_bounds: &GPSBounds,
         require_in_bounds: bool,
-    ) -> Result<Vec<(Self, Tags)>> {
+    ) -> Result<Vec<(Self, BTreeMap<String, String>)>> {
         let raw_string = std::str::from_utf8(raw_bytes)?;
         let geojson = raw_string.parse::<geojson::GeoJson>()?;
         let features = match geojson {
@@ -468,10 +467,10 @@ impl Polygon {
                     continue;
                 };
                 if let Ok(ring) = Ring::new(pts) {
-                    let mut tags = Tags::empty();
+                    let mut tags = BTreeMap::new();
                     for (key, value) in feature.properties_iter() {
                         if let Some(value) = value.as_str() {
-                            tags.insert(key, value);
+                            tags.insert(key.to_string(), value.to_string());
                         }
                     }
                     results.push((ring.into_polygon(), tags));

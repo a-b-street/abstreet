@@ -4,8 +4,6 @@ use anyhow::Result;
 use instant::Instant;
 use serde::{Deserialize, Serialize};
 
-use abstutil::elapsed_seconds;
-
 use crate::{deserialize_f64, serialize_f64, trim_f64, Distance, Speed, UnitFmt};
 
 /// A duration, in seconds. Can be negative.
@@ -147,7 +145,8 @@ impl Duration {
 
     /// Returns the duration elapsed from this moment in real time.
     pub fn realtime_elapsed(since: Instant) -> Duration {
-        Duration::seconds(elapsed_seconds(since))
+        let dt = since.elapsed();
+        Duration::seconds((dt.as_secs() as f64) + (f64::from(dt.subsec_nanos()) * 1e-9))
     }
 
     /// Rounds a duration up to the nearest whole number multiple.
