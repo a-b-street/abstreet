@@ -677,6 +677,8 @@
 <span id="677">677</span>
 <span id="678">678</span>
 <span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::io::Write;
 
@@ -686,7 +688,8 @@
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
 <span class="kw">use </span>osm2streets::{
-    osm, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road, Transformation,
+    osm, ConflictType, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road,
+    Transformation,
 };
 <span class="kw">use </span>raw_map::{RawBuilding, RawMap};
 <span class="kw">use </span>widgetry::mapspace::{ObjectID, World};
@@ -885,6 +888,7 @@
                 id,
                 point,
                 IntersectionComplexity::Crossing,
+                ConflictType::Cross,
                 ControlType::StopSign,
             ),
         );
@@ -1203,7 +1207,7 @@
         <span class="self">self</span>.stop_showing_pts(id);
 
         <span class="kw">let </span>(retained_i, deleted_i, deleted_roads, created_roads) =
-            <span class="kw">match </span><span class="self">self</span>.map.streets.merge_short_road(id) {
+            <span class="kw">match </span><span class="self">self</span>.map.streets.collapse_short_road(id) {
                 <span class="prelude-val">Ok</span>((retained_i, deleted_i, deleted_roads, created_roads)) =&gt; {
                     (retained_i, deleted_i, deleted_roads, created_roads)
                 }
