@@ -7,7 +7,8 @@ use geom::{
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
 use osm2streets::{
-    osm, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road, Transformation,
+    osm, ConflictType, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road,
+    Transformation,
 };
 use raw_map::{RawBuilding, RawMap};
 use widgetry::mapspace::{ObjectID, World};
@@ -206,6 +207,7 @@ impl Model {
                 id,
                 point,
                 IntersectionComplexity::Crossing,
+                ConflictType::Cross,
                 ControlType::StopSign,
             ),
         );
@@ -524,7 +526,7 @@ impl Model {
         self.stop_showing_pts(id);
 
         let (retained_i, deleted_i, deleted_roads, created_roads) =
-            match self.map.streets.merge_short_road(id) {
+            match self.map.streets.collapse_short_road(id) {
                 Ok((retained_i, deleted_i, deleted_roads, created_roads)) => {
                     (retained_i, deleted_i, deleted_roads, created_roads)
                 }

@@ -1014,7 +1014,7 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 [[package]]
 name = "driving-side"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#997d5ed09c4ec5775111d3dcd306d83aaf50696a"
+source = "git+https://github.com/a-b-street/osm2lanes#e97599d62a45d63c12708a6ac53967fdf43d64b9"
 dependencies = [
  "geo",
  "geojson",
@@ -2934,7 +2934,7 @@ dependencies = [
 [[package]]
 name = "osm-tag-schemes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#997d5ed09c4ec5775111d3dcd306d83aaf50696a"
+source = "git+https://github.com/a-b-street/osm2lanes#e97599d62a45d63c12708a6ac53967fdf43d64b9"
 dependencies = [
  "osm-tags",
  "strum 0.24.1",
@@ -2943,7 +2943,7 @@ dependencies = [
 [[package]]
 name = "osm-tags"
 version = "0.1.1"
-source = "git+https://github.com/a-b-street/osm2lanes#997d5ed09c4ec5775111d3dcd306d83aaf50696a"
+source = "git+https://github.com/a-b-street/osm2lanes#e97599d62a45d63c12708a6ac53967fdf43d64b9"
 dependencies = [
  "kstring",
 ]
@@ -2951,7 +2951,7 @@ dependencies = [
 [[package]]
 name = "osm2lanes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#997d5ed09c4ec5775111d3dcd306d83aaf50696a"
+source = "git+https://github.com/a-b-street/osm2lanes#e97599d62a45d63c12708a6ac53967fdf43d64b9"
 dependencies = [
  "celes",
  "locale-codes",
@@ -2963,7 +2963,7 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#7940508e24ab041b114935ea728338241a974184"
+source = "git+https://github.com/a-b-street/osm2streets#4b529b38a4a5f9695039eff886ace1a9eedd4fd9"
 dependencies = [
  "aabb-quadtree",
  "abstutil",
@@ -3987,7 +3987,7 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#7940508e24ab041b114935ea728338241a974184"
+source = "git+https://github.com/a-b-street/osm2streets#4b529b38a4a5f9695039eff886ace1a9eedd4fd9"
 dependencies = [
  "abstutil",
  "anyhow",

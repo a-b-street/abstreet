@@ -161,8 +161,7 @@ impl Map {
     /// A dummy map that won't crash UIs, but has almost nothing in it.
     pub fn almost_blank() -> Self {
         use geom::LonLat;
-        use osm2streets::ControlType;
-        use osm2streets::IntersectionComplexity;
+        use osm2streets::{ConflictType, ControlType, IntersectionComplexity};
         use raw_map::RawBuilding;
 
         // Programatically creating a Map is very verbose. RawMap less so, but .osm could be even
@@ -185,6 +184,7 @@ impl Map {
                 i1,
                 Pt2D::new(30.0, 30.0),
                 IntersectionComplexity::MapEdge,
+                ConflictType::Uncontested,
                 ControlType::Border,
             ),
         );
@@ -194,6 +194,7 @@ impl Map {
                 i2,
                 Pt2D::new(70.0, 70.0),
                 IntersectionComplexity::MapEdge,
+                ConflictType::Uncontested,
                 ControlType::Border,
             ),
         );
