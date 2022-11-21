@@ -442,6 +442,11 @@
 <span id="442">442</span>
 <span id="443">443</span>
 <span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.
 
 </span><span class="kw">use </span>std::collections::BTreeSet;
@@ -567,6 +572,10 @@
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;south&quot;</span>) =&gt; <span class="string">&quot;Zürich (south)&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;east&quot;</span>) =&gt; <span class="string">&quot;Zürich (east)&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;west&quot;</span>) =&gt; <span class="string">&quot;Zürich (west)&quot;</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+        },
+        <span class="string">&quot;cl&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+            (<span class="string">&quot;santiago&quot;</span>, <span class="string">&quot;bellavista&quot;</span>) =&gt; <span class="string">&quot;Bellavista (Santiago)&quot;</span>,
             <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
         <span class="string">&quot;cz&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
@@ -764,13 +773,14 @@
 
 <span class="kw">pub fn </span>nice_country_name(code: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span>str {
     <span class="comment">// If you add something here, please also add the flag to data/system/assets/flags.
-    // https://github.com/hampusborgos/country-flags/tree/master/svg
+    // https://github.com/hampusborgos/country-flags/tree/main/svg
     </span><span class="kw">match </span>code {
         <span class="string">&quot;au&quot; </span>=&gt; <span class="string">&quot;Australia&quot;</span>,
         <span class="string">&quot;at&quot; </span>=&gt; <span class="string">&quot;Austria&quot;</span>,
         <span class="string">&quot;br&quot; </span>=&gt; <span class="string">&quot;Brazil&quot;</span>,
         <span class="string">&quot;ca&quot; </span>=&gt; <span class="string">&quot;Canada&quot;</span>,
         <span class="string">&quot;ch&quot; </span>=&gt; <span class="string">&quot;Switzerland&quot;</span>,
+        <span class="string">&quot;cl&quot; </span>=&gt; <span class="string">&quot;Chile&quot;</span>,
         <span class="string">&quot;cz&quot; </span>=&gt; <span class="string">&quot;Czech Republic&quot;</span>,
         <span class="string">&quot;de&quot; </span>=&gt; <span class="string">&quot;Germany&quot;</span>,
         <span class="string">&quot;fr&quot; </span>=&gt; <span class="string">&quot;France&quot;</span>,
