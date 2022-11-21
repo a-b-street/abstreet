@@ -160,6 +160,16 @@
       "uncompressed_size_bytes": 14317062,
       "compressed_size_bytes": 2455079
     },
+    "data/input/cl/santiago/osm/chile-latest.osm.pbf": {
+      "checksum": "f919a3f08e0ed9c125e147a1cd200bee",
+      "uncompressed_size_bytes": 267563436,
+      "compressed_size_bytes": 267046599
+    },
+    "data/input/cl/santiago/raw_maps/bellavista.bin": {
+      "checksum": "82efb42fb7e120e12fe28d0e0bf61452",
+      "uncompressed_size_bytes": 18678584,
+      "compressed_size_bytes": 3054655
+    },
     "data/input/cz/frydek_mistek/osm/czech-republic-latest.osm.pbf": {
       "checksum": "3253ca53e2d50acddfaebe195eb3b870",
       "uncompressed_size_bytes": 773986921,
@@ -2194,6 +2204,11 @@
       "checksum": "1bf09e0b33b61110c8cce7d3ff2be3ea",
       "uncompressed_size_bytes": 29429022,
       "compressed_size_bytes": 10440511
+    },
+    "data/system/cl/santiago/maps/bellavista.bin": {
+      "checksum": "0a8102239efb0f9b1270ebae539aecf2",
+      "uncompressed_size_bytes": 53407245,
+      "compressed_size_bytes": 20625995
     },
     "data/system/cz/frydek_mistek/maps/huge.bin": {
       "checksum": "e63bd6f367a3a36af7b43ec86d7a32bb",
