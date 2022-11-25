@@ -190,8 +190,7 @@ impl Map {
         let road_id = raw.streets.next_road_id();
         raw.streets.insert_road(osm2streets::Road::new(
             road_id,
-            // Dummy
-            OriginalRoad::new(0, (1, 2)),
+            Vec::new(),
             i1,
             i2,
             PolyLine::must_new(vec![Pt2D::new(30.0, 30.0), Pt2D::new(70.0, 70.0)]),
