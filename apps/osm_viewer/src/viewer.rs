@@ -6,7 +6,6 @@ use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::{CityPicker, Minimap, MinimapControls, Navigator, TurnExplorer};
 use map_gui::{SimpleApp, ID};
-use map_model::osm;
 use widgetry::tools::{open_browser, PopupMsg, URLManager};
 use widgetry::{
     lctrl, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -110,9 +109,9 @@ impl Viewer {
                         continue;
                     }
                     if tags.contains_key("abst:parking_source")
-                        && (k == osm::PARKING_RIGHT
-                            || k == osm::PARKING_LEFT
-                            || k == osm::PARKING_BOTH)
+                        && (k == "parking:lane:right"
+                            || k == "parking:lane:left"
+                            || k == "parking:lane:both")
                     {
                         continue;
                     }

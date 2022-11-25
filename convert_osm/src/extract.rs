@@ -15,7 +15,11 @@ pub fn extract_osm(
     clip_path: Option<String>,
     opts: &Options,
     timer: &mut Timer,
-) -> (OsmExtract, MultiMap<osm::WayID, String>) {
+) -> (
+    OsmExtract,
+    streets_reader::osm_reader::Document,
+    MultiMap<osm::WayID, String>,
+) {
     let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
     let mut doc =
         streets_reader::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
@@ -73,8 +77,6 @@ pub fn extract_osm(
         timer.next();
         let id = *id;
 
-        way.tags.insert(osm::OSM_WAY_ID, id.0.to_string());
-
         if out.handle_way(id, &way, opts) {
             continue;
         } else if way.tags.is(osm::HIGHWAY, "service") {
@@ -131,12 +133,6 @@ pub fn extract_osm(
     }
 
     let boundary = map.streets.boundary_polygon.get_outer_ring();
-
-    // TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
-    // reader, or stop doing this entirely.
-    for (id, rel) in &mut doc.relations {
-        rel.tags.insert(osm::OSM_REL_ID, id.0.to_string());
-    }
 
     timer.start_iter("processing OSM relations", doc.relations.len());
     for (id, rel) in &doc.relations {
@@ -285,7 +281,7 @@ pub fn extract_osm(
     find_parking_aisles(map, &mut out.roads);
     timer.stop("find service roads crossing parking lots");
 
-    (out, bus_routes_on_roads)
+    (out, doc, bus_routes_on_roads)
 }
 
 fn is_bldg(tags: &Tags) -> bool {

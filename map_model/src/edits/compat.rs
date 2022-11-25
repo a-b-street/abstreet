@@ -392,6 +392,7 @@ fn fix_lane_widths(value: &mut Value, map: &Map) -> Result<()> {
                         // Before this commit, lane widths weren't modifiable, so this lookup works
                         // for both "old" and "new".
                         width: road.lanes[idx].width,
+                        turn_restrictions: Vec::new(),
                     });
                 }
                 cmd[key]["lanes_ltr"] = serde_json::to_value(lanes_ltr).unwrap();

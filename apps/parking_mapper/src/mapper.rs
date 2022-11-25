@@ -526,29 +526,29 @@ fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Ti
         }
 
         // Fill out the tags.
-        osm_tags.remove(osm::PARKING_LEFT);
-        osm_tags.remove(osm::PARKING_RIGHT);
-        osm_tags.remove(osm::PARKING_BOTH);
+        osm_tags.remove("parking:lane:left");
+        osm_tags.remove("parking:lane:right");
+        osm_tags.remove("parking_lane_both");
         match value {
             Value::BothSides => {
-                osm_tags.insert(osm::PARKING_BOTH, "parallel");
+                osm_tags.insert("parking_lane_both", "parallel");
                 if in_seattle {
                     osm_tags.insert("parking:condition:both:maxstay", "3 days");
                 }
             }
             Value::NoStopping => {
-                osm_tags.insert(osm::PARKING_BOTH, "no_stopping");
+                osm_tags.insert("parking_lane_both", "no_stopping");
             }
             Value::RightOnly => {
-                osm_tags.insert(osm::PARKING_RIGHT, "parallel");
-                osm_tags.insert(osm::PARKING_LEFT, "no_stopping");
+                osm_tags.insert("parking:lane:right", "parallel");
+                osm_tags.insert("parking:lane:left", "no_stopping");
                 if in_seattle {
                     osm_tags.insert("parking:condition:right:maxstay", "3 days");
                 }
             }
             Value::LeftOnly => {
-                osm_tags.insert(osm::PARKING_LEFT, "parallel");
-                osm_tags.insert(osm::PARKING_RIGHT, "no_stopping");
+                osm_tags.insert("parking:lane:left", "parallel");
+                osm_tags.insert("parking:lane:right", "no_stopping");
                 if in_seattle {
                     osm_tags.insert("parking:condition:left:maxstay", "3 days");
                 }

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Distance, HashablePt2D, Line, Speed, Time};
-use osm2streets::{get_lane_specs_ltr, InputRoad};
+use osm2streets::{get_lane_specs_ltr, osm, InputRoad};
 
 pub use self::perma::PermanentMapEdits;
 use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
@@ -632,7 +632,7 @@ fn recalculate_intersection_polygon(
             dst_i: osm2streets::IntersectionID(r.dst_i.0),
             center_pts: trimmed_center_pts,
             half_width,
-            osm_tags: r.osm_tags.clone(),
+            highway_type: r.osm_tags.get(osm::HIGHWAY).unwrap().to_string(),
         });
     }
 

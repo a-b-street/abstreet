@@ -9,7 +9,7 @@ use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::{AppLike, ID};
 use map_model::{
-    osm, ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
+    ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
     NORMAL_LANE_THICKNESS,
 };
 use sim::Sim;
@@ -938,10 +938,6 @@ fn find_degenerate_roads(app: &App) {
 
 fn diff_tags(t1: &Tags, t2: &Tags) {
     for (k, v1, v2) in t1.diff(t2) {
-        // Ignore the most common diff
-        if k == osm::OSM_WAY_ID {
-            continue;
-        }
         println!("- {} = \"{}\" vs \"{}\"", k, v1, v2);
     }
 }

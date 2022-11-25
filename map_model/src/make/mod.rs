@@ -120,7 +120,8 @@ impl Map {
                 snap_nodes_with_data_to_line(&r.crossing_nodes, &r.trimmed_center_line);
             let mut road = Road {
                 id: road_id,
-                osm_tags: r.osm_tags.clone(),
+                // Arbitrarily remember OSM tags from one of the ways
+                osm_tags: raw.osm_tags[&r.osm_ids[0].osm_way_id].clone(),
                 turn_restrictions: r
                     .turn_restrictions
                     .iter()
@@ -154,7 +155,7 @@ impl Map {
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
-                zorder: r.get_zorder(),
+                zorder: r.layer,
                 access_restrictions: AccessRestrictions::new(),
                 percent_incline: r.percent_incline,
                 crosswalk_forward: r.crosswalk_forward,

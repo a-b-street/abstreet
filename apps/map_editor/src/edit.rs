@@ -1,3 +1,4 @@
+use abstutil::Tags;
 use geom::{ArrowCap, Distance};
 use osm2streets::RoadID;
 use widgetry::{
@@ -31,8 +32,15 @@ impl EditRoad {
             );
         }
 
+        let tags = app
+            .model
+            .map
+            .road_to_osm_tags(r)
+            .cloned()
+            .unwrap_or_else(Tags::empty);
+
         let mut txt = Text::new();
-        for (k, v) in road.osm_tags.inner() {
+        for (k, v) in tags.inner() {
             txt.add_line(Line(format!("{} = {}", k, v)).secondary());
         }
         txt.add_line(Line(format!(
@@ -60,8 +68,7 @@ impl EditRoad {
                     ctx,
                     "lanes:forward",
                     (1, 5),
-                    road.osm_tags
-                        .get("lanes:forward")
+                    tags.get("lanes:forward")
                         .and_then(|x| x.parse::<usize>().ok())
                         .unwrap_or(1),
                     1,
@@ -73,16 +80,9 @@ impl EditRoad {
                     ctx,
                     "lanes:backward",
                     (0, 5),
-                    road.osm_tags
-                        .get("lanes:backward")
+                    tags.get("lanes:backward")
                         .and_then(|x| x.parse::<usize>().ok())
-                        .unwrap_or_else(|| {
-                            if road.osm_tags.is("oneway", "yes") {
-                                0
-                            } else {
-                                1
-                            }
-                        }),
+                        .unwrap_or_else(|| if tags.is("oneway", "yes") { 0 } else { 1 }),
                     1,
                 ),
             ]),
@@ -91,13 +91,13 @@ impl EditRoad {
                 Widget::dropdown(
                     ctx,
                     "sidewalk",
-                    if road.osm_tags.is("sidewalk", "both") {
+                    if tags.is("sidewalk", "both") {
                         "both"
-                    } else if road.osm_tags.is("sidewalk", "none") {
+                    } else if tags.is("sidewalk", "none") {
                         "none"
-                    } else if road.osm_tags.is("sidewalk", "left") {
+                    } else if tags.is("sidewalk", "left") {
                         "left"
-                    } else if road.osm_tags.is("sidewalk", "right") {
+                    } else if tags.is("sidewalk", "right") {
                         "right"
                     } else {
                         "both"
@@ -112,16 +112,13 @@ impl EditRoad {
                     ctx,
                     "parking",
                     // TODO Not all possibilities represented here; very simplified.
-                    if road.osm_tags.is("parking:lane:both", "parallel") {
+                    if tags.is("parking:lane:both", "parallel") {
                         "both"
-                    } else if road
-                        .osm_tags
-                        .is_any("parking:lane:both", vec!["no_parking", "no_stopping"])
-                    {
+                    } else if tags.is_any("parking:lane:both", vec!["no_parking", "no_stopping"]) {
                         "none"
-                    } else if road.osm_tags.is("parking:lane:left", "parallel") {
+                    } else if tags.is("parking:lane:left", "parallel") {
                         "left"
-                    } else if road.osm_tags.is("parking:lane:right", "parallel") {
+                    } else if tags.is("parking:lane:right", "parallel") {
                         "right"
                     } else {
                         "none"
@@ -174,47 +171,52 @@ impl SimpleState<App> for EditRoad {
             "Apply" => {
                 app.model.road_deleted(self.r);
 
-                let road = app.model.map.streets.roads.get_mut(&self.r).unwrap();
+                let mut tags = app
+                    .model
+                    .map
+                    .road_to_osm_tags(self.r)
+                    .cloned()
+                    .unwrap_or_else(Tags::empty);
 
-                road.osm_tags.remove("lanes");
-                road.osm_tags.remove("oneway");
+                tags.remove("lanes");
+                tags.remove("oneway");
                 let fwd: usize = panel.spinner("lanes:forward");
                 let back: usize = panel.spinner("lanes:backward");
                 if back == 0 {
-                    road.osm_tags.insert("oneway", "yes");
-                    road.osm_tags.insert("lanes", fwd.to_string());
+                    tags.insert("oneway", "yes");
+                    tags.insert("lanes", fwd.to_string());
                 } else {
-                    road.osm_tags.insert("lanes", (fwd + back).to_string());
-                    road.osm_tags.insert("lanes:forward", fwd.to_string());
-                    road.osm_tags.insert("lanes:backward", back.to_string());
+                    tags.insert("lanes", (fwd + back).to_string());
+                    tags.insert("lanes:forward", fwd.to_string());
+                    tags.insert("lanes:backward", back.to_string());
                 }
 
-                road.osm_tags
-                    .insert("sidewalk", panel.dropdown_value::<String, &str>("sidewalk"));
+                tags.insert("sidewalk", panel.dropdown_value::<String, &str>("sidewalk"));
 
-                road.osm_tags.remove("parking:lane:both");
-                road.osm_tags.remove("parking:lane:left");
-                road.osm_tags.remove("parking:lane:right");
+                tags.remove("parking:lane:both");
+                tags.remove("parking:lane:left");
+                tags.remove("parking:lane:right");
                 match panel.dropdown_value::<String, &str>("parking").as_ref() {
                     "both" => {
-                        road.osm_tags.insert("parking:lane:both", "parallel");
+                        tags.insert("parking:lane:both", "parallel");
                     }
                     "none" => {
-                        road.osm_tags.insert("parking:lane:both", "none");
+                        tags.insert("parking:lane:both", "none");
                     }
                     "left" => {
-                        road.osm_tags.insert("parking:lane:left", "parallel");
-                        road.osm_tags.insert("parking:lane:right", "none");
+                        tags.insert("parking:lane:left", "parallel");
+                        tags.insert("parking:lane:right", "none");
                     }
                     "right" => {
-                        road.osm_tags.insert("parking:lane:left", "none");
-                        road.osm_tags.insert("parking:lane:right", "parallel");
+                        tags.insert("parking:lane:left", "none");
+                        tags.insert("parking:lane:right", "parallel");
                     }
                     _ => unreachable!(),
                 }
 
+                let road = app.model.map.streets.roads.get_mut(&self.r).unwrap();
                 road.lane_specs_ltr =
-                    osm2streets::get_lane_specs_ltr(&road.osm_tags, &app.model.map.streets.config);
+                    osm2streets::get_lane_specs_ltr(&tags, &app.model.map.streets.config);
                 let scale = panel.spinner("width_scale");
                 for lane in &mut road.lane_specs_ltr {
                     lane.width *= scale;
@@ -235,9 +237,14 @@ impl SimpleState<App> for EditRoad {
     ) -> Option<Transition<App>> {
         let scale = panel.spinner("width_scale");
         app.model.road_deleted(self.r);
+        let tags = app
+            .model
+            .map
+            .road_to_osm_tags(self.r)
+            .cloned()
+            .unwrap_or_else(Tags::empty);
         let road = app.model.map.streets.roads.get_mut(&self.r).unwrap();
-        road.lane_specs_ltr =
-            osm2streets::get_lane_specs_ltr(&road.osm_tags, &app.model.map.streets.config);
+        road.lane_specs_ltr = osm2streets::get_lane_specs_ltr(&tags, &app.model.map.streets.config);
         for lane in &mut road.lane_specs_ltr {
             lane.width *= scale;
         }

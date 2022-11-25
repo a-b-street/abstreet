@@ -203,6 +203,8 @@ impl Road {
                 lt: l.lane_type,
                 dir: l.dir,
                 width: l.width,
+                // TODO These get lost from osm2streets
+                turn_restrictions: Vec::new(),
             })
             .collect()
     }
@@ -228,7 +230,7 @@ impl Road {
     }
 
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
-        if let Some(limit) = self.osm_tags.get(osm::MAXSPEED) {
+        if let Some(limit) = self.osm_tags.get("maxspeed") {
             if let Ok(kmph) = limit.parse::<f64>() {
                 if kmph == 0.0 {
                     warn!("{} has a speed limit of 0", self.orig_id.osm_way_id);
@@ -366,7 +368,7 @@ impl Road {
             }
         }
 
-        if let Some(name) = self.osm_tags.get(osm::NAME) {
+        if let Some(name) = self.osm_tags.get("name") {
             if name.is_empty() {
                 return "???".to_string();
             } else {
