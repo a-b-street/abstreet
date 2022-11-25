@@ -720,8 +720,8 @@
 <span class="kw">use </span>std::rc::Rc;
 
 <span class="kw">use </span>taffy::geometry::Size;
+<span class="kw">use </span>taffy::layout::AvailableSpace;
 <span class="kw">use </span>taffy::node::{Node, Taffy};
-<span class="kw">use </span>taffy::number::Number;
 <span class="kw">use </span>taffy::style::{Dimension, Style};
 
 <span class="kw">use </span>geom::Polygon;
@@ -885,7 +885,7 @@
     <span class="kw">fn </span>compute_flexbox(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (Taffy, Vec&lt;Node&gt;, ScreenDims) {
         <span class="kw">let </span><span class="kw-2">mut </span>taffy = Taffy::new();
         <span class="kw">let </span>root = taffy
-            .new_node(
+            .new_with_children(
                 Style {
                     ..Default::default()
                 },
@@ -899,8 +899,8 @@
 
         <span class="comment">// TODO Express more simply. Constraining this seems useless.
         </span><span class="kw">let </span>container_size = Size {
-            width: Number::Undefined,
-            height: Number::Undefined,
+            width: AvailableSpace::MaxContent,
+            height: AvailableSpace::MaxContent,
         };
         taffy.compute_layout(root, container_size).unwrap();
 

@@ -888,8 +888,8 @@
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
 <span class="kw">use </span>taffy::geometry::{Rect, Size};
+<span class="kw">use </span>taffy::layout::AvailableSpace;
 <span class="kw">use </span>taffy::node::{Node, Taffy};
-<span class="kw">use </span>taffy::number::Number;
 <span class="kw">use </span>taffy::style::{
     AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
 };
@@ -1191,7 +1191,7 @@
     </span>}
 
     <span class="kw">pub fn </span>padding_left(<span class="kw-2">mut </span><span class="self">self</span>, pixels: usize) -&gt; Widget {
-        <span class="self">self</span>.layout.style.padding.start = Dimension::Points(pixels <span class="kw">as </span>f32);
+        <span class="self">self</span>.layout.style.padding.left = Dimension::Points(pixels <span class="kw">as </span>f32);
         <span class="self">self
     </span>}
 
@@ -1201,7 +1201,7 @@
     </span>}
 
     <span class="kw">pub fn </span>padding_right(<span class="kw-2">mut </span><span class="self">self</span>, pixels: usize) -&gt; Widget {
-        <span class="self">self</span>.layout.style.padding.end = Dimension::Points(pixels <span class="kw">as </span>f32);
+        <span class="self">self</span>.layout.style.padding.right = Dimension::Points(pixels <span class="kw">as </span>f32);
         <span class="self">self
     </span>}
 
@@ -1220,16 +1220,16 @@
         <span class="self">self
     </span>}
     <span class="kw">pub fn </span>margin_left(<span class="kw-2">mut </span><span class="self">self</span>, pixels: usize) -&gt; Widget {
-        <span class="self">self</span>.layout.style.margin.start = Dimension::Points(pixels <span class="kw">as </span>f32);
+        <span class="self">self</span>.layout.style.margin.left = Dimension::Points(pixels <span class="kw">as </span>f32);
         <span class="self">self
     </span>}
     <span class="kw">pub fn </span>margin_right(<span class="kw-2">mut </span><span class="self">self</span>, pixels: usize) -&gt; Widget {
-        <span class="self">self</span>.layout.style.margin.end = Dimension::Points(pixels <span class="kw">as </span>f32);
+        <span class="self">self</span>.layout.style.margin.right = Dimension::Points(pixels <span class="kw">as </span>f32);
         <span class="self">self
     </span>}
     <span class="kw">pub fn </span>margin_horiz(<span class="kw-2">mut </span><span class="self">self</span>, pixels: usize) -&gt; Widget {
-        <span class="self">self</span>.layout.style.margin.start = Dimension::Points(pixels <span class="kw">as </span>f32);
-        <span class="self">self</span>.layout.style.margin.end = Dimension::Points(pixels <span class="kw">as </span>f32);
+        <span class="self">self</span>.layout.style.margin.left = Dimension::Points(pixels <span class="kw">as </span>f32);
+        <span class="self">self</span>.layout.style.margin.right = Dimension::Points(pixels <span class="kw">as </span>f32);
         <span class="self">self
     </span>}
     <span class="kw">pub fn </span>margin_vert(<span class="kw-2">mut </span><span class="self">self</span>, pixels: usize) -&gt; Widget {
@@ -1239,13 +1239,13 @@
     </span>}
 
     <span class="kw">pub fn </span>align_left(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Widget {
-        <span class="self">self</span>.layout.style.margin.end = Dimension::Auto;
+        <span class="self">self</span>.layout.style.margin.right = Dimension::Auto;
         <span class="self">self
     </span>}
     <span class="kw">pub fn </span>align_right(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Widget {
         <span class="self">self</span>.layout.style.margin = Rect {
-            start: Dimension::Auto,
-            end: Dimension::Undefined,
+            left: Dimension::Auto,
+            right: Dimension::Undefined,
             top: Dimension::Undefined,
             bottom: Dimension::Undefined,
         };
@@ -1253,8 +1253,8 @@
     </span>}
     <span class="kw">pub fn </span>align_bottom(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Widget {
         <span class="self">self</span>.layout.style.margin = Rect {
-            start: Dimension::Undefined,
-            end: Dimension::Undefined,
+            left: Dimension::Undefined,
+            right: Dimension::Undefined,
             top: Dimension::Auto,
             bottom: Dimension::Undefined,
         };
@@ -1263,8 +1263,8 @@
     <span class="doccomment">/// This doesn&#39;t count against the entire container
     </span><span class="kw">pub fn </span>align_vert_center(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Widget {
         <span class="self">self</span>.layout.style.margin = Rect {
-            start: Dimension::Undefined,
-            end: Dimension::Undefined,
+            left: Dimension::Undefined,
+            right: Dimension::Undefined,
             top: Dimension::Auto,
             bottom: Dimension::Auto,
         };
@@ -1274,8 +1274,8 @@
     <span class="kw">fn </span>abs(<span class="kw-2">mut </span><span class="self">self</span>, x: f64, y: f64) -&gt; Widget {
         <span class="self">self</span>.layout.style.position_type = PositionType::Absolute;
         <span class="self">self</span>.layout.style.position = Rect {
-            start: Dimension::Points(x <span class="kw">as </span>f32),
-            end: Dimension::Undefined,
+            left: Dimension::Points(x <span class="kw">as </span>f32),
+            right: Dimension::Undefined,
             top: Dimension::Points(y <span class="kw">as </span>f32),
             bottom: Dimension::Undefined,
         };
@@ -1408,7 +1408,7 @@
         </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>taffy = Taffy::new();
             <span class="kw">let </span>root = taffy
-                .new_node(
+                .new_with_children(
                     Style {
                         ..Default::default()
                     },
@@ -1421,8 +1421,8 @@
             nodes.reverse();
 
             <span class="kw">let </span>container_size = Size {
-                width: Number::Undefined,
-                height: Number::Undefined,
+                width: AvailableSpace::MaxContent,
+                height: AvailableSpace::MaxContent,
             };
             taffy.compute_layout(root, container_size).unwrap();
 
@@ -1496,7 +1496,7 @@
             } <span class="kw">else </span>{
                 FlexDirection::Column
             };
-            <span class="kw">let </span>node = taffy.new_node(style, <span class="kw-2">&amp;</span>[]).unwrap();
+            <span class="kw">let </span>node = taffy.new_with_children(style, <span class="kw-2">&amp;</span>[]).unwrap();
             nodes.push(node);
             <span class="kw">for </span>widget <span class="kw">in </span><span class="kw-2">&amp;</span>container.members {
                 widget.get_flexbox(node, taffy, nodes);
@@ -1507,7 +1507,7 @@
                 width: Dimension::Points(<span class="self">self</span>.widget.get_dims().width <span class="kw">as </span>f32),
                 height: Dimension::Points(<span class="self">self</span>.widget.get_dims().height <span class="kw">as </span>f32),
             };
-            <span class="kw">let </span>node = taffy.new_node(style, <span class="kw-2">&amp;</span>[]).unwrap();
+            <span class="kw">let </span>node = taffy.new_with_children(style, <span class="kw-2">&amp;</span>[]).unwrap();
             taffy.add_child(parent, node).unwrap();
             nodes.push(node);
         }
@@ -1765,8 +1765,8 @@
 <span class="kw">impl </span>From&lt;EdgeInsets&gt; <span class="kw">for </span>Rect&lt;Dimension&gt; {
     <span class="kw">fn </span>from(insets: EdgeInsets) -&gt; Rect&lt;Dimension&gt; {
         Rect {
-            start: Dimension::Points(insets.left <span class="kw">as </span>f32),
-            end: Dimension::Points(insets.right <span class="kw">as </span>f32),
+            left: Dimension::Points(insets.left <span class="kw">as </span>f32),
+            right: Dimension::Points(insets.right <span class="kw">as </span>f32),
             top: Dimension::Points(insets.top <span class="kw">as </span>f32),
             bottom: Dimension::Points(insets.bottom <span class="kw">as </span>f32),
         }
