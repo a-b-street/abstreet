@@ -15,7 +15,7 @@ pub use self::perma::PermanentMapEdits;
 use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
 use crate::{
     connectivity, AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal,
-    IntersectionID, IntersectionType, LaneID, LaneSpec, Map, MapConfig, Movement, ParkingLotID,
+    IntersectionControl, IntersectionID, LaneID, LaneSpec, Map, MapConfig, Movement, ParkingLotID,
     PathConstraints, Pathfinder, Road, RoadID, TransitRouteID, TurnID, TurnType, Zone,
 };
 
@@ -430,11 +430,11 @@ impl EditCmd {
                 effects.changed_intersections.insert(*i);
                 match new {
                     EditIntersection::StopSign(ref ss) => {
-                        map.intersections[i.0].intersection_type = IntersectionType::StopSign;
+                        map.intersections[i.0].control = IntersectionControl::Signed;
                         map.stop_signs.insert(*i, ss.clone());
                     }
                     EditIntersection::TrafficSignal(ref raw_ts) => {
-                        map.intersections[i.0].intersection_type = IntersectionType::TrafficSignal;
+                        map.intersections[i.0].control = IntersectionControl::Signalled;
                         if old == &EditIntersection::Closed {
                             recalculate_turns(*i, map, effects);
                         }
@@ -444,7 +444,7 @@ impl EditCmd {
                         );
                     }
                     EditIntersection::Closed => {
-                        map.intersections[i.0].intersection_type = IntersectionType::Construction;
+                        map.intersections[i.0].control = IntersectionControl::Construction;
                     }
                 }
 
@@ -526,19 +526,19 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     let i = &mut map.intersections[id.0];
     i.movements = movements;
 
-    match i.intersection_type {
-        IntersectionType::StopSign | IntersectionType::Uncontrolled => {
+    match i.control {
+        IntersectionControl::Signed | IntersectionControl::Uncontrolled => {
             // Stop sign policy usually doesn't depend on incoming lane types, except when changing
             // to/from construction. To be safe, always regenerate. Edits to stop signs are rare
             // anyway. And when we're smarter about preserving traffic signal changes in the face
             // of lane changes, we can do the same here.
             map.stop_signs.insert(id, ControlStopSign::new(map, id));
         }
-        IntersectionType::TrafficSignal => {
+        IntersectionControl::Signalled => {
             map.traffic_signals
                 .insert(id, ControlTrafficSignal::new(map, id));
         }
-        IntersectionType::Border | IntersectionType::Construction => unreachable!(),
+        IntersectionControl::Construction => unreachable!(),
     }
 }
 
@@ -780,17 +780,15 @@ impl Map {
         EditCmd::ChangeRoad { r, old, new }
     }
 
-    /// Panics on borders
     pub fn get_i_edit(&self, i: IntersectionID) -> EditIntersection {
-        match self.get_i(i).intersection_type {
-            IntersectionType::StopSign | IntersectionType::Uncontrolled => {
+        match self.get_i(i).control {
+            IntersectionControl::Signed | IntersectionControl::Uncontrolled => {
                 EditIntersection::StopSign(self.get_stop_sign(i).clone())
             }
-            IntersectionType::TrafficSignal => {
+            IntersectionControl::Signalled => {
                 EditIntersection::TrafficSignal(self.get_traffic_signal(i).export(self))
             }
-            IntersectionType::Construction => EditIntersection::Closed,
-            IntersectionType::Border => unreachable!(),
+            IntersectionControl::Construction => EditIntersection::Closed,
         }
     }
 
@@ -992,8 +990,8 @@ impl Map {
     /// the entire apply_edits flow.
     pub fn incremental_edit_traffic_signal(&mut self, signal: ControlTrafficSignal) {
         assert_eq!(
-            self.get_i(signal.id).intersection_type,
-            IntersectionType::TrafficSignal
+            self.get_i(signal.id).control,
+            IntersectionControl::Signalled
         );
         self.traffic_signals.insert(signal.id, signal);
     }

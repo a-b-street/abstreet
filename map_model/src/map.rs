@@ -7,17 +7,17 @@ use petgraph::graphmap::{DiGraphMap, UnGraphMap};
 
 use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
-use geom::{Bounds, Distance, Duration, GPSBounds, PolyLine, Polygon, Pt2D, Ring, Time};
-use raw_map::RawMap;
+use geom::{Bounds, Distance, Duration, GPSBounds, LonLat, PolyLine, Polygon, Pt2D, Ring, Time};
+use raw_map::{RawBuilding, RawMap};
 
 use crate::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
     CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
-    DrivingSide, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapConfig, MapEdits,
-    Movement, MovementID, OffstreetParking, OriginalRoad, ParkingLot, ParkingLotID, Path,
-    PathConstraints, PathRequest, PathV2, Pathfinder, PathfinderCaching, Position, Road, RoadID,
-    RoutingParams, TransitRoute, TransitRouteID, TransitStop, TransitStopID, Turn, TurnID,
-    TurnType, Zone,
+    DrivingSide, Intersection, IntersectionControl, IntersectionID, IntersectionKind, Lane, LaneID,
+    LaneType, Map, MapConfig, MapEdits, Movement, MovementID, OffstreetParking, OriginalRoad,
+    ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2, Pathfinder,
+    PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute, TransitRouteID,
+    TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
 };
 
 impl Map {
@@ -160,10 +160,6 @@ impl Map {
 
     /// A dummy map that won't crash UIs, but has almost nothing in it.
     pub fn almost_blank() -> Self {
-        use geom::LonLat;
-        use osm2streets::{ConflictType, ControlType, IntersectionComplexity};
-        use raw_map::RawBuilding;
-
         // Programatically creating a Map is very verbose. RawMap less so, but .osm could be even
         // better... but then we'd pull in dependencies for XML parsing everywhere.
         let mut raw = RawMap::blank(MapName::blank());
@@ -179,16 +175,14 @@ impl Map {
         let i1 = raw.streets.insert_intersection(
             Vec::new(),
             Pt2D::new(30.0, 30.0),
-            IntersectionComplexity::MapEdge,
-            ConflictType::Uncontested,
-            ControlType::Border,
+            IntersectionKind::MapEdge,
+            IntersectionControl::Uncontrolled,
         );
         let i2 = raw.streets.insert_intersection(
             Vec::new(),
             Pt2D::new(70.0, 70.0),
-            IntersectionComplexity::MapEdge,
-            ConflictType::Uncontested,
-            ControlType::Border,
+            IntersectionKind::MapEdge,
+            IntersectionControl::Uncontrolled,
         );
         let mut tags = Tags::empty();
         tags.insert("highway", "residential");

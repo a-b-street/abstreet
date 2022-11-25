@@ -7,8 +7,8 @@ use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
 
 use crate::{
-    osm, CompressedMovementID, DirectedRoadID, IntersectionType, LaneID, Map, Movement, MovementID,
-    PathConstraints, Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
+    osm, CompressedMovementID, DirectedRoadID, IntersectionControl, IntersectionKind, LaneID, Map,
+    Movement, MovementID, PathConstraints, Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -37,7 +37,8 @@ pub struct Intersection {
     pub turns: Vec<Turn>,
     pub elevation: Distance,
 
-    pub intersection_type: IntersectionType,
+    pub kind: IntersectionKind,
+    pub control: IntersectionControl,
     pub orig_id: osm::NodeID,
 
     /// Note that a lane may belong to both incoming_lanes and outgoing_lanes.
@@ -60,25 +61,25 @@ pub struct Intersection {
 
 impl Intersection {
     pub fn is_border(&self) -> bool {
-        self.intersection_type == IntersectionType::Border
+        self.kind == IntersectionKind::MapEdge
     }
     pub fn is_incoming_border(&self) -> bool {
-        self.intersection_type == IntersectionType::Border && !self.outgoing_lanes.is_empty()
+        self.kind == IntersectionKind::MapEdge && !self.outgoing_lanes.is_empty()
     }
     pub fn is_outgoing_border(&self) -> bool {
-        self.intersection_type == IntersectionType::Border && !self.incoming_lanes.is_empty()
+        self.kind == IntersectionKind::MapEdge && !self.incoming_lanes.is_empty()
     }
 
     pub fn is_closed(&self) -> bool {
-        self.intersection_type == IntersectionType::Construction
+        self.control == IntersectionControl::Construction
     }
 
     pub fn is_stop_sign(&self) -> bool {
-        self.intersection_type == IntersectionType::StopSign
+        self.control == IntersectionControl::Signed
     }
 
     pub fn is_traffic_signal(&self) -> bool {
-        self.intersection_type == IntersectionType::TrafficSignal
+        self.control == IntersectionControl::Signalled
     }
 
     pub fn is_light_rail(&self, map: &Map) -> bool {

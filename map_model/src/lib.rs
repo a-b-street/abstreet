@@ -37,11 +37,10 @@ use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
 use geom::{Bounds, GPSBounds, Polygon};
-// Re-export a bunch of things for convenience
-pub use osm2streets::ControlType as IntersectionType;
 pub use osm2streets::{
-    osm, BufferType, Direction, DrivingSide, LaneSpec, LaneType, MapConfig, NamePerLanguage,
-    OriginalRoad, RestrictionType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    osm, BufferType, Direction, DrivingSide, IntersectionControl, IntersectionKind, LaneSpec,
+    LaneType, MapConfig, NamePerLanguage, OriginalRoad, RestrictionType, NORMAL_LANE_THICKNESS,
+    SIDEWALK_THICKNESS,
 };
 pub use raw_map::{Amenity, AmenityType, AreaType};
 
