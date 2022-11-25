@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use structopt::StructOpt;
 
-use abstutil::{MultiMap, Timer};
+use abstutil::{MultiMap, Tags, Timer};
 use geom::{
     Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Speed, EPSILON_DIST,
 };
@@ -17,7 +17,7 @@ use crate::pathfind::{CreateEngine, Pathfinder};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
     Intersection, IntersectionControl, IntersectionID, IntersectionKind, Lane, LaneID, Map,
-    MapEdits, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
+    MapEdits, OriginalRoad, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
 };
 
 mod bridges;
@@ -95,8 +95,8 @@ impl Map {
                     IntersectionControl::Uncontrolled => IntersectionControl::Signed,
                     x => x,
                 },
-                // TODO Handle multiple here too
-                orig_id: i.osm_ids[0],
+                // TODO Hack. Handle multiple OSM IDs everywhere instead
+                orig_id: i.osm_ids.get(0).cloned().unwrap_or(osm::NodeID(0)),
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
@@ -121,7 +121,19 @@ impl Map {
             let mut road = Road {
                 id: road_id,
                 // Arbitrarily remember OSM tags from one of the ways
-                osm_tags: raw.osm_tags[&r.osm_ids[0].osm_way_id].clone(),
+                // TODO If this road was introduced synthetically, we'll have empty tags, which
+                // might break various downstream bits of code
+                osm_tags: if let Some(id) = r.osm_ids.get(0) {
+                    raw.osm_tags[&id.osm_way_id].clone()
+                } else {
+                    Tags::empty()
+                },
+                // TODO Hack. Handle multiple OSM IDs everywhere instead
+                orig_id: r
+                    .osm_ids
+                    .get(0)
+                    .cloned()
+                    .unwrap_or_else(|| OriginalRoad::new(0, (0, 0))),
                 turn_restrictions: r
                     .turn_restrictions
                     .iter()
@@ -147,8 +159,6 @@ impl Map {
                         }
                     })
                     .collect(),
-                // TODO Handle multiple here too
-                orig_id: r.osm_ids[0],
                 lanes: Vec::new(),
                 center_pts: r.trimmed_center_line.clone(),
                 untrimmed_center_pts: r.untrimmed_road_geometry().0,

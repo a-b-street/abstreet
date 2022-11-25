@@ -7,8 +7,7 @@ use geom::{
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
 use osm2streets::{
-    osm, IntersectionControl, IntersectionID, IntersectionKind, OriginalRoad, Road, RoadID,
-    Transformation,
+    osm, IntersectionControl, IntersectionID, IntersectionKind, Road, RoadID, Transformation,
 };
 use raw_map::{RawBuilding, RawMap};
 use widgetry::mapspace::{ObjectID, World};
@@ -371,8 +370,7 @@ impl Model {
         let id = self.map.streets.next_road_id();
         self.map.streets.insert_road(Road::new(
             id,
-            // Dummy
-            OriginalRoad::new(0, (1, 2)),
+            Vec::new(),
             i1,
             i2,
             untrimmed_center_line,

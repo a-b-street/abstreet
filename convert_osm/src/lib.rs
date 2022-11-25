@@ -10,7 +10,7 @@ use anyhow::Result;
 use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{GPSBounds, LonLat, PolyLine, Polygon, Ring};
-use osm2streets::{osm, OriginalRoad, Road};
+use osm2streets::{osm, Road};
 use raw_map::RawMap;
 
 pub use streets_reader::{
@@ -172,8 +172,7 @@ fn bristol_hack(map: &mut RawMap) {
     let id = map.streets.next_road_id();
     map.streets.insert_road(Road::new(
         id,
-        // Dummy
-        OriginalRoad::new(0, (1, 2)),
+        Vec::new(),
         src_i,
         dst_i,
         PolyLine::must_new(vec![

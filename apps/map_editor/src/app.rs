@@ -207,9 +207,9 @@ impl State<App> for MainState {
                         app.model.toggle_i(ctx, i);
                     }
                     WorldOutcome::Keypress("debug in OSM", ID::Intersection(i)) => {
-                        open_browser(
-                            app.model.map.streets.intersections[&i].osm_ids[0].to_string(),
-                        );
+                        if let Some(id) = app.model.map.streets.intersections[&i].osm_ids.get(0) {
+                            open_browser(id.to_string());
+                        }
                     }
                     WorldOutcome::Keypress("delete", ID::Building(b)) => {
                         app.model.delete_b(b);
@@ -248,7 +248,9 @@ impl State<App> for MainState {
                         app.model.toggle_junction(ctx, r);
                     }
                     WorldOutcome::Keypress("debug in OSM", ID::Road(r)) => {
-                        open_browser(app.model.map.streets.roads[&r].osm_ids[0].to_string());
+                        if let Some(id) = app.model.map.streets.roads[&r].osm_ids.get(0) {
+                            open_browser(id.to_string());
+                        }
                     }
                     WorldOutcome::ClickedObject(ID::Road(r)) => {
                         return Transition::Push(crate::edit::EditRoad::new_state(ctx, app, r));

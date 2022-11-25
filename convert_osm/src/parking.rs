@@ -15,7 +15,6 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
         OnstreetParking::Blockface(ref path) => {
             use_parking_hints(map, path.clone(), timer);
         }
-        OnstreetParking::SomeAdditionalWhereNoData { .. } => unreachable!(),
     }
     match opts.public_offstreet_parking {
         PublicOffstreetParking::None => {}
