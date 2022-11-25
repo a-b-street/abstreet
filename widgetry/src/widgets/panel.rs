@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use std::rc::Rc;
 
 use taffy::geometry::Size;
+use taffy::layout::AvailableSpace;
 use taffy::node::{Node, Taffy};
-use taffy::number::Number;
 use taffy::style::{Dimension, Style};
 
 use geom::Polygon;
@@ -168,7 +168,7 @@ impl Panel {
     fn compute_flexbox(&self) -> (Taffy, Vec<Node>, ScreenDims) {
         let mut taffy = Taffy::new();
         let root = taffy
-            .new_node(
+            .new_with_children(
                 Style {
                     ..Default::default()
                 },
@@ -182,8 +182,8 @@ impl Panel {
 
         // TODO Express more simply. Constraining this seems useless.
         let container_size = Size {
-            width: Number::Undefined,
-            height: Number::Undefined,
+            width: AvailableSpace::MaxContent,
+            height: AvailableSpace::MaxContent,
         };
         taffy.compute_layout(root, container_size).unwrap();
 

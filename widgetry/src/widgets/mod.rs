@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 use taffy::geometry::{Rect, Size};
+use taffy::layout::AvailableSpace;
 use taffy::node::{Node, Taffy};
-use taffy::number::Number;
 use taffy::style::{
     AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
 };
@@ -304,7 +304,7 @@ impl Widget {
     }
 
     pub fn padding_left(mut self, pixels: usize) -> Widget {
-        self.layout.style.padding.start = Dimension::Points(pixels as f32);
+        self.layout.style.padding.left = Dimension::Points(pixels as f32);
         self
     }
 
@@ -314,7 +314,7 @@ impl Widget {
     }
 
     pub fn padding_right(mut self, pixels: usize) -> Widget {
-        self.layout.style.padding.end = Dimension::Points(pixels as f32);
+        self.layout.style.padding.right = Dimension::Points(pixels as f32);
         self
     }
 
@@ -333,16 +333,16 @@ impl Widget {
         self
     }
     pub fn margin_left(mut self, pixels: usize) -> Widget {
-        self.layout.style.margin.start = Dimension::Points(pixels as f32);
+        self.layout.style.margin.left = Dimension::Points(pixels as f32);
         self
     }
     pub fn margin_right(mut self, pixels: usize) -> Widget {
-        self.layout.style.margin.end = Dimension::Points(pixels as f32);
+        self.layout.style.margin.right = Dimension::Points(pixels as f32);
         self
     }
     pub fn margin_horiz(mut self, pixels: usize) -> Widget {
-        self.layout.style.margin.start = Dimension::Points(pixels as f32);
-        self.layout.style.margin.end = Dimension::Points(pixels as f32);
+        self.layout.style.margin.left = Dimension::Points(pixels as f32);
+        self.layout.style.margin.right = Dimension::Points(pixels as f32);
         self
     }
     pub fn margin_vert(mut self, pixels: usize) -> Widget {
@@ -352,13 +352,13 @@ impl Widget {
     }
 
     pub fn align_left(mut self) -> Widget {
-        self.layout.style.margin.end = Dimension::Auto;
+        self.layout.style.margin.right = Dimension::Auto;
         self
     }
     pub fn align_right(mut self) -> Widget {
         self.layout.style.margin = Rect {
-            start: Dimension::Auto,
-            end: Dimension::Undefined,
+            left: Dimension::Auto,
+            right: Dimension::Undefined,
             top: Dimension::Undefined,
             bottom: Dimension::Undefined,
         };
@@ -366,8 +366,8 @@ impl Widget {
     }
     pub fn align_bottom(mut self) -> Widget {
         self.layout.style.margin = Rect {
-            start: Dimension::Undefined,
-            end: Dimension::Undefined,
+            left: Dimension::Undefined,
+            right: Dimension::Undefined,
             top: Dimension::Auto,
             bottom: Dimension::Undefined,
         };
@@ -376,8 +376,8 @@ impl Widget {
     /// This doesn't count against the entire container
     pub fn align_vert_center(mut self) -> Widget {
         self.layout.style.margin = Rect {
-            start: Dimension::Undefined,
-            end: Dimension::Undefined,
+            left: Dimension::Undefined,
+            right: Dimension::Undefined,
             top: Dimension::Auto,
             bottom: Dimension::Auto,
         };
@@ -387,8 +387,8 @@ impl Widget {
     fn abs(mut self, x: f64, y: f64) -> Widget {
         self.layout.style.position_type = PositionType::Absolute;
         self.layout.style.position = Rect {
-            start: Dimension::Points(x as f32),
-            end: Dimension::Undefined,
+            left: Dimension::Points(x as f32),
+            right: Dimension::Undefined,
             top: Dimension::Points(y as f32),
             bottom: Dimension::Undefined,
         };
@@ -521,7 +521,7 @@ impl Widget {
         {
             let mut taffy = Taffy::new();
             let root = taffy
-                .new_node(
+                .new_with_children(
                     Style {
                         ..Default::default()
                     },
@@ -534,8 +534,8 @@ impl Widget {
             nodes.reverse();
 
             let container_size = Size {
-                width: Number::Undefined,
-                height: Number::Undefined,
+                width: AvailableSpace::MaxContent,
+                height: AvailableSpace::MaxContent,
             };
             taffy.compute_layout(root, container_size).unwrap();
 
@@ -609,7 +609,7 @@ impl Widget {
             } else {
                 FlexDirection::Column
             };
-            let node = taffy.new_node(style, &[]).unwrap();
+            let node = taffy.new_with_children(style, &[]).unwrap();
             nodes.push(node);
             for widget in &container.members {
                 widget.get_flexbox(node, taffy, nodes);
@@ -620,7 +620,7 @@ impl Widget {
                 width: Dimension::Points(self.widget.get_dims().width as f32),
                 height: Dimension::Points(self.widget.get_dims().height as f32),
             };
-            let node = taffy.new_node(style, &[]).unwrap();
+            let node = taffy.new_with_children(style, &[]).unwrap();
             taffy.add_child(parent, node).unwrap();
             nodes.push(node);
         }
@@ -878,8 +878,8 @@ impl From<f64> for EdgeInsets {
 impl From<EdgeInsets> for Rect<Dimension> {
     fn from(insets: EdgeInsets) -> Rect<Dimension> {
         Rect {
-            start: Dimension::Points(insets.left as f32),
-            end: Dimension::Points(insets.right as f32),
+            left: Dimension::Points(insets.left as f32),
+            right: Dimension::Points(insets.right as f32),
             top: Dimension::Points(insets.top as f32),
             bottom: Dimension::Points(insets.bottom as f32),
         }
