@@ -7,8 +7,8 @@ use geom::{
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
 use osm2streets::{
-    osm, ConflictType, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road,
-    Transformation,
+    osm, ConflictType, ControlType, IntersectionComplexity, IntersectionID, OriginalRoad, Road,
+    RoadID, Transformation,
 };
 use raw_map::{RawBuilding, RawMap};
 use widgetry::mapspace::{ObjectID, World};
@@ -22,7 +22,7 @@ pub struct Model {
     // map and world are pub. The main crate should use them directly for simple stuff, to avoid
     // boilerplate delegation methods. Complex changes should be proper methods on the model.
     pub map: RawMap,
-    showing_pts: Option<OriginalRoad>,
+    showing_pts: Option<RoadID>,
     pub world: World<ID>,
 
     pub include_bldgs: bool,
@@ -32,9 +32,9 @@ pub struct Model {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ID {
     Building(osm::OsmID),
-    Intersection(osm::NodeID),
-    Road(OriginalRoad),
-    RoadPoint(OriginalRoad, usize),
+    Intersection(IntersectionID),
+    Road(RoadID),
+    RoadPoint(RoadID, usize),
 }
 impl ObjectID for ID {}
 
@@ -167,7 +167,7 @@ impl Model {
 
 // Intersections
 impl Model {
-    fn intersection_added(&mut self, ctx: &EventCtx, id: osm::NodeID) {
+    fn intersection_added(&mut self, ctx: &EventCtx, id: IntersectionID) {
         let i = &self.map.streets.intersections[&id];
         let color = match i.control {
             ControlType::TrafficSignal => Color::GREEN,
@@ -199,40 +199,55 @@ impl Model {
     }
 
     pub fn create_i(&mut self, ctx: &EventCtx, point: Pt2D) {
-        let id = self.map.new_osm_node_id(time_to_id());
         // The complexity will change as we connect things to this intersection
-        self.map.streets.intersections.insert(
-            id,
-            Intersection::new(
-                id,
-                point,
-                IntersectionComplexity::Crossing,
-                ConflictType::Cross,
-                ControlType::StopSign,
-            ),
+        let id = self.map.streets.insert_intersection(
+            Vec::new(),
+            point,
+            IntersectionComplexity::Crossing,
+            ConflictType::Cross,
+            ControlType::StopSign,
         );
         self.intersection_added(ctx, id);
     }
 
-    pub fn move_i(&mut self, ctx: &EventCtx, id: osm::NodeID, point: Pt2D) {
+    pub fn move_i(&mut self, ctx: &EventCtx, id: IntersectionID, point: Pt2D) {
         self.world.delete_before_replacement(ID::Intersection(id));
-        for r in self.map.streets.move_intersection(id, point).unwrap() {
+
+        self.map.streets.intersections.get_mut(&id).unwrap().point = point;
+
+        // Update all the roads.
+        let mut fixed = Vec::new();
+        for r in &self.map.streets.intersections[&id].roads {
+            fixed.push(*r);
+            let road = self.map.streets.roads.get_mut(r).unwrap();
+            let mut pts = road.untrimmed_center_line.clone().into_points();
+            if road.src_i == id {
+                pts[0] = point;
+            } else {
+                assert_eq!(road.dst_i, id);
+                *pts.last_mut().unwrap() = point;
+            }
+            // TODO This could panic if someone moves the intersection a certain way
+            road.untrimmed_center_line = PolyLine::must_new(pts);
+        }
+
+        for r in fixed {
             self.road_deleted(r);
             self.road_added(ctx, r);
         }
         self.intersection_added(ctx, id);
     }
 
-    pub fn delete_i(&mut self, id: osm::NodeID) {
-        if !self.map.streets.can_delete_intersection(id) {
+    pub fn delete_i(&mut self, id: IntersectionID) {
+        if !self.map.streets.intersections[&id].roads.is_empty() {
             error!("Can't delete intersection used by roads");
             return;
         }
-        self.map.streets.delete_intersection(id);
+        self.map.streets.remove_intersection(id);
         self.world.delete(ID::Intersection(id));
     }
 
-    pub fn toggle_i(&mut self, ctx: &EventCtx, id: osm::NodeID) {
+    pub fn toggle_i(&mut self, ctx: &EventCtx, id: IntersectionID) {
         self.world.delete_before_replacement(ID::Intersection(id));
 
         let i = self.map.streets.intersections.get_mut(&id).unwrap();
@@ -278,7 +293,7 @@ impl Model {
 
 // Roads
 impl Model {
-    pub fn road_added(&mut self, ctx: &EventCtx, id: OriginalRoad) {
+    pub fn road_added(&mut self, ctx: &EventCtx, id: RoadID) {
         let road = &self.map.streets.roads[&id];
         let (center, total_width) = road.untrimmed_road_geometry();
         let hitbox = center.make_polygons(total_width);
@@ -311,39 +326,33 @@ impl Model {
             .build(ctx);
     }
 
-    pub fn road_deleted(&mut self, id: OriginalRoad) {
+    pub fn road_deleted(&mut self, id: RoadID) {
         self.world.delete(ID::Road(id));
     }
 
-    pub fn create_r(&mut self, ctx: &EventCtx, i1: osm::NodeID, i2: osm::NodeID) {
+    pub fn create_r(&mut self, ctx: &EventCtx, i1: IntersectionID, i2: IntersectionID) {
         // Ban cul-de-sacs, since they get stripped out later anyway.
         if self
             .map
             .streets
             .roads
-            .keys()
-            .any(|r| (r.i1 == i1 && r.i2 == i2) || (r.i1 == i2 && r.i2 == i1))
+            .values()
+            .any(|r| (r.src_i == i1 && r.dst_i == i2) || (r.src_i == i2 && r.dst_i == i1))
         {
             error!("Road already exists");
             return;
         }
 
-        let id = OriginalRoad {
-            osm_way_id: self.map.new_osm_way_id(time_to_id()),
-            i1,
-            i2,
-        };
         let mut osm_tags = Tags::empty();
-        osm_tags.insert(osm::HIGHWAY, "residential");
-        osm_tags.insert(osm::PARKING_BOTH, "parallel");
-        osm_tags.insert(osm::SIDEWALK, "both");
+        osm_tags.insert("highway", "residential");
+        osm_tags.insert("parking:both:lane", "parallel");
+        osm_tags.insert("sidewalk", "both");
         osm_tags.insert("lanes", "2");
         osm_tags.insert(osm::ENDPT_FWD, "true");
         osm_tags.insert(osm::ENDPT_BACK, "true");
-        osm_tags.insert(osm::OSM_WAY_ID, id.osm_way_id.to_string());
         // Reasonable defaults.
-        osm_tags.insert(osm::NAME, "Streety McStreetFace");
-        osm_tags.insert(osm::MAXSPEED, "25 mph");
+        osm_tags.insert("name", "Streety McStreetFace");
+        osm_tags.insert("maxspeed", "25 mph");
 
         let untrimmed_center_line = match PolyLine::new(vec![
             self.map.streets.intersections[&i1].point,
@@ -355,37 +364,41 @@ impl Model {
                 return;
             }
         };
-        let road = Road::new(
-            id,
-            untrimmed_center_line,
-            osm_tags,
-            &self.map.streets.config,
-        );
 
         self.world.delete_before_replacement(ID::Intersection(i1));
         self.world.delete_before_replacement(ID::Intersection(i2));
 
-        self.map.streets.insert_road(id, road);
+        let id = self.map.streets.next_road_id();
+        self.map.streets.insert_road(Road::new(
+            id,
+            // Dummy
+            OriginalRoad::new(0, (1, 2)),
+            i1,
+            i2,
+            untrimmed_center_line,
+            osm_tags,
+            &self.map.streets.config,
+        ));
         self.road_added(ctx, id);
 
         self.intersection_added(ctx, i1);
         self.intersection_added(ctx, i2);
     }
 
-    pub fn delete_r(&mut self, ctx: &EventCtx, id: OriginalRoad) {
+    pub fn delete_r(&mut self, ctx: &EventCtx, id: RoadID) {
         self.stop_showing_pts(id);
         self.road_deleted(id);
+        let road = self.map.streets.remove_road(id);
         self.world
-            .delete_before_replacement(ID::Intersection(id.i1));
+            .delete_before_replacement(ID::Intersection(road.src_i));
         self.world
-            .delete_before_replacement(ID::Intersection(id.i2));
-        self.map.streets.remove_road(&id);
+            .delete_before_replacement(ID::Intersection(road.dst_i));
 
-        self.intersection_added(ctx, id.i1);
-        self.intersection_added(ctx, id.i2);
+        self.intersection_added(ctx, road.src_i);
+        self.intersection_added(ctx, road.dst_i);
     }
 
-    pub fn show_r_points(&mut self, ctx: &EventCtx, id: OriginalRoad) {
+    pub fn show_r_points(&mut self, ctx: &EventCtx, id: RoadID) {
         if self.showing_pts == Some(id) {
             return;
         }
@@ -411,7 +424,7 @@ impl Model {
         }
     }
 
-    pub fn stop_showing_pts(&mut self, id: OriginalRoad) {
+    pub fn stop_showing_pts(&mut self, id: RoadID) {
         if self.showing_pts != Some(id) {
             return;
         }
@@ -426,7 +439,7 @@ impl Model {
         }
     }
 
-    pub fn move_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, idx: usize, point: Pt2D) {
+    pub fn move_r_pt(&mut self, ctx: &EventCtx, id: RoadID, idx: usize, point: Pt2D) {
         assert_eq!(self.showing_pts, Some(id));
         // stop_showing_pts deletes the points, but we want to use delete_before_replacement
         self.showing_pts = None;
@@ -440,10 +453,11 @@ impl Model {
         }
 
         self.road_deleted(id);
+        let endpts = self.map.streets.roads[&id].endpoints();
         self.world
-            .delete_before_replacement(ID::Intersection(id.i1));
+            .delete_before_replacement(ID::Intersection(endpts[0]));
         self.world
-            .delete_before_replacement(ID::Intersection(id.i2));
+            .delete_before_replacement(ID::Intersection(endpts[1]));
 
         let mut pts = self.map.streets.roads[&id]
             .untrimmed_center_line
@@ -458,25 +472,26 @@ impl Model {
             .untrimmed_center_line = PolyLine::must_new(pts);
 
         self.road_added(ctx, id);
-        self.intersection_added(ctx, id.i1);
-        self.intersection_added(ctx, id.i2);
+        self.intersection_added(ctx, endpts[0]);
+        self.intersection_added(ctx, endpts[1]);
         self.show_r_points(ctx, id);
     }
 
     fn change_r_points<F: FnMut(&mut Vec<Pt2D>)>(
         &mut self,
         ctx: &EventCtx,
-        id: OriginalRoad,
+        id: RoadID,
         mut transform: F,
     ) {
         assert_eq!(self.showing_pts, Some(id));
 
         self.stop_showing_pts(id);
         self.road_deleted(id);
+        let endpts = self.map.streets.roads[&id].endpoints();
         self.world
-            .delete_before_replacement(ID::Intersection(id.i1));
+            .delete_before_replacement(ID::Intersection(endpts[0]));
         self.world
-            .delete_before_replacement(ID::Intersection(id.i2));
+            .delete_before_replacement(ID::Intersection(endpts[1]));
 
         let mut pts = self.map.streets.roads[&id]
             .untrimmed_center_line
@@ -491,18 +506,18 @@ impl Model {
             .untrimmed_center_line = PolyLine::must_new(pts);
 
         self.road_added(ctx, id);
-        self.intersection_added(ctx, id.i1);
-        self.intersection_added(ctx, id.i2);
+        self.intersection_added(ctx, endpts[0]);
+        self.intersection_added(ctx, endpts[1]);
         self.show_r_points(ctx, id);
     }
 
-    pub fn delete_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, idx: usize) {
+    pub fn delete_r_pt(&mut self, ctx: &EventCtx, id: RoadID, idx: usize) {
         self.change_r_points(ctx, id, |pts| {
             pts.remove(idx);
         });
     }
 
-    pub fn insert_r_pt(&mut self, ctx: &EventCtx, id: OriginalRoad, pt: Pt2D) {
+    pub fn insert_r_pt(&mut self, ctx: &EventCtx, id: RoadID, pt: Pt2D) {
         let mut closest = FindClosest::new(&self.compute_bounds());
         self.change_r_points(ctx, id, move |pts| {
             for (idx, pair) in pts.windows(2).enumerate() {
@@ -516,26 +531,23 @@ impl Model {
         });
     }
 
-    pub fn clear_r_pts(&mut self, ctx: &EventCtx, id: OriginalRoad) {
+    pub fn clear_r_pts(&mut self, ctx: &EventCtx, id: RoadID) {
         self.change_r_points(ctx, id, |pts| {
             *pts = vec![pts[0], *pts.last().unwrap()];
         });
     }
 
-    pub fn merge_r(&mut self, ctx: &EventCtx, id: OriginalRoad) {
+    pub fn merge_r(&mut self, ctx: &EventCtx, id: RoadID) {
         self.stop_showing_pts(id);
 
-        let (retained_i, deleted_i, deleted_roads, created_roads) =
-            match self.map.streets.collapse_short_road(id) {
-                Ok((retained_i, deleted_i, deleted_roads, created_roads)) => {
-                    (retained_i, deleted_i, deleted_roads, created_roads)
-                }
-                Err(err) => {
-                    warn!("Can't merge this road: {}", err);
-                    self.show_r_points(ctx, id);
-                    return;
-                }
-            };
+        let (retained_i, deleted_i) = match self.map.streets.collapse_short_road(id) {
+            Ok(pair) => pair,
+            Err(err) => {
+                warn!("Can't merge this road: {}", err);
+                self.show_r_points(ctx, id);
+                return;
+            }
+        };
 
         self.world
             .delete_before_replacement(ID::Intersection(retained_i));
@@ -543,17 +555,16 @@ impl Model {
 
         self.world.delete(ID::Intersection(deleted_i));
 
-        for r in deleted_roads {
-            self.world.delete(ID::Road(r));
-        }
-        for r in created_roads {
+        self.world.delete(ID::Road(id));
+        // Geometry might've changed for roads connected to the endpoints
+        for r in self.map.streets.intersections[&retained_i].roads.clone() {
             self.road_added(ctx, r);
         }
 
-        info!("Merged {}", id.as_string_code());
+        info!("Merged {id}");
     }
 
-    pub fn toggle_junction(&mut self, ctx: &EventCtx, id: OriginalRoad) {
+    pub fn toggle_junction(&mut self, ctx: &EventCtx, id: RoadID) {
         self.road_deleted(id);
 
         let road = self.map.streets.roads.get_mut(&id).unwrap();
@@ -583,7 +594,8 @@ impl Model {
     }
 
     pub fn create_b(&mut self, ctx: &EventCtx, center: Pt2D) -> ID {
-        let id = osm::OsmID::Way(self.map.new_osm_way_id(time_to_id()));
+        // Bit brittle, but not a big deal
+        let id = osm::OsmID::Way(osm::WayID(-1 * self.map.buildings.len() as i64));
         self.map.buildings.insert(
             id,
             RawBuilding {
@@ -613,22 +625,6 @@ impl Model {
     }
 }
 
-// Don't conflict with the synthetic IDs generated by map clipping.
-#[cfg(not(target_arch = "wasm32"))]
-fn time_to_id() -> i64 {
-    -(std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64)
-}
-
-#[cfg(target_arch = "wasm32")]
-fn time_to_id() -> i64 {
-    // TODO This is correct, just probably kind of annoying and slow. Having trouble getting
-    // current time as seconds in wasm.
-    -5000
-}
-
 /// Express a RawMap as a .osm file. Why not just save the RawMap? The format may change over time,
 /// and even if a RawMap is saved as JSON, manually updating it is annoying. This is used to create
 /// synthetic maps that will never go bad -- there will always be a pipeline to import a .osm file,
@@ -647,7 +643,7 @@ fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
         r#"    <bounds minlon="{}" maxlon="{}" minlat="{}" maxlat="{}"/>"#,
         b.min_lon, b.max_lon, b.min_lat, b.max_lat
     )?;
-    let mut pt_to_id: HashMap<HashablePt2D, osm::NodeID> = HashMap::new();
+    let mut pt_to_id: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
     for (id, i) in &map.streets.intersections {
         pt_to_id.insert(i.point.to_hashable(), *id);
         let pt = i.point.to_gps(b);
@@ -660,7 +656,7 @@ fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
         )?;
     }
     for (id, r) in &map.streets.roads {
-        writeln!(f, r#"    <way id="{}">"#, id.osm_way_id.0)?;
+        writeln!(f, r#"    <way id="{}">"#, id.0)?;
         for pt in r.untrimmed_center_line.points() {
             // TODO Make new IDs if needed
             writeln!(

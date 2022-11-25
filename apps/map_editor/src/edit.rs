@@ -1,5 +1,5 @@
 use geom::{ArrowCap, Distance};
-use osm2streets::OriginalRoad;
+use osm2streets::RoadID;
 use widgetry::{
     Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Panel, SimpleState, Spinner, State, Text, TextExt, Transition, VerticalAlignment, Widget,
@@ -8,12 +8,12 @@ use widgetry::{
 use crate::App;
 
 pub struct EditRoad {
-    r: OriginalRoad,
+    r: RoadID,
     show_direction: Drawable,
 }
 
 impl EditRoad {
-    pub(crate) fn new_state(ctx: &mut EventCtx, app: &App, r: OriginalRoad) -> Box<dyn State<App>> {
+    pub(crate) fn new_state(ctx: &mut EventCtx, app: &App, r: RoadID) -> Box<dyn State<App>> {
         let road = &app.model.map.streets.roads[&r];
 
         let mut batch = GeomBatch::new();

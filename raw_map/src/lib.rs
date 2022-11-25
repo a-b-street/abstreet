@@ -63,49 +63,6 @@ impl RawMap {
         }
     }
 
-    // TODO Almost gone...
-    pub fn new_osm_way_id(&self, start: i64) -> osm::WayID {
-        assert!(start < 0);
-        // Slow, but deterministic.
-        let mut osm_way_id = start;
-        loop {
-            let candidate = osm::WayID(osm_way_id);
-            // TODO Doesn't handle collisions with areas or parking lots
-            if self
-                .streets
-                .roads
-                .keys()
-                .any(|r| r.osm_way_id.0 == osm_way_id)
-                || self
-                    .buildings
-                    .keys()
-                    .any(|b| b == &osm::OsmID::Way(candidate))
-            {
-                osm_way_id -= 1;
-            } else {
-                return candidate;
-            }
-        }
-    }
-
-    pub fn new_osm_node_id(&self, start: i64) -> osm::NodeID {
-        assert!(start < 0);
-        // Slow, but deterministic.
-        let mut osm_node_id = start;
-        loop {
-            if self
-                .streets
-                .intersections
-                .keys()
-                .any(|i| i.0 == osm_node_id)
-            {
-                osm_node_id -= 1;
-            } else {
-                return osm::NodeID(osm_node_id);
-            }
-        }
-    }
-
     pub fn save(&self) {
         abstio::write_binary(abstio::path_raw_map(&self.name), self)
     }
