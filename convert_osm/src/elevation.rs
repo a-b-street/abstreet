@@ -3,9 +3,9 @@ use std::process::Command;
 
 use anyhow::Result;
 use fs_err::File;
+use osm2streets::IntersectionID;
 
 use geom::Distance;
-use osm2streets::OriginalRoad;
 use raw_map::RawMap;
 
 pub fn add_data(map: &mut RawMap) -> Result<()> {
@@ -68,12 +68,12 @@ pub fn add_data(map: &mut RawMap) -> Result<()> {
     Ok(())
 }
 
-fn generate_input(input: &str, map: &RawMap) -> Result<Vec<OriginalRoad>> {
+fn generate_input(input: &str, map: &RawMap) -> Result<Vec<(IntersectionID, IntersectionID)>> {
     fs_err::create_dir_all(input)?;
     let mut f = BufWriter::new(File::create(format!("{input}/query"))?);
     let mut ids = Vec::new();
-    for (id, r) in &map.streets.roads {
-        ids.push(*id);
+    for r in map.streets.roads.values() {
+        ids.push((r.src_i, r.dst_i));
         // Sample points along the road. Smaller step size gives more detail, but is slower.
         let mut pts = Vec::new();
         for (pt, _) in r
@@ -103,10 +103,14 @@ fn generate_input(input: &str, map: &RawMap) -> Result<Vec<OriginalRoad>> {
     Ok(ids)
 }
 
-fn scrape_output(output: &str, map: &mut RawMap, ids: Vec<OriginalRoad>) -> Result<()> {
+fn scrape_output(
+    output: &str,
+    map: &mut RawMap,
+    ids: Vec<(IntersectionID, IntersectionID)>,
+) -> Result<()> {
     let num_ids = ids.len();
     let mut cnt = 0;
-    for (line, id) in BufReader::new(File::open(format!("{output}/query"))?)
+    for (line, (src_i, dst_i)) in BufReader::new(File::open(format!("{output}/query"))?)
         .lines()
         .zip(ids)
     {
@@ -134,8 +138,8 @@ fn scrape_output(output: &str, map: &mut RawMap, ids: Vec<OriginalRoad>) -> Resu
             continue;
         }
         // TODO Also put total_climb and total_descent on the roads
-        map.streets.intersections.get_mut(&id.i1).unwrap().elevation = values[0];
-        map.streets.intersections.get_mut(&id.i2).unwrap().elevation = values[1];
+        map.streets.intersections.get_mut(&src_i).unwrap().elevation = values[0];
+        map.streets.intersections.get_mut(&dst_i).unwrap().elevation = values[1];
     }
     if cnt != num_ids {
         bail!("Output had {} lines, but we made {} queries", cnt, num_ids);
@@ -143,9 +147,9 @@ fn scrape_output(output: &str, map: &mut RawMap, ids: Vec<OriginalRoad>) -> Resu
 
     // Calculate the incline for each road here, before the road gets trimmed for intersection
     // geometry. If we did this after trimming, we'd miss some of the horizontal distance.
-    for (id, road) in &mut map.streets.roads {
-        let rise = map.streets.intersections[&id.i2].elevation
-            - map.streets.intersections[&id.i1].elevation;
+    for road in map.streets.roads.values_mut() {
+        let rise = map.streets.intersections[&road.dst_i].elevation
+            - map.streets.intersections[&road.src_i].elevation;
         let run = road.untrimmed_length();
         if !(rise / run).is_finite() {
             // TODO Warn?
@@ -158,7 +162,7 @@ fn scrape_output(output: &str, map: &mut RawMap, ids: Vec<OriginalRoad>) -> Resu
         if road.percent_incline.abs() > 0.3 {
             error!(
                 "{} is unexpectedly steep! Incline is {}%",
-                id,
+                road.id,
                 road.percent_incline * 100.0
             );
         }

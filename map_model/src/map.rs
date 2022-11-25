@@ -176,40 +176,34 @@ impl Map {
             .gps_bounds
             .update(LonLat::new(-122.240505, 47.495342));
 
-        let i1 = osm::NodeID(0);
-        let i2 = osm::NodeID(1);
-        raw.streets.intersections.insert(
-            i1,
-            osm2streets::Intersection::new(
-                i1,
-                Pt2D::new(30.0, 30.0),
-                IntersectionComplexity::MapEdge,
-                ConflictType::Uncontested,
-                ControlType::Border,
-            ),
+        let i1 = raw.streets.insert_intersection(
+            Vec::new(),
+            Pt2D::new(30.0, 30.0),
+            IntersectionComplexity::MapEdge,
+            ConflictType::Uncontested,
+            ControlType::Border,
         );
-        raw.streets.intersections.insert(
-            i2,
-            osm2streets::Intersection::new(
-                i2,
-                Pt2D::new(70.0, 70.0),
-                IntersectionComplexity::MapEdge,
-                ConflictType::Uncontested,
-                ControlType::Border,
-            ),
+        let i2 = raw.streets.insert_intersection(
+            Vec::new(),
+            Pt2D::new(70.0, 70.0),
+            IntersectionComplexity::MapEdge,
+            ConflictType::Uncontested,
+            ControlType::Border,
         );
         let mut tags = Tags::empty();
         tags.insert("highway", "residential");
         tags.insert("lanes", "2");
-        raw.streets.insert_road(
-            OriginalRoad::new(2, (i1.0, i2.0)),
-            osm2streets::Road::new(
-                OriginalRoad::new(2, (i1.0, i2.0)),
-                PolyLine::must_new(vec![Pt2D::new(30.0, 30.0), Pt2D::new(70.0, 70.0)]),
-                tags,
-                &raw.streets.config,
-            ),
-        );
+        let road_id = raw.streets.next_road_id();
+        raw.streets.insert_road(osm2streets::Road::new(
+            road_id,
+            // Dummy
+            OriginalRoad::new(0, (1, 2)),
+            i1,
+            i2,
+            PolyLine::must_new(vec![Pt2D::new(30.0, 30.0), Pt2D::new(70.0, 70.0)]),
+            tags,
+            &raw.streets.config,
+        ));
 
         raw.buildings.insert(
             osm::OsmID::Way(osm::WayID(3)),

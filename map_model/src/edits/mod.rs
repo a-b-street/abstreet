@@ -596,10 +596,8 @@ fn recalculate_intersection_polygon(
     let intersection = map.get_i(i);
 
     let mut input_roads = Vec::new();
-    let mut id_mapping = BTreeMap::new();
     for r in &intersection.roads {
         let r = map.get_r(*r);
-        id_mapping.insert(r.orig_id, r.id);
 
         let half_width = if r.id == changed_road {
             changed_road_width / 2.0
@@ -628,7 +626,10 @@ fn recalculate_intersection_polygon(
         }
 
         input_roads.push(InputRoad {
-            id: r.orig_id,
+            // Just map our IDs to something in osm2streets ID space.
+            id: osm2streets::RoadID(r.id.0),
+            src_i: osm2streets::IntersectionID(r.src_i.0),
+            dst_i: osm2streets::IntersectionID(r.dst_i.0),
             center_pts: trimmed_center_pts,
             half_width,
             osm_tags: r.osm_tags.clone(),
@@ -636,7 +637,7 @@ fn recalculate_intersection_polygon(
     }
 
     let results = osm2streets::intersection_polygon(
-        intersection.orig_id,
+        osm2streets::IntersectionID(intersection.id.0),
         input_roads,
         // For consolidated intersections, it appears we don't need to pass in
         // trim_roads_for_merging. May revisit this later if needed.
@@ -647,8 +648,8 @@ fn recalculate_intersection_polygon(
     map.intersections[i.0].polygon = results.intersection_polygon;
     // Copy over the re-trimmed road centers
     let mut affected = Vec::new();
-    for (orig_id, (pl, _)) in results.trimmed_center_pts {
-        let id = id_mapping[&orig_id];
+    for (id, (pl, _)) in results.trimmed_center_pts {
+        let id = RoadID(id.0);
         map.roads[id.0].center_pts = pl;
         if id != changed_road {
             affected.push(id);

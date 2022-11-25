@@ -50,7 +50,7 @@ pub fn convert(
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
-    map.streets.roads.retain(|r, _| r.i1 != r.i2);
+    map.streets.retain_roads(|r| r.src_i != r.dst_i);
 
     parking::apply_parking(&mut map, &opts, timer);
 
@@ -125,10 +125,6 @@ fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
 // We're using Bristol for a project that requires an unusual LTN neighborhood boundary. Insert a
 // fake road where a bridge crosses another road, to force blockfinding to trace along there.
 fn bristol_hack(map: &mut RawMap) {
-    let osm_way_id = map.new_osm_way_id(-1);
-    let i1 = osm::NodeID(364061012);
-    let i2 = osm::NodeID(1215755208);
-    let id = OriginalRoad { osm_way_id, i1, i2 };
     let mut tags = Tags::empty();
     tags.insert("highway", "service");
     tags.insert("name", "Fake road");
@@ -141,18 +137,35 @@ fn bristol_hack(map: &mut RawMap) {
     tags.insert("maxspeed", "1 mph");
     tags.insert("bicycle", "no");
 
-    map.streets.insert_road(
+    let src_i = map
+        .streets
+        .intersections
+        .values()
+        .find(|i| i.osm_ids.contains(&osm::NodeID(364061012)))
+        .unwrap()
+        .id;
+    let dst_i = map
+        .streets
+        .intersections
+        .values()
+        .find(|i| i.osm_ids.contains(&osm::NodeID(1215755208)))
+        .unwrap()
+        .id;
+
+    let id = map.streets.next_road_id();
+    map.streets.insert_road(Road::new(
         id,
-        Road::new(
-            id,
-            PolyLine::must_new(vec![
-                map.streets.intersections[&i1].point,
-                map.streets.intersections[&i2].point,
-            ]),
-            tags,
-            &map.streets.config,
-        ),
-    );
+        // Dummy
+        OriginalRoad::new(0, (1, 2)),
+        src_i,
+        dst_i,
+        PolyLine::must_new(vec![
+            map.streets.intersections[&src_i].point,
+            map.streets.intersections[&dst_i].point,
+        ]),
+        tags,
+        &map.streets.config,
+    ));
 }
 
 fn clip_map(map: &mut RawMap, timer: &mut Timer) {

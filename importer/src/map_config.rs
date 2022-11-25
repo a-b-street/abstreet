@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use abstio::{CityName, MapName};
 use abstutil::Timer;
 use geom::Distance;
@@ -45,23 +47,17 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
                 MapName::new("pl", "krakow", "center"),
             ]
             .contains(name),
-            merge_osm_ways: abstio::maybe_read_json::<Vec<osm2streets::OriginalRoad>>(
+            merge_osm_ways: abstio::maybe_read_json::<BTreeSet<osm2streets::OriginalRoad>>(
                 "merge_osm_ways.json".to_string(),
                 &mut Timer::throwaway(),
             )
             .ok()
-            .unwrap_or_else(Vec::new),
+            .unwrap_or_else(BTreeSet::new),
             osm2lanes: false,
         },
         onstreet_parking: match name.city.city.as_ref() {
             "seattle" => {
                 convert_osm::OnstreetParking::Blockface(name.city.input_path("blockface.bin"))
-            }
-            "lyon" | "milwaukee" | "montreal" | "tel_aviv" | "zurich" => {
-                convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: 50 }
-            }
-            "krakow" | "warsaw" => {
-                convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: 90 }
             }
             _ => convert_osm::OnstreetParking::JustOSM,
         },

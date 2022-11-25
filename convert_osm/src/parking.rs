@@ -1,7 +1,7 @@
 use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, PolyLine};
 use kml::ExtraShapes;
-use osm2streets::{osm, OriginalRoad};
+use osm2streets::{osm, RoadID};
 use raw_map::RawMap;
 
 use streets_reader::{OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking};
@@ -15,29 +15,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
         OnstreetParking::Blockface(ref path) => {
             use_parking_hints(map, path.clone(), timer);
         }
-        OnstreetParking::SomeAdditionalWhereNoData { pct } => {
-            let pct = pct as i64;
-            for (id, r) in map.streets.roads.iter_mut() {
-                // The 20m minimum is a rough heuristic.
-                if unknown_parking(&r.osm_tags)
-                    && r.osm_tags
-                        .is_any(osm::HIGHWAY, vec!["residential", "tertiary"])
-                    && !r.osm_tags.is("foot", "no")
-                    && id.osm_way_id.0 % 100 <= pct
-                    && r.untrimmed_length() >= Distance::meters(20.0)
-                {
-                    if r.oneway_for_driving().is_some() {
-                        r.osm_tags.remove(osm::PARKING_BOTH);
-                        r.osm_tags.insert(osm::PARKING_RIGHT, "parallel");
-                    } else {
-                        r.osm_tags.insert(osm::PARKING_BOTH, "parallel");
-                    }
-
-                    r.lane_specs_ltr =
-                        osm2streets::get_lane_specs_ltr(&r.osm_tags, &opts.map_config);
-                }
-            }
-        }
+        OnstreetParking::SomeAdditionalWhereNoData { .. } => unreachable!(),
     }
     match opts.public_offstreet_parking {
         PublicOffstreetParking::None => {}
@@ -61,7 +39,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     let shapes: ExtraShapes = abstio::read_binary(path, timer);
 
     // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(OriginalRoad, bool)> =
+    let mut closest: FindClosest<(RoadID, bool)> =
         FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (id, r) in &map.streets.roads {
         if r.is_light_rail() || r.is_footway() || r.is_service() {

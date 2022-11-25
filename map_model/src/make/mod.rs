@@ -16,8 +16,8 @@ pub use self::parking_lots::snap_driveway;
 use crate::pathfind::{CreateEngine, Pathfinder};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, OriginalRoad,
-    PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
+    Position, Road, RoadID, RoutingParams, Zone,
 };
 
 mod bridges;
@@ -71,14 +71,15 @@ impl Map {
         };
         map.edits = map.new_edits();
 
-        let road_id_mapping: BTreeMap<OriginalRoad, RoadID> = raw
+        let road_id_mapping: BTreeMap<osm2streets::RoadID, RoadID> = raw
             .streets
             .roads
             .keys()
             .enumerate()
             .map(|(idx, id)| (*id, RoadID(idx)))
             .collect();
-        let mut intersection_id_mapping: BTreeMap<osm::NodeID, IntersectionID> = BTreeMap::new();
+        let mut intersection_id_mapping: BTreeMap<osm2streets::IntersectionID, IntersectionID> =
+            BTreeMap::new();
         for (idx, i) in raw.streets.intersections.values().enumerate() {
             let id = IntersectionID(idx);
             map.intersections.push(Intersection {
@@ -93,7 +94,8 @@ impl Map {
                     IntersectionType::Uncontrolled => IntersectionType::StopSign,
                     x => x,
                 },
-                orig_id: i.id,
+                // TODO Handle multiple here too
+                orig_id: i.osm_ids[0],
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
@@ -109,8 +111,8 @@ impl Map {
             timer.next();
 
             let road_id = road_id_mapping[&r.id];
-            let i1 = intersection_id_mapping[&r.id.i1];
-            let i2 = intersection_id_mapping[&r.id.i2];
+            let i1 = intersection_id_mapping[&r.src_i];
+            let i2 = intersection_id_mapping[&r.dst_i];
 
             let barrier_nodes = snap_nodes_to_line(&r.barrier_nodes, &r.trimmed_center_line);
             let crossing_nodes =
@@ -143,7 +145,8 @@ impl Map {
                         }
                     })
                     .collect(),
-                orig_id: r.id,
+                // TODO Handle multiple here too
+                orig_id: r.osm_ids[0],
                 lanes: Vec::new(),
                 center_pts: r.trimmed_center_line.clone(),
                 untrimmed_center_pts: r.untrimmed_road_geometry().0,
