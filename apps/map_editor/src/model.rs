@@ -7,8 +7,8 @@ use geom::{
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
 use osm2streets::{
-    osm, ConflictType, ControlType, IntersectionComplexity, IntersectionID, OriginalRoad, Road,
-    RoadID, Transformation,
+    osm, IntersectionControl, IntersectionID, IntersectionKind, OriginalRoad, Road, RoadID,
+    Transformation,
 };
 use raw_map::{RawBuilding, RawMap};
 use widgetry::mapspace::{ObjectID, World};
@@ -169,11 +169,14 @@ impl Model {
 impl Model {
     fn intersection_added(&mut self, ctx: &EventCtx, id: IntersectionID) {
         let i = &self.map.streets.intersections[&id];
-        let color = match i.control {
-            ControlType::TrafficSignal => Color::GREEN,
-            ControlType::StopSign | ControlType::Uncontrolled => Color::RED,
-            ControlType::Border => Color::BLUE,
-            ControlType::Construction => Color::ORANGE,
+        let color = if i.kind == IntersectionKind::MapEdge {
+            Color::BLUE
+        } else {
+            match i.control {
+                IntersectionControl::Signalled => Color::GREEN,
+                IntersectionControl::Signed | IntersectionControl::Uncontrolled => Color::RED,
+                IntersectionControl::Construction => Color::ORANGE,
+            }
         };
 
         let poly =
@@ -199,13 +202,12 @@ impl Model {
     }
 
     pub fn create_i(&mut self, ctx: &EventCtx, point: Pt2D) {
-        // The complexity will change as we connect things to this intersection
         let id = self.map.streets.insert_intersection(
             Vec::new(),
             point,
-            IntersectionComplexity::Crossing,
-            ConflictType::Cross,
-            ControlType::StopSign,
+            // The kind will change as we connect things to this intersection
+            IntersectionKind::Intersection,
+            IntersectionControl::Signed,
         );
         self.intersection_added(ctx, id);
     }
@@ -251,10 +253,10 @@ impl Model {
         self.world.delete_before_replacement(ID::Intersection(id));
 
         let i = self.map.streets.intersections.get_mut(&id).unwrap();
-        if i.control == ControlType::TrafficSignal {
-            i.control = ControlType::StopSign;
-        } else if i.control == ControlType::StopSign {
-            i.control = ControlType::TrafficSignal;
+        if i.control == IntersectionControl::Signalled {
+            i.control = IntersectionControl::Signed;
+        } else if i.control == IntersectionControl::Signed {
+            i.control = IntersectionControl::Signalled;
         }
 
         self.intersection_added(ctx, id);

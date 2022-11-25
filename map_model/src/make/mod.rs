@@ -16,8 +16,8 @@ pub use self::parking_lots::snap_driveway;
 use crate::pathfind::{CreateEngine, Pathfinder};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
-    Position, Road, RoadID, RoutingParams, Zone,
+    Intersection, IntersectionControl, IntersectionID, IntersectionKind, Lane, LaneID, Map,
+    MapEdits, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
 };
 
 mod bridges;
@@ -89,9 +89,10 @@ impl Map {
                 movements: BTreeMap::new(),
                 elevation: i.elevation,
                 // Might change later
-                intersection_type: match i.control {
+                kind: i.kind,
+                control: match i.control {
                     // Nothing in A/B Street handles uncontrolled intersections yet
-                    IntersectionType::Uncontrolled => IntersectionType::StopSign,
+                    IntersectionControl::Uncontrolled => IntersectionControl::Signed,
                     x => x,
                 },
                 // TODO Handle multiple here too
@@ -181,7 +182,7 @@ impl Map {
                     i.id, i.orig_id, i.roads
                 );
             }
-            if i.intersection_type == IntersectionType::TrafficSignal {
+            if i.control == IntersectionControl::Signalled {
                 let mut ok = false;
                 for r in &i.roads {
                     // Skip signals only connected to roads under construction or purely to control
@@ -194,7 +195,7 @@ impl Map {
                     }
                 }
                 if !ok {
-                    i.intersection_type = IntersectionType::StopSign;
+                    i.control = IntersectionControl::Signed;
                 }
             }
         }
@@ -266,11 +267,14 @@ impl Map {
         let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
         let mut traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> = BTreeMap::new();
         for i in &map.intersections {
-            match i.intersection_type {
-                IntersectionType::StopSign | IntersectionType::Uncontrolled => {
+            if i.kind == IntersectionKind::MapEdge {
+                continue;
+            }
+            match i.control {
+                IntersectionControl::Signed | IntersectionControl::Uncontrolled => {
                     stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
                 }
-                IntersectionType::TrafficSignal => {
+                IntersectionControl::Signalled => {
                     if i.movements.is_empty() {
                         error!("Traffic signal at {} downgraded to stop sign, because it has no movements -- probably roads under construction", i.orig_id);
                         stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
@@ -279,14 +283,14 @@ impl Map {
                             .insert(i.id, ControlTrafficSignal::validating_new(&map, i.id));
                     }
                 }
-                IntersectionType::Border | IntersectionType::Construction => {}
+                IntersectionControl::Construction => {}
             };
         }
         map.stop_signs = stop_signs;
         map.traffic_signals = traffic_signals;
         // Fix up the type for any problematic traffic signals
         for i in map.stop_signs.keys() {
-            map.intersections[i.0].intersection_type = IntersectionType::StopSign;
+            map.intersections[i.0].control = IntersectionControl::Signed;
         }
 
         traffic_signals::synchronize(&mut map);

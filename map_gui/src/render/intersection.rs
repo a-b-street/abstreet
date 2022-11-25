@@ -5,8 +5,8 @@ use geom::{
     EPSILON_DIST,
 };
 use map_model::{
-    ControlTrafficSignal, Direction, DrivingSide, Intersection, IntersectionID, IntersectionType,
-    LaneType, Map, Road, RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
+    ControlTrafficSignal, Direction, DrivingSide, Intersection, IntersectionControl,
+    IntersectionID, LaneType, Map, Road, RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor, Text};
 
@@ -85,50 +85,53 @@ impl DrawIntersection {
             }
         }
 
-        match i.intersection_type {
-            IntersectionType::Border => {
-                let r = map.get_r(*i.roads.iter().next().unwrap());
-                default_geom.extend(
-                    app.cs().road_center_line(map),
-                    calculate_border_arrows(i, r, map),
-                );
-            }
-            IntersectionType::StopSign | IntersectionType::Uncontrolled => {
-                for ss in map.get_stop_sign(i.id).roads.values() {
-                    if !app.opts().show_stop_signs {
-                        break;
-                    }
-                    if ss.must_stop {
-                        if let Some((octagon, pole, angle)) =
-                            DrawIntersection::stop_sign_geom(ss, map)
-                        {
-                            let center = octagon.center();
-                            default_geom.push(app.cs().stop_sign, octagon);
-                            default_geom.push(app.cs().stop_sign_pole, pole);
+        if i.is_border() {
+            let r = map.get_r(*i.roads.iter().next().unwrap());
+            default_geom.extend(
+                app.cs().road_center_line(map),
+                calculate_border_arrows(i, r, map),
+            );
+        } else {
+            match i.control {
+                IntersectionControl::Signed | IntersectionControl::Uncontrolled => {
+                    for ss in map.get_stop_sign(i.id).roads.values() {
+                        if !app.opts().show_stop_signs {
+                            break;
+                        }
+                        if ss.must_stop {
+                            if let Some((octagon, pole, angle)) =
+                                DrawIntersection::stop_sign_geom(ss, map)
+                            {
+                                let center = octagon.center();
+                                default_geom.push(app.cs().stop_sign, octagon);
+                                default_geom.push(app.cs().stop_sign_pole, pole);
 
-                            // Trial and error to make the scale and angle work. We could also make
-                            // a fixed SVG asset and just rotate it, but we'd still need to
-                            // calculate the octagon hitbox for the stop sign editor.
-                            default_geom.append(
-                                Text::from(widgetry::Line("STOP").small_heading().fg(Color::WHITE))
+                                // Trial and error to make the scale and angle work. We could also make
+                                // a fixed SVG asset and just rotate it, but we'd still need to
+                                // calculate the octagon hitbox for the stop sign editor.
+                                default_geom.append(
+                                    Text::from(
+                                        widgetry::Line("STOP").small_heading().fg(Color::WHITE),
+                                    )
                                     .render_autocropped(prerender.as_ref())
                                     .scale(0.02)
                                     .centered_on(center)
                                     .rotate(angle.opposite().rotate_degs(-90.0)),
-                            );
+                                );
+                            }
                         }
                     }
                 }
+                IntersectionControl::Construction => {
+                    // TODO Centering seems weird
+                    default_geom.append(
+                        GeomBatch::load_svg(prerender, "system/assets/map/under_construction.svg")
+                            .scale(0.08)
+                            .centered_on(i.polygon.center()),
+                    );
+                }
+                IntersectionControl::Signalled => {}
             }
-            IntersectionType::Construction => {
-                // TODO Centering seems weird
-                default_geom.append(
-                    GeomBatch::load_svg(prerender, "system/assets/map/under_construction.svg")
-                        .scale(0.08)
-                        .centered_on(i.polygon.center()),
-                );
-            }
-            IntersectionType::TrafficSignal => {}
         }
 
         let zorder = i.get_zorder(map);

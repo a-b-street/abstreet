@@ -4,7 +4,7 @@ use abstutil::prettyprint_usize;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Tessellation, Time};
 use map_gui::options::TrafficSignalStyle;
 use map_gui::render::traffic_signal::draw_signal_stage;
-use map_model::{IntersectionID, IntersectionType, StageType};
+use map_model::{IntersectionControl, IntersectionID, StageType};
 use sim::AgentType;
 use widgetry::{
     Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions, ScatterPlot, Series,
@@ -486,13 +486,16 @@ fn header(
 
     let i = app.primary.map.get_i(id);
 
-    let label = match i.intersection_type {
-        IntersectionType::StopSign | IntersectionType::Uncontrolled => {
-            format!("{} (Stop signs)", id)
+    let label = if i.is_border() {
+        format!("Border #{}", id.0)
+    } else {
+        match i.control {
+            IntersectionControl::Signed | IntersectionControl::Uncontrolled => {
+                format!("{} (Stop signs)", id)
+            }
+            IntersectionControl::Signalled => format!("{} (Traffic signals)", id),
+            IntersectionControl::Construction => format!("{} (under construction)", id),
         }
-        IntersectionType::TrafficSignal => format!("{} (Traffic signals)", id),
-        IntersectionType::Border => format!("Border #{}", id.0),
-        IntersectionType::Construction => format!("{} (under construction)", id),
     };
     rows.push(Widget::row(vec![
         Line(label).small_heading().into_widget(ctx),
