@@ -4,7 +4,7 @@
 
 use std::collections::BTreeMap;
 
-use osm2streets::{osm, StreetNetwork};
+use osm2streets::{osm, RoadID, StreetNetwork};
 use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
@@ -46,6 +46,11 @@ pub struct RawMap {
         deserialize_with = "deserialize_multimap"
     )]
     pub bus_routes_on_roads: MultiMap<osm::WayID, String>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub osm_tags: BTreeMap<osm::WayID, Tags>,
 }
 
 impl RawMap {
@@ -60,6 +65,7 @@ impl RawMap {
             transit_routes: Vec::new(),
             transit_stops: BTreeMap::new(),
             bus_routes_on_roads: MultiMap::new(),
+            osm_tags: BTreeMap::new(),
         }
     }
 
@@ -69,6 +75,12 @@ impl RawMap {
 
     pub fn get_city_name(&self) -> &CityName {
         &self.name.city
+    }
+
+    // Only returns tags for one of the way IDs arbitrarily!
+    pub fn road_to_osm_tags(&self, id: RoadID) -> Option<&Tags> {
+        let way = self.streets.roads[&id].osm_ids.get(0)?.osm_way_id;
+        self.osm_tags.get(&way)
     }
 }
 

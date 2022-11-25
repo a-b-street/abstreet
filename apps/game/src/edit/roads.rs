@@ -4,7 +4,8 @@ use geom::{Bounds, CornerRadii, Distance, Polygon, Pt2D, UnitFmt};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::ID;
 use map_model::{
-    BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
+    osm, BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road,
+    RoadID,
 };
 use widgetry::tools::PopupMsg;
 use widgetry::{
@@ -17,6 +18,9 @@ use crate::app::{App, Transition};
 use crate::common::Warping;
 use crate::edit::zones::ZoneEditor;
 use crate::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
+
+// TODO Future bug alert: osm_tags.get(osm::HIGHWAY) is brittle, because it'll break for railways.
+// Plumb through road.highway instead.
 
 pub struct RoadEditor {
     r: RoadID,
@@ -290,10 +294,16 @@ impl State<App> for RoadEditor {
                     } else {
                         LaneType::from_short_name(lt).unwrap()
                     };
-                    let width =
-                        LaneSpec::typical_lane_widths(lt, &app.primary.map.get_r(self.r).osm_tags)
-                            [0]
-                        .0;
+                    let width = LaneSpec::typical_lane_widths(
+                        lt,
+                        app.primary
+                            .map
+                            .get_r(self.r)
+                            .osm_tags
+                            .get(osm::HIGHWAY)
+                            .unwrap(),
+                    )[0]
+                    .0;
                     return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].lt = lt;
                         new.lanes_ltr[idx].width = width;
@@ -324,7 +334,12 @@ impl State<App> for RoadEditor {
                     let idx = LaneSpec::add_new_lane(
                         &mut new.lanes_ltr,
                         lt,
-                        &app.primary.map.get_r(self.r).osm_tags,
+                        app.primary
+                            .map
+                            .get_r(self.r)
+                            .osm_tags
+                            .get(osm::HIGHWAY)
+                            .unwrap(),
                         app.primary.map.get_config().driving_side,
                     );
                     edits.commands.push(EditCmd::ChangeRoad {
@@ -400,10 +415,16 @@ impl State<App> for RoadEditor {
                 "change to buffer" => {
                     let lt = self.main_panel.persistent_split_value("change to buffer");
                     app.session.buffer_lane_type = lt;
-                    let width =
-                        LaneSpec::typical_lane_widths(lt, &app.primary.map.get_r(self.r).osm_tags)
-                            [0]
-                        .0;
+                    let width = LaneSpec::typical_lane_widths(
+                        lt,
+                        app.primary
+                            .map
+                            .get_r(self.r)
+                            .osm_tags
+                            .get(osm::HIGHWAY)
+                            .unwrap(),
+                    )[0]
+                    .0;
                     return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].lt = lt;
                         new.lanes_ltr[idx].width = width;
@@ -608,7 +629,9 @@ fn make_main_panel(
             .into_iter()
             .map(|buf| {
                 let lt = LaneType::Buffer(buf);
-                let width = LaneSpec::typical_lane_widths(lt, &road.osm_tags)[0].0;
+                let width =
+                    LaneSpec::typical_lane_widths(lt, road.osm_tags.get(osm::HIGHWAY).unwrap())[0]
+                        .0;
                 Choice::new(
                     format!("{} ({})", lt.short_name(), width.to_string(&app.opts.units)),
                     lt,
@@ -982,7 +1005,12 @@ fn width_choices(app: &App, l: LaneID) -> Vec<Choice<Distance>> {
     let lane = app.primary.map.get_l(l);
     let mut choices = LaneSpec::typical_lane_widths(
         lane.lane_type,
-        &app.primary.map.get_r(lane.id.road).osm_tags,
+        app.primary
+            .map
+            .get_r(lane.id.road)
+            .osm_tags
+            .get(osm::HIGHWAY)
+            .unwrap(),
     );
     if !choices.iter().any(|(x, _)| *x == lane.width) {
         choices.push((lane.width, "custom"));

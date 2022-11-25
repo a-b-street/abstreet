@@ -27,9 +27,9 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
 }
 
 fn unknown_parking(tags: &Tags) -> bool {
-    !tags.contains_key(osm::PARKING_LEFT)
-        && !tags.contains_key(osm::PARKING_RIGHT)
-        && !tags.contains_key(osm::PARKING_BOTH)
+    !tags.contains_key("parking:lane:left")
+        && !tags.contains_key("parking:lane:right")
+        && !tags.contains_key("parking:lane:both")
         && !tags.is_any(osm::HIGHWAY, vec!["motorway", "motorway_link", "service"])
         && !tags.is("junction", "roundabout")
 }
@@ -42,7 +42,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     let mut closest: FindClosest<(RoadID, bool)> =
         FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (id, r) in &map.streets.roads {
-        if r.is_light_rail() || r.is_footway() || r.is_service() {
+        if r.is_service() || !r.is_driveable() {
             continue;
         }
         closest.add(
@@ -75,7 +75,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             continue;
         };
         if let Some(((r, fwds), _)) = closest.closest_pt(middle, DIRECTED_ROAD_THICKNESS * 5.0) {
-            let tags = &mut map.streets.roads.get_mut(&r).unwrap().osm_tags;
+            let mut tags = map.road_to_osm_tags(r).cloned().unwrap_or_else(Tags::empty);
 
             // Skip if the road already has this mapped.
             if !unknown_parking(&tags) {
@@ -105,16 +105,16 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
                 continue;
             }
 
-            if let Some(both) = tags.remove(osm::PARKING_BOTH) {
-                tags.insert(osm::PARKING_LEFT, both.clone());
-                tags.insert(osm::PARKING_RIGHT, both);
+            if let Some(both) = tags.remove("parking:lane:both") {
+                tags.insert("parking:lane:left", both.clone());
+                tags.insert("parking:lane:right", both);
             }
 
             tags.insert(
                 if fwds {
-                    osm::PARKING_RIGHT
+                    "parking:lane:right"
                 } else {
-                    osm::PARKING_LEFT
+                    "parking:lane:left"
                 },
                 if has_parking {
                     "parallel"
@@ -124,19 +124,22 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
             );
 
             // Maybe fold back into "both"
-            if tags.contains_key(osm::PARKING_LEFT)
-                && tags.get(osm::PARKING_LEFT) == tags.get(osm::PARKING_RIGHT)
+            if tags.contains_key("parking:lane:left")
+                && tags.get("parking:lane:left") == tags.get("parking:lane:right")
             {
-                let value = tags.remove(osm::PARKING_LEFT).unwrap();
-                tags.remove(osm::PARKING_RIGHT).unwrap();
-                tags.insert(osm::PARKING_BOTH, value);
+                let value = tags.remove("parking:lane:left").unwrap();
+                tags.remove("parking:lane:right").unwrap();
+                tags.insert("parking:lane:both", value);
             }
 
             // Remember that this isn't OSM data
             tags.insert("abst:parking_source", "blockface");
 
-            let lane_specs_ltr = osm2streets::get_lane_specs_ltr(tags, &map.streets.config);
+            let lane_specs_ltr = osm2streets::get_lane_specs_ltr(&tags, &map.streets.config);
             map.streets.roads.get_mut(&r).unwrap().lane_specs_ltr = lane_specs_ltr;
+
+            // Note the change to the tag isn't saved, so regenerating lanes from tags later would
+            // lose this
         }
     }
     timer.stop("apply parking hints");

@@ -301,7 +301,7 @@ impl Model {
         let hitbox = center.make_polygons(total_width);
         let mut draw = GeomBatch::new();
         draw.push(
-            if road.osm_tags.is("junction", "intersection") {
+            if road.internal_junction_road {
                 Color::PINK
             } else {
                 Color::grey(0.8)
@@ -350,8 +350,6 @@ impl Model {
         osm_tags.insert("parking:both:lane", "parallel");
         osm_tags.insert("sidewalk", "both");
         osm_tags.insert("lanes", "2");
-        osm_tags.insert(osm::ENDPT_FWD, "true");
-        osm_tags.insert(osm::ENDPT_BACK, "true");
         // Reasonable defaults.
         osm_tags.insert("name", "Streety McStreetFace");
         osm_tags.insert("maxspeed", "25 mph");
@@ -570,11 +568,7 @@ impl Model {
         self.road_deleted(id);
 
         let road = self.map.streets.roads.get_mut(&id).unwrap();
-        if road.osm_tags.is("junction", "intersection") {
-            road.osm_tags.remove("junction");
-        } else {
-            road.osm_tags.insert("junction", "intersection");
-        }
+        road.internal_junction_road = !road.internal_junction_road;
 
         self.road_added(ctx, id);
     }
@@ -667,8 +661,9 @@ fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
                 pt_to_id[&pt.to_hashable()].0
             )?;
         }
-        for (k, v) in r.osm_tags.inner() {
-            if !k.starts_with("abst:") {
+        // TODO Brittle. Instead we should effectively do lanes2osm
+        if let Some(tags) = map.road_to_osm_tags(*id) {
+            for (k, v) in tags.inner() {
                 writeln!(f, r#"        <tag k="{}" v="{}"/>"#, k, v)?;
             }
         }

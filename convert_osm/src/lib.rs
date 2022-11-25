@@ -3,6 +3,8 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
+use std::collections::HashSet;
+
 use anyhow::Result;
 
 use abstio::MapName;
@@ -42,7 +44,7 @@ pub fn convert(
         map.streets.gps_bounds = gps_bounds;
     }
 
-    let (extract, bus_routes_on_roads) =
+    let (extract, doc, bus_routes_on_roads) =
         extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
     map.bus_routes_on_roads = bus_routes_on_roads;
     let split_output = streets_reader::split_ways::split_up_roads(&mut map.streets, extract, timer);
@@ -51,6 +53,19 @@ pub fn convert(
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
     map.streets.retain_roads(|r| r.src_i != r.dst_i);
+
+    // Remember OSM tags for all roads. Do this before apply_parking, which looks at tags
+    let mut way_ids = HashSet::new();
+    for r in map.streets.roads.values() {
+        for id in &r.osm_ids {
+            way_ids.insert(id.osm_way_id);
+        }
+    }
+    for (id, way) in doc.ways {
+        if way_ids.contains(&id) {
+            map.osm_tags.insert(id, way.tags);
+        }
+    }
 
     parking::apply_parking(&mut map, &opts, timer);
 
@@ -92,7 +107,9 @@ pub fn convert(
     if map.name == MapName::new("gb", "bristol", "east") {
         bristol_hack(&mut map);
     }
+
     timer.stop("create RawMap from input data");
+
     map
 }
 

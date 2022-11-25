@@ -6,8 +6,8 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 
 use crate::{
-    osm, DirectedRoadID, Direction, DrivingSide, IntersectionID, LaneType, Map, MapConfig, Road,
-    RoadID, RoadSideID, SideOfRoad, TurnType,
+    DirectedRoadID, Direction, DrivingSide, IntersectionID, LaneType, Map, MapConfig, Road, RoadID,
+    RoadSideID, SideOfRoad, TurnType,
 };
 
 /// From some manually audited cases in Seattle, the length of parallel street parking spots is a
@@ -244,11 +244,15 @@ impl Lane {
             return None;
         }
 
-        let all = if self.dir == Direction::Fwd && road.osm_tags.contains_key(osm::ENDPT_FWD) {
+        // TODO This'll interpret turn restrictions along every segment of an OSM way. They maybe
+        // only make sense for the first or last segment.
+        // TODO We could plumb forward LaneSpec.turn_restrictions instead of redoing some work here
+
+        let all = if self.dir == Direction::Fwd {
             road.osm_tags
                 .get("turn:lanes:forward")
                 .or_else(|| road.osm_tags.get("turn:lanes"))?
-        } else if self.dir == Direction::Back && road.osm_tags.contains_key(osm::ENDPT_BACK) {
+        } else if self.dir == Direction::Back {
             road.osm_tags.get("turn:lanes:backward")?
         } else {
             return None;
