@@ -77,7 +77,7 @@ pub fn extract_osm(
         timer.next();
         let id = *id;
 
-        if out.handle_way(id, &way, opts) {
+        if out.handle_way(id, &way, &opts.map_config) {
             continue;
         } else if way.tags.is(osm::HIGHWAY, "service") {
             // If we got here, is_road didn't interpret it as a normal road
