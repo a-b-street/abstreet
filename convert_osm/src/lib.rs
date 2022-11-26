@@ -10,17 +10,67 @@ use anyhow::Result;
 use abstio::MapName;
 use abstutil::{Tags, Timer};
 use geom::{GPSBounds, LonLat, PolyLine, Polygon, Ring};
-use osm2streets::{osm, Road};
+use osm2streets::{osm, MapConfig, Road};
 use raw_map::RawMap;
-
-pub use streets_reader::{
-    OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking,
-};
 
 mod elevation;
 mod extract;
 mod gtfs;
 mod parking;
+
+/// Configures the creation of a `RawMap` from OSM and other input data.
+pub struct Options {
+    pub map_config: MapConfig,
+
+    pub onstreet_parking: OnstreetParking,
+    pub public_offstreet_parking: PublicOffstreetParking,
+    pub private_offstreet_parking: PrivateOffstreetParking,
+    /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
+    pub extra_buildings: Option<String>,
+    /// Configure public transit using this URL to a static GTFS feed in .zip format.
+    pub gtfs_url: Option<String>,
+    pub elevation: bool,
+}
+
+impl Options {
+    pub fn default() -> Self {
+        Self {
+            map_config: MapConfig::default(),
+            onstreet_parking: OnstreetParking::JustOSM,
+            public_offstreet_parking: PublicOffstreetParking::None,
+            private_offstreet_parking: PrivateOffstreetParking::FixedPerBldg(1),
+            extra_buildings: None,
+            gtfs_url: None,
+            elevation: false,
+        }
+    }
+}
+
+/// What roads will have on-street parking lanes? Data from
+/// <https://wiki.openstreetmap.org/wiki/Key:parking:lane> is always used if available.
+pub enum OnstreetParking {
+    /// If not tagged, there won't be parking.
+    JustOSM,
+    /// If OSM data is missing, then try to match data from
+    /// <http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface>. This is Seattle specific.
+    Blockface(String),
+}
+
+/// How many spots are available in public parking garages?
+pub enum PublicOffstreetParking {
+    None,
+    /// Pull data from
+    /// <https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots>, a
+    /// Seattle-specific data source.
+    Gis(String),
+}
+
+/// If a building doesn't have anything from public_offstreet_parking and isn't tagged as a garage
+/// in OSM, how many private spots should it have?
+pub enum PrivateOffstreetParking {
+    FixedPerBldg(usize),
+    // TODO Based on the number of residents?
+}
 
 /// Create a RawMap from OSM and other input data.
 pub fn convert(
@@ -80,7 +130,7 @@ pub fn convert(
         &split_output.pt_to_road,
     );
 
-    if opts.filter_crosswalks {
+    if opts.map_config.filter_crosswalks {
         streets_reader::filter_crosswalks(
             &mut map.streets,
             split_output.crossing_nodes,

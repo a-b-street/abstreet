@@ -47,6 +47,11 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
                 MapName::new("pl", "krakow", "center"),
             ]
             .contains(name),
+            include_railroads: match name.city.city.as_ref() {
+                "phoenix" | "seattle" | "tucson" => false,
+                _ => true,
+            },
+            filter_crosswalks: false,
             merge_osm_ways: abstio::maybe_read_json::<BTreeSet<osm2streets::OriginalRoad>>(
                 "merge_osm_ways.json".to_string(),
                 &mut Timer::throwaway(),
@@ -81,12 +86,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         } else {
             convert_osm::PrivateOffstreetParking::FixedPerBldg(3)
         },
-        include_railroads: match name.city.city.as_ref() {
-            "phoenix" | "seattle" | "tucson" => false,
-            _ => true,
-        },
         extra_buildings,
-        filter_crosswalks: false,
         // https://www.transit.land is a great place to find the static GTFS URLs
         gtfs_url: if name == &MapName::new("us", "seattle", "arboretum") {
             Some("http://metro.kingcounty.gov/GTFS/google_transit.zip".to_string())
