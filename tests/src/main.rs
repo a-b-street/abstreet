@@ -24,7 +24,9 @@ fn main() -> Result<()> {
     if false {
         ab_test_spurious_diff()?;
     }
-    bus_test()?;
+    if false {
+        bus_test()?;
+    }
     bus_route_test()?;
     if false {
         smoke_test()?;
