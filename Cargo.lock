@@ -4395,9 +4395,7 @@ dependencies = [
 name = "traffic_signal_data"
 version = "0.1.0"
 dependencies = [
- "include_dir",
  "serde",
- "serde_json",
 ]
 
 [[package]]
