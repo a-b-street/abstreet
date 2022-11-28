@@ -110,6 +110,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
             .unwrap()
             .insert("version".to_string(), Value::Number(11.into()));
     }
+    if value["version"] == Value::Number(11.into()) {
+        fix_turn_restrictions(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(12.into()));
+    }
 
     abstutil::from_json(&value.to_string().into_bytes())
 }
@@ -440,6 +447,29 @@ fn remove_vehicle_caps(value: &mut Value) {
         map.remove("cap_vehicles_per_hour");
         false
     });
+}
+
+// 6af258636f926a12650063abf243a0b87567b6e0 (well, a bit earlier) added turn restrictions to
+// LaneSpecs
+fn fix_turn_restrictions(value: &mut Value) {
+    for orig in value.as_object_mut().unwrap()["commands"]
+        .as_array_mut()
+        .unwrap()
+    {
+        let cmd = orig.as_object_mut().unwrap();
+        if let Some(cmd) = cmd.get_mut("ChangeRoad") {
+            let cmd = cmd.as_object_mut().unwrap();
+            for key in ["old", "new"] {
+                for spec in cmd[key]["lanes_ltr"].as_array_mut().unwrap() {
+                    // We could try to parse OSM tags and calculate this properly, but this field
+                    // isn't used in A/B Street yet at all. So just fill out a blank list.
+                    spec.as_object_mut()
+                        .unwrap()
+                        .insert("turn_restrictions".to_string(), Value::Array(Vec::new()));
+                }
+            }
+        }
+    }
 }
 
 // These're old structs used in fix_old_lane_cmds.
