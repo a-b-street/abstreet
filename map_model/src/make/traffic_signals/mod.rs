@@ -18,43 +18,10 @@ mod lagging_green;
 /// Applies a bunch of heuristics to a single intersection, returning the valid results in
 /// best-first order. The signal configuration is only based on the roads connected to the
 /// intersection.
-///
-/// If `enforce_manual_signals` is true, then any data from the `traffic_signal_data` crate that
-/// matches the map will be validated against the current map. If the config is out-of-date, this
-/// method will panic, so that whoever is running the importer can immediately fix the config.
-pub fn get_possible_policies(
-    map: &Map,
-    id: IntersectionID,
-    enforce_manual_signals: bool,
-) -> Vec<(String, ControlTrafficSignal)> {
+pub fn get_possible_policies(map: &Map, id: IntersectionID) -> Vec<(String, ControlTrafficSignal)> {
     let mut results = Vec::new();
 
     let i = map.get_i(id);
-    if let Some(raw) = traffic_signal_data::load_all_data()
-        .unwrap()
-        .remove(&i.orig_id.0)
-    {
-        match ControlTrafficSignal::import(raw, id, map).and_then(|ts| ts.validate(i).map(|_| ts)) {
-            Ok(ts) => {
-                results.push(("manually specified settings".to_string(), ts));
-            }
-            Err(err) => {
-                if enforce_manual_signals {
-                    panic!(
-                        "traffic_signal_data data for {} ({}) out of date, go update it: {}",
-                        i.orig_id,
-                        i.name(None, map),
-                        err
-                    );
-                } else {
-                    warn!(
-                        "traffic_signal_data data for {} no longer valid with map edits: {}",
-                        i.orig_id, err
-                    );
-                }
-            }
-        }
-    }
 
     // As long as we're using silly heuristics for these by default, prefer shorter cycle
     // length.
@@ -456,9 +423,8 @@ fn make_stages(
 pub fn synchronize(map: &mut Map) {
     let mut seen = HashSet::new();
     let mut pairs = Vec::new();
-    let handmapped = traffic_signal_data::load_all_data().unwrap();
     for i in map.all_intersections() {
-        if !i.is_traffic_signal() || seen.contains(&i.id) || handmapped.contains_key(&i.orig_id.0) {
+        if !i.is_traffic_signal() || seen.contains(&i.id) {
             continue;
         }
         if let Some(list) = IntersectionCluster::autodetect(i.id, map) {

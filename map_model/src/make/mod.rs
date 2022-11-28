@@ -290,8 +290,12 @@ impl Map {
                         error!("Traffic signal at {} downgraded to stop sign, because it has no movements -- probably roads under construction", i.orig_id);
                         stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
                     } else {
-                        traffic_signals
-                            .insert(i.id, ControlTrafficSignal::validating_new(&map, i.id));
+                        traffic_signals.insert(
+                            i.id,
+                            ControlTrafficSignal::get_possible_policies(&map, i.id)
+                                .remove(0)
+                                .1,
+                        );
                     }
                 }
                 IntersectionControl::Construction => {}

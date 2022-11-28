@@ -5,6 +5,4 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-include_dir = { git = "https://github.com/dabreegster/include_dir", branch = "union" }
 serde = { workspace = true }
-serde_json = { workspace = true }

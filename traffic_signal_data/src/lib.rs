@@ -1,8 +1,9 @@
 //! A representation of traffic signal configuration that references OpenStreetMap IDs and is
 //! hopefully robust to minor edits over time.
 
+use std::collections::BTreeSet;
+
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct TrafficSignal {
@@ -92,19 +93,4 @@ pub struct DirectedRoad {
     /// The direction along the road segment. See
     /// https://wiki.openstreetmap.org/wiki/Forward_%26_backward,_left_%26_right for details.
     pub is_forwards: bool,
-}
-
-// "" means include all files within data. My hacks to the include_dir crate need a better API.
-static DATA: include_dir::Dir = include_dir::include_dir!("data", "");
-
-/// Returns all traffic signal data compiled into this build, keyed by OSM node ID. If any single
-/// file is broken, returns an error for the entire load.
-// TODO Use a build script to do this. But have to generate Rust code to populate the struct?
-pub fn load_all_data() -> Result<BTreeMap<i64, TrafficSignal>, std::io::Error> {
-    let mut results = BTreeMap::new();
-    for f in DATA.files() {
-        let ts: TrafficSignal = serde_json::from_slice(f.contents())?;
-        results.insert(ts.intersection_osm_node_id, ts);
-    }
-    Ok(results)
 }
