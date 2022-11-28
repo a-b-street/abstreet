@@ -49,7 +49,14 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             .contains(name),
             include_railroads: match name.city.city.as_ref() {
                 "phoenix" | "seattle" | "tucson" => false,
-                _ => true,
+                _ => {
+                    if name.map == "hammersmith_and_fulham" {
+                        // TODO Some movement geometry bug here
+                        false
+                    } else {
+                        true
+                    }
+                }
             },
             filter_crosswalks: false,
             merge_osm_ways: abstio::maybe_read_json::<BTreeSet<osm2streets::OriginalRoad>>(
