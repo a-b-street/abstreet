@@ -24,25 +24,6 @@ pub fn extract_osm(
     let mut doc =
         streets_reader::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
 
-    // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
-    // various things for A/B Street.
-    for id in [380902156, 380902155, 568612970] {
-        if let Some(way) = doc.ways.get_mut(&WayID(id)) {
-            // https://www.openstreetmap.org/way/380902156 and friends look like a separate
-            // cycleway smushed into the Lake Washington / Madison junction
-            way.tags.remove("bicycle");
-        }
-    }
-    if let Some(way) = doc.ways.get_mut(&WayID(332355467)) {
-        way.tags.insert("junction", "intersection");
-    }
-    if let Some(way) = doc.ways.get_mut(&WayID(332060260)) {
-        way.tags.insert("sidewalk", "right");
-    }
-    if let Some(way) = doc.ways.get_mut(&WayID(332060236)) {
-        way.tags.insert("sidewalk", "right");
-    }
-
     if clip_path.is_none() {
         // Use the boundary from .osm.
         map.streets.gps_bounds = doc.gps_bounds.clone();
