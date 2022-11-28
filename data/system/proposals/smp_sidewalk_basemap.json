@@ -21,22 +21,26 @@
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 15000
+              "width": 15000,
+              "turn_restrictions": []
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 36576
+              "width": 36576,
+              "turn_restrictions": []
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 36576
+              "width": 36576,
+              "turn_restrictions": []
             },
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 15000
+              "width": 15000,
+              "turn_restrictions": []
             }
           ],
           "speed_limit": 89408,
@@ -49,22 +53,26 @@
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 15000
+              "width": 15000,
+              "turn_restrictions": []
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 24384
+              "width": 24384,
+              "turn_restrictions": []
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 24384
+              "width": 24384,
+              "turn_restrictions": []
             },
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 15000
+              "width": 15000,
+              "turn_restrictions": []
             }
           ],
           "speed_limit": 89408,
@@ -77,7 +85,7 @@
   ],
   "merge_zones": true,
   "proposal_description": [
-    "Basemap of sidewalk widths in São Miguel Paulista",
+    "Basemap of sidewalk widths in S\u00e3o Miguel Paulista",
     "Sidewalk width data from Geosampa is CC BY-SA 4.0 and can't be added to OSM. These edits are used to override sidewalk widths in the basemap, with extra attribution.",
     "This doesn't currently contain any adjusted sidewalk widths, but may be used in the future for this purpose."
   ],
