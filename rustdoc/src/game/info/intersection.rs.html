@@ -527,13 +527,16 @@
 <span id="527">527</span>
 <span id="528">528</span>
 <span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
 <span class="kw">use </span>abstutil::prettyprint_usize;
 <span class="kw">use </span>geom::{ArrowCap, Distance, Duration, PolyLine, Polygon, Tessellation, Time};
 <span class="kw">use </span>map_gui::options::TrafficSignalStyle;
 <span class="kw">use </span>map_gui::render::traffic_signal::draw_signal_stage;
-<span class="kw">use </span>map_model::{IntersectionID, IntersectionType, StageType};
+<span class="kw">use </span>map_model::{IntersectionControl, IntersectionID, StageType};
 <span class="kw">use </span>sim::AgentType;
 <span class="kw">use </span>widgetry::{
     Color, DrawWithTooltips, EventCtx, FanChart, GeomBatch, Line, PlotOptions, ScatterPlot, Series,
@@ -1015,13 +1018,16 @@
 
     <span class="kw">let </span>i = app.primary.map.get_i(id);
 
-    <span class="kw">let </span>label = <span class="kw">match </span>i.intersection_type {
-        IntersectionType::StopSign | IntersectionType::Uncontrolled =&gt; {
-            <span class="macro">format!</span>(<span class="string">&quot;{} (Stop signs)&quot;</span>, id)
+    <span class="kw">let </span>label = <span class="kw">if </span>i.is_border() {
+        <span class="macro">format!</span>(<span class="string">&quot;Border #{}&quot;</span>, id.<span class="number">0</span>)
+    } <span class="kw">else </span>{
+        <span class="kw">match </span>i.control {
+            IntersectionControl::Signed | IntersectionControl::Uncontrolled =&gt; {
+                <span class="macro">format!</span>(<span class="string">&quot;{} (Stop signs)&quot;</span>, id)
+            }
+            IntersectionControl::Signalled =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} (Traffic signals)&quot;</span>, id),
+            IntersectionControl::Construction =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} (under construction)&quot;</span>, id),
         }
-        IntersectionType::TrafficSignal =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} (Traffic signals)&quot;</span>, id),
-        IntersectionType::Border =&gt; <span class="macro">format!</span>(<span class="string">&quot;Border #{}&quot;</span>, id.<span class="number">0</span>),
-        IntersectionType::Construction =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} (under construction)&quot;</span>, id),
     };
     rows.push(Widget::row(<span class="macro">vec!</span>[
         Line(label).small_heading().into_widget(ctx),

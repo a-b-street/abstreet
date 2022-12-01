@@ -408,6 +408,28 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
 </pre><pre class="rust"><code><span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/tech/map/importing/index.html&gt; for an overview. This module
 //! covers the RawMap-&gt;Map stage.
 
@@ -415,7 +437,7 @@
 
 <span class="kw">use </span>structopt::StructOpt;
 
-<span class="kw">use </span>abstutil::{MultiMap, Timer};
+<span class="kw">use </span>abstutil::{MultiMap, Tags, Timer};
 <span class="kw">use </span>geom::{
     Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Speed, EPSILON_DIST,
 };
@@ -426,8 +448,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::pathfind::{CreateEngine, Pathfinder};
 <span class="kw">use crate</span>::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
-    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, OriginalRoad,
-    PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
+    Intersection, IntersectionControl, IntersectionID, IntersectionKind, Lane, LaneID, Map,
+    MapEdits, OriginalRoad, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
 };
 
 <span class="kw">mod </span>bridges;
@@ -481,14 +503,15 @@
         };
         map.edits = map.new_edits();
 
-        <span class="kw">let </span>road_id_mapping: BTreeMap&lt;OriginalRoad, RoadID&gt; = raw
+        <span class="kw">let </span>road_id_mapping: BTreeMap&lt;osm2streets::RoadID, RoadID&gt; = raw
             .streets
             .roads
             .keys()
             .enumerate()
             .map(|(idx, id)| (<span class="kw-2">*</span>id, RoadID(idx)))
             .collect();
-        <span class="kw">let </span><span class="kw-2">mut </span>intersection_id_mapping: BTreeMap&lt;osm::NodeID, IntersectionID&gt; = BTreeMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>intersection_id_mapping: BTreeMap&lt;osm2streets::IntersectionID, IntersectionID&gt; =
+            BTreeMap::new();
         <span class="kw">for </span>(idx, i) <span class="kw">in </span>raw.streets.intersections.values().enumerate() {
             <span class="kw">let </span>id = IntersectionID(idx);
             map.intersections.push(Intersection {
@@ -498,12 +521,14 @@
                 movements: BTreeMap::new(),
                 elevation: i.elevation,
                 <span class="comment">// Might change later
-                </span>intersection_type: <span class="kw">match </span>i.control {
+                </span>kind: i.kind,
+                control: <span class="kw">match </span>i.control {
                     <span class="comment">// Nothing in A/B Street handles uncontrolled intersections yet
-                    </span>IntersectionType::Uncontrolled =&gt; IntersectionType::StopSign,
+                    </span>IntersectionControl::Uncontrolled =&gt; IntersectionControl::Signed,
                     x =&gt; x,
                 },
-                orig_id: i.id,
+                <span class="comment">// TODO Hack. Handle multiple OSM IDs everywhere instead
+                </span>orig_id: i.osm_ids.get(<span class="number">0</span>).cloned().unwrap_or(osm::NodeID(<span class="number">0</span>)),
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
@@ -519,15 +544,28 @@
             timer.next();
 
             <span class="kw">let </span>road_id = road_id_mapping[<span class="kw-2">&amp;</span>r.id];
-            <span class="kw">let </span>i1 = intersection_id_mapping[<span class="kw-2">&amp;</span>r.id.i1];
-            <span class="kw">let </span>i2 = intersection_id_mapping[<span class="kw-2">&amp;</span>r.id.i2];
+            <span class="kw">let </span>i1 = intersection_id_mapping[<span class="kw-2">&amp;</span>r.src_i];
+            <span class="kw">let </span>i2 = intersection_id_mapping[<span class="kw-2">&amp;</span>r.dst_i];
 
             <span class="kw">let </span>barrier_nodes = snap_nodes_to_line(<span class="kw-2">&amp;</span>r.barrier_nodes, <span class="kw-2">&amp;</span>r.trimmed_center_line);
             <span class="kw">let </span>crossing_nodes =
                 snap_nodes_with_data_to_line(<span class="kw-2">&amp;</span>r.crossing_nodes, <span class="kw-2">&amp;</span>r.trimmed_center_line);
             <span class="kw">let </span><span class="kw-2">mut </span>road = Road {
                 id: road_id,
-                osm_tags: r.osm_tags.clone(),
+                <span class="comment">// Arbitrarily remember OSM tags from one of the ways
+                // TODO If this road was introduced synthetically, we&#39;ll have empty tags, which
+                // might break various downstream bits of code
+                </span>osm_tags: <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = r.osm_ids.get(<span class="number">0</span>) {
+                    raw.osm_tags[<span class="kw-2">&amp;</span>id.osm_way_id].clone()
+                } <span class="kw">else </span>{
+                    Tags::empty()
+                },
+                <span class="comment">// TODO Hack. Handle multiple OSM IDs everywhere instead
+                </span>orig_id: r
+                    .osm_ids
+                    .get(<span class="number">0</span>)
+                    .cloned()
+                    .unwrap_or_else(|| OriginalRoad::new(<span class="number">0</span>, (<span class="number">0</span>, <span class="number">0</span>))),
                 turn_restrictions: r
                     .turn_restrictions
                     .iter()
@@ -553,14 +591,13 @@
                         </span>}
                     })
                     .collect(),
-                orig_id: r.id,
                 lanes: Vec::new(),
                 center_pts: r.trimmed_center_line.clone(),
                 untrimmed_center_pts: r.untrimmed_road_geometry().<span class="number">0</span>,
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
-                zorder: r.get_zorder(),
+                zorder: r.layer,
                 access_restrictions: AccessRestrictions::new(),
                 percent_incline: r.percent_incline,
                 crosswalk_forward: r.crosswalk_forward,
@@ -588,7 +625,7 @@
                     i.id, i.orig_id, i.roads
                 );
             }
-            <span class="kw">if </span>i.intersection_type == IntersectionType::TrafficSignal {
+            <span class="kw">if </span>i.control == IntersectionControl::Signalled {
                 <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">false</span>;
                 <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>i.roads {
                     <span class="comment">// Skip signals only connected to roads under construction or purely to control
@@ -601,7 +638,7 @@
                     }
                 }
                 <span class="kw">if </span>!ok {
-                    i.intersection_type = IntersectionType::StopSign;
+                    i.control = IntersectionControl::Signed;
                 }
             }
         }
@@ -673,27 +710,34 @@
         <span class="kw">let </span><span class="kw-2">mut </span>stop_signs: BTreeMap&lt;IntersectionID, ControlStopSign&gt; = BTreeMap::new();
         <span class="kw">let </span><span class="kw-2">mut </span>traffic_signals: BTreeMap&lt;IntersectionID, ControlTrafficSignal&gt; = BTreeMap::new();
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>map.intersections {
-            <span class="kw">match </span>i.intersection_type {
-                IntersectionType::StopSign | IntersectionType::Uncontrolled =&gt; {
+            <span class="kw">if </span>i.kind == IntersectionKind::MapEdge {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">match </span>i.control {
+                IntersectionControl::Signed | IntersectionControl::Uncontrolled =&gt; {
                     stop_signs.insert(i.id, ControlStopSign::new(<span class="kw-2">&amp;</span>map, i.id));
                 }
-                IntersectionType::TrafficSignal =&gt; {
+                IntersectionControl::Signalled =&gt; {
                     <span class="kw">if </span>i.movements.is_empty() {
                         <span class="macro">error!</span>(<span class="string">&quot;Traffic signal at {} downgraded to stop sign, because it has no movements -- probably roads under construction&quot;</span>, i.orig_id);
                         stop_signs.insert(i.id, ControlStopSign::new(<span class="kw-2">&amp;</span>map, i.id));
                     } <span class="kw">else </span>{
-                        traffic_signals
-                            .insert(i.id, ControlTrafficSignal::validating_new(<span class="kw-2">&amp;</span>map, i.id));
+                        traffic_signals.insert(
+                            i.id,
+                            ControlTrafficSignal::get_possible_policies(<span class="kw-2">&amp;</span>map, i.id)
+                                .remove(<span class="number">0</span>)
+                                .<span class="number">1</span>,
+                        );
                     }
                 }
-                IntersectionType::Border | IntersectionType::Construction =&gt; {}
+                IntersectionControl::Construction =&gt; {}
             };
         }
         map.stop_signs = stop_signs;
         map.traffic_signals = traffic_signals;
         <span class="comment">// Fix up the type for any problematic traffic signals
         </span><span class="kw">for </span>i <span class="kw">in </span>map.stop_signs.keys() {
-            map.intersections[i.<span class="number">0</span>].intersection_type = IntersectionType::StopSign;
+            map.intersections[i.<span class="number">0</span>].control = IntersectionControl::Signed;
         }
 
         traffic_signals::synchronize(<span class="kw-2">&amp;mut </span>map);

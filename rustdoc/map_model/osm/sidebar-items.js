@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["ENDPT_BACK",""],["ENDPT_FWD",""],["HIGHWAY",""],["MAXSPEED",""],["NAME",""],["OSM_REL_ID",""],["OSM_WAY_ID",""],["PARKING_BOTH",""],["PARKING_LEFT",""],["PARKING_RIGHT",""],["SIDEWALK",""]],"enum":[["OsmID",""],["RoadRank",""]],"struct":[["NodeID",""],["RelationID",""],["WayID",""]]};
+window.SIDEBAR_ITEMS = {"constant":[["HIGHWAY",""]],"enum":[["OsmID",""],["RoadRank",""]],"struct":[["NodeID",""],["RelationID",""],["WayID",""]]};

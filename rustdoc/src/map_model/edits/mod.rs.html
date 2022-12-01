@@ -1001,7 +1001,6 @@
 <span id="1001">1001</span>
 <span id="1002">1002</span>
 <span id="1003">1003</span>
-<span id="1004">1004</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save
 //! the changes to a file (as `PermanentMapEdits`). See
 //! &lt;https://a-b-street.github.io/docs/tech/map/edits.html&gt;.
@@ -1013,13 +1012,13 @@
 
 <span class="kw">use </span>abstutil::Timer;
 <span class="kw">use </span>geom::{Distance, HashablePt2D, Line, Speed, Time};
-<span class="kw">use </span>osm2streets::{get_lane_specs_ltr, InputRoad};
+<span class="kw">use </span>osm2streets::{get_lane_specs_ltr, osm, InputRoad};
 
 <span class="kw">pub use </span><span class="self">self</span>::perma::PermanentMapEdits;
 <span class="kw">use </span><span class="kw">crate</span>::make::{match_points_to_lanes, snap_driveway, trim_path};
 <span class="kw">use crate</span>::{
     connectivity, AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal,
-    IntersectionID, IntersectionType, LaneID, LaneSpec, Map, MapConfig, Movement, ParkingLotID,
+    IntersectionControl, IntersectionID, LaneID, LaneSpec, Map, MapConfig, Movement, ParkingLotID,
     PathConstraints, Pathfinder, Road, RoadID, TransitRouteID, TurnID, TurnType, Zone,
 };
 
@@ -1434,11 +1433,11 @@
                 effects.changed_intersections.insert(<span class="kw-2">*</span>i);
                 <span class="kw">match </span>new {
                     EditIntersection::StopSign(<span class="kw-2">ref </span>ss) =&gt; {
-                        map.intersections[i.<span class="number">0</span>].intersection_type = IntersectionType::StopSign;
+                        map.intersections[i.<span class="number">0</span>].control = IntersectionControl::Signed;
                         map.stop_signs.insert(<span class="kw-2">*</span>i, ss.clone());
                     }
                     EditIntersection::TrafficSignal(<span class="kw-2">ref </span>raw_ts) =&gt; {
-                        map.intersections[i.<span class="number">0</span>].intersection_type = IntersectionType::TrafficSignal;
+                        map.intersections[i.<span class="number">0</span>].control = IntersectionControl::Signalled;
                         <span class="kw">if </span>old == <span class="kw-2">&amp;</span>EditIntersection::Closed {
                             recalculate_turns(<span class="kw-2">*</span>i, map, effects);
                         }
@@ -1448,7 +1447,7 @@
                         );
                     }
                     EditIntersection::Closed =&gt; {
-                        map.intersections[i.<span class="number">0</span>].intersection_type = IntersectionType::Construction;
+                        map.intersections[i.<span class="number">0</span>].control = IntersectionControl::Construction;
                     }
                 }
 
@@ -1530,19 +1529,19 @@
     <span class="kw">let </span>i = <span class="kw-2">&amp;mut </span>map.intersections[id.<span class="number">0</span>];
     i.movements = movements;
 
-    <span class="kw">match </span>i.intersection_type {
-        IntersectionType::StopSign | IntersectionType::Uncontrolled =&gt; {
+    <span class="kw">match </span>i.control {
+        IntersectionControl::Signed | IntersectionControl::Uncontrolled =&gt; {
             <span class="comment">// Stop sign policy usually doesn&#39;t depend on incoming lane types, except when changing
             // to/from construction. To be safe, always regenerate. Edits to stop signs are rare
             // anyway. And when we&#39;re smarter about preserving traffic signal changes in the face
             // of lane changes, we can do the same here.
             </span>map.stop_signs.insert(id, ControlStopSign::new(map, id));
         }
-        IntersectionType::TrafficSignal =&gt; {
+        IntersectionControl::Signalled =&gt; {
             map.traffic_signals
                 .insert(id, ControlTrafficSignal::new(map, id));
         }
-        IntersectionType::Border | IntersectionType::Construction =&gt; <span class="macro">unreachable!</span>(),
+        IntersectionControl::Construction =&gt; <span class="macro">unreachable!</span>(),
     }
 }
 
@@ -1600,10 +1599,8 @@
     <span class="kw">let </span>intersection = map.get_i(i);
 
     <span class="kw">let </span><span class="kw-2">mut </span>input_roads = Vec::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>id_mapping = BTreeMap::new();
     <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>intersection.roads {
         <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>r);
-        id_mapping.insert(r.orig_id, r.id);
 
         <span class="kw">let </span>half_width = <span class="kw">if </span>r.id == changed_road {
             changed_road_width / <span class="number">2.0
@@ -1632,15 +1629,18 @@
         }
 
         input_roads.push(InputRoad {
-            id: r.orig_id,
+            <span class="comment">// Just map our IDs to something in osm2streets ID space.
+            </span>id: osm2streets::RoadID(r.id.<span class="number">0</span>),
+            src_i: osm2streets::IntersectionID(r.src_i.<span class="number">0</span>),
+            dst_i: osm2streets::IntersectionID(r.dst_i.<span class="number">0</span>),
             center_pts: trimmed_center_pts,
             half_width,
-            osm_tags: r.osm_tags.clone(),
+            highway_type: r.osm_tags.get(osm::HIGHWAY).unwrap().to_string(),
         });
     }
 
     <span class="kw">let </span>results = osm2streets::intersection_polygon(
-        intersection.orig_id,
+        osm2streets::IntersectionID(intersection.id.<span class="number">0</span>),
         input_roads,
         <span class="comment">// For consolidated intersections, it appears we don&#39;t need to pass in
         // trim_roads_for_merging. May revisit this later if needed.
@@ -1651,8 +1651,8 @@
     map.intersections[i.<span class="number">0</span>].polygon = results.intersection_polygon;
     <span class="comment">// Copy over the re-trimmed road centers
     </span><span class="kw">let </span><span class="kw-2">mut </span>affected = Vec::new();
-    <span class="kw">for </span>(orig_id, (pl, <span class="kw">_</span>)) <span class="kw">in </span>results.trimmed_center_pts {
-        <span class="kw">let </span>id = id_mapping[<span class="kw-2">&amp;</span>orig_id];
+    <span class="kw">for </span>(id, (pl, <span class="kw">_</span>)) <span class="kw">in </span>results.trimmed_center_pts {
+        <span class="kw">let </span>id = RoadID(id.<span class="number">0</span>);
         map.roads[id.<span class="number">0</span>].center_pts = pl;
         <span class="kw">if </span>id != changed_road {
             affected.push(id);
@@ -1783,17 +1783,15 @@
         EditCmd::ChangeRoad { r, old, new }
     }
 
-    <span class="doccomment">/// Panics on borders
-    </span><span class="kw">pub fn </span>get_i_edit(<span class="kw-2">&amp;</span><span class="self">self</span>, i: IntersectionID) -&gt; EditIntersection {
-        <span class="kw">match </span><span class="self">self</span>.get_i(i).intersection_type {
-            IntersectionType::StopSign | IntersectionType::Uncontrolled =&gt; {
+    <span class="kw">pub fn </span>get_i_edit(<span class="kw-2">&amp;</span><span class="self">self</span>, i: IntersectionID) -&gt; EditIntersection {
+        <span class="kw">match </span><span class="self">self</span>.get_i(i).control {
+            IntersectionControl::Signed | IntersectionControl::Uncontrolled =&gt; {
                 EditIntersection::StopSign(<span class="self">self</span>.get_stop_sign(i).clone())
             }
-            IntersectionType::TrafficSignal =&gt; {
+            IntersectionControl::Signalled =&gt; {
                 EditIntersection::TrafficSignal(<span class="self">self</span>.get_traffic_signal(i).export(<span class="self">self</span>))
             }
-            IntersectionType::Construction =&gt; EditIntersection::Closed,
-            IntersectionType::Border =&gt; <span class="macro">unreachable!</span>(),
+            IntersectionControl::Construction =&gt; EditIntersection::Closed,
         }
     }
 
@@ -1995,8 +1993,8 @@
     /// the entire apply_edits flow.
     </span><span class="kw">pub fn </span>incremental_edit_traffic_signal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signal: ControlTrafficSignal) {
         <span class="macro">assert_eq!</span>(
-            <span class="self">self</span>.get_i(signal.id).intersection_type,
-            IntersectionType::TrafficSignal
+            <span class="self">self</span>.get_i(signal.id).control,
+            IntersectionControl::Signalled
         );
         <span class="self">self</span>.traffic_signals.insert(signal.id, signal);
     }

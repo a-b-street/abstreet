@@ -1198,29 +1198,29 @@
         }
 
         <span class="comment">// Fill out the tags.
-        </span>osm_tags.remove(osm::PARKING_LEFT);
-        osm_tags.remove(osm::PARKING_RIGHT);
-        osm_tags.remove(osm::PARKING_BOTH);
+        </span>osm_tags.remove(<span class="string">&quot;parking:lane:left&quot;</span>);
+        osm_tags.remove(<span class="string">&quot;parking:lane:right&quot;</span>);
+        osm_tags.remove(<span class="string">&quot;parking_lane_both&quot;</span>);
         <span class="kw">match </span>value {
             Value::BothSides =&gt; {
-                osm_tags.insert(osm::PARKING_BOTH, <span class="string">&quot;parallel&quot;</span>);
+                osm_tags.insert(<span class="string">&quot;parking_lane_both&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
                 <span class="kw">if </span>in_seattle {
                     osm_tags.insert(<span class="string">&quot;parking:condition:both:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
                 }
             }
             Value::NoStopping =&gt; {
-                osm_tags.insert(osm::PARKING_BOTH, <span class="string">&quot;no_stopping&quot;</span>);
+                osm_tags.insert(<span class="string">&quot;parking_lane_both&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>);
             }
             Value::RightOnly =&gt; {
-                osm_tags.insert(osm::PARKING_RIGHT, <span class="string">&quot;parallel&quot;</span>);
-                osm_tags.insert(osm::PARKING_LEFT, <span class="string">&quot;no_stopping&quot;</span>);
+                osm_tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+                osm_tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>);
                 <span class="kw">if </span>in_seattle {
                     osm_tags.insert(<span class="string">&quot;parking:condition:right:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
                 }
             }
             Value::LeftOnly =&gt; {
-                osm_tags.insert(osm::PARKING_LEFT, <span class="string">&quot;parallel&quot;</span>);
-                osm_tags.insert(osm::PARKING_RIGHT, <span class="string">&quot;no_stopping&quot;</span>);
+                osm_tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+                osm_tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>);
                 <span class="kw">if </span>in_seattle {
                     osm_tags.insert(<span class="string">&quot;parking:condition:left:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
                 }

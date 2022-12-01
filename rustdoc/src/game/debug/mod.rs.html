@@ -1107,10 +1107,6 @@
 <span id="1107">1107</span>
 <span id="1108">1108</span>
 <span id="1109">1109</span>
-<span id="1110">1110</span>
-<span id="1111">1111</span>
-<span id="1112">1112</span>
-<span id="1113">1113</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
 <span class="kw">use </span>abstio::MapName;
@@ -1122,7 +1118,7 @@
 <span class="kw">use </span>map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 <span class="kw">use </span>map_gui::{AppLike, ID};
 <span class="kw">use </span>map_model::{
-    osm, ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
+    ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
     NORMAL_LANE_THICKNESS,
 };
 <span class="kw">use </span>sim::Sim;
@@ -2051,10 +2047,6 @@
 
 <span class="kw">fn </span>diff_tags(t1: <span class="kw-2">&amp;</span>Tags, t2: <span class="kw-2">&amp;</span>Tags) {
     <span class="kw">for </span>(k, v1, v2) <span class="kw">in </span>t1.diff(t2) {
-        <span class="comment">// Ignore the most common diff
-        </span><span class="kw">if </span>k == osm::OSM_WAY_ID {
-            <span class="kw">continue</span>;
-        }
         <span class="macro">println!</span>(<span class="string">&quot;- {} = \&quot;{}\&quot; vs \&quot;{}\&quot;&quot;</span>, k, v1, v2);
     }
 }

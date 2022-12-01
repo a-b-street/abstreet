@@ -466,40 +466,6 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we
 //! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method
 //! in each generator file, which is called to generate a traffic signal of a particular flavor.
@@ -520,43 +486,10 @@
 <span class="doccomment">/// Applies a bunch of heuristics to a single intersection, returning the valid results in
 /// best-first order. The signal configuration is only based on the roads connected to the
 /// intersection.
-///
-/// If `enforce_manual_signals` is true, then any data from the `traffic_signal_data` crate that
-/// matches the map will be validated against the current map. If the config is out-of-date, this
-/// method will panic, so that whoever is running the importer can immediately fix the config.
-</span><span class="kw">pub fn </span>get_possible_policies(
-    map: <span class="kw-2">&amp;</span>Map,
-    id: IntersectionID,
-    enforce_manual_signals: bool,
-) -&gt; Vec&lt;(String, ControlTrafficSignal)&gt; {
+</span><span class="kw">pub fn </span>get_possible_policies(map: <span class="kw-2">&amp;</span>Map, id: IntersectionID) -&gt; Vec&lt;(String, ControlTrafficSignal)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
 
     <span class="kw">let </span>i = map.get_i(id);
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(raw) = traffic_signal_data::load_all_data()
-        .unwrap()
-        .remove(<span class="kw-2">&amp;</span>i.orig_id.<span class="number">0</span>)
-    {
-        <span class="kw">match </span>ControlTrafficSignal::import(raw, id, map).and_then(|ts| ts.validate(i).map(|<span class="kw">_</span>| ts)) {
-            <span class="prelude-val">Ok</span>(ts) =&gt; {
-                results.push((<span class="string">&quot;manually specified settings&quot;</span>.to_string(), ts));
-            }
-            <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="kw">if </span>enforce_manual_signals {
-                    <span class="macro">panic!</span>(
-                        <span class="string">&quot;traffic_signal_data data for {} ({}) out of date, go update it: {}&quot;</span>,
-                        i.orig_id,
-                        i.name(<span class="prelude-val">None</span>, map),
-                        err
-                    );
-                } <span class="kw">else </span>{
-                    <span class="macro">warn!</span>(
-                        <span class="string">&quot;traffic_signal_data data for {} no longer valid with map edits: {}&quot;</span>,
-                        i.orig_id, err
-                    );
-                }
-            }
-        }
-    }
 
     <span class="comment">// As long as we&#39;re using silly heuristics for these by default, prefer shorter cycle
     // length.
@@ -958,9 +891,8 @@
 </span><span class="kw">pub fn </span>synchronize(map: <span class="kw-2">&amp;mut </span>Map) {
     <span class="kw">let </span><span class="kw-2">mut </span>seen = HashSet::new();
     <span class="kw">let </span><span class="kw-2">mut </span>pairs = Vec::new();
-    <span class="kw">let </span>handmapped = traffic_signal_data::load_all_data().unwrap();
     <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
-        <span class="kw">if </span>!i.is_traffic_signal() || seen.contains(<span class="kw-2">&amp;</span>i.id) || handmapped.contains_key(<span class="kw-2">&amp;</span>i.orig_id.<span class="number">0</span>) {
+        <span class="kw">if </span>!i.is_traffic_signal() || seen.contains(<span class="kw-2">&amp;</span>i.id) {
             <span class="kw">continue</span>;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = IntersectionCluster::autodetect(i.id, map) {

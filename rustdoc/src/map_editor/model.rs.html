@@ -670,15 +670,6 @@
 <span id="670">670</span>
 <span id="671">671</span>
 <span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
-<span id="675">675</span>
-<span id="676">676</span>
-<span id="677">677</span>
-<span id="678">678</span>
-<span id="679">679</span>
-<span id="680">680</span>
-<span id="681">681</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::io::Write;
 
@@ -688,8 +679,7 @@
     Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
 <span class="kw">use </span>osm2streets::{
-    osm, ConflictType, ControlType, Intersection, IntersectionComplexity, OriginalRoad, Road,
-    Transformation,
+    osm, IntersectionControl, IntersectionID, IntersectionKind, Road, RoadID, Transformation,
 };
 <span class="kw">use </span>raw_map::{RawBuilding, RawMap};
 <span class="kw">use </span>widgetry::mapspace::{ObjectID, World};
@@ -703,7 +693,7 @@
     <span class="comment">// map and world are pub. The main crate should use them directly for simple stuff, to avoid
     // boilerplate delegation methods. Complex changes should be proper methods on the model.
     </span><span class="kw">pub </span>map: RawMap,
-    showing_pts: <span class="prelude-ty">Option</span>&lt;OriginalRoad&gt;,
+    showing_pts: <span class="prelude-ty">Option</span>&lt;RoadID&gt;,
     <span class="kw">pub </span>world: World&lt;ID&gt;,
 
     <span class="kw">pub </span>include_bldgs: bool,
@@ -713,9 +703,9 @@
 <span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 </span><span class="kw">pub enum </span>ID {
     Building(osm::OsmID),
-    Intersection(osm::NodeID),
-    Road(OriginalRoad),
-    RoadPoint(OriginalRoad, usize),
+    Intersection(IntersectionID),
+    Road(RoadID),
+    RoadPoint(RoadID, usize),
 }
 <span class="kw">impl </span>ObjectID <span class="kw">for </span>ID {}
 
@@ -848,13 +838,16 @@
 
 <span class="comment">// Intersections
 </span><span class="kw">impl </span>Model {
-    <span class="kw">fn </span>intersection_added(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: osm::NodeID) {
+    <span class="kw">fn </span>intersection_added(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: IntersectionID) {
         <span class="kw">let </span>i = <span class="kw-2">&amp;</span><span class="self">self</span>.map.streets.intersections[<span class="kw-2">&amp;</span>id];
-        <span class="kw">let </span>color = <span class="kw">match </span>i.control {
-            ControlType::TrafficSignal =&gt; Color::GREEN,
-            ControlType::StopSign | ControlType::Uncontrolled =&gt; Color::RED,
-            ControlType::Border =&gt; Color::BLUE,
-            ControlType::Construction =&gt; Color::ORANGE,
+        <span class="kw">let </span>color = <span class="kw">if </span>i.kind == IntersectionKind::MapEdge {
+            Color::BLUE
+        } <span class="kw">else </span>{
+            <span class="kw">match </span>i.control {
+                IntersectionControl::Signalled =&gt; Color::GREEN,
+                IntersectionControl::Signed | IntersectionControl::Uncontrolled =&gt; Color::RED,
+                IntersectionControl::Construction =&gt; Color::ORANGE,
+            }
         };
 
         <span class="kw">let </span>poly =
@@ -880,47 +873,61 @@
     }
 
     <span class="kw">pub fn </span>create_i(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, point: Pt2D) {
-        <span class="kw">let </span>id = <span class="self">self</span>.map.new_osm_node_id(time_to_id());
-        <span class="comment">// The complexity will change as we connect things to this intersection
-        </span><span class="self">self</span>.map.streets.intersections.insert(
-            id,
-            Intersection::new(
-                id,
-                point,
-                IntersectionComplexity::Crossing,
-                ConflictType::Cross,
-                ControlType::StopSign,
-            ),
+        <span class="kw">let </span>id = <span class="self">self</span>.map.streets.insert_intersection(
+            Vec::new(),
+            point,
+            <span class="comment">// The kind will change as we connect things to this intersection
+            </span>IntersectionKind::Intersection,
+            IntersectionControl::Signed,
         );
         <span class="self">self</span>.intersection_added(ctx, id);
     }
 
-    <span class="kw">pub fn </span>move_i(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: osm::NodeID, point: Pt2D) {
+    <span class="kw">pub fn </span>move_i(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: IntersectionID, point: Pt2D) {
         <span class="self">self</span>.world.delete_before_replacement(ID::Intersection(id));
-        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.map.streets.move_intersection(id, point).unwrap() {
+
+        <span class="self">self</span>.map.streets.intersections.get_mut(<span class="kw-2">&amp;</span>id).unwrap().point = point;
+
+        <span class="comment">// Update all the roads.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>fixed = Vec::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.map.streets.intersections[<span class="kw-2">&amp;</span>id].roads {
+            fixed.push(<span class="kw-2">*</span>r);
+            <span class="kw">let </span>road = <span class="self">self</span>.map.streets.roads.get_mut(r).unwrap();
+            <span class="kw">let </span><span class="kw-2">mut </span>pts = road.untrimmed_center_line.clone().into_points();
+            <span class="kw">if </span>road.src_i == id {
+                pts[<span class="number">0</span>] = point;
+            } <span class="kw">else </span>{
+                <span class="macro">assert_eq!</span>(road.dst_i, id);
+                <span class="kw-2">*</span>pts.last_mut().unwrap() = point;
+            }
+            <span class="comment">// TODO This could panic if someone moves the intersection a certain way
+            </span>road.untrimmed_center_line = PolyLine::must_new(pts);
+        }
+
+        <span class="kw">for </span>r <span class="kw">in </span>fixed {
             <span class="self">self</span>.road_deleted(r);
             <span class="self">self</span>.road_added(ctx, r);
         }
         <span class="self">self</span>.intersection_added(ctx, id);
     }
 
-    <span class="kw">pub fn </span>delete_i(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: osm::NodeID) {
-        <span class="kw">if </span>!<span class="self">self</span>.map.streets.can_delete_intersection(id) {
+    <span class="kw">pub fn </span>delete_i(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: IntersectionID) {
+        <span class="kw">if </span>!<span class="self">self</span>.map.streets.intersections[<span class="kw-2">&amp;</span>id].roads.is_empty() {
             <span class="macro">error!</span>(<span class="string">&quot;Can&#39;t delete intersection used by roads&quot;</span>);
             <span class="kw">return</span>;
         }
-        <span class="self">self</span>.map.streets.delete_intersection(id);
+        <span class="self">self</span>.map.streets.remove_intersection(id);
         <span class="self">self</span>.world.delete(ID::Intersection(id));
     }
 
-    <span class="kw">pub fn </span>toggle_i(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: osm::NodeID) {
+    <span class="kw">pub fn </span>toggle_i(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: IntersectionID) {
         <span class="self">self</span>.world.delete_before_replacement(ID::Intersection(id));
 
         <span class="kw">let </span>i = <span class="self">self</span>.map.streets.intersections.get_mut(<span class="kw-2">&amp;</span>id).unwrap();
-        <span class="kw">if </span>i.control == ControlType::TrafficSignal {
-            i.control = ControlType::StopSign;
-        } <span class="kw">else if </span>i.control == ControlType::StopSign {
-            i.control = ControlType::TrafficSignal;
+        <span class="kw">if </span>i.control == IntersectionControl::Signalled {
+            i.control = IntersectionControl::Signed;
+        } <span class="kw">else if </span>i.control == IntersectionControl::Signed {
+            i.control = IntersectionControl::Signalled;
         }
 
         <span class="self">self</span>.intersection_added(ctx, id);
@@ -959,13 +966,13 @@
 
 <span class="comment">// Roads
 </span><span class="kw">impl </span>Model {
-    <span class="kw">pub fn </span>road_added(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad) {
+    <span class="kw">pub fn </span>road_added(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID) {
         <span class="kw">let </span>road = <span class="kw-2">&amp;</span><span class="self">self</span>.map.streets.roads[<span class="kw-2">&amp;</span>id];
         <span class="kw">let </span>(center, total_width) = road.untrimmed_road_geometry();
         <span class="kw">let </span>hitbox = center.make_polygons(total_width);
         <span class="kw">let </span><span class="kw-2">mut </span>draw = GeomBatch::new();
         draw.push(
-            <span class="kw">if </span>road.osm_tags.is(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>) {
+            <span class="kw">if </span>road.internal_junction_road {
                 Color::PINK
             } <span class="kw">else </span>{
                 Color::grey(<span class="number">0.8</span>)
@@ -992,39 +999,31 @@
             .build(ctx);
     }
 
-    <span class="kw">pub fn </span>road_deleted(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: OriginalRoad) {
+    <span class="kw">pub fn </span>road_deleted(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: RoadID) {
         <span class="self">self</span>.world.delete(ID::Road(id));
     }
 
-    <span class="kw">pub fn </span>create_r(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, i1: osm::NodeID, i2: osm::NodeID) {
+    <span class="kw">pub fn </span>create_r(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, i1: IntersectionID, i2: IntersectionID) {
         <span class="comment">// Ban cul-de-sacs, since they get stripped out later anyway.
         </span><span class="kw">if </span><span class="self">self
             </span>.map
             .streets
             .roads
-            .keys()
-            .any(|r| (r.i1 == i1 &amp;&amp; r.i2 == i2) || (r.i1 == i2 &amp;&amp; r.i2 == i1))
+            .values()
+            .any(|r| (r.src_i == i1 &amp;&amp; r.dst_i == i2) || (r.src_i == i2 &amp;&amp; r.dst_i == i1))
         {
             <span class="macro">error!</span>(<span class="string">&quot;Road already exists&quot;</span>);
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let </span>id = OriginalRoad {
-            osm_way_id: <span class="self">self</span>.map.new_osm_way_id(time_to_id()),
-            i1,
-            i2,
-        };
         <span class="kw">let </span><span class="kw-2">mut </span>osm_tags = Tags::empty();
-        osm_tags.insert(osm::HIGHWAY, <span class="string">&quot;residential&quot;</span>);
-        osm_tags.insert(osm::PARKING_BOTH, <span class="string">&quot;parallel&quot;</span>);
-        osm_tags.insert(osm::SIDEWALK, <span class="string">&quot;both&quot;</span>);
+        osm_tags.insert(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
+        osm_tags.insert(<span class="string">&quot;parking:both:lane&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+        osm_tags.insert(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;both&quot;</span>);
         osm_tags.insert(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
-        osm_tags.insert(osm::ENDPT_FWD, <span class="string">&quot;true&quot;</span>);
-        osm_tags.insert(osm::ENDPT_BACK, <span class="string">&quot;true&quot;</span>);
-        osm_tags.insert(osm::OSM_WAY_ID, id.osm_way_id.to_string());
         <span class="comment">// Reasonable defaults.
-        </span>osm_tags.insert(osm::NAME, <span class="string">&quot;Streety McStreetFace&quot;</span>);
-        osm_tags.insert(osm::MAXSPEED, <span class="string">&quot;25 mph&quot;</span>);
+        </span>osm_tags.insert(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Streety McStreetFace&quot;</span>);
+        osm_tags.insert(<span class="string">&quot;maxspeed&quot;</span>, <span class="string">&quot;25 mph&quot;</span>);
 
         <span class="kw">let </span>untrimmed_center_line = <span class="kw">match </span>PolyLine::new(<span class="macro">vec!</span>[
             <span class="self">self</span>.map.streets.intersections[<span class="kw-2">&amp;</span>i1].point,
@@ -1036,37 +1035,40 @@
                 <span class="kw">return</span>;
             }
         };
-        <span class="kw">let </span>road = Road::new(
-            id,
-            untrimmed_center_line,
-            osm_tags,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.map.streets.config,
-        );
 
         <span class="self">self</span>.world.delete_before_replacement(ID::Intersection(i1));
         <span class="self">self</span>.world.delete_before_replacement(ID::Intersection(i2));
 
-        <span class="self">self</span>.map.streets.insert_road(id, road);
+        <span class="kw">let </span>id = <span class="self">self</span>.map.streets.next_road_id();
+        <span class="self">self</span>.map.streets.insert_road(Road::new(
+            id,
+            Vec::new(),
+            i1,
+            i2,
+            untrimmed_center_line,
+            osm_tags,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.map.streets.config,
+        ));
         <span class="self">self</span>.road_added(ctx, id);
 
         <span class="self">self</span>.intersection_added(ctx, i1);
         <span class="self">self</span>.intersection_added(ctx, i2);
     }
 
-    <span class="kw">pub fn </span>delete_r(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad) {
+    <span class="kw">pub fn </span>delete_r(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID) {
         <span class="self">self</span>.stop_showing_pts(id);
         <span class="self">self</span>.road_deleted(id);
+        <span class="kw">let </span>road = <span class="self">self</span>.map.streets.remove_road(id);
         <span class="self">self</span>.world
-            .delete_before_replacement(ID::Intersection(id.i1));
+            .delete_before_replacement(ID::Intersection(road.src_i));
         <span class="self">self</span>.world
-            .delete_before_replacement(ID::Intersection(id.i2));
-        <span class="self">self</span>.map.streets.remove_road(<span class="kw-2">&amp;</span>id);
+            .delete_before_replacement(ID::Intersection(road.dst_i));
 
-        <span class="self">self</span>.intersection_added(ctx, id.i1);
-        <span class="self">self</span>.intersection_added(ctx, id.i2);
+        <span class="self">self</span>.intersection_added(ctx, road.src_i);
+        <span class="self">self</span>.intersection_added(ctx, road.dst_i);
     }
 
-    <span class="kw">pub fn </span>show_r_points(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad) {
+    <span class="kw">pub fn </span>show_r_points(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID) {
         <span class="kw">if </span><span class="self">self</span>.showing_pts == <span class="prelude-val">Some</span>(id) {
             <span class="kw">return</span>;
         }
@@ -1092,7 +1094,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>stop_showing_pts(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: OriginalRoad) {
+    <span class="kw">pub fn </span>stop_showing_pts(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: RoadID) {
         <span class="kw">if </span><span class="self">self</span>.showing_pts != <span class="prelude-val">Some</span>(id) {
             <span class="kw">return</span>;
         }
@@ -1107,7 +1109,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>move_r_pt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad, idx: usize, point: Pt2D) {
+    <span class="kw">pub fn </span>move_r_pt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID, idx: usize, point: Pt2D) {
         <span class="macro">assert_eq!</span>(<span class="self">self</span>.showing_pts, <span class="prelude-val">Some</span>(id));
         <span class="comment">// stop_showing_pts deletes the points, but we want to use delete_before_replacement
         </span><span class="self">self</span>.showing_pts = <span class="prelude-val">None</span>;
@@ -1121,10 +1123,11 @@
         }
 
         <span class="self">self</span>.road_deleted(id);
+        <span class="kw">let </span>endpts = <span class="self">self</span>.map.streets.roads[<span class="kw-2">&amp;</span>id].endpoints();
         <span class="self">self</span>.world
-            .delete_before_replacement(ID::Intersection(id.i1));
+            .delete_before_replacement(ID::Intersection(endpts[<span class="number">0</span>]));
         <span class="self">self</span>.world
-            .delete_before_replacement(ID::Intersection(id.i2));
+            .delete_before_replacement(ID::Intersection(endpts[<span class="number">1</span>]));
 
         <span class="kw">let </span><span class="kw-2">mut </span>pts = <span class="self">self</span>.map.streets.roads[<span class="kw-2">&amp;</span>id]
             .untrimmed_center_line
@@ -1139,25 +1142,26 @@
             .untrimmed_center_line = PolyLine::must_new(pts);
 
         <span class="self">self</span>.road_added(ctx, id);
-        <span class="self">self</span>.intersection_added(ctx, id.i1);
-        <span class="self">self</span>.intersection_added(ctx, id.i2);
+        <span class="self">self</span>.intersection_added(ctx, endpts[<span class="number">0</span>]);
+        <span class="self">self</span>.intersection_added(ctx, endpts[<span class="number">1</span>]);
         <span class="self">self</span>.show_r_points(ctx, id);
     }
 
     <span class="kw">fn </span>change_r_points&lt;F: FnMut(<span class="kw-2">&amp;mut </span>Vec&lt;Pt2D&gt;)&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         ctx: <span class="kw-2">&amp;</span>EventCtx,
-        id: OriginalRoad,
+        id: RoadID,
         <span class="kw-2">mut </span>transform: F,
     ) {
         <span class="macro">assert_eq!</span>(<span class="self">self</span>.showing_pts, <span class="prelude-val">Some</span>(id));
 
         <span class="self">self</span>.stop_showing_pts(id);
         <span class="self">self</span>.road_deleted(id);
+        <span class="kw">let </span>endpts = <span class="self">self</span>.map.streets.roads[<span class="kw-2">&amp;</span>id].endpoints();
         <span class="self">self</span>.world
-            .delete_before_replacement(ID::Intersection(id.i1));
+            .delete_before_replacement(ID::Intersection(endpts[<span class="number">0</span>]));
         <span class="self">self</span>.world
-            .delete_before_replacement(ID::Intersection(id.i2));
+            .delete_before_replacement(ID::Intersection(endpts[<span class="number">1</span>]));
 
         <span class="kw">let </span><span class="kw-2">mut </span>pts = <span class="self">self</span>.map.streets.roads[<span class="kw-2">&amp;</span>id]
             .untrimmed_center_line
@@ -1172,18 +1176,18 @@
             .untrimmed_center_line = PolyLine::must_new(pts);
 
         <span class="self">self</span>.road_added(ctx, id);
-        <span class="self">self</span>.intersection_added(ctx, id.i1);
-        <span class="self">self</span>.intersection_added(ctx, id.i2);
+        <span class="self">self</span>.intersection_added(ctx, endpts[<span class="number">0</span>]);
+        <span class="self">self</span>.intersection_added(ctx, endpts[<span class="number">1</span>]);
         <span class="self">self</span>.show_r_points(ctx, id);
     }
 
-    <span class="kw">pub fn </span>delete_r_pt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad, idx: usize) {
+    <span class="kw">pub fn </span>delete_r_pt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID, idx: usize) {
         <span class="self">self</span>.change_r_points(ctx, id, |pts| {
             pts.remove(idx);
         });
     }
 
-    <span class="kw">pub fn </span>insert_r_pt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad, pt: Pt2D) {
+    <span class="kw">pub fn </span>insert_r_pt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID, pt: Pt2D) {
         <span class="kw">let </span><span class="kw-2">mut </span>closest = FindClosest::new(<span class="kw-2">&amp;</span><span class="self">self</span>.compute_bounds());
         <span class="self">self</span>.change_r_points(ctx, id, <span class="kw">move </span>|pts| {
             <span class="kw">for </span>(idx, pair) <span class="kw">in </span>pts.windows(<span class="number">2</span>).enumerate() {
@@ -1197,26 +1201,23 @@
         });
     }
 
-    <span class="kw">pub fn </span>clear_r_pts(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad) {
+    <span class="kw">pub fn </span>clear_r_pts(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID) {
         <span class="self">self</span>.change_r_points(ctx, id, |pts| {
             <span class="kw-2">*</span>pts = <span class="macro">vec!</span>[pts[<span class="number">0</span>], <span class="kw-2">*</span>pts.last().unwrap()];
         });
     }
 
-    <span class="kw">pub fn </span>merge_r(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad) {
+    <span class="kw">pub fn </span>merge_r(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID) {
         <span class="self">self</span>.stop_showing_pts(id);
 
-        <span class="kw">let </span>(retained_i, deleted_i, deleted_roads, created_roads) =
-            <span class="kw">match </span><span class="self">self</span>.map.streets.collapse_short_road(id) {
-                <span class="prelude-val">Ok</span>((retained_i, deleted_i, deleted_roads, created_roads)) =&gt; {
-                    (retained_i, deleted_i, deleted_roads, created_roads)
-                }
-                <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">warn!</span>(<span class="string">&quot;Can&#39;t merge this road: {}&quot;</span>, err);
-                    <span class="self">self</span>.show_r_points(ctx, id);
-                    <span class="kw">return</span>;
-                }
-            };
+        <span class="kw">let </span>(retained_i, deleted_i) = <span class="kw">match </span><span class="self">self</span>.map.streets.collapse_short_road(id) {
+            <span class="prelude-val">Ok</span>(pair) =&gt; pair,
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="macro">warn!</span>(<span class="string">&quot;Can&#39;t merge this road: {}&quot;</span>, err);
+                <span class="self">self</span>.show_r_points(ctx, id);
+                <span class="kw">return</span>;
+            }
+        };
 
         <span class="self">self</span>.world
             .delete_before_replacement(ID::Intersection(retained_i));
@@ -1224,25 +1225,20 @@
 
         <span class="self">self</span>.world.delete(ID::Intersection(deleted_i));
 
-        <span class="kw">for </span>r <span class="kw">in </span>deleted_roads {
-            <span class="self">self</span>.world.delete(ID::Road(r));
-        }
-        <span class="kw">for </span>r <span class="kw">in </span>created_roads {
+        <span class="self">self</span>.world.delete(ID::Road(id));
+        <span class="comment">// Geometry might&#39;ve changed for roads connected to the endpoints
+        </span><span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.map.streets.intersections[<span class="kw-2">&amp;</span>retained_i].roads.clone() {
             <span class="self">self</span>.road_added(ctx, r);
         }
 
-        <span class="macro">info!</span>(<span class="string">&quot;Merged {}&quot;</span>, id.as_string_code());
+        <span class="macro">info!</span>(<span class="string">&quot;Merged {id}&quot;</span>);
     }
 
-    <span class="kw">pub fn </span>toggle_junction(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: OriginalRoad) {
+    <span class="kw">pub fn </span>toggle_junction(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, id: RoadID) {
         <span class="self">self</span>.road_deleted(id);
 
         <span class="kw">let </span>road = <span class="self">self</span>.map.streets.roads.get_mut(<span class="kw-2">&amp;</span>id).unwrap();
-        <span class="kw">if </span>road.osm_tags.is(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>) {
-            road.osm_tags.remove(<span class="string">&quot;junction&quot;</span>);
-        } <span class="kw">else </span>{
-            road.osm_tags.insert(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>);
-        }
+        road.internal_junction_road = !road.internal_junction_road;
 
         <span class="self">self</span>.road_added(ctx, id);
     }
@@ -1264,7 +1260,8 @@
     }
 
     <span class="kw">pub fn </span>create_b(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, center: Pt2D) -&gt; ID {
-        <span class="kw">let </span>id = osm::OsmID::Way(<span class="self">self</span>.map.new_osm_way_id(time_to_id()));
+        <span class="comment">// Bit brittle, but not a big deal
+        </span><span class="kw">let </span>id = osm::OsmID::Way(osm::WayID(-<span class="number">1 </span>* <span class="self">self</span>.map.buildings.len() <span class="kw">as </span>i64));
         <span class="self">self</span>.map.buildings.insert(
             id,
             RawBuilding {
@@ -1294,22 +1291,6 @@
     }
 }
 
-<span class="comment">// Don&#39;t conflict with the synthetic IDs generated by map clipping.
-</span><span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-</span><span class="kw">fn </span>time_to_id() -&gt; i64 {
-    -(std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() <span class="kw">as </span>i64)
-}
-
-<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
-</span><span class="kw">fn </span>time_to_id() -&gt; i64 {
-    <span class="comment">// TODO This is correct, just probably kind of annoying and slow. Having trouble getting
-    // current time as seconds in wasm.
-    </span>-<span class="number">5000
-</span>}
-
 <span class="doccomment">/// Express a RawMap as a .osm file. Why not just save the RawMap? The format may change over time,
 /// and even if a RawMap is saved as JSON, manually updating it is annoying. This is used to create
 /// synthetic maps that will never go bad -- there will always be a pipeline to import a .osm file,
@@ -1328,7 +1309,7 @@
         <span class="string">r#&quot;    &lt;bounds minlon=&quot;{}&quot; maxlon=&quot;{}&quot; minlat=&quot;{}&quot; maxlat=&quot;{}&quot;/&gt;&quot;#</span>,
         b.min_lon, b.max_lon, b.min_lat, b.max_lat
     )<span class="question-mark">?</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>pt_to_id: HashMap&lt;HashablePt2D, osm::NodeID&gt; = HashMap::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>pt_to_id: HashMap&lt;HashablePt2D, IntersectionID&gt; = HashMap::new();
     <span class="kw">for </span>(id, i) <span class="kw">in </span><span class="kw-2">&amp;</span>map.streets.intersections {
         pt_to_id.insert(i.point.to_hashable(), <span class="kw-2">*</span>id);
         <span class="kw">let </span>pt = i.point.to_gps(b);
@@ -1341,7 +1322,7 @@
         )<span class="question-mark">?</span>;
     }
     <span class="kw">for </span>(id, r) <span class="kw">in </span><span class="kw-2">&amp;</span>map.streets.roads {
-        <span class="macro">writeln!</span>(f, <span class="string">r#&quot;    &lt;way id=&quot;{}&quot;&gt;&quot;#</span>, id.osm_way_id.<span class="number">0</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">r#&quot;    &lt;way id=&quot;{}&quot;&gt;&quot;#</span>, id.<span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="kw">for </span>pt <span class="kw">in </span>r.untrimmed_center_line.points() {
             <span class="comment">// TODO Make new IDs if needed
             </span><span class="macro">writeln!</span>(
@@ -1350,8 +1331,9 @@
                 pt_to_id[<span class="kw-2">&amp;</span>pt.to_hashable()].<span class="number">0
             </span>)<span class="question-mark">?</span>;
         }
-        <span class="kw">for </span>(k, v) <span class="kw">in </span>r.osm_tags.inner() {
-            <span class="kw">if </span>!k.starts_with(<span class="string">&quot;abst:&quot;</span>) {
+        <span class="comment">// TODO Brittle. Instead we should effectively do lanes2osm
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(tags) = map.road_to_osm_tags(<span class="kw-2">*</span>id) {
+            <span class="kw">for </span>(k, v) <span class="kw">in </span>tags.inner() {
                 <span class="macro">writeln!</span>(f, <span class="string">r#&quot;        &lt;tag k=&quot;{}&quot; v=&quot;{}&quot;/&gt;&quot;#</span>, k, v)<span class="question-mark">?</span>;
             }
         }

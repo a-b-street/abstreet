@@ -166,14 +166,18 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::io::{BufRead, BufReader, BufWriter, Write};
 <span class="kw">use </span>std::process::Command;
 
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>fs_err::File;
+<span class="kw">use </span>osm2streets::IntersectionID;
 
 <span class="kw">use </span>geom::Distance;
-<span class="kw">use </span>osm2streets::OriginalRoad;
 <span class="kw">use </span>raw_map::RawMap;
 
 <span class="kw">pub fn </span>add_data(map: <span class="kw-2">&amp;mut </span>RawMap) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
@@ -236,12 +240,12 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>generate_input(input: <span class="kw-2">&amp;</span>str, map: <span class="kw-2">&amp;</span>RawMap) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;OriginalRoad&gt;&gt; {
+<span class="kw">fn </span>generate_input(input: <span class="kw-2">&amp;</span>str, map: <span class="kw-2">&amp;</span>RawMap) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(IntersectionID, IntersectionID)&gt;&gt; {
     fs_err::create_dir_all(input)<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>f = BufWriter::new(File::create(<span class="macro">format!</span>(<span class="string">&quot;{input}/query&quot;</span>))<span class="question-mark">?</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>ids = Vec::new();
-    <span class="kw">for </span>(id, r) <span class="kw">in </span><span class="kw-2">&amp;</span>map.streets.roads {
-        ids.push(<span class="kw-2">*</span>id);
+    <span class="kw">for </span>r <span class="kw">in </span>map.streets.roads.values() {
+        ids.push((r.src_i, r.dst_i));
         <span class="comment">// Sample points along the road. Smaller step size gives more detail, but is slower.
         </span><span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
         <span class="kw">for </span>(pt, <span class="kw">_</span>) <span class="kw">in </span>r
@@ -271,10 +275,14 @@
     <span class="prelude-val">Ok</span>(ids)
 }
 
-<span class="kw">fn </span>scrape_output(output: <span class="kw-2">&amp;</span>str, map: <span class="kw-2">&amp;mut </span>RawMap, ids: Vec&lt;OriginalRoad&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<span class="kw">fn </span>scrape_output(
+    output: <span class="kw-2">&amp;</span>str,
+    map: <span class="kw-2">&amp;mut </span>RawMap,
+    ids: Vec&lt;(IntersectionID, IntersectionID)&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">let </span>num_ids = ids.len();
     <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
-    <span class="kw">for </span>(line, id) <span class="kw">in </span>BufReader::new(File::open(<span class="macro">format!</span>(<span class="string">&quot;{output}/query&quot;</span>))<span class="question-mark">?</span>)
+    <span class="kw">for </span>(line, (src_i, dst_i)) <span class="kw">in </span>BufReader::new(File::open(<span class="macro">format!</span>(<span class="string">&quot;{output}/query&quot;</span>))<span class="question-mark">?</span>)
         .lines()
         .zip(ids)
     {
@@ -302,8 +310,8 @@
             <span class="kw">continue</span>;
         }
         <span class="comment">// TODO Also put total_climb and total_descent on the roads
-        </span>map.streets.intersections.get_mut(<span class="kw-2">&amp;</span>id.i1).unwrap().elevation = values[<span class="number">0</span>];
-        map.streets.intersections.get_mut(<span class="kw-2">&amp;</span>id.i2).unwrap().elevation = values[<span class="number">1</span>];
+        </span>map.streets.intersections.get_mut(<span class="kw-2">&amp;</span>src_i).unwrap().elevation = values[<span class="number">0</span>];
+        map.streets.intersections.get_mut(<span class="kw-2">&amp;</span>dst_i).unwrap().elevation = values[<span class="number">1</span>];
     }
     <span class="kw">if </span>cnt != num_ids {
         <span class="macro">bail!</span>(<span class="string">&quot;Output had {} lines, but we made {} queries&quot;</span>, cnt, num_ids);
@@ -311,9 +319,9 @@
 
     <span class="comment">// Calculate the incline for each road here, before the road gets trimmed for intersection
     // geometry. If we did this after trimming, we&#39;d miss some of the horizontal distance.
-    </span><span class="kw">for </span>(id, road) <span class="kw">in </span><span class="kw-2">&amp;mut </span>map.streets.roads {
-        <span class="kw">let </span>rise = map.streets.intersections[<span class="kw-2">&amp;</span>id.i2].elevation
-            - map.streets.intersections[<span class="kw-2">&amp;</span>id.i1].elevation;
+    </span><span class="kw">for </span>road <span class="kw">in </span>map.streets.roads.values_mut() {
+        <span class="kw">let </span>rise = map.streets.intersections[<span class="kw-2">&amp;</span>road.dst_i].elevation
+            - map.streets.intersections[<span class="kw-2">&amp;</span>road.src_i].elevation;
         <span class="kw">let </span>run = road.untrimmed_length();
         <span class="kw">if </span>!(rise / run).is_finite() {
             <span class="comment">// TODO Warn?
@@ -326,7 +334,7 @@
         </span><span class="kw">if </span>road.percent_incline.abs() &gt; <span class="number">0.3 </span>{
             <span class="macro">error!</span>(
                 <span class="string">&quot;{} is unexpectedly steep! Incline is {}%&quot;</span>,
-                id,
+                road.id,
                 road.percent_incline * <span class="number">100.0
             </span>);
         }

@@ -261,6 +261,7 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
+<span id="264">264</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 <span class="kw">use </span>std::fmt;
 
@@ -270,8 +271,8 @@
 <span class="kw">use </span>geom::{Distance, Polygon};
 
 <span class="kw">use crate</span>::{
-    osm, CompressedMovementID, DirectedRoadID, IntersectionType, LaneID, Map, Movement, MovementID,
-    PathConstraints, Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
+    osm, CompressedMovementID, DirectedRoadID, IntersectionControl, IntersectionKind, LaneID, Map,
+    Movement, MovementID, PathConstraints, Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
 };
 
 <span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -300,7 +301,8 @@
     <span class="kw">pub </span>turns: Vec&lt;Turn&gt;,
     <span class="kw">pub </span>elevation: Distance,
 
-    <span class="kw">pub </span>intersection_type: IntersectionType,
+    <span class="kw">pub </span>kind: IntersectionKind,
+    <span class="kw">pub </span>control: IntersectionControl,
     <span class="kw">pub </span>orig_id: osm::NodeID,
 
     <span class="doccomment">/// Note that a lane may belong to both incoming_lanes and outgoing_lanes.
@@ -323,25 +325,25 @@
 
 <span class="kw">impl </span>Intersection {
     <span class="kw">pub fn </span>is_border(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.intersection_type == IntersectionType::Border
+        <span class="self">self</span>.kind == IntersectionKind::MapEdge
     }
     <span class="kw">pub fn </span>is_incoming_border(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.intersection_type == IntersectionType::Border &amp;&amp; !<span class="self">self</span>.outgoing_lanes.is_empty()
+        <span class="self">self</span>.kind == IntersectionKind::MapEdge &amp;&amp; !<span class="self">self</span>.outgoing_lanes.is_empty()
     }
     <span class="kw">pub fn </span>is_outgoing_border(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.intersection_type == IntersectionType::Border &amp;&amp; !<span class="self">self</span>.incoming_lanes.is_empty()
+        <span class="self">self</span>.kind == IntersectionKind::MapEdge &amp;&amp; !<span class="self">self</span>.incoming_lanes.is_empty()
     }
 
     <span class="kw">pub fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.intersection_type == IntersectionType::Construction
+        <span class="self">self</span>.control == IntersectionControl::Construction
     }
 
     <span class="kw">pub fn </span>is_stop_sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.intersection_type == IntersectionType::StopSign
+        <span class="self">self</span>.control == IntersectionControl::Signed
     }
 
     <span class="kw">pub fn </span>is_traffic_signal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.intersection_type == IntersectionType::TrafficSignal
+        <span class="self">self</span>.control == IntersectionControl::Signalled
     }
 
     <span class="kw">pub fn </span>is_light_rail(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {

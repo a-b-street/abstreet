@@ -105,7 +105,12 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
-</pre><pre class="rust"><code><span class="kw">use </span>abstio::{CityName, MapName};
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
+
+<span class="kw">use </span>abstio::{CityName, MapName};
 <span class="kw">use </span>abstutil::Timer;
 <span class="kw">use </span>geom::Distance;
 <span class="kw">use </span>map_model::DrivingSide;
@@ -152,23 +157,29 @@
                 </span>MapName::new(<span class="string">&quot;pl&quot;</span>, <span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>),
             ]
             .contains(name),
-            merge_osm_ways: abstio::maybe_read_json::&lt;Vec&lt;osm2streets::OriginalRoad&gt;&gt;(
+            include_railroads: <span class="kw">match </span>name.city.city.as_ref() {
+                <span class="string">&quot;phoenix&quot; </span>| <span class="string">&quot;seattle&quot; </span>| <span class="string">&quot;tucson&quot; </span>=&gt; <span class="bool-val">false</span>,
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw">if </span>name.map == <span class="string">&quot;hammersmith_and_fulham&quot; </span>{
+                        <span class="comment">// TODO Some movement geometry bug here
+                        </span><span class="bool-val">false
+                    </span>} <span class="kw">else </span>{
+                        <span class="bool-val">true
+                    </span>}
+                }
+            },
+            filter_crosswalks: <span class="bool-val">false</span>,
+            merge_osm_ways: abstio::maybe_read_json::&lt;BTreeSet&lt;osm2streets::OriginalRoad&gt;&gt;(
                 <span class="string">&quot;merge_osm_ways.json&quot;</span>.to_string(),
                 <span class="kw-2">&amp;mut </span>Timer::throwaway(),
             )
             .ok()
-            .unwrap_or_else(Vec::new),
+            .unwrap_or_else(BTreeSet::new),
             osm2lanes: <span class="bool-val">false</span>,
         },
         onstreet_parking: <span class="kw">match </span>name.city.city.as_ref() {
             <span class="string">&quot;seattle&quot; </span>=&gt; {
                 convert_osm::OnstreetParking::Blockface(name.city.input_path(<span class="string">&quot;blockface.bin&quot;</span>))
-            }
-            <span class="string">&quot;lyon&quot; </span>| <span class="string">&quot;milwaukee&quot; </span>| <span class="string">&quot;montreal&quot; </span>| <span class="string">&quot;tel_aviv&quot; </span>| <span class="string">&quot;zurich&quot; </span>=&gt; {
-                convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: <span class="number">50 </span>}
-            }
-            <span class="string">&quot;krakow&quot; </span>| <span class="string">&quot;warsaw&quot; </span>=&gt; {
-                convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: <span class="number">90 </span>}
             }
             <span class="kw">_ </span>=&gt; convert_osm::OnstreetParking::JustOSM,
         },
@@ -192,12 +203,7 @@
         } <span class="kw">else </span>{
             convert_osm::PrivateOffstreetParking::FixedPerBldg(<span class="number">3</span>)
         },
-        include_railroads: <span class="kw">match </span>name.city.city.as_ref() {
-            <span class="string">&quot;phoenix&quot; </span>| <span class="string">&quot;seattle&quot; </span>| <span class="string">&quot;tucson&quot; </span>=&gt; <span class="bool-val">false</span>,
-            <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
-        },
         extra_buildings,
-        filter_crosswalks: <span class="bool-val">false</span>,
         <span class="comment">// https://www.transit.land is a great place to find the static GTFS URLs
         </span>gtfs_url: <span class="kw">if </span>name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;arboretum&quot;</span>) {
             <span class="prelude-val">Some</span>(<span class="string">&quot;http://metro.kingcounty.gov/GTFS/google_transit.zip&quot;</span>.to_string())

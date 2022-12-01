@@ -258,8 +258,16 @@
 <span id="258">258</span>
 <span id="259">259</span>
 <span id="260">260</span>
-</pre><pre class="rust"><code><span class="kw">use </span>geom::{ArrowCap, Distance};
-<span class="kw">use </span>osm2streets::OriginalRoad;
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::Tags;
+<span class="kw">use </span>geom::{ArrowCap, Distance};
+<span class="kw">use </span>osm2streets::RoadID;
 <span class="kw">use </span>widgetry::{
     Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
     Line, Panel, SimpleState, Spinner, State, Text, TextExt, Transition, VerticalAlignment, Widget,
@@ -268,12 +276,12 @@
 <span class="kw">use </span><span class="kw">crate</span>::App;
 
 <span class="kw">pub struct </span>EditRoad {
-    r: OriginalRoad,
+    r: RoadID,
     show_direction: Drawable,
 }
 
 <span class="kw">impl </span>EditRoad {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, r: OriginalRoad) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, r: RoadID) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         <span class="kw">let </span>road = <span class="kw-2">&amp;</span>app.model.map.streets.roads[<span class="kw-2">&amp;</span>r];
 
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
@@ -291,8 +299,15 @@
             );
         }
 
+        <span class="kw">let </span>tags = app
+            .model
+            .map
+            .road_to_osm_tags(r)
+            .cloned()
+            .unwrap_or_else(Tags::empty);
+
         <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
-        <span class="kw">for </span>(k, v) <span class="kw">in </span>road.osm_tags.inner() {
+        <span class="kw">for </span>(k, v) <span class="kw">in </span>tags.inner() {
             txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v)).secondary());
         }
         txt.add_line(Line(<span class="macro">format!</span>(
@@ -320,8 +335,7 @@
                     ctx,
                     <span class="string">&quot;lanes:forward&quot;</span>,
                     (<span class="number">1</span>, <span class="number">5</span>),
-                    road.osm_tags
-                        .get(<span class="string">&quot;lanes:forward&quot;</span>)
+                    tags.get(<span class="string">&quot;lanes:forward&quot;</span>)
                         .and_then(|x| x.parse::&lt;usize&gt;().ok())
                         .unwrap_or(<span class="number">1</span>),
                     <span class="number">1</span>,
@@ -333,16 +347,9 @@
                     ctx,
                     <span class="string">&quot;lanes:backward&quot;</span>,
                     (<span class="number">0</span>, <span class="number">5</span>),
-                    road.osm_tags
-                        .get(<span class="string">&quot;lanes:backward&quot;</span>)
+                    tags.get(<span class="string">&quot;lanes:backward&quot;</span>)
                         .and_then(|x| x.parse::&lt;usize&gt;().ok())
-                        .unwrap_or_else(|| {
-                            <span class="kw">if </span>road.osm_tags.is(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
-                                <span class="number">0
-                            </span>} <span class="kw">else </span>{
-                                <span class="number">1
-                            </span>}
-                        }),
+                        .unwrap_or_else(|| <span class="kw">if </span>tags.is(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) { <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>}),
                     <span class="number">1</span>,
                 ),
             ]),
@@ -351,13 +358,13 @@
                 Widget::dropdown(
                     ctx,
                     <span class="string">&quot;sidewalk&quot;</span>,
-                    <span class="kw">if </span>road.osm_tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;both&quot;</span>) {
+                    <span class="kw">if </span>tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;both&quot;</span>) {
                         <span class="string">&quot;both&quot;
-                    </span>} <span class="kw">else if </span>road.osm_tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;none&quot;</span>) {
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;none&quot;</span>) {
                         <span class="string">&quot;none&quot;
-                    </span>} <span class="kw">else if </span>road.osm_tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;left&quot;</span>) {
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;left&quot;</span>) {
                         <span class="string">&quot;left&quot;
-                    </span>} <span class="kw">else if </span>road.osm_tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>) {
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>) {
                         <span class="string">&quot;right&quot;
                     </span>} <span class="kw">else </span>{
                         <span class="string">&quot;both&quot;
@@ -372,16 +379,13 @@
                     ctx,
                     <span class="string">&quot;parking&quot;</span>,
                     <span class="comment">// TODO Not all possibilities represented here; very simplified.
-                    </span><span class="kw">if </span>road.osm_tags.is(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
+                    </span><span class="kw">if </span>tags.is(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
                         <span class="string">&quot;both&quot;
-                    </span>} <span class="kw">else if </span>road
-                        .osm_tags
-                        .is_any(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;no_parking&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>])
-                    {
+                    </span>} <span class="kw">else if </span>tags.is_any(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;no_parking&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>]) {
                         <span class="string">&quot;none&quot;
-                    </span>} <span class="kw">else if </span>road.osm_tags.is(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
                         <span class="string">&quot;left&quot;
-                    </span>} <span class="kw">else if </span>road.osm_tags.is(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
                         <span class="string">&quot;right&quot;
                     </span>} <span class="kw">else </span>{
                         <span class="string">&quot;none&quot;
@@ -434,47 +438,52 @@
             <span class="string">&quot;Apply&quot; </span>=&gt; {
                 app.model.road_deleted(<span class="self">self</span>.r);
 
-                <span class="kw">let </span>road = app.model.map.streets.roads.get_mut(<span class="kw-2">&amp;</span><span class="self">self</span>.r).unwrap();
+                <span class="kw">let </span><span class="kw-2">mut </span>tags = app
+                    .model
+                    .map
+                    .road_to_osm_tags(<span class="self">self</span>.r)
+                    .cloned()
+                    .unwrap_or_else(Tags::empty);
 
-                road.osm_tags.remove(<span class="string">&quot;lanes&quot;</span>);
-                road.osm_tags.remove(<span class="string">&quot;oneway&quot;</span>);
+                tags.remove(<span class="string">&quot;lanes&quot;</span>);
+                tags.remove(<span class="string">&quot;oneway&quot;</span>);
                 <span class="kw">let </span>fwd: usize = panel.spinner(<span class="string">&quot;lanes:forward&quot;</span>);
                 <span class="kw">let </span>back: usize = panel.spinner(<span class="string">&quot;lanes:backward&quot;</span>);
                 <span class="kw">if </span>back == <span class="number">0 </span>{
-                    road.osm_tags.insert(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>);
-                    road.osm_tags.insert(<span class="string">&quot;lanes&quot;</span>, fwd.to_string());
+                    tags.insert(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>);
+                    tags.insert(<span class="string">&quot;lanes&quot;</span>, fwd.to_string());
                 } <span class="kw">else </span>{
-                    road.osm_tags.insert(<span class="string">&quot;lanes&quot;</span>, (fwd + back).to_string());
-                    road.osm_tags.insert(<span class="string">&quot;lanes:forward&quot;</span>, fwd.to_string());
-                    road.osm_tags.insert(<span class="string">&quot;lanes:backward&quot;</span>, back.to_string());
+                    tags.insert(<span class="string">&quot;lanes&quot;</span>, (fwd + back).to_string());
+                    tags.insert(<span class="string">&quot;lanes:forward&quot;</span>, fwd.to_string());
+                    tags.insert(<span class="string">&quot;lanes:backward&quot;</span>, back.to_string());
                 }
 
-                road.osm_tags
-                    .insert(<span class="string">&quot;sidewalk&quot;</span>, panel.dropdown_value::&lt;String, <span class="kw-2">&amp;</span>str&gt;(<span class="string">&quot;sidewalk&quot;</span>));
+                tags.insert(<span class="string">&quot;sidewalk&quot;</span>, panel.dropdown_value::&lt;String, <span class="kw-2">&amp;</span>str&gt;(<span class="string">&quot;sidewalk&quot;</span>));
 
-                road.osm_tags.remove(<span class="string">&quot;parking:lane:both&quot;</span>);
-                road.osm_tags.remove(<span class="string">&quot;parking:lane:left&quot;</span>);
-                road.osm_tags.remove(<span class="string">&quot;parking:lane:right&quot;</span>);
+                tags.remove(<span class="string">&quot;parking:lane:both&quot;</span>);
+                tags.remove(<span class="string">&quot;parking:lane:left&quot;</span>);
+                tags.remove(<span class="string">&quot;parking:lane:right&quot;</span>);
                 <span class="kw">match </span>panel.dropdown_value::&lt;String, <span class="kw-2">&amp;</span>str&gt;(<span class="string">&quot;parking&quot;</span>).as_ref() {
                     <span class="string">&quot;both&quot; </span>=&gt; {
-                        road.osm_tags.insert(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+                        tags.insert(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
                     }
                     <span class="string">&quot;none&quot; </span>=&gt; {
-                        road.osm_tags.insert(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;none&quot;</span>);
+                        tags.insert(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;none&quot;</span>);
                     }
                     <span class="string">&quot;left&quot; </span>=&gt; {
-                        road.osm_tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
-                        road.osm_tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;none&quot;</span>);
+                        tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+                        tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;none&quot;</span>);
                     }
                     <span class="string">&quot;right&quot; </span>=&gt; {
-                        road.osm_tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;none&quot;</span>);
-                        road.osm_tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+                        tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;none&quot;</span>);
+                        tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
                     }
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
 
+                <span class="kw">let </span>road = app.model.map.streets.roads.get_mut(<span class="kw-2">&amp;</span><span class="self">self</span>.r).unwrap();
                 road.lane_specs_ltr =
-                    osm2streets::get_lane_specs_ltr(<span class="kw-2">&amp;</span>road.osm_tags, <span class="kw-2">&amp;</span>app.model.map.streets.config);
+                    osm2streets::get_lane_specs_ltr(<span class="kw-2">&amp;</span>tags, <span class="kw-2">&amp;</span>app.model.map.streets.config);
                 <span class="kw">let </span>scale = panel.spinner(<span class="string">&quot;width_scale&quot;</span>);
                 <span class="kw">for </span>lane <span class="kw">in </span><span class="kw-2">&amp;mut </span>road.lane_specs_ltr {
                     lane.width <span class="kw-2">*</span>= scale;
@@ -495,9 +504,14 @@
     ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&lt;App&gt;&gt; {
         <span class="kw">let </span>scale = panel.spinner(<span class="string">&quot;width_scale&quot;</span>);
         app.model.road_deleted(<span class="self">self</span>.r);
+        <span class="kw">let </span>tags = app
+            .model
+            .map
+            .road_to_osm_tags(<span class="self">self</span>.r)
+            .cloned()
+            .unwrap_or_else(Tags::empty);
         <span class="kw">let </span>road = app.model.map.streets.roads.get_mut(<span class="kw-2">&amp;</span><span class="self">self</span>.r).unwrap();
-        road.lane_specs_ltr =
-            osm2streets::get_lane_specs_ltr(<span class="kw-2">&amp;</span>road.osm_tags, <span class="kw-2">&amp;</span>app.model.map.streets.config);
+        road.lane_specs_ltr = osm2streets::get_lane_specs_ltr(<span class="kw-2">&amp;</span>tags, <span class="kw-2">&amp;</span>app.model.map.streets.config);
         <span class="kw">for </span>lane <span class="kw">in </span><span class="kw-2">&amp;mut </span>road.lane_specs_ltr {
             lane.width <span class="kw-2">*</span>= scale;
         }

@@ -134,44 +134,13 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate
 //! structure is useful to iterate quickly on parts of the map importing pipeline without having to
 //! constantly read .osm files, and to visualize the intermediate state with map_editor.
 
 </span><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use </span>osm2streets::{osm, StreetNetwork};
+<span class="kw">use </span>osm2streets::{osm, RoadID, StreetNetwork};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span>abstio::{CityName, MapName};
@@ -213,6 +182,11 @@
         deserialize_with = <span class="string">&quot;deserialize_multimap&quot;
     </span>)]
     </span><span class="kw">pub </span>bus_routes_on_roads: MultiMap&lt;osm::WayID, String&gt;,
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+    </span>)]
+    </span><span class="kw">pub </span>osm_tags: BTreeMap&lt;osm::WayID, Tags&gt;,
 }
 
 <span class="kw">impl </span>RawMap {
@@ -227,49 +201,7 @@
             transit_routes: Vec::new(),
             transit_stops: BTreeMap::new(),
             bus_routes_on_roads: MultiMap::new(),
-        }
-    }
-
-    <span class="comment">// TODO Almost gone...
-    </span><span class="kw">pub fn </span>new_osm_way_id(<span class="kw-2">&amp;</span><span class="self">self</span>, start: i64) -&gt; osm::WayID {
-        <span class="macro">assert!</span>(start &lt; <span class="number">0</span>);
-        <span class="comment">// Slow, but deterministic.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>osm_way_id = start;
-        <span class="kw">loop </span>{
-            <span class="kw">let </span>candidate = osm::WayID(osm_way_id);
-            <span class="comment">// TODO Doesn&#39;t handle collisions with areas or parking lots
-            </span><span class="kw">if </span><span class="self">self
-                </span>.streets
-                .roads
-                .keys()
-                .any(|r| r.osm_way_id.<span class="number">0 </span>== osm_way_id)
-                || <span class="self">self
-                    </span>.buildings
-                    .keys()
-                    .any(|b| b == <span class="kw-2">&amp;</span>osm::OsmID::Way(candidate))
-            {
-                osm_way_id -= <span class="number">1</span>;
-            } <span class="kw">else </span>{
-                <span class="kw">return </span>candidate;
-            }
-        }
-    }
-
-    <span class="kw">pub fn </span>new_osm_node_id(<span class="kw-2">&amp;</span><span class="self">self</span>, start: i64) -&gt; osm::NodeID {
-        <span class="macro">assert!</span>(start &lt; <span class="number">0</span>);
-        <span class="comment">// Slow, but deterministic.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>osm_node_id = start;
-        <span class="kw">loop </span>{
-            <span class="kw">if </span><span class="self">self
-                </span>.streets
-                .intersections
-                .keys()
-                .any(|i| i.<span class="number">0 </span>== osm_node_id)
-            {
-                osm_node_id -= <span class="number">1</span>;
-            } <span class="kw">else </span>{
-                <span class="kw">return </span>osm::NodeID(osm_node_id);
-            }
+            osm_tags: BTreeMap::new(),
         }
     }
 
@@ -279,6 +211,12 @@
 
     <span class="kw">pub fn </span>get_city_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CityName {
         <span class="kw-2">&amp;</span><span class="self">self</span>.name.city
+    }
+
+    <span class="comment">// Only returns tags for one of the way IDs arbitrarily!
+    </span><span class="kw">pub fn </span>road_to_osm_tags(<span class="kw-2">&amp;</span><span class="self">self</span>, id: RoadID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tags&gt; {
+        <span class="kw">let </span>way = <span class="self">self</span>.streets.roads[<span class="kw-2">&amp;</span>id].osm_ids.get(<span class="number">0</span>)<span class="question-mark">?</span>.osm_way_id;
+        <span class="self">self</span>.osm_tags.get(<span class="kw-2">&amp;</span>way)
     }
 }
 

@@ -371,29 +371,6 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
 </pre><pre class="rust"><code><span class="kw">use </span>osm::{OsmID, RelationID, WayID};
 
 <span class="kw">use </span>abstutil::{MultiMap, Tags, Timer};
@@ -411,29 +388,14 @@
     clip_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
     opts: <span class="kw-2">&amp;</span>Options,
     timer: <span class="kw-2">&amp;mut </span>Timer,
-) -&gt; (OsmExtract, MultiMap&lt;osm::WayID, String&gt;) {
+) -&gt; (
+    OsmExtract,
+    streets_reader::osm_reader::Document,
+    MultiMap&lt;osm::WayID, String&gt;,
+) {
     <span class="kw">let </span>osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
     <span class="kw">let </span><span class="kw-2">mut </span>doc =
         streets_reader::osm_reader::read(<span class="kw-2">&amp;</span>osm_xml, <span class="kw-2">&amp;</span>map.streets.gps_bounds, timer).unwrap();
-
-    <span class="comment">// TODO Hacks to override OSM data. There&#39;s no problem upstream, but we want to accomplish
-    // various things for A/B Street.
-    </span><span class="kw">for </span>id <span class="kw">in </span>[<span class="number">380902156</span>, <span class="number">380902155</span>, <span class="number">568612970</span>] {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(way) = doc.ways.get_mut(<span class="kw-2">&amp;</span>WayID(id)) {
-            <span class="comment">// https://www.openstreetmap.org/way/380902156 and friends look like a separate
-            // cycleway smushed into the Lake Washington / Madison junction
-            </span>way.tags.remove(<span class="string">&quot;bicycle&quot;</span>);
-        }
-    }
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(way) = doc.ways.get_mut(<span class="kw-2">&amp;</span>WayID(<span class="number">332355467</span>)) {
-        way.tags.insert(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>);
-    }
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(way) = doc.ways.get_mut(<span class="kw-2">&amp;</span>WayID(<span class="number">332060260</span>)) {
-        way.tags.insert(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>);
-    }
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(way) = doc.ways.get_mut(<span class="kw-2">&amp;</span>WayID(<span class="number">332060236</span>)) {
-        way.tags.insert(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>);
-    }
 
     <span class="kw">if </span>clip_path.is_none() {
         <span class="comment">// Use the boundary from .osm.
@@ -469,9 +431,7 @@
         timer.next();
         <span class="kw">let </span>id = <span class="kw-2">*</span>id;
 
-        way.tags.insert(osm::OSM_WAY_ID, id.<span class="number">0</span>.to_string());
-
-        <span class="kw">if </span>out.handle_way(id, <span class="kw-2">&amp;</span>way, opts) {
+        <span class="kw">if </span>out.handle_way(id, <span class="kw-2">&amp;</span>way, <span class="kw-2">&amp;</span>opts.map_config) {
             <span class="kw">continue</span>;
         } <span class="kw">else if </span>way.tags.is(osm::HIGHWAY, <span class="string">&quot;service&quot;</span>) {
             <span class="comment">// If we got here, is_road didn&#39;t interpret it as a normal road
@@ -527,12 +487,6 @@
     }
 
     <span class="kw">let </span>boundary = map.streets.boundary_polygon.get_outer_ring();
-
-    <span class="comment">// TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
-    // reader, or stop doing this entirely.
-    </span><span class="kw">for </span>(id, rel) <span class="kw">in </span><span class="kw-2">&amp;mut </span>doc.relations {
-        rel.tags.insert(osm::OSM_REL_ID, id.<span class="number">0</span>.to_string());
-    }
 
     timer.start_iter(<span class="string">&quot;processing OSM relations&quot;</span>, doc.relations.len());
     <span class="kw">for </span>(id, rel) <span class="kw">in </span><span class="kw-2">&amp;</span>doc.relations {
@@ -681,7 +635,7 @@
     find_parking_aisles(map, <span class="kw-2">&amp;mut </span>out.roads);
     timer.stop(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
 
-    (out, bus_routes_on_roads)
+    (out, doc, bus_routes_on_roads)
 }
 
 <span class="kw">fn </span>is_bldg(tags: <span class="kw-2">&amp;</span>Tags) -&gt; bool {

@@ -466,7 +466,6 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
-<span id="469">469</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
 <span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
@@ -475,7 +474,6 @@
 <span class="kw">use </span>map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 <span class="kw">use </span>map_gui::tools::{CityPicker, Minimap, MinimapControls, Navigator, TurnExplorer};
 <span class="kw">use </span>map_gui::{SimpleApp, ID};
-<span class="kw">use </span>map_model::osm;
 <span class="kw">use </span>widgetry::tools::{open_browser, PopupMsg, URLManager};
 <span class="kw">use </span>widgetry::{
     lctrl, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
@@ -579,9 +577,9 @@
                         <span class="kw">continue</span>;
                     }
                     <span class="kw">if </span>tags.contains_key(<span class="string">&quot;abst:parking_source&quot;</span>)
-                        &amp;&amp; (k == osm::PARKING_RIGHT
-                            || k == osm::PARKING_LEFT
-                            || k == osm::PARKING_BOTH)
+                        &amp;&amp; (k == <span class="string">&quot;parking:lane:right&quot;
+                            </span>|| k == <span class="string">&quot;parking:lane:left&quot;
+                            </span>|| k == <span class="string">&quot;parking:lane:both&quot;</span>)
                     {
                         <span class="kw">continue</span>;
                     }

@@ -1042,13 +1042,42 @@
 <span id="1042">1042</span>
 <span id="1043">1043</span>
 <span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>geom::{Bounds, CornerRadii, Distance, Polygon, Pt2D, UnitFmt};
 <span class="kw">use </span>map_gui::render::{Renderable, OUTLINE_THICKNESS};
 <span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>map_model::{
-    BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
+    osm, BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road,
+    RoadID,
 };
 <span class="kw">use </span>widgetry::tools::PopupMsg;
 <span class="kw">use </span>widgetry::{
@@ -1062,7 +1091,10 @@
 <span class="kw">use </span><span class="kw">crate</span>::edit::zones::ZoneEditor;
 <span class="kw">use </span><span class="kw">crate</span>::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
 
-<span class="kw">pub struct </span>RoadEditor {
+<span class="comment">// TODO Future bug alert: osm_tags.get(osm::HIGHWAY) is brittle, because it&#39;ll break for railways.
+// Plumb through road.highway instead.
+
+</span><span class="kw">pub struct </span>RoadEditor {
     r: RoadID,
     selected_lane: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
     <span class="comment">// This is only for hovering on a lane in the map, not for hovering on a lane card.
@@ -1334,10 +1366,16 @@
                     } <span class="kw">else </span>{
                         LaneType::from_short_name(lt).unwrap()
                     };
-                    <span class="kw">let </span>width =
-                        LaneSpec::typical_lane_widths(lt, <span class="kw-2">&amp;</span>app.primary.map.get_r(<span class="self">self</span>.r).osm_tags)
-                            [<span class="number">0</span>]
-                        .<span class="number">0</span>;
+                    <span class="kw">let </span>width = LaneSpec::typical_lane_widths(
+                        lt,
+                        app.primary
+                            .map
+                            .get_r(<span class="self">self</span>.r)
+                            .osm_tags
+                            .get(osm::HIGHWAY)
+                            .unwrap(),
+                    )[<span class="number">0</span>]
+                    .<span class="number">0</span>;
                     <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
                         new.lanes_ltr[idx].lt = lt;
                         new.lanes_ltr[idx].width = width;
@@ -1368,7 +1406,12 @@
                     <span class="kw">let </span>idx = LaneSpec::add_new_lane(
                         <span class="kw-2">&amp;mut </span>new.lanes_ltr,
                         lt,
-                        <span class="kw-2">&amp;</span>app.primary.map.get_r(<span class="self">self</span>.r).osm_tags,
+                        app.primary
+                            .map
+                            .get_r(<span class="self">self</span>.r)
+                            .osm_tags
+                            .get(osm::HIGHWAY)
+                            .unwrap(),
                         app.primary.map.get_config().driving_side,
                     );
                     edits.commands.push(EditCmd::ChangeRoad {
@@ -1444,10 +1487,16 @@
                 <span class="string">&quot;change to buffer&quot; </span>=&gt; {
                     <span class="kw">let </span>lt = <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;change to buffer&quot;</span>);
                     app.session.buffer_lane_type = lt;
-                    <span class="kw">let </span>width =
-                        LaneSpec::typical_lane_widths(lt, <span class="kw-2">&amp;</span>app.primary.map.get_r(<span class="self">self</span>.r).osm_tags)
-                            [<span class="number">0</span>]
-                        .<span class="number">0</span>;
+                    <span class="kw">let </span>width = LaneSpec::typical_lane_widths(
+                        lt,
+                        app.primary
+                            .map
+                            .get_r(<span class="self">self</span>.r)
+                            .osm_tags
+                            .get(osm::HIGHWAY)
+                            .unwrap(),
+                    )[<span class="number">0</span>]
+                    .<span class="number">0</span>;
                     <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
                         new.lanes_ltr[idx].lt = lt;
                         new.lanes_ltr[idx].width = width;
@@ -1652,7 +1701,9 @@
             .into_iter()
             .map(|buf| {
                 <span class="kw">let </span>lt = LaneType::Buffer(buf);
-                <span class="kw">let </span>width = LaneSpec::typical_lane_widths(lt, <span class="kw-2">&amp;</span>road.osm_tags)[<span class="number">0</span>].<span class="number">0</span>;
+                <span class="kw">let </span>width =
+                    LaneSpec::typical_lane_widths(lt, road.osm_tags.get(osm::HIGHWAY).unwrap())[<span class="number">0</span>]
+                        .<span class="number">0</span>;
                 Choice::new(
                     <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, lt.short_name(), width.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
                     lt,
@@ -2026,7 +2077,12 @@
     <span class="kw">let </span>lane = app.primary.map.get_l(l);
     <span class="kw">let </span><span class="kw-2">mut </span>choices = LaneSpec::typical_lane_widths(
         lane.lane_type,
-        <span class="kw-2">&amp;</span>app.primary.map.get_r(lane.id.road).osm_tags,
+        app.primary
+            .map
+            .get_r(lane.id.road)
+            .osm_tags
+            .get(osm::HIGHWAY)
+            .unwrap(),
     );
     <span class="kw">if </span>!choices.iter().any(|(x, <span class="kw">_</span>)| <span class="kw-2">*</span>x == lane.width) {
         choices.push((lane.width, <span class="string">&quot;custom&quot;</span>));

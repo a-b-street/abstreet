@@ -124,7 +124,6 @@
 <span id="124">124</span>
 <span id="125">125</span>
 <span id="126">126</span>
-<span id="127">127</span>
 </pre><pre class="rust"><code><span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens
 //! in `convert_osm` and here.
 //!
@@ -164,11 +163,10 @@
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
 <span class="kw">use </span>geom::{Bounds, GPSBounds, Polygon};
-<span class="comment">// Re-export a bunch of things for convenience
-</span><span class="kw">pub use </span>osm2streets::ControlType <span class="kw">as </span>IntersectionType;
 <span class="kw">pub use </span>osm2streets::{
-    osm, BufferType, Direction, DrivingSide, LaneSpec, LaneType, MapConfig, NamePerLanguage,
-    OriginalRoad, RestrictionType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
+    osm, BufferType, Direction, DrivingSide, IntersectionControl, IntersectionKind, LaneSpec,
+    LaneType, MapConfig, NamePerLanguage, OriginalRoad, RestrictionType, NORMAL_LANE_THICKNESS,
+    SIDEWALK_THICKNESS,
 };
 <span class="kw">pub use </span>raw_map::{Amenity, AmenityType, AreaType};
 

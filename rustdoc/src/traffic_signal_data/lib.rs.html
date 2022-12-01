@@ -94,25 +94,12 @@
 <span id="94">94</span>
 <span id="95">95</span>
 <span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
-<span id="100">100</span>
-<span id="101">101</span>
-<span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A representation of traffic signal configuration that references OpenStreetMap IDs and is
 //! hopefully robust to minor edits over time.
 
-</span><span class="kw">use </span>serde::{Deserialize, Serialize};
-<span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
+</span><span class="kw">use </span>std::collections::BTreeSet;
+
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 </span><span class="kw">pub struct </span>TrafficSignal {
@@ -202,21 +189,6 @@
     <span class="doccomment">/// The direction along the road segment. See
     /// https://wiki.openstreetmap.org/wiki/Forward_%26_backward,_left_%26_right for details.
     </span><span class="kw">pub </span>is_forwards: bool,
-}
-
-<span class="comment">// &quot;&quot; means include all files within data. My hacks to the include_dir crate need a better API.
-</span><span class="kw">static </span>DATA: include_dir::Dir = <span class="macro">include_dir::include_dir!</span>(<span class="string">&quot;data&quot;</span>, <span class="string">&quot;&quot;</span>);
-
-<span class="doccomment">/// Returns all traffic signal data compiled into this build, keyed by OSM node ID. If any single
-/// file is broken, returns an error for the entire load.
-</span><span class="comment">// TODO Use a build script to do this. But have to generate Rust code to populate the struct?
-</span><span class="kw">pub fn </span>load_all_data() -&gt; <span class="prelude-ty">Result</span>&lt;BTreeMap&lt;i64, TrafficSignal&gt;, std::io::Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>results = BTreeMap::new();
-    <span class="kw">for </span>f <span class="kw">in </span>DATA.files() {
-        <span class="kw">let </span>ts: TrafficSignal = serde_json::from_slice(f.contents())<span class="question-mark">?</span>;
-        results.insert(ts.intersection_osm_node_id, ts);
-    }
-    <span class="prelude-val">Ok</span>(results)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="traffic_signal_data" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

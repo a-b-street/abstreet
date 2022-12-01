@@ -674,6 +674,9 @@
 <span id="674">674</span>
 <span id="675">675</span>
 <span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
 
 <span class="kw">use </span>geom::{
@@ -681,8 +684,8 @@
     EPSILON_DIST,
 };
 <span class="kw">use </span>map_model::{
-    ControlTrafficSignal, Direction, DrivingSide, Intersection, IntersectionID, IntersectionType,
-    LaneType, Map, Road, RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
+    ControlTrafficSignal, Direction, DrivingSide, Intersection, IntersectionControl,
+    IntersectionID, LaneType, Map, Road, RoadWithStopSign, Turn, TurnType, SIDEWALK_THICKNESS,
 };
 <span class="kw">use </span>widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor, Text};
 
@@ -761,50 +764,53 @@
             }
         }
 
-        <span class="kw">match </span>i.intersection_type {
-            IntersectionType::Border =&gt; {
-                <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>i.roads.iter().next().unwrap());
-                default_geom.extend(
-                    app.cs().road_center_line(map),
-                    calculate_border_arrows(i, r, map),
-                );
-            }
-            IntersectionType::StopSign | IntersectionType::Uncontrolled =&gt; {
-                <span class="kw">for </span>ss <span class="kw">in </span>map.get_stop_sign(i.id).roads.values() {
-                    <span class="kw">if </span>!app.opts().show_stop_signs {
-                        <span class="kw">break</span>;
-                    }
-                    <span class="kw">if </span>ss.must_stop {
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>((octagon, pole, angle)) =
-                            DrawIntersection::stop_sign_geom(ss, map)
-                        {
-                            <span class="kw">let </span>center = octagon.center();
-                            default_geom.push(app.cs().stop_sign, octagon);
-                            default_geom.push(app.cs().stop_sign_pole, pole);
+        <span class="kw">if </span>i.is_border() {
+            <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>i.roads.iter().next().unwrap());
+            default_geom.extend(
+                app.cs().road_center_line(map),
+                calculate_border_arrows(i, r, map),
+            );
+        } <span class="kw">else </span>{
+            <span class="kw">match </span>i.control {
+                IntersectionControl::Signed | IntersectionControl::Uncontrolled =&gt; {
+                    <span class="kw">for </span>ss <span class="kw">in </span>map.get_stop_sign(i.id).roads.values() {
+                        <span class="kw">if </span>!app.opts().show_stop_signs {
+                            <span class="kw">break</span>;
+                        }
+                        <span class="kw">if </span>ss.must_stop {
+                            <span class="kw">if let </span><span class="prelude-val">Some</span>((octagon, pole, angle)) =
+                                DrawIntersection::stop_sign_geom(ss, map)
+                            {
+                                <span class="kw">let </span>center = octagon.center();
+                                default_geom.push(app.cs().stop_sign, octagon);
+                                default_geom.push(app.cs().stop_sign_pole, pole);
 
-                            <span class="comment">// Trial and error to make the scale and angle work. We could also make
-                            // a fixed SVG asset and just rotate it, but we&#39;d still need to
-                            // calculate the octagon hitbox for the stop sign editor.
-                            </span>default_geom.append(
-                                Text::from(widgetry::Line(<span class="string">&quot;STOP&quot;</span>).small_heading().fg(Color::WHITE))
+                                <span class="comment">// Trial and error to make the scale and angle work. We could also make
+                                // a fixed SVG asset and just rotate it, but we&#39;d still need to
+                                // calculate the octagon hitbox for the stop sign editor.
+                                </span>default_geom.append(
+                                    Text::from(
+                                        widgetry::Line(<span class="string">&quot;STOP&quot;</span>).small_heading().fg(Color::WHITE),
+                                    )
                                     .render_autocropped(prerender.as_ref())
                                     .scale(<span class="number">0.02</span>)
                                     .centered_on(center)
                                     .rotate(angle.opposite().rotate_degs(-<span class="number">90.0</span>)),
-                            );
+                                );
+                            }
                         }
                     }
                 }
+                IntersectionControl::Construction =&gt; {
+                    <span class="comment">// TODO Centering seems weird
+                    </span>default_geom.append(
+                        GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/under_construction.svg&quot;</span>)
+                            .scale(<span class="number">0.08</span>)
+                            .centered_on(i.polygon.center()),
+                    );
+                }
+                IntersectionControl::Signalled =&gt; {}
             }
-            IntersectionType::Construction =&gt; {
-                <span class="comment">// TODO Centering seems weird
-                </span>default_geom.append(
-                    GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/under_construction.svg&quot;</span>)
-                        .scale(<span class="number">0.08</span>)
-                        .centered_on(i.polygon.center()),
-                );
-            }
-            IntersectionType::TrafficSignal =&gt; {}
         }
 
         <span class="kw">let </span>zorder = i.get_zorder(map);

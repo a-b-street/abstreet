@@ -465,18 +465,6 @@
 <span id="465">465</span>
 <span id="466">466</span>
 <span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
 <span class="kw">use </span>anyhow::Result;
@@ -540,23 +528,11 @@
         policies.remove(<span class="number">0</span>).<span class="number">1
     </span>}
 
-    <span class="doccomment">/// Only call this variant while importing the map, to enforce that baked-in signal config is
-    /// valid.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>validating_new(map: <span class="kw-2">&amp;</span>Map, id: IntersectionID) -&gt; ControlTrafficSignal {
-        <span class="kw">let </span><span class="kw-2">mut </span>policies = get_possible_policies(map, id, <span class="bool-val">true</span>);
-        <span class="kw">if </span>policies.len() == <span class="number">1 </span>{
-            <span class="macro">warn!</span>(<span class="string">&quot;Falling back to greedy_assignment for {}&quot;</span>, id);
-        }
-        policies.remove(<span class="number">0</span>).<span class="number">1
-    </span>}
-
     <span class="kw">pub fn </span>get_possible_policies(
         map: <span class="kw-2">&amp;</span>Map,
         id: IntersectionID,
     ) -&gt; Vec&lt;(String, ControlTrafficSignal)&gt; {
-        <span class="comment">// This method is called publicly while editing the map, so don&#39;t enforce valid baked-in
-        // signal config.
-        </span>get_possible_policies(map, id, <span class="bool-val">false</span>)
+        get_possible_policies(map, id)
     }
 
     <span class="kw">pub fn </span>get_min_crossing_time(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize, i: <span class="kw-2">&amp;</span>Intersection) -&gt; Duration {

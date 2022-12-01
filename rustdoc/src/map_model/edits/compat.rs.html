@@ -498,6 +498,37 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="kw">use </span>anyhow::Result;
@@ -609,6 +640,13 @@
             .as_object_mut()
             .unwrap()
             .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">11</span>.into()));
+    }
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">11</span>.into()) {
+        fix_turn_restrictions(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">12</span>.into()));
     }
 
     abstutil::from_json(<span class="kw-2">&amp;</span>value.to_string().into_bytes())
@@ -892,6 +930,7 @@
                         <span class="comment">// Before this commit, lane widths weren&#39;t modifiable, so this lookup works
                         // for both &quot;old&quot; and &quot;new&quot;.
                         </span>width: road.lanes[idx].width,
+                        turn_restrictions: Vec::new(),
                     });
                 }
                 cmd[key][<span class="string">&quot;lanes_ltr&quot;</span>] = serde_json::to_value(lanes_ltr).unwrap();
@@ -939,6 +978,29 @@
         map.remove(<span class="string">&quot;cap_vehicles_per_hour&quot;</span>);
         <span class="bool-val">false
     </span>});
+}
+
+<span class="comment">// 6af258636f926a12650063abf243a0b87567b6e0 (well, a bit earlier) added turn restrictions to
+// LaneSpecs
+</span><span class="kw">fn </span>fix_turn_restrictions(value: <span class="kw-2">&amp;mut </span>Value) {
+    <span class="kw">for </span>orig <span class="kw">in </span>value.as_object_mut().unwrap()[<span class="string">&quot;commands&quot;</span>]
+        .as_array_mut()
+        .unwrap()
+    {
+        <span class="kw">let </span>cmd = orig.as_object_mut().unwrap();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(cmd) = cmd.get_mut(<span class="string">&quot;ChangeRoad&quot;</span>) {
+            <span class="kw">let </span>cmd = cmd.as_object_mut().unwrap();
+            <span class="kw">for </span>key <span class="kw">in </span>[<span class="string">&quot;old&quot;</span>, <span class="string">&quot;new&quot;</span>] {
+                <span class="kw">for </span>spec <span class="kw">in </span>cmd[key][<span class="string">&quot;lanes_ltr&quot;</span>].as_array_mut().unwrap() {
+                    <span class="comment">// We could try to parse OSM tags and calculate this properly, but this field
+                    // isn&#39;t used in A/B Street yet at all. So just fill out a blank list.
+                    </span>spec.as_object_mut()
+                        .unwrap()
+                        .insert(<span class="string">&quot;turn_restrictions&quot;</span>.to_string(), Value::Array(Vec::new()));
+                }
+            }
+        }
+    }
 }
 
 <span class="comment">// These&#39;re old structs used in fix_old_lane_cmds.

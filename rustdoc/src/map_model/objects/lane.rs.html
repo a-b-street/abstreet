@@ -373,6 +373,10 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 <span class="kw">use </span>std::fmt;
 
@@ -381,8 +385,8 @@
 <span class="kw">use </span>geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 
 <span class="kw">use crate</span>::{
-    osm, DirectedRoadID, Direction, DrivingSide, IntersectionID, LaneType, Map, MapConfig, Road,
-    RoadID, RoadSideID, SideOfRoad, TurnType,
+    DirectedRoadID, Direction, DrivingSide, IntersectionID, LaneType, Map, MapConfig, Road, RoadID,
+    RoadSideID, SideOfRoad, TurnType,
 };
 
 <span class="doccomment">/// From some manually audited cases in Seattle, the length of parallel street parking spots is a
@@ -619,11 +623,15 @@
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let </span>all = <span class="kw">if </span><span class="self">self</span>.dir == Direction::Fwd &amp;&amp; road.osm_tags.contains_key(osm::ENDPT_FWD) {
+        <span class="comment">// TODO This&#39;ll interpret turn restrictions along every segment of an OSM way. They maybe
+        // only make sense for the first or last segment.
+        // TODO We could plumb forward LaneSpec.turn_restrictions instead of redoing some work here
+
+        </span><span class="kw">let </span>all = <span class="kw">if </span><span class="self">self</span>.dir == Direction::Fwd {
             road.osm_tags
                 .get(<span class="string">&quot;turn:lanes:forward&quot;</span>)
                 .or_else(|| road.osm_tags.get(<span class="string">&quot;turn:lanes&quot;</span>))<span class="question-mark">?
-        </span>} <span class="kw">else if </span><span class="self">self</span>.dir == Direction::Back &amp;&amp; road.osm_tags.contains_key(osm::ENDPT_BACK) {
+        </span>} <span class="kw">else if </span><span class="self">self</span>.dir == Direction::Back {
             road.osm_tags.get(<span class="string">&quot;turn:lanes:backward&quot;</span>)<span class="question-mark">?
         </span>} <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">None</span>;

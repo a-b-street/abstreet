@@ -990,19 +990,6 @@
 <span id="990">990</span>
 <span id="991">991</span>
 <span id="992">992</span>
-<span id="993">993</span>
-<span id="994">994</span>
-<span id="995">995</span>
-<span id="996">996</span>
-<span id="997">997</span>
-<span id="998">998</span>
-<span id="999">999</span>
-<span id="1000">1000</span>
-<span id="1001">1001</span>
-<span id="1002">1002</span>
-<span id="1003">1003</span>
-<span id="1004">1004</span>
-<span id="1005">1005</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.
 
 </span><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
@@ -1012,17 +999,17 @@
 
 <span class="kw">use </span>abstio::{CityName, MapName};
 <span class="kw">use </span>abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
-<span class="kw">use </span>geom::{Bounds, Distance, Duration, GPSBounds, PolyLine, Polygon, Pt2D, Ring, Time};
-<span class="kw">use </span>raw_map::RawMap;
+<span class="kw">use </span>geom::{Bounds, Distance, Duration, GPSBounds, LonLat, PolyLine, Polygon, Pt2D, Ring, Time};
+<span class="kw">use </span>raw_map::{RawBuilding, RawMap};
 
 <span class="kw">use crate</span>::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
     CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
-    DrivingSide, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapConfig, MapEdits,
-    Movement, MovementID, OffstreetParking, OriginalRoad, ParkingLot, ParkingLotID, Path,
-    PathConstraints, PathRequest, PathV2, Pathfinder, PathfinderCaching, Position, Road, RoadID,
-    RoutingParams, TransitRoute, TransitRouteID, TransitStop, TransitStopID, Turn, TurnID,
-    TurnType, Zone,
+    DrivingSide, Intersection, IntersectionControl, IntersectionID, IntersectionKind, Lane, LaneID,
+    LaneType, Map, MapConfig, MapEdits, Movement, MovementID, OffstreetParking, OriginalRoad,
+    ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2, Pathfinder,
+    PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute, TransitRouteID,
+    TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
 };
 
 <span class="kw">impl </span>Map {
@@ -1165,10 +1152,6 @@
 
     <span class="doccomment">/// A dummy map that won&#39;t crash UIs, but has almost nothing in it.
     </span><span class="kw">pub fn </span>almost_blank() -&gt; <span class="self">Self </span>{
-        <span class="kw">use </span>geom::LonLat;
-        <span class="kw">use </span>osm2streets::{ConflictType, ControlType, IntersectionComplexity};
-        <span class="kw">use </span>raw_map::RawBuilding;
-
         <span class="comment">// Programatically creating a Map is very verbose. RawMap less so, but .osm could be even
         // better... but then we&#39;d pull in dependencies for XML parsing everywhere.
         </span><span class="kw">let </span><span class="kw-2">mut </span>raw = RawMap::blank(MapName::blank());
@@ -1181,40 +1164,31 @@
             .gps_bounds
             .update(LonLat::new(-<span class="number">122.240505</span>, <span class="number">47.495342</span>));
 
-        <span class="kw">let </span>i1 = osm::NodeID(<span class="number">0</span>);
-        <span class="kw">let </span>i2 = osm::NodeID(<span class="number">1</span>);
-        raw.streets.intersections.insert(
-            i1,
-            osm2streets::Intersection::new(
-                i1,
-                Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>),
-                IntersectionComplexity::MapEdge,
-                ConflictType::Uncontested,
-                ControlType::Border,
-            ),
+        <span class="kw">let </span>i1 = raw.streets.insert_intersection(
+            Vec::new(),
+            Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>),
+            IntersectionKind::MapEdge,
+            IntersectionControl::Uncontrolled,
         );
-        raw.streets.intersections.insert(
-            i2,
-            osm2streets::Intersection::new(
-                i2,
-                Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>),
-                IntersectionComplexity::MapEdge,
-                ConflictType::Uncontested,
-                ControlType::Border,
-            ),
+        <span class="kw">let </span>i2 = raw.streets.insert_intersection(
+            Vec::new(),
+            Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>),
+            IntersectionKind::MapEdge,
+            IntersectionControl::Uncontrolled,
         );
         <span class="kw">let </span><span class="kw-2">mut </span>tags = Tags::empty();
         tags.insert(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
         tags.insert(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
-        raw.streets.insert_road(
-            OriginalRoad::new(<span class="number">2</span>, (i1.<span class="number">0</span>, i2.<span class="number">0</span>)),
-            osm2streets::Road::new(
-                OriginalRoad::new(<span class="number">2</span>, (i1.<span class="number">0</span>, i2.<span class="number">0</span>)),
-                PolyLine::must_new(<span class="macro">vec!</span>[Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>), Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>)]),
-                tags,
-                <span class="kw-2">&amp;</span>raw.streets.config,
-            ),
-        );
+        <span class="kw">let </span>road_id = raw.streets.next_road_id();
+        raw.streets.insert_road(osm2streets::Road::new(
+            road_id,
+            Vec::new(),
+            i1,
+            i2,
+            PolyLine::must_new(<span class="macro">vec!</span>[Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>), Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>)]),
+            tags,
+            <span class="kw-2">&amp;</span>raw.streets.config,
+        ));
 
         raw.buildings.insert(
             osm::OsmID::Way(osm::WayID(<span class="number">3</span>)),

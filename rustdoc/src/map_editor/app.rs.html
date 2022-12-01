@@ -397,8 +397,12 @@
 <span id="397">397</span>
 <span id="398">398</span>
 <span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
 </pre><pre class="rust"><code><span class="kw">use </span>geom::{Distance, Line, Polygon, Pt2D};
-<span class="kw">use </span>osm2streets::{osm, Transformation};
+<span class="kw">use </span>osm2streets::{IntersectionID, Transformation};
 <span class="kw">use </span>widgetry::mapspace::WorldOutcome;
 <span class="kw">use </span>widgetry::tools::{open_browser, URLManager};
 <span class="kw">use </span>widgetry::{
@@ -438,7 +442,7 @@
 
 <span class="kw">enum </span>Mode {
     Neutral,
-    CreatingRoad(osm::NodeID),
+    CreatingRoad(IntersectionID),
     SetBoundaryPt1,
     SetBoundaryPt2(Pt2D),
 }
@@ -606,7 +610,9 @@
                         app.model.toggle_i(ctx, i);
                     }
                     WorldOutcome::Keypress(<span class="string">&quot;debug in OSM&quot;</span>, ID::Intersection(i)) =&gt; {
-                        open_browser(i.to_string());
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = app.model.map.streets.intersections[<span class="kw-2">&amp;</span>i].osm_ids.get(<span class="number">0</span>) {
+                            open_browser(id.to_string());
+                        }
                     }
                     WorldOutcome::Keypress(<span class="string">&quot;delete&quot;</span>, ID::Building(b)) =&gt; {
                         app.model.delete_b(b);
@@ -645,7 +651,9 @@
                         app.model.toggle_junction(ctx, r);
                     }
                     WorldOutcome::Keypress(<span class="string">&quot;debug in OSM&quot;</span>, ID::Road(r)) =&gt; {
-                        open_browser(r.osm_way_id.to_string());
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = app.model.map.streets.roads[<span class="kw-2">&amp;</span>r].osm_ids.get(<span class="number">0</span>) {
+                            open_browser(id.to_string());
+                        }
                     }
                     WorldOutcome::ClickedObject(ID::Road(r)) =&gt; {
                         <span class="kw">return </span>Transition::Push(<span class="kw">crate</span>::edit::EditRoad::new_state(ctx, app, r));
