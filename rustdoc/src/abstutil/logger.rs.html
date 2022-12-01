@@ -47,7 +47,19 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
-</pre><pre class="rust"><code><span class="doccomment">/// ## On native: uses env_log
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+</pre><pre class="rust"><code><span class="kw">use </span>std::sync::Once;
+
+<span class="kw">static </span>SETUP: Once = Once::new();
+
+<span class="doccomment">/// ## On native: uses env_log
 ///
 /// You can adjust the log level without recompiling with the RUST_LOG env variable.
 ///
@@ -84,17 +96,21 @@
 /// ```
 ///
 /// ## On web: uses console_log
+///
+/// Can be called multiple times
 </span><span class="kw">pub fn </span>setup() {
-    <span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
-    </span>{
-        console_log::init_with_level(log::Level::Info).unwrap();
-    }
+    SETUP.call_once(|| {
+        <span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+        </span>{
+            console_log::init_with_level(log::Level::Info).unwrap();
+        }
 
-    <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-    </span>{
-        <span class="kw">use </span>env_logger::{Builder, Env};
-        Builder::from_env(Env::default().default_filter_or(<span class="string">&quot;info&quot;</span>)).init();
-    }
+        <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+        </span>{
+            <span class="kw">use </span>env_logger::{Builder, Env};
+            Builder::from_env(Env::default().default_filter_or(<span class="string">&quot;info&quot;</span>)).init();
+        }
+    });
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstutil" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
