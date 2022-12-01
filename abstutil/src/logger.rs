@@ -1,3 +1,7 @@
+use std::sync::Once;
+
+static SETUP: Once = Once::new();
+
 /// ## On native: uses env_log
 ///
 /// You can adjust the log level without recompiling with the RUST_LOG env variable.
@@ -35,15 +39,19 @@
 /// ```
 ///
 /// ## On web: uses console_log
+///
+/// Can be called multiple times
 pub fn setup() {
-    #[cfg(target_arch = "wasm32")]
-    {
-        console_log::init_with_level(log::Level::Info).unwrap();
-    }
+    SETUP.call_once(|| {
+        #[cfg(target_arch = "wasm32")]
+        {
+            console_log::init_with_level(log::Level::Info).unwrap();
+        }
 
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        use env_logger::{Builder, Env};
-        Builder::from_env(Env::default().default_filter_or("info")).init();
-    }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            use env_logger::{Builder, Env};
+            Builder::from_env(Env::default().default_filter_or("info")).init();
+        }
+    });
 }
