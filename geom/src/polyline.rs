@@ -6,8 +6,8 @@ use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    Angle, Bounds, Circle, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, LonLat, Polygon,
-    Pt2D, Ring, Tessellation, EPSILON_DIST,
+    Angle, Bounds, Circle, Distance, GPSBounds, InfiniteLine, Line, LonLat, Polygon, Pt2D, Ring,
+    Tessellation, EPSILON_DIST,
 };
 
 // TODO How to tune this?
@@ -160,7 +160,7 @@ impl PolyLine {
                 // TODO Measure the length of the thing being clipped out, to be sure this isn't
                 // running amok.
                 for (other_rev_idx, pt) in other_pts.iter().rev().enumerate() {
-                    if pl1.contains(&pt.to_hashable()) {
+                    if pl1.contains(&pt) {
                         while self_pts.last().unwrap() != pt {
                             self_pts.pop();
                         }
@@ -1181,15 +1181,14 @@ fn fix_angles(orig: &PolyLine, result: PolyLine) -> Result<PolyLine> {
 }
 
 // Also returns the duplicates.
-fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
+fn to_set(pts: &[Pt2D]) -> (HashSet<Pt2D>, HashSet<Pt2D>) {
     let mut deduped = HashSet::new();
     let mut dupes = HashSet::new();
     for pt in pts {
-        let pt = pt.to_hashable();
-        if deduped.contains(&pt) {
-            dupes.insert(pt);
+        if deduped.contains(pt) {
+            dupes.insert(*pt);
         } else {
-            deduped.insert(pt);
+            deduped.insert(*pt);
         }
     }
     (deduped, dupes)

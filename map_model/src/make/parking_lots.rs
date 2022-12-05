@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use anyhow::Result;
 
 use abstutil::Timer;
-use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
+use geom::{Angle, Distance, FindClosest, Line, PolyLine, Polygon, Pt2D, Ring};
 use raw_map::RawParkingLot;
 
 use crate::make::{match_points_to_lanes, trim_path};
@@ -22,10 +22,10 @@ pub fn make_all_parking_lots(
     timer: &mut Timer,
 ) -> Vec<ParkingLot> {
     timer.start("convert parking lots");
-    let mut center_per_lot: Vec<HashablePt2D> = Vec::new();
-    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    let mut center_per_lot: Vec<Pt2D> = Vec::new();
+    let mut query: HashSet<Pt2D> = HashSet::new();
     for lot in input {
-        let center = lot.polygon.center().to_hashable();
+        let center = lot.polygon.center();
         center_per_lot.push(center);
         query.insert(center);
     }
@@ -131,9 +131,9 @@ pub fn make_all_parking_lots(
 
 /// Returns (driveway_line, driving_pos, sidewalk_line, sidewalk_pos)
 pub fn snap_driveway(
-    center: HashablePt2D,
+    center: Pt2D,
     polygon: &Polygon,
-    sidewalk_pts: &HashMap<HashablePt2D, Position>,
+    sidewalk_pts: &HashMap<Pt2D, Position>,
     map: &Map,
 ) -> Result<(PolyLine, Position, Line, Position)> {
     let driveway_buffer = Distance::meters(7.0);
@@ -141,7 +141,7 @@ pub fn snap_driveway(
     let sidewalk_pos = sidewalk_pts
         .get(&center)
         .ok_or_else(|| anyhow!("parking lot center didn't snap to a sidewalk"))?;
-    let sidewalk_line = match Line::new(center.to_pt2d(), sidewalk_pos.pt(map)) {
+    let sidewalk_line = match Line::new(center, sidewalk_pos.pt(map)) {
         Ok(l) => trim_path(polygon, l),
         Err(_) => {
             bail!("front path has 0 length");

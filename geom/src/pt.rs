@@ -10,7 +10,10 @@ use crate::{
 };
 
 /// This represents world-space in meters.
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+///
+/// By construction, it consists of finite and trimmed f64's, so it implements hashing, ordering,
+/// and equality.
+#[derive(Clone, Copy, Debug, PartialOrd, Serialize, Deserialize)]
 pub struct Pt2D {
     #[serde(serialize_with = "serialize_f64", deserialize_with = "deserialize_f64")]
     x: f64,
@@ -18,9 +21,28 @@ pub struct Pt2D {
     y: f64,
 }
 
-impl std::cmp::PartialEq for Pt2D {
+impl PartialEq for Pt2D {
     fn eq(&self, other: &Pt2D) -> bool {
         self.approx_eq(*other, EPSILON_DIST)
+    }
+}
+impl Eq for Pt2D {}
+impl Ord for Pt2D {
+    fn cmp(&self, other: &Pt2D) -> std::cmp::Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
+
+impl std::hash::Hash for Pt2D {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Per https://doc.rust-lang.org/std/hash/trait.Hash.html#hash-and-eq, we have to be very
+        // careful that the equality definition matches hashing. So we need to convert each
+        // coordinate to integers and compare those.
+        // EPSILON_DIST is 1cm
+        let x_cm = (self.x * 100.0).round() as i64;
+        let y_cm = (self.y * 100.0).round() as i64;
+        x_cm.hash(state);
+        y_cm.hash(state);
     }
 }
 
@@ -29,8 +51,6 @@ impl Pt2D {
         if !x.is_finite() || !y.is_finite() {
             panic!("Bad Pt2D {}, {}", x, y);
         }
-
-        // TODO enforce >=0
 
         Pt2D {
             x: trim_f64(x),
@@ -120,13 +140,6 @@ impl Pt2D {
         result
     }
 
-    pub fn to_hashable(self) -> HashablePt2D {
-        HashablePt2D {
-            x_nan: NotNan::new(self.x()).unwrap(),
-            y_nan: NotNan::new(self.y()).unwrap(),
-        }
-    }
-
     /// Simplifies a list of points using Ramer-Douglas-Peuckr
     pub fn simplify_rdp(pts: Vec<Pt2D>, epsilon: f64) -> Vec<Pt2D> {
         pts_to_line_string(&pts)
@@ -152,20 +165,6 @@ impl fmt::Display for Pt2D {
     }
 }
 
-/// This represents world space, NOT LonLat.
-// TODO So rename it HashablePair or something
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct HashablePt2D {
-    x_nan: NotNan<f64>,
-    y_nan: NotNan<f64>,
-}
-
-impl HashablePt2D {
-    pub fn to_pt2d(self) -> Pt2D {
-        Pt2D::new(self.x_nan.into_inner(), self.y_nan.into_inner())
-    }
-}
-
 impl From<Pt2D> for geo::Coordinate {
     fn from(pt: Pt2D) -> Self {
         geo::Coordinate { x: pt.x, y: pt.y }
@@ -187,5 +186,28 @@ impl From<geo::Coordinate> for Pt2D {
 impl From<geo::Point> for Pt2D {
     fn from(point: geo::Point) -> Self {
         Pt2D::new(point.x(), point.y())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pt_hashing() {
+        // TODO Oops
+        let pt1 = Pt2D::new(1.0, 1.0);
+        let pt2 = Pt2D::new(1.01, 1.0);
+
+        assert!(pt1 == pt2);
+        assert!(hash(pt1) == hash(pt2));
+    }
+
+    fn hash(pt: Pt2D) -> u64 {
+        use std::hash::{Hasher, Hash};
+
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        pt.hash(&mut hasher);
+        hasher.finish()
     }
 }

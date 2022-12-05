@@ -3,9 +3,7 @@ use std::io::Write;
 
 use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
-use geom::{
-    Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
-};
+use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D};
 use osm2streets::{
     osm, IntersectionControl, IntersectionID, IntersectionKind, Road, RoadID, Transformation,
 };
@@ -637,9 +635,9 @@ fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
         r#"    <bounds minlon="{}" maxlon="{}" minlat="{}" maxlat="{}"/>"#,
         b.min_lon, b.max_lon, b.min_lat, b.max_lat
     )?;
-    let mut pt_to_id: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
+    let mut pt_to_id: HashMap<Pt2D, IntersectionID> = HashMap::new();
     for (id, i) in &map.streets.intersections {
-        pt_to_id.insert(i.point.to_hashable(), *id);
+        pt_to_id.insert(i.point, *id);
         let pt = i.point.to_gps(b);
         writeln!(
             f,
@@ -653,11 +651,7 @@ fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
         writeln!(f, r#"    <way id="{}">"#, id.0)?;
         for pt in r.untrimmed_center_line.points() {
             // TODO Make new IDs if needed
-            writeln!(
-                f,
-                r#"        <nd ref="{}"/>"#,
-                pt_to_id[&pt.to_hashable()].0
-            )?;
+            writeln!(f, r#"        <nd ref="{}"/>"#, pt_to_id[pt].0)?;
         }
         // TODO Brittle. Instead we should effectively do lanes2osm
         if let Some(tags) = map.road_to_osm_tags(*id) {

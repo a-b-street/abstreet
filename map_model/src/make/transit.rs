@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use anyhow::Result;
 
 use abstutil::Timer;
-use geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
+use geom::{Distance, Duration, FindClosest, Pt2D, Time};
 use raw_map::{RawMap, RawTransitRoute, RawTransitStop, RawTransitType};
 
 use crate::make::match_points_to_lanes;
@@ -14,9 +14,9 @@ use crate::{
 
 pub fn finalize_transit(map: &mut Map, raw: &RawMap, timer: &mut Timer) {
     // Snap stops to sidewalks and driving lanes, similar to buildings
-    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    let mut query: HashSet<Pt2D> = HashSet::new();
     for stop in raw.transit_stops.values() {
-        query.insert(stop.position.to_hashable());
+        query.insert(stop.position);
     }
     let sidewalk_pts = match_points_to_lanes(
         map,
@@ -52,13 +52,13 @@ pub fn finalize_transit(map: &mut Map, raw: &RawMap, timer: &mut Timer) {
 
 fn create_stop(
     stop: &RawTransitStop,
-    sidewalk_pts: &HashMap<HashablePt2D, Position>,
+    sidewalk_pts: &HashMap<Pt2D, Position>,
     gtfs_to_stop_id: &mut HashMap<String, TransitStopID>,
     map: &mut Map,
 ) -> Result<()> {
     // TODO We'll have to look up all routes referencing this stop and determine this
     let vehicle = PathConstraints::Bus;
-    if let Some(sidewalk_pos) = sidewalk_pts.get(&stop.position.to_hashable()) {
+    if let Some(sidewalk_pos) = sidewalk_pts.get(&stop.position) {
         let sidewalk_lane = sidewalk_pos.lane();
         if let Some(driving_pos) = map
             .get_parent(sidewalk_lane)

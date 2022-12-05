@@ -16,7 +16,7 @@ pub use crate::line::{InfiniteLine, Line};
 pub use crate::percent::Percent;
 pub use crate::polygon::Polygon;
 pub use crate::polyline::{ArrowCap, PolyLine};
-pub use crate::pt::{HashablePt2D, Pt2D};
+pub use crate::pt::Pt2D;
 pub use crate::ring::Ring;
 pub use crate::speed::Speed;
 pub use crate::stats::{HgramValue, Histogram, Statistic};

@@ -6,9 +6,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use structopt::StructOpt;
 
 use abstutil::{MultiMap, Tags, Timer};
-use geom::{
-    Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Speed, EPSILON_DIST,
-};
+use geom::{Distance, FindClosest, Line, PolyLine, Polygon, Pt2D, Speed, EPSILON_DIST};
 use osm2streets::Transformation;
 use raw_map::RawMap;
 
@@ -334,12 +332,12 @@ impl Map {
 /// requested point, then there was no matching lane close enough.
 pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
     map: &Map,
-    pts: HashSet<HashablePt2D>,
+    pts: HashSet<Pt2D>,
     filter: F,
     buffer: Distance,
     max_dist_away: Distance,
     timer: &mut Timer,
-) -> HashMap<HashablePt2D, Position> {
+) -> HashMap<Pt2D, Position> {
     if pts.is_empty() {
         return HashMap::new();
     }
@@ -365,7 +363,7 @@ pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
             "find closest lane point",
             pts.into_iter().collect(),
             |query_pt| {
-                if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {
+                if let Some((l, pt)) = closest.closest_pt(query_pt, max_dist_away) {
                     if let Some(dist_along) = map.get_l(l).dist_along_of_point(pt) {
                         Some((query_pt, Position::new(l, dist_along)))
                     } else {

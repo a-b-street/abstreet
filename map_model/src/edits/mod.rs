@@ -8,7 +8,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
-use geom::{Distance, HashablePt2D, Line, Speed, Time};
+use geom::{Distance, Line, Pt2D, Speed, Time};
 use osm2streets::{get_lane_specs_ltr, osm, InputRoad};
 
 pub use self::perma::PermanentMapEdits;
@@ -661,10 +661,10 @@ fn recalculate_intersection_polygon(
 /// Recalculate the driveways of some buildings after map edits.
 fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>, effects: &mut EditEffects) {
     // TODO Copying from make/buildings.rs
-    let mut center_per_bldg: BTreeMap<BuildingID, HashablePt2D> = BTreeMap::new();
-    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    let mut center_per_bldg: BTreeMap<BuildingID, Pt2D> = BTreeMap::new();
+    let mut query: HashSet<Pt2D> = HashSet::new();
     for id in input {
-        let center = map.get_b(id).polygon.center().to_hashable();
+        let center = map.get_b(id).polygon.center();
         center_per_bldg.insert(id, center);
         query.insert(center);
     }
@@ -683,7 +683,7 @@ fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>, effects: &mut E
 
     for (id, bldg_center) in center_per_bldg {
         match sidewalk_pts.remove(&bldg_center).and_then(|pos| {
-            Line::new(bldg_center.to_pt2d(), pos.pt(map))
+            Line::new(bldg_center, pos.pt(map))
                 .map(|l| (pos, trim_path(&map.get_b(id).polygon, l)))
                 .ok()
         }) {
@@ -705,10 +705,10 @@ fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>, effects: &mut E
 /// Recalculate the driveways of some parking lots after map edits.
 fn fix_parking_lot_driveways(map: &mut Map, input: Vec<ParkingLotID>) {
     // TODO Partly copying from make/parking_lots.rs
-    let mut center_per_lot: Vec<(ParkingLotID, HashablePt2D)> = Vec::new();
-    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    let mut center_per_lot: Vec<(ParkingLotID, Pt2D)> = Vec::new();
+    let mut query: HashSet<Pt2D> = HashSet::new();
     for id in input {
-        let center = map.get_pl(id).polygon.center().to_hashable();
+        let center = map.get_pl(id).polygon.center();
         center_per_lot.push((id, center));
         query.insert(center);
     }

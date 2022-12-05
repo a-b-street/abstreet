@@ -300,13 +300,7 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
 
     pts_between.reverse();
 
-    if abstutil::contains_duplicates(
-        &pts_between
-            .iter()
-            .map(|pt| pt.to_hashable())
-            .collect::<Vec<_>>(),
-    ) || pts_between.len() < 2
-    {
+    if abstutil::contains_duplicates(&pts_between) || pts_between.len() < 2 {
         warn!(
             "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
              straight line",

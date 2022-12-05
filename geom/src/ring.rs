@@ -31,10 +31,10 @@ impl Ring {
 
         let mut seen_pts = HashSet::new();
         for pt in result.pts.iter().skip(1) {
-            if seen_pts.contains(&pt.to_hashable()) {
+            if seen_pts.contains(&pt) {
                 bail!("Ring has repeat non-adjacent points near {}", pt);
             }
-            seen_pts.insert(pt.to_hashable());
+            seen_pts.insert(pt);
         }
 
         Ok(result)
@@ -80,9 +80,9 @@ impl Ring {
                 .map(|pair| Line::must_new(pair[0], pair[1]))
             {
                 if let Some(pt) = l1.intersection(&l2) {
-                    if !seen.contains(&pt.to_hashable()) {
+                    if !seen.contains(&pt) {
                         hits.push(pt);
-                        seen.insert(pt.to_hashable());
+                        seen.insert(pt);
                     }
                 }
             }
@@ -160,22 +160,21 @@ impl Ring {
         let mut seen = HashSet::new();
         let mut intersections = HashSet::new();
         for pt in pts {
-            let pt = pt.to_hashable();
-            if seen.contains(&pt) {
-                intersections.insert(pt);
+            if seen.contains(pt) {
+                intersections.insert(*pt);
             } else {
-                seen.insert(pt);
+                seen.insert(*pt);
             }
         }
-        intersections.insert(pts[0].to_hashable());
-        intersections.insert(pts.last().unwrap().to_hashable());
+        intersections.insert(pts[0]);
+        intersections.insert(*pts.last().unwrap());
 
         let mut polylines = Vec::new();
         let mut rings = Vec::new();
         let mut current = Vec::new();
         for pt in pts.iter().cloned() {
             current.push(pt);
-            if intersections.contains(&pt.to_hashable()) && current.len() > 1 {
+            if intersections.contains(&pt) && current.len() > 1 {
                 if current[0] == pt && current.len() >= 3 {
                     rings.push(Ring::new(current.drain(..).collect())?);
                 } else {

@@ -4,7 +4,7 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use abstutil::{Tags, Timer};
-use geom::{Distance, HashablePt2D, Line};
+use geom::{Distance, Line, Pt2D};
 use raw_map::RawBuilding;
 
 use crate::make::{match_points_to_lanes, trim_path};
@@ -21,12 +21,12 @@ pub fn make_all_buildings(
     timer: &mut Timer,
 ) -> Vec<Building> {
     timer.start("convert buildings");
-    let mut center_per_bldg: BTreeMap<osm::OsmID, HashablePt2D> = BTreeMap::new();
-    let mut query: HashSet<HashablePt2D> = HashSet::new();
+    let mut center_per_bldg: BTreeMap<osm::OsmID, Pt2D> = BTreeMap::new();
+    let mut query: HashSet<Pt2D> = HashSet::new();
     timer.start_iter("get building center points", input.len());
     for (id, b) in input {
         timer.next();
-        let center = b.polygon.center().to_hashable();
+        let center = b.polygon.center();
         center_per_bldg.insert(*id, center);
         query.insert(center);
     }
@@ -49,7 +49,7 @@ pub fn make_all_buildings(
         timer.next();
         if let Some(sidewalk_pos) = sidewalk_pts.get(&bldg_center) {
             let b = &input[&orig_id];
-            let sidewalk_line = match Line::new(bldg_center.to_pt2d(), sidewalk_pos.pt(map)) {
+            let sidewalk_line = match Line::new(bldg_center, sidewalk_pos.pt(map)) {
                 Ok(l) => trim_path(&b.polygon, l),
                 Err(_) => {
                     warn!(
