@@ -285,7 +285,7 @@ impl From<Ring> for geo::LineString {
         let coords = ring
             .pts
             .into_iter()
-            .map(geo::Coordinate::from)
+            .map(geo::Coord::from)
             .collect::<Vec<_>>();
         Self(coords)
     }
