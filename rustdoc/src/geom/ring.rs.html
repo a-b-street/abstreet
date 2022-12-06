@@ -586,7 +586,7 @@
         <span class="kw">let </span>coords = ring
             .pts
             .into_iter()
-            .map(geo::Coordinate::from)
+            .map(geo::Coord::from)
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="self">Self</span>(coords)
     }
