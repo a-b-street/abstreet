@@ -1197,7 +1197,7 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
 
 impl From<&PolyLine> for geo::LineString {
     fn from(poly_line: &PolyLine) -> Self {
-        let coords: Vec<geo::Coordinate> = poly_line
+        let coords: Vec<geo::Coord> = poly_line
             .pts
             .iter()
             .map(|pt| geo::coord! { x: pt.x(), y: pt.y() })
