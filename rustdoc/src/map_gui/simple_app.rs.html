@@ -382,18 +382,12 @@
 <span id="382">382</span>
 <span id="383">383</span>
 <span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
 </pre><pre class="rust"><code><span class="kw">use </span>structopt::StructOpt;
 
 <span class="kw">use </span>abstio::MapName;
 <span class="kw">use </span>abstutil::Timer;
 <span class="kw">use </span>geom::{Circle, Distance, Duration, Pt2D, Time};
 <span class="kw">use </span>map_model::{IntersectionID, Map};
-<span class="kw">use </span>sim::Sim;
 <span class="kw">use </span>widgetry::tools::URLManager;
 <span class="kw">use </span>widgetry::{Canvas, EventCtx, GfxCtx, Settings, SharedAppState, State, Transition, Warper};
 
@@ -661,10 +655,6 @@
     <span class="attribute">#[inline]
     </span><span class="kw">fn </span>map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Map {
         <span class="kw-2">&amp;</span><span class="self">self</span>.map
-    }
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>sim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Sim {
-        <span class="macro">unreachable!</span>()
     }
     <span class="attribute">#[inline]
     </span><span class="kw">fn </span>cs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ColorScheme {

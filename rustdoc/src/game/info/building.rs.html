@@ -322,7 +322,6 @@
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="kw">use </span>geom::{Angle, Circle, Distance, Speed, Time};
-<span class="kw">use </span>map_gui::render::DrawPedestrian;
 <span class="kw">use </span>map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
 <span class="kw">use </span>sim::{DrawPedestrianInput, PedestrianID, PersonID, TripResult, VehicleType};
 <span class="kw">use </span>synthpop::TripMode;
@@ -330,6 +329,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::app::App;
 <span class="kw">use </span><span class="kw">crate</span>::info::{header_btns, make_table, make_tabs, Details, Tab};
+<span class="kw">use </span><span class="kw">crate</span>::render::DrawPedestrian;
 
 <span class="kw">pub fn </span>info(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: BuildingID) -&gt; Widget {
     Widget::custom_col(<span class="macro">vec!</span>[

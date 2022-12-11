@@ -405,7 +405,6 @@
 
 <span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
 <span class="kw">use </span>geom::{Circle, Distance, Duration, Pt2D, Time};
-<span class="kw">use </span>map_gui::render::unzoomed_agent_radius;
 <span class="kw">use </span>map_gui::tools::ColorNetwork;
 <span class="kw">use </span>map_model::{BuildingID, OffstreetParking, ParkingLotID, PathRequest, RoadID};
 <span class="kw">use </span>sim::{ParkingSpot, VehicleType};
@@ -415,6 +414,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::app::App;
 <span class="kw">use </span><span class="kw">crate</span>::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
+<span class="kw">use </span><span class="kw">crate</span>::render::unzoomed_agent_radius;
 
 <span class="kw">pub struct </span>Occupancy {
     time: Time,

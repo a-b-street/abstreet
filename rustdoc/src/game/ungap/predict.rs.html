@@ -482,11 +482,11 @@
 <span id="482">482</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 <span class="kw">use </span>abstio::Manifest;
 <span class="kw">use </span>abstutil::{prettyprint_bytes, prettyprint_usize, Counter, Timer};
 <span class="kw">use </span>geom::{Distance, Duration, UnitFmt};
 <span class="kw">use </span>map_gui::tools::{percentage_bar, ColorNetwork};
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>map_model::{PathRequest, PathStepV2, RoadID};
 <span class="kw">use </span>synthpop::{Scenario, TripEndpoint, TripMode};
 <span class="kw">use </span>widgetry::mapspace::ToggleZoomed;

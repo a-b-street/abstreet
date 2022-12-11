@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["draw_vehicle",""],["grey_out_unhighlighted_people","If the sim has highlighted people, then fade all others out."],["unzoomed_agent_radius",""]],"mod":[["agents",""],["bike",""],["car",""],["pedestrian",""]],"trait":[["GameRenderable",""]]};

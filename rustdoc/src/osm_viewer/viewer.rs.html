@@ -462,17 +462,13 @@
 <span id="462">462</span>
 <span id="463">463</span>
 <span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
 <span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
 <span class="kw">use </span>geom::ArrowCap;
 <span class="kw">use </span>map_gui::options::OptionsPanel;
 <span class="kw">use </span>map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
-<span class="kw">use </span>map_gui::tools::{CityPicker, Minimap, MinimapControls, Navigator, TurnExplorer};
+<span class="kw">use </span>map_gui::tools::{CityPicker, Minimap, MinimapControls, Navigator};
 <span class="kw">use </span>map_gui::{SimpleApp, ID};
 <span class="kw">use </span>widgetry::tools::{open_browser, PopupMsg, URLManager};
 <span class="kw">use </span>widgetry::{
@@ -702,17 +698,13 @@
         <span class="kw">if </span>ctx.canvas.get_cursor_in_map_space().is_some() &amp;&amp; ctx.normal_left_click() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = app.current_selection.clone() {
                 <span class="comment">// get_obj must succeed, because we can only click static map elements.
-                </span><span class="kw">let </span>outline = app
-                    .draw_map
-                    .get_obj(ctx, id, app, <span class="kw-2">&amp;mut </span>map_gui::render::AgentCache::new())
-                    .unwrap()
-                    .get_outline(<span class="kw-2">&amp;</span>app.map);
+                </span><span class="kw">let </span>outline = app.draw_map.get_obj(id).get_outline(<span class="kw-2">&amp;</span>app.map);
                 <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::from(<span class="macro">vec!</span>[(app.cs.perma_selected_object, outline)]);
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Lane(l)) = app.current_selection {
                     <span class="kw">for </span>turn <span class="kw">in </span>app.map.get_turns_from_lane(l) {
                         batch.push(
-                            TurnExplorer::color_turn_type(turn.turn_type),
+                            Color::RED,
                             turn.geom
                                 .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                         );

@@ -1419,12 +1419,12 @@
 <span id="1419">1419</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 <span class="kw">use </span>abstio::MapName;
 <span class="kw">use </span>abstutil::Timer;
 <span class="kw">use </span>geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 <span class="kw">use </span>map_gui::load::MapLoader;
 <span class="kw">use </span>map_gui::tools::Minimap;
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>map_model::{osm, BuildingID, Map, OriginalRoad, Position};
 <span class="kw">use </span>sim::{AgentID, BorderSpawnOverTime, CarID, ScenarioGenerator, SpawnOverTime, VehicleType};
 <span class="kw">use </span>synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};

@@ -311,10 +311,10 @@
 <span id="311">311</span>
 <span id="312">312</span>
 <span id="313">313</span>
-</pre><pre class="rust"><code><span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::ID;
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
 <span class="kw">use </span>collisions::{CollisionDataset, Severity};
 <span class="kw">use </span>geom::{Circle, Distance, Duration, FindClosest, Time};
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>widgetry::mapspace::{DummyID, World};
 <span class="kw">use </span>widgetry::{
     Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, Slider,

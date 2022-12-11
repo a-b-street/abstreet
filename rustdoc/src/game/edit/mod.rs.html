@@ -1003,12 +1003,12 @@
 <span id="1003">1003</span>
 </pre><pre class="rust"><code><span class="kw">use </span>maplit::btreeset;
 
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 <span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
 <span class="kw">use </span>geom::Speed;
 <span class="kw">use </span>map_gui::options::OptionsPanel;
 <span class="kw">use </span>map_gui::render::DrawMap;
 <span class="kw">use </span>map_gui::tools::grey_out_map;
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>map_model::{EditCmd, IntersectionID, LaneID, MapEdits};
 <span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
 <span class="kw">use </span>widgetry::tools::{ChooseSomething, ColorLegend, PopupMsg};

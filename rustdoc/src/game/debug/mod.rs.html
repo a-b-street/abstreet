@@ -1107,6 +1107,8 @@
 <span id="1107">1107</span>
 <span id="1108">1108</span>
 <span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
 <span class="kw">use </span>abstio::MapName;
@@ -1116,7 +1118,7 @@
 <span class="kw">use </span>map_gui::load::MapLoader;
 <span class="kw">use </span>map_gui::options::OptionsPanel;
 <span class="kw">use </span>map_gui::render::{calculate_corners, DrawMap, DrawOptions};
-<span class="kw">use </span>map_gui::{AppLike, ID};
+<span class="kw">use </span>map_gui::AppLike;
 <span class="kw">use </span>map_model::{
     ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
     NORMAL_LANE_THICKNESS,
@@ -1134,6 +1136,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::common::{tool_panel, CommonState};
 <span class="kw">use </span><span class="kw">crate</span>::info::ContextualActions;
 <span class="kw">use </span><span class="kw">crate</span>::sandbox::GameplayMode;
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 
 <span class="kw">pub use </span><span class="self">self</span>::routes::PathCostDebugger;
 
@@ -1558,13 +1561,14 @@
             |key| {
                 <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
                 <span class="kw">for </span>(a, <span class="kw">_</span>) <span class="kw">in </span>app.primary.sim.get_accepted_agents(key) {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(obj) = app.primary.draw_map.get_obj(
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(outline) = app.primary.get_obj_outline(
                         ctx,
                         ID::from_agent(a),
-                        app,
+                        <span class="kw-2">&amp;</span>app.cs,
+                        <span class="kw-2">&amp;</span>app.primary.map,
                         <span class="kw-2">&amp;mut </span>app.primary.agents.borrow_mut(),
                     ) {
-                        batch.push(Color::PURPLE, obj.get_outline(<span class="kw-2">&amp;</span>app.primary.map));
+                        batch.push(Color::PURPLE, outline);
                     } <span class="kw">else </span>{
                         <span class="macro">warn!</span>(
                             <span class="string">&quot;{} is accepted at or blocked by by {:?}, but no longer exists&quot;</span>,

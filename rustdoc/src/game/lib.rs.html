@@ -591,6 +591,9 @@
 <span id="591">591</span>
 <span id="592">592</span>
 <span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
 </pre><pre class="rust"><code><span class="comment">// Disable some noisy lints
 </span><span class="attribute">#![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
@@ -614,6 +617,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::app::{App, Flags, PerMap};
 <span class="kw">use </span><span class="kw">crate</span>::common::jump_to_time_upon_startup;
+<span class="kw">use </span><span class="kw">crate</span>::id::ID;
 <span class="kw">use </span><span class="kw">crate</span>::pregame::TitleScreen;
 <span class="kw">use </span><span class="kw">crate</span>::sandbox::{GameplayMode, SandboxMode};
 
@@ -623,9 +627,11 @@
 <span class="kw">mod </span>debug;
 <span class="kw">mod </span>devtools;
 <span class="kw">mod </span>edit;
+<span class="kw">mod </span>id;
 <span class="kw">mod </span>info;
 <span class="kw">mod </span>layer;
 <span class="kw">mod </span>pregame;
+<span class="kw">mod </span>render;
 <span class="kw">mod </span>sandbox;
 <span class="kw">mod </span>ungap;
 

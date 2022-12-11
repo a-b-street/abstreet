@@ -458,11 +458,11 @@
 <span id="458">458</span>
 </pre><pre class="rust"><code><span class="kw">use </span>instant::Instant;
 
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 <span class="kw">use </span>abstutil::prettyprint_usize;
 <span class="kw">use </span>geom::{Duration, Polygon, Pt2D, Ring, Time};
 <span class="kw">use </span>map_gui::render::DrawOptions;
 <span class="kw">use </span>map_gui::tools::grey_out_map;
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>widgetry::tools::PopupMsg;
 <span class="kw">use </span>widgetry::{
     Choice, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, PanelDims,

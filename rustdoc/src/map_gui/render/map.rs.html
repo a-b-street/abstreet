@@ -546,46 +546,6 @@
 <span id="546">546</span>
 <span id="547">547</span>
 <span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>aabb_quadtree::QuadTree;
@@ -605,7 +565,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::render::parking_lot::DrawParkingLot;
 <span class="kw">use </span><span class="kw">crate</span>::render::road::DrawRoad;
 <span class="kw">use </span><span class="kw">crate</span>::render::transit_stop::DrawTransitStop;
-<span class="kw">use </span><span class="kw">crate</span>::render::{AgentCache, DrawArea, Renderable};
+<span class="kw">use </span><span class="kw">crate</span>::render::{DrawArea, Renderable};
 <span class="kw">use crate</span>::{AppLike, ID};
 
 <span class="kw">pub struct </span>DrawMap {
@@ -962,51 +922,16 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.areas[id.<span class="number">0</span>]
     }
 
-    <span class="kw">pub fn </span>get_obj&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
-        ctx: <span class="kw-2">&amp;</span>EventCtx,
-        id: ID,
-        app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike,
-        agents: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>AgentCache,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>Renderable&gt; {
-        <span class="kw">let </span>on = <span class="kw">match </span>id {
-            ID::Road(id) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.get_r(id));
-            }
-            ID::Lane(id) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.get_l(id));
-            }
-            ID::Intersection(id) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.get_i(id));
-            }
-            ID::Building(id) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.get_b(id));
-            }
-            ID::ParkingLot(id) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.get_pl(id));
-            }
-            ID::Car(id) =&gt; {
-                <span class="comment">// Cars might be parked in a garage!
-                </span>app.sim().get_draw_car(id, app.map())<span class="question-mark">?</span>.on
-            }
-            ID::Pedestrian(id) =&gt; app.sim().get_draw_ped(id, app.map()).unwrap().on,
-            ID::PedCrowd(<span class="kw-2">ref </span>members) =&gt; {
-                <span class="comment">// If the first member has vanished, just give up
-                </span>app.sim().get_draw_ped(members[<span class="number">0</span>], app.map())<span class="question-mark">?</span>.on
-            }
-            ID::TransitStop(id) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.get_ts(id));
-            }
-            ID::Area(id) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.get_a(id));
-            }
-        };
-
-        agents.populate_if_needed(on, app.map(), app.sim(), app.cs(), ctx.prerender);
-
-        <span class="comment">// Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
-        // individuals
-        </span>agents.get(on).into_iter().find(|r| r.get_id() == id)
+    <span class="kw">pub fn </span>get_obj&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable {
+        <span class="kw">match </span>id {
+            ID::Road(id) =&gt; <span class="self">self</span>.get_r(id),
+            ID::Lane(id) =&gt; <span class="self">self</span>.get_l(id),
+            ID::Intersection(id) =&gt; <span class="self">self</span>.get_i(id),
+            ID::Building(id) =&gt; <span class="self">self</span>.get_b(id),
+            ID::ParkingLot(id) =&gt; <span class="self">self</span>.get_pl(id),
+            ID::TransitStop(id) =&gt; <span class="self">self</span>.get_ts(id),
+            ID::Area(id) =&gt; <span class="self">self</span>.get_a(id),
+        }
     }
 
     <span class="doccomment">/// Unsorted, unexpanded, raw result.
@@ -1048,12 +973,7 @@
                 ID::ParkingLot(id) =&gt; {
                     parking_lots.push(<span class="self">self</span>.get_pl(id));
                 }
-
-                ID::Lane(<span class="kw">_</span>)
-                | ID::TransitStop(<span class="kw">_</span>)
-                | ID::Car(<span class="kw">_</span>)
-                | ID::Pedestrian(<span class="kw">_</span>)
-                | ID::PedCrowd(<span class="kw">_</span>) =&gt; {
+                ID::Lane(<span class="kw">_</span>) | ID::TransitStop(<span class="kw">_</span>) =&gt; {
                     <span class="macro">panic!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, id)
                 }
             }

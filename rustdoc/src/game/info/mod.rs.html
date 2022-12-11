@@ -988,12 +988,17 @@
 <span id="988">988</span>
 <span id="989">989</span>
 <span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
+<span id="995">995</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 <span class="kw">pub use </span>trip::OpenTrip;
 
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 <span class="kw">use </span>geom::{Circle, Distance, Polygon, Time};
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, ParkingLotID, TransitRouteID, TransitStopID,
 };
@@ -1412,9 +1417,14 @@
         <span class="comment">// Highlight something?
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((id, outline)) = maybe_id.and_then(|id| {
             app.primary
-                .draw_map
-                .get_obj(ctx, id.clone(), app, <span class="kw-2">&amp;mut </span>app.primary.agents.borrow_mut())
-                .map(|obj| (id, obj.get_outline(<span class="kw-2">&amp;</span>app.primary.map)))
+                .get_obj_outline(
+                    ctx,
+                    id.clone(),
+                    <span class="kw-2">&amp;</span>app.cs,
+                    <span class="kw-2">&amp;</span>app.primary.map,
+                    <span class="kw-2">&amp;mut </span>app.primary.agents.borrow_mut(),
+                )
+                .map(|outline| (id, outline))
         }) {
             <span class="comment">// Different selection styles for different objects.
             </span><span class="kw">match </span>id {

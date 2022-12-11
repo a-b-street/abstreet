@@ -412,10 +412,10 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
-</pre><pre class="rust"><code><span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::ID;
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
 <span class="kw">use </span>geom::{Circle, Distance, Time};
 <span class="kw">use </span>map_gui::tools::ColorNetwork;
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>map_model::{PathStep, TransitRoute, TransitRouteID, TransitStopID};
 <span class="kw">use </span>sim::{AgentID, CarID};
 <span class="kw">use </span>widgetry::{Color, ControlState, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};

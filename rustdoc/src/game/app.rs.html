@@ -894,6 +894,56 @@
 <span id="894">894</span>
 <span id="895">895</span>
 <span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
 <span class="kw">use </span>std::collections::BTreeMap;
 
@@ -901,14 +951,14 @@
 <span class="kw">use </span>maplit::btreemap;
 <span class="kw">use </span>structopt::StructOpt;
 
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 <span class="kw">use </span>abstio::MapName;
 <span class="kw">use </span>abstutil::{Tags, Timer};
-<span class="kw">use </span>geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time};
+<span class="kw">use </span>geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Tessellation, Time};
 <span class="kw">use </span>map_gui::colors::ColorScheme;
 <span class="kw">use </span>map_gui::options::Options;
-<span class="kw">use </span>map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
+<span class="kw">use </span>map_gui::render::{DrawMap, DrawOptions};
 <span class="kw">use </span>map_gui::tools::CameraState;
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>map_model::AreaType;
 <span class="kw">use </span>map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
 <span class="kw">use </span>sim::{AgentID, Analytics, Sim, SimCallback, SimFlags, VehicleType};
@@ -920,6 +970,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::common::Warping;
 <span class="kw">use </span><span class="kw">crate</span>::edit::apply_map_edits;
 <span class="kw">use </span><span class="kw">crate</span>::layer::Layer;
+<span class="kw">use </span><span class="kw">crate</span>::render::{unzoomed_agent_radius, AgentCache, GameRenderable};
 <span class="kw">use </span><span class="kw">crate</span>::sandbox::dashboards::DashTab;
 <span class="kw">use </span><span class="kw">crate</span>::sandbox::{GameplayMode, TutorialState};
 
@@ -1260,20 +1311,24 @@
         prerender: <span class="kw-2">&amp;</span>Prerender,
         agents: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>AgentCache,
         show_objs: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ShowObject,
-    ) -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>(<span class="kw">dyn </span>Renderable + <span class="lifetime">&#39;a</span>)&gt; {
+    ) -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>(<span class="kw">dyn </span>GameRenderable + <span class="lifetime">&#39;a</span>)&gt; {
         <span class="kw">let </span>map = <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map;
         <span class="kw">let </span>draw_map = <span class="kw-2">&amp;</span><span class="self">self</span>.primary.draw_map;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>areas: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>parking_lots: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>lanes: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>roads: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>intersections: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>buildings: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>transit_stops: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>areas: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>GameRenderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>parking_lots: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>GameRenderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>lanes: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>GameRenderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>roads: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>GameRenderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>intersections: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>GameRenderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>buildings: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>GameRenderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>transit_stops: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>GameRenderable&gt; = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>agents_on: Vec&lt;Traversable&gt; = Vec::new();
 
-        <span class="kw">for </span>id <span class="kw">in </span>draw_map.get_matching_objects(bounds) {
+        <span class="kw">for </span>id <span class="kw">in </span>draw_map
+            .get_matching_objects(bounds)
+            .into_iter()
+            .map(|id| id.into())
+        {
             <span class="kw">if </span>!show_objs.show(<span class="kw-2">&amp;</span>id) {
                 <span class="kw">continue</span>;
             }
@@ -1316,7 +1371,7 @@
         }
 
         <span class="comment">// From background to foreground Z-order
-        </span><span class="kw">let </span><span class="kw-2">mut </span>borrows: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>borrows: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>GameRenderable&gt; = Vec::new();
         borrows.extend(areas);
         borrows.extend(parking_lots);
         borrows.extend(lanes);
@@ -1388,10 +1443,6 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map
     }
     <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>sim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Sim {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.primary.sim
-    }
-    <span class="attribute">#[inline]
     </span><span class="kw">fn </span>cs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ColorScheme {
         <span class="kw-2">&amp;</span><span class="self">self</span>.cs
     }
@@ -1445,9 +1496,23 @@
         ctx: <span class="kw-2">&amp;</span>EventCtx,
         pt: Pt2D,
         target_cam_zoom: <span class="prelude-ty">Option</span>&lt;f64&gt;,
-        id: <span class="prelude-ty">Option</span>&lt;ID&gt;,
+        id: <span class="prelude-ty">Option</span>&lt;map_gui::ID&gt;,
     ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
-        Warping::new_state(ctx, pt, target_cam_zoom, id, <span class="kw-2">&amp;mut </span><span class="self">self</span>.primary)
+        Warping::new_state(
+            ctx,
+            pt,
+            target_cam_zoom,
+            id.map(|x| x.into()),
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>.primary,
+        )
+    }
+
+    <span class="kw">fn </span>sim_time(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Time {
+        <span class="self">self</span>.primary.sim.time()
+    }
+
+    <span class="kw">fn </span>current_stage_and_remaining_time(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; (usize, Duration) {
+        <span class="self">self</span>.primary.sim.current_stage_and_remaining_time(id)
     }
 }
 
@@ -1631,6 +1696,41 @@
                 .map(|bs| bs.sidewalk_pos.pt(<span class="kw-2">&amp;</span><span class="self">self</span>.map)),
             ID::Area(id) =&gt; <span class="self">self</span>.map.maybe_get_a(id).map(|a| a.polygon.center()),
         }
+    }
+
+    <span class="comment">// TODO This would be just get_obj and return GameRenderable, but I can&#39;t get the type system
+    // to understand that Renderable can act like GameRenderable
+    </span><span class="kw">pub fn </span>get_obj_outline(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        id: ID,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+        map: <span class="kw-2">&amp;</span>Map,
+        agents: <span class="kw-2">&amp;mut </span>AgentCache,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Tessellation&gt; {
+        <span class="kw">let </span>on = <span class="kw">match </span>id {
+            ID::Car(id) =&gt; {
+                <span class="comment">// Cars might be parked in a garage!
+                </span><span class="self">self</span>.sim.get_draw_car(id, <span class="kw-2">&amp;</span><span class="self">self</span>.map)<span class="question-mark">?</span>.on
+            }
+            ID::Pedestrian(id) =&gt; <span class="self">self</span>.sim.get_draw_ped(id, <span class="kw-2">&amp;</span><span class="self">self</span>.map).unwrap().on,
+            ID::PedCrowd(<span class="kw-2">ref </span>members) =&gt; {
+                <span class="comment">// If the first member has vanished, just give up
+                </span><span class="self">self</span>.sim.get_draw_ped(members[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.map)<span class="question-mark">?</span>.on
+            }
+            <span class="kw">_ </span>=&gt; {
+                <span class="comment">// Static map elements
+                </span><span class="kw">let </span>obj = <span class="self">self</span>.draw_map.get_obj(id.to_map_gui());
+                <span class="kw">return </span><span class="prelude-val">Some</span>(obj.get_outline(map));
+            }
+        };
+
+        agents.populate_if_needed(on, <span class="kw-2">&amp;</span><span class="self">self</span>.map, <span class="kw-2">&amp;</span><span class="self">self</span>.sim, cs, ctx.prerender);
+
+        <span class="comment">// Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
+        // individuals
+        </span><span class="kw">let </span>obj = agents.get(on).into_iter().find(|r| r.get_id() == id)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(obj.get_outline(map))
     }
 }
 

@@ -744,6 +744,8 @@
 <span id="744">744</span>
 <span id="745">745</span>
 <span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>maplit::btreeset;
 
@@ -751,9 +753,8 @@
 <span class="kw">use </span>map_gui::colors::ColorSchemeChoice;
 <span class="kw">use </span>map_gui::load::MapLoader;
 <span class="kw">use </span>map_gui::options::OptionsPanel;
-<span class="kw">use </span>map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
-<span class="kw">use </span>map_gui::tools::{Minimap, TurnExplorer};
-<span class="kw">use </span>map_gui::{AppLike, ID};
+<span class="kw">use </span>map_gui::tools::Minimap;
+<span class="kw">use </span>map_gui::AppLike;
 <span class="kw">use </span>sim::Analytics;
 <span class="kw">use </span>synthpop::Scenario;
 <span class="kw">use </span>widgetry::tools::{ChooseSomething, FileLoader, FutureLoader, URLManager};
@@ -774,6 +775,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::layer::favorites::{Favorites, ShowFavorites};
 <span class="kw">use </span><span class="kw">crate</span>::layer::PickLayer;
 <span class="kw">use </span><span class="kw">crate</span>::pregame::TitleScreen;
+<span class="kw">use </span><span class="kw">crate</span>::render::{unzoomed_agent_radius, UnzoomedAgents};
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 
 <span class="kw">pub mod </span>dashboards;
 <span class="kw">pub mod </span>gameplay;
@@ -781,6 +784,7 @@
 <span class="kw">mod </span>misc_tools;
 <span class="kw">mod </span>speed;
 <span class="kw">mod </span>time_warp;
+<span class="kw">mod </span>turn_explorer;
 
 <span class="kw">pub struct </span>SandboxMode {
     gameplay: Box&lt;<span class="kw">dyn </span>gameplay::GameplayState&gt;,
@@ -1124,7 +1128,7 @@
                 Transition::Push(TrafficRecorder::new_state(ctx, <span class="macro">btreeset! </span>{i}))
             }
             (ID::Lane(l), <span class="string">&quot;explore turns from this lane&quot;</span>) =&gt; {
-                Transition::Push(TurnExplorer::new_state(ctx, app, l))
+                Transition::Push(turn_explorer::TurnExplorer::new_state(ctx, app, l))
             }
             (ID::Lane(l), <span class="string">&quot;edit lane&quot;</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
                 Transition::Push(EditMode::new_state(ctx, app, <span class="self">self</span>.gameplay.clone())),

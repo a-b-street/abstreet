@@ -383,6 +383,7 @@
 <span id="383">383</span>
 <span id="384">384</span>
 <span id="385">385</span>
+<span id="386">386</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeSet, HashSet};
 
 <span class="kw">use </span>rand::seq::SliceRandom;
@@ -544,10 +545,11 @@
 
         <span class="kw">if </span>ctx.redo_mouseover() {
             app.current_selection = app.mouseover_unzoomed_buildings(ctx).filter(|id| {
-                <span class="macro">matches!</span>(
-                    <span class="self">self</span>.bldgs.buildings[<span class="kw-2">&amp;</span>id.as_building()],
-                    BldgState::Undelivered(<span class="kw">_</span>)
-                )
+                <span class="kw">let </span>b = <span class="kw">match </span>id {
+                    ID::Building(b) =&gt; b,
+                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t call as_building on {:?}&quot;</span>, id),
+                };
+                <span class="macro">matches!</span>(<span class="self">self</span>.bldgs.buildings[<span class="kw-2">&amp;</span>b], BldgState::Undelivered(<span class="kw">_</span>))
             });
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Building(b)) = app.current_selection {

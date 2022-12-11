@@ -344,10 +344,6 @@
 <span id="344">344</span>
 <span id="345">345</span>
 <span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
 </pre><pre class="rust"><code><span class="kw">use </span>abstio::MapName;
 <span class="kw">use </span>abstutil::Timer;
 <span class="kw">use </span>geom::{Distance, Duration, Pt2D, Time};
@@ -472,10 +468,6 @@
     <span class="attribute">#[inline]
     </span><span class="kw">fn </span>map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Map {
         <span class="kw-2">&amp;</span><span class="self">self</span>.per_map.map
-    }
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>sim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>sim::Sim {
-        <span class="macro">unreachable!</span>()
     }
     <span class="attribute">#[inline]
     </span><span class="kw">fn </span>cs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ColorScheme {

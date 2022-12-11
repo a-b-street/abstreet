@@ -784,11 +784,10 @@
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>maplit::btreeset;
 
+<span class="kw">use </span><span class="kw">crate</span>::ID;
 <span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
 <span class="kw">use </span>geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
-<span class="kw">use </span>map_gui::render::unzoomed_agent_radius;
 <span class="kw">use </span>map_gui::tools::ColorNetwork;
-<span class="kw">use </span>map_gui::ID;
 <span class="kw">use </span>map_model::{IntersectionID, Map, Traversable};
 <span class="kw">use </span>sim::{AgentType, VehicleType};
 <span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
@@ -798,6 +797,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
 <span class="kw">use </span><span class="kw">crate</span>::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
+<span class="kw">use </span><span class="kw">crate</span>::render::unzoomed_agent_radius;
 
 <span class="kw">pub struct </span>Backpressure {
     time: Time,
