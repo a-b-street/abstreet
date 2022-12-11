@@ -5,7 +5,6 @@ use geom::{Circle, Distance, Time};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
-use map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
 use map_gui::tools::{Minimap, TurnExplorer};
 use map_gui::{AppLike, ID};
 use sim::Analytics;
@@ -28,6 +27,7 @@ use crate::info::ContextualActions;
 use crate::layer::favorites::{Favorites, ShowFavorites};
 use crate::layer::PickLayer;
 use crate::pregame::TitleScreen;
+use crate::render::{unzoomed_agent_radius, UnzoomedAgents};
 
 pub mod dashboards;
 pub mod gameplay;

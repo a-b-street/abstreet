@@ -1,21 +1,17 @@
-// TODO I've considered moving this out of map_gui completely, to remove all dependencies on the
-// sim crate. If that's desirable, get_obj in DrawMap is the only dependency.
-
 use std::borrow::Borrow;
 use std::collections::HashMap;
 
 use aabb_quadtree::QuadTree;
 
 use geom::{Circle, Pt2D, Time};
+use map_gui::colors::ColorScheme;
+use map_gui::options::Options;
+use map_gui::render::Renderable;
 use map_model::{Map, Traversable};
 use sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Panel, Prerender};
 
-use crate::colors::ColorScheme;
-use crate::options::Options;
-use crate::render::{
-    draw_vehicle, unzoomed_agent_radius, DrawPedCrowd, DrawPedestrian, Renderable,
-};
+use crate::render::{draw_vehicle, unzoomed_agent_radius, DrawPedCrowd, DrawPedestrian};
 
 pub struct AgentCache {
     /// This is controlled almost entirely by the minimap panel. It has no meaning in edit mode.

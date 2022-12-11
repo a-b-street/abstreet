@@ -422,8 +422,12 @@ impl InfoPanel {
         // Highlight something?
         if let Some((id, outline)) = maybe_id.and_then(|id| {
             app.primary
-                .draw_map
-                .get_obj(ctx, id.clone(), app, &mut app.primary.agents.borrow_mut())
+                .get_obj(
+                    ctx,
+                    id.clone(),
+                    &app.cs,
+                    &mut app.primary.agents.borrow_mut(),
+                )
                 .map(|obj| (id, obj.get_outline(&app.primary.map)))
         }) {
             // Different selection styles for different objects.

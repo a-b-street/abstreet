@@ -5,7 +5,6 @@ use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
-use map_gui::render::unzoomed_agent_radius;
 use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
@@ -17,6 +16,7 @@ use widgetry::{Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Tog
 
 use crate::app::{App, Transition};
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
+use crate::render::unzoomed_agent_radius;
 
 pub struct Backpressure {
     time: Time,

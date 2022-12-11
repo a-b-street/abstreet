@@ -33,6 +33,7 @@ mod edit;
 mod info;
 mod layer;
 mod pregame;
+mod render;
 mod sandbox;
 mod ungap;
 

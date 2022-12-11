@@ -17,7 +17,7 @@ use crate::render::lane::DrawLane;
 use crate::render::parking_lot::DrawParkingLot;
 use crate::render::road::DrawRoad;
 use crate::render::transit_stop::DrawTransitStop;
-use crate::render::{AgentCache, DrawArea, Renderable};
+use crate::render::{DrawArea, Renderable};
 use crate::{AppLike, ID};
 
 pub struct DrawMap {
@@ -374,51 +374,17 @@ impl DrawMap {
         &self.areas[id.0]
     }
 
-    pub fn get_obj<'a>(
-        &'a self,
-        ctx: &EventCtx,
-        id: ID,
-        app: &dyn AppLike,
-        agents: &'a mut AgentCache,
-    ) -> Option<&'a dyn Renderable> {
-        let on = match id {
-            ID::Road(id) => {
-                return Some(self.get_r(id));
-            }
-            ID::Lane(id) => {
-                return Some(self.get_l(id));
-            }
-            ID::Intersection(id) => {
-                return Some(self.get_i(id));
-            }
-            ID::Building(id) => {
-                return Some(self.get_b(id));
-            }
-            ID::ParkingLot(id) => {
-                return Some(self.get_pl(id));
-            }
-            ID::Car(id) => {
-                // Cars might be parked in a garage!
-                app.sim().get_draw_car(id, app.map())?.on
-            }
-            ID::Pedestrian(id) => app.sim().get_draw_ped(id, app.map()).unwrap().on,
-            ID::PedCrowd(ref members) => {
-                // If the first member has vanished, just give up
-                app.sim().get_draw_ped(members[0], app.map())?.on
-            }
-            ID::TransitStop(id) => {
-                return Some(self.get_ts(id));
-            }
-            ID::Area(id) => {
-                return Some(self.get_a(id));
-            }
-        };
-
-        agents.populate_if_needed(on, app.map(), app.sim(), app.cs(), ctx.prerender);
-
-        // Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
-        // individuals
-        agents.get(on).into_iter().find(|r| r.get_id() == id)
+    pub fn get_obj<'a>(&self, id: ID) -> &dyn Renderable {
+        match id {
+            ID::Road(id) => self.get_r(id),
+            ID::Lane(id) => self.get_l(id),
+            ID::Intersection(id) => self.get_i(id),
+            ID::Building(id) => self.get_b(id),
+            ID::ParkingLot(id) => self.get_pl(id),
+            ID::TransitStop(id) => self.get_ts(id),
+            ID::Area(id) => self.get_a(id),
+            ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => unreachable!(),
+        }
     }
 
     /// Unsorted, unexpanded, raw result.
