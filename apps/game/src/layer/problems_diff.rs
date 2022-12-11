@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
+use crate::ID;
 use abstutil::{prettyprint_usize, Counter};
 use geom::Time;
 use map_gui::tools::ColorNetwork;
-use map_gui::ID;
 use map_model::{IntersectionID, RoadID, Traversable};
 use sim::{Problem, ProblemType};
 use widgetry::mapspace::ToggleZoomed;

@@ -4,7 +4,7 @@ use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Duration, Polygon};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::{cmp_count, ColorNetwork};
-use map_gui::{AppLike, ID};
+use map_gui::AppLike;
 use map_model::{
     DirectedRoadID, Direction, PathConstraints, PathRequest, PathStepV2, Pathfinder, RoadID,
     RoutingParams, NORMAL_LANE_THICKNESS,
@@ -18,6 +18,7 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::common::CommonState;
+use crate::ID;
 
 /// See how live-tuned routing parameters affect a single request.
 pub struct RouteExplorer {

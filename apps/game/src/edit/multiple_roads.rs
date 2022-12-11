@@ -3,8 +3,8 @@
 
 use std::collections::HashSet;
 
+use crate::ID;
 use geom::Distance;
-use map_gui::ID;
 use map_model::{EditRoad, MapEdits, RoadID};
 use widgetry::tools::PopupMsg;
 use widgetry::{

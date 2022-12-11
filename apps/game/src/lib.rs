@@ -21,6 +21,7 @@ use widgetry::{EventCtx, Settings, State, Transition};
 
 use crate::app::{App, Flags, PerMap};
 use crate::common::jump_to_time_upon_startup;
+use crate::id::ID;
 use crate::pregame::TitleScreen;
 use crate::sandbox::{GameplayMode, SandboxMode};
 
@@ -30,6 +31,7 @@ mod common;
 mod debug;
 mod devtools;
 mod edit;
+mod id;
 mod info;
 mod layer;
 mod pregame;

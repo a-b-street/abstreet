@@ -3,10 +3,10 @@ use std::collections::BTreeSet;
 use anyhow::Result;
 use maplit::btreeset;
 
+use crate::ID;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_gui::tools::ColorNetwork;
-use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
 use widgetry::mapspace::ToggleZoomed;

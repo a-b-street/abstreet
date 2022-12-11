@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 
+use crate::ID;
 use geom::Pt2D;
 use map_gui::tools::grey_out_map;
-use map_gui::ID;
 use map_model::{AreaID, BuildingID, IntersectionID, LaneID, ParkingLotID, RoadID, TransitRouteID};
 use sim::{PedestrianID, PersonID, TripID};
 use widgetry::tools::PopupMsg;

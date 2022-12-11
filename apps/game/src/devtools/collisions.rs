@@ -1,7 +1,7 @@
+use crate::ID;
 use abstutil::{prettyprint_usize, Counter};
 use collisions::{CollisionDataset, Severity};
 use geom::{Circle, Distance, Duration, FindClosest, Time};
-use map_gui::ID;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::{
     Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, Slider,

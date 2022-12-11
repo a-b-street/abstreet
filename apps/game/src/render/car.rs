@@ -1,12 +1,13 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D, Ring, Tessellation};
 use map_gui::colors::ColorScheme;
-use map_gui::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use map_gui::{AppLike, ID};
+use map_gui::render::{DrawOptions, OUTLINE_THICKNESS};
+use map_gui::AppLike;
 use map_model::{Map, TurnType};
 use sim::{CarID, CarStatus, DrawCarInput, Intent, Sim, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
-use crate::render::grey_out_unhighlighted_people;
+use crate::render::{grey_out_unhighlighted_people, GameRenderable};
+use crate::ID;
 
 const CAR_WIDTH: Distance = Distance::const_meters(1.75);
 
@@ -212,7 +213,7 @@ impl DrawCar {
     }
 }
 
-impl Renderable for DrawCar {
+impl GameRenderable for DrawCar {
     fn get_id(&self) -> ID {
         ID::Car(self.id)
     }

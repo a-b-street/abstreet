@@ -383,7 +383,6 @@ impl DrawMap {
             ID::ParkingLot(id) => self.get_pl(id),
             ID::TransitStop(id) => self.get_ts(id),
             ID::Area(id) => self.get_a(id),
-            ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => unreachable!(),
         }
     }
 
@@ -426,12 +425,7 @@ impl DrawMap {
                 ID::ParkingLot(id) => {
                     parking_lots.push(self.get_pl(id));
                 }
-
-                ID::Lane(_)
-                | ID::TransitStop(_)
-                | ID::Car(_)
-                | ID::Pedestrian(_)
-                | ID::PedCrowd(_) => {
+                ID::Lane(_) | ID::TransitStop(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
                 }
             }

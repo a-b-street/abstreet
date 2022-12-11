@@ -1,6 +1,6 @@
+use crate::ID;
 use abstutil::Counter;
 use map_gui::tools::{make_heatmap, HeatmapOptions};
-use map_gui::ID;
 use map_model::{AmenityType, BuildingID};
 use synthpop::{Scenario, TripEndpoint};
 use widgetry::{

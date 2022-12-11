@@ -1,6 +1,6 @@
+use crate::ID;
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Duration, Polygon, Pt2D, Ring, Time};
-use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::tools::PopupMsg;
 use widgetry::{

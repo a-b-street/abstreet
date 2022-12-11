@@ -1,9 +1,9 @@
 use maplit::btreeset;
 
+use crate::ID;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
 use map_gui::tools::{ColorDiscrete, ColorNetwork};
-use map_gui::ID;
 use map_model::{AmenityType, Direction, LaneType};
 use sim::AgentType;
 use widgetry::mapspace::ToggleZoomed;

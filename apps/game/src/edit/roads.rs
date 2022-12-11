@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
+use crate::ID;
 use geom::{Bounds, CornerRadii, Distance, Polygon, Pt2D, UnitFmt};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
-use map_gui::ID;
 use map_model::{
     osm, BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road,
     RoadID,

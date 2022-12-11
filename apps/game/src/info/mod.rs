@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 pub use trip::OpenTrip;
 
+use crate::ID;
 use geom::{Circle, Distance, Polygon, Time};
-use map_gui::ID;
 use map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, ParkingLotID, TransitRouteID, TransitStopID,
 };
@@ -422,13 +422,14 @@ impl InfoPanel {
         // Highlight something?
         if let Some((id, outline)) = maybe_id.and_then(|id| {
             app.primary
-                .get_obj(
+                .get_obj_outline(
                     ctx,
                     id.clone(),
                     &app.cs,
+                    &app.primary.map,
                     &mut app.primary.agents.borrow_mut(),
                 )
-                .map(|obj| (id, obj.get_outline(&app.primary.map)))
+                .map(|outline| (id, outline))
         }) {
             // Different selection styles for different objects.
             match id {

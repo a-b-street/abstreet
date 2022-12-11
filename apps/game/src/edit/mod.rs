@@ -1,11 +1,11 @@
 use maplit::btreeset;
 
+use crate::ID;
 use abstutil::{prettyprint_usize, Timer};
 use geom::Speed;
 use map_gui::options::OptionsPanel;
 use map_gui::render::DrawMap;
 use map_gui::tools::grey_out_map;
-use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, MapEdits};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::{ChooseSomething, ColorLegend, PopupMsg};

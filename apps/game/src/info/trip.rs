@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
+use crate::ID;
 use geom::{Distance, Duration, Percent, Polygon, Pt2D, UnitFmt};
-use map_gui::ID;
 use map_model::{Map, Path, PathStep, Traversable};
 use sim::{AgentID, Analytics, PersonID, Problem, TripID, TripInfo, TripPhase, TripPhaseType};
 use synthpop::{TripEndpoint, TripMode};

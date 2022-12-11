@@ -1,12 +1,13 @@
 use geom::{ArrowCap, Circle, Distance, Line, PolyLine, Pt2D, Tessellation};
 use map_gui::colors::ColorScheme;
-use map_gui::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use map_gui::{AppLike, ID};
+use map_gui::render::{DrawOptions, OUTLINE_THICKNESS};
+use map_gui::AppLike;
 use map_model::Map;
 use sim::{CarID, DrawCarInput, Intent, Sim};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender};
 
-use crate::render::grey_out_unhighlighted_people;
+use crate::render::{grey_out_unhighlighted_people, GameRenderable};
+use crate::ID;
 
 pub struct DrawBike {
     pub id: CarID,
@@ -131,7 +132,7 @@ impl DrawBike {
     }
 }
 
-impl Renderable for DrawBike {
+impl GameRenderable for DrawBike {
     fn get_id(&self) -> ID {
         ID::Car(self.id)
     }

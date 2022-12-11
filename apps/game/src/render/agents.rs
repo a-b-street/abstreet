@@ -6,12 +6,13 @@ use aabb_quadtree::QuadTree;
 use geom::{Circle, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
-use map_gui::render::Renderable;
 use map_model::{Map, Traversable};
 use sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Panel, Prerender};
 
-use crate::render::{draw_vehicle, unzoomed_agent_radius, DrawPedCrowd, DrawPedestrian};
+use crate::render::{
+    draw_vehicle, unzoomed_agent_radius, DrawPedCrowd, DrawPedestrian, GameRenderable,
+};
 
 pub struct AgentCache {
     /// This is controlled almost entirely by the minimap panel. It has no meaning in edit mode.
@@ -19,7 +20,7 @@ pub struct AgentCache {
 
     // This time applies to agents_per_on. unzoomed has its own possibly separate Time!
     time: Option<Time>,
-    agents_per_on: HashMap<Traversable, Vec<Box<dyn Renderable>>>,
+    agents_per_on: HashMap<Traversable, Vec<Box<dyn GameRenderable>>>,
     // when either of (time, unzoomed agent filters) change, recalculate (a quadtree of all agents,
     // draw all agents)
     unzoomed: Option<(Time, UnzoomedAgents, QuadTree<AgentID>, Drawable)>,
@@ -35,7 +36,7 @@ impl AgentCache {
         }
     }
 
-    pub fn get(&self, on: Traversable) -> Vec<&dyn Renderable> {
+    pub fn get(&self, on: Traversable) -> Vec<&dyn GameRenderable> {
         self.agents_per_on[&on]
             .iter()
             .map(|obj| obj.borrow())
@@ -56,7 +57,7 @@ impl AgentCache {
         }
         let step_count = sim.step_count();
 
-        let mut list: Vec<Box<dyn Renderable>> = Vec::new();
+        let mut list: Vec<Box<dyn GameRenderable>> = Vec::new();
         for c in sim.get_draw_cars(on, map).into_iter() {
             list.push(draw_vehicle(c, map, sim, prerender, cs));
         }

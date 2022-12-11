@@ -14,7 +14,7 @@ use geom::{Duration, Pt2D, Time};
 use map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, TransitStopID,
 };
-use sim::{AgentID, CarID, PedestrianID, Sim};
+use sim::Sim;
 use widgetry::{EventCtx, GfxCtx, State};
 
 pub use self::simple_app::{SimpleApp, SimpleAppArgs};
@@ -87,102 +87,6 @@ pub enum ID {
     Intersection(IntersectionID),
     Building(BuildingID),
     ParkingLot(ParkingLotID),
-    Car(CarID),
-    Pedestrian(PedestrianID),
-    PedCrowd(Vec<PedestrianID>),
     TransitStop(TransitStopID),
     Area(AreaID),
-}
-
-impl ID {
-    pub fn from_agent(id: AgentID) -> ID {
-        match id {
-            AgentID::Car(id) => ID::Car(id),
-            AgentID::Pedestrian(id) => ID::Pedestrian(id),
-            AgentID::BusPassenger(_, bus) => ID::Car(bus),
-        }
-    }
-
-    pub fn agent_id(&self) -> Option<AgentID> {
-        match *self {
-            ID::Car(id) => Some(AgentID::Car(id)),
-            ID::Pedestrian(id) => Some(AgentID::Pedestrian(id)),
-            // PedCrowd doesn't map to a single agent.
-            _ => None,
-        }
-    }
-
-    pub fn as_intersection(&self) -> IntersectionID {
-        match *self {
-            ID::Intersection(i) => i,
-            _ => panic!("Can't call as_intersection on {:?}", self),
-        }
-    }
-
-    pub fn as_building(&self) -> BuildingID {
-        match *self {
-            ID::Building(b) => b,
-            _ => panic!("Can't call as_building on {:?}", self),
-        }
-    }
-}
-
-impl From<RoadID> for ID {
-    fn from(r: RoadID) -> Self {
-        Self::Road(r)
-    }
-}
-
-impl From<LaneID> for ID {
-    fn from(l: LaneID) -> Self {
-        Self::Lane(l)
-    }
-}
-
-impl From<IntersectionID> for ID {
-    fn from(i: IntersectionID) -> Self {
-        Self::Intersection(i)
-    }
-}
-
-impl From<BuildingID> for ID {
-    fn from(b: BuildingID) -> Self {
-        Self::Building(b)
-    }
-}
-
-impl From<ParkingLotID> for ID {
-    fn from(p: ParkingLotID) -> Self {
-        Self::ParkingLot(p)
-    }
-}
-
-impl From<CarID> for ID {
-    fn from(c: CarID) -> Self {
-        Self::Car(c)
-    }
-}
-
-impl From<PedestrianID> for ID {
-    fn from(p: PedestrianID) -> Self {
-        Self::Pedestrian(p)
-    }
-}
-
-impl From<Vec<PedestrianID>> for ID {
-    fn from(p: Vec<PedestrianID>) -> Self {
-        Self::PedCrowd(p)
-    }
-}
-
-impl From<TransitStopID> for ID {
-    fn from(b: TransitStopID) -> Self {
-        Self::TransitStop(b)
-    }
-}
-
-impl From<AreaID> for ID {
-    fn from(a: AreaID) -> Self {
-        Self::Area(a)
-    }
 }

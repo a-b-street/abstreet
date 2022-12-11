@@ -1,6 +1,6 @@
+use crate::ID;
 use geom::{Angle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
 use map_gui::tools::{ColorDiscrete, Grid};
-use map_gui::ID;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::ColorScale;
 use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};

@@ -6,10 +6,10 @@ mod spawner;
 use rand::seq::SliceRandom;
 use rand::Rng;
 
+use crate::ID;
 use abstutil::Timer;
 use geom::{Distance, Duration};
 use map_gui::tools::{grey_out_map, CityPicker};
-use map_gui::ID;
 use map_model::{IntersectionID, Position};
 use sim::rand_dist;
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};

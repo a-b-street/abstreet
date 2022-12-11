@@ -1,10 +1,10 @@
 use instant::Instant;
 
+use crate::ID;
 use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Pt2D, Ring, Time};
 use map_gui::render::DrawOptions;
 use map_gui::tools::grey_out_map;
-use map_gui::ID;
 use widgetry::tools::PopupMsg;
 use widgetry::{
     Choice, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, PanelDims,

@@ -1,6 +1,6 @@
+use crate::ID;
 use abstutil::Timer;
 use geom::{Polygon, Pt2D};
-use map_gui::ID;
 use map_model::{BuildingID, NORMAL_LANE_THICKNESS};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use widgetry::tools::PopupMsg;
