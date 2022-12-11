@@ -34,7 +34,6 @@ rand_xorshift = { workspace = true }
 regex = "1.5.5"
 serde = { workspace = true }
 serde_json = { workspace = true }
-sim = { path = "../../sim" }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 synthpop = { path = "../../synthpop" }
 wasm-bindgen = { workspace = true, optional = true }

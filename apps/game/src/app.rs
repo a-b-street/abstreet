@@ -497,10 +497,6 @@ impl map_gui::AppLike for App {
         &self.primary.map
     }
     #[inline]
-    fn sim(&self) -> &Sim {
-        &self.primary.sim
-    }
-    #[inline]
     fn cs(&self) -> &ColorScheme {
         &self.cs
     }
@@ -563,6 +559,14 @@ impl map_gui::AppLike for App {
             id.map(|x| x.into()),
             &mut self.primary,
         )
+    }
+
+    fn sim_time(&self) -> Time {
+        self.primary.sim.time()
+    }
+
+    fn current_stage_and_remaining_time(&self, id: IntersectionID) -> (usize, Duration) {
+        self.primary.sim.current_stage_and_remaining_time(id)
     }
 }
 

@@ -19,7 +19,6 @@ pub use self::navigate::Navigator;
 pub use self::polygon::EditPolygon;
 pub use self::title_screen::{Executable, TitleScreen};
 pub use self::trip_files::{TripManagement, TripManagementState};
-pub use self::turn_explorer::TurnExplorer;
 pub use self::ui::{
     checkbox_per_mode, cmp_count, cmp_dist, cmp_duration, color_for_mode, percentage_bar,
     FilePicker,
@@ -49,7 +48,6 @@ mod navigate;
 mod polygon;
 mod title_screen;
 mod trip_files;
-mod turn_explorer;
 mod ui;
 #[cfg(not(target_arch = "wasm32"))]
 mod updater;
