@@ -234,11 +234,7 @@ impl State<App> for Viewer {
         if ctx.canvas.get_cursor_in_map_space().is_some() && ctx.normal_left_click() {
             if let Some(id) = app.current_selection.clone() {
                 // get_obj must succeed, because we can only click static map elements.
-                let outline = app
-                    .draw_map
-                    .get_obj(ctx, id, app, &mut map_gui::render::AgentCache::new())
-                    .unwrap()
-                    .get_outline(&app.map);
+                let outline = app.draw_map.get_obj(id).get_outline(&app.map);
                 let mut batch = GeomBatch::from(vec![(app.cs.perma_selected_object, outline)]);
 
                 if let Some(ID::Lane(l)) = app.current_selection {

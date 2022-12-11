@@ -10,7 +10,7 @@ use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
-use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
+use map_gui::render::{DrawMap, DrawOptions, Renderable};
 use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::AreaType;
@@ -24,6 +24,7 @@ use crate::challenges::HighScore;
 use crate::common::Warping;
 use crate::edit::apply_map_edits;
 use crate::layer::Layer;
+use crate::render::{unzoomed_agent_radius, AgentCache};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::{GameplayMode, TutorialState};
 
@@ -735,6 +736,36 @@ impl PerMap {
                 .map(|bs| bs.sidewalk_pos.pt(&self.map)),
             ID::Area(id) => self.map.maybe_get_a(id).map(|a| a.polygon.center()),
         }
+    }
+
+    pub fn get_obj<'a>(
+        &'a self,
+        ctx: &EventCtx,
+        id: ID,
+        cs: &ColorScheme,
+        agents: &'a mut AgentCache,
+    ) -> Option<&'a dyn Renderable> {
+        let on = match id {
+            ID::Car(id) => {
+                // Cars might be parked in a garage!
+                self.sim.get_draw_car(id, &self.map)?.on
+            }
+            ID::Pedestrian(id) => self.sim.get_draw_ped(id, &self.map).unwrap().on,
+            ID::PedCrowd(ref members) => {
+                // If the first member has vanished, just give up
+                self.sim.get_draw_ped(members[0], &self.map)?.on
+            }
+            _ => {
+                // Static map elements
+                return Some(self.draw_map.get_obj(id));
+            }
+        };
+
+        agents.populate_if_needed(on, &self.map, &self.sim, cs, ctx.prerender);
+
+        // Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
+        // individuals
+        agents.get(on).into_iter().find(|r| r.get_id() == id)
     }
 }
 

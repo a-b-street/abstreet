@@ -449,10 +449,10 @@ impl State<App> for DebugMode {
             |key| {
                 let mut batch = GeomBatch::new();
                 for (a, _) in app.primary.sim.get_accepted_agents(key) {
-                    if let Some(obj) = app.primary.draw_map.get_obj(
+                    if let Some(obj) = app.primary.get_obj(
                         ctx,
                         ID::from_agent(a),
-                        app,
+                        &app.cs,
                         &mut app.primary.agents.borrow_mut(),
                     ) {
                         batch.push(Color::PURPLE, obj.get_outline(&app.primary.map));

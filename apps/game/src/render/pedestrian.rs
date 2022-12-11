@@ -1,11 +1,12 @@
 use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D, Tessellation};
+use map_gui::colors::ColorScheme;
+use map_gui::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+use map_gui::{AppLike, ID};
 use map_model::{DrivingSide, Map};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, Intent, PedCrowdLocation, PedestrianID, Sim};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
-use crate::colors::ColorScheme;
-use crate::render::{grey_out_unhighlighted_people, DrawOptions, Renderable, OUTLINE_THICKNESS};
-use crate::{AppLike, ID};
+use crate::render::grey_out_unhighlighted_people;
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,
