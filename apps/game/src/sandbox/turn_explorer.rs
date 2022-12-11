@@ -1,13 +1,14 @@
 use geom::{ArrowCap, Distance};
+use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
+use map_gui::AppLike;
 use map_model::{LaneID, PathConstraints, TurnType};
 use widgetry::tools::ColorLegend;
 use widgetry::{
     Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
+    Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-use crate::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use crate::AppLike;
+use crate::app::{App, Transition};
 
 /// A tool to explore all of the turns from a single lane.
 pub struct TurnExplorer {
@@ -18,11 +19,7 @@ pub struct TurnExplorer {
 }
 
 impl TurnExplorer {
-    pub fn new_state<A: AppLike + 'static>(
-        ctx: &mut EventCtx,
-        app: &A,
-        l: LaneID,
-    ) -> Box<dyn State<A>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State<App>> {
         Box::new(TurnExplorer {
             l,
             idx: 0,
@@ -31,8 +28,8 @@ impl TurnExplorer {
     }
 }
 
-impl<A: AppLike + 'static> State<A> for TurnExplorer {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+impl State<App> for TurnExplorer {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
@@ -59,7 +56,7 @@ impl<A: AppLike + 'static> State<A> for TurnExplorer {
         DrawBaselayer::Custom
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &A) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         let mut opts = DrawOptions::new();
         {
             let l = app.map().get_l(self.l);
@@ -107,7 +104,7 @@ impl<A: AppLike + 'static> State<A> for TurnExplorer {
 }
 
 impl TurnExplorer {
-    fn make_panel<A: AppLike>(ctx: &mut EventCtx, app: &A, l: LaneID, idx: usize) -> Panel {
+    fn make_panel(ctx: &mut EventCtx, app: &App, l: LaneID, idx: usize) -> Panel {
         let turns = app.map().get_turns_from_lane(l);
 
         let mut col = vec![Widget::row(vec![
@@ -179,7 +176,8 @@ impl TurnExplorer {
         } else {
             let (lt, lc, slow_lane) = turns[idx - 1].penalty(PathConstraints::Car, app.map());
             let (vehicles, bike) = app
-                .sim()
+                .primary
+                .sim
                 .target_lane_penalty(app.map().get_l(turns[idx - 1].id.dst));
             col.push(
                 format!(

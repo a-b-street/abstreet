@@ -124,10 +124,6 @@ impl AppLike for App {
         &self.per_map.map
     }
     #[inline]
-    fn sim(&self) -> &sim::Sim {
-        unreachable!()
-    }
-    #[inline]
     fn cs(&self) -> &ColorScheme {
         &self.cs
     }

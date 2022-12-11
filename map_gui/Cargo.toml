@@ -31,7 +31,6 @@ map_model = { path = "../map_model" }
 regex = "1.5.5"
 rfd = "0.8.0"
 serde = { workspace = true }
-sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
 subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }

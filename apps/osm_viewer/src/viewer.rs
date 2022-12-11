@@ -4,7 +4,7 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::ArrowCap;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use map_gui::tools::{CityPicker, Minimap, MinimapControls, Navigator, TurnExplorer};
+use map_gui::tools::{CityPicker, Minimap, MinimapControls, Navigator};
 use map_gui::{SimpleApp, ID};
 use widgetry::tools::{open_browser, PopupMsg, URLManager};
 use widgetry::{
@@ -240,7 +240,7 @@ impl State<App> for Viewer {
                 if let Some(ID::Lane(l)) = app.current_selection {
                     for turn in app.map.get_turns_from_lane(l) {
                         batch.push(
-                            TurnExplorer::color_turn_type(turn.turn_type),
+                            Color::RED,
                             turn.geom
                                 .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                         );

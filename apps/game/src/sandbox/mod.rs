@@ -5,7 +5,7 @@ use geom::{Circle, Distance, Time};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
-use map_gui::tools::{Minimap, TurnExplorer};
+use map_gui::tools::Minimap;
 use map_gui::AppLike;
 use sim::Analytics;
 use synthpop::Scenario;
@@ -36,6 +36,7 @@ mod minimap;
 mod misc_tools;
 mod speed;
 mod time_warp;
+mod turn_explorer;
 
 pub struct SandboxMode {
     gameplay: Box<dyn gameplay::GameplayState>,
@@ -379,7 +380,7 @@ impl ContextualActions for Actions {
                 Transition::Push(TrafficRecorder::new_state(ctx, btreeset! {i}))
             }
             (ID::Lane(l), "explore turns from this lane") => {
-                Transition::Push(TurnExplorer::new_state(ctx, app, l))
+                Transition::Push(turn_explorer::TurnExplorer::new_state(ctx, app, l))
             }
             (ID::Lane(l), "edit lane") => Transition::Multi(vec![
                 Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),

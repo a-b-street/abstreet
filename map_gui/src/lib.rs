@@ -14,7 +14,6 @@ use geom::{Duration, Pt2D, Time};
 use map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, Map, ParkingLotID, RoadID, TransitStopID,
 };
-use sim::Sim;
 use widgetry::{EventCtx, GfxCtx, State};
 
 pub use self::simple_app::{SimpleApp, SimpleAppArgs};
@@ -35,7 +34,6 @@ pub mod tools;
 /// `SimpleApp` for an example implementation.
 pub trait AppLike {
     fn map(&self) -> &Map;
-    fn sim(&self) -> &Sim;
     fn cs(&self) -> &ColorScheme;
     fn mut_cs(&mut self) -> &mut ColorScheme;
     fn draw_map(&self) -> &DrawMap;
@@ -55,14 +53,10 @@ pub trait AppLike {
     where
         Self: Sized;
 
-    // These two are needed to render traffic signals. Splitting them from sim() allows
-    // applications that don't run a traffic sim to work.
-    fn sim_time(&self) -> Time {
-        self.sim().time()
-    }
-    fn current_stage_and_remaining_time(&self, id: IntersectionID) -> (usize, Duration) {
-        self.sim().current_stage_and_remaining_time(id)
-    }
+    // These two are needed to render traffic signals. They only make sense when there is a
+    // simulation
+    fn sim_time(&self) -> Time;
+    fn current_stage_and_remaining_time(&self, id: IntersectionID) -> (usize, Duration);
 
     /// Change the color scheme. Idempotent. Return true if there was a change.
     fn change_color_scheme(&mut self, ctx: &mut EventCtx, cs: ColorSchemeChoice) -> bool {

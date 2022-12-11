@@ -4,7 +4,6 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_model::{IntersectionID, Map};
-use sim::Sim;
 use widgetry::tools::URLManager;
 use widgetry::{Canvas, EventCtx, GfxCtx, Settings, SharedAppState, State, Transition, Warper};
 
@@ -272,10 +271,6 @@ impl<T: 'static> AppLike for SimpleApp<T> {
     #[inline]
     fn map(&self) -> &Map {
         &self.map
-    }
-    #[inline]
-    fn sim(&self) -> &Sim {
-        unreachable!()
     }
     #[inline]
     fn cs(&self) -> &ColorScheme {
