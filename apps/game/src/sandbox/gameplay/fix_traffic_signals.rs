@@ -1,5 +1,5 @@
+use crate::ID;
 use geom::{Duration, Time};
-use map_gui::ID;
 use map_model::IntersectionID;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, State, Text,

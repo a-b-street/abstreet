@@ -5,14 +5,14 @@ use anyhow::Result;
 use maplit::btreemap;
 use structopt::StructOpt;
 
+use crate::ID;
 use abstio::MapName;
 use abstutil::{Tags, Timer};
-use geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time};
+use geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Tessellation, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
-use map_gui::render::{DrawMap, DrawOptions, Renderable};
+use map_gui::render::{DrawMap, DrawOptions};
 use map_gui::tools::CameraState;
-use map_gui::ID;
 use map_model::AreaType;
 use map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
 use sim::{AgentID, Analytics, Sim, SimCallback, SimFlags, VehicleType};
@@ -24,7 +24,7 @@ use crate::challenges::HighScore;
 use crate::common::Warping;
 use crate::edit::apply_map_edits;
 use crate::layer::Layer;
-use crate::render::{unzoomed_agent_radius, AgentCache};
+use crate::render::{unzoomed_agent_radius, AgentCache, GameRenderable};
 use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::{GameplayMode, TutorialState};
 
@@ -365,20 +365,24 @@ impl App {
         prerender: &Prerender,
         agents: &'a mut AgentCache,
         show_objs: &dyn ShowObject,
-    ) -> Vec<&'a (dyn Renderable + 'a)> {
+    ) -> Vec<&'a (dyn GameRenderable + 'a)> {
         let map = &self.primary.map;
         let draw_map = &self.primary.draw_map;
 
-        let mut areas: Vec<&dyn Renderable> = Vec::new();
-        let mut parking_lots: Vec<&dyn Renderable> = Vec::new();
-        let mut lanes: Vec<&dyn Renderable> = Vec::new();
-        let mut roads: Vec<&dyn Renderable> = Vec::new();
-        let mut intersections: Vec<&dyn Renderable> = Vec::new();
-        let mut buildings: Vec<&dyn Renderable> = Vec::new();
-        let mut transit_stops: Vec<&dyn Renderable> = Vec::new();
+        let mut areas: Vec<&dyn GameRenderable> = Vec::new();
+        let mut parking_lots: Vec<&dyn GameRenderable> = Vec::new();
+        let mut lanes: Vec<&dyn GameRenderable> = Vec::new();
+        let mut roads: Vec<&dyn GameRenderable> = Vec::new();
+        let mut intersections: Vec<&dyn GameRenderable> = Vec::new();
+        let mut buildings: Vec<&dyn GameRenderable> = Vec::new();
+        let mut transit_stops: Vec<&dyn GameRenderable> = Vec::new();
         let mut agents_on: Vec<Traversable> = Vec::new();
 
-        for id in draw_map.get_matching_objects(bounds) {
+        for id in draw_map
+            .get_matching_objects(bounds)
+            .into_iter()
+            .map(|id| id.into())
+        {
             if !show_objs.show(&id) {
                 continue;
             }
@@ -421,7 +425,7 @@ impl App {
         }
 
         // From background to foreground Z-order
-        let mut borrows: Vec<&dyn Renderable> = Vec::new();
+        let mut borrows: Vec<&dyn GameRenderable> = Vec::new();
         borrows.extend(areas);
         borrows.extend(parking_lots);
         borrows.extend(lanes);
@@ -550,9 +554,15 @@ impl map_gui::AppLike for App {
         ctx: &EventCtx,
         pt: Pt2D,
         target_cam_zoom: Option<f64>,
-        id: Option<ID>,
+        id: Option<map_gui::ID>,
     ) -> Box<dyn State<App>> {
-        Warping::new_state(ctx, pt, target_cam_zoom, id, &mut self.primary)
+        Warping::new_state(
+            ctx,
+            pt,
+            target_cam_zoom,
+            id.map(|x| x.into()),
+            &mut self.primary,
+        )
     }
 }
 
@@ -738,13 +748,16 @@ impl PerMap {
         }
     }
 
-    pub fn get_obj<'a>(
-        &'a self,
+    // TODO This would be just get_obj and return GameRenderable, but I can't get the type system
+    // to understand that Renderable can act like GameRenderable
+    pub fn get_obj_outline(
+        &self,
         ctx: &EventCtx,
         id: ID,
         cs: &ColorScheme,
-        agents: &'a mut AgentCache,
-    ) -> Option<&'a dyn Renderable> {
+        map: &Map,
+        agents: &mut AgentCache,
+    ) -> Option<Tessellation> {
         let on = match id {
             ID::Car(id) => {
                 // Cars might be parked in a garage!
@@ -757,7 +770,8 @@ impl PerMap {
             }
             _ => {
                 // Static map elements
-                return Some(self.draw_map.get_obj(id));
+                let obj = self.draw_map.get_obj(id.to_map_gui());
+                return Some(obj.get_outline(map));
             }
         };
 
@@ -765,7 +779,8 @@ impl PerMap {
 
         // Why might this fail? Pedestrians merge into crowds, and crowds dissipate into
         // individuals
-        agents.get(on).into_iter().find(|r| r.get_id() == id)
+        let obj = agents.get(on).into_iter().find(|r| r.get_id() == id)?;
+        Some(obj.get_outline(map))
     }
 }
 

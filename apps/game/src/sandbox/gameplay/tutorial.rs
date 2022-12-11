@@ -1,11 +1,11 @@
 use std::collections::BTreeSet;
 
+use crate::ID;
 use abstio::MapName;
 use abstutil::Timer;
 use geom::{ArrowCap, Distance, Duration, PolyLine, Pt2D, Time};
 use map_gui::load::MapLoader;
 use map_gui::tools::Minimap;
-use map_gui::ID;
 use map_model::{osm, BuildingID, Map, OriginalRoad, Position};
 use sim::{AgentID, BorderSpawnOverTime, CarID, ScenarioGenerator, SpawnOverTime, VehicleType};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};

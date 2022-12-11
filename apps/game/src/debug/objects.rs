@@ -1,4 +1,4 @@
-use map_gui::ID;
+use crate::ID;
 use map_model::{Map, Position};
 use sim::{AgentID, Sim};
 use widgetry::{GfxCtx, Key, Text};

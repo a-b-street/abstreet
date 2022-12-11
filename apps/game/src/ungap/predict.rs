@@ -1,10 +1,10 @@
 use std::collections::HashSet;
 
+use crate::ID;
 use abstio::Manifest;
 use abstutil::{prettyprint_bytes, prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, UnitFmt};
 use map_gui::tools::{percentage_bar, ColorNetwork};
-use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use synthpop::{Scenario, TripEndpoint, TripMode};
 use widgetry::mapspace::ToggleZoomed;

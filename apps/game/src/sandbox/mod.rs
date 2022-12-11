@@ -6,7 +6,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::tools::{Minimap, TurnExplorer};
-use map_gui::{AppLike, ID};
+use map_gui::AppLike;
 use sim::Analytics;
 use synthpop::Scenario;
 use widgetry::tools::{ChooseSomething, FileLoader, FutureLoader, URLManager};
@@ -28,6 +28,7 @@ use crate::layer::favorites::{Favorites, ShowFavorites};
 use crate::layer::PickLayer;
 use crate::pregame::TitleScreen;
 use crate::render::{unzoomed_agent_radius, UnzoomedAgents};
+use crate::ID;
 
 pub mod dashboards;
 pub mod gameplay;

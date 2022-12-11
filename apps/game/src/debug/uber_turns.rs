@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
 
+use crate::ID;
 use geom::ArrowCap;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
-use map_gui::ID;
 use map_model::{IntersectionCluster, IntersectionID};
 use widgetry::tools::PopupMsg;
 use widgetry::{

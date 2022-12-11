@@ -1,5 +1,5 @@
+use crate::ID;
 use geom::Distance;
-use map_gui::ID;
 use map_model::{BufferType, EditCmd, LaneID, LaneSpec, LaneType, RoadID};
 use widgetry::tools::{PopupMsg, URLManager};
 use widgetry::{

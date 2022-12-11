@@ -7,7 +7,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
-use map_gui::{AppLike, ID};
+use map_gui::AppLike;
 use map_model::{
     ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
     NORMAL_LANE_THICKNESS,
@@ -25,6 +25,7 @@ use crate::app::{App, ShowLayers, ShowObject, Transition};
 use crate::common::{tool_panel, CommonState};
 use crate::info::ContextualActions;
 use crate::sandbox::GameplayMode;
+use crate::ID;
 
 pub use self::routes::PathCostDebugger;
 
@@ -449,13 +450,14 @@ impl State<App> for DebugMode {
             |key| {
                 let mut batch = GeomBatch::new();
                 for (a, _) in app.primary.sim.get_accepted_agents(key) {
-                    if let Some(obj) = app.primary.get_obj(
+                    if let Some(outline) = app.primary.get_obj_outline(
                         ctx,
                         ID::from_agent(a),
                         &app.cs,
+                        &app.primary.map,
                         &mut app.primary.agents.borrow_mut(),
                     ) {
-                        batch.push(Color::PURPLE, obj.get_outline(&app.primary.map));
+                        batch.push(Color::PURPLE, outline);
                     } else {
                         warn!(
                             "{} is accepted at or blocked by by {:?}, but no longer exists",

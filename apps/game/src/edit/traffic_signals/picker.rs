@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use map_gui::ID;
+use crate::ID;
 use map_model::IntersectionID;
 use widgetry::{
     hotkeys, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,

@@ -1,7 +1,7 @@
+use crate::ID;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Time};
 use map_gui::tools::ColorNetwork;
-use map_gui::ID;
 use map_model::{PathStep, TransitRoute, TransitRouteID, TransitStopID};
 use sim::{AgentID, CarID};
 use widgetry::{Color, ControlState, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};

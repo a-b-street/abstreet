@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
+use crate::ID;
 use geom::{Distance, Time};
-use map_gui::ID;
 use map_model::IntersectionID;
 use sim::AgentID;
 use widgetry::{

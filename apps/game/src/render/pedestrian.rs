@@ -1,12 +1,13 @@
 use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D, Tessellation};
 use map_gui::colors::ColorScheme;
-use map_gui::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
-use map_gui::{AppLike, ID};
+use map_gui::render::{DrawOptions, OUTLINE_THICKNESS};
+use map_gui::AppLike;
 use map_model::{DrivingSide, Map};
 use sim::{DrawPedCrowdInput, DrawPedestrianInput, Intent, PedCrowdLocation, PedestrianID, Sim};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
-use crate::render::grey_out_unhighlighted_people;
+use crate::render::{grey_out_unhighlighted_people, GameRenderable};
+use crate::ID;
 
 pub struct DrawPedestrian {
     pub id: PedestrianID,
@@ -193,7 +194,7 @@ impl DrawPedestrian {
     }
 }
 
-impl Renderable for DrawPedestrian {
+impl GameRenderable for DrawPedestrian {
     fn get_id(&self) -> ID {
         ID::Pedestrian(self.id)
     }
@@ -281,7 +282,7 @@ impl DrawPedCrowd {
     }
 }
 
-impl Renderable for DrawPedCrowd {
+impl GameRenderable for DrawPedCrowd {
     fn get_id(&self) -> ID {
         // Expensive! :(
         ID::PedCrowd(self.members.clone())

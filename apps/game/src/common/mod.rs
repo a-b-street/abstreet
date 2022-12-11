@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
+use crate::ID;
 use geom::{Duration, Polygon, Time};
-use map_gui::ID;
 use sim::{AgentType, TripPhaseType};
 use widgetry::{
     lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims,

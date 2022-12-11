@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
+use crate::ID;
 use map_gui::tools::intersections_from_roads;
-use map_gui::ID;
 use map_model::{IntersectionID, RoadID};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, RewriteColor, Widget};
 
