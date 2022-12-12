@@ -73,6 +73,7 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
 </pre><pre class="rust"><code><span class="attribute">#[macro_use]
 </span><span class="kw">extern crate </span>anyhow;
 <span class="attribute">#[macro_use]
@@ -115,23 +116,24 @@
         <span class="kw">let </span>session = session::Session::load();
         session.save();
 
-        map_gui::SimpleApp::new(
-            ctx,
-            opts,
-            abstio::MapName::seattle(<span class="string">&quot;qa&quot;</span>),
-            <span class="prelude-val">None</span>,
-            session,
-            |ctx, app| {
-                <span class="kw">if </span>app.opts.dev {
-                    app.session.unlock_all();
-                }
-                app.session.music =
-                    music::Music::start(ctx, app.session.play_music, <span class="string">&quot;jingle_bells&quot;</span>);
-                app.session.music.specify_volume(music::OUT_OF_GAME);
+        <span class="comment">// On native, we may not have this file. Start with a blank map if so. When we try to pick
+        // a level on the title screen, we&#39;ll download it if needed.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>start_map = <span class="prelude-val">Some</span>(abstio::MapName::seattle(<span class="string">&quot;qa&quot;</span>));
+        <span class="kw">if </span><span class="macro">cfg!</span>(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))
+            &amp;&amp; !abstio::file_exists(start_map.as_ref().unwrap().path())
+        {
+            start_map = <span class="prelude-val">None</span>;
+        }
 
-                <span class="macro">vec!</span>[title::TitleScreen::new_state(ctx, app)]
-            },
-        )
+        map_gui::SimpleApp::new(ctx, opts, start_map, <span class="prelude-val">None</span>, session, |ctx, app| {
+            <span class="kw">if </span>app.opts.dev {
+                app.session.unlock_all();
+            }
+            app.session.music = music::Music::start(ctx, app.session.play_music, <span class="string">&quot;jingle_bells&quot;</span>);
+            app.session.music.specify_volume(music::OUT_OF_GAME);
+
+            <span class="macro">vec!</span>[title::TitleScreen::new_state(ctx, app)]
+        })
     });
 }
 

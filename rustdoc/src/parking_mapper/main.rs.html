@@ -20,6 +20,11 @@
 <span id="20">20</span>
 <span id="21">21</span>
 <span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
 </pre><pre class="rust"><code><span class="attribute">#[macro_use]
 </span><span class="kw">extern crate </span>log;
 
@@ -37,9 +42,14 @@
         .update_widgetry_settings(widgetry::Settings::new(<span class="string">&quot;OSM parking mapper&quot;</span>))
         .canvas_settings(options.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
-        map_gui::SimpleApp::new(ctx, options, args.map_name(), args.cam, (), |ctx, app| {
-            <span class="macro">vec!</span>[mapper::ParkingMapper::new_state(ctx, app)]
-        })
+        map_gui::SimpleApp::new(
+            ctx,
+            options,
+            <span class="prelude-val">Some</span>(args.map_name()),
+            args.cam,
+            (),
+            |ctx, app| <span class="macro">vec!</span>[mapper::ParkingMapper::new_state(ctx, app)],
+        )
     });
 }
 </code></pre></div>

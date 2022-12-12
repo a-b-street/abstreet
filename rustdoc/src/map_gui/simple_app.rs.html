@@ -382,6 +382,10 @@
 <span id="382">382</span>
 <span id="383">383</span>
 <span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
 </pre><pre class="rust"><code><span class="kw">use </span>structopt::StructOpt;
 
 <span class="kw">use </span>abstio::MapName;
@@ -485,7 +489,7 @@
     &gt;(
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
         opts: Options,
-        map_name: MapName,
+        map_name: <span class="prelude-ty">Option</span>&lt;MapName&gt;,
         cam: <span class="prelude-ty">Option</span>&lt;String&gt;,
         session: T,
         init_states: F,
@@ -494,10 +498,10 @@
         ctx.canvas.settings = opts.canvas_settings.clone();
 
         <span class="kw">let </span>cs = ColorScheme::new(ctx, opts.color_scheme);
-        <span class="comment">// Start with a blank map
-        </span><span class="kw">let </span>map = Map::blank();
+        <span class="comment">// Start with a minimal map
+        </span><span class="kw">let </span>map = Map::almost_blank();
         <span class="kw">let </span>draw_map = DrawMap::new(ctx, <span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;</span>opts, <span class="kw-2">&amp;</span>cs, <span class="kw-2">&amp;mut </span>Timer::throwaway());
-        <span class="kw">let </span>app = SimpleApp {
+        <span class="kw">let </span><span class="kw-2">mut </span>app = SimpleApp {
             map,
             draw_map,
             cs,
@@ -507,15 +511,19 @@
             time: Time::START_OF_DAY,
         };
 
-        <span class="kw">let </span>states = <span class="macro">vec!</span>[MapLoader::new_state(
-            ctx,
-            <span class="kw-2">&amp;</span>app,
-            map_name,
-            Box::new(<span class="kw">move </span>|ctx, app| {
-                URLManager::change_camera(ctx, cam.as_ref(), app.map().get_gps_bounds());
-                Transition::Clear(init_states(ctx, app))
-            }),
-        )];
+        <span class="kw">let </span>states = <span class="kw">if let </span><span class="prelude-val">Some</span>(map_name) = map_name {
+            <span class="macro">vec!</span>[MapLoader::new_state(
+                ctx,
+                <span class="kw-2">&amp;</span>app,
+                map_name,
+                Box::new(<span class="kw">move </span>|ctx, app| {
+                    URLManager::change_camera(ctx, cam.as_ref(), app.map().get_gps_bounds());
+                    Transition::Clear(init_states(ctx, app))
+                }),
+            )]
+        } <span class="kw">else </span>{
+            init_states(ctx, <span class="kw-2">&amp;mut </span>app)
+        };
         (app, states)
     }
 
