@@ -419,6 +419,8 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
 </pre><pre class="rust"><code><span class="kw">use </span>geom::{Duration, Polygon};
 <span class="kw">use </span>map_gui::tools::{
     DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
@@ -600,7 +602,7 @@
                             .pathfind_with_params(map, req, params.clone())
                     })
                 {
-                    total_time += path.get_cost();
+                    total_time += path.estimate_duration(map, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(params.main_road_penalty));
                     paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE));
                 }
             }
@@ -623,7 +625,7 @@
                             .pathfind_with_params(map, req, params.clone())
                     })
                 {
-                    total_time += path.get_cost();
+                    total_time += path.estimate_duration(map, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(params.main_road_penalty));
                     paths_after.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_AFTER));
                 }
             }
@@ -650,7 +652,8 @@
                         )
                     })
                 {
-                    total_time += path.get_cost();
+                    total_time +=
+                        path.estimate_duration(map, <span class="prelude-val">Some</span>(map_model::MAX_BIKE_SPEED), <span class="prelude-val">None</span>);
                     paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_BIKE));
                 }
             }
@@ -672,7 +675,8 @@
                         )
                     })
                 {
-                    total_time += path.get_cost();
+                    total_time +=
+                        path.estimate_duration(map, <span class="prelude-val">Some</span>(map_model::MAX_WALKING_SPEED), <span class="prelude-val">None</span>);
                     paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_WALK));
                 }
             }

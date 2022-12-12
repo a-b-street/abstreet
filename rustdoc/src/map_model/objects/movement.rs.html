@@ -257,6 +257,8 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
 <span class="kw">use </span>anyhow::Result;
@@ -271,6 +273,8 @@
 /// road to another.
 /// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
 /// here to keep each crosswalk separate.
+///
+/// We don&#39;t create movements for SharedSidewalkCorners.
 </span><span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>MovementID {
     <span class="kw">pub </span>from: DirectedRoadID,
