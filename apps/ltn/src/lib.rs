@@ -186,12 +186,6 @@ fn setup_initial_states(
             app.per_map.consultation.unwrap(),
         ));
     } else {
-        states.push(map_gui::tools::TitleScreen::new_state(
-            ctx,
-            app,
-            map_gui::tools::Executable::LTN,
-            Box::new(|ctx, app, _| PickArea::new_state(ctx, app)),
-        ));
         states.push(PickArea::new_state(ctx, app));
     }
     if let Some(state) = popup_state {

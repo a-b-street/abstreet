@@ -77,7 +77,12 @@ impl SimpleState<App> for TitleScreen {
         _: &mut Panel,
     ) -> Transition {
         match x {
-            "Home" => Transition::Pop,
+            "Home" => Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
+                ctx,
+                app,
+                map_gui::tools::Executable::Santa,
+                Box::new(|ctx, app, _| Self::new_state(ctx, app)),
+            )]),
             "Credits" => Transition::Push(Credits::new_state(ctx)),
             x => {
                 for level in &app.session.levels {

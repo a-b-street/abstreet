@@ -262,7 +262,12 @@ impl State<App> for Viewer {
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Home" => {
-                    return Transition::Pop;
+                    return Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
+                        ctx,
+                        app,
+                        map_gui::tools::Executable::OSMViewer,
+                        Box::new(|ctx, app, _| Self::new_state(ctx, app)),
+                    )]);
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(

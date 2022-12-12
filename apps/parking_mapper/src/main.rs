@@ -16,15 +16,7 @@ fn main() {
         .canvas_settings(options.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
         map_gui::SimpleApp::new(ctx, options, args.map_name(), args.cam, (), |ctx, app| {
-            vec![
-                map_gui::tools::TitleScreen::new_state(
-                    ctx,
-                    app,
-                    map_gui::tools::Executable::ParkingMapper,
-                    Box::new(|ctx, app, _| mapper::ParkingMapper::new_state(ctx, app)),
-                ),
-                mapper::ParkingMapper::new_state(ctx, app),
-            ]
+            vec![mapper::ParkingMapper::new_state(ctx, app)]
         })
     });
 }

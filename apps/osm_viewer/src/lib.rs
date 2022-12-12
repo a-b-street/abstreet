@@ -20,15 +20,7 @@ pub fn run(mut settings: Settings) {
         .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
         map_gui::SimpleApp::new(ctx, opts, args.map_name(), args.cam, (), |ctx, app| {
-            vec![
-                map_gui::tools::TitleScreen::new_state(
-                    ctx,
-                    app,
-                    map_gui::tools::Executable::OSMViewer,
-                    Box::new(|ctx, app, _| viewer::Viewer::new_state(ctx, app)),
-                ),
-                viewer::Viewer::new_state(ctx, app),
-            ]
+            vec![viewer::Viewer::new_state(ctx, app)]
         })
     });
 }

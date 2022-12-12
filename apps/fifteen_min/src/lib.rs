@@ -30,15 +30,7 @@ fn run(mut settings: Settings) {
         .canvas_settings(options.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
         map_gui::SimpleApp::new(ctx, options, args.map_name(), args.cam, (), |ctx, app| {
-            vec![
-                map_gui::tools::TitleScreen::new_state(
-                    ctx,
-                    app,
-                    map_gui::tools::Executable::FifteenMin,
-                    Box::new(|ctx, app, _| viewer::Viewer::random_start(ctx, app)),
-                ),
-                viewer::Viewer::random_start(ctx, app),
-            ]
+            vec![viewer::Viewer::random_start(ctx, app)]
         })
     });
 }

@@ -329,7 +329,12 @@ impl State<App> for ParkingMapper {
                     };
                 }
                 "Home" => {
-                    return Transition::Pop;
+                    return Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
+                        ctx,
+                        app,
+                        map_gui::tools::Executable::ParkingMapper,
+                        Box::new(|ctx, app, _| Self::new_state(ctx, app)),
+                    )]);
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(

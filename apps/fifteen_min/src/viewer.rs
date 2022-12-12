@@ -130,7 +130,12 @@ impl State<App> for Viewer {
                     return Transition::Push(crate::bus::BusExperiment::new_state(ctx, app));
                 }
                 "Home" => {
-                    return Transition::Pop;
+                    return Transition::Clear(vec![map_gui::tools::TitleScreen::new_state(
+                        ctx,
+                        app,
+                        map_gui::tools::Executable::FifteenMin,
+                        Box::new(|ctx, app, _| Self::random_start(ctx, app)),
+                    )]);
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(
