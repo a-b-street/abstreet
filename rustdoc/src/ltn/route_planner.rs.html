@@ -421,6 +421,42 @@
 <span id="421">421</span>
 <span id="422">422</span>
 <span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
 </pre><pre class="rust"><code><span class="kw">use </span>geom::{Duration, Polygon};
 <span class="kw">use </span>map_gui::tools::{
     DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
@@ -430,7 +466,7 @@
 <span class="kw">use </span>widgetry::mapspace::World;
 <span class="kw">use </span>widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, Panel, RoundedF64, Spinner,
-    State, TextExt, Toggle, Widget,
+    State, TextExt, TextSpan, Toggle, Widget,
 };
 
 <span class="kw">use </span><span class="kw">crate</span>::components::{AppwidePanel, Mode};
@@ -595,6 +631,8 @@
             <span class="kw">let </span><span class="kw-2">mut </span>params = app.per_map.routing_params_before_changes.clone();
             params.main_road_penalty = app.session.main_road_penalty;
 
+            <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
+
             <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.waypoints.get_waypoints().windows(<span class="number">2</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = TripEndpoint::path_req(pair[<span class="number">0</span>], pair[<span class="number">1</span>], TripMode::Drive, map)
                     .and_then(|req| {
@@ -604,10 +642,17 @@
                 {
                     total_time += path.estimate_duration(map, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(params.main_road_penalty));
                     paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE));
+                } <span class="kw">else </span>{
+                    ok = <span class="bool-val">false</span>;
+                    <span class="kw">break</span>;
                 }
             }
 
-            total_time
+            <span class="kw">if </span>ok {
+                <span class="prelude-val">Some</span>(total_time)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         };
 
         <span class="comment">// The route respecting the filters
@@ -615,6 +660,8 @@
             <span class="kw">let </span><span class="kw-2">mut </span>params = map.routing_params().clone();
             app.edits().update_routing_params(<span class="kw-2">&amp;mut </span>params);
             params.main_road_penalty = app.session.main_road_penalty;
+
+            <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
 
             <span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
             <span class="kw">let </span><span class="kw-2">mut </span>paths_after = Vec::new();
@@ -627,14 +674,21 @@
                 {
                     total_time += path.estimate_duration(map, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(params.main_road_penalty));
                     paths_after.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_AFTER));
+                } <span class="kw">else </span>{
+                    ok = <span class="bool-val">false</span>;
                 }
             }
             <span class="comment">// To simplify colors, don&#39;t draw this path when it&#39;s the same as the baseline
-            </span><span class="kw">if </span>total_time != driving_before_changes_time {
+            // TODO Actually compare the paths! This could be dangerous.
+            </span><span class="kw">if </span><span class="prelude-val">Some</span>(total_time) != driving_before_changes_time {
                 paths.append(<span class="kw-2">&amp;mut </span>paths_after);
             }
 
-            total_time
+            <span class="kw">if </span>ok {
+                <span class="prelude-val">Some</span>(total_time)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         };
 
         <span class="kw">let </span>biking_time = <span class="kw">if </span>app.session.show_walking_cycling_routes {
@@ -642,6 +696,7 @@
             // streets haven&#39;t been reflected, and it&#39;s cheap enough to use Dijkstra&#39;s for
             // calculating one path at a time anyway.
             </span><span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
+            <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
             <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.waypoints.get_waypoints().windows(<span class="number">2</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = TripEndpoint::path_req(pair[<span class="number">0</span>], pair[<span class="number">1</span>], TripMode::Bike, map)
                     .and_then(|req| {
@@ -655,16 +710,23 @@
                     total_time +=
                         path.estimate_duration(map, <span class="prelude-val">Some</span>(map_model::MAX_BIKE_SPEED), <span class="prelude-val">None</span>);
                     paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_BIKE));
+                } <span class="kw">else </span>{
+                    ok = <span class="bool-val">false</span>;
                 }
             }
-            total_time
+            <span class="kw">if </span>ok {
+                <span class="prelude-val">Some</span>(total_time)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         } <span class="kw">else </span>{
-            Duration::ZERO
-        };
+            <span class="prelude-val">None
+        </span>};
 
         <span class="kw">let </span>walking_time = <span class="kw">if </span>app.session.show_walking_cycling_routes {
             <span class="comment">// Same as above -- don&#39;t use the built-in CH.
             </span><span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
+            <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
             <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.waypoints.get_waypoints().windows(<span class="number">2</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = TripEndpoint::path_req(pair[<span class="number">0</span>], pair[<span class="number">1</span>], TripMode::Walk, map)
                     .and_then(|req| {
@@ -678,16 +740,30 @@
                     total_time +=
                         path.estimate_duration(map, <span class="prelude-val">Some</span>(map_model::MAX_WALKING_SPEED), <span class="prelude-val">None</span>);
                     paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_WALK));
+                } <span class="kw">else </span>{
+                    ok = <span class="bool-val">false</span>;
                 }
             }
-            total_time
+            <span class="kw">if </span>ok {
+                <span class="prelude-val">Some</span>(total_time)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         } <span class="kw">else </span>{
-            Duration::ZERO
-        };
+            <span class="prelude-val">None
+        </span>};
 
         <span class="self">self</span>.draw_routes = map_gui::tools::draw_overlapping_paths(app, paths)
             .unzoomed
             .upload(ctx);
+
+        <span class="kw">fn </span>render_time(d: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; TextSpan {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = d {
+                Line(d.to_rounded_string(<span class="number">0</span>))
+            } <span class="kw">else </span>{
+                Line(<span class="string">&quot;Error&quot;</span>)
+            }
+        }
 
         Widget::col(<span class="macro">vec!</span>[
             <span class="comment">// TODO Circle icons
@@ -696,7 +772,7 @@
                     .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE)
                     .into_widget(ctx),
                 <span class="string">&quot;Driving before any changes&quot;</span>.text_widget(ctx),
-                Line(driving_before_changes_time.to_rounded_string(<span class="number">0</span>))
+                render_time(driving_before_changes_time)
                     .into_widget(ctx)
                     .align_right(),
             ]),
@@ -714,7 +790,7 @@
                         .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_AFTER)
                         .into_widget(ctx),
                     <span class="string">&quot;Driving after changes&quot;</span>.text_widget(ctx),
-                    Line(driving_after_changes_time.to_rounded_string(<span class="number">0</span>))
+                    render_time(driving_after_changes_time)
                         .into_widget(ctx)
                         .align_right(),
                 ])
@@ -728,18 +804,14 @@
                             .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_BIKE)
                             .into_widget(ctx),
                         <span class="string">&quot;Cycling&quot;</span>.text_widget(ctx),
-                        Line(biking_time.to_rounded_string(<span class="number">0</span>))
-                            .into_widget(ctx)
-                            .align_right(),
+                        render_time(biking_time).into_widget(ctx).align_right(),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
                         Image::from_path(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>)
                             .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_WALK)
                             .into_widget(ctx),
                         <span class="string">&quot;Walking&quot;</span>.text_widget(ctx),
-                        Line(walking_time.to_rounded_string(<span class="number">0</span>))
-                            .into_widget(ctx)
-                            .align_right(),
+                        render_time(walking_time).into_widget(ctx).align_right(),
                     ]),
                 ])
             } <span class="kw">else </span>{
