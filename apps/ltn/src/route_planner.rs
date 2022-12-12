@@ -179,7 +179,7 @@ impl RoutePlanner {
                             .pathfind_with_params(map, req, params.clone())
                     })
                 {
-                    total_time += path.get_cost();
+                    total_time += path.estimate_duration(map, None, Some(params.main_road_penalty));
                     paths.push((path, *colors::PLAN_ROUTE_BEFORE));
                 }
             }
@@ -202,7 +202,7 @@ impl RoutePlanner {
                             .pathfind_with_params(map, req, params.clone())
                     })
                 {
-                    total_time += path.get_cost();
+                    total_time += path.estimate_duration(map, None, Some(params.main_road_penalty));
                     paths_after.push((path, *colors::PLAN_ROUTE_AFTER));
                 }
             }
@@ -229,7 +229,8 @@ impl RoutePlanner {
                         )
                     })
                 {
-                    total_time += path.get_cost();
+                    total_time +=
+                        path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED), None);
                     paths.push((path, *colors::PLAN_ROUTE_BIKE));
                 }
             }
@@ -251,7 +252,8 @@ impl RoutePlanner {
                         )
                     })
                 {
-                    total_time += path.get_cost();
+                    total_time +=
+                        path.estimate_duration(map, Some(map_model::MAX_WALKING_SPEED), None);
                     paths.push((path, *colors::PLAN_ROUTE_WALK));
                 }
             }

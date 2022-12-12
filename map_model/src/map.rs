@@ -360,6 +360,11 @@ impl Map {
         &self.traffic_signals[&id]
     }
 
+    /// This will return None for SharedSidewalkCorners
+    pub fn get_movement(&self, id: MovementID) -> Option<&Movement> {
+        self.get_i(id.parent).movements.get(&id)
+    }
+
     // All these helpers should take IDs and return objects.
 
     /// The turns may belong to two different intersections!

@@ -12,6 +12,8 @@ use crate::{osm, DirectedRoadID, Direction, IntersectionID, Map, OriginalRoad, T
 /// road to another.
 /// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
 /// here to keep each crosswalk separate.
+///
+/// We don't create movements for SharedSidewalkCorners.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct MovementID {
     pub from: DirectedRoadID,

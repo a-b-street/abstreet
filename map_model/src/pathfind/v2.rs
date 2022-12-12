@@ -5,11 +5,11 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use geom::{Duration, Polygon, Ring};
+use geom::{Duration, Polygon, Ring, Speed};
 
 use crate::pathfind::uber_turns::UberTurnV2;
 use crate::{
-    DirectedRoadID, Direction, IntersectionID, LaneID, Map, MovementID, Path, PathConstraints,
+    osm, DirectedRoadID, Direction, IntersectionID, LaneID, Map, MovementID, Path, PathConstraints,
     PathRequest, PathStep, RoadID, TurnID, UberTurn,
 };
 
@@ -87,10 +87,60 @@ impl PathV2 {
     }
 
     /// The time needed to perform this path. This time is not a lower bound; physically following
-    /// the path might be faster. This time incorporates costs like using sub-optimal lanes or
-    /// taking difficult turns.
+    /// the path might be faster. This time incorporates costs like using sub-optimal lanes, taking
+    /// difficult turns, and crossing private roads (which are modelled with a large penalty!)
     pub fn get_cost(&self) -> Duration {
         self.cost
+    }
+
+    /// Estimate how long following the path will take in the best case, assuming no traffic, delay
+    /// at intersections, elevation, or penalties for crossing private roads. To determine the
+    /// speed along each step, the agent's optional max_speed must be known.
+    ///
+    /// TODO Hack. The one use of this actually needs to apply main_road_penalty. We want to omit
+    /// some penalties, but use others. Come up with a better way of expressing this.
+    pub fn estimate_duration(
+        &self,
+        map: &Map,
+        max_speed: Option<Speed>,
+        main_road_penalty: Option<f64>,
+    ) -> Duration {
+        let mut total = Duration::ZERO;
+        for step in &self.steps {
+            let (dist, mut speed);
+            let mut multiplier = 1.0;
+            match step {
+                PathStepV2::Along(dr) | PathStepV2::Contraflow(dr) => {
+                    let road = map.get_r(dr.road);
+                    dist = road.length();
+                    speed = road.speed_limit;
+
+                    if let Some(penalty) = main_road_penalty {
+                        if road.get_rank() != osm::RoadRank::Local {
+                            multiplier = penalty;
+                        }
+                    }
+                }
+                PathStepV2::Movement(m) | PathStepV2::ContraflowMovement(m) => {
+                    if let Some(movement) = map.get_movement(*m) {
+                        dist = movement.geom.length();
+                        speed = map
+                            .get_r(m.from.road)
+                            .speed_limit
+                            .min(map.get_r(m.to.road).speed_limit);
+                    } else {
+                        // Assume it's a SharedSidewalkCorner and just skip
+                        continue;
+                    }
+                }
+            }
+            if let Some(max) = max_speed {
+                speed = speed.min(max);
+            }
+
+            total += multiplier * (dist / speed);
+        }
+        total
     }
 
     /// Transform a sequence of roads representing a path into the current lane-based path, by
