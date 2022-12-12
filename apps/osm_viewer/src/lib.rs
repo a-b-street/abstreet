@@ -19,9 +19,14 @@ pub fn run(mut settings: Settings) {
         .update_widgetry_settings(settings)
         .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
-        map_gui::SimpleApp::new(ctx, opts, args.map_name(), args.cam, (), |ctx, app| {
-            vec![viewer::Viewer::new_state(ctx, app)]
-        })
+        map_gui::SimpleApp::new(
+            ctx,
+            opts,
+            Some(args.map_name()),
+            args.cam,
+            (),
+            |ctx, app| vec![viewer::Viewer::new_state(ctx, app)],
+        )
     });
 }
 

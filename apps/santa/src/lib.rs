@@ -40,23 +40,24 @@ fn run(mut settings: Settings) {
         let session = session::Session::load();
         session.save();
 
-        map_gui::SimpleApp::new(
-            ctx,
-            opts,
-            abstio::MapName::seattle("qa"),
-            None,
-            session,
-            |ctx, app| {
-                if app.opts.dev {
-                    app.session.unlock_all();
-                }
-                app.session.music =
-                    music::Music::start(ctx, app.session.play_music, "jingle_bells");
-                app.session.music.specify_volume(music::OUT_OF_GAME);
+        // On native, we may not have this file. Start with a blank map if so. When we try to pick
+        // a level on the title screen, we'll download it if needed.
+        let mut start_map = Some(abstio::MapName::seattle("qa"));
+        if cfg!(not(target_arch = "wasm32"))
+            && !abstio::file_exists(start_map.as_ref().unwrap().path())
+        {
+            start_map = None;
+        }
 
-                vec![title::TitleScreen::new_state(ctx, app)]
-            },
-        )
+        map_gui::SimpleApp::new(ctx, opts, start_map, None, session, |ctx, app| {
+            if app.opts.dev {
+                app.session.unlock_all();
+            }
+            app.session.music = music::Music::start(ctx, app.session.play_music, "jingle_bells");
+            app.session.music.specify_volume(music::OUT_OF_GAME);
+
+            vec![title::TitleScreen::new_state(ctx, app)]
+        })
     });
 }
 

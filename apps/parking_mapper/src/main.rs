@@ -15,8 +15,13 @@ fn main() {
         .update_widgetry_settings(widgetry::Settings::new("OSM parking mapper"))
         .canvas_settings(options.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
-        map_gui::SimpleApp::new(ctx, options, args.map_name(), args.cam, (), |ctx, app| {
-            vec![mapper::ParkingMapper::new_state(ctx, app)]
-        })
+        map_gui::SimpleApp::new(
+            ctx,
+            options,
+            Some(args.map_name()),
+            args.cam,
+            (),
+            |ctx, app| vec![mapper::ParkingMapper::new_state(ctx, app)],
+        )
     });
 }
