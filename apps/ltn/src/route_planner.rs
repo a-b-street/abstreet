@@ -7,7 +7,7 @@ use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, Panel, RoundedF64, Spinner,
-    State, TextExt, Toggle, Widget,
+    State, TextExt, TextSpan, Toggle, Widget,
 };
 
 use crate::components::{AppwidePanel, Mode};
@@ -172,6 +172,8 @@ impl RoutePlanner {
             let mut params = app.per_map.routing_params_before_changes.clone();
             params.main_road_penalty = app.session.main_road_penalty;
 
+            let mut ok = true;
+
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Drive, map)
                     .and_then(|req| {
@@ -181,10 +183,17 @@ impl RoutePlanner {
                 {
                     total_time += path.estimate_duration(map, None, Some(params.main_road_penalty));
                     paths.push((path, *colors::PLAN_ROUTE_BEFORE));
+                } else {
+                    ok = false;
+                    break;
                 }
             }
 
-            total_time
+            if ok {
+                Some(total_time)
+            } else {
+                None
+            }
         };
 
         // The route respecting the filters
@@ -192,6 +201,8 @@ impl RoutePlanner {
             let mut params = map.routing_params().clone();
             app.edits().update_routing_params(&mut params);
             params.main_road_penalty = app.session.main_road_penalty;
+
+            let mut ok = true;
 
             let mut total_time = Duration::ZERO;
             let mut paths_after = Vec::new();
@@ -204,14 +215,21 @@ impl RoutePlanner {
                 {
                     total_time += path.estimate_duration(map, None, Some(params.main_road_penalty));
                     paths_after.push((path, *colors::PLAN_ROUTE_AFTER));
+                } else {
+                    ok = false;
                 }
             }
             // To simplify colors, don't draw this path when it's the same as the baseline
-            if total_time != driving_before_changes_time {
+            // TODO Actually compare the paths! This could be dangerous.
+            if Some(total_time) != driving_before_changes_time {
                 paths.append(&mut paths_after);
             }
 
-            total_time
+            if ok {
+                Some(total_time)
+            } else {
+                None
+            }
         };
 
         let biking_time = if app.session.show_walking_cycling_routes {
@@ -219,6 +237,7 @@ impl RoutePlanner {
             // streets haven't been reflected, and it's cheap enough to use Dijkstra's for
             // calculating one path at a time anyway.
             let mut total_time = Duration::ZERO;
+            let mut ok = true;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
                     .and_then(|req| {
@@ -232,16 +251,23 @@ impl RoutePlanner {
                     total_time +=
                         path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED), None);
                     paths.push((path, *colors::PLAN_ROUTE_BIKE));
+                } else {
+                    ok = false;
                 }
             }
-            total_time
+            if ok {
+                Some(total_time)
+            } else {
+                None
+            }
         } else {
-            Duration::ZERO
+            None
         };
 
         let walking_time = if app.session.show_walking_cycling_routes {
             // Same as above -- don't use the built-in CH.
             let mut total_time = Duration::ZERO;
+            let mut ok = true;
             for pair in self.waypoints.get_waypoints().windows(2) {
                 if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Walk, map)
                     .and_then(|req| {
@@ -255,16 +281,30 @@ impl RoutePlanner {
                     total_time +=
                         path.estimate_duration(map, Some(map_model::MAX_WALKING_SPEED), None);
                     paths.push((path, *colors::PLAN_ROUTE_WALK));
+                } else {
+                    ok = false;
                 }
             }
-            total_time
+            if ok {
+                Some(total_time)
+            } else {
+                None
+            }
         } else {
-            Duration::ZERO
+            None
         };
 
         self.draw_routes = map_gui::tools::draw_overlapping_paths(app, paths)
             .unzoomed
             .upload(ctx);
+
+        fn render_time(d: Option<Duration>) -> TextSpan {
+            if let Some(d) = d {
+                Line(d.to_rounded_string(0))
+            } else {
+                Line("Error")
+            }
+        }
 
         Widget::col(vec![
             // TODO Circle icons
@@ -273,7 +313,7 @@ impl RoutePlanner {
                     .color(*colors::PLAN_ROUTE_BEFORE)
                     .into_widget(ctx),
                 "Driving before any changes".text_widget(ctx),
-                Line(driving_before_changes_time.to_rounded_string(0))
+                render_time(driving_before_changes_time)
                     .into_widget(ctx)
                     .align_right(),
             ]),
@@ -291,7 +331,7 @@ impl RoutePlanner {
                         .color(*colors::PLAN_ROUTE_AFTER)
                         .into_widget(ctx),
                     "Driving after changes".text_widget(ctx),
-                    Line(driving_after_changes_time.to_rounded_string(0))
+                    render_time(driving_after_changes_time)
                         .into_widget(ctx)
                         .align_right(),
                 ])
@@ -305,18 +345,14 @@ impl RoutePlanner {
                             .color(*colors::PLAN_ROUTE_BIKE)
                             .into_widget(ctx),
                         "Cycling".text_widget(ctx),
-                        Line(biking_time.to_rounded_string(0))
-                            .into_widget(ctx)
-                            .align_right(),
+                        render_time(biking_time).into_widget(ctx).align_right(),
                     ]),
                     Widget::row(vec![
                         Image::from_path("system/assets/meters/pedestrian.svg")
                             .color(*colors::PLAN_ROUTE_WALK)
                             .into_widget(ctx),
                         "Walking".text_widget(ctx),
-                        Line(walking_time.to_rounded_string(0))
-                            .into_widget(ctx)
-                            .align_right(),
+                        render_time(walking_time).into_widget(ctx).align_right(),
                     ]),
                 ])
             } else {
