@@ -571,6 +571,11 @@
 <span id="571">571</span>
 <span id="572">572</span>
 <span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your
 //! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public
 //! transit ride of your home?
@@ -703,7 +708,12 @@
                     <span class="kw">return </span>Transition::Push(<span class="kw">crate</span>::bus::BusExperiment::new_state(ctx, app));
                 }
                 <span class="string">&quot;Home&quot; </span>=&gt; {
-                    <span class="kw">return </span>Transition::Pop;
+                    <span class="kw">return </span>Transition::Clear(<span class="macro">vec!</span>[map_gui::tools::TitleScreen::new_state(
+                        ctx,
+                        app,
+                        map_gui::tools::Executable::FifteenMin,
+                        Box::new(|ctx, app, <span class="kw">_</span>| <span class="self">Self</span>::random_start(ctx, app)),
+                    )]);
                 }
                 <span class="string">&quot;change map&quot; </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(CityPicker::new_state(

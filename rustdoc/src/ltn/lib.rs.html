@@ -267,12 +267,6 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(clippy::type_complexity)]
 
 </span><span class="kw">use </span>structopt::StructOpt;
@@ -461,12 +455,6 @@
             app.per_map.consultation.unwrap(),
         ));
     } <span class="kw">else </span>{
-        states.push(map_gui::tools::TitleScreen::new_state(
-            ctx,
-            app,
-            map_gui::tools::Executable::LTN,
-            Box::new(|ctx, app, <span class="kw">_</span>| PickArea::new_state(ctx, app)),
-        ));
         states.push(PickArea::new_state(ctx, app));
     }
     <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = popup_state {
