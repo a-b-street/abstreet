@@ -99,12 +99,26 @@ impl CommuterPatterns {
         for (_, trip) in app.primary.sim.all_trip_info() {
             let block1 = match trip.start {
                 TripEndpoint::Building(b) => bldg_to_block[&b],
-                TripEndpoint::Border(i) => border_to_block[&i],
+                TripEndpoint::Border(i) => {
+                    if let Some(block) = border_to_block.get(&i) {
+                        *block
+                    } else {
+                        error!("No block for {i}?");
+                        continue;
+                    }
+                }
                 TripEndpoint::SuddenlyAppear(_) => continue,
             };
             let block2 = match trip.end {
                 TripEndpoint::Building(b) => bldg_to_block[&b],
-                TripEndpoint::Border(i) => border_to_block[&i],
+                TripEndpoint::Border(i) => {
+                    if let Some(block) = border_to_block.get(&i) {
+                        *block
+                    } else {
+                        error!("No block for {i}?");
+                        continue;
+                    }
+                }
                 TripEndpoint::SuddenlyAppear(_) => continue,
             };
             // Totally ignore trips within the same block
