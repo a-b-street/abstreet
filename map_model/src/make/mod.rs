@@ -87,7 +87,7 @@ impl Map {
                 polygon: i.polygon.clone(),
                 turns: Vec::new(),
                 movements: BTreeMap::new(),
-                elevation: i.elevation,
+                elevation: raw.elevation_per_intersection[&i.id],
                 // Might change later
                 kind: i.kind,
                 control: match i.control {
@@ -108,16 +108,17 @@ impl Map {
         }
 
         timer.start_iter("expand roads to lanes", raw.streets.roads.len());
-        for r in raw.streets.roads.values() {
+        for r in raw.streets.roads.values_mut() {
             timer.next();
 
             let road_id = road_id_mapping[&r.id];
             let i1 = intersection_id_mapping[&r.src_i];
             let i2 = intersection_id_mapping[&r.dst_i];
 
-            let barrier_nodes = snap_nodes_to_line(&r.barrier_nodes, &r.trimmed_center_line);
+            let extra = &raw.extra_road_data[&r.id];
+            let barrier_nodes = snap_nodes_to_line(&extra.barrier_nodes, &r.center_line);
             let crossing_nodes =
-                snap_nodes_with_data_to_line(&r.crossing_nodes, &r.trimmed_center_line);
+                snap_nodes_with_data_to_line(&extra.crossing_nodes, &r.center_line);
             let mut road = Road {
                 id: road_id,
                 // Arbitrarily remember OSM tags from one of the ways
@@ -160,16 +161,18 @@ impl Map {
                     })
                     .collect(),
                 lanes: Vec::new(),
-                center_pts: r.trimmed_center_line.clone(),
-                untrimmed_center_pts: r.untrimmed_road_geometry().0,
+                center_pts: r.center_line.clone(),
+                untrimmed_center_pts: r.get_untrimmed_center_line(raw.streets.config.driving_side),
+                trim_start: r.trim_start,
+                trim_end: r.trim_end,
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
                 zorder: r.layer,
                 access_restrictions: AccessRestrictions::new(),
-                percent_incline: r.percent_incline,
-                crosswalk_forward: r.crosswalk_forward,
-                crosswalk_backward: r.crosswalk_backward,
+                percent_incline: extra.percent_incline,
+                crosswalk_forward: extra.crosswalk_forward,
+                crosswalk_backward: extra.crosswalk_backward,
                 transit_stops: BTreeSet::new(),
                 barrier_nodes,
                 crossing_nodes,

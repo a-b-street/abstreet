@@ -8,8 +8,7 @@ use map_gui::render::{DrawMap, DrawOptions};
 use map_gui::tools::CameraState;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_gui::{AppLike, ID};
-use map_model::{AmenityType, IntersectionID, Map, RoutingParams};
-use osm2streets::CrossingType;
+use map_model::{AmenityType, CrossingType, IntersectionID, Map, RoutingParams};
 use widgetry::tools::URLManager;
 use widgetry::{
     Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, SharedAppState, State,

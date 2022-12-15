@@ -77,14 +77,14 @@ fn generate_input(input: &str, map: &RawMap) -> Result<Vec<(IntersectionID, Inte
         // Sample points along the road. Smaller step size gives more detail, but is slower.
         let mut pts = Vec::new();
         for (pt, _) in r
-            .untrimmed_center_line
+            .reference_line
             .step_along(Distance::meters(5.0), Distance::ZERO)
         {
             pts.push(pt);
         }
         // Always ask for the intersection
-        if *pts.last().unwrap() != r.untrimmed_center_line.last_pt() {
-            pts.push(r.untrimmed_center_line.last_pt());
+        if *pts.last().unwrap() != r.reference_line.last_pt() {
+            pts.push(r.reference_line.last_pt());
         }
         for (idx, gps) in map
             .streets
@@ -138,8 +138,8 @@ fn scrape_output(
             continue;
         }
         // TODO Also put total_climb and total_descent on the roads
-        map.streets.intersections.get_mut(&src_i).unwrap().elevation = values[0];
-        map.streets.intersections.get_mut(&dst_i).unwrap().elevation = values[1];
+        map.elevation_per_intersection.insert(src_i, values[0]);
+        map.elevation_per_intersection.insert(dst_i, values[1]);
     }
     if cnt != num_ids {
         bail!("Output had {} lines, but we made {} queries", cnt, num_ids);
@@ -147,23 +147,24 @@ fn scrape_output(
 
     // Calculate the incline for each road here, before the road gets trimmed for intersection
     // geometry. If we did this after trimming, we'd miss some of the horizontal distance.
-    for road in map.streets.roads.values_mut() {
-        let rise = map.streets.intersections[&road.dst_i].elevation
-            - map.streets.intersections[&road.src_i].elevation;
+    for road in map.streets.roads.values() {
+        let rise = map.elevation_per_intersection[&road.dst_i]
+            - map.elevation_per_intersection[&road.src_i];
         let run = road.untrimmed_length();
         if !(rise / run).is_finite() {
             // TODO Warn?
             continue;
         }
-        road.percent_incline = rise / run;
+        let data = map.extra_road_data.get_mut(&road.id).unwrap();
+        data.percent_incline = rise / run;
         // Per https://wiki.openstreetmap.org/wiki/Key:incline#Common_.26_extreme_inclines, we
         // shouldn't often see values outside a certain range. Adjust this when we import
         // somewhere exceeding this...
-        if road.percent_incline.abs() > 0.3 {
+        if data.percent_incline.abs() > 0.3 {
             error!(
                 "{} is unexpectedly steep! Incline is {}%",
                 road.id,
-                road.percent_incline * 100.0
+                data.percent_incline * 100.0
             );
         }
     }

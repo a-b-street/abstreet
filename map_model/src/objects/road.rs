@@ -7,11 +7,11 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::{Distance, PolyLine, Polygon, Speed};
-use osm2streets::CrossingType;
 
 use crate::{
-    osm, AccessRestrictions, CommonEndpoint, Direction, DrivingSide, IntersectionID, Lane, LaneID,
-    LaneSpec, LaneType, Map, OriginalRoad, PathConstraints, RestrictionType, TransitStopID, Zone,
+    osm, AccessRestrictions, CommonEndpoint, CrossingType, Direction, DrivingSide, IntersectionID,
+    Lane, LaneID, LaneSpec, LaneType, Map, OriginalRoad, PathConstraints, RestrictionType,
+    TransitStopID, Zone,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -180,6 +180,9 @@ pub struct Road {
     /// Like center_pts, but before any trimming for intersection geometry. This is preserved so
     /// that when modifying road width, intersection polygons can be calculated correctly.
     pub untrimmed_center_pts: PolyLine,
+    pub trim_start: Distance,
+    pub trim_end: Distance,
+
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
     /// Is there a tagged crosswalk near each end of the road?

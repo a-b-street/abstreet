@@ -46,13 +46,13 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
         }
         closest.add(
             (*id, true),
-            r.untrimmed_center_line
+            r.reference_line
                 .must_shift_right(DIRECTED_ROAD_THICKNESS)
                 .points(),
         );
         closest.add(
             (*id, false),
-            r.untrimmed_center_line
+            r.reference_line
                 .must_shift_left(DIRECTED_ROAD_THICKNESS)
                 .points(),
         );

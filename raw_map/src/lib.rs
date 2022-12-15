@@ -4,7 +4,7 @@
 
 use std::collections::BTreeMap;
 
-use osm2streets::{osm, RoadID, StreetNetwork};
+use osm2streets::{osm, IntersectionID, RoadID, StreetNetwork};
 use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
@@ -12,7 +12,7 @@ use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
     Tags,
 };
-use geom::{PolyLine, Polygon, Pt2D};
+use geom::{Distance, PolyLine, Polygon, Pt2D};
 
 pub use self::types::{Amenity, AmenityType, AreaType};
 
@@ -51,6 +51,17 @@ pub struct RawMap {
         deserialize_with = "deserialize_btreemap"
     )]
     pub osm_tags: BTreeMap<osm::WayID, Tags>,
+
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub extra_road_data: BTreeMap<RoadID, ExtraRoadData>,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub elevation_per_intersection: BTreeMap<IntersectionID, Distance>,
 }
 
 impl RawMap {
@@ -66,6 +77,8 @@ impl RawMap {
             transit_stops: BTreeMap::new(),
             bus_routes_on_roads: MultiMap::new(),
             osm_tags: BTreeMap::new(),
+            extra_road_data: BTreeMap::new(),
+            elevation_per_intersection: BTreeMap::new(),
         }
     }
 
@@ -133,4 +146,42 @@ pub struct RawTransitStop {
     /// Only stops within a map's boundary are kept
     pub position: Pt2D,
     pub name: String,
+}
+
+/// Classifies pedestrian and cyclist crossings. Note lots of detail is missing.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum CrossingType {
+    /// Part of some traffic signal
+    Signalized,
+    /// Not part of a traffic signal
+    Unsignalized,
+}
+
+/// Extra data associated with one Road
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ExtraRoadData {
+    pub percent_incline: f64,
+    /// Is there a tagged crosswalk near each end of the road?
+    pub crosswalk_forward: bool,
+    pub crosswalk_backward: bool,
+    // TODO Preserving these two across transformations (especially merging dual carriageways!)
+    // could be really hard. It might be better to split the road into two pieces to match the more
+    // often used OSM style.
+    /// Barrier nodes along this road's original center line.
+    pub barrier_nodes: Vec<Pt2D>,
+    /// Crossing nodes along this road's original center line.
+    pub crossing_nodes: Vec<(Pt2D, CrossingType)>,
+}
+
+impl ExtraRoadData {
+    pub fn default() -> Self {
+        Self {
+            percent_incline: 0.0,
+            // Start assuming there's a crosswalk everywhere, and maybe filter it down later
+            crosswalk_forward: true,
+            crosswalk_backward: true,
+            barrier_nodes: Vec::new(),
+            crossing_nodes: Vec::new(),
+        }
+    }
 }

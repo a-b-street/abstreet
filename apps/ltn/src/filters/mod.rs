@@ -7,8 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Line};
-use map_model::{EditRoad, IntersectionID, Map, RoadID, RoutingParams, TurnID};
-use osm2streets::CrossingType;
+use map_model::{CrossingType, EditRoad, IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 

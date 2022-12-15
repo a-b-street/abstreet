@@ -1,6 +1,6 @@
 use geom::Polygon;
 use map_gui::colors::ColorScheme;
-use osm2streets::CrossingType;
+use map_model::CrossingType;
 use widgetry::tools::ColorLegend;
 use widgetry::{
     ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx,

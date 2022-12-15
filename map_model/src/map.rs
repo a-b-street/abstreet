@@ -184,6 +184,9 @@ impl Map {
             IntersectionKind::MapEdge,
             IntersectionControl::Uncontrolled,
         );
+        raw.elevation_per_intersection.insert(i1, Distance::ZERO);
+        raw.elevation_per_intersection.insert(i2, Distance::ZERO);
+
         let mut tags = Tags::empty();
         tags.insert("highway", "residential");
         tags.insert("lanes", "2");
@@ -197,6 +200,8 @@ impl Map {
             tags,
             &raw.streets.config,
         ));
+        raw.extra_road_data
+            .insert(road_id, raw_map::ExtraRoadData::default());
 
         raw.buildings.insert(
             osm::OsmID::Way(osm::WayID(3)),
