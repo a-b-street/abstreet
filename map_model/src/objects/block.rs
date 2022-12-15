@@ -55,7 +55,7 @@ impl Perimeter {
             if i.is_border() {
                 bail!("hit the map boundary");
             }
-            let mut sorted_roads = i.get_road_sides_sorted_by_incoming_angle(map);
+            let mut sorted_roads = i.get_road_sides_sorted(map);
             sorted_roads.retain(|id| !skip.contains(&id.road));
             let idx = sorted_roads
                 .iter()

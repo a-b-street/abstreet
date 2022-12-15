@@ -48,8 +48,8 @@ pub struct Intersection {
     pub incoming_lanes: Vec<LaneID>,
     pub outgoing_lanes: Vec<LaneID>,
 
-    // TODO Maybe DirectedRoadIDs
-    pub roads: BTreeSet<RoadID>,
+    // These're ordered clockwise around the intersection
+    pub roads: Vec<RoadID>,
 
     /// Was a short road adjacent to this intersection merged?
     pub merged: bool,
@@ -151,29 +151,11 @@ impl Intersection {
             .unwrap()
     }
 
-    pub fn get_roads_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadID> {
-        let center = self.polygon.center();
-        let mut roads: Vec<RoadID> = self.roads.iter().cloned().collect();
-        roads.sort_by_key(|id| {
-            let r = map.get_r(*id);
-            let endpt = if r.src_i == self.id {
-                r.center_pts.first_pt()
-            } else if r.dst_i == self.id {
-                r.center_pts.last_pt()
-            } else {
-                unreachable!();
-            };
-            endpt.angle_to(center).normalized_degrees() as i64
-        });
-        roads
-    }
-
-    // TODO walking_turns_v2 and the intersection geometry algorithm also do something like this.
-    // Refactor?
-    pub fn get_road_sides_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadSideID> {
+    // TODO Use osm2streets RoadEdge?
+    pub fn get_road_sides_sorted(&self, map: &Map) -> Vec<RoadSideID> {
         let mut sides = Vec::new();
-        for r in self.get_roads_sorted_by_incoming_angle(map) {
-            let r = map.get_r(r);
+        for r in &self.roads {
+            let r = map.get_r(*r);
             if r.dst_i == self.id {
                 sides.push(RoadSideID {
                     road: r.id,
@@ -202,12 +184,8 @@ impl Intersection {
     /// heuristics for a 3-way intersection to not care if one of the roads happens to be a dual
     /// carriageway (split into two one-ways).
     pub fn get_sorted_incoming_roads(&self, map: &Map) -> Vec<RoadID> {
-        let mut roads = Vec::new();
-        for r in self.get_roads_sorted_by_incoming_angle(map) {
-            if !map.get_r(r).incoming_lanes(self.id).is_empty() {
-                roads.push(r);
-            }
-        }
+        let mut roads = self.roads.clone();
+        roads.retain(|r| !map.get_r(*r).incoming_lanes(self.id).is_empty());
         roads
     }
 

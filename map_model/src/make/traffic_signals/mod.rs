@@ -43,7 +43,7 @@ pub fn get_possible_policies(map: &Map, id: IntersectionID) -> Vec<(String, Cont
     if let Some(ts) = lagging_green::make_traffic_signal(map, i) {
         results.push(("lagging green".to_string(), ts));
     }
-    results.push(("stage per road".to_string(), stage_per_road(map, i)));
+    results.push(("stage per road".to_string(), stage_per_road(i)));
     results.push(("arbitrary assignment".to_string(), greedy_assignment(i)));
     results.push((
         "all walk, then free-for-all yield".to_string(),
@@ -280,10 +280,10 @@ fn all_walk_all_yield(i: &Intersection) -> ControlTrafficSignal {
     ts
 }
 
-fn stage_per_road(map: &Map, i: &Intersection) -> ControlTrafficSignal {
+fn stage_per_road(i: &Intersection) -> ControlTrafficSignal {
     let mut ts = new(i.id);
 
-    let sorted_roads = i.get_roads_sorted_by_incoming_angle(map);
+    let sorted_roads = i.roads.clone();
     for idx in 0..sorted_roads.len() {
         let r = sorted_roads[idx];
         let adj1 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) - 1);
