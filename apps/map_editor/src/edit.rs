@@ -21,13 +21,13 @@ impl EditRoad {
         if app.model.intersection_geom {
             batch.push(
                 Color::BLACK,
-                road.trimmed_center_line
+                road.center_line
                     .make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
             );
         } else {
             batch.push(
                 Color::BLACK,
-                road.untrimmed_center_line
+                road.reference_line
                     .make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
             );
         }
@@ -50,7 +50,7 @@ impl EditRoad {
         if app.model.intersection_geom {
             txt.add_line(Line(format!(
                 "Length after trimming: {}",
-                road.trimmed_center_line.length()
+                road.center_line.length()
             )));
         }
         for (rt, to) in &road.turn_restrictions {

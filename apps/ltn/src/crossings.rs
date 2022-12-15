@@ -3,8 +3,7 @@ use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 use abstutil::PriorityQueueItem;
 use geom::{Circle, Duration};
 use map_gui::tools::DrawSimpleRoadLabels;
-use map_model::RoadID;
-use osm2streets::CrossingType;
+use map_model::{CrossingType, RoadID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, ObjectID, PerZoom, World, WorldOutcome};
 use widgetry::{
     lctrl, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,

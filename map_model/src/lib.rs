@@ -42,7 +42,7 @@ pub use osm2streets::{
     LaneType, MapConfig, NamePerLanguage, OriginalRoad, RestrictionType, NORMAL_LANE_THICKNESS,
     SIDEWALK_THICKNESS,
 };
-pub use raw_map::{Amenity, AmenityType, AreaType};
+pub use raw_map::{Amenity, AmenityType, AreaType, CrossingType};
 
 pub use crate::city::City;
 pub use crate::edits::{

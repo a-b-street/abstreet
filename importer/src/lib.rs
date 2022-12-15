@@ -57,7 +57,7 @@ pub async fn oneshot(
     println!("- Running convert_osm on {}", osm_path);
     let name = abstutil::basename(&osm_path);
     let mut options = convert_osm::Options::default();
-    options.map_config.filter_crosswalks = filter_crosswalks;
+    options.filter_crosswalks = filter_crosswalks;
     let raw = convert_osm::convert(
         osm_path,
         MapName::new("zz", "oneshot", &name),

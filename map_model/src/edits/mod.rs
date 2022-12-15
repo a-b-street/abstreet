@@ -599,39 +599,19 @@ fn recalculate_intersection_polygon(
     for r in &intersection.roads {
         let r = map.get_r(*r);
 
-        let half_width = if r.id == changed_road {
-            changed_road_width / 2.0
+        let total_width = if r.id == changed_road {
+            changed_road_width
         } else {
-            r.get_half_width()
+            r.get_width()
         };
-
-        let mut trimmed_center_pts = r.center_pts.clone();
-        // intersection_polygon assumes the end of the center points extends all of the way into
-        // the intersection itself. So untrim in the direction we're about to modify. If for some
-        // reason this fails, the size of the intersection might unrealisticalluy grow.
-        if r.src_i == i {
-            if let Some(pl) = r
-                .untrimmed_center_pts
-                .safe_get_slice_ending_at(trimmed_center_pts.first_pt())
-                .and_then(|pl| pl.extend(trimmed_center_pts.clone()).ok())
-            {
-                trimmed_center_pts = pl;
-            }
-        } else if let Some(pl) = r
-            .untrimmed_center_pts
-            .safe_get_slice_starting_at(trimmed_center_pts.last_pt())
-            .and_then(|pl| trimmed_center_pts.clone().extend(pl).ok())
-        {
-            trimmed_center_pts = pl;
-        }
 
         input_roads.push(InputRoad {
             // Just map our IDs to something in osm2streets ID space.
             id: osm2streets::RoadID(r.id.0),
             src_i: osm2streets::IntersectionID(r.src_i.0),
             dst_i: osm2streets::IntersectionID(r.dst_i.0),
-            center_pts: trimmed_center_pts,
-            half_width,
+            center_line: r.untrimmed_center_pts.clone(),
+            total_width,
             highway_type: r.osm_tags.get(osm::HIGHWAY).unwrap().to_string(),
         });
     }
@@ -646,11 +626,40 @@ fn recalculate_intersection_polygon(
     .unwrap();
 
     map.intersections[i.0].polygon = results.intersection_polygon;
-    // Copy over the re-trimmed road centers
+
+    // Recalculate trimmed centers
     let mut affected = Vec::new();
-    for (id, (pl, _)) in results.trimmed_center_pts {
+    for (id, dist) in results.trim_starts {
         let id = RoadID(id.0);
-        map.roads[id.0].center_pts = pl;
+        let road = &mut map.roads[id.0];
+        road.trim_start = dist;
+        if let Some(pl) = osm2streets::Road::trim_polyline_both_ends(
+            road.untrimmed_center_pts.clone(),
+            road.trim_start,
+            road.trim_end,
+        ) {
+            road.center_pts = pl;
+        } else {
+            // If the road geometrically vanishes, don't do anything for now
+            error!("{} on trim_start broke", road.id);
+        }
+        if id != changed_road {
+            affected.push(id);
+        }
+    }
+    for (id, dist) in results.trim_ends {
+        let id = RoadID(id.0);
+        let road = &mut map.roads[id.0];
+        road.trim_end = dist;
+        if let Some(pl) = osm2streets::Road::trim_polyline_both_ends(
+            road.untrimmed_center_pts.clone(),
+            road.trim_start,
+            road.trim_end,
+        ) {
+            road.center_pts = pl;
+        } else {
+            error!("{} on trim_end broke", road.id);
+        }
         if id != changed_road {
             affected.push(id);
         }

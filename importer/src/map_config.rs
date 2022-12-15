@@ -58,7 +58,6 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
                     }
                 }
             },
-            filter_crosswalks: false,
             merge_osm_ways: abstio::maybe_read_json::<BTreeSet<osm2streets::OriginalRoad>>(
                 "merge_osm_ways.json".to_string(),
                 &mut Timer::throwaway(),
@@ -67,6 +66,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             .unwrap_or_else(BTreeSet::new),
             osm2lanes: false,
         },
+        filter_crosswalks: false,
         onstreet_parking: match name.city.city.as_ref() {
             "seattle" => {
                 convert_osm::OnstreetParking::Blockface(name.city.input_path("blockface.bin"))

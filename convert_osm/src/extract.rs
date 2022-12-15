@@ -1,13 +1,25 @@
-use osm::{OsmID, RelationID, WayID};
+use std::collections::HashSet;
 
 use abstutil::{MultiMap, Tags, Timer};
-use geom::{Distance, FindClosest, Polygon, Pt2D, Ring};
+use geom::{Distance, FindClosest, HashablePt2D, Polygon, Pt2D, Ring};
+use osm2streets::osm::{OsmID, RelationID, WayID};
 use osm2streets::{osm, DrivingSide, NamePerLanguage};
-use raw_map::{Amenity, AreaType, RawArea, RawBuilding, RawMap, RawParkingLot};
+use raw_map::{Amenity, AreaType, CrossingType, RawArea, RawBuilding, RawMap, RawParkingLot};
 
 use crate::Options;
 use streets_reader::osm_reader::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
 use streets_reader::OsmExtract;
+
+pub struct Extract {
+    pub osm: OsmExtract,
+    pub doc: streets_reader::osm_reader::Document,
+    pub bus_routes_on_roads: MultiMap<WayID, String>,
+    /// Crossings located at these points, which should be on a Road's center line
+    pub crossing_nodes: HashSet<(HashablePt2D, CrossingType)>,
+    /// Some kind of barrier nodes at these points. Only the ones on a Road center line are
+    /// relevant.
+    pub barrier_nodes: HashSet<HashablePt2D>,
+}
 
 pub fn extract_osm(
     map: &mut RawMap,
@@ -15,11 +27,7 @@ pub fn extract_osm(
     clip_path: Option<String>,
     opts: &Options,
     timer: &mut Timer,
-) -> (
-    OsmExtract,
-    streets_reader::osm_reader::Document,
-    MultiMap<osm::WayID, String>,
-) {
+) -> Extract {
     let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
     let mut doc =
         streets_reader::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
@@ -39,7 +47,9 @@ pub fn extract_osm(
 
     let mut out = OsmExtract::new();
     let mut amenity_points = Vec::new();
-    let mut bus_routes_on_roads: MultiMap<osm::WayID, String> = MultiMap::new();
+    let mut bus_routes_on_roads: MultiMap<WayID, String> = MultiMap::new();
+    let mut crossing_nodes = HashSet::new();
+    let mut barrier_nodes = HashSet::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for (id, node) in &doc.nodes {
@@ -47,6 +57,20 @@ pub fn extract_osm(
         out.handle_node(*id, node);
         for amenity in get_bldg_amenities(&node.tags) {
             amenity_points.push((node.pt, amenity));
+        }
+        if node.tags.is(osm::HIGHWAY, "crossing") {
+            // TODO Look for crossing:signals:* too.
+            // https://wiki.openstreetmap.org/wiki/Tag:crossing=traffic%20signals?uselang=en
+            let kind = if node.tags.is("crossing", "traffic_signals") {
+                CrossingType::Signalized
+            } else {
+                CrossingType::Unsignalized
+            };
+            crossing_nodes.insert((node.pt.to_hashable(), kind));
+        }
+        // TODO Any kind of barrier?
+        if node.tags.is("barrier", "bollard") {
+            barrier_nodes.insert(node.pt.to_hashable());
         }
     }
 
@@ -221,7 +245,7 @@ pub fn extract_osm(
             .retain(|_, b| !area.contains_pt(b.polygon.center()));
     }
 
-    let mut closest_bldg: FindClosest<osm::OsmID> =
+    let mut closest_bldg: FindClosest<OsmID> =
         FindClosest::new(&map.streets.gps_bounds.to_bounds());
     for (id, b) in &map.buildings {
         closest_bldg.add_polygon(*id, &b.polygon);
@@ -262,7 +286,13 @@ pub fn extract_osm(
     find_parking_aisles(map, &mut out.roads);
     timer.stop("find service roads crossing parking lots");
 
-    (out, doc, bus_routes_on_roads)
+    Extract {
+        osm: out,
+        doc,
+        bus_routes_on_roads,
+        crossing_nodes,
+        barrier_nodes,
+    }
 }
 
 fn is_bldg(tags: &Tags) -> bool {

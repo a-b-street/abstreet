@@ -114,13 +114,14 @@ impl Model {
             i.point = i.point.offset(-top_left.x(), -top_left.y());
         }
         for r in self.map.streets.roads.values_mut() {
-            r.untrimmed_center_line = PolyLine::must_new(
-                r.untrimmed_center_line
+            r.reference_line = PolyLine::must_new(
+                r.reference_line
                     .points()
                     .iter()
                     .map(|pt| pt.offset(-top_left.x(), -top_left.y()))
                     .collect(),
             );
+            r.update_center_line(self.map.streets.config.driving_side);
         }
         let pt1 = Pt2D::new(0.0, 0.0);
         let pt2 = bottom_right.offset(-top_left.x(), -top_left.y());
@@ -156,7 +157,7 @@ impl Model {
             bounds.update(i.point);
         }
         for r in self.map.streets.roads.values() {
-            for pt in r.untrimmed_center_line.points() {
+            for pt in r.reference_line.points() {
                 bounds.update(*pt);
             }
         }
@@ -221,7 +222,7 @@ impl Model {
         for r in &self.map.streets.intersections[&id].roads {
             fixed.push(*r);
             let road = self.map.streets.roads.get_mut(r).unwrap();
-            let mut pts = road.untrimmed_center_line.clone().into_points();
+            let mut pts = road.reference_line.clone().into_points();
             if road.src_i == id {
                 pts[0] = point;
             } else {
@@ -229,7 +230,8 @@ impl Model {
                 *pts.last_mut().unwrap() = point;
             }
             // TODO This could panic if someone moves the intersection a certain way
-            road.untrimmed_center_line = PolyLine::must_new(pts);
+            road.reference_line = PolyLine::must_new(pts);
+            road.update_center_line(self.map.streets.config.driving_side);
         }
 
         for r in fixed {
@@ -296,7 +298,8 @@ impl Model {
 impl Model {
     pub fn road_added(&mut self, ctx: &EventCtx, id: RoadID) {
         let road = &self.map.streets.roads[&id];
-        let (center, total_width) = road.untrimmed_road_geometry();
+        let center = road.center_line.clone();
+        let total_width = road.total_width();
         let hitbox = center.make_polygons(total_width);
         let mut draw = GeomBatch::new();
         draw.push(
@@ -353,7 +356,7 @@ impl Model {
         osm_tags.insert("name", "Streety McStreetFace");
         osm_tags.insert("maxspeed", "25 mph");
 
-        let untrimmed_center_line = match PolyLine::new(vec![
+        let reference_line = match PolyLine::new(vec![
             self.map.streets.intersections[&i1].point,
             self.map.streets.intersections[&i2].point,
         ]) {
@@ -373,7 +376,7 @@ impl Model {
             Vec::new(),
             i1,
             i2,
-            untrimmed_center_line,
+            reference_line,
             osm_tags,
             &self.map.streets.config,
         ));
@@ -406,9 +409,9 @@ impl Model {
         self.showing_pts = Some(id);
 
         let r = &self.map.streets.roads[&id];
-        for (idx, pt) in r.untrimmed_center_line.points().iter().enumerate() {
+        for (idx, pt) in r.reference_line.points().iter().enumerate() {
             // Don't show handles for the intersections
-            if idx != 0 && idx != r.untrimmed_center_line.points().len() - 1 {
+            if idx != 0 && idx != r.reference_line.points().len() - 1 {
                 self.world
                     .add(ID::RoadPoint(id, idx))
                     .hitbox(Circle::new(*pt, INTERSECTION_RADIUS / 2.0).to_polygon())
@@ -427,12 +430,7 @@ impl Model {
             return;
         }
         self.showing_pts = None;
-        for idx in 1..=self.map.streets.roads[&id]
-            .untrimmed_center_line
-            .points()
-            .len()
-            - 2
-        {
+        for idx in 1..=self.map.streets.roads[&id].reference_line.points().len() - 2 {
             self.world.delete(ID::RoadPoint(id, idx));
         }
     }
@@ -441,12 +439,7 @@ impl Model {
         assert_eq!(self.showing_pts, Some(id));
         // stop_showing_pts deletes the points, but we want to use delete_before_replacement
         self.showing_pts = None;
-        for idx in 1..=self.map.streets.roads[&id]
-            .untrimmed_center_line
-            .points()
-            .len()
-            - 2
-        {
+        for idx in 1..=self.map.streets.roads[&id].reference_line.points().len() - 2 {
             self.world.delete_before_replacement(ID::RoadPoint(id, idx));
         }
 
@@ -457,17 +450,11 @@ impl Model {
         self.world
             .delete_before_replacement(ID::Intersection(endpts[1]));
 
-        let mut pts = self.map.streets.roads[&id]
-            .untrimmed_center_line
-            .clone()
-            .into_points();
+        let road = self.map.streets.roads.get_mut(&id).unwrap();
+        let mut pts = road.reference_line.clone().into_points();
         pts[idx] = point;
-        self.map
-            .streets
-            .roads
-            .get_mut(&id)
-            .unwrap()
-            .untrimmed_center_line = PolyLine::must_new(pts);
+        road.reference_line = PolyLine::must_new(pts);
+        road.update_center_line(self.map.streets.config.driving_side);
 
         self.road_added(ctx, id);
         self.intersection_added(ctx, endpts[0]);
@@ -491,17 +478,11 @@ impl Model {
         self.world
             .delete_before_replacement(ID::Intersection(endpts[1]));
 
-        let mut pts = self.map.streets.roads[&id]
-            .untrimmed_center_line
-            .clone()
-            .into_points();
+        let road = self.map.streets.roads.get_mut(&id).unwrap();
+        let mut pts = road.reference_line.clone().into_points();
         transform(&mut pts);
-        self.map
-            .streets
-            .roads
-            .get_mut(&id)
-            .unwrap()
-            .untrimmed_center_line = PolyLine::must_new(pts);
+        road.reference_line = PolyLine::must_new(pts);
+        road.update_center_line(self.map.streets.config.driving_side);
 
         self.road_added(ctx, id);
         self.intersection_added(ctx, endpts[0]);
@@ -651,7 +632,7 @@ fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
     }
     for (id, r) in &map.streets.roads {
         writeln!(f, r#"    <way id="{}">"#, id.0)?;
-        for pt in r.untrimmed_center_line.points() {
+        for pt in r.reference_line.points() {
             // TODO Make new IDs if needed
             writeln!(
                 f,
