@@ -14,7 +14,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     // Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather
     // those in order, remembering what roads don't have them.
     let mut lanes: Vec<Option<&Lane>> = Vec::new();
-    let mut sorted_roads = i.get_roads_sorted_by_incoming_angle(map);
+    let mut sorted_roads = i.roads.clone();
     // And for left-handed driving, we need to walk around in the opposite order.
     if driving_side == DrivingSide::Left {
         sorted_roads.reverse();

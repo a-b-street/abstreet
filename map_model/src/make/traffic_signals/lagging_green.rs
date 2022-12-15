@@ -33,7 +33,7 @@ fn make_signal(i: &Intersection, map: &Map) -> Option<ControlTrafficSignal> {
     if let Err(err) = ts.validate(i) {
         // when all else fails, use stage per road and all-walk stage at the end
         debug!("multi-way validation_error={} ts={:#?}", err, ts);
-        ts = stage_per_road(map, i);
+        ts = stage_per_road(i);
         ts.convert_to_ped_scramble(i);
     }
     Some(ts)
