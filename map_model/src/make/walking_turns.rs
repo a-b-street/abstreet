@@ -281,8 +281,8 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
         return baseline;
     }
 
-    if let Ok(pl) =
-        PolyLine::must_new(i_pts).shift_either_direction(dir * l1.width.min(l2.width) / 2.0)
+    if let Ok(pl) = PolyLine::new(i_pts)
+        .and_then(|pl| pl.shift_either_direction(dir * l1.width.min(l2.width) / 2.0))
     {
         // The first and last points should be approximately l2's and l1's endpoints
         pts_between.extend(pl.points().iter().take(pl.points().len() - 1).skip(1));
@@ -314,18 +314,21 @@ fn make_shared_sidewalk_corner(i: &Intersection, l1: &Lane, l2: &Lane) -> PolyLi
         );
         return baseline;
     }
-    let result = PolyLine::must_new(pts_between);
-    if result.length() > 10.0 * baseline.length() {
-        warn!(
-            "SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
-             line",
-            l1.id,
-            l2.id,
-            result.length()
-        );
-        return baseline;
+    if let Ok(result) = PolyLine::new(pts_between) {
+        if result.length() > 10.0 * baseline.length() {
+            warn!(
+                "SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
+                 line",
+                l1.id,
+                l2.id,
+                result.length()
+            );
+            return baseline;
+        }
+        result
+    } else {
+        baseline
     }
-    result
 }
 
 // Never in any circumstance should we produce a polyline with only one point (or two points

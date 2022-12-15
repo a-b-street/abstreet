@@ -880,7 +880,19 @@ impl Map {
         let movements = timer.parallelize(
             "generate movements",
             self.intersections.iter().map(|i| i.id).collect(),
-            |i| Movement::for_i(i, self),
+            |i| {
+                // TODO Hack around geometry problems generating these, usually at intersections
+                // without valid geometry. Stuff downstream probably breaks.
+                match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    Movement::for_i(i, self)
+                })) {
+                    Ok(result) => result,
+                    Err(err) => {
+                        error!("Movement::for_i broke on {i}: {err:?}");
+                        BTreeMap::new()
+                    }
+                }
+            },
         );
         for (i, movements) in self.intersections.iter_mut().zip(movements.into_iter()) {
             i.movements = movements;
