@@ -197,14 +197,18 @@ impl Map {
                 );
             }
             if i.control == IntersectionControl::Signalled {
-                let mut ok = false;
+                let mut ok = true;
                 for r in &i.roads {
+                    let road = &map.roads[r.0];
                     // Skip signals only connected to roads under construction or purely to control
                     // light rail tracks.
-                    if !map.roads[r.0].osm_tags.is(osm::HIGHWAY, "construction")
-                        && !map.roads[r.0].is_light_rail()
-                    {
-                        ok = true;
+                    if road.osm_tags.is(osm::HIGHWAY, "construction") || road.is_light_rail() {
+                        ok = false;
+                        break;
+                    }
+                    // Skip signals that likely don't have correct intersection geometry
+                    if road.trim_start == Distance::ZERO || road.trim_end == Distance::ZERO {
+                        ok = false;
                         break;
                     }
                 }
