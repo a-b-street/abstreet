@@ -39,7 +39,7 @@ use abstutil::{
 use geom::{Bounds, GPSBounds, Polygon};
 pub use osm2streets::{
     osm, BufferType, Direction, DrivingSide, IntersectionControl, IntersectionKind, LaneSpec,
-    LaneType, MapConfig, NamePerLanguage, OriginalRoad, RestrictionType, NORMAL_LANE_THICKNESS,
+    LaneType, MapConfig, NamePerLanguage, RestrictionType, NORMAL_LANE_THICKNESS,
     SIDEWALK_THICKNESS,
 };
 pub use raw_map::{Amenity, AmenityType, AreaType, CrossingType};
@@ -56,7 +56,9 @@ pub use crate::objects::intersection::{Intersection, IntersectionID};
 pub use crate::objects::lane::{CommonEndpoint, Lane, LaneID, PARKING_LOT_SPOT_LENGTH};
 pub use crate::objects::movement::{CompressedMovementID, Movement, MovementID};
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
-pub use crate::objects::road::{DirectedRoadID, Road, RoadID, RoadSideID, SideOfRoad};
+pub use crate::objects::road::{
+    DirectedRoadID, OriginalRoad, Road, RoadID, RoadSideID, SideOfRoad,
+};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{ControlTrafficSignal, Stage, StageType};
 pub use crate::objects::transit::{TransitRoute, TransitRouteID, TransitStop, TransitStopID};

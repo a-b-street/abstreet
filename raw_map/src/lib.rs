@@ -92,7 +92,7 @@ impl RawMap {
 
     // Only returns tags for one of the way IDs arbitrarily!
     pub fn road_to_osm_tags(&self, id: RoadID) -> Option<&Tags> {
-        let way = self.streets.roads[&id].osm_ids.get(0)?.osm_way_id;
+        let way = self.streets.roads[&id].osm_ids.get(0)?;
         self.osm_tags.get(&way)
     }
 }

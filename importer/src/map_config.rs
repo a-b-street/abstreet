@@ -1,7 +1,4 @@
-use std::collections::BTreeSet;
-
 use abstio::{CityName, MapName};
-use abstutil::Timer;
 use geom::Distance;
 use map_model::DrivingSide;
 
@@ -44,12 +41,6 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
                     }
                 }
             },
-            merge_osm_ways: abstio::maybe_read_json::<BTreeSet<osm2streets::OriginalRoad>>(
-                "merge_osm_ways.json".to_string(),
-                &mut Timer::throwaway(),
-            )
-            .ok()
-            .unwrap_or_else(BTreeSet::new),
             osm2lanes: false,
         },
         filter_crosswalks: false,

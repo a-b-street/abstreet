@@ -10,8 +10,7 @@ use geom::{Distance, PolyLine, Polygon, Speed};
 
 use crate::{
     osm, AccessRestrictions, CommonEndpoint, CrossingType, Direction, DrivingSide, IntersectionID,
-    Lane, LaneID, LaneSpec, LaneType, Map, OriginalRoad, PathConstraints, RestrictionType,
-    TransitStopID, Zone,
+    Lane, LaneID, LaneSpec, LaneType, Map, PathConstraints, RestrictionType, TransitStopID, Zone,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -679,6 +678,40 @@ impl Road {
             self.children_forwards()
         } else {
             panic!("{} doesn't have an endpoint at {}", self.id, i);
+        }
+    }
+}
+
+/// Refers to a road segment between two nodes, using OSM IDs. Note OSM IDs are not stable over
+/// time and the relationship between a road/intersection and way/node isn't 1:1 at all.
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OriginalRoad {
+    pub osm_way_id: osm::WayID,
+    pub i1: osm::NodeID,
+    pub i2: osm::NodeID,
+}
+
+impl fmt::Display for OriginalRoad {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "OriginalRoad({} from {} to {}",
+            self.osm_way_id, self.i1, self.i2
+        )
+    }
+}
+impl fmt::Debug for OriginalRoad {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
+impl OriginalRoad {
+    pub fn new(way: i64, (i1, i2): (i64, i64)) -> OriginalRoad {
+        OriginalRoad {
+            osm_way_id: osm::WayID(way),
+            i1: osm::NodeID(i1),
+            i2: osm::NodeID(i2),
         }
     }
 }

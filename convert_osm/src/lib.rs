@@ -113,7 +113,7 @@ pub fn convert(
     let mut way_ids = HashSet::new();
     for r in map.streets.roads.values() {
         for id in &r.osm_ids {
-            way_ids.insert(id.osm_way_id);
+            way_ids.insert(*id);
         }
     }
     for (id, way) in extract.doc.ways {

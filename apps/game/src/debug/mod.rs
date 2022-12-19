@@ -165,15 +165,6 @@ impl DebugMode {
                         .btn_outline
                         .text("find bad intersection polygons")
                         .build_def(ctx),
-                    if cfg!(not(target_arch = "wasm32")) {
-                        ctx.style()
-                            .btn_outline
-                            .text("undo all merged roads")
-                            .hotkey(lctrl(Key::M))
-                            .build_def(ctx)
-                    } else {
-                        Widget::nothing()
-                    },
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
@@ -410,15 +401,6 @@ impl State<App> for DebugMode {
                     });
                     self.reset_info(ctx);
                 }
-                #[cfg(not(target_arch = "wasm32"))]
-                "undo all merged roads" => {
-                    if let Err(err) =
-                        fs_err::rename("merge_osm_ways.json", "UNDO_merge_osm_ways.json")
-                    {
-                        warn!("No merged road file? {}", err);
-                    }
-                    return Transition::Push(reimport_map(ctx, app, None));
-                }
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
@@ -620,9 +602,6 @@ impl ContextualActions for Actions {
                 actions.push((Key::C, "export roads".to_string()));
                 actions.push((Key::E, "show equiv_pos".to_string()));
                 actions.push((Key::B, "trace this block".to_string()));
-                if cfg!(not(target_arch = "wasm32")) {
-                    actions.push((Key::M, "merge short segment".to_string()));
-                }
             }
             ID::Intersection(i) => {
                 actions.push((Key::H, "hide this".to_string()));
@@ -822,17 +801,6 @@ impl ContextualActions for Actions {
                         }
                     },
                 );
-            }
-            #[cfg(not(target_arch = "wasm32"))]
-            (ID::Lane(l), "merge short segment") => {
-                let mut timer = Timer::throwaway();
-                let mut ways: Vec<map_model::OriginalRoad> =
-                    abstio::maybe_read_json("merge_osm_ways.json".to_string(), &mut timer)
-                        .unwrap_or_else(|_| Vec::new());
-                let orig_ways = ways.clone();
-                ways.push(app.primary.map.get_parent(l).orig_id);
-                abstio::write_json("merge_osm_ways.json".to_string(), &ways);
-                Transition::Push(reimport_map(ctx, app, Some(orig_ways)))
             }
             (ID::Area(a), "debug area geometry") => {
                 let pts = app
@@ -1060,44 +1028,6 @@ fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
         }
     }
     ctx.upload(batch)
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn reimport_map(
-    ctx: &mut EventCtx,
-    app: &App,
-    rollback: Option<Vec<map_model::OriginalRoad>>,
-) -> Box<dyn State<App>> {
-    map_gui::tools::RunCommand::new_state(
-        ctx,
-        false,
-        vec![
-            map_gui::tools::find_exe("cli"),
-            "import".to_string(),
-            "--map".to_string(),
-            app.primary.map.get_name().map.clone(),
-            format!("--city={}", app.primary.map.get_name().city.to_path()),
-            "--skip-ch".to_string(),
-        ],
-        Box::new(|ctx, app, success, _| {
-            if !success {
-                if let Some(ways) = rollback {
-                    if let Err(err) =
-                        fs_err::copy("merge_osm_ways.json", "BROKEN_merge_osm_ways.json")
-                    {
-                        warn!("No merged road file? {}", err);
-                    }
-                    abstio::write_json("merge_osm_ways.json".to_string(), &ways);
-                }
-            }
-
-            Transition::Push(MapLoader::force_reload(
-                ctx,
-                app.primary.map.get_name().clone(),
-                Box::new(|_, _| Transition::Pop),
-            ))
-        }),
-    )
 }
 
 fn draw_bad_intersections(ctx: &mut EventCtx, app: &App) -> Drawable {
