@@ -33,20 +33,6 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
                 Distance::meters(8.0)
             },
             turn_on_red: name.city.country == "us" && name.city.city != "nyc",
-            find_dog_legs_experiment: vec![
-                MapName::seattle("montlake"),
-                MapName::seattle("downtown"),
-                MapName::seattle("lakeslice"),
-                MapName::new("us", "phoenix", "tempe"),
-                MapName::new("gb", "bristol", "east"),
-                //MapName::new("gb", "leeds", "north"),
-                //MapName::new("gb", "london", "camden"),
-                MapName::new("gb", "london", "kennington"),
-                //MapName::new("gb", "london", "southwark"),
-                //MapName::new("gb", "manchester", "levenshulme"),
-                MapName::new("pl", "krakow", "center"),
-            ]
-            .contains(name),
             include_railroads: match name.city.city.as_ref() {
                 "phoenix" | "seattle" | "tucson" => false,
                 _ => {

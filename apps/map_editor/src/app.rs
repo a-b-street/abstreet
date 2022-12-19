@@ -101,10 +101,6 @@ impl MainState {
                             .build_def(ctx),
                         ctx.style()
                             .btn_outline
-                            .text("detect short roads")
-                            .build_def(ctx),
-                        ctx.style()
-                            .btn_outline
                             .text("simplify RawMap")
                             .build_def(ctx),
                     ])
@@ -262,12 +258,6 @@ impl State<App> for MainState {
                     Outcome::Clicked(x) => match x.as_ref() {
                         "adjust boundary" => {
                             self.mode = Mode::SetBoundaryPt1;
-                        }
-                        "detect short roads" => {
-                            for r in app.model.map.streets.find_dog_legs() {
-                                app.model.road_deleted(r);
-                                app.model.road_added(ctx, r);
-                            }
                         }
                         "simplify RawMap" => {
                             ctx.loading_screen("simplify", |ctx, timer| {

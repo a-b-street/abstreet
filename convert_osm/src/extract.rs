@@ -1,13 +1,13 @@
 use std::collections::HashSet;
 
 use abstutil::{MultiMap, Tags, Timer};
-use geom::{Distance, FindClosest, HashablePt2D, Polygon, Pt2D, Ring};
+use geom::{Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D, Ring};
 use osm2streets::osm::{OsmID, RelationID, WayID};
 use osm2streets::{osm, DrivingSide, NamePerLanguage};
 use raw_map::{Amenity, AreaType, CrossingType, RawArea, RawBuilding, RawMap, RawParkingLot};
 
 use crate::Options;
-use streets_reader::osm_reader::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
+use streets_reader::osm_reader::glue_multipolygon;
 use streets_reader::OsmExtract;
 
 pub struct Extract {
@@ -24,19 +24,30 @@ pub struct Extract {
 pub fn extract_osm(
     map: &mut RawMap,
     osm_input_path: &str,
-    clip_path: Option<String>,
+    clip_pts: Option<Vec<LonLat>>,
     opts: &Options,
     timer: &mut Timer,
 ) -> Extract {
     let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
-    let mut doc =
-        streets_reader::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
+    let mut doc = streets_reader::osm_reader::Document::read(
+        &osm_xml,
+        clip_pts.as_ref().map(|pts| GPSBounds::from(pts.clone())),
+        timer,
+    )
+    .unwrap();
+    // If GPSBounds aren't provided above, they'll be computed in the Document
+    map.streets.gps_bounds = doc.gps_bounds.clone().unwrap();
 
-    if clip_path.is_none() {
-        // Use the boundary from .osm.
-        map.streets.gps_bounds = doc.gps_bounds.clone();
+    if let Some(pts) = clip_pts {
+        map.streets.boundary_polygon = Ring::new(map.streets.gps_bounds.convert(&pts))
+            .unwrap()
+            .into_polygon();
+        doc.clip(&map.streets.boundary_polygon);
+    } else {
         map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();
+        // No need to clip the Document in this case.
     }
+
     // Calculate DrivingSide from some arbitrary point
     map.streets.config.driving_side =
         if driving_side::is_left_handed(map.streets.gps_bounds.get_rectangle()[0].into()) {
@@ -149,7 +160,7 @@ pub fn extract_osm(
         } else if let Some(area_type) = get_area_type(&rel.tags) {
             if rel.tags.is("type", "multipolygon") {
                 for polygon in
-                    glue_multipolygon(id, get_multipolygon_members(id, rel, &doc), Some(&boundary))
+                    glue_multipolygon(id, doc.get_multipolygon_members(id, rel), Some(&boundary))
                 {
                     map.areas.push(RawArea {
                         area_type,
@@ -160,7 +171,7 @@ pub fn extract_osm(
                 }
             }
         } else if is_bldg(&rel.tags) {
-            match multipoly_geometry(id, rel, &doc) {
+            match doc.multipoly_geometry(id, rel) {
                 Ok(polygons) => {
                     for polygon in polygons {
                         map.buildings.insert(
@@ -179,7 +190,7 @@ pub fn extract_osm(
             }
         } else if rel.tags.is("amenity", "parking") {
             for polygon in
-                glue_multipolygon(id, get_multipolygon_members(id, rel, &doc), Some(&boundary))
+                glue_multipolygon(id, doc.get_multipolygon_members(id, rel), Some(&boundary))
             {
                 map.parking_lots.push(RawParkingLot {
                     osm_id: OsmID::Relation(id),
