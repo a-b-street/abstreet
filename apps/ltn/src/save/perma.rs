@@ -26,9 +26,8 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use serde_json::Value;
 
-use map_model::{IntersectionID, Map, RoadID};
+use map_model::{IntersectionID, Map, OriginalRoad, RoadID};
 use osm2streets::osm::NodeID;
-use osm2streets::OriginalRoad;
 
 use super::Proposal;
 

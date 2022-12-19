@@ -96,7 +96,11 @@ impl Map {
                     x => x,
                 },
                 // TODO Hack. Handle multiple OSM IDs everywhere instead
-                orig_id: i.osm_ids.get(0).cloned().unwrap_or(osm::NodeID(0)),
+                orig_id: i
+                    .osm_ids
+                    .get(0)
+                    .cloned()
+                    .unwrap_or(osm::NodeID(-1 * (map.intersections.len() as i64))),
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
@@ -119,22 +123,29 @@ impl Map {
             let barrier_nodes = snap_nodes_to_line(&extra.barrier_nodes, &r.center_line);
             let crossing_nodes =
                 snap_nodes_with_data_to_line(&extra.crossing_nodes, &r.center_line);
+
+            // TODO Hack. Roads and intersections each may have ZERO or more OSM IDs.
+            let orig_id = OriginalRoad {
+                osm_way_id: r
+                    .osm_ids
+                    .get(0)
+                    .cloned()
+                    .unwrap_or(osm::WayID(-1 * (map.roads.len() as i64))),
+                i1: map.intersections[i1.0].orig_id,
+                i2: map.intersections[i2.0].orig_id,
+            };
+
             let mut road = Road {
                 id: road_id,
                 // Arbitrarily remember OSM tags from one of the ways
                 // TODO If this road was introduced synthetically, we'll have empty tags, which
                 // might break various downstream bits of code
                 osm_tags: if let Some(id) = r.osm_ids.get(0) {
-                    raw.osm_tags[&id.osm_way_id].clone()
+                    raw.osm_tags[id].clone()
                 } else {
                     Tags::empty()
                 },
-                // TODO Hack. Handle multiple OSM IDs everywhere instead
-                orig_id: r
-                    .osm_ids
-                    .get(0)
-                    .cloned()
-                    .unwrap_or_else(|| OriginalRoad::new(0, (0, 0))),
+                orig_id,
                 turn_restrictions: r
                     .turn_restrictions
                     .iter()
