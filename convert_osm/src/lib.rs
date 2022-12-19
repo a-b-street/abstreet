@@ -9,7 +9,7 @@ use anyhow::Result;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
-use geom::{Distance, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Ring};
+use geom::{Distance, HashablePt2D, LonLat, PolyLine, Polygon};
 use osm2streets::{osm, MapConfig, Road, RoadID};
 use raw_map::{CrossingType, ExtraRoadData, RawMap};
 
@@ -90,22 +90,17 @@ pub fn convert(
     // happens in split_ways.
     map.streets.config = opts.map_config.clone();
 
-    if let Some(ref path) = clip_path {
-        let pts = LonLat::read_geojson_polygon(path).unwrap();
-        let gps_bounds = GPSBounds::from(pts.clone());
-        map.streets.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).into_polygon();
-        map.streets.gps_bounds = gps_bounds;
-    }
-
-    let extract = extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
-    map.bus_routes_on_roads = extract.bus_routes_on_roads;
+    let clip_pts = clip_path.map(|path| LonLat::read_geojson_polygon(&path).unwrap());
+    let extract = extract::extract_osm(&mut map, &osm_input_path, clip_pts, &opts, timer);
     let pt_to_road =
         streets_reader::split_ways::split_up_roads(&mut map.streets, extract.osm, timer);
-    clip_map(&mut map, timer);
 
-    // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
-    // doing the parking hint matching.
+    // Cul-de-sacs aren't supported yet.
     map.streets.retain_roads(|r| r.src_i != r.dst_i);
+
+    map.bus_routes_on_roads = extract.bus_routes_on_roads;
+
+    clip_map(&mut map);
 
     for i in map.streets.intersections.keys() {
         map.elevation_per_intersection.insert(*i, Distance::ZERO);
@@ -232,9 +227,7 @@ fn bristol_hack(map: &mut RawMap) {
     map.extra_road_data.insert(id, ExtraRoadData::default());
 }
 
-fn clip_map(map: &mut RawMap, timer: &mut Timer) {
-    streets_reader::clip::clip_map(&mut map.streets, timer).unwrap();
-
+fn clip_map(map: &mut RawMap) {
     let boundary_polygon = map.streets.boundary_polygon.clone();
 
     map.buildings.retain(|_, b| {
