@@ -2,6 +2,7 @@ use abstutil;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_earcutr::*;
 use bevy_pancam::{PanCam, PanCamPlugin};
+use geom::Tessellation;
 use map_model::Map;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -30,27 +31,30 @@ fn setup(
     );
 
     for road in map_model.all_roads().iter() {
-        let poly = road.get_thick_polygon();
+        let polygon = road.get_thick_polygon();
+        let earcutr_output = Tessellation::from(polygon).consume();
 
-        let mut builder = PolygonMeshBuilder::new();
-        // Call `add_earcutr_input` or each polygon you want in the mesh.
-        builder.add_earcutr_input(EarcutrInput {
-            vertices: poly
-                .get_outer_ring()
-                .points()
-                .iter()
-                .flat_map(|p| vec![p.x(), p.y()])
-                .collect::<Vec<f64>>(),
-            interior_indices: vec![],
+        let mesh = build_mesh_from_earcutr(
+            EarcutrResult {
+                vertices: earcutr_output
+                    .0
+                    .iter()
+                    .flat_map(|p| vec![p.x(), p.y()])
+                    .collect::<Vec<f64>>(),
+                triangle_indices: earcutr_output
+                    .1
+                    .iter()
+                    .map(|i| *i as usize)
+                    .collect::<Vec<usize>>(),
+            },
+            0.,
+        );
+
+        commands.spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(mesh).into(),
+            material: materials.add(ColorMaterial::from(Color::PURPLE)),
+            ..default()
         });
-
-        if let Some(mesh) = builder.build() {
-            commands.spawn(MaterialMesh2dBundle {
-                mesh: meshes.add(Mesh::from(mesh)).into(),
-                material: materials.add(ColorMaterial::from(Color::PURPLE)),
-                ..default()
-            });
-        };
     }
 
     commands.spawn((Camera2dBundle::default(), PanCam::default()));

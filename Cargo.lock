@@ -4317,6 +4317,7 @@ dependencies = [
  "bevy",
  "bevy-earcutr",
  "bevy_pancam",
+ "geom",
  "map_model",
 ]
 
