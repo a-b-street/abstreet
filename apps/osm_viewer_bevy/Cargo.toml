@@ -1,0 +1,14 @@
+[package]
+name = "osm_viewer_bevy"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy_pancam = "0.7.0"
+map_model = { path = "../../map_model" }
+abstutil = { path = "../../abstutil" }
+bevy-earcutr = "0.7.0"
+
+[dependencies.bevy]
+version = "0.9.1"
+default-features = true
