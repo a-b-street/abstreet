@@ -4,6 +4,9 @@ use bevy_earcutr::*;
 use bevy_pancam::{PanCam, PanCamPlugin};
 use geom::Tessellation;
 use map_model::Map;
+use map_renderer::road::RoadBundle;
+
+mod map_renderer;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 enum AppState {
@@ -31,30 +34,7 @@ fn setup(
     );
 
     for road in map_model.all_roads().iter() {
-        let polygon = road.get_thick_polygon();
-        let earcutr_output = Tessellation::from(polygon).consume();
-
-        let mesh = build_mesh_from_earcutr(
-            EarcutrResult {
-                vertices: earcutr_output
-                    .0
-                    .iter()
-                    .flat_map(|p| vec![p.x(), p.y()])
-                    .collect::<Vec<f64>>(),
-                triangle_indices: earcutr_output
-                    .1
-                    .iter()
-                    .map(|i| *i as usize)
-                    .collect::<Vec<usize>>(),
-            },
-            0.,
-        );
-
-        commands.spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(mesh).into(),
-            material: materials.add(ColorMaterial::from(Color::PURPLE)),
-            ..default()
-        });
+        commands.spawn(RoadBundle::new(road, &mut meshes, &mut materials));
     }
 
     commands.spawn((Camera2dBundle::default(), PanCam::default()));
