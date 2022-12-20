@@ -1,11 +1,11 @@
 use abstutil;
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use bevy_earcutr::*;
+use bevy::prelude::*;
 use bevy_pancam::{PanCam, PanCamPlugin};
-use geom::Tessellation;
+use colors::ColorScheme;
 use map_model::Map;
 use map_renderer::road::RoadBundle;
 
+mod colors;
 mod map_renderer;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -33,8 +33,15 @@ fn setup(
         &mut timer,
     );
 
+    let color_scheme = ColorScheme::new(colors::ColorSchemeChoice::ClassicDayMode);
+
     for road in map_model.all_roads().iter() {
-        commands.spawn(RoadBundle::new(road, &mut meshes, &mut materials));
+        commands.spawn(RoadBundle::new(
+            road,
+            &mut meshes,
+            &mut materials,
+            &color_scheme,
+        ));
     }
 
     commands.spawn((Camera2dBundle::default(), PanCam::default()));

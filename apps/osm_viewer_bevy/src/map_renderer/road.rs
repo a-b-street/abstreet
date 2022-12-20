@@ -6,6 +6,8 @@ use bevy_earcutr::{build_mesh_from_earcutr, EarcutrResult};
 use geom::Tessellation;
 use map_model::Road;
 
+use crate::colors::ColorScheme;
+
 #[derive(Component)]
 struct RoadComponent(Road);
 
@@ -22,6 +24,7 @@ impl RoadBundle {
         road: &Road,
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
+        color_scheme: &ColorScheme,
     ) -> Self {
         let polygon = road.get_thick_polygon();
         let earcutr_output = Tessellation::from(polygon).consume();
@@ -47,7 +50,9 @@ impl RoadBundle {
 
             mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
-                material: materials.add(ColorMaterial::from(Color::PURPLE)),
+                material: materials.add(ColorMaterial::from(
+                    color_scheme.unzoomed_road_surface(road.get_rank()),
+                )),
                 ..default()
             },
         }
