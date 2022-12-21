@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_pancam::{PanCam, PanCamPlugin};
 use colors::ColorScheme;
 use map_model::Map;
-use map_renderer::road::RoadBundle;
+use map_renderer::{intersection::IntersectionBundle, road::RoadBundle};
 
 mod colors;
 mod map_renderer;
@@ -38,6 +38,16 @@ fn setup(
     for road in map_model.all_roads().iter() {
         commands.spawn(RoadBundle::new(
             road,
+            &mut meshes,
+            &mut materials,
+            &color_scheme,
+        ));
+    }
+
+    for intersection in map_model.all_intersections().iter() {
+        commands.spawn(IntersectionBundle::new(
+            intersection,
+            &map_model,
             &mut meshes,
             &mut materials,
             &color_scheme,
