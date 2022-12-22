@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::{
     prelude::*,
     sprite::{ColorMaterial, MaterialMesh2dBundle},
@@ -39,6 +41,7 @@ impl IntersectionBundle {
                 triangle_indices: earcutr_output
                     .1
                     .iter()
+                    .rev()
                     .map(|i| *i as usize)
                     .collect::<Vec<usize>>(),
             },
@@ -49,6 +52,7 @@ impl IntersectionBundle {
             intersection: IntersectionComponent(intersection.to_owned()),
 
             mesh: MaterialMesh2dBundle {
+                transform: Transform::from_rotation(Quat::from_rotation_x(PI)),
                 mesh: meshes.add(mesh).into(),
                 material: materials.add(ColorMaterial::from(
                     color_scheme.unzoomed_road_surface(intersection.get_rank(map)),
