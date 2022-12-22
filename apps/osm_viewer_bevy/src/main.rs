@@ -54,5 +54,16 @@ fn setup(
         ));
     }
 
-    commands.spawn((Camera2dBundle::default(), PanCam::default()));
+    let map_bounds = map_model.get_bounds();
+
+    let camera_bundle = Camera2dBundle {
+        transform: Transform::from_xyz(
+            map_bounds.max_x as f32 / 2.,
+            -map_bounds.max_y as f32 / 2.,
+            0.,
+        ),
+        ..default()
+    };
+
+    commands.spawn((camera_bundle, PanCam::default()));
 }
