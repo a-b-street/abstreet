@@ -4,30 +4,31 @@ use bevy::{
 };
 use bevy_earcutr::{build_mesh_from_earcutr, EarcutrResult};
 use geom::Tessellation;
-use map_model::{Intersection, Map};
+use map_model::{Lane, Road};
 
 use crate::colors::ColorScheme;
 
 #[derive(Component)]
-struct IntersectionComponent(Intersection);
+struct LaneComponent(Lane);
 
 #[derive(Bundle)]
-pub struct IntersectionBundle {
-    intersection: IntersectionComponent,
+pub struct LaneBundle {
+    lane: LaneComponent,
 
     #[bundle]
     mesh: MaterialMesh2dBundle<ColorMaterial>,
 }
 
-impl IntersectionBundle {
+impl LaneBundle {
     pub fn new(
-        intersection: &Intersection,
-        map: &Map,
+        lane: &Lane,
+        road: &Road,
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
         color_scheme: &ColorScheme,
     ) -> Self {
-        let earcutr_output = Tessellation::from(intersection.polygon.to_owned()).consume();
+        let polygon = lane.get_thick_polygon();
+        let earcutr_output = Tessellation::from(polygon).consume();
 
         let mesh = build_mesh_from_earcutr(
             EarcutrResult {
@@ -46,13 +47,12 @@ impl IntersectionBundle {
             0.,
         );
 
-        IntersectionBundle {
-            intersection: IntersectionComponent(intersection.to_owned()),
-
+        LaneBundle {
+            lane: LaneComponent(lane.to_owned()),
             mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
                 material: materials.add(ColorMaterial::from(
-                    color_scheme.unzoomed_road_surface(intersection.get_rank(map)),
+                    color_scheme.zoomed_road_surface(lane.lane_type, road.get_rank()),
                 )),
                 ..default()
             },

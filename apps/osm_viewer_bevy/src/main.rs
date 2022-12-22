@@ -3,7 +3,10 @@ use bevy::prelude::*;
 use bevy_pancam::{PanCam, PanCamPlugin};
 use colors::ColorScheme;
 use map_model::Map;
-use map_renderer::{intersection::IntersectionBundle, road::RoadBundle};
+use map_renderer::{
+    details_layer::DetailsLayerBundle, intersection::IntersectionBundle, lane::LaneBundle,
+    map_layer::MapLayerBundle, road::RoadBundle,
+};
 
 mod colors;
 mod map_renderer;
@@ -34,25 +37,28 @@ fn setup(
     );
 
     let color_scheme = ColorScheme::new(colors::ColorSchemeChoice::ClassicDayMode);
+    commands
+        .spawn(MapLayerBundle::default())
+        .with_children(|map_layer| {
+            for road in map_model.all_roads().iter() {
+                map_layer.spawn(RoadBundle::new(
+                    road,
+                    &mut meshes,
+                    &mut materials,
+                    &color_scheme,
+                ));
+            }
 
-    for road in map_model.all_roads().iter() {
-        commands.spawn(RoadBundle::new(
-            road,
-            &mut meshes,
-            &mut materials,
-            &color_scheme,
-        ));
-    }
-
-    for intersection in map_model.all_intersections().iter() {
-        commands.spawn(IntersectionBundle::new(
-            intersection,
-            &map_model,
-            &mut meshes,
-            &mut materials,
-            &color_scheme,
-        ));
-    }
+            for intersection in map_model.all_intersections().iter() {
+                map_layer.spawn(IntersectionBundle::new(
+                    intersection,
+                    &map_model,
+                    &mut meshes,
+                    &mut materials,
+                    &color_scheme,
+                ));
+            }
+        });
 
     let map_bounds = map_model.get_bounds();
 
@@ -64,6 +70,24 @@ fn setup(
         ),
         ..default()
     };
+
+    commands
+        .spawn(DetailsLayerBundle::default())
+        .with_children(|details_layer| {
+            for road in map_model.all_roads().iter() {
+                if !road.is_light_rail() {
+                    for lane in road.lanes.iter() {
+                        details_layer.spawn(LaneBundle::new(
+                            lane,
+                            road,
+                            &mut meshes,
+                            &mut materials,
+                            &color_scheme,
+                        ));
+                    }
+                }
+            }
+        });
 
     commands.spawn((camera_bundle, PanCam::default()));
 }
