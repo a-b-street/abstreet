@@ -4,8 +4,11 @@ use bevy_pancam::{PanCam, PanCamPlugin};
 use colors::ColorScheme;
 use map_model::Map;
 use map_renderer::{
-    details_layer::DetailsLayerBundle, intersection::IntersectionBundle, lane::LaneBundle,
-    map_layer::MapLayerBundle, road::RoadBundle,
+    details_layer::{toggle_details_visibility, DetailsLayerBundle},
+    intersection::IntersectionBundle,
+    lane::LaneBundle,
+    map_layer::MapLayerBundle,
+    road::RoadBundle,
 };
 
 mod colors;
@@ -22,6 +25,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(PanCamPlugin::default())
         .add_startup_system(setup)
+        .add_system(toggle_details_visibility)
         .run();
 }
 
