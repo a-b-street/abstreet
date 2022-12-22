@@ -218,8 +218,8 @@ fn bristol_hack(map: &mut RawMap) {
         src_i,
         dst_i,
         PolyLine::must_new(vec![
-            map.streets.intersections[&src_i].point,
-            map.streets.intersections[&dst_i].point,
+            map.streets.intersections[&src_i].polygon.center(),
+            map.streets.intersections[&dst_i].polygon.center(),
         ]),
         tags,
         &map.streets.config,
@@ -261,15 +261,18 @@ fn clip_map(map: &mut RawMap) {
 
 fn use_barrier_nodes(
     map: &mut RawMap,
-    barrier_nodes: HashSet<HashablePt2D>,
+    barrier_nodes: Vec<(osm::NodeID, HashablePt2D)>,
     pt_to_road: &HashMap<HashablePt2D, RoadID>,
 ) {
-    let mut pt_to_intersection = HashMap::new();
+    // An OSM node likely only maps to one intersection
+    let mut node_to_intersection = HashMap::new();
     for i in map.streets.intersections.values() {
-        pt_to_intersection.insert(i.point.to_hashable(), i.id);
+        for node in &i.osm_ids {
+            node_to_intersection.insert(*node, i.id);
+        }
     }
 
-    for pt in barrier_nodes {
+    for (node, pt) in barrier_nodes {
         // Many barriers are on footpaths or roads that we don't retain
         if let Some(road) = pt_to_road.get(&pt).and_then(|r| map.streets.roads.get(r)) {
             // Filters on roads that're already car-free are redundant
@@ -280,7 +283,7 @@ fn use_barrier_nodes(
                     .barrier_nodes
                     .push(pt.to_pt2d());
             }
-        } else if let Some(i) = pt_to_intersection.get(&pt) {
+        } else if let Some(i) = node_to_intersection.get(&node) {
             let roads = &map.streets.intersections[i].roads;
             if roads.len() == 2 {
                 // Arbitrarily put the barrier on one of the roads
