@@ -373,8 +373,10 @@ impl State<App> for MainState {
             Mode::Neutral | Mode::SetBoundaryPt1 => {}
             Mode::CreatingRoad(i1) => {
                 if let Some(cursor) = g.get_cursor_in_map_space() {
-                    if let Ok(l) = Line::new(app.model.map.streets.intersections[&i1].point, cursor)
-                    {
+                    if let Ok(l) = Line::new(
+                        app.model.map.streets.intersections[&i1].polygon.center(),
+                        cursor,
+                    ) {
                         g.draw_polygon(Color::GREEN, l.make_polygons(Distance::meters(5.0)));
                     }
                 }

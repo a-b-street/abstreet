@@ -16,9 +16,8 @@ pub struct Extract {
     pub bus_routes_on_roads: MultiMap<WayID, String>,
     /// Crossings located at these points, which should be on a Road's center line
     pub crossing_nodes: HashSet<(HashablePt2D, CrossingType)>,
-    /// Some kind of barrier nodes at these points. Only the ones on a Road center line are
-    /// relevant.
-    pub barrier_nodes: HashSet<HashablePt2D>,
+    /// Some kind of barrier nodes at these points.
+    pub barrier_nodes: Vec<(osm::NodeID, HashablePt2D)>,
 }
 
 pub fn extract_osm(
@@ -60,7 +59,7 @@ pub fn extract_osm(
     let mut amenity_points = Vec::new();
     let mut bus_routes_on_roads: MultiMap<WayID, String> = MultiMap::new();
     let mut crossing_nodes = HashSet::new();
-    let mut barrier_nodes = HashSet::new();
+    let mut barrier_nodes = Vec::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for (id, node) in &doc.nodes {
@@ -81,7 +80,7 @@ pub fn extract_osm(
         }
         // TODO Any kind of barrier?
         if node.tags.is("barrier", "bollard") {
-            barrier_nodes.insert(node.pt.to_hashable());
+            barrier_nodes.push((*id, node.pt.to_hashable()));
         }
     }
 

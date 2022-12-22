@@ -111,7 +111,7 @@ impl Model {
             b.polygon = b.polygon.translate(-top_left.x(), -top_left.y());
         }
         for i in self.map.streets.intersections.values_mut() {
-            i.point = i.point.offset(-top_left.x(), -top_left.y());
+            i.polygon = i.polygon.translate(-top_left.x(), -top_left.y());
         }
         for r in self.map.streets.roads.values_mut() {
             r.reference_line = PolyLine::must_new(
@@ -154,7 +154,9 @@ impl Model {
             }
         }
         for i in self.map.streets.intersections.values() {
-            bounds.update(i.point);
+            for pt in i.polygon.get_outer_ring().points() {
+                bounds.update(*pt);
+            }
         }
         for r in self.map.streets.roads.values() {
             for pt in r.reference_line.points() {
@@ -183,7 +185,7 @@ impl Model {
             if self.intersection_geom && !self.map.streets.roads_per_intersection(id).is_empty() {
                 self.map.streets.intersections[&id].polygon.clone()
             } else {
-                Circle::new(i.point, INTERSECTION_RADIUS).to_polygon()
+                Circle::new(i.polygon.center(), INTERSECTION_RADIUS).to_polygon()
             };
 
         self.world
@@ -215,7 +217,11 @@ impl Model {
     pub fn move_i(&mut self, ctx: &EventCtx, id: IntersectionID, point: Pt2D) {
         self.world.delete_before_replacement(ID::Intersection(id));
 
-        self.map.streets.intersections.get_mut(&id).unwrap().point = point;
+        let i = self.map.streets.intersections.get_mut(&id).unwrap();
+        let old_center = i.polygon.center();
+        i.polygon = i
+            .polygon
+            .translate(point.x() - old_center.x(), point.y() - old_center.y());
 
         // Update all the roads.
         let mut fixed = Vec::new();
@@ -357,8 +363,8 @@ impl Model {
         osm_tags.insert("maxspeed", "25 mph");
 
         let reference_line = match PolyLine::new(vec![
-            self.map.streets.intersections[&i1].point,
-            self.map.streets.intersections[&i2].point,
+            self.map.streets.intersections[&i1].polygon.center(),
+            self.map.streets.intersections[&i2].polygon.center(),
         ]) {
             Ok(pl) => pl,
             Err(err) => {
@@ -604,6 +610,8 @@ impl Model {
 /// and even if a RawMap is saved as JSON, manually updating it is annoying. This is used to create
 /// synthetic maps that will never go bad -- there will always be a pipeline to import a .osm file,
 /// so actually, .osm is a stable-over-time format.
+///
+/// If this RawMap was created from real OSM, this will absolutely mangle any original IDs.
 fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
     let mut f = fs_err::File::create("synthetic_export.osm")?;
     writeln!(f, r#"<?xml version='1.0' encoding='UTF-8'?>"#)?;
@@ -618,26 +626,29 @@ fn dump_to_osm(map: &RawMap) -> Result<(), std::io::Error> {
         r#"    <bounds minlon="{}" maxlon="{}" minlat="{}" maxlat="{}"/>"#,
         b.min_lon, b.max_lon, b.min_lat, b.max_lat
     )?;
-    let mut pt_to_id: HashMap<HashablePt2D, IntersectionID> = HashMap::new();
-    for (id, i) in &map.streets.intersections {
-        pt_to_id.insert(i.point.to_hashable(), *id);
-        let pt = i.point.to_gps(b);
-        writeln!(
-            f,
-            r#"    <node id="{}" lon="{}" lat="{}"/>"#,
-            id.0,
-            pt.x(),
-            pt.y()
-        )?;
+
+    let mut pt_to_node: HashMap<HashablePt2D, osm::NodeID> = HashMap::new();
+    for r in map.streets.roads.values() {
+        for pt in r.reference_line.points() {
+            let id = osm::NodeID(pt_to_node.len() as i64);
+            pt_to_node.insert(pt.to_hashable(), id);
+            writeln!(
+                f,
+                r#"    <node id="{}" lon="{}" lat="{}"/>"#,
+                id.0,
+                pt.x(),
+                pt.y()
+            )?;
+        }
     }
+
     for (id, r) in &map.streets.roads {
         writeln!(f, r#"    <way id="{}">"#, id.0)?;
         for pt in r.reference_line.points() {
-            // TODO Make new IDs if needed
             writeln!(
                 f,
                 r#"        <nd ref="{}"/>"#,
-                pt_to_id[&pt.to_hashable()].0
+                pt_to_node[&pt.to_hashable()].0
             )?;
         }
         // TODO Brittle. Instead we should effectively do lanes2osm
