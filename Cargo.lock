@@ -682,6 +682,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_mod_picking"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0eb0a57d5c1ea9738b6858bb6206454b2d99265983b36ca82e5a2a0b5c9e7a1"
+dependencies = [
+ "bevy",
+ "bevy_mod_raycast",
+]
+
+[[package]]
+name = "bevy_mod_raycast"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a5813c0224e31350919e5fbf5a2099c3be4c7b8c04e8584ee4dba4e87795a19"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_pancam"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4316,6 +4335,7 @@ dependencies = [
  "abstutil",
  "bevy",
  "bevy-earcutr",
+ "bevy_mod_picking",
  "bevy_pancam",
  "geom",
  "map_model",

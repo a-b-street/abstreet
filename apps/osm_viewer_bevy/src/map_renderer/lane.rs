@@ -3,6 +3,7 @@ use bevy::{
     sprite::{ColorMaterial, MaterialMesh2dBundle},
 };
 use bevy_earcutr::{build_mesh_from_earcutr, EarcutrResult};
+use bevy_mod_picking::PickableBundle;
 use geom::Tessellation;
 use map_model::{Lane, Road};
 
@@ -16,7 +17,7 @@ pub struct LaneBundle {
     lane: LaneComponent,
 
     #[bundle]
-    mesh: MaterialMesh2dBundle<ColorMaterial>,
+    mesh: (MaterialMesh2dBundle<ColorMaterial>, PickableBundle),
 }
 
 impl LaneBundle {
@@ -49,13 +50,16 @@ impl LaneBundle {
 
         LaneBundle {
             lane: LaneComponent(lane.to_owned()),
-            mesh: MaterialMesh2dBundle {
-                mesh: meshes.add(mesh).into(),
-                material: materials.add(ColorMaterial::from(
-                    color_scheme.zoomed_road_surface(lane.lane_type, road.get_rank()),
-                )),
-                ..default()
-            },
+            mesh: (
+                MaterialMesh2dBundle {
+                    mesh: meshes.add(mesh).into(),
+                    material: materials.add(ColorMaterial::from(
+                        color_scheme.zoomed_road_surface(lane.lane_type, road.get_rank()),
+                    )),
+                    ..default()
+                },
+                PickableBundle::default(),
+            ),
         }
     }
 }

@@ -1,5 +1,6 @@
 use abstutil;
 use bevy::prelude::*;
+use bevy_mod_picking::{DefaultPickingPlugins, PickingCameraBundle};
 use bevy_pancam::{PanCam, PanCamPlugin};
 use colors::ColorScheme;
 use map_model::Map;
@@ -24,6 +25,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugin(PanCamPlugin::default())
+        .add_plugins(DefaultPickingPlugins)
         .add_startup_system(setup)
         .add_system(toggle_details_visibility)
         .run();
@@ -93,5 +95,9 @@ fn setup(
             }
         });
 
-    commands.spawn((camera_bundle, PanCam::default()));
+    commands.spawn((
+        camera_bundle,
+        PickingCameraBundle::default(),
+        PanCam::default(),
+    ));
 }
