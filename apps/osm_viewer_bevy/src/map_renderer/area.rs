@@ -2,11 +2,10 @@ use bevy::{
     prelude::*,
     sprite::{ColorMaterial, MaterialMesh2dBundle},
 };
-use bevy_earcutr::{build_mesh_from_earcutr, EarcutrResult};
-use geom::Tessellation;
+
 use map_model::{Area, AreaType};
 
-use crate::colors::ColorScheme;
+use crate::{colors::ColorScheme, mesh_builder::build_mesh_from_polygon};
 
 #[derive(Component)]
 struct AreaComponent(Area);
@@ -26,24 +25,7 @@ impl AreaBundle {
         materials: &mut ResMut<Assets<ColorMaterial>>,
         color_scheme: &ColorScheme,
     ) -> Self {
-        let earcutr_output = Tessellation::from(area.polygon.clone()).consume();
-
-        let mesh = build_mesh_from_earcutr(
-            EarcutrResult {
-                vertices: earcutr_output
-                    .0
-                    .iter()
-                    .flat_map(|p| vec![p.x(), p.y()])
-                    .collect::<Vec<f64>>(),
-                triangle_indices: earcutr_output
-                    .1
-                    .iter()
-                    .rev()
-                    .map(|i| *i as usize)
-                    .collect::<Vec<usize>>(),
-            },
-            0.,
-        );
+        let mesh = build_mesh_from_polygon(area.polygon.clone());
 
         AreaBundle {
             area: AreaComponent(area.to_owned()),

@@ -2,11 +2,10 @@ use bevy::{
     prelude::*,
     sprite::{ColorMaterial, MaterialMesh2dBundle},
 };
-use bevy_earcutr::{build_mesh_from_earcutr, EarcutrResult};
-use geom::Tessellation;
+
 use map_model::{Intersection, Map};
 
-use crate::colors::ColorScheme;
+use crate::{colors::ColorScheme, mesh_builder::build_mesh_from_polygon};
 
 #[derive(Component)]
 struct IntersectionComponent(Intersection);
@@ -27,35 +26,14 @@ impl IntersectionBundle {
         materials: &mut ResMut<Assets<ColorMaterial>>,
         color_scheme: &ColorScheme,
     ) -> Self {
-        let earcutr_output = Tessellation::from(intersection.polygon.to_owned()).consume();
-
-        let mesh = build_mesh_from_earcutr(
-            EarcutrResult {
-                vertices: earcutr_output
-                    .0
-                    .iter()
-                    .flat_map(|p| vec![p.x(), p.y()])
-                    .collect::<Vec<f64>>(),
-                triangle_indices: earcutr_output
-                    .1
-                    .iter()
-                    .rev()
-                    .map(|i| *i as usize)
-                    .collect::<Vec<usize>>(),
-            },
-            0.,
-        );
+        let mesh = build_mesh_from_polygon(intersection.polygon.to_owned());
 
         IntersectionBundle {
             intersection: IntersectionComponent(intersection.to_owned()),
 
             mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
-                transform: Transform::from_xyz(
-                    0.,
-                    0.,
-                    100.0 - intersection.get_zorder(map) as f32,
-                ),
+                transform: Transform::from_xyz(0., 0., 100.0 - intersection.get_zorder(map) as f32),
                 material: materials.add(ColorMaterial::from(
                     color_scheme.unzoomed_road_surface(intersection.get_rank(map)),
                 )),

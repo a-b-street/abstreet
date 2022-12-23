@@ -2,11 +2,10 @@ use bevy::{
     prelude::*,
     sprite::{ColorMaterial, MaterialMesh2dBundle},
 };
-use bevy_earcutr::{build_mesh_from_earcutr, EarcutrResult};
-use geom::Tessellation;
+
 use map_model::Road;
 
-use crate::colors::ColorScheme;
+use crate::{colors::ColorScheme, mesh_builder::build_mesh_from_polygon};
 
 #[derive(Component)]
 struct RoadComponent(Road);
@@ -26,25 +25,7 @@ impl RoadBundle {
         materials: &mut ResMut<Assets<ColorMaterial>>,
         color_scheme: &ColorScheme,
     ) -> Self {
-        let polygon = road.get_thick_polygon();
-        let earcutr_output = Tessellation::from(polygon).consume();
-
-        let mesh = build_mesh_from_earcutr(
-            EarcutrResult {
-                vertices: earcutr_output
-                    .0
-                    .iter()
-                    .flat_map(|p| vec![p.x(), p.y()])
-                    .collect::<Vec<f64>>(),
-                triangle_indices: earcutr_output
-                    .1
-                    .iter()
-                    .rev()
-                    .map(|i| *i as usize)
-                    .collect::<Vec<usize>>(),
-            },
-            0.,
-        );
+        let mesh = build_mesh_from_polygon(road.get_thick_polygon());
 
         RoadBundle {
             road: RoadComponent(road.to_owned()),

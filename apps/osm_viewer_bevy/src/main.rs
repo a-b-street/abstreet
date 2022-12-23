@@ -1,5 +1,5 @@
 use abstutil;
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_mod_picking::{DefaultPickingPlugins, PickingCameraBundle};
 use bevy_pancam::{PanCam, PanCamPlugin};
 use colors::ColorScheme;
@@ -15,6 +15,7 @@ use map_renderer::{
 
 mod colors;
 mod map_renderer;
+mod mesh_builder;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 enum AppState {
@@ -43,10 +44,24 @@ fn setup(
         &mut timer,
     );
 
-    let color_scheme = ColorScheme::new(colors::ColorSchemeChoice::ClassicDayMode);
+    let map_bounds = map_model.get_bounds();
+
+    let color_scheme = ColorScheme::new(colors::ColorSchemeChoice::DayMode);
     commands
         .spawn(MapLayerBundle::default())
         .with_children(|map_layer| {
+            map_layer.spawn(MaterialMesh2dBundle {
+                mesh: meshes
+                    .add(Mesh::from(shape::Quad::flipped(Vec2::new(
+                        map_bounds.width() as f32,
+                        map_bounds.height() as f32,
+                    ))))
+                    .into(),
+
+                material: materials.add(ColorMaterial::from(color_scheme.map_background)),
+                ..default()
+            });
+
             for area in map_model.all_areas().iter() {
                 map_layer.spawn(AreaBundle::new(
                     area,
@@ -75,8 +90,6 @@ fn setup(
                 ));
             }
         });
-
-    let map_bounds = map_model.get_bounds();
 
     let camera_bundle = Camera2dBundle {
         transform: Transform::from_xyz(
