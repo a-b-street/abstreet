@@ -50,16 +50,17 @@ impl Zone {
             if seen.contains(&start) {
                 continue;
             }
-            let zone = floodfill(map, start);
-            seen.extend(zone.members.clone());
-            zones.push(zone);
+            if let Some(zone) = floodfill(map, start) {
+                seen.extend(zone.members.clone());
+                zones.push(zone);
+            }
         }
 
         zones
     }
 }
 
-fn floodfill(map: &Map, start: RoadID) -> Zone {
+fn floodfill(map: &Map, start: RoadID) -> Option<Zone> {
     let match_constraints = map.get_r(start).access_restrictions.clone();
     let merge_zones = map.get_edits().merge_zones;
     let mut queue = vec![start];
@@ -84,10 +85,14 @@ fn floodfill(map: &Map, start: RoadID) -> Zone {
         }
     }
     assert!(!members.is_empty());
-    assert!(!borders.is_empty());
-    Zone {
+    if borders.is_empty() {
+        // This can happen around cases like https://www.openstreetmap.org/way/572240785 where the
+        // intersection geometry seems to break
+        return None;
+    }
+    Some(Zone {
         members,
         borders,
         restrictions: match_constraints,
-    }
+    })
 }
