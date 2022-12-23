@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -16,8 +14,7 @@ impl Default for DetailsLayerBundle {
         DetailsLayerBundle {
             details_layer: DetailsLayer,
             spatial_bundle: SpatialBundle {
-                transform: Transform::from_rotation(Quat::from_rotation_x(PI))
-                    .with_translation(Vec3::new(0., 0., -1.)),
+                transform: Transform::from_translation(Vec3::new(0., 0., 100.)),
                 ..default()
             },
         }

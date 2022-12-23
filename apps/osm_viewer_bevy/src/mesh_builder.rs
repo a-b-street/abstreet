@@ -10,7 +10,7 @@ pub fn build_mesh_from_polygon(polygon: Polygon) -> Mesh {
             vertices: earcutr_output
                 .0
                 .iter()
-                .flat_map(|p| vec![p.x(), p.y()])
+                .flat_map(|p| vec![p.x(), -p.y()])
                 .collect::<Vec<f64>>(),
             triangle_indices: earcutr_output
                 .1

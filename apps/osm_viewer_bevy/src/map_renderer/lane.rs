@@ -33,7 +33,7 @@ impl LaneBundle {
             mesh: (
                 MaterialMesh2dBundle {
                     mesh: meshes.add(mesh).into(),
-                    transform: Transform::from_xyz(0., 0., 100.0 - road.zorder as f32),
+                    transform: Transform::from_xyz(0., 0., 100.0 + road.zorder as f32),
                     material: materials.add(ColorMaterial::from(
                         color_scheme.zoomed_road_surface(lane.lane_type, road.get_rank()),
                     )),

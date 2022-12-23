@@ -33,7 +33,7 @@ impl IntersectionBundle {
 
             mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
-                transform: Transform::from_xyz(0., 0., 100.0 - intersection.get_zorder(map) as f32),
+                transform: Transform::from_xyz(0., 0., 10.0 + intersection.get_zorder(map) as f32),
                 material: materials.add(ColorMaterial::from(
                     color_scheme.unzoomed_road_surface(intersection.get_rank(map)),
                 )),

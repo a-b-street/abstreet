@@ -12,6 +12,7 @@ use map_renderer::{
     map_layer::MapLayerBundle,
     road::RoadBundle,
 };
+use mesh_builder::build_mesh_from_polygon;
 
 mod colors;
 mod map_renderer;
@@ -52,10 +53,9 @@ fn setup(
         .with_children(|map_layer| {
             map_layer.spawn(MaterialMesh2dBundle {
                 mesh: meshes
-                    .add(Mesh::from(shape::Quad::flipped(Vec2::new(
-                        map_bounds.width() as f32,
-                        map_bounds.height() as f32,
-                    ))))
+                    .add(build_mesh_from_polygon(
+                        map_model.get_boundary_polygon().to_owned(),
+                    ))
                     .into(),
 
                 material: materials.add(ColorMaterial::from(color_scheme.map_background)),
@@ -95,7 +95,7 @@ fn setup(
         transform: Transform::from_xyz(
             map_bounds.max_x as f32 / 2.,
             -map_bounds.max_y as f32 / 2.,
-            0.,
+            1000.,
         ),
         ..default()
     };

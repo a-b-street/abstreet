@@ -31,13 +31,13 @@ impl AreaBundle {
             area: AreaComponent(area.to_owned()),
             mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
-                transform: Transform::from_xyz(0., 0., 200.0),
                 material: materials.add(ColorMaterial::from(match area.area_type {
                     AreaType::Park => color_scheme.grass,
                     AreaType::Water => color_scheme.water,
                     AreaType::Island => color_scheme.map_background,
                     AreaType::StudyArea => color_scheme.study_area,
                 })),
+                transform: Transform::from_xyz(0., 0., 5.0),
                 ..default()
             },
         }
