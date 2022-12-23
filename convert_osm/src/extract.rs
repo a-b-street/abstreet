@@ -38,7 +38,7 @@ pub fn extract_osm(
     map.streets.gps_bounds = doc.gps_bounds.clone().unwrap();
 
     if let Some(pts) = clip_pts {
-        map.streets.boundary_polygon = Ring::new(map.streets.gps_bounds.convert(&pts))
+        map.streets.boundary_polygon = Ring::deduping_new(map.streets.gps_bounds.convert(&pts))
             .unwrap()
             .into_polygon();
         doc.clip(&map.streets.boundary_polygon);
