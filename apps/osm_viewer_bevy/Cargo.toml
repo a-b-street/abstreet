@@ -10,6 +10,7 @@ abstutil = { path = "../../abstutil" }
 geom = { path = "../../geom" }
 bevy-earcutr = "0.7.0"
 bevy_mod_picking = "0.11.0"
+bevy_egui = "0.18.0"
 
 [dependencies.bevy]
 version = "0.9.1"

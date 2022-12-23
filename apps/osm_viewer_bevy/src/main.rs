@@ -1,14 +1,15 @@
 use abstutil;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use bevy_mod_picking::{DefaultPickingPlugins, PickingCameraBundle};
+use bevy_egui::EguiPlugin;
+use bevy_mod_picking::{DefaultPickingPlugins, PickingCameraBundle, PickingEvent, SelectionEvent};
 use bevy_pancam::{PanCam, PanCamPlugin};
 use colors::ColorScheme;
-use map_model::Map;
+use map_model::{LaneID, Map};
 use map_renderer::{
     area::AreaBundle,
     details_layer::{toggle_details_visibility, DetailsLayerBundle},
     intersection::IntersectionBundle,
-    lane::LaneBundle,
+    lane::{LaneBundle, LaneIdComponent},
     map_layer::MapLayerBundle,
     road::RoadBundle,
 };
@@ -23,14 +24,39 @@ enum AppState {
     Loading,
     Running,
 }
+#[derive(Default, Resource)]
+struct UiState {
+    selected_lane_id: Option<LaneID>,
+}
+
+#[derive(Resource)]
+struct MapResource {
+    map_model: Map,
+}
+
+impl FromWorld for MapResource {
+    fn from_world(_world: &mut World) -> Self {
+        let mut timer = abstutil::time::Timer::new("load_map");
+
+        let map_model = Map::load_synchronously(
+            "../../data/system/us/seattle/maps/montlake.bin".to_string(),
+            &mut timer,
+        );
+        MapResource { map_model }
+    }
+}
 
 fn main() {
     App::new()
+        .init_resource::<UiState>()
+        .init_resource::<MapResource>()
         .add_plugins(DefaultPlugins)
         .add_plugin(PanCamPlugin::default())
         .add_plugins(DefaultPickingPlugins)
+        .add_plugin(EguiPlugin)
         .add_startup_system(setup)
         .add_system(toggle_details_visibility)
+        .add_system_to_stage(CoreStage::PostUpdate, handle_selection)
         .run();
 }
 
@@ -38,13 +64,9 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    map_resource: Res<MapResource>,
 ) {
-    let mut timer = abstutil::time::Timer::new("load_map");
-    let map_model = Map::load_synchronously(
-        "../../data/system/us/seattle/maps/montlake.bin".to_string(),
-        &mut timer,
-    );
-
+    let map_model = &map_resource.map_model;
     let map_bounds = map_model.get_bounds();
 
     let color_scheme = ColorScheme::new(colors::ColorSchemeChoice::DayMode);
@@ -83,7 +105,7 @@ fn setup(
             for intersection in map_model.all_intersections().iter() {
                 map_layer.spawn(IntersectionBundle::new(
                     intersection,
-                    &map_model,
+                    map_model,
                     &mut meshes,
                     &mut materials,
                     &color_scheme,
@@ -123,4 +145,24 @@ fn setup(
         PickingCameraBundle::default(),
         PanCam::default(),
     ));
+}
+
+fn handle_selection(
+    mut ev_selection: EventReader<PickingEvent>,
+    mut ui_state: ResMut<UiState>,
+    lane_ids: Query<&LaneIdComponent>,
+) {
+    for ev in ev_selection.iter() {
+        if let PickingEvent::Selection(selection_event) = ev {
+            match selection_event {
+                SelectionEvent::JustSelected(entity) => {
+                    if let Ok(lane_id) = lane_ids.get_component::<LaneIdComponent>(*entity) {
+                        info!("Selected Lane {:?}", lane_id.0);
+                        ui_state.selected_lane_id = Some(lane_id.0)
+                    }
+                }
+                SelectionEvent::JustDeselected(_) => ui_state.selected_lane_id = None,
+            }
+        }
+    }
 }

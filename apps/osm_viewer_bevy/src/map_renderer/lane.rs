@@ -3,16 +3,16 @@ use bevy::{
     sprite::{ColorMaterial, MaterialMesh2dBundle},
 };
 use bevy_mod_picking::PickableBundle;
-use map_model::{Lane, Road};
+use map_model::{Lane, LaneID, Road};
 
 use crate::{colors::ColorScheme, mesh_builder::build_mesh_from_polygon};
 
 #[derive(Component)]
-struct LaneComponent(Lane);
+pub struct LaneIdComponent(pub LaneID);
 
 #[derive(Bundle)]
 pub struct LaneBundle {
-    lane: LaneComponent,
+    lane: LaneIdComponent,
 
     #[bundle]
     mesh: (MaterialMesh2dBundle<ColorMaterial>, PickableBundle),
@@ -29,7 +29,7 @@ impl LaneBundle {
         let mesh = build_mesh_from_polygon(lane.get_thick_polygon());
 
         LaneBundle {
-            lane: LaneComponent(lane.to_owned()),
+            lane: LaneIdComponent(lane.id),
             mesh: (
                 MaterialMesh2dBundle {
                     mesh: meshes.add(mesh).into(),

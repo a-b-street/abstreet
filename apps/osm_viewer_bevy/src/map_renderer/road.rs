@@ -8,7 +8,7 @@ use map_model::Road;
 use crate::{colors::ColorScheme, mesh_builder::build_mesh_from_polygon};
 
 #[derive(Component)]
-struct RoadComponent(Road);
+pub struct RoadComponent(pub Road);
 
 #[derive(Bundle)]
 pub struct RoadBundle {
