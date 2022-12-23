@@ -1,3 +1,4 @@
+pub mod area;
 pub mod details_layer;
 pub mod intersection;
 pub mod lane;

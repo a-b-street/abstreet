@@ -5,6 +5,7 @@ use bevy_pancam::{PanCam, PanCamPlugin};
 use colors::ColorScheme;
 use map_model::Map;
 use map_renderer::{
+    area::AreaBundle,
     details_layer::{toggle_details_visibility, DetailsLayerBundle},
     intersection::IntersectionBundle,
     lane::LaneBundle,
@@ -46,6 +47,15 @@ fn setup(
     commands
         .spawn(MapLayerBundle::default())
         .with_children(|map_layer| {
+            for area in map_model.all_areas().iter() {
+                map_layer.spawn(AreaBundle::new(
+                    area,
+                    &mut meshes,
+                    &mut materials,
+                    &color_scheme,
+                ));
+            }
+
             for road in map_model.all_roads().iter() {
                 map_layer.spawn(RoadBundle::new(
                     road,

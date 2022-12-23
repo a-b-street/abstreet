@@ -66,15 +66,15 @@ pub struct ColorScheme {
 
     // Other static elements
     pub void_background: Color,
-    // pub map_background: Fill,
+    pub map_background: Color,
     pub unzoomed_interesting_intersection: Color,
     pub residential_building: Color,
     pub commercial_building: Color,
     pub building_outline: Color,
     pub parking_lot: Color,
-    // pub grass: Fill,
-    // pub water: Fill,
-    // pub study_area: Fill,
+    pub grass: Color,
+    pub water: Color,
+    pub study_area: Color,
 
     // Unzoomed dynamic elements
     pub unzoomed_car: Color,
@@ -188,15 +188,15 @@ impl ColorScheme {
 
             // Other static elements
             void_background: Color::BLACK,
-            // map_background: Color::grey(0.87).into(),
+            map_background: grey(0.87),
             unzoomed_interesting_intersection: Color::BLACK,
             residential_building: hex("C4C1BC"),
             commercial_building: hex("9FABA7"),
             building_outline: hex("938E85"),
             parking_lot: grey(0.7),
-            // grass: Color::hex("94C84A").unwrap(),
-            // water: hex("A4C8EA").into(),
-            // study_area: hex("96830C").into(),
+            grass: hex("94C84A"),
+            water: hex("A4C8EA"),
+            study_area: hex("96830C"),
 
             // Unzoomed dynamic elements
             unzoomed_car: hex("FE5f55"),
@@ -247,9 +247,9 @@ impl ColorScheme {
         // cs.gui_style = widgetry::Style::dark_bg();
 
         cs.void_background = hex("200A24");
-        // cs.map_background = Color::BLACK.into();
-        // cs.grass = hex("243A1F").into();
-        // cs.water = hex("21374E").into();
+        cs.map_background = Color::BLACK;
+        cs.grass = hex("243A1F");
+        cs.water = hex("21374E");
         cs.residential_building = hex("2C422E");
         cs.commercial_building = hex("5D5F97");
 
@@ -267,7 +267,7 @@ impl ColorScheme {
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
         cs.stop_sign = hex("A32015");
         cs.private_road = Some(hex("9E757F"));
-        // cs.study_area = hex("D9B002").into();
+        cs.study_area = hex("D9B002");
 
         // cs.panel_bg = cs.gui_style.panel_bg;
         // cs.inner_panel_bg = cs.panel_bg.alpha(1.0);
@@ -295,9 +295,9 @@ impl ColorScheme {
         cs.road_class_colors = true;
         cs.show_buildings_in_minimap = false;
 
-        // cs.map_background = hex("EEE5C8").into();
-        // cs.grass = hex("BED4A3").into();
-        // cs.water = hex("6384D6").into();
+        cs.map_background = hex("EEE5C8");
+        cs.grass = hex("BED4A3");
+        cs.water = hex("6384D6");
 
         cs.sidewalk = hex("A9A9A9");
         cs.sidewalk_lines = hex("989898");
