@@ -3,16 +3,16 @@ use bevy::{
     sprite::{ColorMaterial, MaterialMesh2dBundle},
 };
 
-use map_model::Road;
+use map_model::{Road, RoadID};
 
 use crate::{colors::ColorScheme, mesh_builder::build_mesh_from_polygon};
 
 #[derive(Component)]
-pub struct RoadComponent(pub Road);
+pub struct RoadIdComponent(pub RoadID);
 
 #[derive(Bundle)]
 pub struct RoadBundle {
-    road: RoadComponent,
+    road_id: RoadIdComponent,
 
     #[bundle]
     mesh: MaterialMesh2dBundle<ColorMaterial>,
@@ -28,7 +28,7 @@ impl RoadBundle {
         let mesh = build_mesh_from_polygon(road.get_thick_polygon());
 
         RoadBundle {
-            road: RoadComponent(road.to_owned()),
+            road_id: RoadIdComponent(road.id),
             mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
                 transform: Transform::from_xyz(0., 0., 10.0 + road.zorder as f32),

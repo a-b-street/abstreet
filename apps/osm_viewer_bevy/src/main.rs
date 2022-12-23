@@ -19,11 +19,6 @@ mod colors;
 mod map_renderer;
 mod mesh_builder;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-enum AppState {
-    Loading,
-    Running,
-}
 #[derive(Default, Resource)]
 struct UiState {
     selected_lane_id: Option<LaneID>,

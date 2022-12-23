@@ -3,16 +3,16 @@ use bevy::{
     sprite::{ColorMaterial, MaterialMesh2dBundle},
 };
 
-use map_model::{Intersection, Map};
+use map_model::{Intersection, IntersectionID, Map};
 
 use crate::{colors::ColorScheme, mesh_builder::build_mesh_from_polygon};
 
 #[derive(Component)]
-struct IntersectionComponent(Intersection);
+struct IntersectionIdComponent(pub IntersectionID);
 
 #[derive(Bundle)]
 pub struct IntersectionBundle {
-    intersection: IntersectionComponent,
+    intersection_id: IntersectionIdComponent,
 
     #[bundle]
     mesh: MaterialMesh2dBundle<ColorMaterial>,
@@ -29,7 +29,7 @@ impl IntersectionBundle {
         let mesh = build_mesh_from_polygon(intersection.polygon.to_owned());
 
         IntersectionBundle {
-            intersection: IntersectionComponent(intersection.to_owned()),
+            intersection_id: IntersectionIdComponent(intersection.id),
 
             mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),

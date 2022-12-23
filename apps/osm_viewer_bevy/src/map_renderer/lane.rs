@@ -12,7 +12,7 @@ pub struct LaneIdComponent(pub LaneID);
 
 #[derive(Bundle)]
 pub struct LaneBundle {
-    lane: LaneIdComponent,
+    lane_id: LaneIdComponent,
 
     #[bundle]
     mesh: (MaterialMesh2dBundle<ColorMaterial>, PickableBundle),
@@ -29,7 +29,7 @@ impl LaneBundle {
         let mesh = build_mesh_from_polygon(lane.get_thick_polygon());
 
         LaneBundle {
-            lane: LaneIdComponent(lane.id),
+            lane_id: LaneIdComponent(lane.id),
             mesh: (
                 MaterialMesh2dBundle {
                     mesh: meshes.add(mesh).into(),

@@ -3,16 +3,16 @@ use bevy::{
     sprite::{ColorMaterial, MaterialMesh2dBundle},
 };
 
-use map_model::{Area, AreaType};
+use map_model::{Area, AreaID, AreaType};
 
 use crate::{colors::ColorScheme, mesh_builder::build_mesh_from_polygon};
 
 #[derive(Component)]
-struct AreaComponent(Area);
+struct AreaIdComponent(pub AreaID);
 
 #[derive(Bundle)]
 pub struct AreaBundle {
-    area: AreaComponent,
+    area_id: AreaIdComponent,
 
     #[bundle]
     mesh: MaterialMesh2dBundle<ColorMaterial>,
@@ -28,7 +28,7 @@ impl AreaBundle {
         let mesh = build_mesh_from_polygon(area.polygon.clone());
 
         AreaBundle {
-            area: AreaComponent(area.to_owned()),
+            area_id: AreaIdComponent(area.id),
             mesh: MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
                 material: materials.add(ColorMaterial::from(match area.area_type {
