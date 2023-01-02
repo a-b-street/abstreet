@@ -211,7 +211,7 @@ impl DrawIntersection {
                     .iter()
                     .any(|road_pair| approx_eq(window, &road_pair))
             })
-            .map(|pair| PolyLine::must_new(vec![pair[0], pair[1]]))
+            .filter_map(|pair| PolyLine::new(vec![pair[0], pair[1]]).ok())
             .collect::<Vec<_>>()
 
         // TODO We could merge adjacent segments, to get nicer corners
