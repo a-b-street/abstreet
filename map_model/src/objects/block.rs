@@ -69,8 +69,9 @@ impl Perimeter {
                 next = *wraparound_get(&sorted_roads, idx - 1);
                 assert_ne!(next, current_road_side);
                 if next.road == current_road_side.road {
-                    // We must be at a dead-end
-                    assert_eq!(2, sorted_roads.len());
+                    if sorted_roads.len() != 2 {
+                        bail!("Looped back on the same road, but not at a dead-end");
+                    }
                 }
             }
             roads.push(current_road_side);
