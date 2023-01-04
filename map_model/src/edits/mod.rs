@@ -616,14 +616,19 @@ fn recalculate_intersection_polygon(
         });
     }
 
-    let results = osm2streets::intersection_polygon(
+    let results = match osm2streets::intersection_polygon(
         osm2streets::IntersectionID(intersection.id.0),
         input_roads,
         // For consolidated intersections, it appears we don't need to pass in
         // trim_roads_for_merging. May revisit this later if needed.
         &BTreeMap::new(),
-    )
-    .unwrap();
+    ) {
+        Ok(results) => results,
+        Err(err) => {
+            error!("Couldn't recalculate {i}'s geometry: {err}");
+            return Vec::new();
+        }
+    };
 
     map.intersections[i.0].polygon = results.intersection_polygon;
 
