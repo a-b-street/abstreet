@@ -21,5 +21,5 @@ serde_json = { workspace = true }
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
-tokio = { version = "1.19.2", features = ["full"] }
+tokio = { version = "1.20.3", features = ["full"] }
 url = "2.2.0"

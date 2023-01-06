@@ -35,7 +35,7 @@ lyon = "1.0.0"
 serde = { workspace = true }
 serde_json = { workspace = true }
 taffy = "0.2.0"
-tokio = { version ="1.19.2", features=["full"], optional = true }
+tokio = { version ="1.20.3", features=["full"], optional = true }
 ttf-parser = "0.15.0"
 usvg = { version = "0.22.0", default-features=false, features=["text"] }
 wasm-bindgen = { workspace = true, optional = true }
