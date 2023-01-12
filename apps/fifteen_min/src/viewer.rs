@@ -566,6 +566,8 @@ pub fn draw_unwalkable_roads(ctx: &mut EventCtx, app: &App, opts: &Options) -> D
         }
         for l in &road.lanes {
             if l.lane_type == LaneType::Sidewalk
+                || l.lane_type == LaneType::Footway
+                || l.lane_type == LaneType::SharedUse
                 || (l.lane_type == LaneType::Shoulder && allow_shoulders)
             {
                 continue 'ROADS;
