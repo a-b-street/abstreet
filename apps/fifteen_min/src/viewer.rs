@@ -5,7 +5,7 @@
 //! See https://github.com/a-b-street/abstreet/issues/393 for more context.
 
 use abstutil::prettyprint_usize;
-use geom::{Distance, Duration};
+use geom::{Distance, Duration, Percent};
 use map_gui::tools::{draw_isochrone, CityPicker, Navigator};
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
@@ -294,11 +294,28 @@ pub fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
     let mut rows = vec![
         map_gui::tools::app_header(ctx, app, "15-minute neighborhood explorer"),
+        Widget::row(vec![
+            ctx.style()
+                .btn_outline
+                .text("Find your perfect home")
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Search by amenity")
+                .build_def(ctx),
+            ctx.style().btn_outline.text("About").build_def(ctx),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/search.svg")
+                .hotkey(lctrl(Key::F))
+                .build_widget(ctx, "search"),
+        ]),
         ctx.style()
             .btn_outline
             .text("Sketch bus route (experimental)")
             .hotkey(Key::B)
             .build_def(ctx),
+        Widget::horiz_separator(ctx, 1.0).margin_above(10),
         Text::from_all(vec![
             Line("Starting from: ").secondary(),
             Line(&start.address),
@@ -324,39 +341,22 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         ),
     ];
 
+    let mut amenities = Vec::new();
     for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
-        rows.push(
+        amenities.push(
             ctx.style()
                 .btn_outline
                 .text(format!("{}: {}", amenity, buildings.len()))
-                .build_widget(ctx, format!("businesses: {}", amenity)),
+                .build_widget(ctx, format!("businesses: {}", amenity))
+                .margin_right(4)
+                .margin_below(4),
         );
     }
+    rows.push(Widget::custom_row(amenities).flex_wrap(ctx, Percent::int(30)));
 
-    // Start of toolbar
     rows.push(Widget::horiz_separator(ctx, 1.0).margin_above(10));
 
     rows.push(options_to_controls(ctx, &isochrone.options));
-    rows.push(
-        ctx.style()
-            .btn_outline
-            .text("Find your perfect home")
-            .build_def(ctx),
-    );
-    rows.push(
-        ctx.style()
-            .btn_outline
-            .text("Search by amenity")
-            .build_def(ctx),
-    );
-    rows.push(Widget::row(vec![
-        ctx.style().btn_plain.text("About").build_def(ctx),
-        ctx.style()
-            .btn_plain
-            .icon("system/assets/tools/search.svg")
-            .hotkey(lctrl(Key::F))
-            .build_widget(ctx, "search"),
-    ]));
 
     Panel::new_builder(Widget::col(rows))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
