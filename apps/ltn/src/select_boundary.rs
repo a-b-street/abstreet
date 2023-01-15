@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use anyhow::Result;
 
-use geom::{Distance, Polygon};
+use geom::{Distance, Circle, Polygon};
 use map_gui::tools::DrawSimpleRoadLabels;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{Lasso, PopupMsg};
@@ -195,64 +195,15 @@ impl SelectBoundary {
     }
 
     fn add_blocks_freehand(&mut self, ctx: &mut EventCtx, app: &mut App, lasso_polygon: Polygon) {
-        ctx.loading_screen("expand current neighbourhood boundary", |ctx, timer| {
-            timer.start("find matching blocks");
-            // Find all of the blocks within the polygon
-            let mut add_blocks = Vec::new();
-            for (id, block) in app.partitioning().all_single_blocks() {
-                if lasso_polygon.contains_pt(block.polygon.center()) {
-                    if app.partitioning().block_to_neighbourhood(id) != self.id {
-                        add_blocks.push(id);
-                    }
-                }
-            }
-            timer.stop("find matching blocks");
+        // Just simplify the polygon first! Aggressively!
+        let input = lasso_polygon.simplify(50.0);
+        info!(
+            "Original polygon has {} points, simplified {}",
+            lasso_polygon.get_outer_ring().points().len(),
+            input.get_outer_ring().points().len()
+        );
 
-            while !add_blocks.is_empty() {
-                // Proceed in rounds. Calculate the current frontier, find all of the blocks in there,
-                // try to add them, repeat.
-                //
-                // It should be safe to add multiple blocks in a round without recalculating the
-                // frontier; adding one block shouldn't mess up the frontier for another
-                let mut changed = false;
-                let mut still_todo = Vec::new();
-                timer.start_iter("try to add blocks", add_blocks.len());
-                for block_id in add_blocks.drain(..) {
-                    timer.next();
-                    if self.frontier.contains(&block_id) {
-                        let old_owner = app.partitioning().block_to_neighbourhood(block_id);
-                        if let Ok(_) = mut_partitioning!(app).transfer_block(
-                            &app.per_map.map,
-                            block_id,
-                            old_owner,
-                            self.id,
-                        ) {
-                            changed = true;
-                        } else {
-                            still_todo.push(block_id);
-                        }
-                    } else {
-                        still_todo.push(block_id);
-                    }
-                }
-                if changed {
-                    add_blocks = still_todo;
-                    self.frontier = app.partitioning().calculate_frontier(
-                        &app.partitioning().neighbourhood_block(self.id).perimeter,
-                    );
-                } else {
-                    info!("Giving up on adding {} blocks", still_todo.len());
-                    break;
-                }
-            }
-
-            // Just redraw everything
-            self.world = World::bounded(app.per_map.map.get_bounds());
-            for id in app.partitioning().all_block_ids() {
-                self.add_block(ctx, app, id);
-            }
-            self.draw_boundary_roads = draw_boundary_roads(ctx, app);
-        });
+        self.draw_boundary_roads = ctx.upload(neighbourhood_from_nada(app, input));
     }
 }
 
@@ -298,7 +249,7 @@ impl State<App> for SelectBoundary {
                     ));
                 }
                 "Select freehand" => {
-                    self.lasso = Some(Lasso::new(Distance::meters(1.0)));
+                    self.lasso = Some(Lasso::new(Color::YELLOW, Distance::meters(1.0)));
                     self.left_panel = make_panel_for_lasso(ctx, &self.appwide_panel.top_panel);
                 }
                 _ => unreachable!(),
@@ -422,4 +373,223 @@ fn help() -> Vec<&'static str> {
         "Hint: There may be very small blocks near complex roads.",
         "Try the freehand tool to select them.",
     ]
+}
+
+use geo::Contains;
+use geom::FindClosest;
+use map_model::{CommonEndpoint, Map, Perimeter, RoadID, RoadSideID, SideOfRoad};
+use widgetry::Color;
+
+fn neighbourhood_from_nada(app: &App, input: Polygon) -> GeomBatch {
+    let mut batch = GeomBatch::new();
+    let map = &app.per_map.map;
+
+    batch.push(Color::YELLOW.alpha(0.3), input.clone());
+
+    // Find interior roads totally within the input lasso
+    /*let lasso_geo: geo::Polygon = input.clone().into();
+    let mut interior: BTreeSet<RoadID> = BTreeSet::new();
+    for road in map.all_roads() {
+        let center: geo::LineString = (&road.center_pts).into();
+        if lasso_geo.contains(&center) {
+            interior.insert(road.id);
+            batch.push(Color::GREEN, road.get_thick_polygon());
+        }
+    }*/
+
+    // Snap each corner to a driveable intersection
+    let mut closest = FindClosest::new(map.get_bounds());
+    for i in map.all_intersections() {
+        if i.roads.iter().any(|r| map.get_r(*r).is_driveable()) {
+            closest.add_polygon(i.id, &i.polygon);
+        }
+    }
+
+    let threshold = Distance::meters(50.0);
+    let mut intersection_waypoints = Vec::new();
+    for corner in input.get_outer_ring().points() {
+        // Only snap to intersections strictly inside the lasso. If we mix inside/outside, it gets
+        // very confusing
+        if let Some((id, snapped_pt, _)) = closest
+            .all_close_pts(*corner, threshold)
+            .into_iter()
+            .filter(|(_, pt, _)| input.contains_pt(*pt))
+            .min_by_key(|(_, _, dist)| *dist)
+        {
+            intersection_waypoints.push(id);
+
+            // Visualize that snapping...
+            /*if let Ok(line) = geom::Line::new(*corner, snapped_pt) {
+                batch.push(
+                    Color::BLUE.alpha(0.7),
+                    line.make_polygons(Distance::meters(2.0)),
+                );
+            }*/
+        }
+    }
+    if intersection_waypoints.is_empty() {
+        return batch;
+    }
+    intersection_waypoints.push(intersection_waypoints[0]);
+
+    // Now pathfind between each pair of waypoints
+    let mut perim_roads = Vec::new();
+    for pair in intersection_waypoints.windows(2) {
+        if let Some((roads, _)) =
+            map.simple_path_btwn_v2(pair[0], pair[1], map_model::PathConstraints::Car)
+        {
+            for r in roads {
+                perim_roads.push(r);
+            }
+        }
+    }
+    // TODO Last to first?
+
+    let trimmed_perim_roads = remove_spurs(perim_roads);
+    for r in &trimmed_perim_roads {
+        batch.push(Color::RED.alpha(0.6), map.get_r(*r).get_thick_polygon());
+    }
+
+    // Turn each one of these into a RoadSideID
+    //
+    // idea 1: just calculate a point halfway down the road's center line, projected left or right
+    // accordingly. See which one is closer to the polylabel of the lasso.
+    println!("Perim before fixing:");
+    let mut road_sides = Vec::new();
+    let lasso_center = input.polylabel();
+    batch.push(
+        Color::GREEN,
+        Circle::new(lasso_center, Distance::meters(30.0)).to_polygon(),
+    );
+    for r in trimmed_perim_roads {
+        let road = map.get_r(r);
+        let (pt, angle) = road.center_pts.must_dist_along(road.length() / 2.0);
+        let left_pt = pt.project_away(road.get_width() / 2.0, angle.rotate_degs(-90.0));
+        let right_pt = pt.project_away(road.get_width() / 2.0, angle.rotate_degs(90.0));
+
+        let side = if left_pt.dist_to(lasso_center) < right_pt.dist_to(lasso_center) {
+            SideOfRoad::Left
+        } else {
+            SideOfRoad::Right
+        };
+        road_sides.push(RoadSideID {
+            road: road.id,
+            side,
+        });
+        println!("- {side:?} of {r}");
+    }
+
+    // This'll pick the correct side "most" of the time. But we can figure out when tracing the
+    // road-sides will cross a road, and make corrections.
+    let road_sides = fix_road_side_crosses(map, road_sides);
+
+    for x in &road_sides {
+        batch.push(
+            Color::BLUE,
+            x.get_outermost_lane(map)
+                .lane_center_pts
+                .make_polygons(Distance::meters(3.0)),
+        );
+    }
+
+    // Did we get lucky?
+    let perim = Perimeter {
+        roads: road_sides,
+        interior: BTreeSet::new(),
+    };
+    match perim.to_block(map) {
+        Ok(block) => {
+            batch.push(Color::CYAN.alpha(0.5), block.polygon);
+        }
+        Err(err) => {
+            println!("Failed: {err}");
+        }
+    }
+
+    batch
+}
+
+fn remove_spurs(mut input: Vec<RoadID>) -> Vec<RoadID> {
+    // If the input is a loop, then this'll cause problems
+    if input.last() == Some(&input[0]) {
+        input.pop();
+    }
+
+    let mut seen = BTreeSet::new();
+    let mut output = Vec::new();
+    for r in input {
+        if seen.contains(&r) {
+            // Backtrack on the output until we find this road
+            while output.last() != Some(&r) {
+                seen.remove(&output.pop().unwrap());
+            }
+            assert_eq!(Some(r), output.pop());
+            seen.remove(&r);
+        } else {
+            seen.insert(r);
+            output.push(r);
+        }
+    }
+    output
+
+    // Just eliminate little "spurs" that're one road long
+    /*let mut output = Vec::new();
+    for r in perim_roads {
+        if output.last() == Some(&r) {
+            output.pop();
+        } else {
+            output.push(r);
+        }
+    }
+    output*/
+}
+
+// Blindlyish assume the place we start is "correct" and match that
+fn fix_road_side_crosses(map: &Map, mut input: Vec<RoadSideID>) -> Vec<RoadSideID> {
+    if input.is_empty() {
+        return input;
+    }
+    // No windows_mut, so index manually
+    for idx in 0..input.len() - 1 {
+        let lane1 = input[idx].get_outermost_lane(map);
+        let lane2 = input[idx + 1].get_outermost_lane(map);
+        let i = if let CommonEndpoint::One(i) = lane1.common_endpoint(lane2) {
+            i
+        } else {
+            // ?? Just give up here
+            continue;
+        };
+        // Trim back from the ends a bit
+        // ... but then false positives everywhere
+        let pt1 = if lane1.src_i == i {
+            //lane1.lane_center_pts.percent_along(0.2).unwrap().0
+            lane1.lane_center_pts.first_pt()
+        } else {
+            //lane1.lane_center_pts.percent_along(0.8).unwrap().0
+            lane1.lane_center_pts.last_pt()
+        };
+        let pt2 = if lane2.src_i == i {
+            //lane2.lane_center_pts.percent_along(0.2).unwrap().0
+            lane2.lane_center_pts.first_pt()
+        } else {
+            //lane2.lane_center_pts.percent_along(0.8).unwrap().0
+            lane2.lane_center_pts.last_pt()
+        };
+
+        // If the points are the same, we definitely don't cross the road, so cool!
+        if let Ok(line) = geom::Line::new(pt1, pt2) {
+            if map
+                .get_r(input[idx + 1].road)
+                .center_pts
+                .intersection(&line.to_polyline())
+                .is_some()
+            {
+                // Blindly fix!
+                let id = input.get_mut(idx + 1).unwrap();
+                println!("Swap {id:?}");
+                *id = id.other_side();
+            }
+        }
+    }
+    input
 }

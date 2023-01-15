@@ -9,15 +9,17 @@ pub struct Lasso {
     points: Vec<Pt2D>,
     polygon: Option<Polygon>,
     threshold: Distance,
+    color: Color,
 }
 
 impl Lasso {
-    /// How far do points need to be spaced apart to add?
-    pub fn new(threshold: Distance) -> Self {
+    /// `threshold` determines how far do points need to be spaced apart to add
+    pub fn new(color: Color, threshold: Distance) -> Self {
         Self {
             points: Vec::new(),
             polygon: None,
             threshold,
+            color,
         }
     }
 
@@ -55,12 +57,12 @@ impl Lasso {
     pub fn draw(&self, g: &mut GfxCtx) {
         if let Ok(pl) = PolyLine::new(self.points.clone()) {
             g.draw_polygon(
-                Color::RED.alpha(0.8),
+                self.color.alpha(0.8),
                 pl.make_polygons(Distance::meters(5.0) / g.canvas.cam_zoom),
             );
         }
         if let Some(ref polygon) = self.polygon {
-            g.draw_polygon(Color::RED.alpha(0.5), polygon.clone());
+            g.draw_polygon(self.color.alpha(0.5), polygon.clone());
         }
     }
 }

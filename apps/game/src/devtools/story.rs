@@ -240,7 +240,7 @@ impl State<App> for StoryMapEditor {
                 }
                 "Draw freehand" => {
                     return Transition::Push(Box::new(DrawFreehand {
-                        lasso: Lasso::new(Distance::meters(1.0)),
+                        lasso: Lasso::new(Color::RED, Distance::meters(1.0)),
                         new_idx: self.story.markers.len(),
                     }));
                 }

@@ -392,6 +392,13 @@ impl PolyLine {
         self.dist_along(dist_along).unwrap()
     }
 
+    pub fn percent_along(&self, percent: f64) -> Result<(Pt2D, Angle)> {
+        if !(0.0..=1.0).contains(&percent) {
+            bail!("percent_along({percent}) of some polyline outside [0, 1]");
+        }
+        self.dist_along(percent * self.length())
+    }
+
     pub fn middle(&self) -> Pt2D {
         // If this fails, must be some super tiny line. Just return the first point in that case.
         match self.dist_along(self.length() / 2.0) {

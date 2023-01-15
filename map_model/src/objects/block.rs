@@ -626,6 +626,9 @@ impl Perimeter {
         }
         // Do the intersection boundary tracing for the last piece. We didn't know enough to do it
         // the first time.
+        if first_intersection.is_none() {
+            bail!("first_intersection missing, something went very wrong");
+        }
         let first_intersection = map.get_i(first_intersection.unwrap());
         let ring = first_intersection.polygon.get_outer_ring();
         if !ring.doubles_back() {
