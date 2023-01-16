@@ -7,6 +7,7 @@ use map_model::{Direction, IntersectionID, Map, RoadID};
 
 use crate::shortcuts::Shortcuts;
 use crate::{is_private, App, Edits, NeighbourhoodID};
+use crate::partition::CustomBoundary;
 
 // Once constructed, a Neighbourhood is immutable
 pub struct Neighbourhood {
@@ -104,6 +105,10 @@ pub struct DistanceInterval {
 
 impl Neighbourhood {
     pub fn new(app: &App, id: NeighbourhoodID) -> Neighbourhood {
+        if let Some(custom) = app.partitioning().custom_boundaries.get(&id) {
+            return Self::new_custom(app, id, custom.clone());
+        }
+
         let map = &app.per_map.map;
         let orig_perimeter = app.partitioning().neighbourhood_block(id).perimeter.clone();
 
@@ -152,15 +157,41 @@ impl Neighbourhood {
             n.borders.insert(road.dst_i);
         }
 
-        if let Some((boundary_polygon, borders, interior_roads)) =
-            app.partitioning().new_hacks.get(&id)
-        {
-            n.boundary_polygon = boundary_polygon.clone();
-            n.interior_roads = interior_roads.clone();
-            n.borders = borders.clone();
-            // TODO perimeter_roads is the gap
+        for r in &n.interior_roads {
+            let road = map.get_r(*r);
+            for i in [road.src_i, road.dst_i] {
+                if !n.borders.contains(&i) {
+                    n.interior_intersections.insert(i);
+                }
+            }
         }
 
+        n.cells = find_cells(map, &n.interior_roads, &n.borders, &app.edits());
+
+        // TODO The timer could be nice for large areas. But plumbing through one everywhere is
+        // tedious, and would hit a nested start_iter bug anyway.
+        n.shortcuts = crate::shortcuts::find_shortcuts(app, &n, &mut abstutil::Timer::throwaway());
+
+        n
+    }
+
+    fn new_custom(app: &App, id: NeighbourhoodID, custom: CustomBoundary) -> Neighbourhood {
+        let map = &app.per_map.map;
+
+        let mut n = Neighbourhood {
+            id,
+            interior_roads: custom.interior_roads,
+            // TODO Don't know how to calculate these
+            perimeter_roads: BTreeSet::new(),
+            borders: custom.borders,
+            interior_intersections: BTreeSet::new(),
+            boundary_polygon: custom.boundary_polygon,
+
+            cells: Vec::new(),
+            shortcuts: Shortcuts::empty(),
+        };
+
+        // The rest is the same as the normal case
         for r in &n.interior_roads {
             let road = map.get_r(*r);
             for i in [road.src_i, road.dst_i] {

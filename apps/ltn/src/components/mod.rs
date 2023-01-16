@@ -10,6 +10,7 @@ pub use left_panel::{BottomPanel, LeftPanel};
 #[derive(Clone, Copy, PartialEq)]
 pub enum Mode {
     PickArea,
+    FreehandBoundary,
     ModifyNeighbourhood,
     SelectBoundary,
     RoutePlanner,
