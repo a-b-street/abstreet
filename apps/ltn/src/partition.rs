@@ -9,8 +9,6 @@ use geom::Polygon;
 use map_model::osm::RoadRank;
 use map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
 
-use crate::App;
-
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct NeighbourhoodID(pub usize);
@@ -319,30 +317,16 @@ impl Partitioning {
     }
 
     pub fn neighbourhood_area_km2(&self, id: NeighbourhoodID) -> String {
+        // TODO Could consider using the boundary_polygon calculated by Neighbourhood
         // Convert from m^2 to km^2
         let area = self.neighbourhood_block(id).polygon.area() / 1_000_000.0;
         format!("~{:.1} km²", area)
     }
 
-    pub fn neighbourhood_boundary_polygon(&self, app: &App, id: NeighbourhoodID) -> Polygon {
-        let info = &self.neighbourhoods[&id];
-        if let Some(polygon) = info.override_drawing_boundary.clone() {
-            return polygon;
-        }
-        // The neighbourhood's perimeter hugs the "interior" of the neighbourhood. If we just use the
-        // other side of the perimeter road, the highlighted area nicely shows the boundary road
-        // too. (But sometimes this breaks, of course)
-        match info
-            .block
-            .perimeter
-            .clone()
-            .flip_side_of_road()
-            .to_block(&app.per_map.map)
-        {
-            Ok(block) => block.polygon,
-            Err(_) => info.block.polygon.clone(),
-        }
+    pub fn get_info(&self, id: NeighbourhoodID) -> &NeighbourhoodInfo {
+        &self.neighbourhoods[&id]
     }
+
     pub fn override_neighbourhood_boundary_polygon(
         &mut self,
         id: NeighbourhoodID,

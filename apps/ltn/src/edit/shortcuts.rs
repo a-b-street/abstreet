@@ -56,7 +56,7 @@ pub fn make_world(
     let mut world = World::bounded(map.get_bounds());
     let focused_road = focus.as_ref().map(|f| f.r);
 
-    for r in &neighbourhood.orig_perimeter.interior {
+    for r in &neighbourhood.interior_roads {
         let road = map.get_r(*r);
         if focused_road == Some(*r) {
             let mut batch = GeomBatch::new();

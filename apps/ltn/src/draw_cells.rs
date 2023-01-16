@@ -93,12 +93,7 @@ impl RenderCells {
 
 impl RenderCellsBuilder {
     fn new(map: &Map, neighbourhood: &Neighbourhood) -> RenderCellsBuilder {
-        let boundary_polygon = neighbourhood
-            .orig_perimeter
-            .clone()
-            .to_block(map)
-            .unwrap()
-            .polygon;
+        let boundary_polygon = neighbourhood.boundary_polygon.clone();
         // Make a 2D grid covering the polygon. Each tile in the grid contains a cell index, which
         // will become a color by the end. None means no cell is assigned yet.
         let bounds = boundary_polygon.get_bounds();

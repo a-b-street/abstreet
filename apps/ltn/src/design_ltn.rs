@@ -46,15 +46,12 @@ impl DesignLTN {
                 .get_boundary_polygon()
                 .get_outer_ring()
                 .clone(),
-            vec![app
-                .partitioning()
-                .neighbourhood_boundary_polygon(app, id)
-                .into_outer_ring()],
+            vec![neighbourhood.boundary_polygon.clone().into_outer_ring()],
         );
         let fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
-        let mut label_roads = neighbourhood.perimeter.clone();
-        label_roads.extend(neighbourhood.orig_perimeter.interior.clone());
+        let mut label_roads = neighbourhood.perimeter_roads.clone();
+        label_roads.extend(neighbourhood.interior_roads.clone());
         let labels = DrawSimpleRoadLabels::new(
             ctx,
             app,
@@ -291,10 +288,9 @@ fn setup_editing(
     let private_road = GeomBatch::load_svg(ctx, "system/assets/map/private_road.svg");
 
     for r in neighbourhood
-        .orig_perimeter
-        .interior
+        .interior_roads
         .iter()
-        .chain(neighbourhood.orig_perimeter.roads.iter().map(|id| &id.road))
+        .chain(neighbourhood.perimeter_roads.iter())
     {
         let road = map.get_r(*r);
         if let Some(dir) = road.oneway_for_driving() {

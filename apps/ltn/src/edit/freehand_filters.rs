@@ -32,7 +32,7 @@ fn make_filters_along_path(
     let mut bus_roads = Vec::new();
 
     app.per_map.proposals.before_edit();
-    for r in &neighbourhood.orig_perimeter.interior {
+    for r in &neighbourhood.interior_roads {
         if app.edits().roads.contains_key(r) {
             continue;
         }

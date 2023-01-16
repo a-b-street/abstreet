@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use maplit::btreeset;
 
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
-use map_model::{Direction, IntersectionID, Map, Perimeter, RoadID};
+use map_model::{Direction, IntersectionID, Map, RoadID};
 
 use crate::shortcuts::Shortcuts;
 use crate::{is_private, App, Edits, NeighbourhoodID};
@@ -12,10 +12,14 @@ use crate::{is_private, App, Edits, NeighbourhoodID};
 pub struct Neighbourhood {
     pub id: NeighbourhoodID,
 
-    pub orig_perimeter: Perimeter,
-    pub perimeter: BTreeSet<RoadID>,
+    // Input
     pub borders: BTreeSet<IntersectionID>,
     pub interior_intersections: BTreeSet<IntersectionID>,
+    pub boundary_polygon: Polygon,
+
+    // Derived stuff
+    pub interior_roads: BTreeSet<RoadID>,
+    pub perimeter_roads: BTreeSet<RoadID>,
 
     pub cells: Vec<Cell>,
     pub shortcuts: Shortcuts,
@@ -105,23 +109,50 @@ impl Neighbourhood {
 
         let mut n = Neighbourhood {
             id,
-            orig_perimeter,
-            perimeter: BTreeSet::new(),
+            interior_roads: orig_perimeter.interior.clone(),
+            perimeter_roads: BTreeSet::new(),
             borders: BTreeSet::new(),
             interior_intersections: BTreeSet::new(),
+            boundary_polygon: Polygon::dummy(),
 
             cells: Vec::new(),
             shortcuts: Shortcuts::empty(),
         };
 
-        for id in &n.orig_perimeter.roads {
-            n.perimeter.insert(id.road);
+        // The neighbourhood's perimeter hugs the "interior" of the neighbourhood. If we just use
+        // the other side of the perimeter road, the highlighted area nicely shows the boundary
+        // road too. (But sometimes this breaks, of course)
+        n.boundary_polygon = match orig_perimeter
+            .clone()
+            .flip_side_of_road()
+            .to_block(&app.per_map.map)
+        {
+            Ok(block) => block.polygon,
+            Err(_) => {
+                orig_perimeter
+                    .clone()
+                    .to_block(&app.per_map.map)
+                    .unwrap()
+                    .polygon
+            }
+        };
+        if let Some(polygon) = app
+            .partitioning()
+            .get_info(id)
+            .override_drawing_boundary
+            .clone()
+        {
+            n.boundary_polygon = polygon;
+        }
+
+        for id in &orig_perimeter.roads {
+            n.perimeter_roads.insert(id.road);
             let road = map.get_r(id.road);
             n.borders.insert(road.src_i);
             n.borders.insert(road.dst_i);
         }
 
-        for r in &n.orig_perimeter.interior {
+        for r in &n.interior_roads {
             let road = map.get_r(*r);
             for i in [road.src_i, road.dst_i] {
                 if !n.borders.contains(&i) {
@@ -130,7 +161,7 @@ impl Neighbourhood {
             }
         }
 
-        n.cells = find_cells(map, &n.orig_perimeter, &n.borders, &app.edits());
+        n.cells = find_cells(map, &n.interior_roads, &n.borders, &app.edits());
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.
@@ -140,18 +171,18 @@ impl Neighbourhood {
     }
 }
 
-// Find all of the disconnected "cells" of reachable areas, bounded by a perimeter. This is with
+// Find all of the disconnected "cells" of reachable areas, bounded by border intersections. This is with
 // respect to driving.
 fn find_cells(
     map: &Map,
-    perimeter: &Perimeter,
+    interior_roads: &BTreeSet<RoadID>,
     borders: &BTreeSet<IntersectionID>,
     edits: &Edits,
 ) -> Vec<Cell> {
     let mut cells = Vec::new();
     let mut visited = BTreeSet::new();
 
-    for start in &perimeter.interior {
+    for start in interior_roads {
         if visited.contains(start) || edits.roads.contains_key(start) {
             continue;
         }

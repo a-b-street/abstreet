@@ -34,7 +34,7 @@ impl Shortcuts {
             for step in path.get_steps() {
                 match step {
                     PathStepV2::Along(dr) => {
-                        if neighbourhood.orig_perimeter.interior.contains(&dr.road) {
+                        if neighbourhood.interior_roads.contains(&dr.road) {
                             count_per_road.inc(dr.road);
                         }
                     }
@@ -58,12 +58,11 @@ impl Shortcuts {
 
     pub fn quiet_and_total_streets(&self, neighbourhood: &Neighbourhood) -> (usize, usize) {
         let quiet_streets = neighbourhood
-            .orig_perimeter
-            .interior
+            .interior_roads
             .iter()
             .filter(|r| self.count_per_road.get(**r) == 0)
             .count();
-        let total_streets = neighbourhood.orig_perimeter.interior.len();
+        let total_streets = neighbourhood.interior_roads.len();
         (quiet_streets, total_streets)
     }
 
@@ -135,11 +134,11 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
             .iter()
             .map(|r| r.id)
             .collect::<BTreeSet<RoadID>>()
-            .difference(&neighbourhood.orig_perimeter.interior),
+            .difference(&neighbourhood.interior_roads),
     );
 
     // Also can't use private roads
-    for r in &neighbourhood.orig_perimeter.interior {
+    for r in &neighbourhood.interior_roads {
         if !crate::is_driveable(map.get_r(*r), map) {
             params.avoid_roads.insert(*r);
         }
@@ -210,7 +209,7 @@ fn find_major_road_names(
 ) -> BTreeSet<String> {
     let mut names = BTreeSet::new();
     for r in &map.get_i(i).roads {
-        if neighbourhood.perimeter.contains(r) {
+        if neighbourhood.perimeter_roads.contains(r) {
             names.insert(map.get_r(*r).get_name(None));
         }
     }

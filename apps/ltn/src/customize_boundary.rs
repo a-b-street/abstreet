@@ -5,7 +5,7 @@ use widgetry::{
     Widget,
 };
 
-use crate::{mut_partitioning, App, NeighbourhoodID, Transition};
+use crate::{mut_partitioning, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct CustomizeBoundary {
     panel: Panel,
@@ -15,9 +15,8 @@ pub struct CustomizeBoundary {
 
 impl CustomizeBoundary {
     pub fn new_state(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Box<dyn State<App>> {
-        let points = app
-            .partitioning()
-            .neighbourhood_boundary_polygon(app, id)
+        let points = Neighbourhood::new(app, id)
+            .boundary_polygon
             .into_outer_ring()
             .into_points();
         Box::new(Self {

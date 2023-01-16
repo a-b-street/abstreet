@@ -106,9 +106,9 @@ fn brute_force(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
     let orig_filters = app.edits().roads.len();
     timer.start_iter(
         "evaluate candidate filters",
-        neighbourhood.orig_perimeter.interior.len(),
+        neighbourhood.interior_roads.len(),
     );
-    for r in &neighbourhood.orig_perimeter.interior {
+    for r in &neighbourhood.interior_roads {
         timer.next();
         if app.edits().roads.contains_key(r) {
             continue;
@@ -138,9 +138,9 @@ fn split_cells(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
     let orig_filters = app.edits().roads.len();
     timer.start_iter(
         "evaluate candidate filters",
-        neighbourhood.orig_perimeter.interior.len(),
+        neighbourhood.interior_roads.len(),
     );
-    for r in &neighbourhood.orig_perimeter.interior {
+    for r in &neighbourhood.interior_roads {
         timer.next();
         if app.edits().roads.contains_key(r) {
             continue;
