@@ -22,7 +22,7 @@ pub enum Heuristic {
     BruteForce,
     /// Find one filter that splits a cell, maximizing the number of streets in each new cell.
     SplitCells,
-    /// Per cell, close all borders except for one. This doesn't affect design_ltn, but prevents
+    /// Per cell, close all borders except for one. This doesn't affect connectivity, but prevents
     /// all shortcuts.
     OnlyOneBorder,
 }
