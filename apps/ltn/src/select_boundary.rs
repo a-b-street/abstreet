@@ -7,7 +7,8 @@ use map_gui::tools::DrawSimpleRoadLabels;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{Lasso, PopupMsg};
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
+    Widget,
 };
 
 use crate::components::{AppwidePanel, Mode};
@@ -195,64 +196,9 @@ impl SelectBoundary {
     }
 
     fn add_blocks_freehand(&mut self, ctx: &mut EventCtx, app: &mut App, lasso_polygon: Polygon) {
-        ctx.loading_screen("expand current neighbourhood boundary", |ctx, timer| {
-            timer.start("find matching blocks");
-            // Find all of the blocks within the polygon
-            let mut add_blocks = Vec::new();
-            for (id, block) in app.partitioning().all_single_blocks() {
-                if lasso_polygon.contains_pt(block.polygon.center()) {
-                    if app.partitioning().block_to_neighbourhood(id) != self.id {
-                        add_blocks.push(id);
-                    }
-                }
-            }
-            timer.stop("find matching blocks");
-
-            while !add_blocks.is_empty() {
-                // Proceed in rounds. Calculate the current frontier, find all of the blocks in there,
-                // try to add them, repeat.
-                //
-                // It should be safe to add multiple blocks in a round without recalculating the
-                // frontier; adding one block shouldn't mess up the frontier for another
-                let mut changed = false;
-                let mut still_todo = Vec::new();
-                timer.start_iter("try to add blocks", add_blocks.len());
-                for block_id in add_blocks.drain(..) {
-                    timer.next();
-                    if self.frontier.contains(&block_id) {
-                        let old_owner = app.partitioning().block_to_neighbourhood(block_id);
-                        if let Ok(_) = mut_partitioning!(app).transfer_block(
-                            &app.per_map.map,
-                            block_id,
-                            old_owner,
-                            self.id,
-                        ) {
-                            changed = true;
-                        } else {
-                            still_todo.push(block_id);
-                        }
-                    } else {
-                        still_todo.push(block_id);
-                    }
-                }
-                if changed {
-                    add_blocks = still_todo;
-                    self.frontier = app.partitioning().calculate_frontier(
-                        &app.partitioning().neighbourhood_block(self.id).perimeter,
-                    );
-                } else {
-                    info!("Giving up on adding {} blocks", still_todo.len());
-                    break;
-                }
-            }
-
-            // Just redraw everything
-            self.world = World::bounded(app.per_map.map.get_bounds());
-            for id in app.partitioning().all_block_ids() {
-                self.add_block(ctx, app, id);
-            }
-            self.draw_boundary_roads = draw_boundary_roads(ctx, app);
-        });
+        self.draw_boundary_roads =
+            ctx.upload(neighbourhood_from_polygon(app, self.id, lasso_polygon));
+        self.world = World::unbounded();
     }
 }
 
@@ -422,4 +368,54 @@ fn help() -> Vec<&'static str> {
         "Hint: There may be very small blocks near complex roads.",
         "Try the freehand tool to select them.",
     ]
+}
+
+fn neighbourhood_from_polygon(app: &mut App, id: NeighbourhoodID, polygon: Polygon) -> GeomBatch {
+    let map = &app.per_map.map;
+
+    // Find all intersections inside the polygon
+    let mut intersections_inside = BTreeSet::new();
+    for i in map.all_intersections() {
+        if polygon.contains_pt(i.polygon.center()) {
+            intersections_inside.insert(i.id);
+        }
+    }
+
+    // Which ones are borders? If the intersection has roads leading out of the polygon
+    let mut borders = BTreeSet::new();
+    let mut interior_roads = BTreeSet::new();
+    for i in &intersections_inside {
+        let i = map.get_i(*i);
+        for r in &i.roads {
+            let r = map.get_r(*r);
+            if intersections_inside.contains(&r.src_i) && intersections_inside.contains(&r.dst_i) {
+                interior_roads.insert(r.id);
+            } else {
+                borders.insert(i.id);
+            }
+        }
+    }
+
+    let mut batch = GeomBatch::new();
+    batch.push(Color::YELLOW.alpha(0.5), polygon.clone());
+
+    let mut border_polygons = Vec::new();
+    for i in &borders {
+        border_polygons.push(map.get_i(*i).polygon.clone());
+    }
+    if let Ok(p) = Polygon::convex_hull(border_polygons.clone()) {
+        batch.push(Color::RED.alpha(0.5), p);
+    }
+    batch.extend(Color::BLACK, border_polygons);
+
+    for r in &interior_roads {
+        batch.push(Color::GREEN.alpha(0.5), map.get_r(*r).get_thick_polygon());
+    }
+
+    // Overwrite stuff
+    mut_partitioning!(app)
+        .new_hacks
+        .insert(id, (polygon, borders, interior_roads));
+
+    batch
 }

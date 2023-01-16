@@ -152,6 +152,15 @@ impl Neighbourhood {
             n.borders.insert(road.dst_i);
         }
 
+        if let Some((boundary_polygon, borders, interior_roads)) =
+            app.partitioning().new_hacks.get(&id)
+        {
+            n.boundary_polygon = boundary_polygon.clone();
+            n.interior_roads = interior_roads.clone();
+            n.borders = borders.clone();
+            // TODO perimeter_roads is the gap
+        }
+
         for r in &n.interior_roads {
             let road = map.get_r(*r);
             for i in [road.src_i, road.dst_i] {

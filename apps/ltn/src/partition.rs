@@ -7,7 +7,7 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::Polygon;
 use map_model::osm::RoadRank;
-use map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
+use map_model::{Block, IntersectionID, Map, Perimeter, RoadID, RoadSideID};
 
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -35,6 +35,9 @@ pub struct Partitioning {
 
     use_expensive_blockfinding: bool,
     pub broken: bool,
+
+    // (Boundary polygon, border intersections, interior roads)
+    pub new_hacks: BTreeMap<NeighbourhoodID, (Polygon, BTreeSet<IntersectionID>, BTreeSet<RoadID>)>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -68,6 +71,7 @@ impl Partitioning {
 
             use_expensive_blockfinding: false,
             broken: false,
+            new_hacks: BTreeMap::new(),
         }
     }
 
@@ -148,6 +152,7 @@ impl Partitioning {
                 block_to_neighbourhood: BTreeMap::new(),
                 use_expensive_blockfinding,
                 broken: false,
+                new_hacks: BTreeMap::new(),
             };
 
             // TODO We could probably build this up as we go
