@@ -376,6 +376,7 @@ fn launch_advanced(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Transi
     let mut choices = vec![Choice::string("Automatically place modal filters")];
     if !app.partitioning().custom_boundaries.contains_key(&id) {
         choices.push(Choice::string("Customize boundary (for drawing only)"));
+        choices.push(Choice::string("Convert to freehand area"));
     }
 
     Transition::Push(ChooseSomething::new_state(
@@ -387,6 +388,15 @@ fn launch_advanced(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Transi
                 Transition::Replace(crate::customize_boundary::CustomizeBoundary::new_state(
                     ctx, app, id,
                 ))
+            } else if choice == "Convert to freehand area" {
+                Transition::Replace(
+                    crate::freehand_boundary::FreehandBoundary::new_from_polygon(
+                        ctx,
+                        app,
+                        format!("Converted from {:?}", id),
+                        app.partitioning().get_info(id).block.polygon.clone(),
+                    ),
+                )
             } else {
                 Transition::Replace(ChooseSomething::new_state(
                     ctx,

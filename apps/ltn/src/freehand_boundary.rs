@@ -25,38 +25,82 @@ pub struct FreehandBoundary {
 }
 
 impl FreehandBoundary {
-    pub fn new_state(
+    pub fn blank(ctx: &mut EventCtx, app: &mut App, name: String) -> Box<dyn State<App>> {
+        let appwide_panel = AppwidePanel::new(ctx, app, Mode::FreehandBoundary);
+        let left_panel = make_panel(ctx, &appwide_panel.top_panel);
+        Box::new(Self {
+            appwide_panel,
+            left_panel,
+            id: None,
+            custom: None,
+            draw_custom: Drawable::empty(ctx),
+            edit: EditPolygon::new(ctx, app, Vec::new(), false),
+            lasso: None,
+            name,
+        })
+    }
+
+    pub fn edit_existing(
         ctx: &mut EventCtx,
         app: &mut App,
         name: String,
-        id: Option<NeighbourhoodID>,
-        custom: Option<CustomBoundary>,
+        id: NeighbourhoodID,
+        custom: CustomBoundary,
     ) -> Box<dyn State<App>> {
         let appwide_panel = AppwidePanel::new(ctx, app, Mode::FreehandBoundary);
         let left_panel = make_panel(ctx, &appwide_panel.top_panel);
         let mut state = Self {
             appwide_panel,
             left_panel,
-            id,
-            custom,
+            id: Some(id),
+            custom: Some(custom),
             draw_custom: Drawable::empty(ctx),
             edit: EditPolygon::new(ctx, app, Vec::new(), false),
             lasso: None,
             name,
         };
-        if let Some(ref custom) = state.custom {
-            state.edit = EditPolygon::new(
+        state.edit = EditPolygon::new(
+            ctx,
+            app,
+            state
+                .custom
+                .as_ref()
+                .unwrap()
+                .boundary_polygon
+                .clone()
+                .into_outer_ring()
+                .into_points(),
+            false,
+        );
+        state.draw_custom = render(ctx, app, state.custom.as_ref().unwrap());
+        Box::new(state)
+    }
+
+    pub fn new_from_polygon(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        name: String,
+        polygon: Polygon,
+    ) -> Box<dyn State<App>> {
+        let appwide_panel = AppwidePanel::new(ctx, app, Mode::FreehandBoundary);
+        let left_panel = make_panel(ctx, &appwide_panel.top_panel);
+        let mut state = Self {
+            appwide_panel,
+            left_panel,
+            id: None,
+            custom: None,
+            draw_custom: Drawable::empty(ctx),
+            edit: EditPolygon::new(
                 ctx,
                 app,
-                custom
-                    .boundary_polygon
-                    .clone()
-                    .into_outer_ring()
-                    .into_points(),
+                polygon.clone().into_outer_ring().into_points(),
                 false,
-            );
-            state.draw_custom = render(ctx, app, custom);
-        }
+            ),
+            lasso: None,
+            name,
+        };
+        state.custom = Some(polygon_to_custom_boundary(app, polygon, state.name.clone()));
+        state.draw_custom = render(ctx, app, state.custom.as_ref().unwrap());
         Box::new(state)
     }
 }

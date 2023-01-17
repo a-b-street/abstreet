@@ -113,12 +113,12 @@ impl EditNeighbourhood {
         match action {
             "Adjust boundary" => EditOutcome::Transition(Transition::Replace(
                 if let Some(custom) = app.partitioning().custom_boundaries.get(&id).cloned() {
-                    crate::freehand_boundary::FreehandBoundary::new_state(
+                    crate::freehand_boundary::FreehandBoundary::edit_existing(
                         ctx,
                         app,
                         custom.name.clone(),
-                        Some(id),
-                        Some(custom),
+                        id,
+                        custom,
                     )
                 } else {
                     crate::select_boundary::SelectBoundary::new_state(ctx, app, id)

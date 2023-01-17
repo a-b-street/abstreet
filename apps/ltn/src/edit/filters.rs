@@ -1,6 +1,6 @@
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
-use widgetry::{lctrl, EventCtx, Key, Text, Transition, GeomBatch, Color};
+use widgetry::{lctrl, Color, EventCtx, GeomBatch, Key, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
 use crate::{
