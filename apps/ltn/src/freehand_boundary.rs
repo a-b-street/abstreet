@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::{Distance, Polygon};
+use map_gui::tools::EditPolygon;
 use widgetry::tools::Lasso;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
@@ -17,6 +18,7 @@ pub struct FreehandBoundary {
 
     name: String,
     custom: Option<(CustomBoundary, Drawable)>,
+    edit: EditPolygon,
     lasso: Option<Lasso>,
 }
 
@@ -28,6 +30,7 @@ impl FreehandBoundary {
             appwide_panel,
             left_panel,
             custom: None,
+            edit: EditPolygon::new(ctx, app, Vec::new(), false),
             lasso: None,
             name,
         })
@@ -38,7 +41,15 @@ impl State<App> for FreehandBoundary {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Some(ref mut lasso) = self.lasso {
             if let Some(polygon) = lasso.event(ctx) {
+                let polygon = polygon.simplify(50.0);
+
                 self.lasso = None;
+                self.edit = EditPolygon::new(
+                    ctx,
+                    app,
+                    polygon.clone().into_outer_ring().into_points(),
+                    false,
+                );
                 self.custom = Some(neighbourhood_from_polygon(
                     ctx,
                     app,
@@ -48,6 +59,17 @@ impl State<App> for FreehandBoundary {
                 self.left_panel = make_panel(ctx, &self.appwide_panel.top_panel);
             }
             return Transition::Keep;
+        }
+
+        if self.edit.event(ctx, app) {
+            if let Ok(ring) = self.edit.get_ring() {
+                self.custom = Some(neighbourhood_from_polygon(
+                    ctx,
+                    app,
+                    ring.into_polygon(),
+                    self.name.clone(),
+                ));
+            }
         }
 
         // PreserveState doesn't matter, can't switch proposals in FreehandBoundary anyway
@@ -86,8 +108,6 @@ impl State<App> for FreehandBoundary {
             }
         }
 
-        ctx.canvas_movement();
-
         Transition::Keep
     }
 
@@ -98,6 +118,7 @@ impl State<App> for FreehandBoundary {
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
         }
+        self.edit.draw(g);
         if let Some((_, ref draw)) = self.custom {
             g.redraw(draw);
         }
@@ -188,15 +209,15 @@ fn neighbourhood_from_polygon(
     }
 
     let mut batch = GeomBatch::new();
-    batch.push(Color::YELLOW.alpha(0.5), boundary_polygon.clone());
+    //batch.push(Color::YELLOW.alpha(0.5), boundary_polygon.clone());
 
     let mut border_polygons = Vec::new();
     for i in &borders {
         border_polygons.push(map.get_i(*i).polygon.clone());
     }
-    if let Ok(p) = Polygon::convex_hull(border_polygons.clone()) {
+    /*if let Ok(p) = Polygon::convex_hull(border_polygons.clone()) {
         batch.push(Color::RED.alpha(0.5), p);
-    }
+    }*/
     batch.extend(Color::BLACK, border_polygons);
 
     for r in &interior_roads {

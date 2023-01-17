@@ -3,10 +3,10 @@ use std::collections::HashSet;
 use abstutil::Counter;
 use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
 use widgetry::mapspace::{World, WorldOutcome};
-use widgetry::tools::{PromptInput, ChooseSomething};
+use widgetry::tools::{ChooseSomething, PromptInput};
 use widgetry::{
-    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel,
-    State, Widget,
+    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, State,
+    Widget,
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};

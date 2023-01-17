@@ -1,4 +1,3 @@
-use geom::Ring;
 use map_gui::tools::EditPolygon;
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, TextExt, VerticalAlignment,
@@ -32,7 +31,7 @@ impl CustomizeBoundary {
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            edit: EditPolygon::new(points),
+            edit: EditPolygon::new(ctx, app, points, false),
         })
     }
 }
@@ -47,9 +46,7 @@ impl State<App> for CustomizeBoundary {
                     return Transition::Pop;
                 }
                 "Save" => {
-                    let mut pts = self.edit.get_points().to_vec();
-                    pts.push(pts[0]);
-                    if let Ok(ring) = Ring::new(pts) {
+                    if let Ok(ring) = self.edit.get_ring() {
                         mut_partitioning!(app)
                             .override_neighbourhood_boundary_polygon(self.id, ring.into_polygon());
                         return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);

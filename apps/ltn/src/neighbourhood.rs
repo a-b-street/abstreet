@@ -5,9 +5,9 @@ use maplit::btreeset;
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{Direction, IntersectionID, Map, RoadID};
 
+use crate::partition::CustomBoundary;
 use crate::shortcuts::Shortcuts;
 use crate::{is_private, App, Edits, NeighbourhoodID};
-use crate::partition::CustomBoundary;
 
 // Once constructed, a Neighbourhood is immutable
 pub struct Neighbourhood {

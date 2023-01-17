@@ -38,7 +38,7 @@ impl PolygonEditor {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             name,
-            edit: EditPolygon::new(points),
+            edit: EditPolygon::new(ctx, app, points, true),
         })
     }
 }
@@ -53,23 +53,19 @@ impl State<App> for PolygonEditor {
                     return Transition::Pop;
                 }
                 "export as a GeoJSON boundary" => {
-                    if self.edit.get_points().len() >= 3 {
-                        let mut pts = self.edit.get_points().to_vec();
-                        pts.push(pts[0]);
-                        if let Ok(ring) = Ring::new(pts) {
-                            let polygon = ring
-                                .into_polygon()
-                                .to_geojson(Some(app.primary.map.get_gps_bounds()));
-                            let gj = geom::geometries_with_properties_to_geojson(vec![(
-                                polygon,
-                                serde_json::Map::new(),
-                            )]);
-                            abstio::write_file(
-                                format!("{}.geojson", self.name),
-                                abstutil::to_json(&gj),
-                            )
-                            .unwrap();
-                        }
+                    if let Ok(ring) = self.edit.get_ring() {
+                        let polygon = ring
+                            .into_polygon()
+                            .to_geojson(Some(app.primary.map.get_gps_bounds()));
+                        let gj = geom::geometries_with_properties_to_geojson(vec![(
+                            polygon,
+                            serde_json::Map::new(),
+                        )]);
+                        abstio::write_file(
+                            format!("{}.geojson", self.name),
+                            abstutil::to_json(&gj),
+                        )
+                        .unwrap();
                     }
                 }
                 _ => unreachable!(),
