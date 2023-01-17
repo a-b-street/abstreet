@@ -1,6 +1,6 @@
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
-use widgetry::{lctrl, EventCtx, Key, Text, Transition};
+use widgetry::{lctrl, EventCtx, Key, Text, Transition, GeomBatch, Color};
 
 use super::{road_name, EditOutcome, Obj};
 use crate::{
@@ -13,6 +13,16 @@ use crate::{
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
     let map = &app.per_map.map;
     let mut world = World::bounded(map.get_bounds());
+
+    let mut perim_batch = GeomBatch::new();
+    let perim_color = Color::BLACK.alpha(0.5);
+    for r in &neighbourhood.perimeter_roads {
+        perim_batch.push(perim_color, map.get_r(*r).get_thick_polygon());
+    }
+    for i in &neighbourhood.borders {
+        perim_batch.push(perim_color, map.get_i(*i).polygon.clone());
+    }
+    world.draw_master_batch(ctx, perim_batch);
 
     for r in &neighbourhood.interior_roads {
         let road = map.get_r(*r);
