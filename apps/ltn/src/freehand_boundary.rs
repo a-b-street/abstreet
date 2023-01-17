@@ -10,30 +10,54 @@ use widgetry::{
 
 use crate::components::{AppwidePanel, Mode};
 use crate::partition::CustomBoundary;
-use crate::{mut_partitioning, App, Transition};
+use crate::{mut_partitioning, App, NeighbourhoodID, Transition};
 
 pub struct FreehandBoundary {
     appwide_panel: AppwidePanel,
     left_panel: Panel,
 
     name: String,
-    custom: Option<(CustomBoundary, Drawable)>,
+    id: Option<NeighbourhoodID>,
+    custom: Option<CustomBoundary>,
+    draw_custom: Drawable,
     edit: EditPolygon,
     lasso: Option<Lasso>,
 }
 
 impl FreehandBoundary {
-    pub fn new_state(ctx: &mut EventCtx, app: &mut App, name: String) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        name: String,
+        id: Option<NeighbourhoodID>,
+        custom: Option<CustomBoundary>,
+    ) -> Box<dyn State<App>> {
         let appwide_panel = AppwidePanel::new(ctx, app, Mode::FreehandBoundary);
         let left_panel = make_panel(ctx, &appwide_panel.top_panel);
-        Box::new(Self {
+        let mut state = Self {
             appwide_panel,
             left_panel,
-            custom: None,
+            id,
+            custom,
+            draw_custom: Drawable::empty(ctx),
             edit: EditPolygon::new(ctx, app, Vec::new(), false),
             lasso: None,
             name,
-        })
+        };
+        if let Some(ref custom) = state.custom {
+            state.edit = EditPolygon::new(
+                ctx,
+                app,
+                custom
+                    .boundary_polygon
+                    .clone()
+                    .into_outer_ring()
+                    .into_points(),
+                false,
+            );
+            state.draw_custom = render(ctx, app, custom);
+        }
+        Box::new(state)
     }
 }
 
@@ -50,12 +74,9 @@ impl State<App> for FreehandBoundary {
                     polygon.clone().into_outer_ring().into_points(),
                     false,
                 );
-                self.custom = Some(neighbourhood_from_polygon(
-                    ctx,
-                    app,
-                    polygon,
-                    self.name.clone(),
-                ));
+
+                self.custom = Some(polygon_to_custom_boundary(app, polygon, self.name.clone()));
+                self.draw_custom = render(ctx, app, self.custom.as_ref().unwrap());
                 self.left_panel = make_panel(ctx, &self.appwide_panel.top_panel);
             }
             return Transition::Keep;
@@ -63,12 +84,12 @@ impl State<App> for FreehandBoundary {
 
         if self.edit.event(ctx, app) {
             if let Ok(ring) = self.edit.get_ring() {
-                self.custom = Some(neighbourhood_from_polygon(
-                    ctx,
+                self.custom = Some(polygon_to_custom_boundary(
                     app,
                     ring.into_polygon(),
                     self.name.clone(),
                 ));
+                self.draw_custom = render(ctx, app, self.custom.as_ref().unwrap());
             }
         }
 
@@ -92,11 +113,17 @@ impl State<App> for FreehandBoundary {
                     return Transition::Replace(crate::PickArea::new_state(ctx, app));
                 }
                 "Confirm" => {
-                    if let Some((custom, _)) = self.custom.take() {
-                        let new_id = mut_partitioning!(app).add_custom_boundary(custom);
+                    if let Some(custom) = self.custom.take() {
+                        let id = if let Some(id) = self.id {
+                            // Overwrite the existing one
+                            mut_partitioning!(app).custom_boundaries.insert(id, custom);
+                            id
+                        } else {
+                            mut_partitioning!(app).add_custom_boundary(custom)
+                        };
                         // TODO Clicking is weird, acts like we click load proposal
                         return Transition::Replace(crate::design_ltn::DesignLTN::new_state(
-                            ctx, app, new_id,
+                            ctx, app, id,
                         ));
                     }
                 }
@@ -119,9 +146,7 @@ impl State<App> for FreehandBoundary {
             lasso.draw(g);
         }
         self.edit.draw(g);
-        if let Some((_, ref draw)) = self.custom {
-            g.redraw(draw);
-        }
+        g.redraw(&self.draw_custom);
     }
 }
 
@@ -177,12 +202,11 @@ fn help() -> Vec<&'static str> {
     vec!["TODO"]
 }
 
-fn neighbourhood_from_polygon(
-    ctx: &EventCtx,
+fn polygon_to_custom_boundary(
     app: &App,
     boundary_polygon: Polygon,
     name: String,
-) -> (CustomBoundary, Drawable) {
+) -> CustomBoundary {
     let map = &app.per_map.map;
 
     // Find all intersections inside the polygon
@@ -208,29 +232,33 @@ fn neighbourhood_from_polygon(
         }
     }
 
+    CustomBoundary {
+        name,
+        boundary_polygon,
+        borders,
+        interior_roads,
+    }
+}
+
+fn render(ctx: &EventCtx, app: &App, custom: &CustomBoundary) -> Drawable {
     let mut batch = GeomBatch::new();
     //batch.push(Color::YELLOW.alpha(0.5), boundary_polygon.clone());
 
     let mut border_polygons = Vec::new();
-    for i in &borders {
-        border_polygons.push(map.get_i(*i).polygon.clone());
+    for i in &custom.borders {
+        border_polygons.push(app.per_map.map.get_i(*i).polygon.clone());
     }
     /*if let Ok(p) = Polygon::convex_hull(border_polygons.clone()) {
         batch.push(Color::RED.alpha(0.5), p);
     }*/
     batch.extend(Color::BLACK, border_polygons);
 
-    for r in &interior_roads {
-        batch.push(Color::GREEN.alpha(0.5), map.get_r(*r).get_thick_polygon());
+    for r in &custom.interior_roads {
+        batch.push(
+            Color::GREEN.alpha(0.5),
+            app.per_map.map.get_r(*r).get_thick_polygon(),
+        );
     }
 
-    (
-        CustomBoundary {
-            name,
-            boundary_polygon,
-            borders,
-            interior_roads,
-        },
-        ctx.upload(batch),
-    )
+    ctx.upload(batch)
 }

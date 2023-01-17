@@ -304,7 +304,9 @@ fn manage_custom_boundary(ctx: &mut EventCtx, app: &App) -> Transition {
                     String::new(),
                     Box::new(|name, ctx, app| {
                         Transition::Clear(vec![
-                            crate::freehand_boundary::FreehandBoundary::new_state(ctx, app, name),
+                            crate::freehand_boundary::FreehandBoundary::new_state(
+                                ctx, app, name, None, None,
+                            ),
                         ])
                     }),
                 ))
