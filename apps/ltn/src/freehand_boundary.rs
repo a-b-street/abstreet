@@ -253,25 +253,20 @@ fn polygon_to_custom_boundary(
 ) -> CustomBoundary {
     let map = &app.per_map.map;
 
-    // Find all intersections inside the polygon
-    let mut intersections_inside = BTreeSet::new();
-    for i in map.all_intersections() {
-        if boundary_polygon.contains_pt(i.polygon.center()) {
-            intersections_inside.insert(i.id);
+    // Find all roads inside the polygon at least partly
+    let mut interior_roads = BTreeSet::new();
+    for r in map.all_roads() {
+        if boundary_polygon.intersects_polyline(&r.center_pts) {
+            interior_roads.insert(r.id);
         }
     }
 
-    // Which ones are borders? If the intersection has roads leading out of the polygon
+    // Border intersections are connected to these roads, but not inside the polygon
     let mut borders = BTreeSet::new();
-    let mut interior_roads = BTreeSet::new();
-    for i in &intersections_inside {
-        let i = map.get_i(*i);
-        for r in &i.roads {
-            let r = map.get_r(*r);
-            if intersections_inside.contains(&r.src_i) && intersections_inside.contains(&r.dst_i) {
-                interior_roads.insert(r.id);
-            } else {
-                borders.insert(i.id);
+    for r in &interior_roads {
+        for i in map.get_r(*r).endpoints() {
+            if !boundary_polygon.contains_pt(map.get_i(i).polygon.center()) {
+                borders.insert(i);
             }
         }
     }
