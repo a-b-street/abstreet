@@ -152,7 +152,7 @@ impl State<App> for DesignLTN {
         }
         if let Outcome::Clicked(x) = self.bottom_panel.event(ctx) {
             if x == "Advanced" {
-                return launch_advanced(ctx, self.neighbourhood.id);
+                return launch_advanced(ctx, app, self.neighbourhood.id);
             } else if x == "warning" {
                 // Not really clickable
                 return Transition::Keep;
@@ -372,19 +372,31 @@ fn setup_editing(
     )
 }
 
-fn launch_advanced(ctx: &mut EventCtx, id: NeighbourhoodID) -> Transition {
+fn launch_advanced(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Transition {
+    let mut choices = vec![Choice::string("Automatically place modal filters")];
+    if !app.partitioning().custom_boundaries.contains_key(&id) {
+        choices.push(Choice::string("Customize boundary (for drawing only)"));
+        choices.push(Choice::string("Convert to freehand area"));
+    }
+
     Transition::Push(ChooseSomething::new_state(
         ctx,
         "Advanced features",
-        Choice::strings(vec![
-            "Customize boundary (for drawing only)",
-            "Automatically place modal filters",
-        ]),
+        choices,
         Box::new(move |choice, ctx, app| {
             if choice == "Customize boundary (for drawing only)" {
                 Transition::Replace(crate::customize_boundary::CustomizeBoundary::new_state(
                     ctx, app, id,
                 ))
+            } else if choice == "Convert to freehand area" {
+                Transition::Replace(
+                    crate::freehand_boundary::FreehandBoundary::new_from_polygon(
+                        ctx,
+                        app,
+                        format!("Converted from {:?}", id),
+                        app.partitioning().get_info(id).block.polygon.clone(),
+                    ),
+                )
             } else {
                 Transition::Replace(ChooseSomething::new_state(
                     ctx,

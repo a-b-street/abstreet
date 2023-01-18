@@ -5,6 +5,7 @@ use maplit::btreeset;
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{Direction, IntersectionID, Map, RoadID};
 
+use crate::partition::CustomBoundary;
 use crate::shortcuts::Shortcuts;
 use crate::{is_private, App, Edits, NeighbourhoodID};
 
@@ -104,6 +105,10 @@ pub struct DistanceInterval {
 
 impl Neighbourhood {
     pub fn new(app: &App, id: NeighbourhoodID) -> Neighbourhood {
+        if let Some(custom) = app.partitioning().custom_boundaries.get(&id) {
+            return Self::new_custom(app, id, custom.clone());
+        }
+
         let map = &app.per_map.map;
         let orig_perimeter = app.partitioning().neighbourhood_block(id).perimeter.clone();
 
@@ -169,6 +174,41 @@ impl Neighbourhood {
 
         n
     }
+
+    fn new_custom(app: &App, id: NeighbourhoodID, custom: CustomBoundary) -> Neighbourhood {
+        let map = &app.per_map.map;
+
+        let mut n = Neighbourhood {
+            id,
+            interior_roads: custom.interior_roads,
+            // TODO Don't know how to calculate these
+            perimeter_roads: BTreeSet::new(),
+            borders: custom.borders,
+            interior_intersections: BTreeSet::new(),
+            boundary_polygon: custom.boundary_polygon,
+
+            cells: Vec::new(),
+            shortcuts: Shortcuts::empty(),
+        };
+
+        // The rest is the same as the normal case
+        for r in &n.interior_roads {
+            let road = map.get_r(*r);
+            for i in [road.src_i, road.dst_i] {
+                if !n.borders.contains(&i) {
+                    n.interior_intersections.insert(i);
+                }
+            }
+        }
+
+        n.cells = find_cells(map, &n.interior_roads, &n.borders, &app.edits());
+
+        // TODO The timer could be nice for large areas. But plumbing through one everywhere is
+        // tedious, and would hit a nested start_iter bug anyway.
+        n.shortcuts = crate::shortcuts::find_shortcuts(app, &n, &mut abstutil::Timer::throwaway());
+
+        n
+    }
 }
 
 // Find all of the disconnected "cells" of reachable areas, bounded by border intersections. This is with
@@ -204,7 +244,7 @@ fn find_cells(
             continue;
         }
 
-        let cell = floodfill(map, start, borders, &edits);
+        let cell = floodfill(map, start, borders, interior_roads, &edits);
         visited.extend(cell.roads.keys().cloned());
 
         cells.push(cell);
@@ -250,6 +290,7 @@ fn floodfill(
     map: &Map,
     start: RoadID,
     neighbourhood_borders: &BTreeSet<IntersectionID>,
+    interior_roads: &BTreeSet<RoadID>,
     edits: &Edits,
 ) -> Cell {
     let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
@@ -323,6 +364,11 @@ fn floodfill(
                 }
 
                 if !crate::is_driveable(next_road, map) {
+                    continue;
+                }
+                // TODO This happens near weird geometry. This is OK, but should root-cause it.
+                if !interior_roads.contains(next) {
+                    error!("A cell leaked out to {next} from {i}");
                     continue;
                 }
 

@@ -29,6 +29,7 @@ mod draw_cells;
 mod edit;
 mod export;
 mod filters;
+mod freehand_boundary;
 mod impact;
 mod neighbourhood;
 mod partition;

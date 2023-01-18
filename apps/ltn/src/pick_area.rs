@@ -3,9 +3,10 @@ use std::collections::HashSet;
 use abstutil::Counter;
 use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
 use widgetry::mapspace::{World, WorldOutcome};
-use widgetry::tools::ChooseSomething;
+use widgetry::tools::{ChooseSomething, PromptInput};
 use widgetry::{
     Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, State,
+    Widget,
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
@@ -38,11 +39,16 @@ impl PickArea {
         let bottom_panel = BottomPanel::new(
             ctx,
             &appwide_panel,
-            ctx.style()
-                .btn_outline
-                .text("Change draw style")
-                .build_def(ctx)
-                .container(),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_outline
+                    .text("Change draw style")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Manage custom boundaries")
+                    .build_def(ctx),
+            ]),
         );
 
         // Just force the layers panel to align above the bottom panel
@@ -86,6 +92,8 @@ impl State<App> for PickArea {
         if let Outcome::Clicked(x) = self.bottom_panel.event(ctx) {
             if x == "Change draw style" {
                 return change_draw_style(ctx);
+            } else if x == "Manage custom boundaries" {
+                return manage_custom_boundary(ctx, app);
             } else {
                 unreachable!()
             }
@@ -271,6 +279,35 @@ fn change_draw_style(ctx: &mut EventCtx) -> Transition {
         Box::new(move |choice, _, app| {
             app.session.draw_neighbourhood_style = choice;
             Transition::Multi(vec![Transition::Pop, Transition::Recreate])
+        }),
+    ))
+}
+
+fn manage_custom_boundary(ctx: &mut EventCtx, app: &App) -> Transition {
+    let mut choices = vec![Choice::new("Create new", None)];
+    for (id, custom) in &app.partitioning().custom_boundaries {
+        choices.push(Choice::new(&custom.name, Some(*id)));
+    }
+
+    Transition::Push(ChooseSomething::new_state(
+        ctx,
+        "Manage custom boundaries",
+        choices,
+        Box::new(move |choice, ctx, app| {
+            if let Some(id) = choice {
+                Transition::Clear(vec![crate::design_ltn::DesignLTN::new_state(ctx, app, id)])
+            } else {
+                Transition::Replace(PromptInput::new_state(
+                    ctx,
+                    "Name the custom boundary",
+                    String::new(),
+                    Box::new(|name, ctx, app| {
+                        Transition::Clear(vec![crate::freehand_boundary::FreehandBoundary::blank(
+                            ctx, app, name,
+                        )])
+                    }),
+                ))
+            }
         }),
     ))
 }

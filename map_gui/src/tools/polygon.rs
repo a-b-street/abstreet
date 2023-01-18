@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 use crate::AppLike;
 use geom::{Circle, Distance, FindClosest, Pt2D, Ring};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
@@ -7,6 +9,7 @@ pub struct EditPolygon {
     points: Vec<Pt2D>,
     // The points change size as we zoom out, so rebuild based on cam_zoom
     world: Cached<f64, World<Obj>>,
+    polygon_draggable: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -17,30 +20,42 @@ enum Obj {
 impl ObjectID for Obj {}
 
 impl EditPolygon {
-    pub fn new(mut points: Vec<Pt2D>) -> Self {
+    pub fn new(
+        ctx: &EventCtx,
+        app: &dyn AppLike,
+        mut points: Vec<Pt2D>,
+        polygon_draggable: bool,
+    ) -> Self {
         if !points.is_empty() && *points.last().unwrap() == points[0] {
             points.pop();
         }
-        Self {
+        let mut edit = Self {
             points,
             world: Cached::new(),
-        }
+            polygon_draggable,
+        };
+        edit.rebuild_world(ctx, app);
+        edit
     }
 
-    fn rebuild_world(&mut self, ctx: &mut EventCtx, app: &dyn AppLike) {
+    fn rebuild_world(&mut self, ctx: &EventCtx, app: &dyn AppLike) {
         let mut world = World::bounded(app.map().get_bounds());
 
         if self.points.len() >= 3 {
             let mut pts = self.points.to_vec();
             pts.push(pts[0]);
-            world
-                .add(Obj::Polygon)
-                .hitbox(Ring::must_new(pts).into_polygon())
-                .zorder(0)
-                .draw_color(Color::BLUE.alpha(0.6))
-                .hover_alpha(0.3)
-                .draggable()
-                .build(ctx);
+            if let Ok(ring) = Ring::new(pts) {
+                let obj = world
+                    .add(Obj::Polygon)
+                    .hitbox(ring.into_polygon())
+                    .zorder(0)
+                    .draw_color(Color::BLUE.alpha(0.6));
+                if self.polygon_draggable {
+                    obj.hover_alpha(0.3).draggable().build(ctx);
+                } else {
+                    obj.build(ctx);
+                }
+            }
         }
 
         // Scale the circle as we zoom out
@@ -66,7 +81,8 @@ impl EditPolygon {
         self.world.set(ctx.canvas.cam_zoom, world);
     }
 
-    pub fn event(&mut self, ctx: &mut EventCtx, app: &dyn AppLike) {
+    /// True if the polygon is modified
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &dyn AppLike) -> bool {
         // Recalculate if zoom has changed
         if self.world.key() != Some(ctx.canvas.cam_zoom) {
             self.rebuild_world(ctx, app);
@@ -87,6 +103,7 @@ impl EditPolygon {
                 }
 
                 self.rebuild_world(ctx, app);
+                true
             }
             WorldOutcome::Dragging {
                 obj: Obj::Point(idx),
@@ -96,6 +113,7 @@ impl EditPolygon {
             } => {
                 self.points[idx] = self.points[idx].offset(dx, dy);
                 self.rebuild_world(ctx, app);
+                true
             }
             WorldOutcome::Dragging {
                 obj: Obj::Polygon,
@@ -107,12 +125,14 @@ impl EditPolygon {
                     *pt = pt.offset(dx, dy);
                 }
                 self.rebuild_world(ctx, app);
+                true
             }
             WorldOutcome::Keypress("delete", Obj::Point(idx)) => {
                 self.points.remove(idx);
                 self.rebuild_world(ctx, app);
+                true
             }
-            _ => {}
+            _ => false,
         }
     }
 
@@ -120,7 +140,10 @@ impl EditPolygon {
         self.world.value().unwrap().draw(g);
     }
 
-    pub fn get_points(&self) -> &[Pt2D] {
-        &self.points
+    /// Could fail if the user edits the ring and makes it invalid
+    pub fn get_ring(&self) -> Result<Ring> {
+        let mut pts = self.points.clone();
+        pts.push(pts[0]);
+        Ring::new(pts)
     }
 }

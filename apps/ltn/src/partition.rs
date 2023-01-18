@@ -7,7 +7,7 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::Polygon;
 use map_model::osm::RoadRank;
-use map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
+use map_model::{Block, IntersectionID, Map, Perimeter, RoadID, RoadSideID};
 
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -35,6 +35,9 @@ pub struct Partitioning {
 
     use_expensive_blockfinding: bool,
     pub broken: bool,
+
+    #[serde(skip_serializing, skip_deserializing)]
+    pub custom_boundaries: BTreeMap<NeighbourhoodID, CustomBoundary>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -54,6 +57,14 @@ impl NeighbourhoodInfo {
     }
 }
 
+#[derive(Clone)]
+pub struct CustomBoundary {
+    pub name: String,
+    pub boundary_polygon: Polygon,
+    pub borders: BTreeSet<IntersectionID>,
+    pub interior_roads: BTreeSet<RoadID>,
+}
+
 impl Partitioning {
     /// Only valid before the LTN tool has been activated this session
     pub fn empty() -> Partitioning {
@@ -68,6 +79,7 @@ impl Partitioning {
 
             use_expensive_blockfinding: false,
             broken: false,
+            custom_boundaries: BTreeMap::new(),
         }
     }
 
@@ -148,6 +160,7 @@ impl Partitioning {
                 block_to_neighbourhood: BTreeMap::new(),
                 use_expensive_blockfinding,
                 broken: false,
+                custom_boundaries: BTreeMap::new(),
             };
 
             // TODO We could probably build this up as we go
@@ -318,8 +331,14 @@ impl Partitioning {
 
     pub fn neighbourhood_area_km2(&self, id: NeighbourhoodID) -> String {
         // TODO Could consider using the boundary_polygon calculated by Neighbourhood
+        let area = if let Some(ref custom) = self.custom_boundaries.get(&id) {
+            custom.boundary_polygon.area()
+        } else {
+            self.neighbourhood_block(id).polygon.area()
+        };
+
         // Convert from m^2 to km^2
-        let area = self.neighbourhood_block(id).polygon.area() / 1_000_000.0;
+        let area = area / 1_000_000.0;
         format!("~{:.1} km²", area)
     }
 
@@ -336,6 +355,13 @@ impl Partitioning {
             .get_mut(&id)
             .unwrap()
             .override_drawing_boundary = Some(polygon);
+    }
+
+    pub fn add_custom_boundary(&mut self, custom: CustomBoundary) -> NeighbourhoodID {
+        let id = NeighbourhoodID(self.neighbourhood_id_counter);
+        self.neighbourhood_id_counter += 1;
+        self.custom_boundaries.insert(id, custom);
+        id
     }
 
     pub fn all_neighbourhoods(&self) -> &BTreeMap<NeighbourhoodID, NeighbourhoodInfo> {

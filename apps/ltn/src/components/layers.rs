@@ -326,6 +326,7 @@ impl Mode {
                     "block could be added to current neighbourhood",
                 ),
             ],
+            Mode::FreehandBoundary => vec![],
             Mode::RoutePlanner => vec![
                 entry(
                     ctx,

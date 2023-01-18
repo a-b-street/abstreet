@@ -460,6 +460,10 @@ impl Road {
         CommonEndpoint::new((self.src_i, self.dst_i), (other.src_i, other.dst_i))
     }
 
+    pub fn endpoints(&self) -> Vec<IntersectionID> {
+        vec![self.src_i, self.dst_i]
+    }
+
     /// Returns the other intersection of this road, panicking if this road doesn't connect to the
     /// input
     /// TODO This should use CommonEndpoint
