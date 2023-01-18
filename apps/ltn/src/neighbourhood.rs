@@ -244,7 +244,7 @@ fn find_cells(
             continue;
         }
 
-        let cell = floodfill(map, start, borders, &edits);
+        let cell = floodfill(map, start, borders, interior_roads, &edits);
         visited.extend(cell.roads.keys().cloned());
 
         cells.push(cell);
@@ -290,6 +290,7 @@ fn floodfill(
     map: &Map,
     start: RoadID,
     neighbourhood_borders: &BTreeSet<IntersectionID>,
+    interior_roads: &BTreeSet<RoadID>,
     edits: &Edits,
 ) -> Cell {
     let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
@@ -363,6 +364,11 @@ fn floodfill(
                 }
 
                 if !crate::is_driveable(next_road, map) {
+                    continue;
+                }
+                // TODO this happens near weird geometry. hard to tell what happens, shut it donw.
+                if !interior_roads.contains(next) {
+                    error!("a cell leaked out to {next} from {i}");
                     continue;
                 }
 

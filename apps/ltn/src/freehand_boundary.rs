@@ -256,7 +256,7 @@ fn polygon_to_custom_boundary(
     // Find all roads inside the polygon at least partly
     let mut interior_roads = BTreeSet::new();
     for r in map.all_roads() {
-        if boundary_polygon.intersects_polyline(&r.center_pts) {
+        if boundary_polygon.intersects_polyline(&r.center_pts) && crate::is_driveable(r, map) {
             interior_roads.insert(r.id);
         }
     }
