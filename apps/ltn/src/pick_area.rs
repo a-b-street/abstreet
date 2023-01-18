@@ -284,7 +284,6 @@ fn change_draw_style(ctx: &mut EventCtx) -> Transition {
 }
 
 fn manage_custom_boundary(ctx: &mut EventCtx, app: &App) -> Transition {
-    // TODO No delete
     let mut choices = vec![Choice::new("Create new", None)];
     for (id, custom) in &app.partitioning().custom_boundaries {
         choices.push(Choice::new(&custom.name, Some(*id)));

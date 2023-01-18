@@ -234,7 +234,7 @@ fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
                 .centered_vert(),
             Text::from_all(vec![
                 Line("Click and drag").fg(ctx.style().text_hotkey_color),
-                Line(" to select the blocks to add to this neighbourhood"),
+                Line(" to sketch the boundary of this neighbourhood"),
             ])
             .into_widget(ctx),
         ]),
@@ -243,7 +243,10 @@ fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
 }
 
 fn help() -> Vec<&'static str> {
-    vec!["TODO"]
+    vec![
+        "Draw neighbourhood boundaries here freeform.",
+        "This is still experimental, but is useful when the regular Adjust Boundary tool fails.",
+    ]
 }
 
 fn polygon_to_custom_boundary(
@@ -281,16 +284,10 @@ fn polygon_to_custom_boundary(
 
 fn render(ctx: &EventCtx, app: &App, custom: &CustomBoundary) -> Drawable {
     let mut batch = GeomBatch::new();
-    //batch.push(Color::YELLOW.alpha(0.5), boundary_polygon.clone());
 
-    let mut border_polygons = Vec::new();
     for i in &custom.borders {
-        border_polygons.push(app.per_map.map.get_i(*i).polygon.clone());
+        batch.push(Color::BLACK, app.per_map.map.get_i(*i).polygon.clone());
     }
-    /*if let Ok(p) = Polygon::convex_hull(border_polygons.clone()) {
-        batch.push(Color::RED.alpha(0.5), p);
-    }*/
-    batch.extend(Color::BLACK, border_polygons);
 
     for r in &custom.interior_roads {
         batch.push(

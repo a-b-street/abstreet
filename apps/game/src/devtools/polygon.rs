@@ -1,4 +1,4 @@
-use geom::{LonLat, Ring};
+use geom::LonLat;
 use map_gui::tools::EditPolygon;
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, VerticalAlignment,

@@ -366,9 +366,9 @@ fn floodfill(
                 if !crate::is_driveable(next_road, map) {
                     continue;
                 }
-                // TODO this happens near weird geometry. hard to tell what happens, shut it donw.
+                // TODO This happens near weird geometry. This is OK, but should root-cause it.
                 if !interior_roads.contains(next) {
-                    error!("a cell leaked out to {next} from {i}");
+                    error!("A cell leaked out to {next} from {i}");
                     continue;
                 }
 
