@@ -209,7 +209,7 @@ fn find_major_road_names(
 ) -> BTreeSet<String> {
     let mut names = BTreeSet::new();
     for r in &map.get_i(i).roads {
-        if neighbourhood.perimeter_roads.contains(r) {
+        if !neighbourhood.interior_roads.contains(r) {
             names.insert(map.get_r(*r).get_name(None));
         }
     }
