@@ -26,6 +26,10 @@ pub struct FreehandBoundary {
     edit: EditPolygon,
     lasso: Option<Lasso>,
     quadtree: QuadTree<RoadID>,
+
+    // TODO Add WorldOutcome::DragEnd and plumb here if this is useful otherwise, or some kind of
+    // rate-limiting
+    queued_recalculate: bool,
 }
 
 impl FreehandBoundary {
@@ -43,6 +47,7 @@ impl FreehandBoundary {
             lasso: None,
             name,
             quadtree: make_quadtree(app),
+            queued_recalculate: false,
         })
     }
 
@@ -65,6 +70,7 @@ impl FreehandBoundary {
             lasso: None,
             name,
             quadtree: make_quadtree(app),
+            queued_recalculate: false,
         };
         state.edit = EditPolygon::new(
             ctx,
@@ -106,6 +112,7 @@ impl FreehandBoundary {
             lasso: None,
             name,
             quadtree: make_quadtree(app),
+            queued_recalculate: false,
         };
         state.custom = Some(polygon_to_custom_boundary(
             app,
@@ -145,6 +152,10 @@ impl State<App> for FreehandBoundary {
         }
 
         if self.edit.event(ctx, app) {
+            self.queued_recalculate = true;
+        }
+        if self.queued_recalculate && ctx.input.left_mouse_button_released() {
+            self.queued_recalculate = false;
             if let Ok(ring) = self.edit.get_ring() {
                 self.custom = Some(polygon_to_custom_boundary(
                     app,
