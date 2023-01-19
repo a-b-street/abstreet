@@ -1,7 +1,10 @@
 use std::collections::BTreeSet;
 
+use aabb_quadtree::QuadTree;
+
 use geom::{Distance, Polygon};
 use map_gui::tools::EditPolygon;
+use map_model::RoadID;
 use widgetry::tools::Lasso;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
@@ -22,12 +25,14 @@ pub struct FreehandBoundary {
     draw_custom: Drawable,
     edit: EditPolygon,
     lasso: Option<Lasso>,
+    quadtree: QuadTree<RoadID>,
 }
 
 impl FreehandBoundary {
     pub fn blank(ctx: &mut EventCtx, app: &mut App, name: String) -> Box<dyn State<App>> {
         let appwide_panel = AppwidePanel::new(ctx, app, Mode::FreehandBoundary);
         let left_panel = make_panel(ctx, &appwide_panel.top_panel);
+
         Box::new(Self {
             appwide_panel,
             left_panel,
@@ -37,6 +42,7 @@ impl FreehandBoundary {
             edit: EditPolygon::new(ctx, app, Vec::new(), false),
             lasso: None,
             name,
+            quadtree: make_quadtree(app),
         })
     }
 
@@ -58,6 +64,7 @@ impl FreehandBoundary {
             edit: EditPolygon::new(ctx, app, Vec::new(), false),
             lasso: None,
             name,
+            quadtree: make_quadtree(app),
         };
         state.edit = EditPolygon::new(
             ctx,
@@ -98,8 +105,14 @@ impl FreehandBoundary {
             ),
             lasso: None,
             name,
+            quadtree: make_quadtree(app),
         };
-        state.custom = Some(polygon_to_custom_boundary(app, polygon, state.name.clone()));
+        state.custom = Some(polygon_to_custom_boundary(
+            app,
+            polygon,
+            state.name.clone(),
+            &state.quadtree,
+        ));
         state.draw_custom = render(ctx, app, state.custom.as_ref().unwrap());
         Box::new(state)
     }
@@ -119,7 +132,12 @@ impl State<App> for FreehandBoundary {
                     false,
                 );
 
-                self.custom = Some(polygon_to_custom_boundary(app, polygon, self.name.clone()));
+                self.custom = Some(polygon_to_custom_boundary(
+                    app,
+                    polygon,
+                    self.name.clone(),
+                    &self.quadtree,
+                ));
                 self.draw_custom = render(ctx, app, self.custom.as_ref().unwrap());
                 self.left_panel = make_panel(ctx, &self.appwide_panel.top_panel);
             }
@@ -132,6 +150,7 @@ impl State<App> for FreehandBoundary {
                     app,
                     ring.into_polygon(),
                     self.name.clone(),
+                    &self.quadtree,
                 ));
                 self.draw_custom = render(ctx, app, self.custom.as_ref().unwrap());
             }
@@ -253,12 +272,14 @@ fn polygon_to_custom_boundary(
     app: &App,
     boundary_polygon: Polygon,
     name: String,
+    quadtree: &QuadTree<RoadID>,
 ) -> CustomBoundary {
     let map = &app.per_map.map;
 
     // Find all roads inside the polygon at least partly
     let mut interior_roads = BTreeSet::new();
-    for r in map.all_roads() {
+    for &(id, _, _) in &quadtree.query(boundary_polygon.get_bounds().as_bbox()) {
+        let r = map.get_r(*id);
         if boundary_polygon.intersects_polyline(&r.center_pts) && crate::is_driveable(r, map) {
             interior_roads.insert(r.id);
         }
@@ -297,4 +318,13 @@ fn render(ctx: &EventCtx, app: &App, custom: &CustomBoundary) -> Drawable {
     }
 
     ctx.upload(batch)
+}
+
+// TODO This is still surprisingly slow to query
+fn make_quadtree(app: &App) -> QuadTree<RoadID> {
+    let mut quadtree = QuadTree::default(app.per_map.map.get_bounds().as_bbox());
+    for r in app.per_map.map.all_roads() {
+        quadtree.insert_with_box(r.id, r.center_pts.get_bounds().as_bbox());
+    }
+    quadtree
 }

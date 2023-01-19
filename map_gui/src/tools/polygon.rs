@@ -38,9 +38,7 @@ impl EditPolygon {
         edit
     }
 
-    fn rebuild_world(&mut self, ctx: &EventCtx, app: &dyn AppLike) {
-        let mut world = World::bounded(app.map().get_bounds());
-
+    fn add_polygon_to_world(&self, ctx: &EventCtx, world: &mut World<Obj>) {
         if self.points.len() >= 3 {
             let mut pts = self.points.to_vec();
             pts.push(pts[0]);
@@ -57,6 +55,12 @@ impl EditPolygon {
                 }
             }
         }
+    }
+
+    fn rebuild_world(&mut self, ctx: &EventCtx, app: &dyn AppLike) {
+        let mut world = World::bounded(app.map().get_bounds());
+
+        self.add_polygon_to_world(ctx, &mut world);
 
         // Scale the circle as we zoom out
         let circle =
@@ -78,6 +82,30 @@ impl EditPolygon {
         if let Some(prev) = self.world.value() {
             world.rebuilt_during_drag(prev);
         }
+        self.world.set(ctx.canvas.cam_zoom, world);
+    }
+
+    fn rebuild_one_point(&mut self, ctx: &EventCtx, idx: usize) {
+        let (_, mut world) = self.world.take().unwrap();
+
+        world.delete_before_replacement(Obj::Polygon);
+        self.add_polygon_to_world(ctx, &mut world);
+
+        // Change the point
+        // TODO Some repeated code, but meh
+        world.delete_before_replacement(Obj::Point(idx));
+        let circle =
+            Circle::new(Pt2D::zero(), Distance::meters(10.0) / ctx.canvas.cam_zoom).to_polygon();
+        world
+            .add(Obj::Point(idx))
+            .hitbox(circle.translate(self.points[idx].x(), self.points[idx].y()))
+            .zorder(1)
+            .draw_color(Color::RED)
+            .hover_alpha(0.8)
+            .hotkey(Key::Backspace, "delete")
+            .draggable()
+            .build(ctx);
+
         self.world.set(ctx.canvas.cam_zoom, world);
     }
 
@@ -112,7 +140,7 @@ impl EditPolygon {
                 ..
             } => {
                 self.points[idx] = self.points[idx].offset(dx, dy);
-                self.rebuild_world(ctx, app);
+                self.rebuild_one_point(ctx, idx);
                 true
             }
             WorldOutcome::Dragging {
