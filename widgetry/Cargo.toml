@@ -41,7 +41,7 @@ usvg = { version = "0.22.0", default-features=false, features=["text"] }
 wasm-bindgen = { workspace = true, optional = true }
 wasm-bindgen-futures = { version = "0.4.20", optional = true }
 wasm-streams = { version = "0.2.0", optional = true }
-webbrowser = "0.5.5"
+webbrowser = "0.8.3"
 winit = "0.27.0"
 
 [dependencies.web-sys]
