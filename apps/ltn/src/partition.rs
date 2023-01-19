@@ -185,6 +185,10 @@ impl Partitioning {
                 }
             }
 
+            for custom in crate::partition_v2::partition_v2(map) {
+                p.add_custom_boundary(custom);
+            }
+
             return p;
         }
         unreachable!()
@@ -366,6 +370,10 @@ impl Partitioning {
 
     pub fn all_neighbourhoods(&self) -> &BTreeMap<NeighbourhoodID, NeighbourhoodInfo> {
         &self.neighbourhoods
+    }
+
+    pub fn all_custom_neighbourhoods(&self) -> &BTreeMap<NeighbourhoodID, CustomBoundary> {
+        &self.custom_boundaries
     }
 
     // Just used for initial creation

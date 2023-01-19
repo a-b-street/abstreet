@@ -134,21 +134,22 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
     ctx.loading_screen("render neighbourhoods", |ctx, timer| {
         timer.start_iter(
             "render neighbourhoods",
-            app.partitioning().all_neighbourhoods().len(),
+            app.partitioning().all_custom_neighbourhoods().len(),
         );
-        for (id, info) in app.partitioning().all_neighbourhoods() {
+        for (id, info) in app.partitioning().all_custom_neighbourhoods() {
             timer.next();
             match app.session.draw_neighbourhood_style {
                 Style::Simple => {
                     world
                         .add(*id)
-                        .hitbox(info.block.polygon.clone())
+                        .hitbox(info.boundary_polygon.clone())
                         .draw_color(Color::YELLOW.alpha(0.1))
                         .hover_alpha(0.5)
                         .clickable()
                         .build(ctx);
                 }
-                Style::Cells => {
+                _ => todo!(),
+                /*Style::Cells => {
                     let neighbourhood = Neighbourhood::new(app, *id);
                     let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
                     let hovered_batch = render_cells.draw_colored_areas();
@@ -188,7 +189,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                         .hover_color(colors::HOVER)
                         .clickable()
                         .build(ctx);
-                }
+                }*/
             }
         }
     });
