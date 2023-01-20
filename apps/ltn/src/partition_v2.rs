@@ -8,6 +8,8 @@ use crate::partition::CustomBoundary;
 
 // Back to basics: flood clumps of local roads, then take convex hull
 pub fn partition_v2(map: &Map) -> Vec<CustomBoundary> {
+    severances_to_gj(map);
+
     let mut visited = HashSet::new();
 
     let mut results = Vec::new();
@@ -91,4 +93,24 @@ fn polygon_to_custom_boundary(
         borders,
         interior_roads,
     }
+}
+
+// Write a GeoJSON file with line-strings of "severances" (big roads). Then check mapshaper to see
+// if the induced planar graph would make good custom boundaries.
+fn severances_to_gj(map: &Map) {
+    let mut geom = vec![map.get_boundary_polygon().to_geojson(Some(map.get_gps_bounds()))];
+    let mut intersections = HashSet::new();
+    for r in map.all_roads() {
+        if r.is_driveable() && r.get_rank() != RoadRank::Local {
+            // TODO This isn't reference line, and also, mapshaper needs polygons
+            //geom.push(r.untrimmed_center_pts.to_geojson(Some(map.get_gps_bounds())));
+            geom.push(r.get_thick_polygon().to_geojson(Some(map.get_gps_bounds())));
+            intersections.extend(r.endpoints());
+        }
+    }
+    for i in intersections {
+        geom.push(map.get_i(i).polygon.to_geojson(Some(map.get_gps_bounds())));
+    }
+
+    abstio::write_json("severances.json".to_string(), &geom::geometries_to_geojson(geom));
 }
