@@ -103,25 +103,27 @@ impl FreehandBoundary {
             id: None,
             custom: None,
             draw_custom: Drawable::empty(ctx),
-            edit: EditPolygon::new(
-                ctx,
-                app,
-                polygon.clone().into_outer_ring().into_points(),
-                false,
-            ),
+            edit: EditPolygon::new(ctx, app, polygon.into_outer_ring().into_points(), false),
             lasso: None,
             name,
             quadtree: make_quadtree(app),
             queued_recalculate: false,
         };
-        state.custom = Some(polygon_to_custom_boundary(
-            app,
-            polygon,
-            state.name.clone(),
-            &state.quadtree,
-        ));
-        state.draw_custom = render(ctx, app, state.custom.as_ref().unwrap());
+        state.recalculate(ctx, app);
         Box::new(state)
+    }
+
+    fn recalculate(&mut self, ctx: &EventCtx, app: &App) {
+        self.queued_recalculate = false;
+        if let Ok(ring) = self.edit.get_ring() {
+            self.custom = Some(polygon_to_custom_boundary(
+                app,
+                ring.into_polygon(),
+                self.name.clone(),
+                &self.quadtree,
+            ));
+            self.draw_custom = render(ctx, app, self.custom.as_ref().unwrap());
+        }
     }
 }
 
@@ -139,13 +141,7 @@ impl State<App> for FreehandBoundary {
                     false,
                 );
 
-                self.custom = Some(polygon_to_custom_boundary(
-                    app,
-                    polygon,
-                    self.name.clone(),
-                    &self.quadtree,
-                ));
-                self.draw_custom = render(ctx, app, self.custom.as_ref().unwrap());
+                self.recalculate(ctx, app);
                 self.left_panel = make_panel(ctx, &self.appwide_panel.top_panel);
             }
             return Transition::Keep;
@@ -154,17 +150,9 @@ impl State<App> for FreehandBoundary {
         if self.edit.event(ctx, app) {
             self.queued_recalculate = true;
         }
+        // TODO This doesn't recalculate when pressing the leafblower key
         if self.queued_recalculate && ctx.input.left_mouse_button_released() {
-            self.queued_recalculate = false;
-            if let Ok(ring) = self.edit.get_ring() {
-                self.custom = Some(polygon_to_custom_boundary(
-                    app,
-                    ring.into_polygon(),
-                    self.name.clone(),
-                    &self.quadtree,
-                ));
-                self.draw_custom = render(ctx, app, self.custom.as_ref().unwrap());
-            }
+            self.recalculate(ctx, app);
         }
 
         // PreserveState doesn't matter, can't switch proposals in FreehandBoundary anyway
@@ -237,6 +225,12 @@ fn make_panel(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
                 .icon_text("system/assets/tools/select.svg", "Select freehand")
                 .hotkey(Key::F)
                 .build_def(ctx),
+            Text::from_all(vec![
+                Line("Press "),
+                Line(Key::D.describe()).fg(ctx.style().text_hotkey_color),
+                Line(" to displace points in some direction"),
+            ])
+            .into_widget(ctx),
             Widget::row(vec![
                 ctx.style()
                     .btn_solid_primary
