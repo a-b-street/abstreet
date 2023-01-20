@@ -90,10 +90,6 @@ mod wasm_loader {
     use std::io::Read;
 
     use futures::StreamExt;
-    use wasm_bindgen::{JsCast, UnwrapThrowExt};
-    use wasm_bindgen_futures::JsFuture;
-    use wasm_streams::ReadableStream;
-    use web_sys::{Request, RequestInit, RequestMode, Response};
 
     use abstutil::prettyprint_usize;
 
@@ -151,48 +147,29 @@ mod wasm_loader {
             let url_copy = url.clone();
             debug!("Loading {}", url_copy);
             wasm_bindgen_futures::spawn_local(async move {
-                let mut opts = RequestInit::new();
-                opts.method("GET");
-                opts.mode(RequestMode::Cors);
-                let request = Request::new_with_str_and_init(&url_copy, &opts).unwrap();
+                // TODO Can we share with abstio/src/download.rs more?
+                match reqwest::get(url_copy)
+                    .await
+                    .and_then(|x| x.error_for_status())
+                {
+                    Ok(resp) => {
+                        // TODO We're assuming We always have this
+                        let total_bytes = resp.content_length().unwrap() as usize;
+                        tx_total_bytes.send(total_bytes).unwrap();
 
-                let window = web_sys::window().unwrap();
-                match JsFuture::from(window.fetch_with_request(&request)).await {
-                    Ok(resp_value) => {
-                        let resp: Response = resp_value.dyn_into().unwrap();
-                        if resp.ok() {
-                            let total_bytes = resp
-                                .headers()
-                                .get("Content-Length")
-                                .unwrap()
-                                .unwrap()
-                                .parse::<usize>()
-                                .unwrap();
-                            tx_total_bytes.send(total_bytes).unwrap();
+                        let mut stream = resp.bytes_stream();
+                        let mut buffer = Vec::new();
 
-                            let raw_body = resp.body().unwrap_throw();
-                            let body = ReadableStream::from_raw(raw_body.dyn_into().unwrap_throw());
-                            let mut stream = body.into_stream();
-                            let mut buffer = Vec::new();
-                            while let Some(Ok(chunk)) = stream.next().await {
-                                let array = js_sys::Uint8Array::new(&chunk);
-                                if let Err(err) =
-                                    tx_read_bytes.try_send(array.byte_length() as usize)
-                                {
-                                    warn!("Couldn't send update on bytes: {}", err);
-                                }
-                                // TODO Can we avoid this clone?
-                                buffer.extend(array.to_vec());
+                        while let Some(Ok(bytes)) = stream.next().await {
+                            if let Err(err) = tx_read_bytes.try_send(bytes.len() as usize) {
+                                warn!("Couldn't send update on bytes: {}", err);
                             }
-                            tx.send(Ok(buffer)).unwrap();
-                        } else {
-                            let status = resp.status();
-                            let err = resp.status_text();
-                            tx.send(Err(anyhow!("HTTP {}: {}", status, err))).unwrap();
+                            buffer.extend(bytes);
                         }
+                        tx.send(Ok(buffer)).unwrap();
                     }
                     Err(err) => {
-                        tx.send(Err(anyhow!("{:?}", err))).unwrap();
+                        tx.send(Err(err.into())).unwrap();
                     }
                 }
             });

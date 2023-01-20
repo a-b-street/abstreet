@@ -13,7 +13,7 @@ fs-err = { workspace = true }
 instant = { workspace = true }
 lazy_static = "1.4.0"
 log = { workspace = true }
-reqwest = { version = "0.11.0", default-features=false, features=["rustls-tls"] }
+reqwest = { version = "0.11.14", default-features=false, features=["rustls-tls"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
