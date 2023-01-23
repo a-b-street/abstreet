@@ -126,6 +126,7 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
     /// Specifies the geometry of the object as a multipolygon.
     pub fn hitboxes(mut self, polygons: Vec<Polygon>) -> Self {
         assert!(self.hitboxes.is_empty(), "called hitbox twice");
+        assert!(!polygons.is_empty(), "not specifying any hitboxes");
         self.hitboxes = polygons;
         self
     }
