@@ -83,7 +83,7 @@ impl TripPlanner {
 
         let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
         self.main_route = main_route.details;
-        if self.waypoints.get_waypoints().len() > 1 {
+        if !main_route.hitboxes.is_empty() {
             world
                 .add(ID::MainRoute)
                 .hitboxes(main_route.hitboxes)
@@ -124,6 +124,7 @@ impl TripPlanner {
             // Dedupe equivalent routes based on their stats, which is usually detailed enough
             if alt.details.stats != self.main_route.stats
                 && self.alt_routes.iter().all(|x| alt.details.stats != x.stats)
+                && !alt.hitboxes.is_empty()
             {
                 self.alt_routes.push(alt.details);
                 world
