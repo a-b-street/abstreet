@@ -233,19 +233,21 @@ impl Road {
 
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
         if let Some(limit) = self.osm_tags.get("maxspeed") {
-            if let Ok(kmph) = limit.parse::<f64>() {
-                if kmph == 0.0 {
-                    warn!("{} has a speed limit of 0", self.orig_id.osm_way_id);
-                    return Speed::miles_per_hour(1.0);
-                }
-                return Speed::km_per_hour(kmph);
-            }
-
-            if let Some(mph) = limit
+            if let Some(speed) = if let Ok(kmph) = limit.parse::<f64>() {
+                Some(Speed::km_per_hour(kmph))
+            } else if let Some(mph) = limit
                 .strip_suffix(" mph")
                 .and_then(|x| x.parse::<f64>().ok())
             {
-                return Speed::miles_per_hour(mph);
+                Some(Speed::miles_per_hour(mph))
+            } else {
+                None
+            } {
+                if speed == Speed::ZERO {
+                    warn!("{} has a speed limit of 0", self.orig_id.osm_way_id);
+                    return Speed::miles_per_hour(1.0);
+                }
+                return speed;
             }
 
             // TODO Handle implicits, like PL:zone30

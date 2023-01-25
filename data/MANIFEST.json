@@ -460,6 +460,11 @@
       "uncompressed_size_bytes": 20006535,
       "compressed_size_bytes": 5820190
     },
+    "data/input/gb/bristol/raw_maps/huge.bin": {
+      "checksum": "6f373c2eb85b8de2fc27056bd0f52524",
+      "uncompressed_size_bytes": 82201210,
+      "compressed_size_bytes": 25842958
+    },
     "data/input/gb/burnley/osm/lancashire-latest.osm.pbf": {
       "checksum": "6a7520bfa839e28a147b020cc0b59bb1",
       "uncompressed_size_bytes": 35851949,
@@ -1171,9 +1176,9 @@
       "compressed_size_bytes": 36319627
     },
     "data/input/gb/nottingham/raw_maps/stapleford.bin": {
-      "checksum": "9effb7bda1448ac8487a90c113dab9d0",
-      "uncompressed_size_bytes": 6156175,
-      "compressed_size_bytes": 1542056
+      "checksum": "d2335f52cdba2a6efc88cf6409d4c05c",
+      "uncompressed_size_bytes": 11887730,
+      "compressed_size_bytes": 3177125
     },
     "data/input/gb/oxford/osm/oxfordshire-latest.osm.pbf": {
       "checksum": "5b8b146ec36f7743def6e9051b1dc72e",
@@ -2540,6 +2545,11 @@
       "uncompressed_size_bytes": 31598067,
       "compressed_size_bytes": 12272492
     },
+    "data/system/gb/bristol/maps/huge.bin": {
+      "checksum": "c2bd09ceb13d2689328eb316b4f4070a",
+      "uncompressed_size_bytes": 139721750,
+      "compressed_size_bytes": 55935122
+    },
     "data/system/gb/bristol/scenarios/east/background.bin": {
       "checksum": "323e36f6cf2bddb73897280d3d8a0a13",
       "uncompressed_size_bytes": 8547370,
@@ -3696,9 +3706,9 @@
       "compressed_size_bytes": 74432005
     },
     "data/system/gb/nottingham/maps/stapleford.bin": {
-      "checksum": "b2d702e522f54e7ad86dd833c377bbfd",
-      "uncompressed_size_bytes": 7127105,
-      "compressed_size_bytes": 2706683
+      "checksum": "88375319bf0ee9896fc1629b3093705c",
+      "uncompressed_size_bytes": 14676251,
+      "compressed_size_bytes": 5576803
     },
     "data/system/gb/nottingham/scenarios/center/background.bin": {
       "checksum": "15d01a3d28db4c02954dad26c04eb103",
@@ -3711,9 +3721,9 @@
       "compressed_size_bytes": 5896052
     },
     "data/system/gb/nottingham/scenarios/stapleford/background.bin": {
-      "checksum": "4913b92b0df1e0022b75a0b986b91e77",
-      "uncompressed_size_bytes": 2772286,
-      "compressed_size_bytes": 594768
+      "checksum": "69e23708ec26dbb2914bc64b5d56432d",
+      "uncompressed_size_bytes": 4256476,
+      "compressed_size_bytes": 1068103
     },
     "data/system/gb/oxford/maps/center.bin": {
       "checksum": "b1075cef219af51afc401bbddca8b6d2",
