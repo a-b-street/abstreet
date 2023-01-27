@@ -143,7 +143,11 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                     world
                         .add(*id)
                         .hitbox(info.block.polygon.clone())
-                        .draw_color(Color::YELLOW.alpha(0.1))
+                        .draw_color(Color::YELLOW.alpha(if info.suspicious_perimeter_roads {
+                            0.1
+                        } else {
+                            0.2
+                        }))
                         .hover_alpha(0.5)
                         .clickable()
                         .build(ctx);

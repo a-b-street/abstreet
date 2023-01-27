@@ -27,7 +27,8 @@ pub struct DesignLTN {
     // Expensive to calculate
     preserve_state: crate::save::PreserveState,
 
-    show_error: Drawable,
+    show_unreachable_cell: Drawable,
+    show_suspicious_perimeters: Drawable,
 }
 
 impl DesignLTN {
@@ -59,6 +60,12 @@ impl DesignLTN {
             Box::new(move |r| label_roads.contains(&r.id)),
         );
 
+        let mut show_suspicious_perimeters = GeomBatch::new();
+        for r in &neighbourhood.suspicious_perimeter_roads {
+            show_suspicious_perimeters
+                .push(Color::RED, app.per_map.map.get_r(*r).get_thick_polygon());
+        }
+
         let mut state = Self {
             appwide_panel: AppwidePanel::new(ctx, app, Mode::ModifyNeighbourhood),
             bottom_panel: Panel::empty(ctx),
@@ -73,7 +80,8 @@ impl DesignLTN {
                 app.partitioning().all_blocks_in_neighbourhood(id),
             ),
 
-            show_error: Drawable::empty(ctx),
+            show_unreachable_cell: Drawable::empty(ctx),
+            show_suspicious_perimeters: ctx.upload(show_suspicious_perimeters),
         };
         state.update(ctx, app);
         Box::new(state)
@@ -87,18 +95,18 @@ impl DesignLTN {
         self.draw_under_roads_layer = draw_under_roads_layer;
         self.highlight_cell = highlight_cell;
 
-        let mut show_error = GeomBatch::new();
+        let mut show_unreachable_cell = GeomBatch::new();
         let mut disconnected_cells = 0;
         for (idx, cell) in self.neighbourhood.cells.iter().enumerate() {
             if cell.is_disconnected() {
                 disconnected_cells += 1;
-                show_error.extend(
+                show_unreachable_cell.extend(
                     Color::RED.alpha(0.8),
                     render_cells.polygons_per_cell[idx].clone(),
                 );
             }
         }
-        let warning = if disconnected_cells == 0 {
+        let warning1 = if disconnected_cells == 0 {
             Widget::nothing()
         } else {
             let msg = if disconnected_cells == 1 {
@@ -112,9 +120,23 @@ impl DesignLTN {
                 .icon_text("system/assets/tools/warning.svg", msg)
                 .label_color(Color::RED, ControlState::Default)
                 .no_tooltip()
-                .build_widget(ctx, "warning")
+                .build_widget(ctx, "warning1")
         };
-        self.show_error = ctx.upload(show_error);
+        self.show_unreachable_cell = ctx.upload(show_unreachable_cell);
+
+        let warning2 = if self.neighbourhood.suspicious_perimeter_roads.is_empty() {
+            Widget::nothing()
+        } else {
+            ctx.style()
+                .btn_plain
+                .icon_text(
+                    "system/assets/tools/warning.svg",
+                    "Part of the perimeter is a local street",
+                )
+                .label_color(Color::RED, ControlState::Default)
+                .no_tooltip()
+                .build_widget(ctx, "warning2")
+        };
 
         self.bottom_panel = make_bottom_panel(
             ctx,
@@ -126,8 +148,10 @@ impl DesignLTN {
                     app.partitioning()
                         .neighbourhood_area_km2(self.neighbourhood.id)
                 )
-                .text_widget(ctx),
-                warning,
+                .text_widget(ctx)
+                .centered_horiz(),
+                warning1.centered_horiz(),
+                warning2.centered_horiz(),
             ])
             .centered_vert(),
         );
@@ -153,9 +177,36 @@ impl State<App> for DesignLTN {
         if let Outcome::Clicked(x) = self.bottom_panel.event(ctx) {
             if x == "Advanced" {
                 return launch_advanced(ctx, app, self.neighbourhood.id);
-            } else if x == "warning" {
-                // Not really clickable
-                return Transition::Keep;
+            } else if x == "warning1" {
+                return Transition::Push(PopupMsg::new_state(
+                    ctx,
+                    "Unreachable cell",
+                    vec![
+                        "Some streets inside this area can't be reached by car at all.",
+                        "You probably drew too many filters.",
+                        "",
+                        "(This may be incorrectly detected near some private/gated roads)",
+                    ],
+                ));
+            } else if x == "warning2" {
+                return Transition::Push(PopupMsg::new_state(
+                        ctx,
+                        "Unusual perimeter",
+                        vec![
+                        "Part of this area's perimeter consists of streets classified as local.",
+                        "This software assumes perimeter roads are intended to carry through-traffic, and the cells and shortcuts calculated reflect this.",
+                        "(This is why you can't place filters on perimeter roads.)",
+                        "You usually want major roads to surround all sides of your neighbourhood.",
+                        "",
+                        "There are a few ways to fix this:",
+                        "",
+                        "- If the area is near the edge of the map, try importing a larger area, including the next major road in that direction",
+                        "- Use the 'Adjust boundary' tool",
+                        "",
+                        "Some boundaries can't be properly drawn due to bugs in the software.",
+                        "Contact dabreegster@gmail.com or file an issue on Github for help.",
+                        ],
+                        ));
             }
 
             match self.edit.handle_panel_action(
@@ -209,8 +260,11 @@ impl State<App> for DesignLTN {
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
 
-        if self.bottom_panel.currently_hovering() == Some(&"warning".to_string()) {
-            g.redraw(&self.show_error);
+        if self.bottom_panel.currently_hovering() == Some(&"warning1".to_string()) {
+            g.redraw(&self.show_unreachable_cell);
+        }
+        if self.bottom_panel.currently_hovering() == Some(&"warning2".to_string()) {
+            g.redraw(&self.show_suspicious_perimeters);
         }
 
         if let EditMode::FreehandFilters(ref lasso) = app.session.edit_mode {

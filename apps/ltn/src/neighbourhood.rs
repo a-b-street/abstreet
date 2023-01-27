@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use maplit::btreeset;
 
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
-use map_model::{Direction, IntersectionID, Map, RoadID};
+use map_model::{osm, Direction, IntersectionID, Map, RoadID};
 
 use crate::partition::CustomBoundary;
 use crate::shortcuts::Shortcuts;
@@ -21,6 +21,7 @@ pub struct Neighbourhood {
     // Derived stuff
     pub interior_roads: BTreeSet<RoadID>,
     pub perimeter_roads: BTreeSet<RoadID>,
+    pub suspicious_perimeter_roads: BTreeSet<RoadID>,
 
     pub cells: Vec<Cell>,
     pub shortcuts: Shortcuts,
@@ -119,6 +120,7 @@ impl Neighbourhood {
             borders: BTreeSet::new(),
             interior_intersections: BTreeSet::new(),
             boundary_polygon: Polygon::dummy(),
+            suspicious_perimeter_roads: BTreeSet::new(),
 
             cells: Vec::new(),
             shortcuts: Shortcuts::empty(),
@@ -157,27 +159,11 @@ impl Neighbourhood {
             n.borders.insert(road.dst_i);
         }
 
-        for r in &n.interior_roads {
-            let road = map.get_r(*r);
-            for i in [road.src_i, road.dst_i] {
-                if !n.borders.contains(&i) {
-                    n.interior_intersections.insert(i);
-                }
-            }
-        }
-
-        n.cells = find_cells(map, &n.interior_roads, &n.borders, &app.edits());
-
-        // TODO The timer could be nice for large areas. But plumbing through one everywhere is
-        // tedious, and would hit a nested start_iter bug anyway.
-        n.shortcuts = crate::shortcuts::find_shortcuts(app, &n, &mut abstutil::Timer::throwaway());
-
+        n.finish_init(app);
         n
     }
 
     fn new_custom(app: &App, id: NeighbourhoodID, custom: CustomBoundary) -> Neighbourhood {
-        let map = &app.per_map.map;
-
         let mut n = Neighbourhood {
             id,
             interior_roads: custom.interior_roads,
@@ -186,28 +172,39 @@ impl Neighbourhood {
             borders: custom.borders,
             interior_intersections: BTreeSet::new(),
             boundary_polygon: custom.boundary_polygon,
+            suspicious_perimeter_roads: BTreeSet::new(),
 
             cells: Vec::new(),
             shortcuts: Shortcuts::empty(),
         };
+        n.finish_init(app);
+        n
+    }
 
-        // The rest is the same as the normal case
-        for r in &n.interior_roads {
+    fn finish_init(&mut self, app: &App) {
+        let map = &app.per_map.map;
+
+        for r in &self.interior_roads {
             let road = map.get_r(*r);
             for i in [road.src_i, road.dst_i] {
-                if !n.borders.contains(&i) {
-                    n.interior_intersections.insert(i);
+                if !self.borders.contains(&i) {
+                    self.interior_intersections.insert(i);
                 }
             }
         }
 
-        n.cells = find_cells(map, &n.interior_roads, &n.borders, &app.edits());
+        self.cells = find_cells(map, &self.interior_roads, &self.borders, &app.edits());
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.
-        n.shortcuts = crate::shortcuts::find_shortcuts(app, &n, &mut abstutil::Timer::throwaway());
+        self.shortcuts =
+            crate::shortcuts::find_shortcuts(app, self, &mut abstutil::Timer::throwaway());
 
-        n
+        for r in &self.perimeter_roads {
+            if map.get_r(*r).get_rank() == osm::RoadRank::Local {
+                self.suspicious_perimeter_roads.insert(*r);
+            }
+        }
     }
 }
 
