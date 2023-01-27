@@ -46,13 +46,23 @@ pub struct NeighbourhoodInfo {
     /// Draw a special cone of light when focused on this neighbourhood. It doesn't change which
     /// roads can be edited.
     pub override_drawing_boundary: Option<Polygon>,
+    pub suspicious_perimeter_roads: bool,
 }
 
 impl NeighbourhoodInfo {
-    fn new(block: Block) -> Self {
+    fn new(map: &Map, block: Block) -> Self {
+        let mut suspicious_perimeter_roads = false;
+        for r in &block.perimeter.roads {
+            if map.get_r(r.road).get_rank() == RoadRank::Local {
+                suspicious_perimeter_roads = true;
+                break;
+            }
+        }
+
         Self {
             block,
             override_drawing_boundary: None,
+            suspicious_perimeter_roads,
         }
     }
 }
@@ -147,7 +157,7 @@ impl Partitioning {
             for block in blocks {
                 neighbourhoods.insert(
                     NeighbourhoodID(neighbourhoods.len()),
-                    NeighbourhoodInfo::new(block),
+                    NeighbourhoodInfo::new(map, block),
                 );
             }
             let neighbourhood_id_counter = neighbourhoods.len();
@@ -256,7 +266,7 @@ impl Partitioning {
             let new_neighbourhood = NeighbourhoodID(self.neighbourhood_id_counter);
             self.neighbourhood_id_counter += 1;
             self.neighbourhoods
-                .insert(new_neighbourhood, NeighbourhoodInfo::new(split_piece));
+                .insert(new_neighbourhood, NeighbourhoodInfo::new(map, split_piece));
         }
         if new_splits {
             // We need to update the owner of all single blocks in these new pieces
@@ -312,7 +322,7 @@ impl Partitioning {
         self.neighbourhood_id_counter += 1;
         self.neighbourhoods.insert(
             new_owner,
-            NeighbourhoodInfo::new(self.get_block(id).clone()),
+            NeighbourhoodInfo::new(map, self.get_block(id).clone()),
         );
         let result = self.transfer_block(map, id, old_owner, new_owner);
         if result.is_err() {

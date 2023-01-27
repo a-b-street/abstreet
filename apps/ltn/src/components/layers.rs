@@ -261,7 +261,12 @@ impl Mode {
         Widget::col(match self {
             Mode::PickArea => vec![
                 entry(ctx, colors::HIGHLIGHT_BOUNDARY, "boundary road"),
-                entry(ctx, Color::YELLOW.alpha(0.1), "neighbourhood"),
+                entry(ctx, Color::YELLOW.alpha(0.2), "regular neighbourhood"),
+                entry(
+                    ctx,
+                    Color::YELLOW.alpha(0.1),
+                    "neighbourhood with partial boundary",
+                ),
             ],
             Mode::ModifyNeighbourhood => vec![
                 Widget::row(vec![
