@@ -69,8 +69,6 @@ impl Pt2D {
         )
     }
 
-    // TODO valid to do euclidean distance on world-space points that're formed from
-    // Haversine?
     pub(crate) fn raw_dist_to(self, to: Pt2D) -> f64 {
         ((self.x() - to.x()).powi(2) + (self.y() - to.y()).powi(2)).sqrt()
     }
