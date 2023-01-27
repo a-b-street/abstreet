@@ -135,6 +135,10 @@ impl Perimeter {
                 skip.insert(r.id);
             } else if !PathConstraints::Car.can_use_road(r, map) {
                 skip.insert(r.id);
+            } else if r.orig_id.osm_way_id == crate::osm::WayID(827157342) {
+                // TODO A hack for Stapleford. Some geometry breaks around here, and after
+                // collapse_deadends, the entire block breaks. This one use case is important now.
+                skip.insert(r.id);
             }
         }
         skip
