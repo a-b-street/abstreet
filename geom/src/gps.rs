@@ -117,16 +117,14 @@ impl LonLat {
         let features = match geojson {
             GeoJson::Feature(feature) => vec![feature],
             GeoJson::FeatureCollection(feature_collection) => feature_collection.features,
-            _ => anyhow::bail!("Unexpected geojson: {:?}", geojson),
+            _ => bail!("Unexpected geojson: {:?}", geojson),
         };
         let mut polygons = Vec::new();
         for mut feature in features {
             let points = match feature.geometry.take().map(|g| g.value) {
                 Some(Value::MultiPolygon(multi_polygon)) => multi_polygon[0][0].clone(),
                 Some(Value::Polygon(polygon)) => polygon[0].clone(),
-                _ => {
-                    anyhow::bail!("Unexpected feature: {:?}", feature);
-                }
+                _ => bail!("Unexpected feature: {:?}", feature),
             };
             let name = feature
                 .property("name")

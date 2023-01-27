@@ -1160,6 +1160,11 @@
       "uncompressed_size_bytes": 7213404,
       "compressed_size_bytes": 2615493
     },
+    "data/input/gb/nottingham/osm/england-latest.osm.pbf": {
+      "checksum": "7ecea2daf131a6db9ff79f574d694a98",
+      "uncompressed_size_bytes": 1242365278,
+      "compressed_size_bytes": 1241420181
+    },
     "data/input/gb/nottingham/osm/nottinghamshire-latest.osm.pbf": {
       "checksum": "f747f9e1dd803a78acd692b72128af5d",
       "uncompressed_size_bytes": 27167662,
@@ -1176,9 +1181,9 @@
       "compressed_size_bytes": 36319627
     },
     "data/input/gb/nottingham/raw_maps/stapleford.bin": {
-      "checksum": "d2335f52cdba2a6efc88cf6409d4c05c",
-      "uncompressed_size_bytes": 11887730,
-      "compressed_size_bytes": 3177125
+      "checksum": "c56ed34ab405ba8624c27cf93b682272",
+      "uncompressed_size_bytes": 19056442,
+      "compressed_size_bytes": 4849937
     },
     "data/input/gb/oxford/osm/oxfordshire-latest.osm.pbf": {
       "checksum": "5b8b146ec36f7743def6e9051b1dc72e",
@@ -3706,9 +3711,9 @@
       "compressed_size_bytes": 74432005
     },
     "data/system/gb/nottingham/maps/stapleford.bin": {
-      "checksum": "88375319bf0ee9896fc1629b3093705c",
-      "uncompressed_size_bytes": 14676251,
-      "compressed_size_bytes": 5576803
+      "checksum": "37d69891fb0a7ac436dee28bbe912d8e",
+      "uncompressed_size_bytes": 23070047,
+      "compressed_size_bytes": 8849386
     },
     "data/system/gb/nottingham/scenarios/center/background.bin": {
       "checksum": "15d01a3d28db4c02954dad26c04eb103",
@@ -3721,9 +3726,9 @@
       "compressed_size_bytes": 5896052
     },
     "data/system/gb/nottingham/scenarios/stapleford/background.bin": {
-      "checksum": "69e23708ec26dbb2914bc64b5d56432d",
-      "uncompressed_size_bytes": 4256476,
-      "compressed_size_bytes": 1068103
+      "checksum": "7f270e6b3ecd8fca89bf1c361049ae18",
+      "uncompressed_size_bytes": 5739907,
+      "compressed_size_bytes": 1476485
     },
     "data/system/gb/oxford/maps/center.bin": {
       "checksum": "b1075cef219af51afc401bbddca8b6d2",

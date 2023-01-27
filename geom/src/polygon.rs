@@ -440,7 +440,7 @@ impl Polygon {
         let features = match geojson {
             geojson::GeoJson::Feature(feature) => vec![feature],
             geojson::GeoJson::FeatureCollection(collection) => collection.features,
-            _ => anyhow::bail!("Unexpected geojson: {:?}", geojson),
+            _ => bail!("Unexpected geojson: {:?}", geojson),
         };
 
         let mut results = Vec::new();
