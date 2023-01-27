@@ -47,3 +47,6 @@ Other binary data bundled in:
   with Creative Commons licenses
 - Country flags (<https://github.com/hampusborgos/country-flags>, public domain)
 - Fire SVG (<https://commons.wikimedia.org/wiki/File:Hikaru_fire.svg>, CC3)
+- UK school street traffic sign from
+  <https://commons.wikimedia.org/wiki/File:UK_traffic_sign_545.svg>, released
+  under the Open Government License

@@ -135,7 +135,10 @@ impl EditNeighbourhood {
                 }
                 EditOutcome::Transition(Transition::Recreate)
             }
-            "Modal filter - no entry" | "Modal filter -- walking/cycling only" | "Bus gate" => {
+            "Modal filter - no entry"
+            | "Modal filter -- walking/cycling only"
+            | "Bus gate"
+            | "School street" => {
                 app.session.edit_mode = EditMode::Filters;
                 EditOutcome::UpdatePanelAndWorld
             }
@@ -394,6 +397,7 @@ impl ChangeFilterType {
                     ),
                     filter(FilterType::NoEntry, Key::Num2, "No entry"),
                     filter(FilterType::BusGate, Key::Num3, "Bus gate"),
+                    filter(FilterType::SchoolStreet, Key::Num4, "School street"),
                 ]),
                 Widget::vertical_separator(ctx),
                 Widget::col(vec![
@@ -402,6 +406,7 @@ impl ChangeFilterType {
                             FilterType::WalkCycleOnly => Texture(1),
                             FilterType::NoEntry => Texture(2),
                             FilterType::BusGate => Texture(3),
+                            FilterType::SchoolStreet => Texture(4),
                             // The rectangle size must match the base image, otherwise it'll be
                             // repeated (tiled) or cropped -- not scaled.
                         }, Polygon::rectangle(crate::SPRITE_WIDTH as f64, crate::SPRITE_HEIGHT as f64))
@@ -411,6 +416,7 @@ impl ChangeFilterType {
                         FilterType::WalkCycleOnly => "A physical barrier that only allows people walking, cycling, and rolling to pass. Often planters or bollards. Larger vehicles cannot enter.",
                         FilterType::NoEntry => "An alternative sign to indicate vehicles are not allowed to enter the street. Only people walking, cycling, and rolling may pass through.",
                         FilterType::BusGate => "A bus gate sign and traffic cameras are installed to allow buses, pedestrians, and cyclists to pass. There is no physical barrier.",
+                        FilterType::SchoolStreet => "A closure during school hours only. The barrier usually allows teachers and staff to access the school.",
                     })).wrap_to_pixels(ctx, crate::SPRITE_WIDTH as f64).into_widget(ctx),
                 ]),
             ]),
@@ -435,6 +441,10 @@ impl State<App> for ChangeFilterType {
                 }
                 "Bus gate" => {
                     app.session.filter_type = FilterType::BusGate;
+                    Transition::Replace(Self::new_state(ctx, app))
+                }
+                "School street" => {
+                    app.session.filter_type = FilterType::SchoolStreet;
                     Transition::Replace(Self::new_state(ctx, app))
                 }
                 "close" | "OK" => Transition::Multi(vec![Transition::Pop, Transition::Recreate]),
