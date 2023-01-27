@@ -552,6 +552,7 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
         FilterType::WalkCycleOnly => "Modal filter -- walking/cycling only",
         FilterType::NoEntry => "Modal filter - no entry",
         FilterType::BusGate => "Bus gate",
+        FilterType::SchoolStreet => "School street",
     };
 
     Widget::row(vec![

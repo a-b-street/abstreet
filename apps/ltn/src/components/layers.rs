@@ -294,6 +294,10 @@ impl Mode {
                         .untinted()
                         .dims(30.0)
                         .into_widget(ctx),
+                    Image::from_path(FilterType::SchoolStreet.svg_path())
+                        .untinted()
+                        .dims(30.0)
+                        .into_widget(ctx),
                 ]),
                 Line("Faded filters exist already").small().into_widget(ctx),
                 Widget::row(vec![

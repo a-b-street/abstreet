@@ -70,6 +70,7 @@ pub enum FilterType {
     NoEntry,
     WalkCycleOnly,
     BusGate,
+    SchoolStreet,
 }
 
 impl FilterType {
@@ -78,6 +79,7 @@ impl FilterType {
             FilterType::NoEntry => "system/assets/tools/no_entry.svg",
             FilterType::WalkCycleOnly => "system/assets/tools/modal_filter.svg",
             FilterType::BusGate => "system/assets/tools/bus_gate.svg",
+            FilterType::SchoolStreet => "system/assets/tools/school_street.svg",
         }
     }
 
@@ -86,6 +88,7 @@ impl FilterType {
             FilterType::WalkCycleOnly => Color::hex("#0b793a"),
             FilterType::NoEntry => Color::RED,
             FilterType::BusGate => *colors::BUS_ROUTE,
+            FilterType::SchoolStreet => Color::hex("#e31017"),
         }
     }
 }
@@ -152,6 +155,7 @@ impl Edits {
             FilterType::NoEntry,
             FilterType::WalkCycleOnly,
             FilterType::BusGate,
+            FilterType::SchoolStreet,
         ] {
             icons.insert(ft, GeomBatch::load_svg(ctx, ft.svg_path()));
         }
