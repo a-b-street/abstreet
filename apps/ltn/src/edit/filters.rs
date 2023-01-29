@@ -17,7 +17,7 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
     for r in &neighbourhood.interior_roads {
         let road = map.get_r(*r);
         world
-            .add(Obj::InteriorRoad(*r))
+            .add(Obj::Road(*r))
             .hitbox(road.get_thick_polygon())
             .drawn_in_master_batch()
             .hover_color(colors::HOVER)
@@ -33,7 +33,7 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
 
     for i in &neighbourhood.interior_intersections {
         world
-            .add(Obj::InteriorIntersection(*i))
+            .add(Obj::Intersection(*i))
             .hitbox(map.get_i(*i).polygon.clone())
             .drawn_in_master_batch()
             .hover_color(colors::HOVER)
@@ -57,7 +57,7 @@ pub fn handle_world_outcome(
 ) -> EditOutcome {
     let map = &app.per_map.map;
     match outcome {
-        WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
+        WorldOutcome::ClickedObject(Obj::Road(r)) => {
             let road = map.get_r(r);
             // The world doesn't contain non-driveable roads, so no need to check for that error
             if road.is_deadend_for_driving(&app.per_map.map) {
@@ -108,17 +108,17 @@ pub fn handle_world_outcome(
             redraw_all_filters(ctx, app);
             EditOutcome::Transition(Transition::Recreate)
         }
-        WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
+        WorldOutcome::ClickedObject(Obj::Intersection(i)) => {
             app.per_map.proposals.before_edit();
             DiagonalFilter::cycle_through_alternatives(app, i);
             redraw_all_filters(ctx, app);
             EditOutcome::Transition(Transition::Recreate)
         }
-        WorldOutcome::Keypress("debug", Obj::InteriorIntersection(i)) => {
+        WorldOutcome::Keypress("debug", Obj::Intersection(i)) => {
             open_browser(app.per_map.map.get_i(i).orig_id.to_string());
             EditOutcome::Nothing
         }
-        WorldOutcome::Keypress("debug", Obj::InteriorRoad(r)) => {
+        WorldOutcome::Keypress("debug", Obj::Road(r)) => {
             open_browser(app.per_map.map.get_r(r).orig_id.osm_way_id.to_string());
             EditOutcome::Nothing
         }

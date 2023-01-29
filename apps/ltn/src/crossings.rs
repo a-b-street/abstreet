@@ -114,7 +114,7 @@ impl State<App> for Crossings {
                     self.bottom_panel = BottomPanel::new(ctx, &self.appwide_panel, contents);
                 }
                 "undo" => {
-                    crate::edit::one_ways::undo_proposal(ctx, app);
+                    crate::edit::undo_proposal(ctx, app);
                     self.update(ctx, app);
                 }
                 _ => unreachable!(),

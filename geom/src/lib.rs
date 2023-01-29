@@ -84,6 +84,14 @@ impl UnitFmt {
             metric: true,
         }
     }
+
+    /// Default settings using imperial.
+    pub fn imperial() -> Self {
+        Self {
+            round_durations: true,
+            metric: false,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]

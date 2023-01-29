@@ -27,6 +27,14 @@ lazy_static::lazy_static! {
     pub static ref POROUS: Color = Color::hex("#99BA98");
     pub static ref SEMI_PERMEABLE: Color = Color::hex("#EFC796");
     pub static ref IMPERMEABLE: Color = Color::hex("#E99875");
+
+    // From slow to fast, with the speed limit range defined elsewhere
+    pub static ref SPEED_LIMITS: [Color; 4] = [
+        Color::hex("#00AB4D"),
+        Color::hex("#8ECA4D"),
+        Color::hex("#F7BB00"),
+        Color::hex("#BB0000"),
+    ];
 }
 
 pub const DISCONNECTED_CELL: Color = Color::RED.alpha(0.5);
