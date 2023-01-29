@@ -1040,8 +1040,8 @@ impl TutorialState {
             Stage::new(Task::Escort)
                 // Don't center on where the agents are, be a little offset
                 .warp_to(
-                    ID::Building(map.find_b_by_osm_id(bldg(217699780)).unwrap()),
-                    Some(10.0),
+                    ID::Building(map.find_b_by_osm_id(bldg(217700459)).unwrap()),
+                    Some(8.0),
                 )
                 .custom_spawn(Box::new(move |app| {
                     // Seed a specific target car, and fill up the target building's private
@@ -1051,8 +1051,8 @@ impl TutorialState {
                     let start_lane = {
                         let r = map.get_r(
                             map.find_r_by_osm_id(OriginalRoad::new(
-                                158782224,
-                                (9167872280, 53128052),
+                                36952952,
+                                (53128049, 53101726),
                             ))
                             .unwrap(),
                         );
@@ -1104,7 +1104,7 @@ impl TutorialState {
                     spawn_agents_around(
                         app.primary
                             .map
-                            .find_i_by_osm_id(osm::NodeID(9167872280))
+                            .find_i_by_osm_id(osm::NodeID(53101726))
                             .unwrap(),
                         app,
                     );
