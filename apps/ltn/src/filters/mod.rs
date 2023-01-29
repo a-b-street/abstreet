@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap};
-use geom::{Angle, Distance, Line};
+use geom::{Angle, Distance, Line, Speed};
 use map_model::{CrossingType, EditRoad, IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
@@ -28,12 +28,20 @@ pub struct Edits {
         deserialize_with = "deserialize_btreemap"
     )]
     pub intersections: BTreeMap<IntersectionID, DiagonalFilter>,
-    /// For roads with modified directions, what's their current state?
+    /// For roads with modified directions or speed limits, what's their current state?
+    // TODO Misnomer; this includes speed limit changes now too. Not worth a backwards incompatible
+    // change right now.
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
     pub one_ways: BTreeMap<RoadID, EditRoad>,
+    /// For roads with modified speeds, what's their current state?
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub speed_limits: BTreeMap<RoadID, Speed>,
     /// One road may have multiple crossings. They're sorted by increasing distance.
     #[serde(
         serialize_with = "serialize_btreemap",

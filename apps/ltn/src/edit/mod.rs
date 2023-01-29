@@ -1,7 +1,9 @@
 pub mod filters;
 pub mod freehand_filters;
+mod map_edits;
 pub mod one_ways;
 pub mod shortcuts;
+pub mod speed_limits;
 
 use std::collections::BTreeSet;
 
@@ -16,6 +18,7 @@ use widgetry::{
     RewriteColor, State, Text, Texture, Toggle, Widget,
 };
 
+pub use self::map_edits::undo_proposal;
 use crate::{
     is_private, mut_edits, redraw_all_filters, App, FilterType, Neighbourhood, RoadFilter,
     Transition,
@@ -27,6 +30,7 @@ pub enum EditMode {
     Oneways,
     // Is a road clicked on right now?
     Shortcuts(Option<shortcuts::FocusedRoad>),
+    SpeedLimits,
 }
 
 pub struct EditNeighbourhood {
@@ -36,8 +40,8 @@ pub struct EditNeighbourhood {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Obj {
-    InteriorRoad(RoadID),
-    InteriorIntersection(IntersectionID),
+    Road(RoadID),
+    Intersection(IntersectionID),
 }
 impl ObjectID for Obj {}
 
@@ -74,6 +78,7 @@ impl EditNeighbourhood {
                 EditMode::FreehandFilters(_) => World::unbounded(),
                 EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
                 EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
+                EditMode::SpeedLimits => speed_limits::make_world(ctx, app, neighbourhood),
             },
         }
     }
@@ -94,6 +99,7 @@ impl EditNeighbourhood {
             EditMode::FreehandFilters(_) => unreachable!(),
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
             EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
+            EditMode::SpeedLimits => speed_limits::handle_world_outcome(ctx, app, outcome),
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();
@@ -125,7 +131,7 @@ impl EditNeighbourhood {
                 },
             )),
             "undo" => {
-                one_ways::undo_proposal(ctx, app);
+                undo_proposal(ctx, app);
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
                     *maybe_focus = None;
@@ -179,6 +185,10 @@ impl EditNeighbourhood {
                     self.world = shortcuts::make_world(ctx, app, neighbourhood, focus);
                 }
                 EditOutcome::Transition(Transition::Keep)
+            }
+            "Speed limits" => {
+                app.session.edit_mode = EditMode::SpeedLimits;
+                EditOutcome::UpdatePanelAndWorld
             }
             _ => EditOutcome::Nothing,
         }

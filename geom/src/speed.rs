@@ -52,12 +52,16 @@ impl Speed {
         self.0
     }
 
+    pub fn to_miles_per_hour(self) -> f64 {
+        self.0 * 2.23694
+    }
+
     /// Describes the speed according to formatting rules.
     pub fn to_string(self, fmt: &UnitFmt) -> String {
         if fmt.metric {
             format!("{} km/h", (self.0 * 3.6).round())
         } else {
-            format!("{} mph", (self.0 * 2.23694).round())
+            format!("{} mph", self.to_miles_per_hour().round())
         }
     }
 }

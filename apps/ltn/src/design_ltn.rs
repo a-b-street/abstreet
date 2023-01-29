@@ -325,7 +325,10 @@ fn setup_editing(
             .build(ctx);
     }
 
-    if !matches!(app.session.edit_mode, EditMode::Shortcuts(_)) {
+    if !matches!(
+        app.session.edit_mode,
+        EditMode::Shortcuts(_) | EditMode::SpeedLimits
+    ) {
         draw_top_layer.append(neighbourhood.shortcuts.draw_heatmap(app));
     }
 
@@ -501,6 +504,8 @@ fn make_bottom_panel(
         edit_mode(ctx, app),
         if let EditMode::Shortcuts(ref focus) = app.session.edit_mode {
             crate::edit::shortcuts::widget(ctx, app, focus.as_ref())
+        } else if let EditMode::SpeedLimits = app.session.edit_mode {
+            crate::edit::speed_limits::widget(ctx)
         } else {
             Widget::nothing()
         }
@@ -633,6 +638,29 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
                 txt
             })
             .build_widget(ctx, "Shortcuts")
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/tools/20_mph.svg")
+            .image_color(
+                RewriteColor::Change(Color::RED, Color::CLEAR),
+                ControlState::Default,
+            )
+            .image_color(
+                RewriteColor::Change(Color::RED, Color::CLEAR),
+                ControlState::Disabled,
+            )
+            .disabled(matches!(edit_mode, EditMode::SpeedLimits))
+            .hotkey(Key::F5)
+            .tooltip_and_disabled({
+                let mut txt = Text::new();
+                txt.add_line(Line(Key::F4.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" - Speed limits"));
+                txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" a road to convert it to 20mph (32kph)"));
+                txt
+            })
+            .build_widget(ctx, "Speed limits")
             .centered_vert(),
     ])
 }

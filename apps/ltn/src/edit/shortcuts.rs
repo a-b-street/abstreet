@@ -66,13 +66,13 @@ pub fn make_world(
             );
 
             world
-                .add(Obj::InteriorRoad(*r))
+                .add(Obj::Road(*r))
                 .hitbox(road.get_thick_polygon())
                 .draw(batch)
                 .build(ctx);
         } else {
             world
-                .add(Obj::InteriorRoad(*r))
+                .add(Obj::Road(*r))
                 .hitbox(road.get_thick_polygon())
                 .drawn_in_master_batch()
                 .hover_color(colors::HOVER)
@@ -120,7 +120,7 @@ pub fn handle_world_outcome(
     neighbourhood: &Neighbourhood,
 ) -> EditOutcome {
     match outcome {
-        WorldOutcome::ClickedObject(Obj::InteriorRoad(r)) => {
+        WorldOutcome::ClickedObject(Obj::Road(r)) => {
             let subset = neighbourhood.shortcuts.subset(neighbourhood, r);
             if subset.paths.is_empty() {
                 EditOutcome::Nothing
