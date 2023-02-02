@@ -28,6 +28,9 @@ pub struct PerResidentImpact {
     // Expensive to calculate
     preserve_state: PreserveState,
 
+    pathfinder_before: Pathfinder,
+    pathfinder_after: Pathfinder,
+
     current_target: Option<BuildingID>,
     // Time from a building to current_target, (before, after)
     times_from_building: BTreeMap<BuildingID, (Duration, Duration)>,
@@ -41,6 +44,7 @@ impl PerResidentImpact {
         id: NeighbourhoodID,
         current_target: Option<BuildingID>,
     ) -> Box<dyn State<App>> {
+        let map = &app.per_map.map;
         let appwide_panel = AppwidePanel::new(ctx, app, Mode::PerResidentImpact);
 
         let neighbourhood = Neighbourhood::new(app, id);
@@ -55,7 +59,7 @@ impl PerResidentImpact {
         );
 
         let mut buildings_inside = BTreeSet::new();
-        for b in app.per_map.map.all_buildings() {
+        for b in map.all_buildings() {
             if neighbourhood
                 .boundary_polygon
                 .contains_pt(b.polygon.center())
@@ -65,8 +69,32 @@ impl PerResidentImpact {
         }
 
         // It's a subtle effect, but maybe useful to see
-        let render_cells = crate::draw_cells::RenderCells::new(&app.per_map.map, &neighbourhood);
+        let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
         let cell_outline = render_cells.draw_island_outlines();
+
+        // Depending on the number of buildings_inside, Dijkstra may be faster, but this seems fast
+        // enough so far
+        let (pathfinder_before, pathfinder_after) =
+            ctx.loading_screen("prepare per-resident impact", |_, timer| {
+                // TODO Can we share with RoutePlanner maybe?
+                timer.start("prepare pathfinding before changes");
+                let pathfinder_before = Pathfinder::new_ch(
+                    map,
+                    app.per_map.routing_params_before_changes.clone(),
+                    vec![PathConstraints::Car],
+                    timer,
+                );
+                timer.stop("prepare pathfinding before changes");
+
+                timer.start("prepare pathfinding after changes");
+                let mut params = map.routing_params().clone();
+                app.edits().update_routing_params(&mut params);
+                let pathfinder_after =
+                    Pathfinder::new_ch(map, params, vec![PathConstraints::Car], timer);
+                timer.stop("prepare pathfinding after changes");
+
+                (pathfinder_before, pathfinder_after)
+            });
 
         let mut state = Self {
             appwide_panel,
@@ -81,6 +109,9 @@ impl PerResidentImpact {
                 app.partitioning().all_blocks_in_neighbourhood(id),
                 current_target,
             ),
+
+            pathfinder_before,
+            pathfinder_after,
 
             current_target,
             times_from_building: BTreeMap::new(),
@@ -198,23 +229,6 @@ impl PerResidentImpact {
 
         let map = &app.per_map.map;
 
-        // Depending on the number of buildings_inside, Dijkstra may be faster, but this seems fast
-        // enough so far
-        timer.start("prepare pathfinding before changes");
-        let pathfinder_before = Pathfinder::new_ch(
-            map,
-            app.per_map.routing_params_before_changes.clone(),
-            vec![PathConstraints::Car],
-            timer,
-        );
-        timer.stop("prepare pathfinding before changes");
-
-        timer.start("prepare pathfinding after changes");
-        let mut params = map.routing_params().clone();
-        app.edits().update_routing_params(&mut params);
-        let pathfinder_after = Pathfinder::new_ch(map, params, vec![PathConstraints::Car], timer);
-        timer.stop("prepare pathfinding after changes");
-
         let requests: Vec<(BuildingID, PathRequest)> = self
             .buildings_inside
             .iter()
@@ -228,10 +242,10 @@ impl PerResidentImpact {
         for (b, before, after) in timer.parallelize("calculate routes", requests, |(b, req)| {
             (
                 b,
-                pathfinder_before
+                self.pathfinder_before
                     .pathfind_v2(req.clone(), map)
                     .map(|p| p.get_cost()),
-                pathfinder_after
+                self.pathfinder_after
                     .pathfind_v2(req.clone(), map)
                     .map(|p| p.get_cost()),
             )
@@ -255,32 +269,16 @@ impl PerResidentImpact {
             PathConstraints::Car,
         )?;
 
-        // TODO Cache or something!
-        let pathfinder_before = Pathfinder::new_dijkstra(
-            map,
-            app.per_map.routing_params_before_changes.clone(),
-            vec![PathConstraints::Car],
-            &mut Timer::throwaway(),
-        );
-        let mut params = map.routing_params().clone();
-        app.edits().update_routing_params(&mut params);
-        let pathfinder_after = Pathfinder::new_dijkstra(
-            map,
-            params,
-            vec![PathConstraints::Car],
-            &mut Timer::throwaway(),
-        );
-
         Some(
             map_gui::tools::draw_overlapping_paths(
                 app,
                 vec![
                     (
-                        pathfinder_before.pathfind_v2(req.clone(), map)?,
+                        self.pathfinder_before.pathfind_v2(req.clone(), map)?,
                         *colors::PLAN_ROUTE_BEFORE,
                     ),
                     (
-                        pathfinder_after.pathfind_v2(req.clone(), map)?,
+                        self.pathfinder_after.pathfind_v2(req.clone(), map)?,
                         *colors::PLAN_ROUTE_AFTER,
                     ),
                 ],
