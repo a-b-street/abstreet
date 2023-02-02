@@ -4,6 +4,7 @@ use maplit::btreeset;
 
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{osm, Direction, IntersectionID, Map, RoadID};
+use widgetry::{Drawable, EventCtx, GeomBatch};
 
 use crate::partition::CustomBoundary;
 use crate::shortcuts::Shortcuts;
@@ -205,6 +206,18 @@ impl Neighbourhood {
                 self.suspicious_perimeter_roads.insert(*r);
             }
         }
+    }
+
+    pub fn fade_irrelevant(&self, ctx: &EventCtx, app: &App) -> Drawable {
+        let fade_area = Polygon::with_holes(
+            app.per_map
+                .map
+                .get_boundary_polygon()
+                .get_outer_ring()
+                .clone(),
+            vec![self.boundary_polygon.clone().into_outer_ring()],
+        );
+        GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx)
     }
 }
 

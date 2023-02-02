@@ -190,6 +190,18 @@ impl<A: AppLike + 'static, S: TripManagementState<A>> TripManagement<A, S> {
         }
     }
 
+    pub fn add_new_trip(&mut self, app: &mut A, from: TripEndpoint, to: TripEndpoint) {
+        self.current = NamedTrip {
+            name: self.all.new_name(),
+            waypoints: vec![from, to],
+        };
+        self.all
+            .trips
+            .insert(self.current.name.clone(), self.current.clone());
+        self.all.save(app);
+        self.save_current_trip_to_session(app);
+    }
+
     pub fn on_click(
         &mut self,
         ctx: &mut EventCtx,

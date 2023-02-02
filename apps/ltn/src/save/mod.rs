@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::{Counter, Timer};
-use map_model::{EditRoad, Map};
+use map_model::{BuildingID, EditRoad, Map};
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
     lctrl, Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, MultiKey, Outcome, Panel, State,
@@ -600,6 +600,7 @@ pub enum PreserveState {
     Crossings,
     // TODO app.session.edit_mode now has state for Shortcuts...
     DesignLTN(Vec<BlockID>),
+    PerResidentImpact(Vec<BlockID>, Option<BuildingID>),
 }
 
 impl PreserveState {
@@ -633,6 +634,18 @@ impl PreserveState {
                     ctx,
                     app,
                     count.max_key(),
+                ))
+            }
+            PreserveState::PerResidentImpact(blocks, current_target) => {
+                let mut count = Counter::new();
+                for block in blocks {
+                    count.inc(app.partitioning().block_to_neighbourhood(*block));
+                }
+                Transition::Replace(crate::per_resident_impact::PerResidentImpact::new_state(
+                    ctx,
+                    app,
+                    count.max_key(),
+                    *current_target,
                 ))
             }
         }

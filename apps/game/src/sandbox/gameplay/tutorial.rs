@@ -1050,11 +1050,8 @@ impl TutorialState {
                     let goal_bldg = map.find_b_by_osm_id(bldg(217701875)).unwrap();
                     let start_lane = {
                         let r = map.get_r(
-                            map.find_r_by_osm_id(OriginalRoad::new(
-                                36952952,
-                                (53128049, 53101726),
-                            ))
-                            .unwrap(),
+                            map.find_r_by_osm_id(OriginalRoad::new(36952952, (53128049, 53101726)))
+                                .unwrap(),
                         );
                         assert_eq!(r.lanes.len(), 6);
                         r.lanes[2].id
