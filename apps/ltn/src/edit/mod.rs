@@ -130,6 +130,9 @@ impl EditNeighbourhood {
                     crate::select_boundary::SelectBoundary::new_state(ctx, app, id)
                 },
             )),
+            "Per-resident route impact" => EditOutcome::Transition(Transition::Replace(
+                crate::per_resident_impact::PerResidentImpact::new_state(ctx, app, id, None),
+            )),
             "undo" => {
                 undo_proposal(ctx, app);
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)

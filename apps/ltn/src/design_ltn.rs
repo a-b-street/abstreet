@@ -1,4 +1,4 @@
-use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D};
+use geom::{Angle, ArrowCap, Distance, PolyLine, Pt2D};
 use map_gui::tools::DrawSimpleRoadLabels;
 use osm2streets::Direction;
 use widgetry::mapspace::{DummyID, World};
@@ -40,16 +40,7 @@ impl DesignLTN {
         app.per_map.current_neighbourhood = Some(id);
 
         let neighbourhood = Neighbourhood::new(app, id);
-
-        let fade_area = Polygon::with_holes(
-            app.per_map
-                .map
-                .get_boundary_polygon()
-                .get_outer_ring()
-                .clone(),
-            vec![neighbourhood.boundary_polygon.clone().into_outer_ring()],
-        );
-        let fade_irrelevant = GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)]).upload(ctx);
+        let fade_irrelevant = neighbourhood.fade_irrelevant(ctx, app);
 
         let mut label_roads = neighbourhood.perimeter_roads.clone();
         label_roads.extend(neighbourhood.interior_roads.clone());
@@ -538,11 +529,22 @@ fn make_bottom_panel(
                     .text("Adjust boundary")
                     .hotkey(Key::B)
                     .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Per-resident route impact")
+                    .build_def(ctx),
                 ctx.style().btn_outline.text("Advanced").build_def(ctx),
             ])
             .centered_vert()
         } else {
-            Widget::nothing()
+            Widget::row(vec![
+                Widget::vertical_separator(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Per-resident route impact")
+                    .build_def(ctx),
+            ])
+            .centered_vert()
         },
     ])
     .evenly_spaced();

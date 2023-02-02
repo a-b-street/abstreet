@@ -16,7 +16,7 @@ lazy_static::lazy_static! {
         Color::hex("#ffed6f"),
     ];
 
-    pub static ref PLAN_ROUTE_BEFORE: Color = Color::RED;
+    pub static ref PLAN_ROUTE_BEFORE: Color = Color::PURPLE;
     pub static ref PLAN_ROUTE_AFTER: Color = Color::CYAN;
     pub static ref PLAN_ROUTE_BIKE: Color = Color::GREEN;
     pub static ref PLAN_ROUTE_WALK: Color = Color::BLUE;

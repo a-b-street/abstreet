@@ -33,6 +33,7 @@ mod freehand_boundary;
 mod impact;
 mod neighbourhood;
 mod partition;
+mod per_resident_impact;
 mod pick_area;
 mod route_planner;
 mod save;

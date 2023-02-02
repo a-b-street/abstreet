@@ -76,6 +76,13 @@ impl RoutePlanner {
         Box::new(rp)
     }
 
+    /// Add a new trip while outside of this state and make it current, so that when we switch into
+    /// this state, it'll appear
+    pub fn add_new_trip(app: &mut App, from: TripEndpoint, to: TripEndpoint) {
+        let mut files = TripManagement::<App, RoutePlanner>::new(app);
+        files.add_new_trip(app, from, to);
+    }
+
     // Updates the panel and draw_routes
     fn update_everything(&mut self, ctx: &mut EventCtx, app: &mut App) {
         self.files.autosave(app);

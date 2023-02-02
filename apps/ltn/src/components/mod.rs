@@ -13,6 +13,7 @@ pub enum Mode {
     FreehandBoundary,
     ModifyNeighbourhood,
     SelectBoundary,
+    PerResidentImpact,
     RoutePlanner,
     Crossings,
     Impact,

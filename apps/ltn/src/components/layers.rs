@@ -336,6 +336,7 @@ impl Mode {
                 ),
             ],
             Mode::FreehandBoundary => vec![],
+            Mode::PerResidentImpact => vec![],
             Mode::RoutePlanner => vec![
                 entry(
                     ctx,
