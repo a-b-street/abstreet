@@ -528,6 +528,14 @@ impl PolyLine {
         Polygon::pretessellated(vec![ring], tessellation)
     }
 
+    /// This produces a `Polygon` with a possibly invalid `Ring`. It shouldn't crash. Use sparingly.
+    pub fn unsafe_make_polygons(&self, width: Distance) -> Polygon {
+        let tessellation = self.thicken_tessellation(width);
+        let ring = Ring::unsafe_deduping_new(tessellation.points.clone())
+            .expect("PolyLine::make_polygons() failed");
+        Polygon::pretessellated(vec![ring], tessellation)
+    }
+
     /// Just produces a Tessellation
     pub fn thicken_tessellation(&self, width: Distance) -> Tessellation {
         // TODO Don't use the angle corrections yet -- they seem to do weird things.
