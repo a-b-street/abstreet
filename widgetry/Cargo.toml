@@ -24,7 +24,7 @@ futures-channel = { version = "0.3.12"}
 geojson = { workspace = true }
 geom = { path = "../geom" }
 glow = "0.11.2"
-glutin = { git = "https://github.com/rust-windowing/glutin", optional = true }
+glutin = { git = "https://github.com/rust-windowing/glutin", optional = true, rev = "2bffbf52d6b4f4c32adc463818e10ac8082948e4" }
 htmlescape = "0.3.1"
 image = { version = "0.24.3", default-features = false, features=["gif", "png"] }
 instant = { workspace = true }

@@ -1704,7 +1704,7 @@ dependencies = [
 [[package]]
 name = "glutin"
 version = "0.28.0"
-source = "git+https://github.com/rust-windowing/glutin#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
+source = "git+https://github.com/rust-windowing/glutin?rev=2bffbf52d6b4f4c32adc463818e10ac8082948e4#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
 dependencies = [
  "cgl",
  "cocoa",
@@ -1729,7 +1729,7 @@ dependencies = [
 [[package]]
 name = "glutin_egl_sys"
 version = "0.1.5"
-source = "git+https://github.com/rust-windowing/glutin#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
+source = "git+https://github.com/rust-windowing/glutin?rev=2bffbf52d6b4f4c32adc463818e10ac8082948e4#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
 dependencies = [
  "gl_generator",
  "winapi",
@@ -1738,7 +1738,7 @@ dependencies = [
 [[package]]
 name = "glutin_gles2_sys"
 version = "0.1.5"
-source = "git+https://github.com/rust-windowing/glutin#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
+source = "git+https://github.com/rust-windowing/glutin?rev=2bffbf52d6b4f4c32adc463818e10ac8082948e4#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
 dependencies = [
  "gl_generator",
  "objc",
@@ -1747,7 +1747,7 @@ dependencies = [
 [[package]]
 name = "glutin_glx_sys"
 version = "0.1.7"
-source = "git+https://github.com/rust-windowing/glutin#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
+source = "git+https://github.com/rust-windowing/glutin?rev=2bffbf52d6b4f4c32adc463818e10ac8082948e4#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
 dependencies = [
  "gl_generator",
  "x11-dl",
@@ -1756,7 +1756,7 @@ dependencies = [
 [[package]]
 name = "glutin_wgl_sys"
 version = "0.1.5"
-source = "git+https://github.com/rust-windowing/glutin#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
+source = "git+https://github.com/rust-windowing/glutin?rev=2bffbf52d6b4f4c32adc463818e10ac8082948e4#2bffbf52d6b4f4c32adc463818e10ac8082948e4"
 dependencies = [
  "gl_generator",
 ]
