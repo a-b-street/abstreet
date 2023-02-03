@@ -90,7 +90,7 @@ impl BusExperiment {
         world.draw_master_batch_built(isochrone.draw);
 
         world.initialize_hover(ctx);
-        world.rebuilt_during_drag(&self.world);
+        world.rebuilt_during_drag(ctx, &self.world);
         self.world = world;
 
         self.panel = Panel::new_builder(Widget::col(vec![

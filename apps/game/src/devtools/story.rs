@@ -122,7 +122,7 @@ impl StoryMapEditor {
         }
 
         world.initialize_hover(ctx);
-        world.rebuilt_during_drag(&self.world);
+        world.rebuilt_during_drag(ctx, &self.world);
         self.world = world;
     }
 }

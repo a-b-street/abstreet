@@ -195,14 +195,11 @@ impl PerResidentImpact {
                     .clickable()
                     .build(ctx);
             } else {
-                // TODO We run out of GPU memory on large maps if we hover here. Make World be
-                // lazier!
                 self.world
                     .add(Obj::Building(b.id))
                     .hitbox(b.polygon.clone())
                     .drawn_in_master_batch()
-                    .invisibly_hoverable()
-                    //.hover_color(colors::HOVER)
+                    .hover_color(colors::HOVER)
                     .clickable()
                     .build(ctx);
             }

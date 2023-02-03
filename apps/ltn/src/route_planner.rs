@@ -139,7 +139,7 @@ impl RoutePlanner {
         let mut world = World::bounded(app.per_map.map.get_bounds());
         self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
         world.initialize_hover(ctx);
-        world.rebuilt_during_drag(&self.world);
+        world.rebuilt_during_drag(ctx, &self.world);
         self.world = world;
     }
 
@@ -152,7 +152,7 @@ impl RoutePlanner {
         let mut world = World::bounded(app.per_map.map.get_bounds());
         self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
         world.initialize_hover(ctx);
-        world.rebuilt_during_drag(&self.world);
+        world.rebuilt_during_drag(ctx, &self.world);
         self.world = world;
 
         self.left_panel.replace(ctx, "results", results_widget);

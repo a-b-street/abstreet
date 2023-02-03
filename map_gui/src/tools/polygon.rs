@@ -94,7 +94,7 @@ impl EditPolygon {
         world.initialize_hover(ctx);
 
         if let Some(prev) = self.world.value() {
-            world.rebuilt_during_drag(prev);
+            world.rebuilt_during_drag(ctx, prev);
         }
         self.world.set(ctx.canvas.cam_zoom, world);
     }

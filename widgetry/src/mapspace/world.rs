@@ -7,7 +7,7 @@ use aabb_quadtree::{ItemId, QuadTree};
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 
 use crate::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
-use crate::{Color, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor, Text};
+use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor, Text};
 
 // TODO Tests...
 // - start drag in screenspace, release in map
@@ -25,6 +25,8 @@ pub struct World<ID: ObjectID> {
     draw_master_batches: Vec<ToggleZoomed>,
 
     hovering: Option<ID>,
+    // Only for ColorHitbox cases
+    draw_hovering: Option<Drawable>,
     // If we're currently dragging, where was the cursor during the last movement, and has the
     // cursor moved since starting the drag?
     dragging_from: Option<(Pt2D, bool)>,
@@ -108,11 +110,16 @@ pub struct ObjectBuilder<'a, ID: ObjectID> {
     hitboxes: Vec<Polygon>,
     zorder: usize,
     draw_normal: Option<ToggleZoomedBuilder>,
-    draw_hover: Option<ToggleZoomedBuilder>,
+    draw_hover: Option<HoverBuilder>,
     tooltip: Option<Text>,
     clickable: bool,
     draggable: bool,
     keybindings: Vec<(MultiKey, &'static str)>,
+}
+
+enum HoverBuilder {
+    ColorHitbox(Color),
+    Custom(ToggleZoomedBuilder),
 }
 
 impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
@@ -181,7 +188,7 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
             self.draw_hover.is_none(),
             "already specified how to draw hovered"
         );
-        self.draw_hover = Some(hovered.into());
+        self.draw_hover = Some(HoverBuilder::Custom(hovered.into()));
         self
     }
 
@@ -233,11 +240,10 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 
     /// Draw the object in a hovered state by coloring its hitbox. Useful when
     /// `drawn_in_master_batch` is used and there's no normal drawn polygon.
-    pub fn hover_color(self, color: Color) -> Self {
+    pub fn hover_color(mut self, color: Color) -> Self {
         assert!(!self.hitboxes.is_empty(), "call hitbox first");
-        let mut batch = GeomBatch::new();
-        batch.extend(color, self.hitboxes.clone());
-        self.draw_hovered(batch)
+        self.draw_hover = Some(HoverBuilder::ColorHitbox(color));
+        self
     }
 
     /// Mark that an object is hoverable, but don't actually draw anything while hovering on it
@@ -319,7 +325,10 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
                     .draw_normal
                     .expect("didn't specify how to draw normally")
                     .build(ctx),
-                draw_hover: self.draw_hover.take().map(|draw| draw.build(ctx)),
+                draw_hover: self.draw_hover.take().map(|draw| match draw {
+                    HoverBuilder::Custom(draw) => DrawHover::Custom(draw.build(ctx)),
+                    HoverBuilder::ColorHitbox(color) => DrawHover::ColorHitbox(color),
+                }),
                 tooltip: self.tooltip,
                 clickable: self.clickable,
                 draggable: self.draggable,
@@ -335,13 +344,18 @@ struct Object<ID: ObjectID> {
     hitboxes: Vec<Polygon>,
     zorder: usize,
     draw_normal: ToggleZoomed,
-    draw_hover: Option<ToggleZoomed>,
+    draw_hover: Option<DrawHover>,
     tooltip: Option<Text>,
     clickable: bool,
     draggable: bool,
     // TODO How should we communicate these keypresses are possible? Something standard, like
     // button tooltips?
     keybindings: Vec<(MultiKey, &'static str)>,
+}
+
+enum DrawHover {
+    ColorHitbox(Color),
+    Custom(ToggleZoomed),
 }
 
 impl<ID: ObjectID> World<ID> {
@@ -357,6 +371,7 @@ impl<ID: ObjectID> World<ID> {
             draw_master_batches: Vec::new(),
 
             hovering: None,
+            draw_hovering: None,
             dragging_from: None,
         }
     }
@@ -370,6 +385,7 @@ impl<ID: ObjectID> World<ID> {
             draw_master_batches: Vec::new(),
 
             hovering: None,
+            draw_hovering: None,
             dragging_from: None,
         }
     }
@@ -398,6 +414,7 @@ impl<ID: ObjectID> World<ID> {
     pub fn delete(&mut self, id: ID) {
         if self.hovering == Some(id) {
             self.hovering = None;
+            self.draw_hovering = None;
             if self.dragging_from.is_some() {
                 panic!("Can't delete {:?} mid-drag", id);
             }
@@ -424,6 +441,7 @@ impl<ID: ObjectID> World<ID> {
     pub fn maybe_delete(&mut self, id: ID) {
         if self.hovering == Some(id) {
             self.hovering = None;
+            self.draw_hovering = None;
             if self.dragging_from.is_some() {
                 panic!("Can't delete {:?} mid-drag", id);
             }
@@ -449,12 +467,14 @@ impl<ID: ObjectID> World<ID> {
             .canvas
             .get_cursor_in_map_space()
             .and_then(|cursor| self.calculate_hover(cursor));
+        self.redraw_hovering(ctx);
     }
 
     /// Forcibly reset the hovering state to empty. This is a necessary hack when launching a new
     /// state that uses `DrawBaselayer::PreviousState` and has tooltips.
     pub fn hack_unset_hovering(&mut self) {
         self.hovering = None;
+        self.draw_hovering = None;
     }
 
     /// If a drag event causes the world to be totally rebuilt, call this with the previous world
@@ -464,11 +484,12 @@ impl<ID: ObjectID> World<ID> {
     ///
     /// Important: the rebuilt world must include the same object ID that's currently being dragged
     /// from the previous world.
-    pub fn rebuilt_during_drag(&mut self, prev_world: &World<ID>) {
+    pub fn rebuilt_during_drag(&mut self, ctx: &EventCtx, prev_world: &World<ID>) {
         if prev_world.dragging_from.is_some() {
             self.dragging_from = prev_world.dragging_from;
             self.hovering = prev_world.hovering;
             assert!(self.objects.contains_key(self.hovering.as_ref().unwrap()));
+            self.redraw_hovering(ctx);
         }
     }
 
@@ -502,6 +523,7 @@ impl<ID: ObjectID> World<ID> {
                 return if before == self.hovering {
                     WorldOutcome::Nothing
                 } else {
+                    self.redraw_hovering(ctx);
                     WorldOutcome::HoverChanged(before, self.hovering)
                 };
             }
@@ -544,6 +566,7 @@ impl<ID: ObjectID> World<ID> {
             let before = self.hovering;
             self.hovering = self.calculate_hover(cursor);
             if before != self.hovering {
+                self.redraw_hovering(ctx);
                 neutral_outcome = WorldOutcome::HoverChanged(before, self.hovering);
             }
         }
@@ -629,7 +652,10 @@ impl<ID: ObjectID> World<ID> {
             let obj = &self.objects[&id];
             if Some(id) == self.hovering {
                 if let Some(ref draw) = obj.draw_hover {
-                    draw.draw(g);
+                    match draw {
+                        DrawHover::Custom(draw) => draw.draw(g),
+                        DrawHover::ColorHitbox(_) => self.draw_hovering.as_ref().unwrap().draw(g),
+                    }
                     drawn = true;
                 }
                 if let Some(ref txt) = obj.tooltip {
@@ -672,6 +698,18 @@ impl<ID: ObjectID> World<ID> {
     /// describe interactions; to detect the keypresses, listen for `WorldOutcome::Keypress`.
     pub fn get_hovered_keybindings(&self) -> Option<&Vec<(MultiKey, &'static str)>> {
         Some(&self.objects[&self.hovering?].keybindings)
+    }
+
+    fn redraw_hovering(&mut self, ctx: &EventCtx) {
+        self.draw_hovering = None;
+        if let Some(id) = self.hovering {
+            let obj = &self.objects[&id];
+            if let Some(DrawHover::ColorHitbox(color)) = obj.draw_hover {
+                let mut batch = GeomBatch::new();
+                batch.extend(color, obj.hitboxes.clone());
+                self.draw_hovering = Some(batch.upload(ctx));
+            }
+        }
     }
 }
 

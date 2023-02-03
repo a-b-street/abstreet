@@ -143,7 +143,7 @@ impl TripPlanner {
             .rebuild_world(ctx, &mut world, ID::Waypoint, 2);
 
         world.initialize_hover(ctx);
-        world.rebuilt_during_drag(&self.world);
+        world.rebuilt_during_drag(ctx, &self.world);
         self.world = world;
     }
 
