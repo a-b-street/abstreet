@@ -38,7 +38,7 @@ impl From<Polygon> for Tessellation {
             })
             .collect();
         let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
-        let indices = downsize(earcutr::earcut(&vertices, &holes, dims));
+        let indices = downsize(earcutr::earcut(&vertices, &holes, dims).unwrap());
 
         Self {
             points: vertices
@@ -67,7 +67,7 @@ impl From<geo::Polygon> for Tessellation {
             })
             .collect();
         let (vertices, holes, dims) = earcutr::flatten(&geojson_style);
-        let indices = earcutr::earcut(&vertices, &holes, dims);
+        let indices = earcutr::earcut(&vertices, &holes, dims).unwrap();
 
         let points = vertices
             .chunks(2)
@@ -96,7 +96,7 @@ impl Tessellation {
             vertices.push(pt.x());
             vertices.push(pt.y());
         }
-        let indices = downsize(earcutr::earcut(&vertices, &Vec::new(), 2));
+        let indices = downsize(earcutr::earcut(&vertices, &Vec::new(), 2).unwrap());
 
         Self { points, indices }
     }

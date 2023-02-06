@@ -26,7 +26,7 @@ geom = { path = "../geom" }
 instant = { workspace = true }
 lazy_static = "1.4.0"
 log = { workspace = true }
-lyon = "1.0.0"
+lyon = "1.0.1"
 map_model = { path = "../map_model" }
 regex = "1.7.1"
 rfd = "0.11.0"
