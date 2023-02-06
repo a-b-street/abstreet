@@ -185,9 +185,9 @@ impl LinearGradient {
                 stop.color.red as usize,
                 stop.color.green as usize,
                 stop.color.blue as usize,
-                stop.opacity.value() as f32,
+                stop.opacity.get() as f32,
             );
-            stops.push((stop.offset.value(), color));
+            stops.push((stop.offset.get(), color));
         }
         Fill::LinearGradient(LinearGradient { line, stops })
     }
