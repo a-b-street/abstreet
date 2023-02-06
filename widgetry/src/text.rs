@@ -2,6 +2,8 @@ use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
 use std::hash::Hasher;
 
+use usvg_text_layout::TreeTextToPath;
+
 use geom::{PolyLine, Polygon};
 
 use crate::assets::Assets;
@@ -504,10 +506,11 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     }
     write!(&mut svg, "{}</text></svg>", contents).unwrap();
 
-    let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts.borrow().to_ref()) {
+    let mut svg_tree = match usvg::Tree::from_str(&svg, &usvg::Options::default()) {
         Ok(t) => t,
         Err(err) => panic!("render_line({}): {}", contents, err),
     };
+    svg_tree.convert_text(&assets.fontdb.borrow());
     let mut batch = GeomBatch::new();
     match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
         Ok(_) => batch,
@@ -606,10 +609,11 @@ impl TextSpan {
         )
         .unwrap();
 
-        let svg_tree = match usvg::Tree::from_str(&svg, &assets.text_opts.borrow().to_ref()) {
+        let mut svg_tree = match usvg::Tree::from_str(&svg, &usvg::Options::default()) {
             Ok(t) => t,
             Err(err) => panic!("curvey({}): {}", self.text, err),
         };
+        svg_tree.convert_text(&assets.fontdb.borrow());
         let mut batch = GeomBatch::new();
         match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
             Ok(_) => batch,

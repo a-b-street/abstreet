@@ -2,8 +2,7 @@ use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
 use lru::LruCache;
-use usvg::fontdb;
-use usvg::Options;
+use usvg_text_layout::fontdb;
 
 use geom::Bounds;
 
@@ -20,7 +19,7 @@ pub struct Assets {
     font_to_id: HashMap<Font, fontdb::ID>,
     extra_fonts: RefCell<HashSet<String>>,
     pub(crate) style: RefCell<Style>,
-    pub text_opts: RefCell<Options>,
+    pub(crate) fontdb: RefCell<fontdb::Database>,
     pub read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
     base_url: Option<String>,
     are_gzipped: bool,
@@ -42,20 +41,8 @@ impl Assets {
         fontdb.load_font_data(include_bytes!("../fonts/OverpassMono-Bold.ttf").to_vec());
         fontdb.load_font_data(include_bytes!("../fonts/Overpass-Regular.ttf").to_vec());
         fontdb.load_font_data(include_bytes!("../fonts/Overpass-SemiBold.ttf").to_vec());
-        let mut a = Assets {
-            default_line_height: RefCell::new(0.0),
-            text_cache: RefCell::new(LruCache::new(500)),
-            line_height_cache: RefCell::new(HashMap::new()),
-            svg_cache: RefCell::new(HashMap::new()),
-            font_to_id: HashMap::new(),
-            extra_fonts: RefCell::new(HashSet::new()),
-            text_opts: RefCell::new(Options::default()),
-            style: RefCell::new(style),
-            base_url,
-            are_gzipped,
-            read_svg,
-        };
-        a.text_opts.borrow_mut().fontdb = fontdb;
+
+        let mut font_to_id = HashMap::new();
         for font in [
             Font::BungeeInlineRegular,
             Font::BungeeRegular,
@@ -64,11 +51,9 @@ impl Assets {
             Font::OverpassSemiBold,
             Font::OverpassMonoBold,
         ] {
-            a.font_to_id.insert(
+            font_to_id.insert(
                 font,
-                a.text_opts
-                    .borrow()
-                    .fontdb
+                fontdb
                     .query(&fontdb::Query {
                         families: &[fontdb::Family::Name(font.family())],
                         weight: match font {
@@ -82,6 +67,20 @@ impl Assets {
                     .unwrap(),
             );
         }
+
+        let a = Assets {
+            default_line_height: RefCell::new(0.0),
+            text_cache: RefCell::new(LruCache::new(500)),
+            line_height_cache: RefCell::new(HashMap::new()),
+            svg_cache: RefCell::new(HashMap::new()),
+            font_to_id,
+            extra_fonts: RefCell::new(HashSet::new()),
+            fontdb: RefCell::new(fontdb),
+            style: RefCell::new(style),
+            base_url,
+            are_gzipped,
+            read_svg,
+        };
         *a.default_line_height.borrow_mut() =
             a.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
         a
@@ -102,7 +101,7 @@ impl Assets {
     pub fn load_font(&self, filename: &str, bytes: Vec<u8>) {
         info!("Loaded extra font {}", filename);
         self.extra_fonts.borrow_mut().insert(filename.to_string());
-        self.text_opts.borrow_mut().fontdb.load_font_data(bytes);
+        self.fontdb.borrow_mut().load_font_data(bytes);
         // We don't need to fill out font_to_id, because we can't directly create text using this
         // font.
     }
@@ -115,9 +114,8 @@ impl Assets {
 
         // This seems to be missing line_gap, and line_gap is 0, so manually adjust here.
         let line_height = self
-            .text_opts
-            .borrow()
             .fontdb
+            .borrow()
             .with_face_data(self.font_to_id[&font], |data, face_index| {
                 let font = ttf_parser::Face::parse(data, face_index).unwrap();
                 let units_per_em = font.units_per_em();
