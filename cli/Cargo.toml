@@ -15,7 +15,7 @@ geom = { path = "../geom" }
 importer = { path = "../importer" }
 log = { workspace = true }
 map_model = { path = "../map_model" }
-osmio = "0.4.0"
+osmio = "0.7.0"
 rand  = "0.8.3"
 rand_xorshift = { workspace = true }
 raw_map = { path = "../raw_map" }

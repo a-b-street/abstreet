@@ -39,7 +39,7 @@ lttb = "0.2.0"
 maplit = "1.0.2"
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
-petname = "1.1.0"
+petname = "1.1.3"
 popdat = { path = "../../popdat" }
 rand = { workspace = true }
 rand_xorshift = { workspace = true }

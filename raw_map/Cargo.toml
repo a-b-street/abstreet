@@ -10,5 +10,5 @@ abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
 serde = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
-strum = "0.21"
-strum_macros = "0.21"
+strum = "0.24.1"
+strum_macros = "0.24.3"

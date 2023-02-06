@@ -8,7 +8,7 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-flatgeobuf = { version = "0.8.0" }
+flatgeobuf = { version = "3.24.0" }
 futures = "0.3.12"
 geo = { workspace = true }
 geojson = { workspace = true }
@@ -17,7 +17,7 @@ geozero = "0.9.6"
 log = { workspace = true }
 map_model = { path = "../map_model" }
 rand = { workspace = true }
-rand_distr = "0.4.0"
+rand_distr = "0.4.3"
 rand_xorshift = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
