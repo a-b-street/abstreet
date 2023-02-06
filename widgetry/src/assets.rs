@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
+use std::num::NonZeroUsize;
 
 use lru::LruCache;
 use usvg_text_layout::fontdb;
@@ -70,7 +71,7 @@ impl Assets {
 
         let a = Assets {
             default_line_height: RefCell::new(0.0),
-            text_cache: RefCell::new(LruCache::new(500)),
+            text_cache: RefCell::new(LruCache::new(NonZeroUsize::new(500).unwrap())),
             line_height_cache: RefCell::new(HashMap::new()),
             svg_cache: RefCell::new(HashMap::new()),
             font_to_id,

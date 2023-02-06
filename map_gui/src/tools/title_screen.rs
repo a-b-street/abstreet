@@ -333,7 +333,7 @@ mod built_info {
     pub fn maybe_update(ctx: &mut EventCtx) -> Widget {
         let t = built::util::strptime(BUILT_TIME_UTC);
 
-        let txt = widgetry::Text::from(format!("This version built on {}", t.date().naive_local()))
+        let txt = widgetry::Text::from(format!("This version built on {}", t.date_naive()))
             .into_widget(ctx);
         // Disable this warning; no promise about a release schedule anymore
         if false && (chrono::Utc::now() - t).num_days() > 15 {

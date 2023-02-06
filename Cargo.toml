@@ -38,6 +38,7 @@ opt-level = 3
 [workspace.dependencies]
 anyhow = "1.0.38"
 bincode = "1.3.1"
+colorous = "1.0.9"
 contour = "0.7.0"
 fs-err = "2.6.0"
 geo = "0.23.0"
@@ -50,8 +51,8 @@ rand_xorshift = "0.3.0"
 serde = "1.0.123"
 serde_json = "1.0.61"
 structopt = "0.3.23"
-wasm-bindgen = "0.2.70"
-web-sys = "0.3.47"
+wasm-bindgen = "0.2.84"
+web-sys = "0.3.61"
 
 # There's a circular dependency between this repo (abstreet) and osm2streets,
 # due to the 2 core dependency crates listed below. This patch is required to

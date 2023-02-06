@@ -7,22 +7,22 @@ edition = "2021"
 [dependencies]
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-base64 = "0.13.0"
+base64 = "0.21.0"
 bincode = { workspace = true }
 fs-err = { workspace = true }
 instant = { workspace = true }
 lazy_static = "1.4.0"
 log = { workspace = true }
-reqwest = { version = "0.11.0", default-features=false, features=["rustls-tls"] }
+reqwest = { version = "0.11.14", default-features=false, features=["rustls-tls"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-futures-channel = { version = "0.3.12"}
-tokio = "1.19.2"
+futures-channel = { version = "0.3.26"}
+tokio = "1.25.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 include_dir = { git = "https://github.com/dabreegster/include_dir", branch = "union" }
-js-sys = "0.3.47"
+js-sys = "0.3.61"
 wasm-bindgen = { workspace = true }
 web-sys = { workspace = true, features=["HtmlElement", "Storage", "Window"] }

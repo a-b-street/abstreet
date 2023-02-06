@@ -11,5 +11,5 @@ anyhow = { workspace = true }
 csv = "1.1.4"
 geom = { path = "../geom" }
 log = { workspace = true }
-roxmltree = { version = "0.15.1", features=["std"] }
+roxmltree = { version = "0.18.0", features=["std"] }
 serde = { workspace = true }

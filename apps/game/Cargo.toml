@@ -20,7 +20,7 @@ abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 anyhow = { workspace = true }
 collisions = { path = "../../collisions" }
-colorous = "1.0.3"
+colorous = { workspace = true }
 contour = { workspace = true }
 csv = "1.1.4"
 downcast-rs = "1.2.0"
