@@ -16,6 +16,7 @@ anyhow = { workspace = true }
 collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }
 csv = "1.1.4"
+fs-err = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../geom" }
@@ -33,12 +34,3 @@ sim = { path = "../sim" }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
-
-# These are all transitive dependencies, specified here only to enable certain
-# features. This lets this crate share dependencies with game and most of the
-# other binary crates. See
-# https://www.reddit.com/r/rust/comments/nvd6y7/common_crates_in_cargo_workspace_recompiled_due/.
-hashbrown = "0.9.1"
-libc = { version = "0.2.94", features=["extra_traits"] }
-num-integer = { version = "0.1.44", features=["i128", "std"] }
-fs-err = { workspace = true }
