@@ -268,6 +268,18 @@ impl GPSBounds {
 pub struct QuadTree<T>(RTree<GeomWithData<Rectangle<[f64; 2]>, T>>);
 
 impl<T: Copy> QuadTree<T> {
+    pub fn new() -> Self {
+        Self(RTree::new())
+    }
+
+    /// Slow, prefer bulk_load or QuadTreeBuilder
+    pub fn insert(&mut self, entry: GeomWithData<Rectangle<[f64; 2]>, T>) {
+        self.0.insert(entry);
+    }
+    pub fn insert_with_box(&mut self, data: T, bbox: Bounds) {
+        self.0.insert(bbox.as_bbox2(data));
+    }
+
     pub fn bulk_load(entries: Vec<GeomWithData<Rectangle<[f64; 2]>, T>>) -> Self {
         Self(RTree::bulk_load(entries))
     }
@@ -275,5 +287,24 @@ impl<T: Copy> QuadTree<T> {
     pub fn query_bbox(&self, bbox: Bounds) -> impl Iterator<Item = T> + '_ {
         let envelope = AABB::from_corners([bbox.min_x, bbox.min_y], [bbox.max_x, bbox.max_y]);
         self.0.locate_in_envelope(&envelope).map(|x| x.data)
+    }
+}
+
+pub struct QuadTreeBuilder<T>(Vec<GeomWithData<Rectangle<[f64; 2]>, T>>);
+
+impl<T: Copy> QuadTreeBuilder<T> {
+    pub fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    pub fn add(&mut self, entry: GeomWithData<Rectangle<[f64; 2]>, T>) {
+        self.0.push(entry);
+    }
+    pub fn add_with_box(&mut self, data: T, bbox: Bounds) {
+        self.0.push(bbox.as_bbox2(data));
+    }
+
+    pub fn build(self) -> QuadTree<T> {
+        QuadTree::bulk_load(self.0)
     }
 }

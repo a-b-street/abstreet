@@ -6,7 +6,7 @@ extern crate anyhow;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 pub use crate::angle::Angle;
-pub use crate::bounds::{Bounds, GPSBounds, QuadTree};
+pub use crate::bounds::{Bounds, GPSBounds, QuadTree, QuadTreeBuilder};
 pub use crate::circle::Circle;
 pub use crate::distance::Distance;
 pub use crate::duration::Duration;

@@ -1,10 +1,8 @@
 use std::collections::HashSet;
 
-use aabb_quadtree::QuadTree;
-
 use abstio::{CityName, MapName};
 use abstutil::Timer;
-use geom::{Polygon, Ring};
+use geom::{Polygon, QuadTreeBuilder, Ring};
 use kml::ExtraShapes;
 use map_model::{BuildingID, BuildingType, Map};
 use sim::count_parked_cars_per_bldg;
@@ -142,7 +140,7 @@ pub fn match_parcels_to_buildings(map: &mut Map, shapes: &ExtraShapes, timer: &m
     let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();
     // TODO We should refactor something like FindClosest, but for polygon containment
     // The quadtree's ID is just an index into parcels_with_housing.
-    let mut quadtree: QuadTree<usize> = QuadTree::default(map.get_bounds().as_bbox());
+    let mut quadtree: QuadTreeBuilder<usize> = QuadTreeBuilder::new();
     timer.start_iter("index all parcels", shapes.shapes.len());
     for shape in &shapes.shapes {
         timer.next();
@@ -157,12 +155,12 @@ pub fn match_parcels_to_buildings(map: &mut Map, shapes: &ExtraShapes, timer: &m
                 .and_then(|pts| Ring::new(pts).ok())
             {
                 let polygon = ring.into_polygon();
-                quadtree
-                    .insert_with_box(parcels_with_housing.len(), polygon.get_bounds().as_bbox());
+                quadtree.add_with_box(parcels_with_housing.len(), polygon.get_bounds());
                 parcels_with_housing.push((polygon, units));
             }
         }
     }
+    let quadtree = quadtree.build();
 
     let mut used_parcels: HashSet<usize> = HashSet::new();
     let mut units_per_bldg: Vec<(BuildingID, usize)> = Vec::new();
@@ -170,8 +168,7 @@ pub fn match_parcels_to_buildings(map: &mut Map, shapes: &ExtraShapes, timer: &m
     for b in map.all_buildings() {
         timer.next();
         // If multiple parcels contain a building's center, just pick one arbitrarily
-        for (idx, _, _) in quadtree.query(b.polygon.get_bounds().as_bbox()) {
-            let idx = *idx;
+        for idx in quadtree.query_bbox(b.polygon.get_bounds()) {
             if used_parcels.contains(&idx)
                 || !parcels_with_housing[idx].0.contains_pt(b.label_center)
             {
