@@ -1,8 +1,6 @@
 use std::collections::BTreeSet;
 
-use aabb_quadtree::QuadTree;
-
-use geom::{Distance, Polygon};
+use geom::{Distance, Polygon, QuadTree};
 use map_gui::tools::EditPolygon;
 use map_model::RoadID;
 use widgetry::tools::Lasso;
@@ -283,8 +281,8 @@ fn polygon_to_custom_boundary(
 
     // Find all roads inside the polygon at least partly
     let mut interior_roads = BTreeSet::new();
-    for &(id, _, _) in &quadtree.query(boundary_polygon.get_bounds().as_bbox()) {
-        let r = map.get_r(*id);
+    for id in quadtree.query_bbox(boundary_polygon.get_bounds()) {
+        let r = map.get_r(id);
         if boundary_polygon.intersects_polyline(&r.center_pts) && crate::is_driveable(r, map) {
             interior_roads.insert(r.id);
         }
@@ -325,11 +323,13 @@ fn render(ctx: &EventCtx, app: &App, custom: &CustomBoundary) -> Drawable {
     ctx.upload(batch)
 }
 
-// TODO This is still surprisingly slow to query
 fn make_quadtree(app: &App) -> QuadTree<RoadID> {
-    let mut quadtree = QuadTree::default(app.per_map.map.get_bounds().as_bbox());
-    for r in app.per_map.map.all_roads() {
-        quadtree.insert_with_box(r.id, r.center_pts.get_bounds().as_bbox());
-    }
-    quadtree
+    QuadTree::bulk_load(
+        app.per_map
+            .map
+            .all_roads()
+            .into_iter()
+            .map(|r| r.center_pts.get_bounds().as_bbox2(r.id))
+            .collect(),
+    )
 }

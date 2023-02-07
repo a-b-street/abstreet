@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use aabb_quadtree::geom::{Point, Rect};
+use rstar::primitives::{GeomWithData, Rectangle};
+use rstar::{RTree, AABB};
 
 use crate::{Circle, Distance, LonLat, Polygon, Pt2D, Ring};
 
@@ -103,6 +105,14 @@ impl Bounds {
                 y: self.max_y as f32,
             },
         }
+    }
+
+    /// Converts the boundary to the format used by `rstar`.
+    pub fn as_bbox2<T>(&self, data: T) -> GeomWithData<Rectangle<[f64; 2]>, T> {
+        GeomWithData::new(
+            Rectangle::from_corners([self.min_x, self.min_y], [self.max_x, self.max_y]),
+            data,
+        )
     }
 
     /// Creates a rectangle covering this boundary.
@@ -251,5 +261,19 @@ impl GPSBounds {
             LonLat::new(self.min_lon, self.max_lat),
             LonLat::new(self.min_lon, self.min_lat),
         ]
+    }
+}
+
+// Convenient wrapper around rstar
+pub struct QuadTree<T>(RTree<GeomWithData<Rectangle<[f64; 2]>, T>>);
+
+impl<T: Copy> QuadTree<T> {
+    pub fn bulk_load(entries: Vec<GeomWithData<Rectangle<[f64; 2]>, T>>) -> Self {
+        Self(RTree::bulk_load(entries))
+    }
+
+    pub fn query_bbox(&self, bbox: Bounds) -> impl Iterator<Item = T> + '_ {
+        let envelope = AABB::from_corners([bbox.min_x, bbox.min_y], [bbox.max_x, bbox.max_y]);
+        self.0.locate_in_envelope(&envelope).map(|x| x.data)
     }
 }
