@@ -94,6 +94,7 @@ impl Bounds {
     }
 
     /// Converts the boundary to the format used by `aabb_quadtree`.
+    // TODO On its way out
     pub fn as_bbox(&self) -> Rect {
         Rect {
             top_left: Point {
