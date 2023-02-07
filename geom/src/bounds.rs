@@ -291,14 +291,14 @@ impl<T> QuadTree<T> {
 
     pub fn query_bbox_borrow(&self, bbox: Bounds) -> impl Iterator<Item = &T> + '_ {
         let envelope = AABB::from_corners([bbox.min_x, bbox.min_y], [bbox.max_x, bbox.max_y]);
-        self.0.locate_in_envelope(&envelope).map(|x| &x.data)
+        self.0.locate_in_envelope_intersecting(&envelope).map(|x| &x.data)
     }
 }
 
 impl<T: Copy> QuadTree<T> {
     pub fn query_bbox(&self, bbox: Bounds) -> impl Iterator<Item = T> + '_ {
         let envelope = AABB::from_corners([bbox.min_x, bbox.min_y], [bbox.max_x, bbox.max_y]);
-        self.0.locate_in_envelope(&envelope).map(|x| x.data)
+        self.0.locate_in_envelope_intersecting(&envelope).map(|x| x.data)
     }
 }
 
