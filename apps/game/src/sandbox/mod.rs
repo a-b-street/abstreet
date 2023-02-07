@@ -671,24 +671,16 @@ fn mouseover_unzoomed_agent_circle(ctx: &mut EventCtx, app: &mut App) {
         return;
     };
 
-    for (id, _, _) in app
+    for id in app
         .primary
         .agents
         .borrow_mut()
         .calculate_unzoomed_agents(ctx, &app.primary.map, &app.primary.sim, &app.cs)
-        .query(
-            Circle::new(cursor, Distance::meters(3.0))
-                .get_bounds()
-                .as_bbox(),
-        )
+        .query_bbox(Circle::new(cursor, Distance::meters(3.0)).get_bounds())
     {
-        if let Some(pt) = app
-            .primary
-            .sim
-            .canonical_pt_for_agent(*id, &app.primary.map)
-        {
+        if let Some(pt) = app.primary.sim.canonical_pt_for_agent(id, &app.primary.map) {
             if Circle::new(pt, unzoomed_agent_radius(id.to_vehicle_type())).contains_pt(cursor) {
-                app.primary.current_selection = Some(ID::from_agent(*id));
+                app.primary.current_selection = Some(ID::from_agent(id));
             }
         }
     }

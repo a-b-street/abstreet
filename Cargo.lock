@@ -1630,7 +1630,6 @@ dependencies = [
 name = "game"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstio",
  "abstutil",
  "anyhow",
@@ -2740,7 +2739,6 @@ dependencies = [
 name = "map_editor"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstio",
  "abstutil",
  "fs-err",
@@ -2759,7 +2757,6 @@ dependencies = [
 name = "map_gui"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstio",
  "abstutil",
  "anyhow",
@@ -5212,7 +5209,6 @@ dependencies = [
 name = "widgetry"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstio",
  "abstutil",
  "anyhow",

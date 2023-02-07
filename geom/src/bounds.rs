@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use aabb_quadtree::geom::{Point, Rect};
 use rstar::primitives::{GeomWithData, Rectangle};
-use rstar::{RTree, AABB};
+use rstar::{RTree, SelectionFunction, AABB};
 
 use crate::{Circle, Distance, LonLat, Polygon, Pt2D, Ring};
 
@@ -267,9 +267,13 @@ impl GPSBounds {
 // Convenient wrapper around rstar
 pub struct QuadTree<T>(RTree<GeomWithData<Rectangle<[f64; 2]>, T>>);
 
-impl<T: Copy> QuadTree<T> {
+impl<T> QuadTree<T> {
     pub fn new() -> Self {
         Self(RTree::new())
+    }
+
+    pub fn builder() -> QuadTreeBuilder<T> {
+        QuadTreeBuilder::new()
     }
 
     /// Slow, prefer bulk_load or QuadTreeBuilder
@@ -284,15 +288,44 @@ impl<T: Copy> QuadTree<T> {
         Self(RTree::bulk_load(entries))
     }
 
+    pub fn query_bbox_borrow(&self, bbox: Bounds) -> impl Iterator<Item = &T> + '_ {
+        let envelope = AABB::from_corners([bbox.min_x, bbox.min_y], [bbox.max_x, bbox.max_y]);
+        self.0.locate_in_envelope(&envelope).map(|x| &x.data)
+    }
+}
+
+impl<T: Copy> QuadTree<T> {
     pub fn query_bbox(&self, bbox: Bounds) -> impl Iterator<Item = T> + '_ {
         let envelope = AABB::from_corners([bbox.min_x, bbox.min_y], [bbox.max_x, bbox.max_y]);
         self.0.locate_in_envelope(&envelope).map(|x| x.data)
     }
 }
 
+impl<T: PartialEq> QuadTree<T> {
+    // TODO Inefficient
+    pub fn remove(&mut self, data: T) -> Option<T> {
+        self.0
+            .remove_with_selection_function(Selector(data))
+            .map(|item| item.data)
+    }
+}
+
+struct Selector<T>(T);
+
+impl<T: PartialEq> SelectionFunction<GeomWithData<Rectangle<[f64; 2]>, T>> for Selector<T> {
+    fn should_unpack_parent(&self, _envelope: &AABB<[f64; 2]>) -> bool {
+        // TODO Maybe we can ask the caller to estimate where the previous object was?
+        true
+    }
+
+    fn should_unpack_leaf(&self, leaf: &GeomWithData<Rectangle<[f64; 2]>, T>) -> bool {
+        self.0 == leaf.data
+    }
+}
+
 pub struct QuadTreeBuilder<T>(Vec<GeomWithData<Rectangle<[f64; 2]>, T>>);
 
-impl<T: Copy> QuadTreeBuilder<T> {
+impl<T> QuadTreeBuilder<T> {
     pub fn new() -> Self {
         Self(Vec::new())
     }

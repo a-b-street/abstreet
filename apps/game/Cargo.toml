@@ -15,7 +15,6 @@ default = ["map_gui/native", "widgetry/native-backend"]
 wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
-aabb-quadtree = "0.1.0"
 abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 anyhow = { workspace = true }

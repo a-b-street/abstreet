@@ -9,7 +9,6 @@ native-backend = ["clipboard", "glutin", "tokio"]
 wasm-backend = ["instant/wasm-bindgen", "js-sys", "wasm-bindgen", "wasm-bindgen-futures", "wasm-streams", "web-sys"]
 
 [dependencies]
-aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }

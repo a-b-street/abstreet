@@ -1,9 +1,7 @@
 use std::borrow::Borrow;
 use std::collections::HashMap;
 
-use aabb_quadtree::QuadTree;
-
-use geom::{Circle, Pt2D, Time};
+use geom::{Circle, Pt2D, QuadTree, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_model::{Map, Traversable};
@@ -100,7 +98,7 @@ impl AgentCache {
             let highlighted = sim.get_highlighted_people();
 
             let mut batch = GeomBatch::new();
-            let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
+            let mut quadtree = QuadTree::builder();
             // It's quite silly to produce triangles for the same circle over and over again. ;)
             let car_circle = Circle::new(
                 Pt2D::new(0.0, 0.0),
@@ -127,14 +125,14 @@ impl AgentCache {
                     } else {
                         ped_circle.translate(agent.pos.x(), agent.pos.y())
                     };
-                    quadtree.insert_with_box(agent.id, circle.get_bounds().as_bbox());
+                    quadtree.add_with_box(agent.id, circle.get_bounds());
                     batch.push(color, circle);
                 }
             }
 
             let draw = prerender.as_ref().upload(batch);
 
-            self.unzoomed = Some((now, self.unzoomed_agents.clone(), quadtree, draw));
+            self.unzoomed = Some((now, self.unzoomed_agents.clone(), quadtree.build(), draw));
         }
 
         &self.unzoomed.as_ref().unwrap().2

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use abstio::{CityName, MapName};
 use abstutil::Timer;
-use geom::{Polygon, QuadTreeBuilder, Ring};
+use geom::{Polygon, QuadTree, Ring};
 use kml::ExtraShapes;
 use map_model::{BuildingID, BuildingType, Map};
 use sim::count_parked_cars_per_bldg;
@@ -140,7 +140,7 @@ pub fn match_parcels_to_buildings(map: &mut Map, shapes: &ExtraShapes, timer: &m
     let mut parcels_with_housing: Vec<(Polygon, usize)> = Vec::new();
     // TODO We should refactor something like FindClosest, but for polygon containment
     // The quadtree's ID is just an index into parcels_with_housing.
-    let mut quadtree: QuadTreeBuilder<usize> = QuadTreeBuilder::new();
+    let mut quadtree = QuadTree::builder();
     timer.start_iter("index all parcels", shapes.shapes.len());
     for shape in &shapes.shapes {
         timer.next();

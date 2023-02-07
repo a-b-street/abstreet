@@ -4,7 +4,7 @@ use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use abstutil::Timer;
-use geom::{Distance, Polygon, QuadTree, QuadTreeBuilder};
+use geom::{Distance, Polygon, QuadTree};
 use map_model::{osm, Map};
 
 pub fn run(map: String, num_required: usize, rng_seed: u64, output: String) {
@@ -104,30 +104,30 @@ fn generate_buildings_on_empty_residential_roads(
 
     // Create a different quadtree, just containing static things in the map that we don't want
     // new buildings to hit. The index is just into a list of polygons.
-    let mut quadtree_builder = QuadTreeBuilder::new();
+    let mut quadtree = QuadTree::builder();
     let mut static_polygons = Vec::new();
     for r in map.all_roads() {
         let poly = r.get_thick_polygon();
-        quadtree_builder.add_with_box(static_polygons.len(), poly.get_bounds());
+        quadtree.add_with_box(static_polygons.len(), poly.get_bounds());
         static_polygons.push(poly);
     }
     for i in map.all_intersections() {
-        quadtree_builder.add_with_box(static_polygons.len(), i.polygon.get_bounds());
+        quadtree.add_with_box(static_polygons.len(), i.polygon.get_bounds());
         static_polygons.push(i.polygon.clone());
     }
     for b in map.all_buildings() {
-        quadtree_builder.add_with_box(static_polygons.len(), b.polygon.get_bounds());
+        quadtree.add_with_box(static_polygons.len(), b.polygon.get_bounds());
         static_polygons.push(b.polygon.clone());
     }
     for pl in map.all_parking_lots() {
-        quadtree_builder.add_with_box(static_polygons.len(), pl.polygon.get_bounds());
+        quadtree.add_with_box(static_polygons.len(), pl.polygon.get_bounds());
         static_polygons.push(pl.polygon.clone());
     }
     for a in map.all_areas() {
-        quadtree_builder.add_with_box(static_polygons.len(), a.polygon.get_bounds());
+        quadtree.add_with_box(static_polygons.len(), a.polygon.get_bounds());
         static_polygons.push(a.polygon.clone());
     }
-    let quadtree = quadtree_builder.build();
+    let quadtree = quadtree.build();
 
     let mut survivors = Vec::new();
     timer.start_iter(

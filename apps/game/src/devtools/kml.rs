@@ -2,10 +2,8 @@
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-use aabb_quadtree::QuadTree;
-
 use abstutil::{prettyprint_usize, Timer};
-use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
+use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D, QuadTree, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_gui::colors::ColorScheme;
 use map_gui::tools::FilePicker;
@@ -47,11 +45,11 @@ impl ViewKML {
             let (dataset_name, objects) = load_objects(app, path, dump_clipped_shapes, timer);
 
             let mut batch = GeomBatch::new();
-            let mut quadtree = QuadTree::default(app.primary.map.get_bounds().as_bbox());
+            let mut quadtree = QuadTree::builder();
             timer.start_iter("render shapes", objects.len());
             for (idx, obj) in objects.iter().enumerate() {
                 timer.next();
-                quadtree.insert_with_box(idx, obj.polygon.get_bounds().as_bbox());
+                quadtree.add_with_box(idx, obj.polygon.get_bounds());
                 batch.push(obj.color, obj.polygon.clone());
             }
 
@@ -100,7 +98,7 @@ impl ViewKML {
                 .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
                 .build(ctx),
                 objects,
-                quadtree,
+                quadtree: quadtree.build(),
                 selected: Vec::new(),
                 draw_query: Drawable::empty(ctx),
             })
@@ -114,13 +112,12 @@ impl State<App> for ViewKML {
         if ctx.redo_mouseover() {
             let mut new_selected = Vec::new();
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                for &(idx, _, _) in &self.quadtree.query(
-                    Circle::new(pt, Distance::meters(3.0))
-                        .get_bounds()
-                        .as_bbox(),
-                ) {
-                    if self.objects[*idx].polygon.contains_pt(pt) {
-                        new_selected.push(*idx);
+                for idx in self
+                    .quadtree
+                    .query_bbox(Circle::new(pt, Distance::meters(3.0)).get_bounds())
+                {
+                    if self.objects[idx].polygon.contains_pt(pt) {
+                        new_selected.push(idx);
                     }
                 }
             }

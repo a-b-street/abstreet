@@ -1,12 +1,11 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use aabb_quadtree::QuadTree;
 use lazy_static::lazy_static;
 use regex::Regex;
 
 use abstutil::Timer;
-use geom::{Angle, Bounds, Distance, Polygon, Pt2D};
+use geom::{Angle, Bounds, Distance, Polygon, Pt2D, QuadTree};
 use map_model::{osm, Road, RoadID};
 use widgetry::mapspace::PerZoom;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
@@ -70,7 +69,7 @@ impl DrawRoadLabels {
         // effective = zoom * text_scale
         let text_scale = 1.0 / zoom;
 
-        let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
+        let mut quadtree = QuadTree::new();
 
         'ROAD: for r in map.all_roads() {
             if !(self.include_roads)(r) || r.length() < Distance::meters(30.0) {
@@ -86,10 +85,10 @@ impl DrawRoadLabels {
 
             // Don't get too close to other labels.
             let big_bounds = cheaply_overestimate_bounds(&name, text_scale, pt, angle);
-            if !quadtree.query(big_bounds.as_bbox()).is_empty() {
+            if quadtree.query_bbox(big_bounds).next().is_some() {
                 continue 'ROAD;
             }
-            quadtree.insert_with_box((), big_bounds.as_bbox());
+            quadtree.insert_with_box((), big_bounds);
 
             // No other labels too close - proceed to render text.
             let txt = Text::from(
