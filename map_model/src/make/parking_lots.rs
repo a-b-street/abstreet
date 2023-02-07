@@ -71,7 +71,7 @@ pub fn make_all_parking_lots(
         input.len() - results.len()
     );
 
-    let mut closest: FindClosest<ParkingLotID> = FindClosest::new(map.get_bounds());
+    let mut closest: FindClosest<ParkingLotID> = FindClosest::new();
     for lot in &results {
         closest.add_polygon(lot.id, &lot.polygon);
     }

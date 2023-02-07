@@ -594,7 +594,7 @@ fn generate_osmc(data: &BTreeMap<WayID, Value>, in_seattle: bool, timer: &mut Ti
 
 fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let map = &app.map;
-    let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
+    let mut closest: FindClosest<RoadID> = FindClosest::new();
     // TODO Consider not even filtering by oneway. I keep finding mistakes where people split a
     // road, but didn't mark one side oneway!
     let mut oneways = Vec::new();
@@ -633,7 +633,7 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
 // TODO Lots of false positives here... why?
 fn find_overlapping_stuff(app: &App, timer: &mut Timer) -> Vec<Polygon> {
     let map = &app.map;
-    let mut closest: FindClosest<RoadID> = FindClosest::new(map.get_bounds());
+    let mut closest: FindClosest<RoadID> = FindClosest::new();
     for r in map.all_roads() {
         if r.osm_tags.contains_key("tunnel") {
             continue;

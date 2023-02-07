@@ -17,7 +17,7 @@ pub struct RouteSketcher {
 
 impl RouteSketcher {
     pub fn new(app: &App) -> RouteSketcher {
-        let mut snap_to_intersections = FindClosest::new(app.primary.map.get_bounds());
+        let mut snap_to_intersections = FindClosest::new();
         for i in app.primary.map.all_intersections() {
             snap_to_intersections.add_polygon(i.id, &i.polygon);
         }

@@ -18,8 +18,7 @@ impl<K> FindClosest<K>
 where
     K: Clone + Ord + std::fmt::Debug,
 {
-    /// Creates the quad-tree, limited to points contained in the boundary.
-    pub fn new(_: &Bounds) -> FindClosest<K> {
+    pub fn new() -> FindClosest<K> {
         FindClosest {
             geometries: BTreeMap::new(),
             quadtree: QuadTree::new(),

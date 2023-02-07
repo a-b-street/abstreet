@@ -38,8 +38,7 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
     let shapes: ExtraShapes = abstio::read_binary(path, timer);
 
     // Match shapes with the nearest road + direction (true for forwards)
-    let mut closest: FindClosest<(RoadID, bool)> =
-        FindClosest::new(&map.streets.gps_bounds.to_bounds());
+    let mut closest: FindClosest<(RoadID, bool)> = FindClosest::new();
     for (id, r) in &map.streets.roads {
         if r.is_service() || !r.is_driveable() {
             continue;
@@ -148,8 +147,7 @@ fn use_offstreet_parking(map: &mut RawMap, path: String, timer: &mut Timer) {
     timer.start("match offstreet parking points");
     let shapes: ExtraShapes = abstio::read_binary(path, timer);
 
-    let mut closest: FindClosest<osm::OsmID> =
-        FindClosest::new(&map.streets.gps_bounds.to_bounds());
+    let mut closest: FindClosest<osm::OsmID> = FindClosest::new();
     for (id, b) in &map.buildings {
         closest.add_polygon(*id, &b.polygon);
     }

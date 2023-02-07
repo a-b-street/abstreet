@@ -4,7 +4,7 @@ use std::io::Write;
 use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
 use geom::{
-    Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
+    Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
 use osm2streets::{
     osm, IntersectionControl, IntersectionID, IntersectionKind, Road, RoadID, Transformation,
@@ -144,26 +144,6 @@ impl Model {
             .update(pt2.to_gps(&seattle_bounds));
 
         self.recreate_world(ctx, &mut Timer::throwaway());
-    }
-
-    fn compute_bounds(&self) -> Bounds {
-        let mut bounds = Bounds::new();
-        for b in self.map.buildings.values() {
-            for pt in b.polygon.get_outer_ring().points() {
-                bounds.update(*pt);
-            }
-        }
-        for i in self.map.streets.intersections.values() {
-            for pt in i.polygon.get_outer_ring().points() {
-                bounds.update(*pt);
-            }
-        }
-        for r in self.map.streets.roads.values() {
-            for pt in r.reference_line.points() {
-                bounds.update(*pt);
-            }
-        }
-        bounds
     }
 }
 
@@ -503,7 +483,7 @@ impl Model {
     }
 
     pub fn insert_r_pt(&mut self, ctx: &EventCtx, id: RoadID, pt: Pt2D) {
-        let mut closest = FindClosest::new(&self.compute_bounds());
+        let mut closest = FindClosest::new();
         self.change_r_points(ctx, id, move |pts| {
             for (idx, pair) in pts.windows(2).enumerate() {
                 closest.add(idx + 1, &[pair[0], pair[1]]);

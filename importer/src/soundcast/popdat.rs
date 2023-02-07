@@ -123,7 +123,7 @@ fn import_parcels(
 
     // TODO I really just want to do polygon containment with a quadtree. FindClosest only does
     // line-string stuff right now, which'll be weird for the last->first pt line and stuff.
-    let mut closest_bldg: FindClosest<osm::OsmID> = FindClosest::new(huge_map.get_bounds());
+    let mut closest_bldg: FindClosest<osm::OsmID> = FindClosest::new();
     for b in huge_map.all_buildings() {
         closest_bldg.add_polygon(b.orig_id, &b.polygon);
     }

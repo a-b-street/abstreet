@@ -33,7 +33,7 @@ impl InputWaypoints {
     pub fn new(app: &dyn AppLike, snap_to_lanes_for: Vec<PathConstraints>) -> InputWaypoints {
         let map = app.map();
 
-        let mut snap_to_main_endpts = FindClosest::new(map.get_bounds());
+        let mut snap_to_main_endpts = FindClosest::new();
         for i in map.all_intersections() {
             if i.is_border() {
                 snap_to_main_endpts.add_polygon(TripEndpoint::Border(i.id), &i.polygon);
@@ -43,7 +43,7 @@ impl InputWaypoints {
             snap_to_main_endpts.add_polygon(TripEndpoint::Building(b.id), &b.polygon);
         }
 
-        let mut snap_to_road_endpts = FindClosest::new(map.get_bounds());
+        let mut snap_to_road_endpts = FindClosest::new();
         for l in map.all_lanes() {
             if snap_to_lanes_for.iter().any(|c| c.can_use(l, map)) {
                 snap_to_road_endpts.add_polygon(l.id, &l.get_thick_polygon());

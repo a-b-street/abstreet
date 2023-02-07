@@ -395,7 +395,7 @@ fn handle_command(
         "/map/get-all-geometry" => Ok(abstutil::to_json(&map.export_geometry())),
         "/map/get-nearest-road" => {
             let pt = LonLat::new(get("lon")?.parse::<f64>()?, get("lat")?.parse::<f64>()?);
-            let mut closest = FindClosest::new(map.get_bounds());
+            let mut closest = FindClosest::new();
             for r in map.all_roads() {
                 closest.add(r.id, r.center_pts.points());
             }

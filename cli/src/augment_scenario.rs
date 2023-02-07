@@ -68,7 +68,7 @@ fn rand_duration(rng: &mut XorShiftRng, low: Duration, high: Duration) -> Durati
 fn add_lunch_trips(scenario: &mut Scenario, map: &Map, rng: &mut XorShiftRng, timer: &mut Timer) {
     // First let's build up a quadtree of lunch spots.
     timer.start("index lunch spots");
-    let mut closest_spots: FindClosest<BuildingID> = FindClosest::new(map.get_bounds());
+    let mut closest_spots: FindClosest<BuildingID> = FindClosest::new();
     for b in map.all_buildings() {
         if b.amenities
             .iter()

@@ -1,4 +1,4 @@
-use geom::{Angle, Bounds, Circle, Distance, FindClosest, PolyLine, Pt2D, UnitFmt};
+use geom::{Angle, Circle, Distance, FindClosest, PolyLine, Pt2D, UnitFmt};
 
 use crate::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions, Series};
 use crate::{
@@ -110,10 +110,7 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
             }
         }
 
-        let mut closest = FindClosest::new(&Bounds::from(&[
-            Pt2D::new(0.0, 0.0),
-            Pt2D::new(width, height),
-        ]));
+        let mut closest = FindClosest::new();
         for s in series {
             if max_x == X::zero() {
                 continue;
