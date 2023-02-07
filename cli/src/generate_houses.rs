@@ -1,11 +1,10 @@
 use std::collections::HashSet;
 
-use aabb_quadtree::QuadTree;
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use abstutil::Timer;
-use geom::{Distance, Polygon};
+use geom::{Distance, Polygon, QuadTree, QuadTreeBuilder};
 use map_model::{osm, Map};
 
 pub fn run(map: String, num_required: usize, rng_seed: u64, output: String) {
@@ -88,46 +87,47 @@ fn generate_buildings_on_empty_residential_roads(
     // Remove buildings that hit each other. Build up the quadtree of finalized houses as we go,
     // using index as the ID.
     let mut non_overlapping = Vec::new();
-    let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
+    let mut quadtree = QuadTree::new();
     timer.start_iter("prune buildings overlapping each other", houses.len());
     'HOUSE: for poly in houses {
         timer.next();
         let mut search = poly.get_bounds();
         search.add_buffer(Distance::meters(1.0));
-        for (idx, _, _) in quadtree.query(search.as_bbox()) {
-            if poly.intersects(&non_overlapping[*idx]) {
+        for idx in quadtree.query_bbox(search) {
+            if poly.intersects(&non_overlapping[idx]) {
                 continue 'HOUSE;
             }
         }
-        quadtree.insert_with_box(non_overlapping.len(), poly.get_bounds().as_bbox());
+        quadtree.insert_with_box(non_overlapping.len(), poly.get_bounds());
         non_overlapping.push(poly);
     }
 
     // Create a different quadtree, just containing static things in the map that we don't want
     // new buildings to hit. The index is just into a list of polygons.
-    quadtree = QuadTree::default(map.get_bounds().as_bbox());
+    let mut quadtree_builder = QuadTreeBuilder::new();
     let mut static_polygons = Vec::new();
     for r in map.all_roads() {
         let poly = r.get_thick_polygon();
-        quadtree.insert_with_box(static_polygons.len(), poly.get_bounds().as_bbox());
+        quadtree_builder.add_with_box(static_polygons.len(), poly.get_bounds());
         static_polygons.push(poly);
     }
     for i in map.all_intersections() {
-        quadtree.insert_with_box(static_polygons.len(), i.polygon.get_bounds().as_bbox());
+        quadtree_builder.add_with_box(static_polygons.len(), i.polygon.get_bounds());
         static_polygons.push(i.polygon.clone());
     }
     for b in map.all_buildings() {
-        quadtree.insert_with_box(static_polygons.len(), b.polygon.get_bounds().as_bbox());
+        quadtree_builder.add_with_box(static_polygons.len(), b.polygon.get_bounds());
         static_polygons.push(b.polygon.clone());
     }
     for pl in map.all_parking_lots() {
-        quadtree.insert_with_box(static_polygons.len(), pl.polygon.get_bounds().as_bbox());
+        quadtree_builder.add_with_box(static_polygons.len(), pl.polygon.get_bounds());
         static_polygons.push(pl.polygon.clone());
     }
     for a in map.all_areas() {
-        quadtree.insert_with_box(static_polygons.len(), a.polygon.get_bounds().as_bbox());
+        quadtree_builder.add_with_box(static_polygons.len(), a.polygon.get_bounds());
         static_polygons.push(a.polygon.clone());
     }
+    let quadtree = quadtree_builder.build();
 
     let mut survivors = Vec::new();
     timer.start_iter(
@@ -136,8 +136,8 @@ fn generate_buildings_on_empty_residential_roads(
     );
     'NON_OVERLAP: for poly in non_overlapping {
         timer.next();
-        for (idx, _, _) in quadtree.query(poly.get_bounds().as_bbox()) {
-            if poly.intersects(&static_polygons[*idx]) {
+        for idx in quadtree.query_bbox(poly.get_bounds()) {
+            if poly.intersects(&static_polygons[idx]) {
                 continue 'NON_OVERLAP;
             }
         }

@@ -560,7 +560,6 @@ dependencies = [
 name = "cli"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstio",
  "abstutil",
  "anyhow",
@@ -2279,7 +2278,6 @@ checksum = "b72ad49b554c1728b1e83254a1b1565aea4161e28dabbfa171fc15fe62299caf"
 name = "importer"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstio",
  "abstutil",
  "anyhow",
