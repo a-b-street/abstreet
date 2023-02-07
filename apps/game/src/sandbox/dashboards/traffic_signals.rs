@@ -35,7 +35,7 @@ impl TrafficSignalDemand {
         let mut state = TrafficSignalDemand {
             all_demand,
             hour,
-            world: World::unbounded(),
+            world: World::new(),
             panel: Panel::new_builder(Widget::col(vec![
                 DashTab::TrafficSignals.picker(ctx, app),
                 Text::from_all(vec![
@@ -65,7 +65,7 @@ impl TrafficSignalDemand {
     }
 
     fn rebuild_world(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut world = World::bounded(app.primary.map.get_bounds());
+        let mut world = World::new();
 
         let mut draw_all = GeomBatch::new();
         for (i, demand) in &self.all_demand {

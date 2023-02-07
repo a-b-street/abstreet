@@ -67,7 +67,7 @@ impl EditOutcome {
 impl EditNeighbourhood {
     pub fn temporary() -> Self {
         Self {
-            world: World::unbounded(),
+            world: World::new(),
         }
     }
 
@@ -75,7 +75,7 @@ impl EditNeighbourhood {
         Self {
             world: match &app.session.edit_mode {
                 EditMode::Filters => filters::make_world(ctx, app, neighbourhood),
-                EditMode::FreehandFilters(_) => World::unbounded(),
+                EditMode::FreehandFilters(_) => World::new(),
                 EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
                 EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
                 EditMode::SpeedLimits => speed_limits::make_world(ctx, app, neighbourhood),

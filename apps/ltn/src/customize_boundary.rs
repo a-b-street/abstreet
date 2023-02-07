@@ -31,14 +31,14 @@ impl CustomizeBoundary {
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            edit: EditPolygon::new(ctx, app, points, false),
+            edit: EditPolygon::new(ctx, points, false),
         })
     }
 }
 
 impl State<App> for CustomizeBoundary {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        self.edit.event(ctx, app);
+        self.edit.event(ctx);
 
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {

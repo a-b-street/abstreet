@@ -72,7 +72,7 @@ impl SelectBoundary {
             appwide_panel,
             left_panel,
             id,
-            world: World::bounded(app.per_map.map.get_bounds()),
+            world: World::new(),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
             frontier: BTreeSet::new(),
 
@@ -247,7 +247,7 @@ impl SelectBoundary {
             }
 
             // Just redraw everything
-            self.world = World::bounded(app.per_map.map.get_bounds());
+            self.world = World::new();
             for id in app.partitioning().all_block_ids() {
                 self.add_block(ctx, app, id);
             }

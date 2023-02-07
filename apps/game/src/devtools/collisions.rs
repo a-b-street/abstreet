@@ -180,7 +180,7 @@ fn aggregated(
         );
     }
 
-    let mut world = World::bounded(map.get_bounds());
+    let mut world = World::new();
     let scale = &app.cs.good_to_bad_red;
     // Same scale for both roads and intersections
     let total = per_road.max().max(per_intersection.max());
@@ -229,7 +229,7 @@ fn individual(
     indices: Vec<usize>,
 ) -> World<DummyID> {
     let map = &app.primary.map;
-    let mut world = World::bounded(map.get_bounds());
+    let mut world = World::new();
 
     for idx in indices {
         let collision = &data.collisions[idx];

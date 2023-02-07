@@ -53,7 +53,7 @@ pub fn make_world(
     focus: &Option<FocusedRoad>,
 ) -> World<Obj> {
     let map = &app.per_map.map;
-    let mut world = World::bounded(map.get_bounds());
+    let mut world = World::new();
     let focused_road = focus.as_ref().map(|f| f.r);
 
     for r in &neighbourhood.interior_roads {

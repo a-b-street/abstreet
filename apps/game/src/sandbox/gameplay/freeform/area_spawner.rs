@@ -46,13 +46,13 @@ impl AreaSpawner {
             ]))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx),
-            world: World::unbounded(),
+            world: World::new(),
             mode: Mode::Neutral,
         })
     }
 
-    fn rebuild_world(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut world = World::bounded(app.primary.map.get_bounds());
+    fn rebuild_world(&mut self, ctx: &mut EventCtx) {
+        let mut world = World::new();
         let picking_destination = match self.mode {
             Mode::PickingDestination { source } => Some(source),
             _ => None,
@@ -114,14 +114,14 @@ impl State<App> for AreaSpawner {
                         Box::new(move |resp, _, _| {
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                                Transition::ModifyState(Box::new(move |state, ctx, _| {
                                     let state = state.downcast_mut::<AreaSpawner>().unwrap();
                                     if resp == "delete" {
                                         state.areas.remove(idx);
-                                        state.rebuild_world(ctx, app);
+                                        state.rebuild_world(ctx);
                                     } else if resp == "spawn traffic from here" {
                                         state.mode = Mode::PickingDestination { source: idx };
-                                        state.rebuild_world(ctx, app);
+                                        state.rebuild_world(ctx);
                                         let label = "Choose where traffic will go".text_widget(ctx);
                                         state.panel.replace(ctx, "instructions", label);
                                     }
@@ -135,7 +135,7 @@ impl State<App> for AreaSpawner {
                 if select.event(ctx) {
                     if let Some(polygon) = select.rect.take() {
                         self.areas.push(Area::new(app, polygon));
-                        self.rebuild_world(ctx, app);
+                        self.rebuild_world(ctx);
                     }
                     self.mode = Mode::Neutral;
                     let label = "".text_widget(ctx);
@@ -146,7 +146,7 @@ impl State<App> for AreaSpawner {
                 if let WorldOutcome::ClickedObject(Obj(_destination)) = self.world.event(ctx) {
                     // TODO Enter a new state to specify the traffic params
                     self.mode = Mode::Neutral;
-                    self.rebuild_world(ctx, app);
+                    self.rebuild_world(ctx);
                     let label = "".text_widget(ctx);
                     self.panel.replace(ctx, "instructions", label);
                 }

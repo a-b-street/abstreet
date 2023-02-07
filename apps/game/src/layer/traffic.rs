@@ -665,7 +665,7 @@ impl PedestrianCrowding {
             ("2 - 5", app.cs.good_to_bad_red.eval(0.6)),
             ("> 5", app.cs.good_to_bad_red.eval(1.0)),
         ];
-        let mut world = World::bounded(map.get_bounds());
+        let mut world = World::new();
         let mut draw = ToggleZoomed::builder();
         draw.unzoomed
             .push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());

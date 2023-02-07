@@ -31,20 +31,20 @@ struct MarkerID(usize);
 impl ObjectID for MarkerID {}
 
 impl StoryMapEditor {
-    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        Self::from_story(ctx, app, StoryMap::new())
+    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+        Self::from_story(ctx, StoryMap::new())
     }
 
-    fn from_story(ctx: &mut EventCtx, app: &App, story: StoryMap) -> Box<dyn State<App>> {
+    fn from_story(ctx: &mut EventCtx, story: StoryMap) -> Box<dyn State<App>> {
         let mut state = StoryMapEditor {
             panel: Panel::empty(ctx),
             story,
-            world: World::unbounded(),
+            world: World::new(),
 
             dirty: false,
         };
         state.rebuild_panel(ctx);
-        state.rebuild_world(ctx, app);
+        state.rebuild_world(ctx);
         Box::new(state)
     }
 
@@ -76,8 +76,8 @@ impl StoryMapEditor {
         .build(ctx);
     }
 
-    fn rebuild_world(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut world = World::bounded(app.primary.map.get_bounds());
+    fn rebuild_world(&mut self, ctx: &mut EventCtx) {
+        let mut world = World::new();
 
         for (idx, marker) in self.story.markers.iter().enumerate() {
             let mut draw_normal = GeomBatch::new();
@@ -137,7 +137,7 @@ impl State<App> for StoryMapEditor {
                 });
                 self.dirty = true;
                 self.rebuild_panel(ctx);
-                self.rebuild_world(ctx, app);
+                self.rebuild_world(ctx);
                 return Transition::Push(EditingMarker::new_state(
                     ctx,
                     self.story.markers.len() - 1,
@@ -155,13 +155,13 @@ impl State<App> for StoryMapEditor {
                 }
                 self.dirty = true;
                 self.rebuild_panel(ctx);
-                self.rebuild_world(ctx, app);
+                self.rebuild_world(ctx);
             }
             WorldOutcome::Keypress("delete", MarkerID(idx)) => {
                 self.story.markers.remove(idx);
                 self.dirty = true;
                 self.rebuild_panel(ctx);
-                self.rebuild_world(ctx, app);
+                self.rebuild_world(ctx);
             }
             WorldOutcome::ClickedObject(MarkerID(idx)) => {
                 return Transition::Push(EditingMarker::new_state(
@@ -230,10 +230,10 @@ impl State<App> for StoryMapEditor {
                         ctx,
                         "Load story",
                         choices,
-                        Box::new(|story, ctx, app| {
+                        Box::new(|story, ctx, _| {
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::Replace(StoryMapEditor::from_story(ctx, app, story)),
+                                Transition::Replace(StoryMapEditor::from_story(ctx, story)),
                             ])
                         }),
                     ));
@@ -363,13 +363,13 @@ impl SimpleState<App> for EditingMarker {
                 let label = panel.text_box("label");
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                    Transition::ModifyState(Box::new(move |state, ctx, _| {
                         let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
                         editor.story.markers[idx].label = label;
 
                         editor.dirty = true;
                         editor.rebuild_panel(ctx);
-                        editor.rebuild_world(ctx, app);
+                        editor.rebuild_world(ctx);
                     })),
                 ])
             }
@@ -377,13 +377,13 @@ impl SimpleState<App> for EditingMarker {
                 let idx = self.idx;
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                    Transition::ModifyState(Box::new(move |state, ctx, _| {
                         let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
                         editor.story.markers.remove(idx);
 
                         editor.dirty = true;
                         editor.rebuild_panel(ctx);
-                        editor.rebuild_world(ctx, app);
+                        editor.rebuild_world(ctx);
                     })),
                 ])
             }
@@ -407,7 +407,7 @@ impl State<App> for DrawFreehand {
             let idx = self.new_idx;
             return Transition::Multi(vec![
                 Transition::Pop,
-                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                Transition::ModifyState(Box::new(move |state, ctx, _| {
                     let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
                     editor.story.markers.push(Marker {
                         pts: polygon.into_outer_ring().into_points(),
@@ -416,7 +416,7 @@ impl State<App> for DrawFreehand {
 
                     editor.dirty = true;
                     editor.rebuild_panel(ctx);
-                    editor.rebuild_world(ctx, app);
+                    editor.rebuild_world(ctx);
                 })),
                 Transition::Push(EditingMarker::new_state(ctx, idx, "new marker")),
             ]);

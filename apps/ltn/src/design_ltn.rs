@@ -65,7 +65,7 @@ impl DesignLTN {
             draw_under_roads_layer: Drawable::empty(ctx),
             fade_irrelevant,
             labels,
-            highlight_cell: World::unbounded(),
+            highlight_cell: World::new(),
             edit: EditNeighbourhood::temporary(),
             preserve_state: crate::save::PreserveState::DesignLTN(
                 app.partitioning().all_blocks_in_neighbourhood(id),
@@ -287,7 +287,7 @@ fn setup_editing(
     let mut draw_top_layer = GeomBatch::new();
     // Use a separate world to highlight cells when hovering on them. This is separate from
     // edit.world so that we draw it even while hovering on roads/intersections in a cell
-    let mut highlight_cell = World::bounded(app.per_map.map.get_bounds());
+    let mut highlight_cell = World::new();
 
     let render_cells = RenderCells::new(map, neighbourhood);
 
