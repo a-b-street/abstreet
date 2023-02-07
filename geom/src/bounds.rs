@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use aabb_quadtree::geom::{Point, Rect};
 use rstar::primitives::{GeomWithData, Rectangle};
 use rstar::{RTree, SelectionFunction, AABB};
 
@@ -93,23 +92,8 @@ impl Bounds {
         pt.x() >= self.min_x && pt.x() <= self.max_x && pt.y() >= self.min_y && pt.y() <= self.max_y
     }
 
-    /// Converts the boundary to the format used by `aabb_quadtree`.
-    // TODO On its way out
-    pub fn as_bbox(&self) -> Rect {
-        Rect {
-            top_left: Point {
-                x: self.min_x as f32,
-                y: self.min_y as f32,
-            },
-            bottom_right: Point {
-                x: self.max_x as f32,
-                y: self.max_y as f32,
-            },
-        }
-    }
-
     /// Converts the boundary to the format used by `rstar`.
-    pub fn as_bbox2<T>(&self, data: T) -> GeomWithData<Rectangle<[f64; 2]>, T> {
+    pub fn as_bbox<T>(&self, data: T) -> GeomWithData<Rectangle<[f64; 2]>, T> {
         GeomWithData::new(
             Rectangle::from_corners([self.min_x, self.min_y], [self.max_x, self.max_y]),
             data,
@@ -282,7 +266,7 @@ impl<T> QuadTree<T> {
         self.0.insert(entry);
     }
     pub fn insert_with_box(&mut self, data: T, bbox: Bounds) {
-        self.0.insert(bbox.as_bbox2(data));
+        self.0.insert(bbox.as_bbox(data));
     }
 
     pub fn bulk_load(entries: Vec<GeomWithData<Rectangle<[f64; 2]>, T>>) -> Self {
@@ -291,14 +275,18 @@ impl<T> QuadTree<T> {
 
     pub fn query_bbox_borrow(&self, bbox: Bounds) -> impl Iterator<Item = &T> + '_ {
         let envelope = AABB::from_corners([bbox.min_x, bbox.min_y], [bbox.max_x, bbox.max_y]);
-        self.0.locate_in_envelope_intersecting(&envelope).map(|x| &x.data)
+        self.0
+            .locate_in_envelope_intersecting(&envelope)
+            .map(|x| &x.data)
     }
 }
 
 impl<T: Copy> QuadTree<T> {
     pub fn query_bbox(&self, bbox: Bounds) -> impl Iterator<Item = T> + '_ {
         let envelope = AABB::from_corners([bbox.min_x, bbox.min_y], [bbox.max_x, bbox.max_y]);
-        self.0.locate_in_envelope_intersecting(&envelope).map(|x| x.data)
+        self.0
+            .locate_in_envelope_intersecting(&envelope)
+            .map(|x| x.data)
     }
 }
 
@@ -335,7 +323,7 @@ impl<T> QuadTreeBuilder<T> {
         self.0.push(entry);
     }
     pub fn add_with_box(&mut self, data: T, bbox: Bounds) {
-        self.0.push(bbox.as_bbox2(data));
+        self.0.push(bbox.as_bbox(data));
     }
 
     pub fn build(self) -> QuadTree<T> {

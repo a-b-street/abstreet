@@ -6,9 +6,7 @@ use abstutil::{Tags, Timer};
 use geom::{
     Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, PolyLine, Polygon, Pt2D,
 };
-use osm2streets::{
-    osm, IntersectionControl, IntersectionID, IntersectionKind, Road, RoadID, Transformation,
-};
+use osm2streets::{osm, IntersectionControl, IntersectionID, IntersectionKind, Road, RoadID};
 use raw_map::{RawBuilding, RawMap};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::{Color, EventCtx, GeomBatch, Key};
@@ -254,10 +252,7 @@ impl Model {
 
         ctx.loading_screen("show intersection geometry", |ctx, timer| {
             if self.intersection_geom {
-                self.map.streets.apply_transformations(
-                    vec![Transformation::GenerateIntersectionGeometry],
-                    timer,
-                );
+                // TODO Restore behavior here
             }
 
             timer.start_iter(

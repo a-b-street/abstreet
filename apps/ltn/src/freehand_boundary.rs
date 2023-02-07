@@ -324,7 +324,7 @@ fn make_quadtree(app: &App) -> QuadTree<RoadID> {
             .map
             .all_roads()
             .into_iter()
-            .map(|r| r.center_pts.get_bounds().as_bbox2(r.id))
+            .map(|r| r.center_pts.get_bounds().as_bbox(r.id))
             .collect(),
     )
 }

@@ -3,15 +3,6 @@
 version = 3
 
 [[package]]
-name = "aabb-quadtree"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08e73342dae2885db4bdffbc75ffe3a668153720a95a6e57266a0ee8aacc96ca"
-dependencies = [
- "fnv",
-]
-
-[[package]]
 name = "abstio"
 version = "0.1.0"
 dependencies = [
@@ -1778,7 +1769,6 @@ dependencies = [
 name = "geom"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "anyhow",
  "bincode",
  "earcutr",
@@ -3286,12 +3276,13 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#0ed585b4f30eb77bd492427e05d70401ff6ce297"
+source = "git+https://github.com/a-b-street/osm2streets#60bdd45db40df5bacbe14783c05b441014e68888"
 dependencies = [
- "aabb-quadtree",
  "abstutil",
  "anyhow",
+ "geo",
  "geom",
+ "itertools",
  "log",
  "osm-tag-schemes",
  "osm-tags",
@@ -3414,9 +3405,9 @@ checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
 name = "petgraph"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6d5014253a1331579ce62aa67443b4a658c5e7dd03d4bc6d302b94474888143"
+checksum = "4dd7d28ee937e54fe3080c91faa1c3a46c06de6252988a7f4592ba2310ef22a4"
 dependencies = [
  "fixedbitset",
  "indexmap",
@@ -4338,7 +4329,7 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#0ed585b4f30eb77bd492427e05d70401ff6ce297"
+source = "git+https://github.com/a-b-street/osm2streets#60bdd45db40df5bacbe14783c05b441014e68888"
 dependencies = [
  "abstutil",
  "anyhow",

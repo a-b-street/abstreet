@@ -5,7 +5,6 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-aabb-quadtree = "0.1.0"
 anyhow = { workspace = true }
 earcutr = "0.4.1"
 fs-err = { workspace = true }
