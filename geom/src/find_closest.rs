@@ -1,11 +1,9 @@
 use std::collections::BTreeMap;
 
-use aabb_quadtree::geom::{Point, Rect};
-use aabb_quadtree::QuadTree;
 use geo::{ClosestPoint, Contains, EuclideanDistance, Intersects};
 
 use crate::conversions::pts_to_line_string;
-use crate::{Bounds, Distance, Polygon, Pt2D};
+use crate::{Bounds, Distance, Polygon, Pt2D, QuadTree};
 
 // TODO Maybe use https://crates.io/crates/spatial-join proximity maps
 
@@ -21,10 +19,10 @@ where
     K: Clone + Ord + std::fmt::Debug,
 {
     /// Creates the quad-tree, limited to points contained in the boundary.
-    pub fn new(bounds: &Bounds) -> FindClosest<K> {
+    pub fn new(_: &Bounds) -> FindClosest<K> {
         FindClosest {
             geometries: BTreeMap::new(),
-            quadtree: QuadTree::default(bounds.as_bbox()),
+            quadtree: QuadTree::new(),
         }
     }
 
@@ -33,8 +31,7 @@ where
     /// any matches.
     pub fn add(&mut self, key: K, pts: &[Pt2D]) {
         self.geometries.insert(key.clone(), pts_to_line_string(pts));
-        self.quadtree
-            .insert_with_box(key, Bounds::from(pts).as_bbox());
+        self.quadtree.insert_with_box(key, Bounds::from(pts));
     }
 
     /// Adds the outer ring of a polygon to the quadtree.
@@ -50,21 +47,12 @@ where
         max_dist_away: Distance,
     ) -> Vec<(K, Pt2D, Distance)> {
         let query_geom = geo::Point::new(query_pt.x(), query_pt.y());
-        let query_bbox = Rect {
-            top_left: Point {
-                x: (query_pt.x() - max_dist_away.inner_meters()) as f32,
-                y: (query_pt.y() - max_dist_away.inner_meters()) as f32,
-            },
-            bottom_right: Point {
-                x: (query_pt.x() + max_dist_away.inner_meters()) as f32,
-                y: (query_pt.y() + max_dist_away.inner_meters()) as f32,
-            },
-        };
 
         self.quadtree
-            .query(query_bbox)
-            .into_iter()
-            .filter_map(|(key, _, _)| {
+            .query_bbox_borrow(
+                Polygon::rectangle_centered(query_pt, max_dist_away, max_dist_away).get_bounds(),
+            )
+            .filter_map(|key| {
                 if let geo::Closest::SinglePoint(pt) =
                     self.geometries[key].closest_point(&query_geom)
                 {
@@ -97,9 +85,8 @@ where
         let query_geo: geo::Polygon = query.clone().into();
 
         self.quadtree
-            .query(query.get_bounds().as_bbox())
-            .into_iter()
-            .filter_map(|(key, _, _)| {
+            .query_bbox_borrow(query.get_bounds())
+            .filter_map(|key| {
                 if self.geometries[key].intersects(&query_geo) {
                     Some(key.clone())
                 } else {
