@@ -1793,6 +1793,7 @@ dependencies = [
  "polylabel",
  "rand",
  "rand_xorshift",
+ "rstar",
  "serde",
  "serde_json",
 ]
@@ -2632,7 +2633,6 @@ dependencies = [
 name = "ltn"
 version = "0.1.0"
 dependencies = [
- "aabb-quadtree",
  "abstio",
  "abstutil",
  "anyhow",
