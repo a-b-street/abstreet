@@ -44,6 +44,12 @@ impl CameraState {
     /// Load the camera's configuration for the specified map. Returns true if successful, has no
     /// effect if the file is missing or broken.
     pub fn load(ctx: &mut EventCtx, name: &MapName) -> bool {
+        // Special case: if this is a one-shot imported map without an explicit name, ignore any
+        // saved file. It's likely for a previously imported and different map!
+        if name.city.city == "oneshot" && name.map.starts_with("imported_") {
+            return false;
+        }
+
         match abstio::maybe_read_json::<CameraState>(
             abstio::path_camera_state(name),
             &mut Timer::throwaway(),
