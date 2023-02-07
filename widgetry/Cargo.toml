@@ -23,7 +23,7 @@ futures = { version = "0.3.26" }
 futures-channel = { version = "0.3.12"}
 geojson = { workspace = true }
 geom = { path = "../geom" }
-glow = "0.11.2"
+glow = "0.12.0"
 glutin = { git = "https://github.com/rust-windowing/glutin", optional = true, rev = "2bffbf52d6b4f4c32adc463818e10ac8082948e4" }
 htmlescape = "0.3.1"
 image = { version = "0.24.5", default-features = false, features=["gif", "png"] }
@@ -34,7 +34,7 @@ lru = "0.9.0"
 lyon = "1.0.0"
 serde = { workspace = true }
 serde_json = { workspace = true }
-taffy = "0.2.0"
+taffy = "0.2.2"
 tokio = { version ="1.19.2", features=["full"], optional = true }
 ttf-parser = "0.18.0"
 usvg = "0.29.0"
