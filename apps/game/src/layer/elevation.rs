@@ -240,7 +240,7 @@ impl ElevationContours {
         high: Distance,
     ) -> (FindClosest<Distance>, ToggleZoomed) {
         let bounds = app.primary.map.get_bounds();
-        let mut closest = FindClosest::new(bounds);
+        let mut closest = FindClosest::new();
         let mut draw = ToggleZoomed::builder();
 
         ctx.loading_screen("generate contours", |_, timer| {

@@ -1,12 +1,12 @@
 use abstutil::Timer;
-use geom::{Bounds, Distance, FindClosest};
+use geom::{Distance, FindClosest};
 
 use crate::{Road, RoadID};
 
 /// Look for roads underneath bridges, then lower their z-order. OSM tags bridges and tunnels, but
 /// not the roads that pass under bridges.
-pub fn find_bridges(roads: &mut Vec<Road>, bounds: &Bounds, timer: &mut Timer) {
-    let mut closest: FindClosest<RoadID> = FindClosest::new(bounds);
+pub fn find_bridges(roads: &mut Vec<Road>, timer: &mut Timer) {
+    let mut closest: FindClosest<RoadID> = FindClosest::new();
     let mut bridges = Vec::new();
     for r in roads.iter() {
         closest.add(r.id, r.center_pts.points());

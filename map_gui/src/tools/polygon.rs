@@ -133,7 +133,7 @@ impl EditPolygon {
         match self.world.value_mut().unwrap().event(ctx) {
             WorldOutcome::ClickedFreeSpace(pt) => {
                 // Insert the new point in the "middle" of the closest line segment
-                let mut closest = FindClosest::new(app.map().get_bounds());
+                let mut closest = FindClosest::new();
                 for (idx, pair) in self.points.windows(2).enumerate() {
                     closest.add(idx + 1, &[pair[0], pair[1]]);
                 }

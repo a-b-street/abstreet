@@ -116,7 +116,7 @@ impl RouteDetails {
         let mut current_dist = Distance::ZERO;
 
         let mut paths = Vec::new();
-        let mut closest_path_segment = FindClosest::new(map.get_bounds());
+        let mut closest_path_segment = FindClosest::new();
 
         let routing_params = preferences.routing_params();
 

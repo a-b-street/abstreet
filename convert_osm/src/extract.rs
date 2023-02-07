@@ -255,8 +255,7 @@ pub fn extract_osm(
             .retain(|_, b| !area.contains_pt(b.polygon.center()));
     }
 
-    let mut closest_bldg: FindClosest<OsmID> =
-        FindClosest::new(&map.streets.gps_bounds.to_bounds());
+    let mut closest_bldg: FindClosest<OsmID> = FindClosest::new();
     for (id, b) in &map.buildings {
         closest_bldg.add_polygon(*id, &b.polygon);
     }
@@ -361,7 +360,7 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
 // Look for any service roads that collide with parking lots, and treat them as parking aisles
 // instead.
 fn find_parking_aisles(map: &mut RawMap, roads: &mut Vec<(WayID, Vec<Pt2D>, Tags)>) {
-    let mut closest: FindClosest<usize> = FindClosest::new(&map.streets.gps_bounds.to_bounds());
+    let mut closest: FindClosest<usize> = FindClosest::new();
     for (idx, lot) in map.parking_lots.iter().enumerate() {
         closest.add_polygon(idx, &lot.polygon);
     }

@@ -106,10 +106,10 @@ struct BorderSnapper {
 impl BorderSnapper {
     fn new(map: &Map) -> BorderSnapper {
         let mut snapper = BorderSnapper {
-            bus_incoming_borders: FindClosest::new(map.get_bounds()),
-            bus_outgoing_borders: FindClosest::new(map.get_bounds()),
-            train_incoming_borders: FindClosest::new(map.get_bounds()),
-            train_outgoing_borders: FindClosest::new(map.get_bounds()),
+            bus_incoming_borders: FindClosest::new(),
+            bus_outgoing_borders: FindClosest::new(),
+            train_incoming_borders: FindClosest::new(),
+            train_outgoing_borders: FindClosest::new(),
         };
         for i in map.all_incoming_borders() {
             for l in i.get_outgoing_lanes(map, PathConstraints::Bus) {

@@ -289,7 +289,7 @@ impl Map {
             });
         }
 
-        bridges::find_bridges(&mut map.roads, &map.bounds, timer);
+        bridges::find_bridges(&mut map.roads, timer);
 
         map.recalculate_all_movements(timer);
 
@@ -362,7 +362,7 @@ pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
         return HashMap::new();
     }
 
-    let mut closest: FindClosest<LaneID> = FindClosest::new(map.get_bounds());
+    let mut closest: FindClosest<LaneID> = FindClosest::new();
     timer.start_iter("index lanes", map.all_lanes().count());
     for l in map.all_lanes() {
         timer.next();
