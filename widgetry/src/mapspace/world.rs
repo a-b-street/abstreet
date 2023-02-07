@@ -2,9 +2,7 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 
-use aabb_quadtree::{ItemId, QuadTree};
-
-use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
+use geom::{Bounds, Circle, Distance, Polygon, Pt2D, QuadTree};
 
 use crate::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor, Text};
@@ -309,16 +307,12 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
     pub fn build(mut self, ctx: &EventCtx) {
         assert!(!self.hitboxes.is_empty(), "didn't specify hitbox");
         let bounds = Bounds::from_polygons(&self.hitboxes);
-        let quadtree_id = self
-            .world
-            .quadtree
-            .insert_with_box(self.id, bounds.as_bbox());
+        self.world.quadtree.insert_with_box(self.id, bounds);
 
         self.world.objects.insert(
             self.id,
             Object {
                 _id: self.id,
-                quadtree_id,
                 hitboxes: self.hitboxes,
                 zorder: self.zorder,
                 draw_normal: self
@@ -340,7 +334,6 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 
 struct Object<ID: ObjectID> {
     _id: ID,
-    quadtree_id: ItemId,
     hitboxes: Vec<Polygon>,
     zorder: usize,
     draw_normal: ToggleZoomed,
@@ -363,10 +356,7 @@ impl<ID: ObjectID> World<ID> {
     pub fn unbounded() -> World<ID> {
         World {
             objects: HashMap::new(),
-            quadtree: QuadTree::default(
-                Bounds::from(&[Pt2D::new(0.0, 0.0), Pt2D::new(std::f64::MAX, std::f64::MAX)])
-                    .as_bbox(),
-            ),
+            quadtree: QuadTree::new(),
 
             draw_master_batches: Vec::new(),
 
@@ -377,10 +367,10 @@ impl<ID: ObjectID> World<ID> {
     }
 
     /// Creates an empty `World`, whose objects can exist in the provided rectangular boundary.
-    pub fn bounded(bounds: &Bounds) -> World<ID> {
+    pub fn bounded(_: &Bounds) -> World<ID> {
         World {
             objects: HashMap::new(),
-            quadtree: QuadTree::default(bounds.as_bbox()),
+            quadtree: QuadTree::new(),
 
             draw_master_batches: Vec::new(),
 
@@ -426,8 +416,8 @@ impl<ID: ObjectID> World<ID> {
     /// Delete an object, with the promise to recreate it with the same ID before the next call to
     /// `event`. This may be called while the object is being hovered on or dragged.
     pub fn delete_before_replacement(&mut self, id: ID) {
-        if let Some(obj) = self.objects.remove(&id) {
-            if self.quadtree.remove(obj.quadtree_id).is_none() {
+        if self.objects.remove(&id).is_some() {
+            if self.quadtree.remove(id).is_none() {
                 // This can happen for objects that're out-of-bounds. One example is intersections
                 // in map_editor.
                 warn!("{:?} wasn't in the quadtree", id);
@@ -447,8 +437,8 @@ impl<ID: ObjectID> World<ID> {
             }
         }
 
-        if let Some(obj) = self.objects.remove(&id) {
-            if self.quadtree.remove(obj.quadtree_id).is_none() {
+        if self.objects.remove(&id).is_some() {
+            if self.quadtree.remove(id).is_none() {
                 // This can happen for objects that're out-of-bounds. One example is intersections
                 // in map_editor.
                 warn!("{:?} wasn't in the quadtree", id);
@@ -612,14 +602,12 @@ impl<ID: ObjectID> World<ID> {
 
     fn calculate_hover(&self, cursor: Pt2D) -> Option<ID> {
         let mut objects = Vec::new();
-        for &(id, _, _) in &self.quadtree.query(
+        for id in self.quadtree.query_bbox(
             // Maybe worth tuning. Since we do contains_pt below, it doesn't matter if this is too
             // big; just a performance impact possibly.
-            Circle::new(cursor, Distance::meters(3.0))
-                .get_bounds()
-                .as_bbox(),
+            Circle::new(cursor, Distance::meters(3.0)).get_bounds(),
         ) {
-            objects.push(*id);
+            objects.push(id);
         }
         objects.sort_by_key(|id| self.objects[id].zorder);
         objects.reverse();
@@ -642,8 +630,8 @@ impl<ID: ObjectID> World<ID> {
         }
 
         let mut objects = Vec::new();
-        for &(id, _, _) in &self.quadtree.query(g.get_screen_bounds().as_bbox()) {
-            objects.push(*id);
+        for id in self.quadtree.query_bbox(g.get_screen_bounds()) {
+            objects.push(id);
         }
         objects.sort_by_key(|id| self.objects[id].zorder);
 

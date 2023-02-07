@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 
-use aabb_quadtree::QuadTree;
-
 use abstutil::Timer;
-use geom::{Bounds, Distance, Tessellation};
+use geom::{Bounds, Distance, QuadTree, Tessellation};
 use map_model::{
     AreaID, BuildingID, IntersectionID, LaneID, Map, ParkingLotID, Road, RoadID, TransitStopID,
 };
@@ -39,8 +37,6 @@ pub struct DrawMap {
     pub show_zorder: isize,
 
     quadtree: QuadTree<ID>,
-    // Remember these so we can modify the bounding box of some objects.
-    quadtree_ids: HashMap<ID, aabb_quadtree::ItemId>,
 }
 
 impl DrawMap {
@@ -104,29 +100,25 @@ impl DrawMap {
         )]));
 
         timer.start("create quadtree");
-        let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
-        let mut quadtree_ids = HashMap::new();
+        let mut quadtree = QuadTree::builder();
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &roads {
-            let item_id =
-                quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
-            quadtree_ids.insert(obj.get_id(), item_id);
+            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
         }
         for obj in &intersections {
-            let item_id =
-                quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
-            quadtree_ids.insert(obj.get_id(), item_id);
+            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
         }
         for obj in &buildings {
-            quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
+            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
         }
         for obj in &parking_lots {
-            quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
+            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
         }
         // Don't put TransitStops in the quadtree
         for obj in &areas {
-            quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
+            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
         }
+        let quadtree = quadtree.build();
         timer.stop("create quadtree");
 
         info!(
@@ -152,7 +144,6 @@ impl DrawMap {
             draw_all_areas,
 
             quadtree,
-            quadtree_ids,
 
             zorder_range: (low_z, high_z),
             show_zorder: high_z,
@@ -388,11 +379,10 @@ impl DrawMap {
 
     /// Unsorted, unexpanded, raw result.
     pub fn get_matching_objects(&self, bounds: Bounds) -> Vec<ID> {
-        let mut results: Vec<ID> = Vec::new();
-        for &(id, _, _) in &self.quadtree.query(bounds.as_bbox()) {
-            results.push(id.clone());
-        }
-        results
+        self.quadtree
+            .query_bbox_borrow(bounds)
+            .map(|id| id.clone())
+            .collect()
     }
 
     /// A simple variation of the one in game that shows all layers, ignores dynamic agents.
@@ -507,26 +497,20 @@ impl DrawMap {
     }
 
     pub fn recreate_intersection(&mut self, i: IntersectionID, map: &Map) {
-        let item_id = self.quadtree_ids.remove(&ID::Intersection(i)).unwrap();
-        self.quadtree.remove(item_id).unwrap();
+        self.quadtree.remove(ID::Intersection(i)).unwrap();
 
         let draw = DrawIntersection::new(map.get_i(i), map);
-        let item_id = self
-            .quadtree
-            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds().as_bbox());
-        self.quadtree_ids.insert(draw.get_id(), item_id);
+        self.quadtree
+            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds());
         self.intersections[i.0] = draw;
     }
 
     pub fn recreate_road(&mut self, road: &Road, map: &Map) {
-        let item_id = self.quadtree_ids.remove(&ID::Road(road.id)).unwrap();
-        self.quadtree.remove(item_id).unwrap();
+        self.quadtree.remove(ID::Road(road.id)).unwrap();
 
         let draw = DrawRoad::new(road);
-        let item_id = self
-            .quadtree
-            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds().as_bbox());
-        self.quadtree_ids.insert(draw.get_id(), item_id);
+        self.quadtree
+            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds());
         self.roads[road.id.0] = draw;
     }
 
