@@ -99,7 +99,7 @@ impl PerResidentImpact {
         let mut state = Self {
             appwide_panel,
             bottom_panel: Panel::empty(ctx),
-            world: World::unbounded(),
+            world: World::new(),
             labels,
             neighbourhood,
             fade_irrelevant,
@@ -168,7 +168,7 @@ impl PerResidentImpact {
         self.bottom_panel = BottomPanel::new(ctx, &self.appwide_panel, Widget::row(row));
 
         let map = &app.per_map.map;
-        self.world = World::bounded(map.get_bounds());
+        self.world = World::new();
 
         for b in map.all_buildings() {
             if let Some((before, after)) = self.times_from_building.get(&b.id) {

@@ -67,7 +67,7 @@ impl TripPlanner {
             main_route: RouteDetails::main_route(ctx, app, Vec::new()).details,
             files: TripManagement::new(app),
             alt_routes: Vec::new(),
-            world: World::bounded(app.primary.map.get_bounds()),
+            world: World::new(),
         };
 
         if let Some(current_name) = &app.session.ungap_current_trip_name {
@@ -79,7 +79,7 @@ impl TripPlanner {
 
     // Use the current session settings to determine "main" and alts
     fn recalculate_routes(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        let mut world = World::bounded(app.primary.map.get_bounds());
+        let mut world = World::new();
 
         let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
         self.main_route = main_route.details;

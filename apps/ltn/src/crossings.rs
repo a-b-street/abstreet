@@ -45,7 +45,7 @@ impl Crossings {
         let mut state = Self {
             appwide_panel,
             bottom_panel,
-            world: World::unbounded(),
+            world: World::new(),
             labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
             draw_porosity: Drawable::empty(ctx),
             draw_crossings: Toggle3Zoomed::empty(ctx),
@@ -264,8 +264,7 @@ fn make_world(
     app: &App,
     time_to_nearest_crossing: &BTreeMap<RoadID, Duration>,
 ) -> World<Obj> {
-    let map = &app.per_map.map;
-    let mut world = World::bounded(map.get_bounds());
+    let mut world = World::new();
 
     for r in boundary_roads(app) {
         let road = app.per_map.map.get_r(r);

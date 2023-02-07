@@ -38,14 +38,14 @@ impl PolygonEditor {
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
             name,
-            edit: EditPolygon::new(ctx, app, points, true),
+            edit: EditPolygon::new(ctx, points, true),
         })
     }
 }
 
 impl State<App> for PolygonEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        self.edit.event(ctx, app);
+        self.edit.event(ctx);
 
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {

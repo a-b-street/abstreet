@@ -352,22 +352,8 @@ enum DrawHover {
 }
 
 impl<ID: ObjectID> World<ID> {
-    /// Creates an empty `World`, whose objects can exist anywhere from (0, 0) to the max f64.
-    pub fn unbounded() -> World<ID> {
-        World {
-            objects: HashMap::new(),
-            quadtree: QuadTree::new(),
-
-            draw_master_batches: Vec::new(),
-
-            hovering: None,
-            draw_hovering: None,
-            dragging_from: None,
-        }
-    }
-
-    /// Creates an empty `World`, whose objects can exist in the provided rectangular boundary.
-    pub fn bounded(_: &Bounds) -> World<ID> {
+    /// Creates an empty `World`
+    pub fn new() -> World<ID> {
         World {
             objects: HashMap::new(),
             quadtree: QuadTree::new(),

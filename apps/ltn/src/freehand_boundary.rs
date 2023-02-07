@@ -41,7 +41,7 @@ impl FreehandBoundary {
             id: None,
             custom: None,
             draw_custom: Drawable::empty(ctx),
-            edit: EditPolygon::new(ctx, app, Vec::new(), false),
+            edit: EditPolygon::new(ctx, Vec::new(), false),
             lasso: None,
             name,
             quadtree: make_quadtree(app),
@@ -64,7 +64,7 @@ impl FreehandBoundary {
             id: Some(id),
             custom: Some(custom),
             draw_custom: Drawable::empty(ctx),
-            edit: EditPolygon::new(ctx, app, Vec::new(), false),
+            edit: EditPolygon::new(ctx, Vec::new(), false),
             lasso: None,
             name,
             quadtree: make_quadtree(app),
@@ -72,7 +72,6 @@ impl FreehandBoundary {
         };
         state.edit = EditPolygon::new(
             ctx,
-            app,
             state
                 .custom
                 .as_ref()
@@ -101,7 +100,7 @@ impl FreehandBoundary {
             id: None,
             custom: None,
             draw_custom: Drawable::empty(ctx),
-            edit: EditPolygon::new(ctx, app, polygon.into_outer_ring().into_points(), false),
+            edit: EditPolygon::new(ctx, polygon.into_outer_ring().into_points(), false),
             lasso: None,
             name,
             quadtree: make_quadtree(app),
@@ -132,12 +131,8 @@ impl State<App> for FreehandBoundary {
                 let polygon = polygon.simplify(50.0);
 
                 self.lasso = None;
-                self.edit = EditPolygon::new(
-                    ctx,
-                    app,
-                    polygon.clone().into_outer_ring().into_points(),
-                    false,
-                );
+                self.edit =
+                    EditPolygon::new(ctx, polygon.clone().into_outer_ring().into_points(), false);
 
                 self.recalculate(ctx, app);
                 self.left_panel = make_panel(ctx, &self.appwide_panel.top_panel);
@@ -145,7 +140,7 @@ impl State<App> for FreehandBoundary {
             return Transition::Keep;
         }
 
-        if self.edit.event(ctx, app) {
+        if self.edit.event(ctx) {
             self.queued_recalculate = true;
         }
         // TODO This doesn't recalculate when pressing the leafblower key

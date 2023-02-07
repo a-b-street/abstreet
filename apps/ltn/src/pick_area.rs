@@ -129,7 +129,7 @@ impl State<App> for PickArea {
 }
 
 fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
-    let mut world = World::bounded(app.per_map.map.get_bounds());
+    let mut world = World::new();
     let map = &app.per_map.map;
     ctx.loading_screen("render neighbourhoods", |ctx, timer| {
         timer.start_iter(

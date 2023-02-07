@@ -158,7 +158,7 @@ impl SimpleState<App> for DevToolsMode {
                 }),
             )),
             "view KML" => Transition::Push(kml::ViewKML::new_state(ctx, app, None)),
-            "story maps" => Transition::Push(story::StoryMapEditor::new_state(ctx, app)),
+            "story maps" => Transition::Push(story::StoryMapEditor::new_state(ctx)),
             "collisions" => Transition::Push(collisions::CollisionsViewer::new_state(ctx, app)),
             "OpenStreetMap viewer" => {
                 map_gui::tools::Executable::OSMViewer.replace_process(ctx, app, vec![])

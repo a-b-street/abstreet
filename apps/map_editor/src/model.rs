@@ -51,7 +51,7 @@ impl Model {
             showing_pts: None,
 
             include_bldgs: false,
-            world: World::unbounded(),
+            world: World::new(),
             intersection_geom: false,
         }
     }
@@ -66,7 +66,7 @@ impl Model {
 
     pub fn recreate_world(&mut self, ctx: &EventCtx, timer: &mut Timer) {
         self.showing_pts = None;
-        self.world = World::unbounded();
+        self.world = World::new();
 
         if self.include_bldgs {
             for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {

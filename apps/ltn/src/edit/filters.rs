@@ -12,7 +12,7 @@ use crate::{
 /// invisible; the caller is responsible for drawing things.
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
     let map = &app.per_map.map;
-    let mut world = World::bounded(map.get_bounds());
+    let mut world = World::new();
 
     for r in &neighbourhood.interior_roads {
         let road = map.get_r(*r);

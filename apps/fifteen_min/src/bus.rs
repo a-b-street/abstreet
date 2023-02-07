@@ -32,7 +32,7 @@ impl BusExperiment {
         let mut state = BusExperiment {
             panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app, vec![PathConstraints::Car, PathConstraints::Bus]),
-            world: World::unbounded(),
+            world: World::new(),
         };
         state.recalculate_everything(ctx, app);
         Box::new(state)
@@ -40,7 +40,7 @@ impl BusExperiment {
 
     fn recalculate_everything(&mut self, ctx: &mut EventCtx, app: &App) {
         let map = &app.map;
-        let mut world = World::bounded(map.get_bounds());
+        let mut world = World::new();
         self.waypoints
             .rebuild_world(ctx, &mut world, ID::Waypoint, 1);
 

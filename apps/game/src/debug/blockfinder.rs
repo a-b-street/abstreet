@@ -46,7 +46,7 @@ impl Blockfinder {
             panel: make_panel(ctx),
             id_counter: 0,
             blocks: BTreeMap::new(),
-            world: World::bounded(app.primary.map.get_bounds()),
+            world: World::new(),
             to_merge: BTreeSet::new(),
 
             partitions: Vec::new(),
@@ -218,7 +218,7 @@ impl State<App> for Blockfinder {
 
                     // Reset pretty much all of our state
                     self.id_counter = 0;
-                    self.world = World::bounded(app.primary.map.get_bounds());
+                    self.world = World::new();
                     self.to_merge.clear();
                     self.partitions = Vec::new();
 
@@ -265,7 +265,7 @@ impl State<App> for Blockfinder {
 
                     // Reset pretty much all of our state
                     self.id_counter = 0;
-                    self.world = World::bounded(app.primary.map.get_bounds());
+                    self.world = World::new();
                     self.to_merge.clear();
                     self.partitions = Vec::new();
 

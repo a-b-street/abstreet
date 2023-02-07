@@ -26,7 +26,7 @@ impl CrosswalkEditor {
         app.primary.current_selection = None;
 
         let map = &app.primary.map;
-        let mut world = World::bounded(map.get_bounds());
+        let mut world = World::new();
         for turn in &map.get_i(id).turns {
             if turn.turn_type.pedestrian_crossing() {
                 let width = Distance::meters(3.0);

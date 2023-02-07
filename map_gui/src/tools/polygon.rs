@@ -1,6 +1,5 @@
 use anyhow::Result;
 
-use crate::AppLike;
 use geom::{Angle, ArrowCap, Circle, Distance, FindClosest, Line, PolyLine, Pt2D, Ring};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key};
@@ -29,12 +28,7 @@ enum Obj {
 impl ObjectID for Obj {}
 
 impl EditPolygon {
-    pub fn new(
-        ctx: &EventCtx,
-        app: &dyn AppLike,
-        mut points: Vec<Pt2D>,
-        polygon_draggable: bool,
-    ) -> Self {
+    pub fn new(ctx: &EventCtx, mut points: Vec<Pt2D>, polygon_draggable: bool) -> Self {
         if !points.is_empty() && *points.last().unwrap() == points[0] {
             points.pop();
         }
@@ -48,7 +42,7 @@ impl EditPolygon {
                 draw: Drawable::empty(ctx),
             },
         };
-        edit.rebuild_world(ctx, app);
+        edit.rebuild_world(ctx);
         edit
     }
 
@@ -71,8 +65,8 @@ impl EditPolygon {
         }
     }
 
-    fn rebuild_world(&mut self, ctx: &EventCtx, app: &dyn AppLike) {
-        let mut world = World::bounded(app.map().get_bounds());
+    fn rebuild_world(&mut self, ctx: &EventCtx) {
+        let mut world = World::new();
 
         self.add_polygon_to_world(ctx, &mut world);
 
@@ -124,10 +118,10 @@ impl EditPolygon {
     }
 
     /// True if the polygon is modified
-    pub fn event(&mut self, ctx: &mut EventCtx, app: &dyn AppLike) -> bool {
+    pub fn event(&mut self, ctx: &mut EventCtx) -> bool {
         // Recalculate if zoom has changed
         if self.world.key() != Some(ctx.canvas.cam_zoom) {
-            self.rebuild_world(ctx, app);
+            self.rebuild_world(ctx);
         }
 
         match self.world.value_mut().unwrap().event(ctx) {
@@ -144,7 +138,7 @@ impl EditPolygon {
                     self.points.push(pt);
                 }
 
-                self.rebuild_world(ctx, app);
+                self.rebuild_world(ctx);
                 true
             }
             WorldOutcome::Dragging {
@@ -166,12 +160,12 @@ impl EditPolygon {
                 for pt in &mut self.points {
                     *pt = pt.offset(dx, dy);
                 }
-                self.rebuild_world(ctx, app);
+                self.rebuild_world(ctx);
                 true
             }
             WorldOutcome::Keypress("delete", Obj::Point(idx)) => {
                 self.points.remove(idx);
-                self.rebuild_world(ctx, app);
+                self.rebuild_world(ctx);
                 true
             }
             _ => {
@@ -181,7 +175,7 @@ impl EditPolygon {
                     &mut self.points,
                     self.world.value().unwrap().get_hovering().is_some(),
                 ) {
-                    self.rebuild_world(ctx, app);
+                    self.rebuild_world(ctx);
                     return true;
                 }
                 false

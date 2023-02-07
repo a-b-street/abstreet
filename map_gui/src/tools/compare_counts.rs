@@ -81,7 +81,7 @@ impl CompareCounts {
     pub fn empty(ctx: &EventCtx) -> CompareCounts {
         CompareCounts {
             layer: Layer::A,
-            world: World::unbounded(),
+            world: World::new(),
             counts_a: TrafficCounts::default(),
             heatmap_a: ToggleZoomed::empty(ctx),
             counts_b: TrafficCounts::default(),
@@ -279,7 +279,7 @@ fn calculate_relative_heatmap(
 }
 
 fn make_world(ctx: &mut EventCtx, app: &dyn AppLike, clickable_roads: bool) -> World<Obj> {
-    let mut world = World::bounded(app.map().get_bounds());
+    let mut world = World::new();
     for r in app.map().all_roads() {
         world
             .add(Obj::Road(r.id))

@@ -62,7 +62,7 @@ impl RoutePlanner {
             left_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new_max_2(app, vec![PathConstraints::Car]),
             files: TripManagement::new(app),
-            world: World::unbounded(),
+            world: World::new(),
             show_main_roads: ctx.upload(batch),
             draw_routes: Drawable::empty(ctx),
             pathfinder_cache: PathfinderCache::new(),
@@ -136,7 +136,7 @@ impl RoutePlanner {
         panel.restore(ctx, &self.left_panel);
         self.left_panel = panel;
 
-        let mut world = World::bounded(app.per_map.map.get_bounds());
+        let mut world = World::new();
         self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(ctx, &self.world);
@@ -149,7 +149,7 @@ impl RoutePlanner {
         self.files.autosave(app);
         let results_widget = self.recalculate_paths(ctx, app);
 
-        let mut world = World::bounded(app.per_map.map.get_bounds());
+        let mut world = World::new();
         self.waypoints.rebuild_world(ctx, &mut world, |x| x, 0);
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(ctx, &self.world);
