@@ -43,6 +43,14 @@ impl Ring {
         Ok(result)
     }
 
+    pub fn strict_new(pts: Vec<Pt2D>) -> Result<Self> {
+        // Enforce no duplicate adjacent points
+        if let Some(pair) = pts.windows(2).find(|pair| pair[0] == pair[1]) {
+            bail!("Ring has duplicate adjacent points near {}", pair[0]);
+        }
+        Self::new(pts)
+    }
+
     pub fn must_new(pts: Vec<Pt2D>) -> Ring {
         Ring::new(pts).unwrap()
     }
