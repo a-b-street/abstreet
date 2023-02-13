@@ -8,7 +8,7 @@ use rand::seq::SliceRandom;
 
 use abstio::{CityName, MapName};
 use abstutil::Timer;
-use geom::{Duration, Time};
+use geom::{Distance, Duration, Time};
 use map_model::{IntersectionID, LaneType, Map, Perimeter, RoadID};
 use sim::{AlertHandler, PrebakeSummary, Sim, SimFlags, SimOptions};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
@@ -30,6 +30,9 @@ fn main() -> Result<()> {
     bus_route_test()?;
     if false {
         smoke_test()?;
+    }
+    if true {
+        geometry_test()?;
     }
     Ok(())
 }
@@ -386,6 +389,32 @@ fn bus_test() -> Result<()> {
         let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
         sim.instantiate(&scenario, &map, &mut rng, &mut timer);
         sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
+    }
+    Ok(())
+}
+
+/// Check serialized geometry on every map.
+fn geometry_test() -> Result<()> {
+    let mut timer = Timer::new("check geometry for all maps");
+    for name in MapName::list_all_maps_locally() {
+        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
+
+        for l in map.all_lanes() {
+            let mut sum = Distance::ZERO;
+            // This'll crash if duplicate adjacent points snuck in. The sum check is mostly just to
+            // make sure the lines actually get iterated. But also, if it fails, we're discovering
+            // the same sort of serialization problem!
+            for line in l.lane_center_pts.lines() {
+                sum += line.length();
+            }
+            assert_eq!(sum, l.lane_center_pts.length());
+        }
+
+        for i in map.all_intersections() {
+            for pair in i.polygon.get_outer_ring().points().windows(2) {
+                assert_ne!(pair[0], pair[1]);
+            }
+        }
     }
     Ok(())
 }
