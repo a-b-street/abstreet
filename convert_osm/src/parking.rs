@@ -129,15 +129,18 @@ fn use_parking_hints(map: &mut RawMap, path: String, timer: &mut Timer) {
                 tags.remove("parking:lane:right").unwrap();
                 tags.insert("parking:lane:both", value);
             }
-
-            // Remember that this isn't OSM data
-            tags.insert("abst:parking_source", "blockface");
-
-            let lane_specs_ltr = osm2streets::get_lane_specs_ltr(&tags, &map.streets.config);
-            map.streets.roads.get_mut(&r).unwrap().lane_specs_ltr = lane_specs_ltr;
-
             // Note the change to the tag isn't saved, so regenerating lanes from tags later would
             // lose this
+
+            // TODO It'd be better to do this directly to the LaneSpecs, not using OSM tags
+            let lane_specs_ltr = osm2streets::get_lane_specs_ltr(&tags, &map.streets.config);
+            let road = map.streets.roads.get_mut(&r).unwrap();
+            road.lane_specs_ltr = lane_specs_ltr;
+            road.update_center_line(map.streets.config.driving_side);
+            let i1 = road.src_i;
+            let i2 = road.dst_i;
+            map.streets.update_i(i1);
+            map.streets.update_i(i2);
         }
     }
     timer.stop("apply parking hints");
