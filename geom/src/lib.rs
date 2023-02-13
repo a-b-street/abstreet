@@ -56,8 +56,8 @@ pub fn trim_f64(x: f64) -> f64 {
 /// Serializes a trimmed `f64` as an `i32` to save space.
 fn serialize_f64<S: Serializer>(x: &f64, s: S) -> Result<S::Ok, S::Error> {
     // So a trimmed f64's range becomes 2**31 / 10,000 =~ 214,000, which is plenty
-    // We don't need to round() here; trim_f64 already handles that.
-    let int = (x * 10_000.0) as i32;
+    // We MUST round here, the same as trim_f64. The unit test demonstrates why.
+    let int = (x * 10_000.0).round() as i32;
     int.serialize(s)
 }
 
