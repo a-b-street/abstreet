@@ -543,7 +543,9 @@ fn calculate_buffer_markings(
     let dark_grey = Color::grey(0.6);
     let light_grey = Color::grey(0.8);
     match style {
-        BufferType::Stripes => {
+        // TODO osm2streets is getting nice rendering logic. Treat Verge like Stripes for now,
+        // before we cutover
+        BufferType::Stripes | BufferType::Verge => {
             side_lines(batch);
             stripes(batch, Distance::meters(3.0), Distance::meters(5.0));
         }

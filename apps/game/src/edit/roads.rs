@@ -621,6 +621,7 @@ fn make_main_panel(
             None,
             vec![
                 BufferType::Stripes,
+                BufferType::Verge,
                 BufferType::FlexPosts,
                 BufferType::Planters,
                 BufferType::JerseyBarrier,
@@ -989,7 +990,9 @@ fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
         LaneType::Bus => Some("system/assets/edit/bus.svg"),
         LaneType::SharedLeftTurn => Some("system/assets/map/shared_left_turn.svg"),
         LaneType::Construction => Some("system/assets/edit/construction.svg"),
-        LaneType::Buffer(BufferType::Stripes) => Some("system/assets/edit/buffer/stripes.svg"),
+        LaneType::Buffer(BufferType::Stripes | BufferType::Verge) => {
+            Some("system/assets/edit/buffer/stripes.svg")
+        }
         LaneType::Buffer(BufferType::FlexPosts) => Some("system/assets/edit/buffer/flex_posts.svg"),
         LaneType::Buffer(BufferType::Planters) => Some("system/assets/edit/buffer/planters.svg"),
         LaneType::Buffer(BufferType::JerseyBarrier) => {
