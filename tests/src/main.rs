@@ -15,6 +15,9 @@ use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPu
 
 fn main() -> Result<()> {
     abstutil::logger::setup();
+    if true {
+        geometry_test()?;
+    }
     test_blockfinding()?;
     test_lane_changing(&import_map(abstio::path(
         "../tests/input/lane_selection.osm",
@@ -30,9 +33,6 @@ fn main() -> Result<()> {
     bus_route_test()?;
     if false {
         smoke_test()?;
-    }
-    if true {
-        geometry_test()?;
     }
     Ok(())
 }
