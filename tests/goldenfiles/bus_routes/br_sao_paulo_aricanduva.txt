@@ -1,397 +1,420 @@
-2100-10 (2100-10) from Lane #145794 to None
-  Av. João XxIII, 1930: Position(Lane #145569, 19.7523m) driving, Position(Lane #145568, 19.5601m) sidewalk
-  Av. João XxIII, 2528: Position(Lane #145217, 27.4562m) driving, Position(Lane #145216, 27.4562m) sidewalk
-  Av. João XxIII, 2800: Position(Lane #136929, 2.4479m) driving, Position(Lane #136928, 2.4479m) sidewalk
-2290-10 (2290-10) from Lane #222688 to Some(LaneID { road: RoadID(3627), offset: 1 })
-  Av. Mateo Bei, 1641: Position(Lane #192705, 37.2785m) driving, Position(Lane #192706, 37.2786m) sidewalk
-  Av. Mateo Bei, 1473: Position(Lane #192737, 151.1393m) driving, Position(Lane #192738, 150.8628m) sidewalk
-  Av. Rio Das Pedras, 3521: Position(Lane #141825, 48.1462m) driving, Position(Lane #141826, 48.1462m) sidewalk
-  Av. Rio Das Pedras, 2943: Position(Lane #221057, 34.4851m) driving, Position(Lane #221058, 34.4851m) sidewalk
-  Av. Rio Das Pedras, 2147: Position(Lane #141473, 5.0909m) driving, Position(Lane #141474, 5.0909m) sidewalk
-  Av. Rio Das Pedras, 1649: Position(Lane #141729, 0m) driving, Position(Lane #141730, 0m) sidewalk
-  Av. Rio Das Pedras, 1355: Position(Lane #224193, 35.6831m) driving, Position(Lane #224194, 35.6831m) sidewalk
-  Av. Rio Das Pedras, 1023: Position(Lane #211169, 58.4384m) driving, Position(Lane #211170, 58.4384m) sidewalk
-  Av. Rio Das Pedras, 552: Position(Lane #112769, 56.7848m) driving, Position(Lane #112770, 56.7848m) sidewalk
-  Av. Rio Das Pedras, 175: Position(Lane #112897, 76.5201m) driving, Position(Lane #112898, 76.5201m) sidewalk
-  Av. Dezenove De Janeiro, 290: Position(Lane #216353, 52.5911m) driving, Position(Lane #216354, 52.5911m) sidewalk
-  Av. Cons. Carrão, 3355: Position(Lane #195585, 58.3891m) driving, Position(Lane #195586, 58.389m) sidewalk
-  Av. Cons. Carrão, 2929: Position(Lane #7969, 15.8862m) driving, Position(Lane #7970, 15.8861m) sidewalk
-  Av. Cons. Carrão, 0: Position(Lane #132961, 0m) driving, Position(Lane #132960, 3.0634m) sidewalk
-  Av. Cons. Carrão, 2043: Position(Lane #222945, 87.7032m) driving, Position(Lane #222946, 87.7032m) sidewalk
-  Av. Cons. Carrão, 1865: Position(Lane #151137, 71.3686m) driving, Position(Lane #151138, 71.3687m) sidewalk
-  Av. Cons. Carrão, 1719: Position(Lane #223265, 3.4921m) driving, Position(Lane #223266, 3.4921m) sidewalk
-  Av. Cons. Carrão, 1493: Position(Lane #115907, 33.0251m) driving, Position(Lane #115908, 33.0251m) sidewalk
-  Av. Cons. Carrão, 327: Position(Lane #219395, 45.2468m) driving, Position(Lane #219396, 45.2468m) sidewalk
-2290-21 (2290-21) from Lane #222688 to Some(LaneID { road: RoadID(3627), offset: 1 })
-  Av. Mateo Bei, 1641: Position(Lane #192705, 37.2785m) driving, Position(Lane #192706, 37.2786m) sidewalk
-  Av. Mateo Bei, 1473: Position(Lane #192737, 151.1393m) driving, Position(Lane #192738, 150.8628m) sidewalk
-  Av. Rio Das Pedras, 3521: Position(Lane #141825, 48.1462m) driving, Position(Lane #141826, 48.1462m) sidewalk
-  Av. Rio Das Pedras, 2943: Position(Lane #221057, 34.4851m) driving, Position(Lane #221058, 34.4851m) sidewalk
-  Av. Rio Das Pedras, 2147: Position(Lane #141473, 5.0909m) driving, Position(Lane #141474, 5.0909m) sidewalk
-  Av. Rio Das Pedras, 1649: Position(Lane #141729, 0m) driving, Position(Lane #141730, 0m) sidewalk
-  Av. Rio Das Pedras, 1355: Position(Lane #224193, 35.6831m) driving, Position(Lane #224194, 35.6831m) sidewalk
-  Av. Rio Das Pedras, 1023: Position(Lane #211169, 58.4384m) driving, Position(Lane #211170, 58.4384m) sidewalk
-  Av. Rio Das Pedras, 552: Position(Lane #112769, 56.7848m) driving, Position(Lane #112770, 56.7848m) sidewalk
-  Av. Rio Das Pedras, 175: Position(Lane #112897, 76.5201m) driving, Position(Lane #112898, 76.5201m) sidewalk
-  Av. Dezenove De Janeiro, 290: Position(Lane #216353, 52.5911m) driving, Position(Lane #216354, 52.5911m) sidewalk
-  Av. Cons. Carrão, 3355: Position(Lane #195585, 58.3891m) driving, Position(Lane #195586, 58.389m) sidewalk
-  Av. Cons. Carrão, 2929: Position(Lane #7969, 15.8862m) driving, Position(Lane #7970, 15.8861m) sidewalk
-  Av. Cons. Carrão, 0: Position(Lane #132961, 0m) driving, Position(Lane #132960, 3.0634m) sidewalk
-  Av. Cons. Carrão, 2043: Position(Lane #222945, 87.7032m) driving, Position(Lane #222946, 87.7032m) sidewalk
-  Av. Cons. Carrão, 1865: Position(Lane #151137, 71.3686m) driving, Position(Lane #151138, 71.3687m) sidewalk
-  Av. Cons. Carrão, 1719: Position(Lane #223265, 3.4921m) driving, Position(Lane #223266, 3.4921m) sidewalk
-  Av. Cons. Carrão, 1493: Position(Lane #115907, 33.0251m) driving, Position(Lane #115908, 33.0251m) sidewalk
-  Av. Cons. Carrão, 327: Position(Lane #219395, 45.2468m) driving, Position(Lane #219396, 45.2468m) sidewalk
-233A-10 (233A-10) from Lane #82337 to Some(LaneID { road: RoadID(7083), offset: 1 })
-  R. Evangelina De Assis, 104: Position(Lane #82337, 0.6945m) driving, Position(Lane #82338, 0.6944m) sidewalk
-  Av. Itaquera, 310: Position(Lane #2657, 31.1198m) driving, Position(Lane #2656, 31.1198m) sidewalk
-  Av. Itaquera, 744: Position(Lane #94050, 61.0933m) driving, Position(Lane #94051, 61.0934m) sidewalk
-  Av. Itaquera, 650: Position(Lane #157186, 33.2508m) driving, Position(Lane #157187, 33.2508m) sidewalk
-  Av. Itaquera, 1660: Position(Lane #156482, 46.8573m) driving, Position(Lane #156483, 46.9776m) sidewalk
-  Av. Itaquera, 2240: Position(Lane #226626, 40.235m) driving, Position(Lane #226627, 40.0537m) sidewalk
-3020-10 (3020-10) from Lane #89729 to None
-  R. Luís Norberto Freire, 448: Position(Lane #240033, 28.4787m) driving, Position(Lane #240032, 28.2826m) sidewalk
-  R. Luís Norberto Freire, 640: Position(Lane #240065, 36.9238m) driving, Position(Lane #240064, 36.8123m) sidewalk
-  Av. Dos Latinos, 1225: Position(Lane #77218, 37.4218m) driving, Position(Lane #77219, 36.9142m) sidewalk
-  Av. Aricanduva, 5831: Position(Lane #149124, 210.5108m) driving, Position(Lane #149125, 211.2589m) sidewalk
-  Av. Principal Leste: Position(Lane #161378, 65.3321m) driving, Position(Lane #161379, 65.3321m) sidewalk
-3023-10 (3023-10) from Lane #15585 to Some(LaneID { road: RoadID(5881), offset: 0 })
-  Av. Rio Das Pedras, 2022: Position(Lane #15585, 61.7815m) driving, Position(Lane #15586, 61.7815m) sidewalk
-  Av. Rio Das Pedras, 2224: Position(Lane #15649, 30.7928m) driving, Position(Lane #15650, 30.7928m) sidewalk
-  Av. Rio Das Pedras, 2626: Position(Lane #143585, 39.0307m) driving, Position(Lane #143586, 39.0307m) sidewalk
-  Av. Rio Das Pedras, 2984: Position(Lane #143713, 35.6207m) driving, Position(Lane #143714, 35.6207m) sidewalk
-  Av. Rio Das Pedras, 3893: Position(Lane #179233, 4.0468m) driving, Position(Lane #179234, 4.0468m) sidewalk
-  Av. Rio Das Pedras, 4088: Position(Lane #179393, 4.439m) driving, Position(Lane #179394, 4.439m) sidewalk
-  Av. Mateo Bei, 1160: Position(Lane #188033, 40.4376m) driving, Position(Lane #188034, 40.4375m) sidewalk
-3033-10 (3033-10) from Lane #203841 to Some(LaneID { road: RoadID(7157), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-3063-10 (3063-10) from Lane #203841 to Some(LaneID { road: RoadID(7157), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-3099-10 (3099-10) from Lane #187969 to Some(LaneID { road: RoadID(5881), offset: 0 })
-  R. Cel. Ernesto Duprat: Position(Lane #187969, 52.9036m) driving, Position(Lane #187970, 52.9037m) sidewalk
-  Av. Mateo Bei, 1160: Position(Lane #188033, 40.4376m) driving, Position(Lane #188034, 40.4375m) sidewalk
-3134-10 (3134-10) from Lane #49698 to Some(LaneID { road: RoadID(5993), offset: 2 })
-  Av. Inconfidência Mineira, 1827: Position(Lane #49698, 24.5576m) driving, Position(Lane #49699, 24.5577m) sidewalk
-  Av. Inconfidência Mineira, 1225: Position(Lane #49858, 96.3114m) driving, Position(Lane #49859, 96.3114m) sidewalk
-  Av. Inconfidência Mineira, 1009: Position(Lane #191394, 93.9884m) driving, Position(Lane #191395, 94.3099m) sidewalk
-  Av. Inconfidência Mineira, 817: Position(Lane #191554, 38.4454m) driving, Position(Lane #191555, 38.4454m) sidewalk
-  Av. Inconfidência Mineira, 631: Position(Lane #191682, 29.9383m) driving, Position(Lane #191683, 29.9383m) sidewalk
-342M-10 (342M-10) from Lane #5473 to Some(LaneID { road: RoadID(5881), offset: 0 })
-  Av. Cons. Carrão, 492: Position(Lane #151201, 78.6918m) driving, Position(Lane #151200, 78.6918m) sidewalk
-  Av. Cons. Carrão, 700: Position(Lane #219905, 27.0257m) driving, Position(Lane #219904, 27.0257m) sidewalk
-  Av. Cons. Carrão, 1430: Position(Lane #237953, 34.2896m) driving, Position(Lane #237952, 34.2896m) sidewalk
-  Av. Cons. Carrão, 1706: Position(Lane #223073, 30.754m) driving, Position(Lane #223074, 30.7539m) sidewalk
-  Av. Cons. Carrão, 1904: Position(Lane #223137, 78.8597m) driving, Position(Lane #223138, 78.8597m) sidewalk
-  Av. Cons. Carrão, 2148: Position(Lane #133889, 11.0681m) driving, Position(Lane #133890, 11.0681m) sidewalk
-  Av. Cons. Carrão, 2601: Position(Lane #152257, 24.9739m) driving, Position(Lane #152258, 24.974m) sidewalk
-  Av. Dezenove De Janeiro, 322: Position(Lane #217345, 114.8367m) driving, Position(Lane #217346, 114.8366m) sidewalk
-  Av. Rio Das Pedras, 246: Position(Lane #112513, 108.5547m) driving, Position(Lane #112514, 108.5547m) sidewalk
-  Av. Rio Das Pedras, 650: Position(Lane #146689, 50.2358m) driving, Position(Lane #146690, 50.2358m) sidewalk
-  Av. Rio Das Pedras, 1016: Position(Lane #211137, 95.4068m) driving, Position(Lane #211138, 95.4068m) sidewalk
-  Av. Rio Das Pedras, 1200: Position(Lane #224449, 10.4443m) driving, Position(Lane #224450, 10.4443m) sidewalk
-  Av. Rio Das Pedras, 1746: Position(Lane #15425, 38.804m) driving, Position(Lane #15426, 38.804m) sidewalk
-  Av. Rio Das Pedras, 2022: Position(Lane #15585, 61.7815m) driving, Position(Lane #15586, 61.7815m) sidewalk
-  Av. Rio Das Pedras, 2224: Position(Lane #15649, 30.7928m) driving, Position(Lane #15650, 30.7928m) sidewalk
-  Av. Rio Das Pedras, 2626: Position(Lane #143585, 39.0307m) driving, Position(Lane #143586, 39.0307m) sidewalk
-  Av. Rio Das Pedras, 2984: Position(Lane #143713, 35.6207m) driving, Position(Lane #143714, 35.6207m) sidewalk
-  Av. Rio Das Pedras, 3893: Position(Lane #179233, 4.0468m) driving, Position(Lane #179234, 4.0468m) sidewalk
-  Av. Rio Das Pedras, 4088: Position(Lane #179393, 4.439m) driving, Position(Lane #179394, 4.439m) sidewalk
-  Av. Mateo Bei, 1160: Position(Lane #188033, 40.4376m) driving, Position(Lane #188034, 40.4375m) sidewalk
-3459-23 (3459-23) from Lane #218594 to Some(LaneID { road: RoadID(5685), offset: 1 })
-  R. Melo Freire, 4952: Position(Lane #218596, 34.6432m) driving, Position(Lane #218597, 34.6432m) sidewalk
-  Av. Cde. De Frontin, 80: Position(Lane #201988, 27.8941m) driving, Position(Lane #201989, 27.8941m) sidewalk
-  Av. Cde. De Frontin, 2000: Position(Lane #241058, 24.8243m) driving, Position(Lane #241059, 24.8243m) sidewalk
-352A-10 (352A-10) from Lane #222688 to Some(LaneID { road: RoadID(4714), offset: 2 })
-  Av. Mateo Bei, 1641: Position(Lane #192705, 37.2785m) driving, Position(Lane #192706, 37.2786m) sidewalk
-  Av. Mateo Bei, 1473: Position(Lane #192737, 151.1393m) driving, Position(Lane #192738, 150.8628m) sidewalk
-  Av. Afonso De Sampaio E Sousa, 3068: Position(Lane #225379, 21.1492m) driving, Position(Lane #225380, 21.1492m) sidewalk
-354M-10 (354M-10) from Lane #203841 to Some(LaneID { road: RoadID(7157), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-3721-10 (3721-10) from Lane #161378 to Some(LaneID { road: RoadID(2823), offset: 2 })
-  Av. Principal Leste: Position(Lane #161378, 65.3321m) driving, Position(Lane #161379, 65.3321m) sidewalk
-  Av. Principal Leste: Position(Lane #143106, 4.8093m) driving, Position(Lane #143107, 4.8093m) sidewalk
-  R. Francesco Melzi, 414: Position(Lane #111937, 209.7831m) driving, Position(Lane #111936, 210.8231m) sidewalk
-  R. Pedro De Mena, 121: Position(Lane #165634, 30.4421m) driving, Position(Lane #165635, 30.4421m) sidewalk
-  R. Pão De Açúcar, 382: Position(Lane #98945, 58.0967m) driving, Position(Lane #98944, 58.0966m) sidewalk
-  R. Alonso De Mena, 201: Position(Lane #168065, 22.5101m) driving, Position(Lane #168064, 22.6923m) sidewalk
-  R. Bom Jesus Do Monte, 598: Position(Lane #239873, 11.6456m) driving, Position(Lane #239872, 11.6456m) sidewalk
-  R. Elza Dos Anjos Neves, 710: Position(Lane #239969, 3.1455m) driving, Position(Lane #239968, 3.1455m) sidewalk
-  R. Elza Dos Anjos Neves, 585: Position(Lane #90018, 24.5055m) driving, Position(Lane #90019, 24.5966m) sidewalk
-3721-41 (3721-41) from Lane #143106 to Some(LaneID { road: RoadID(5158), offset: 2 })
-  Av. Principal Leste: Position(Lane #143106, 4.8093m) driving, Position(Lane #143107, 4.8093m) sidewalk
-  R. Araramboia, 325: Position(Lane #90370, 31.7355m) driving, Position(Lane #90371, 31.7354m) sidewalk
-  R. Quinta Da Magnólia, 277: Position(Lane #165058, 25.7574m) driving, Position(Lane #165059, 25.7574m) sidewalk
-3722-10 (3722-10) from Lane #162529 to None
-  Av. Itaquera, 1885: Position(Lane #162562, 10.228m) driving, Position(Lane #162563, 10.2279m) sidewalk
-  Av. Itaquera, 1503: Position(Lane #156706, 222.6018m) driving, Position(Lane #156707, 222.5109m) sidewalk
-  Av. Itaquera, 1031: Position(Lane #157282, 28.5097m) driving, Position(Lane #157283, 28.5097m) sidewalk
-  Av. Itaquera, 737: Position(Lane #157314, 23.9584m) driving, Position(Lane #157315, 23.834m) sidewalk
-  Av. Aricanduva, 3465: Position(Lane #154401, 132.199m) driving, Position(Lane #154402, 132.9495m) sidewalk
-  Av. Aricanduva, 3575: Position(Lane #221570, 68.147m) driving, Position(Lane #221571, 68.147m) sidewalk
-  Av. Aricanduva, 2969: Position(Lane #221602, 11.2248m) driving, Position(Lane #221603, 11.2248m) sidewalk
-  Av. Aricanduva, 2663: Position(Lane #222338, 24.2327m) driving, Position(Lane #222339, 24.1345m) sidewalk
-  Av. Aricanduva, 1111: Position(Lane #222178, 126.8031m) driving, Position(Lane #222179, 127.2762m) sidewalk
-  Av. Aricanduva, 1341: Position(Lane #158433, 24.9204m) driving, Position(Lane #158434, 24.7493m) sidewalk
-  Av. Aricanduva, 273: Position(Lane #158561, 57.7837m) driving, Position(Lane #158562, 57.7837m) sidewalk
-  Terminal Metrô Penha (lado Sul): Position(Lane #231040, 10.9591m) driving, Position(Lane #231041, 10.9591m) sidewalk
-372U-10 (372U-10) from Lane #152769 to Some(LaneID { road: RoadID(4174), offset: 1 })
-  R. Lutécia, 1055: Position(Lane #152769, 69.489m) driving, Position(Lane #152768, 68.0263m) sidewalk
-3731-10 (3731-10) from Lane #234018 to Some(LaneID { road: RoadID(649), offset: 2 })
-  Av. Aricanduva, 4869: Position(Lane #234018, 0m) driving, Position(Lane #234019, 0m) sidewalk
-  Av. Aricanduva, 4053: Position(Lane #178019, 12.9266m) driving, Position(Lane #178020, 12.9266m) sidewalk
-  Av. Aricanduva, 5999: Position(Lane #148577, 40.4623m) driving, Position(Lane #148578, 40.4623m) sidewalk
-  Av. Itaquera, 744: Position(Lane #94050, 61.0933m) driving, Position(Lane #94051, 61.0934m) sidewalk
-  R. Açaí, 142: Position(Lane #180833, 19.9281m) driving, Position(Lane #180832, 19.9281m) sidewalk
-  R. Açaí, 330: Position(Lane #180737, 3.5024m) driving, Position(Lane #180736, 3.5024m) sidewalk
-  R. Muaná, 78: Position(Lane #231425, 14.9103m) driving, Position(Lane #231426, 14.9103m) sidewalk
-  R. Lupianópolis, 294: Position(Lane #109025, 83.2761m) driving, Position(Lane #109024, 83.2762m) sidewalk
-  R. Alfredo Toledo, 18: Position(Lane #104706, 38.5586m) driving, Position(Lane #104707, 38.5586m) sidewalk
-  Av. Mendonca Drumond, 400: Position(Lane #107426, 8.0874m) driving, Position(Lane #107427, 8.0875m) sidewalk
-  Av. Mendonca Drumond, 680: Position(Lane #107490, 42.0277m) driving, Position(Lane #107491, 42.0278m) sidewalk
-  Av. Mendonca Drumond, 907: Position(Lane #107554, 17.2457m) driving, Position(Lane #107555, 17.5767m) sidewalk
-  R. Min. Carlos Maximiliano, 613: Position(Lane #96769, 29.0538m) driving, Position(Lane #96768, 29.0538m) sidewalk
-  R. Min. Carlos Maximiliano, 336: Position(Lane #96737, 114.547m) driving, Position(Lane #96736, 114.4968m) sidewalk
-  R. Min. Carlos Maximiliano, 176: Position(Lane #96673, 56.5286m) driving, Position(Lane #96672, 56.5286m) sidewalk
-  R. Fernandes Portalegre, 31: Position(Lane #226945, 39.414m) driving, Position(Lane #226944, 39.4139m) sidewalk
-  Av. Waldemar Carlos Pereira, 1261: Position(Lane #207233, 55.0834m) driving, Position(Lane #207234, 56.0936m) sidewalk
-  R. Paranhos, 333: Position(Lane #20770, 38.1036m) driving, Position(Lane #20771, 38.1036m) sidewalk
-3736-10 (3736-10) from Lane #179744 to None
-  Av. Maria Luiza Americano, 275: Position(Lane #179649, 47.8785m) driving, Position(Lane #179648, 47.8785m) sidewalk
-3743-10 (3743-10) from Lane #222688 to Some(LaneID { road: RoadID(4714), offset: 2 })
-  Av. Mateo Bei, 1641: Position(Lane #192705, 37.2785m) driving, Position(Lane #192706, 37.2786m) sidewalk
-  Av. Mateo Bei, 1473: Position(Lane #192737, 151.1393m) driving, Position(Lane #192738, 150.8628m) sidewalk
-  Av. Afonso De Sampaio E Sousa, 3068: Position(Lane #225379, 21.1492m) driving, Position(Lane #225380, 21.1492m) sidewalk
-3746-10 (3746-10) from Lane #181793 to Some(LaneID { road: RoadID(6736), offset: 2 })
-  Av. Luís Pires De Minas, 428: Position(Lane #181794, 9.3097m) driving, Position(Lane #181795, 9.3097m) sidewalk
-  Av. Luís Pires De Minas, 411: Position(Lane #215554, 18.3665m) driving, Position(Lane #215555, 18.3665m) sidewalk
-3762-10 (3762-10) from Lane #206146 to Some(LaneID { road: RoadID(5993), offset: 2 })
-  Av. Cipriano Rodrigues, 67: Position(Lane #182881, 22.6737m) driving, Position(Lane #182880, 22.6737m) sidewalk
-  Av. Dos Nacionalistas, 386: Position(Lane #138497, 14.4773m) driving, Position(Lane #138496, 14.4773m) sidewalk
-  Av. Inconfidência Mineira, 817: Position(Lane #191554, 38.4454m) driving, Position(Lane #191555, 38.4454m) sidewalk
-  Av. Inconfidência Mineira, 631: Position(Lane #191682, 29.9383m) driving, Position(Lane #191683, 29.9383m) sidewalk
-3763-10 (3763-10) from Lane #216353 to Some(LaneID { road: RoadID(4199), offset: 1 })
-  Av. Dezenove De Janeiro, 290: Position(Lane #216353, 52.5911m) driving, Position(Lane #216354, 52.5911m) sidewalk
-  R. Francisca De Paula, 288: Position(Lane #55938, 25.8691m) driving, Position(Lane #55939, 25.8691m) sidewalk
-  Av. Flor De Vila Formosa, 13: Position(Lane #134433, 21.6904m) driving, Position(Lane #134432, 21.6904m) sidewalk
-4001-10 (4001-10) from Lane #162529 to None
-  Av. Itaquera, 1885: Position(Lane #162562, 10.228m) driving, Position(Lane #162563, 10.2279m) sidewalk
-  Av. Itaquera, 1503: Position(Lane #156706, 222.6018m) driving, Position(Lane #156707, 222.5109m) sidewalk
-  Av. Itaquera, 1031: Position(Lane #157282, 28.5097m) driving, Position(Lane #157283, 28.5097m) sidewalk
-  Av. Itaquera, 737: Position(Lane #157314, 23.9584m) driving, Position(Lane #157315, 23.834m) sidewalk
-  Av. Itaquera, 481: Position(Lane #2500, 46.2825m) driving, Position(Lane #2501, 46.2825m) sidewalk
-4002-10 (4002-10) from Lane #112513 to Some(LaneID { road: RoadID(4714), offset: 2 })
-  Av. Rio Das Pedras, 246: Position(Lane #112513, 108.5547m) driving, Position(Lane #112514, 108.5547m) sidewalk
-  Av. Rio Das Pedras, 650: Position(Lane #146689, 50.2358m) driving, Position(Lane #146690, 50.2358m) sidewalk
-  Av. Rio Das Pedras, 1016: Position(Lane #211137, 95.4068m) driving, Position(Lane #211138, 95.4068m) sidewalk
-  Av. Rio Das Pedras, 1200: Position(Lane #224449, 10.4443m) driving, Position(Lane #224450, 10.4443m) sidewalk
-  Av. Rio Das Pedras, 1746: Position(Lane #15425, 38.804m) driving, Position(Lane #15426, 38.804m) sidewalk
-  Av. Rio Das Pedras, 2022: Position(Lane #15585, 61.7815m) driving, Position(Lane #15586, 61.7815m) sidewalk
-  Av. Rio Das Pedras, 2224: Position(Lane #15649, 30.7928m) driving, Position(Lane #15650, 30.7928m) sidewalk
-  Av. Rio Das Pedras, 2626: Position(Lane #143585, 39.0307m) driving, Position(Lane #143586, 39.0307m) sidewalk
-  Av. Rio Das Pedras, 2984: Position(Lane #143713, 35.6207m) driving, Position(Lane #143714, 35.6207m) sidewalk
-  Av. Rio Das Pedras, 3893: Position(Lane #179233, 4.0468m) driving, Position(Lane #179234, 4.0468m) sidewalk
-  Av. Rio Das Pedras, 4088: Position(Lane #179393, 4.439m) driving, Position(Lane #179394, 4.439m) sidewalk
-  Av. Arq. Vilanova Artigas, 3398: Position(Lane #238274, 90.9559m) driving, Position(Lane #238275, 90.9559m) sidewalk
-  Av. Afonso De Sampaio E Sousa, 3068: Position(Lane #225379, 21.1492m) driving, Position(Lane #225380, 21.1492m) sidewalk
-4010-10 (4010-10) from Lane #179744 to None
-  Av. Maria Luiza Americano, 275: Position(Lane #179649, 47.8785m) driving, Position(Lane #179648, 47.8785m) sidewalk
-  Av. Maria Luiza Americano, 97: Position(Lane #179552, 70.5317m) driving, Position(Lane #179553, 70.5317m) sidewalk
-  Av. Afonso De Sampaio E Sousa, 3092: Position(Lane #238627, 35.5437m) driving, Position(Lane #238628, 35.6419m) sidewalk
-  Av. Rio Das Pedras, 5000: Position(Lane #150915, 26.3453m) driving, Position(Lane #150916, 26.3453m) sidewalk
-  Av. Rio Das Pedras, 3521: Position(Lane #141825, 48.1462m) driving, Position(Lane #141826, 48.1462m) sidewalk
-  Av. Rio Das Pedras, 2943: Position(Lane #221057, 34.4851m) driving, Position(Lane #221058, 34.4851m) sidewalk
-  Av. Rio Das Pedras, 2147: Position(Lane #141473, 5.0909m) driving, Position(Lane #141474, 5.0909m) sidewalk
-  Av. Rio Das Pedras, 1649: Position(Lane #141729, 0m) driving, Position(Lane #141730, 0m) sidewalk
-  Av. Rio Das Pedras, 1355: Position(Lane #224193, 35.6831m) driving, Position(Lane #224194, 35.6831m) sidewalk
-  Av. Rio Das Pedras, 1023: Position(Lane #211169, 58.4384m) driving, Position(Lane #211170, 58.4384m) sidewalk
-  Av. Rio Das Pedras, 552: Position(Lane #112769, 56.7848m) driving, Position(Lane #112770, 56.7848m) sidewalk
-  Av. Rio Das Pedras, 175: Position(Lane #112897, 76.5201m) driving, Position(Lane #112898, 76.5201m) sidewalk
-4011-10 (4011-10) from Lane #203841 to Some(LaneID { road: RoadID(7157), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-4018-10 (4018-10) from Lane #203841 to Some(LaneID { road: RoadID(7157), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-4027-10 (4027-10) from Lane #188033 to Some(LaneID { road: RoadID(5881), offset: 0 })
-  Av. Mateo Bei, 1160: Position(Lane #188033, 40.4376m) driving, Position(Lane #188034, 40.4375m) sidewalk
-4030-10 (4030-10) from Lane #222688 to None
-  Av. Mateo Bei, 1641: Position(Lane #192705, 37.2785m) driving, Position(Lane #192706, 37.2786m) sidewalk
-  Av. Mateo Bei, 1473: Position(Lane #192737, 151.1393m) driving, Position(Lane #192738, 150.8628m) sidewalk
-  Av. Rio Das Pedras, 3521: Position(Lane #141825, 48.1462m) driving, Position(Lane #141826, 48.1462m) sidewalk
-  Av. Rio Das Pedras, 2943: Position(Lane #221057, 34.4851m) driving, Position(Lane #221058, 34.4851m) sidewalk
-  Av. Rio Das Pedras, 2147: Position(Lane #141473, 5.0909m) driving, Position(Lane #141474, 5.0909m) sidewalk
-  Av. Francisco José Rezende, 138: Position(Lane #20418, 126.1807m) driving, Position(Lane #20419, 126.1807m) sidewalk
-  Av. Principal Leste: Position(Lane #161378, 65.3321m) driving, Position(Lane #161379, 65.3321m) sidewalk
-  Av. Principal Leste: Position(Lane #161665, 16.2882m) driving, Position(Lane #161666, 16.7301m) sidewalk
-4036-10 (4036-10) from Lane #162529 to None
-  Av. Itaquera, 1885: Position(Lane #162562, 10.228m) driving, Position(Lane #162563, 10.2279m) sidewalk
-  Av. Itaquera, 1503: Position(Lane #156706, 222.6018m) driving, Position(Lane #156707, 222.5109m) sidewalk
-  Av. Itaquera, 1031: Position(Lane #157282, 28.5097m) driving, Position(Lane #157283, 28.5097m) sidewalk
-  Av. Itaquera, 737: Position(Lane #157314, 23.9584m) driving, Position(Lane #157315, 23.834m) sidewalk
-  Av. Itaquera, 481: Position(Lane #2500, 46.2825m) driving, Position(Lane #2501, 46.2825m) sidewalk
-403A-10 (403A-10) from Lane #162529 to Some(LaneID { road: RoadID(5112), offset: 1 })
-  Av. Itaquera, 1885: Position(Lane #162562, 10.228m) driving, Position(Lane #162563, 10.2279m) sidewalk
-  Av. Waldemar Carlos Pereira, 2165: Position(Lane #226755, 43.6602m) driving, Position(Lane #226756, 43.6601m) sidewalk
-  Av. Waldemar Carlos Pereira, 2025: Position(Lane #156834, 32.7832m) driving, Position(Lane #156835, 32.697m) sidewalk
-  Av. Waldemar Carlos Pereira, 1261: Position(Lane #207233, 55.0834m) driving, Position(Lane #207234, 56.0936m) sidewalk
-  Av. Waldemar Carlos Pereira, 811: Position(Lane #5282, 106.0757m) driving, Position(Lane #5283, 106.0756m) sidewalk
-  Av. Pasteur, 182: Position(Lane #201090, 47.5991m) driving, Position(Lane #201091, 48.7996m) sidewalk
-4056-10 (4056-10) from Lane #203841 to Some(LaneID { road: RoadID(5349), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-  R. Forte Do Triunfo, 120: Position(Lane #171201, 30.294m) driving, Position(Lane #171200, 30.2939m) sidewalk
-407A-10 (407A-10) from Lane #161665 to Some(LaneID { road: RoadID(5993), offset: 2 })
-  Av. Principal Leste: Position(Lane #161665, 32.2087m) driving, Position(Lane #161666, 33.037m) sidewalk
-  Av. Inconfidência Mineira, 1827: Position(Lane #49698, 24.5576m) driving, Position(Lane #49699, 24.5577m) sidewalk
-  Av. Inconfidência Mineira, 1225: Position(Lane #49858, 96.3114m) driving, Position(Lane #49859, 96.3114m) sidewalk
-  Av. Inconfidência Mineira, 1009: Position(Lane #191394, 93.9884m) driving, Position(Lane #191395, 94.3099m) sidewalk
-  Av. Inconfidência Mineira, 817: Position(Lane #191554, 38.4454m) driving, Position(Lane #191555, 38.4454m) sidewalk
-  Av. Inconfidência Mineira, 631: Position(Lane #191682, 29.9383m) driving, Position(Lane #191683, 29.9383m) sidewalk
-407F-10 (407F-10) from Lane #222688 to Some(LaneID { road: RoadID(6453), offset: 2 })
-  Av. Mateo Bei, 1641: Position(Lane #192705, 37.2785m) driving, Position(Lane #192706, 37.2786m) sidewalk
-  Av. Mateo Bei, 1473: Position(Lane #192737, 151.1393m) driving, Position(Lane #192738, 150.8628m) sidewalk
-  Av. Rio Das Pedras, 3521: Position(Lane #141825, 48.1462m) driving, Position(Lane #141826, 48.1462m) sidewalk
-  R. Dos Fonsecas, 531: Position(Lane #43297, 145.452m) driving, Position(Lane #43298, 145.452m) sidewalk
-  Av. Pst. Cicero Canuto De Lima, 249: Position(Lane #30114, 22.8101m) driving, Position(Lane #30115, 22.8101m) sidewalk
-  Av. Pst. Cicero Canuto De Lima, 10: Position(Lane #138785, 12.2178m) driving, Position(Lane #138784, 11.9888m) sidewalk
-  Av. Dos Nacionalistas, 459: Position(Lane #138593, 1.2209m) driving, Position(Lane #138592, 1.2209m) sidewalk
-  Av. Dos Nacionalistas, 347: Position(Lane #138465, 5.755m) driving, Position(Lane #138464, 5.755m) sidewalk
-  Av. Cipriano Rodrigues, 1160: Position(Lane #182978, 98.5815m) driving, Position(Lane #182979, 99.1179m) sidewalk
-407J-10 (407J-10) from Lane #179744 to Some(LaneID { road: RoadID(4056), offset: 1 })
-  Av. Maria Luiza Americano, 275: Position(Lane #179649, 47.8785m) driving, Position(Lane #179648, 47.8785m) sidewalk
-  Av. Maria Luiza Americano, 97: Position(Lane #179552, 70.5317m) driving, Position(Lane #179553, 70.5317m) sidewalk
-  Av. Afonso De Sampaio E Sousa, 3092: Position(Lane #238627, 35.5437m) driving, Position(Lane #238628, 35.6419m) sidewalk
-  Av. Rio Das Pedras, 5000: Position(Lane #150915, 26.3453m) driving, Position(Lane #150916, 26.3453m) sidewalk
-  Av. Rio Das Pedras, 3521: Position(Lane #141825, 48.1462m) driving, Position(Lane #141826, 48.1462m) sidewalk
-  Av. Rio Das Pedras, 2943: Position(Lane #221057, 34.4851m) driving, Position(Lane #221058, 34.4851m) sidewalk
-  Av. Rio Das Pedras, 2147: Position(Lane #141473, 5.0909m) driving, Position(Lane #141474, 5.0909m) sidewalk
-  Av. Rio Das Pedras, 1649: Position(Lane #141729, 0m) driving, Position(Lane #141730, 0m) sidewalk
-  Av. Rio Das Pedras, 1355: Position(Lane #224193, 35.6831m) driving, Position(Lane #224194, 35.6831m) sidewalk
-  Av. Rio Das Pedras, 1023: Position(Lane #211169, 58.4384m) driving, Position(Lane #211170, 58.4384m) sidewalk
-  Av. Rio Das Pedras, 552: Position(Lane #112769, 56.7848m) driving, Position(Lane #112770, 56.7848m) sidewalk
-  Av. Rio Das Pedras, 175: Position(Lane #112897, 76.5201m) driving, Position(Lane #112898, 76.5201m) sidewalk
-  Av. Dezenove De Janeiro, 290: Position(Lane #216353, 52.5911m) driving, Position(Lane #216354, 52.5911m) sidewalk
-  Av. Cons. Carrão, 3355: Position(Lane #195585, 58.3891m) driving, Position(Lane #195586, 58.389m) sidewalk
-  Av. Cons. Carrão, 2929: Position(Lane #7969, 15.8862m) driving, Position(Lane #7970, 15.8861m) sidewalk
-  Av. Cons. Carrão, 0: Position(Lane #132961, 0m) driving, Position(Lane #132960, 3.0634m) sidewalk
-  Av. Cons. Carrão, 2043: Position(Lane #222945, 87.7032m) driving, Position(Lane #222946, 87.7032m) sidewalk
-  Av. Cons. Carrão, 1865: Position(Lane #151137, 71.3686m) driving, Position(Lane #151138, 71.3687m) sidewalk
-  Av. Cons. Carrão, 1719: Position(Lane #223265, 3.4921m) driving, Position(Lane #223266, 3.4921m) sidewalk
-  Av. Cons. Carrão, 1493: Position(Lane #115907, 33.0251m) driving, Position(Lane #115908, 33.0251m) sidewalk
-  R. Serra De Botucatu, 2041: Position(Lane #129602, 10.1964m) driving, Position(Lane #129603, 10.1964m) sidewalk
-  R. Serra De Botucatu, 1791: Position(Lane #129762, 42.9322m) driving, Position(Lane #129763, 42.9323m) sidewalk
-407R-10 (407R-10) from Lane #136900 to Some(LaneID { road: RoadID(4556), offset: 3 })
-  Av. João XxIII, 2771: Position(Lane #136900, 24.9442m) driving, Position(Lane #136901, 24.9442m) sidewalk
-  Av. João XxIII, 2508: Position(Lane #145252, 5.0926m) driving, Position(Lane #145253, 5.0925m) sidewalk
-  Av. João XxIII, 2274: Position(Lane #145348, 30.9224m) driving, Position(Lane #145349, 30.9223m) sidewalk
-  Av. João XxIII, 1982: Position(Lane #145508, 16.2178m) driving, Position(Lane #145509, 16.2179m) sidewalk
-  Av. João XxIII, 1670: Position(Lane #145668, 97.8077m) driving, Position(Lane #145669, 98.1656m) sidewalk
-  Av. João XxIII, 1250: Position(Lane #145764, 57.9736m) driving, Position(Lane #145765, 58.1039m) sidewalk
-4210-10 (4210-10) from Lane #203841 to Some(LaneID { road: RoadID(3627), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-  Av. Aricanduva, 7867: Position(Lane #219139, 925.6901m) driving, Position(Lane #219140, 923.8323m) sidewalk
-  Av. Aricanduva, 7351: Position(Lane #155203, 31.3698m) driving, Position(Lane #155204, 31.3698m) sidewalk
-  Av. Aricanduva, 9555: Position(Lane #155363, 31.7621m) driving, Position(Lane #155364, 31.8587m) sidewalk
-  Av. Aricanduva, 6949: Position(Lane #155491, 143.2144m) driving, Position(Lane #155492, 143.062m) sidewalk
-  Av. Aricanduva, 6599: Position(Lane #218916, 26.4753m) driving, Position(Lane #218917, 26.4753m) sidewalk
-  Av. Aricanduva, 5831: Position(Lane #149124, 210.5108m) driving, Position(Lane #149125, 211.2589m) sidewalk
-  Av. Aricanduva, 4869: Position(Lane #234018, 0m) driving, Position(Lane #234019, 0m) sidewalk
-  Av. Aricanduva, 4053: Position(Lane #178019, 12.9266m) driving, Position(Lane #178020, 12.9266m) sidewalk
-  Av. Aricanduva, 5999: Position(Lane #148577, 40.4623m) driving, Position(Lane #148578, 40.4623m) sidewalk
-  Av. Aricanduva, 3465: Position(Lane #154401, 132.199m) driving, Position(Lane #154402, 132.9495m) sidewalk
-  Av. Aricanduva, 3575: Position(Lane #221570, 68.147m) driving, Position(Lane #221571, 68.147m) sidewalk
-  Av. Aricanduva, 2969: Position(Lane #221602, 11.2248m) driving, Position(Lane #221603, 11.2248m) sidewalk
-  Av. Aricanduva, 2663: Position(Lane #222338, 24.2327m) driving, Position(Lane #222339, 24.1345m) sidewalk
-  Av. Aricanduva, 1111: Position(Lane #222178, 126.8031m) driving, Position(Lane #222179, 127.2762m) sidewalk
-  Av. Aricanduva, 1341: Position(Lane #158433, 24.9204m) driving, Position(Lane #158434, 24.7493m) sidewalk
-  Av. Aricanduva, 273: Position(Lane #158561, 57.7837m) driving, Position(Lane #158562, 57.7837m) sidewalk
-  Av. Cde. De Frontin, 542: Position(Lane #226531, 135.5753m) driving, Position(Lane #226532, 135.5371m) sidewalk
-507T-10 (507T-10) from Lane #181793 to Some(LaneID { road: RoadID(4075), offset: 2 })
-  Av. Luís Pires De Minas, 428: Position(Lane #181794, 9.3097m) driving, Position(Lane #181795, 9.3097m) sidewalk
-  Av. Luís Pires De Minas, 716: Position(Lane #215649, 10.6807m) driving, Position(Lane #215650, 10.6807m) sidewalk
-  Av. Piranguçu, 214: Position(Lane #28385, 31.7648m) driving, Position(Lane #28386, 32.5403m) sidewalk
-  R. Estado Do Amazonas, 691: Position(Lane #44482, 1.1567m) driving, Position(Lane #44483, 1.1567m) sidewalk
-  R. Estado Do Amazonas, 403: Position(Lane #44578, 29.2718m) driving, Position(Lane #44579, 29.2718m) sidewalk
-  Av. Inconfidência Mineira, 524: Position(Lane #191713, 26.5732m) driving, Position(Lane #191712, 26.5732m) sidewalk
-  Av. Inconfidência Mineira, 846: Position(Lane #191489, 20.1741m) driving, Position(Lane #191488, 20.1741m) sidewalk
-  Av. Inconfidência Mineira, 1058: Position(Lane #191329, 32.27m) driving, Position(Lane #191328, 32.27m) sidewalk
-  Av. Inconfidência Mineira, 1422: Position(Lane #49825, 102.1601m) driving, Position(Lane #49824, 102.1601m) sidewalk
-  Av. Inconfidência Mineira, 1738: Position(Lane #49729, 46.2121m) driving, Position(Lane #49728, 46.212m) sidewalk
-  Av. Inconfidência Mineira, 2050: Position(Lane #49569, 27.0693m) driving, Position(Lane #49568, 27.0693m) sidewalk
-  Av. Rio Das Pedras, 1649: Position(Lane #141729, 0m) driving, Position(Lane #141730, 0m) sidewalk
-  Av. Rio Das Pedras, 1355: Position(Lane #224193, 35.6831m) driving, Position(Lane #224194, 35.6831m) sidewalk
-  Av. Rio Das Pedras, 1023: Position(Lane #211169, 58.4384m) driving, Position(Lane #211170, 58.4384m) sidewalk
-  Av. Rio Das Pedras, 552: Position(Lane #112769, 56.7848m) driving, Position(Lane #112770, 56.7848m) sidewalk
-  Av. Rio Das Pedras, 175: Position(Lane #112897, 76.5201m) driving, Position(Lane #112898, 76.5201m) sidewalk
-  Av. Dezenove De Janeiro, 290: Position(Lane #216353, 52.5911m) driving, Position(Lane #216354, 52.5911m) sidewalk
-  Av. Cons. Carrão, 3355: Position(Lane #195585, 58.3891m) driving, Position(Lane #195586, 58.389m) sidewalk
-  Av. Cons. Carrão, 2929: Position(Lane #7969, 15.8862m) driving, Position(Lane #7970, 15.8861m) sidewalk
-  Av. Cons. Carrão, 0: Position(Lane #132961, 0m) driving, Position(Lane #132960, 3.0634m) sidewalk
-  Av. Cons. Carrão, 2043: Position(Lane #222945, 87.7032m) driving, Position(Lane #222946, 87.7032m) sidewalk
-  Av. Cons. Carrão, 1865: Position(Lane #151137, 71.3686m) driving, Position(Lane #151138, 71.3687m) sidewalk
-  Av. Cons. Carrão, 1719: Position(Lane #223265, 3.4921m) driving, Position(Lane #223266, 3.4921m) sidewalk
-  Av. Cons. Carrão, 1493: Position(Lane #115907, 33.0251m) driving, Position(Lane #115908, 33.0251m) sidewalk
-  R. Cantagalo, 2615: Position(Lane #180003, 45.5128m) driving, Position(Lane #180004, 45.5129m) sidewalk
-513C-31 (513C-31) from Lane #203841 to Some(LaneID { road: RoadID(7157), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-573T-10 (573T-10) from Lane #218594 to Some(LaneID { road: RoadID(4026), offset: 1 })
-  R. Melo Freire, 4952: Position(Lane #218596, 34.6432m) driving, Position(Lane #218597, 34.6432m) sidewalk
-  Av. Cons. Carrão, 190: Position(Lane #5953, 80.3753m) driving, Position(Lane #5954, 80.3753m) sidewalk
-  Av. Cons. Carrão, 492: Position(Lane #151201, 78.6918m) driving, Position(Lane #151200, 78.6918m) sidewalk
-  Av. Cons. Carrão, 700: Position(Lane #219905, 27.0257m) driving, Position(Lane #219904, 27.0257m) sidewalk
-  Av. Cons. Carrão, 1430: Position(Lane #237953, 34.2896m) driving, Position(Lane #237952, 34.2896m) sidewalk
-  Av. Cons. Carrão, 1706: Position(Lane #223073, 30.754m) driving, Position(Lane #223074, 30.7539m) sidewalk
-  Av. Cons. Carrão, 1904: Position(Lane #223137, 78.8597m) driving, Position(Lane #223138, 78.8597m) sidewalk
-  Av. Cons. Carrão, 2148: Position(Lane #133889, 11.0681m) driving, Position(Lane #133890, 11.0681m) sidewalk
-  Av. Cons. Carrão, 2601: Position(Lane #152257, 24.9739m) driving, Position(Lane #152258, 24.974m) sidewalk
-  Av. Dezenove De Janeiro, 322: Position(Lane #217345, 114.8367m) driving, Position(Lane #217346, 114.8366m) sidewalk
-  Av. Rio Das Pedras, 246: Position(Lane #112513, 108.5547m) driving, Position(Lane #112514, 108.5547m) sidewalk
-  Av. Rio Das Pedras, 650: Position(Lane #146689, 50.2358m) driving, Position(Lane #146690, 50.2358m) sidewalk
-  Av. Rio Das Pedras, 1016: Position(Lane #211137, 95.4068m) driving, Position(Lane #211138, 95.4068m) sidewalk
-  Av. Rio Das Pedras, 1200: Position(Lane #224449, 10.4443m) driving, Position(Lane #224450, 10.4443m) sidewalk
-  Av. Rio Das Pedras, 1746: Position(Lane #15425, 38.804m) driving, Position(Lane #15426, 38.804m) sidewalk
-  Av. Rio Das Pedras, 2022: Position(Lane #15585, 61.7815m) driving, Position(Lane #15586, 61.7815m) sidewalk
-  Av. Rio Das Pedras, 2224: Position(Lane #15649, 30.7928m) driving, Position(Lane #15650, 30.7928m) sidewalk
-  Av. Rio Das Pedras, 2626: Position(Lane #143585, 39.0307m) driving, Position(Lane #143586, 39.0307m) sidewalk
-  Av. Rio Das Pedras, 2984: Position(Lane #143713, 35.6207m) driving, Position(Lane #143714, 35.6207m) sidewalk
-  Av. Rio Das Pedras, 3893: Position(Lane #179233, 4.0468m) driving, Position(Lane #179234, 4.0468m) sidewalk
-  Av. Rio Das Pedras, 4088: Position(Lane #179393, 4.439m) driving, Position(Lane #179394, 4.439m) sidewalk
-  R. Cel. Ernesto Duprat, 25: Position(Lane #28801, 40.6023m) driving, Position(Lane #28802, 40.6023m) sidewalk
-  R. Côn. Antônio Dias Pequeno, 274: Position(Lane #128897, 45.0763m) driving, Position(Lane #128896, 45.6287m) sidewalk
-  R. Côn. Antônio Dias Pequeno, 460: Position(Lane #128833, 53.6601m) driving, Position(Lane #128832, 53.7313m) sidewalk
-N401-11 (N401-11) from Lane #136900 to Some(LaneID { road: RoadID(4556), offset: 3 })
-  Av. João XxIII, 2771: Position(Lane #136900, 24.9442m) driving, Position(Lane #136901, 24.9442m) sidewalk
-  Av. João XxIII, 2508: Position(Lane #145252, 5.0926m) driving, Position(Lane #145253, 5.0925m) sidewalk
-  Av. João XxIII, 2274: Position(Lane #145348, 30.9224m) driving, Position(Lane #145349, 30.9223m) sidewalk
-  Av. João XxIII, 1982: Position(Lane #145508, 16.2178m) driving, Position(Lane #145509, 16.2179m) sidewalk
-  Av. João XxIII, 1670: Position(Lane #145668, 97.8077m) driving, Position(Lane #145669, 98.1656m) sidewalk
-  Av. João XxIII, 1250: Position(Lane #145764, 57.9736m) driving, Position(Lane #145765, 58.1039m) sidewalk
-N402-11 (N402-11) from Lane #150946 to None
-  Av. Afonso De Sampaio E Sousa, 2390: Position(Lane #151011, 213.0262m) driving, Position(Lane #151012, 212.0788m) sidewalk
-  Av. Afonso De Sampaio E Sousa, 3092: Position(Lane #238627, 35.5437m) driving, Position(Lane #238628, 35.6419m) sidewalk
-  Av. Aricanduva, 7351: Position(Lane #155203, 31.3698m) driving, Position(Lane #155204, 31.3698m) sidewalk
-  Av. Aricanduva, 9555: Position(Lane #155363, 31.7621m) driving, Position(Lane #155364, 31.8587m) sidewalk
-  Av. Aricanduva, 6949: Position(Lane #155491, 143.2144m) driving, Position(Lane #155492, 143.062m) sidewalk
-  Av. Aricanduva, 6599: Position(Lane #218916, 26.4753m) driving, Position(Lane #218917, 26.4753m) sidewalk
-  Av. Aricanduva, 5831: Position(Lane #149124, 210.5108m) driving, Position(Lane #149125, 211.2589m) sidewalk
-  Av. Aricanduva, 4869: Position(Lane #234018, 0m) driving, Position(Lane #234019, 0m) sidewalk
-  Av. Aricanduva, 4053: Position(Lane #178019, 12.9266m) driving, Position(Lane #178020, 12.9266m) sidewalk
-  Av. Itaquera, 481: Position(Lane #2500, 46.2825m) driving, Position(Lane #2501, 46.2825m) sidewalk
-N405-11 (N405-11) from Lane #82337 to Some(LaneID { road: RoadID(7083), offset: 1 })
-  R. Evangelina De Assis, 104: Position(Lane #82337, 0.6945m) driving, Position(Lane #82338, 0.6944m) sidewalk
-  Av. Itaquera, 310: Position(Lane #2657, 31.1198m) driving, Position(Lane #2656, 31.1198m) sidewalk
-  Av. Itaquera, 744: Position(Lane #94050, 61.0933m) driving, Position(Lane #94051, 61.0934m) sidewalk
-  Av. Itaquera, 650: Position(Lane #157186, 33.2508m) driving, Position(Lane #157187, 33.2508m) sidewalk
-  Av. Itaquera, 1660: Position(Lane #156482, 46.8573m) driving, Position(Lane #156483, 46.9776m) sidewalk
-  Av. Itaquera, 2240: Position(Lane #226626, 40.235m) driving, Position(Lane #226627, 40.0537m) sidewalk
-N406-11 (N406-11) from Lane #203841 to Some(LaneID { road: RoadID(7157), offset: 1 })
-  Av. Ragueb Chohfi, 2729: Position(Lane #203841, 111.5885m) driving, Position(Lane #203842, 111.3995m) sidewalk
-N407-11 (N407-11) from Lane #130401 to None
-  R. Cantagalo, 2288: Position(Lane #130337, 34.8927m) driving, Position(Lane #130336, 34.8927m) sidewalk
-  Av. Aricanduva, 1054: Position(Lane #225761, 48.4657m) driving, Position(Lane #225762, 48.4657m) sidewalk
-  Av. Aricanduva, 1100: Position(Lane #158626, 3.5645m) driving, Position(Lane #158627, 3.5645m) sidewalk
-  Av. Aricanduva, 2600: Position(Lane #158722, 38.5763m) driving, Position(Lane #158723, 38.6873m) sidewalk
-  Av. Aricanduva, 3164: Position(Lane #223618, 42.1465m) driving, Position(Lane #223619, 42.1465m) sidewalk
-  Av. Aricanduva, 3476: Position(Lane #159073, 27.3603m) driving, Position(Lane #159074, 27.3604m) sidewalk
-  Av. Itaquera, 481: Position(Lane #2500, 46.2825m) driving, Position(Lane #2501, 46.2825m) sidewalk
-N433-11 (N433-11) from Lane #216353 to Some(LaneID { road: RoadID(4199), offset: 1 })
-  Av. Dezenove De Janeiro, 290: Position(Lane #216353, 52.5911m) driving, Position(Lane #216354, 52.5911m) sidewalk
-  R. Francisca De Paula, 288: Position(Lane #55938, 25.8691m) driving, Position(Lane #55939, 25.8691m) sidewalk
-  Av. Flor De Vila Formosa, 13: Position(Lane #134433, 21.6904m) driving, Position(Lane #134432, 21.6904m) sidewalk
+2100-10 (2100-10) from Lane #145314 to None
+  Av. João XxIII, 1710: Position(Lane #145185, 140.5769m) driving, Position(Lane #145184, 140.6026m) sidewalk
+  Av. João XxIII, 1930: Position(Lane #145089, 18.8368m) driving, Position(Lane #145088, 18.6173m) sidewalk
+  Av. João XxIII, 2528: Position(Lane #144737, 27.275m) driving, Position(Lane #144736, 27.275m) sidewalk
+  Av. João XxIII, 2800: Position(Lane #136513, 1.8003m) driving, Position(Lane #136512, 1.8004m) sidewalk
+2290-10 (2290-10) from Lane #222752 to Some(LaneID { road: RoadID(3615), offset: 1 })
+  Av. Mateo Bei, 1641: Position(Lane #192033, 37.0149m) driving, Position(Lane #192034, 37.0149m) sidewalk
+  Av. Mateo Bei, 1473: Position(Lane #192065, 150.7887m) driving, Position(Lane #192066, 150.473m) sidewalk
+  Av. Rio Das Pedras, 3521: Position(Lane #141409, 47.4294m) driving, Position(Lane #141410, 47.4294m) sidewalk
+  Av. Rio Das Pedras, 2943: Position(Lane #221089, 34.2016m) driving, Position(Lane #221090, 34.2016m) sidewalk
+  Av. Rio Das Pedras, 2147: Position(Lane #141057, 4.617m) driving, Position(Lane #141058, 4.617m) sidewalk
+  Av. Rio Das Pedras, 1023: Position(Lane #211329, 57.8717m) driving, Position(Lane #211330, 57.8717m) sidewalk
+  Av. Rio Das Pedras, 552: Position(Lane #112385, 56.5044m) driving, Position(Lane #112386, 56.5044m) sidewalk
+  Av. Rio Das Pedras, 175: Position(Lane #112513, 76.2506m) driving, Position(Lane #112514, 76.2506m) sidewalk
+  Av. Cons. Carrão, 3355: Position(Lane #194849, 57.7656m) driving, Position(Lane #194850, 57.7657m) sidewalk
+  Av. Cons. Carrão, 2929: Position(Lane #7969, 15.316m) driving, Position(Lane #7970, 15.316m) sidewalk
+  Av. Cons. Carrão, 0: Position(Lane #132577, 0m) driving, Position(Lane #132576, 1.9165m) sidewalk
+  Av. Cons. Carrão, 2043: Position(Lane #223009, 87.4172m) driving, Position(Lane #223010, 87.4172m) sidewalk
+  Av. Cons. Carrão, 1865: Position(Lane #150625, 71.0696m) driving, Position(Lane #150626, 71.0695m) sidewalk
+  Av. Cons. Carrão, 1719: Position(Lane #223329, 2.9092m) driving, Position(Lane #223330, 2.9092m) sidewalk
+  Av. Cons. Carrão, 1493: Position(Lane #115523, 32.3831m) driving, Position(Lane #115524, 32.3831m) sidewalk
+  Av. Cons. Carrão, 641: Position(Lane #220131, 20.0641m) driving, Position(Lane #220132, 20.0641m) sidewalk
+  Av. Cons. Carrão, 327: Position(Lane #219395, 45.2469m) driving, Position(Lane #219396, 45.2469m) sidewalk
+2290-21 (2290-21) from Lane #222752 to Some(LaneID { road: RoadID(3615), offset: 1 })
+  Av. Mateo Bei, 1641: Position(Lane #192033, 37.0149m) driving, Position(Lane #192034, 37.0149m) sidewalk
+  Av. Mateo Bei, 1473: Position(Lane #192065, 150.7887m) driving, Position(Lane #192066, 150.473m) sidewalk
+  Av. Rio Das Pedras, 3521: Position(Lane #141409, 47.4294m) driving, Position(Lane #141410, 47.4294m) sidewalk
+  Av. Rio Das Pedras, 2943: Position(Lane #221089, 34.2016m) driving, Position(Lane #221090, 34.2016m) sidewalk
+  Av. Rio Das Pedras, 2147: Position(Lane #141057, 4.617m) driving, Position(Lane #141058, 4.617m) sidewalk
+  Av. Rio Das Pedras, 1023: Position(Lane #211329, 57.8717m) driving, Position(Lane #211330, 57.8717m) sidewalk
+  Av. Rio Das Pedras, 552: Position(Lane #112385, 56.5044m) driving, Position(Lane #112386, 56.5044m) sidewalk
+  Av. Rio Das Pedras, 175: Position(Lane #112513, 76.2506m) driving, Position(Lane #112514, 76.2506m) sidewalk
+  Av. Cons. Carrão, 3355: Position(Lane #194849, 57.7656m) driving, Position(Lane #194850, 57.7657m) sidewalk
+  Av. Cons. Carrão, 2929: Position(Lane #7969, 15.316m) driving, Position(Lane #7970, 15.316m) sidewalk
+  Av. Cons. Carrão, 0: Position(Lane #132577, 0m) driving, Position(Lane #132576, 1.9165m) sidewalk
+  Av. Cons. Carrão, 2043: Position(Lane #223009, 87.4172m) driving, Position(Lane #223010, 87.4172m) sidewalk
+  Av. Cons. Carrão, 1865: Position(Lane #150625, 71.0696m) driving, Position(Lane #150626, 71.0695m) sidewalk
+  Av. Cons. Carrão, 1719: Position(Lane #223329, 2.9092m) driving, Position(Lane #223330, 2.9092m) sidewalk
+  Av. Cons. Carrão, 1493: Position(Lane #115523, 32.3831m) driving, Position(Lane #115524, 32.3831m) sidewalk
+  Av. Cons. Carrão, 641: Position(Lane #220131, 20.0641m) driving, Position(Lane #220132, 20.0641m) sidewalk
+  Av. Cons. Carrão, 327: Position(Lane #219395, 45.2469m) driving, Position(Lane #219396, 45.2469m) sidewalk
+233A-10 (233A-10) from Lane #82209 to Some(LaneID { road: RoadID(7085), offset: 1 })
+  R. Evangelina De Assis, 104: Position(Lane #82209, 0.4974m) driving, Position(Lane #82210, 0.4974m) sidewalk
+  Av. Itaquera, 310: Position(Lane #2657, 30.2921m) driving, Position(Lane #2656, 30.2921m) sidewalk
+  Av. Itaquera, 744: Position(Lane #93858, 60.5144m) driving, Position(Lane #93859, 60.5144m) sidewalk
+  Av. Itaquera, 650: Position(Lane #156546, 32.9578m) driving, Position(Lane #156547, 32.9578m) sidewalk
+  Av. Itaquera, 1660: Position(Lane #155842, 46.8278m) driving, Position(Lane #155843, 46.9653m) sidewalk
+  Av. Itaquera, 2240: Position(Lane #226690, 39.6356m) driving, Position(Lane #226691, 39.4286m) sidewalk
+3020-10 (3020-10) from Lane #89537 to None
+  R. Luís Norberto Freire, 448: Position(Lane #240097, 27.8554m) driving, Position(Lane #240096, 27.6314m) sidewalk
+  R. Luís Norberto Freire, 640: Position(Lane #240129, 36.1958m) driving, Position(Lane #240128, 36.0684m) sidewalk
+  Av. Dos Latinos, 805: Position(Lane #77218, 144.906m) driving, Position(Lane #77219, 144.9061m) sidewalk
+  Av. Dos Latinos, 385: Position(Lane #193730, 37.2627m) driving, Position(Lane #193731, 37.4594m) sidewalk
+  Av. Aricanduva, 5831: Position(Lane #148644, 210.6826m) driving, Position(Lane #148645, 211.3424m) sidewalk
+  Av. Principal Leste: Position(Lane #160738, 65.3504m) driving, Position(Lane #160739, 65.3504m) sidewalk
+3023-10 (3023-10) from Lane #148484 to Some(LaneID { road: RoadID(5859), offset: 0 })
+  Av. Aricanduva, 5376: Position(Lane #148484, 78.5715m) driving, Position(Lane #148485, 78.8525m) sidewalk
+  Av. Rio Das Pedras, 2022: Position(Lane #15585, 61.2113m) driving, Position(Lane #15586, 61.2113m) sidewalk
+  Av. Rio Das Pedras, 2224: Position(Lane #15649, 33.3714m) driving, Position(Lane #15650, 33.3714m) sidewalk
+  Av. Rio Das Pedras, 2626: Position(Lane #143137, 38.5418m) driving, Position(Lane #143138, 38.5418m) sidewalk
+  Av. Rio Das Pedras, 2984: Position(Lane #143265, 35.0512m) driving, Position(Lane #143266, 35.0512m) sidewalk
+  Av. Rio Das Pedras, 3620: Position(Lane #189729, 4.7341m) driving, Position(Lane #189730, 4.7341m) sidewalk
+  Av. Rio Das Pedras, 3893: Position(Lane #178529, 3.6424m) driving, Position(Lane #178530, 3.6424m) sidewalk
+  Av. Rio Das Pedras, 4088: Position(Lane #178689, 3.7307m) driving, Position(Lane #178690, 3.7307m) sidewalk
+  Av. Mateo Bei, 1160: Position(Lane #187329, 39.8704m) driving, Position(Lane #187330, 39.8705m) sidewalk
+3033-10 (3033-10) from Lane #203233 to Some(LaneID { road: RoadID(7157), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+3063-10 (3063-10) from Lane #203233 to Some(LaneID { road: RoadID(7157), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+3099-10 (3099-10) from Lane #187265 to Some(LaneID { road: RoadID(5859), offset: 0 })
+  R. Cel. Ernesto Duprat: Position(Lane #187265, 52.3408m) driving, Position(Lane #187266, 52.3408m) sidewalk
+  Av. Mateo Bei, 1160: Position(Lane #187329, 39.8704m) driving, Position(Lane #187330, 39.8705m) sidewalk
+3134-10 (3134-10) from Lane #148484 to Some(LaneID { road: RoadID(5971), offset: 2 })
+  Av. Aricanduva, 5376: Position(Lane #148484, 78.5715m) driving, Position(Lane #148485, 78.8525m) sidewalk
+  Av. Inconfidência Mineira, 1827: Position(Lane #49506, 23.9877m) driving, Position(Lane #49507, 23.9877m) sidewalk
+  Av. Inconfidência Mineira, 1225: Position(Lane #49666, 95.74m) driving, Position(Lane #49667, 95.7399m) sidewalk
+  Av. Inconfidência Mineira, 1009: Position(Lane #190690, 93.4702m) driving, Position(Lane #190691, 93.8374m) sidewalk
+  Av. Inconfidência Mineira, 817: Position(Lane #190850, 37.9412m) driving, Position(Lane #190851, 37.9411m) sidewalk
+  Av. Inconfidência Mineira, 631: Position(Lane #190978, 29.4735m) driving, Position(Lane #190979, 29.4734m) sidewalk
+342M-10 (342M-10) from Lane #5473 to Some(LaneID { road: RoadID(5859), offset: 0 })
+  Av. Cons. Carrão, 492: Position(Lane #150689, 77.2097m) driving, Position(Lane #150688, 77.2097m) sidewalk
+  Av. Cons. Carrão, 700: Position(Lane #219969, 27.0257m) driving, Position(Lane #219968, 27.0257m) sidewalk
+  R. Gonçalo Nunes, 242: Position(Lane #133153, 8.9308m) driving, Position(Lane #133154, 8.9308m) sidewalk
+  Av. Cons. Carrão, 1430: Position(Lane #238049, 34.2896m) driving, Position(Lane #238048, 34.2896m) sidewalk
+  Av. Cons. Carrão, 1706: Position(Lane #223137, 30.754m) driving, Position(Lane #223138, 30.754m) sidewalk
+  Av. Cons. Carrão, 1904: Position(Lane #223201, 78.5776m) driving, Position(Lane #223202, 78.5776m) sidewalk
+  Av. Cons. Carrão, 2148: Position(Lane #133505, 10.536m) driving, Position(Lane #133506, 10.536m) sidewalk
+  Av. Cons. Carrão, 2601: Position(Lane #151745, 24.7202m) driving, Position(Lane #151746, 24.7202m) sidewalk
+  Av. Dezenove De Janeiro, 322: Position(Lane #217313, 114.3114m) driving, Position(Lane #217314, 114.3114m) sidewalk
+  Av. Rio Das Pedras, 246: Position(Lane #112129, 108.3133m) driving, Position(Lane #112130, 108.3133m) sidewalk
+  Av. Rio Das Pedras, 650: Position(Lane #146241, 49.9475m) driving, Position(Lane #146242, 49.9476m) sidewalk
+  Av. Rio Das Pedras, 1016: Position(Lane #211297, 94.631m) driving, Position(Lane #211298, 94.631m) sidewalk
+  Av. Rio Das Pedras, 1200: Position(Lane #224513, 10.1584m) driving, Position(Lane #224514, 10.1584m) sidewalk
+  Av. Rio Das Pedras, 1746: Position(Lane #15425, 38.3017m) driving, Position(Lane #15426, 38.3016m) sidewalk
+  Av. Rio Das Pedras, 2022: Position(Lane #15585, 61.2113m) driving, Position(Lane #15586, 61.2113m) sidewalk
+  Av. Rio Das Pedras, 2224: Position(Lane #15649, 33.3714m) driving, Position(Lane #15650, 33.3714m) sidewalk
+  Av. Rio Das Pedras, 2626: Position(Lane #143137, 38.5418m) driving, Position(Lane #143138, 38.5418m) sidewalk
+  Av. Rio Das Pedras, 2984: Position(Lane #143265, 35.0512m) driving, Position(Lane #143266, 35.0512m) sidewalk
+  Av. Rio Das Pedras, 3620: Position(Lane #189729, 4.7341m) driving, Position(Lane #189730, 4.7341m) sidewalk
+  Av. Rio Das Pedras, 3893: Position(Lane #178529, 3.6424m) driving, Position(Lane #178530, 3.6424m) sidewalk
+  Av. Rio Das Pedras, 4088: Position(Lane #178689, 3.7307m) driving, Position(Lane #178690, 3.7307m) sidewalk
+  Av. Mateo Bei, 1160: Position(Lane #187329, 39.8704m) driving, Position(Lane #187330, 39.8705m) sidewalk
+3459-23 (3459-23) from Lane #218561 to Some(LaneID { road: RoadID(5663), offset: 1 })
+  R. Melo Freire, 4952: Position(Lane #218564, 31.8354m) driving, Position(Lane #218565, 31.8354m) sidewalk
+  Av. Cde. De Frontin: Position(Lane #151524, 82.2919m) driving, Position(Lane #151525, 82.292m) sidewalk
+  Av. Cde. De Frontin, 450: Position(Lane #201444, 16.6726m) driving, Position(Lane #201445, 16.6726m) sidewalk
+  Av. Cde. De Frontin, 2000: Position(Lane #241186, 24.8428m) driving, Position(Lane #241187, 24.8428m) sidewalk
+352A-10 (352A-10) from Lane #222752 to Some(LaneID { road: RoadID(4698), offset: 2 })
+  Av. Mateo Bei, 1641: Position(Lane #192033, 37.0149m) driving, Position(Lane #192034, 37.0149m) sidewalk
+  Av. Mateo Bei, 1473: Position(Lane #192065, 150.7887m) driving, Position(Lane #192066, 150.473m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 3068: Position(Lane #225411, 21.1854m) driving, Position(Lane #225412, 21.1854m) sidewalk
+354M-10 (354M-10) from Lane #203233 to Some(LaneID { road: RoadID(7157), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+3721-10 (3721-10) from Lane #160738 to Some(LaneID { road: RoadID(2817), offset: 2 })
+  Av. Principal Leste: Position(Lane #160738, 65.3504m) driving, Position(Lane #160739, 65.3504m) sidewalk
+  Av. Principal Leste: Position(Lane #142658, 4.452m) driving, Position(Lane #142659, 4.452m) sidewalk
+  R. Francesco Melzi, 414: Position(Lane #111585, 209.0462m) driving, Position(Lane #111584, 210.2346m) sidewalk
+  R. Pedro De Mena, 121: Position(Lane #165026, 30.4417m) driving, Position(Lane #165027, 30.4416m) sidewalk
+  R. Pão De Açúcar, 382: Position(Lane #98657, 57.8474m) driving, Position(Lane #98656, 57.8473m) sidewalk
+  R. Alonso De Mena, 201: Position(Lane #167425, 22.2231m) driving, Position(Lane #167424, 22.4313m) sidewalk
+  R. Bom Jesus Do Monte, 598: Position(Lane #239937, 11.5525m) driving, Position(Lane #239936, 11.5526m) sidewalk
+  R. Elza Dos Anjos Neves, 710: Position(Lane #240033, 2.5512m) driving, Position(Lane #240032, 2.5512m) sidewalk
+  R. Elza Dos Anjos Neves, 585: Position(Lane #89826, 22.944m) driving, Position(Lane #89827, 23.0483m) sidewalk
+3721-41 (3721-41) from Lane #142658 to Some(LaneID { road: RoadID(5138), offset: 2 })
+  Av. Principal Leste: Position(Lane #142658, 4.452m) driving, Position(Lane #142659, 4.452m) sidewalk
+  R. Araramboia, 325: Position(Lane #90178, 30.8301m) driving, Position(Lane #90179, 30.8301m) sidewalk
+  R. Quinta Da Magnólia, 277: Position(Lane #164418, 25.334m) driving, Position(Lane #164419, 25.334m) sidewalk
+3722-10 (3722-10) from Lane #161889 to None
+  Av. Itaquera, 1885: Position(Lane #161922, 9.8263m) driving, Position(Lane #161923, 9.8263m) sidewalk
+  Av. Itaquera, 1503: Position(Lane #156066, 221.6145m) driving, Position(Lane #156067, 221.5106m) sidewalk
+  Av. Itaquera, 1031: Position(Lane #156642, 28.2185m) driving, Position(Lane #156643, 28.2185m) sidewalk
+  Av. Itaquera, 737: Position(Lane #156674, 23.285m) driving, Position(Lane #156675, 23.1431m) sidewalk
+  Av. Aricanduva, 3465: Position(Lane #153793, 131.7175m) driving, Position(Lane #153794, 132.3792m) sidewalk
+  Av. Aricanduva, 3575: Position(Lane #221602, 67.8454m) driving, Position(Lane #221603, 67.8454m) sidewalk
+  Av. Aricanduva, 2969: Position(Lane #221634, 11.2248m) driving, Position(Lane #221635, 11.2248m) sidewalk
+  Av. Aricanduva, 2663: Position(Lane #222370, 22.9347m) driving, Position(Lane #222371, 22.848m) sidewalk
+  Av. Aricanduva, 1111: Position(Lane #222210, 126.906m) driving, Position(Lane #222211, 127.3232m) sidewalk
+  Av. Aricanduva, 1341: Position(Lane #157793, 24.3407m) driving, Position(Lane #157794, 24.1898m) sidewalk
+  Av. Aricanduva, 273: Position(Lane #157921, 57.2192m) driving, Position(Lane #157922, 57.2194m) sidewalk
+  Terminal Metrô Penha (lado Sul): Position(Lane #231072, 11.0008m) driving, Position(Lane #231073, 11.0008m) sidewalk
+3731-10 (3731-10) from Lane #142241 to Some(LaneID { road: RoadID(648), offset: 2 })
+  Av. Principal Leste: Position(Lane #142241, 45.7175m) driving, Position(Lane #142240, 45.5357m) sidewalk
+  Av. Aricanduva, 4869: Position(Lane #234114, 0m) driving, Position(Lane #234115, 0m) sidewalk
+  Av. Aricanduva, 4053: Position(Lane #177347, 12.6413m) driving, Position(Lane #177348, 12.6413m) sidewalk
+  Av. Aricanduva, 5999: Position(Lane #148097, 39.9579m) driving, Position(Lane #148098, 39.9579m) sidewalk
+  Av. Itaquera, 744: Position(Lane #93858, 60.5144m) driving, Position(Lane #93859, 60.5144m) sidewalk
+  R. Açaí, 142: Position(Lane #180129, 18.916m) driving, Position(Lane #180128, 18.9159m) sidewalk
+  R. Açaí, 330: Position(Lane #180033, 2.5382m) driving, Position(Lane #180032, 2.5382m) sidewalk
+  R. Muaná, 78: Position(Lane #231457, 14.6223m) driving, Position(Lane #231458, 14.6223m) sidewalk
+  R. Lupianópolis, 294: Position(Lane #108737, 83.3025m) driving, Position(Lane #108736, 83.3025m) sidewalk
+  R. Alfredo Toledo, 18: Position(Lane #104418, 37.4249m) driving, Position(Lane #104419, 37.4249m) sidewalk
+  Av. Mendonca Drumond, 400: Position(Lane #107138, 7.427m) driving, Position(Lane #107139, 7.427m) sidewalk
+  Av. Mendonca Drumond, 680: Position(Lane #107202, 39.8836m) driving, Position(Lane #107203, 39.8836m) sidewalk
+  Av. Mendonca Drumond, 907: Position(Lane #107266, 16.7652m) driving, Position(Lane #107267, 17.1434m) sidewalk
+  R. Min. Carlos Maximiliano, 613: Position(Lane #96481, 28.5776m) driving, Position(Lane #96480, 28.5776m) sidewalk
+  R. Min. Carlos Maximiliano, 336: Position(Lane #96449, 113.4097m) driving, Position(Lane #96448, 113.3522m) sidewalk
+  R. Min. Carlos Maximiliano, 176: Position(Lane #96385, 56.2756m) driving, Position(Lane #96384, 56.2756m) sidewalk
+  R. Fernandes Portalegre, 31: Position(Lane #227009, 38.8555m) driving, Position(Lane #227008, 38.8554m) sidewalk
+  Av. Waldemar Carlos Pereira, 1261: Position(Lane #206817, 53.0524m) driving, Position(Lane #206818, 54.2067m) sidewalk
+  R. Paranhos, 333: Position(Lane #20738, 37.0561m) driving, Position(Lane #20739, 37.0561m) sidewalk
+3736-10 (3736-10) from Lane #179040 to None
+  Av. Maria Luiza Americano, 275: Position(Lane #178945, 47.3141m) driving, Position(Lane #178944, 47.3141m) sidewalk
+3743-10 (3743-10) from Lane #222752 to Some(LaneID { road: RoadID(4698), offset: 2 })
+  Av. Mateo Bei, 1641: Position(Lane #192033, 37.0149m) driving, Position(Lane #192034, 37.0149m) sidewalk
+  Av. Mateo Bei, 1473: Position(Lane #192065, 150.7887m) driving, Position(Lane #192066, 150.473m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 3068: Position(Lane #225411, 21.1854m) driving, Position(Lane #225412, 21.1854m) sidewalk
+3746-10 (3746-10) from Lane #181089 to Some(LaneID { road: RoadID(6735), offset: 1 })
+  Av. Luís Pires De Minas, 428: Position(Lane #181090, 7.6252m) driving, Position(Lane #181091, 7.6252m) sidewalk
+3762-10 (3762-10) from Lane #205538 to Some(LaneID { road: RoadID(5971), offset: 2 })
+  Av. Cipriano Rodrigues, 67: Position(Lane #182177, 22.6737m) driving, Position(Lane #182176, 22.6737m) sidewalk
+  Av. Inconfidência Mineira, 817: Position(Lane #190850, 37.9412m) driving, Position(Lane #190851, 37.9411m) sidewalk
+  Av. Inconfidência Mineira, 631: Position(Lane #190978, 29.4735m) driving, Position(Lane #190979, 29.4734m) sidewalk
+3763-10 (3763-10) from Lane #55746 to Some(LaneID { road: RoadID(4187), offset: 1 })
+  R. Francisca De Paula, 288: Position(Lane #55746, 25.314m) driving, Position(Lane #55747, 25.314m) sidewalk
+  Av. Flor De Vila Formosa, 13: Position(Lane #134049, 21.7224m) driving, Position(Lane #134048, 21.7224m) sidewalk
+4001-10 (4001-10) from Lane #161889 to None
+  Av. Itaquera, 1885: Position(Lane #161922, 9.8263m) driving, Position(Lane #161923, 9.8263m) sidewalk
+  Av. Itaquera, 1503: Position(Lane #156066, 221.6145m) driving, Position(Lane #156067, 221.5106m) sidewalk
+  Av. Itaquera, 1031: Position(Lane #156642, 28.2185m) driving, Position(Lane #156643, 28.2185m) sidewalk
+  Av. Itaquera, 737: Position(Lane #156674, 23.285m) driving, Position(Lane #156675, 23.1431m) sidewalk
+  Av. Itaquera, 481: Position(Lane #2500, 46.4557m) driving, Position(Lane #2501, 46.4557m) sidewalk
+4002-10 (4002-10) from Lane #112129 to Some(LaneID { road: RoadID(4698), offset: 2 })
+  Av. Rio Das Pedras, 246: Position(Lane #112129, 108.3133m) driving, Position(Lane #112130, 108.3133m) sidewalk
+  Av. Rio Das Pedras, 650: Position(Lane #146241, 49.9475m) driving, Position(Lane #146242, 49.9476m) sidewalk
+  Av. Rio Das Pedras, 1016: Position(Lane #211297, 94.631m) driving, Position(Lane #211298, 94.631m) sidewalk
+  Av. Rio Das Pedras, 1200: Position(Lane #224513, 10.1584m) driving, Position(Lane #224514, 10.1584m) sidewalk
+  Av. Rio Das Pedras, 1746: Position(Lane #15425, 38.3017m) driving, Position(Lane #15426, 38.3016m) sidewalk
+  Av. Rio Das Pedras, 2022: Position(Lane #15585, 61.2113m) driving, Position(Lane #15586, 61.2113m) sidewalk
+  Av. Rio Das Pedras, 2224: Position(Lane #15649, 33.3714m) driving, Position(Lane #15650, 33.3714m) sidewalk
+  Av. Rio Das Pedras, 2626: Position(Lane #143137, 38.5418m) driving, Position(Lane #143138, 38.5418m) sidewalk
+  Av. Rio Das Pedras, 2984: Position(Lane #143265, 35.0512m) driving, Position(Lane #143266, 35.0512m) sidewalk
+  Av. Rio Das Pedras, 3620: Position(Lane #189729, 4.7341m) driving, Position(Lane #189730, 4.7341m) sidewalk
+  Av. Rio Das Pedras, 3893: Position(Lane #178529, 3.6424m) driving, Position(Lane #178530, 3.6424m) sidewalk
+  Av. Rio Das Pedras, 4088: Position(Lane #178689, 3.7307m) driving, Position(Lane #178690, 3.7307m) sidewalk
+  Av. Arq. Vilanova Artigas, 3398: Position(Lane #238338, 90.3731m) driving, Position(Lane #238339, 90.3731m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 3068: Position(Lane #225411, 21.1854m) driving, Position(Lane #225412, 21.1854m) sidewalk
+4010-10 (4010-10) from Lane #179040 to None
+  Av. Maria Luiza Americano, 275: Position(Lane #178945, 47.3141m) driving, Position(Lane #178944, 47.3141m) sidewalk
+  Av. Maria Luiza Americano, 97: Position(Lane #178848, 70.4983m) driving, Position(Lane #178849, 70.4982m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 2810: Position(Lane #238531, 198.4589m) driving, Position(Lane #238532, 197.8334m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 3092: Position(Lane #238691, 35.5923m) driving, Position(Lane #238692, 35.7044m) sidewalk
+  Av. Rio Das Pedras, 5000: Position(Lane #150403, 25.545m) driving, Position(Lane #150404, 25.545m) sidewalk
+  Av. Rio Das Pedras, 3521: Position(Lane #141409, 47.4294m) driving, Position(Lane #141410, 47.4294m) sidewalk
+  Av. Rio Das Pedras, 2943: Position(Lane #221089, 34.2016m) driving, Position(Lane #221090, 34.2016m) sidewalk
+  Av. Rio Das Pedras, 2147: Position(Lane #141057, 4.617m) driving, Position(Lane #141058, 4.617m) sidewalk
+  Av. Rio Das Pedras, 1023: Position(Lane #211329, 57.8717m) driving, Position(Lane #211330, 57.8717m) sidewalk
+  Av. Rio Das Pedras, 552: Position(Lane #112385, 56.5044m) driving, Position(Lane #112386, 56.5044m) sidewalk
+  Av. Rio Das Pedras, 175: Position(Lane #112513, 76.2506m) driving, Position(Lane #112514, 76.2506m) sidewalk
+4011-10 (4011-10) from Lane #203233 to Some(LaneID { road: RoadID(7157), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+4018-10 (4018-10) from Lane #203233 to Some(LaneID { road: RoadID(7157), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+4027-10 (4027-10) from Lane #27170 to Some(LaneID { road: RoadID(5859), offset: 0 })
+  R. Pe. Luiz Rossi, 25: Position(Lane #27170, 12.949m) driving, Position(Lane #27171, 12.949m) sidewalk
+  Av. Mateo Bei, 1160: Position(Lane #187329, 39.8704m) driving, Position(Lane #187330, 39.8705m) sidewalk
+4030-10 (4030-10) from Lane #222752 to None
+  Av. Mateo Bei, 1641: Position(Lane #192033, 37.0149m) driving, Position(Lane #192034, 37.0149m) sidewalk
+  Av. Mateo Bei, 1473: Position(Lane #192065, 150.7887m) driving, Position(Lane #192066, 150.473m) sidewalk
+  Av. Rio Das Pedras, 3521: Position(Lane #141409, 47.4294m) driving, Position(Lane #141410, 47.4294m) sidewalk
+  Av. Rio Das Pedras, 2943: Position(Lane #221089, 34.2016m) driving, Position(Lane #221090, 34.2016m) sidewalk
+  Av. Rio Das Pedras, 2147: Position(Lane #141057, 4.617m) driving, Position(Lane #141058, 4.617m) sidewalk
+  Av. Francisco José Rezende, 138: Position(Lane #20386, 126.1805m) driving, Position(Lane #20387, 126.1805m) sidewalk
+  Av. Principal Leste: Position(Lane #160738, 65.3504m) driving, Position(Lane #160739, 65.3504m) sidewalk
+  Av. Principal Leste: Position(Lane #161025, 15.4689m) driving, Position(Lane #161026, 15.974m) sidewalk
+4036-10 (4036-10) from Lane #161889 to None
+  Av. Itaquera, 1885: Position(Lane #161922, 9.8263m) driving, Position(Lane #161923, 9.8263m) sidewalk
+  Av. Itaquera, 1503: Position(Lane #156066, 221.6145m) driving, Position(Lane #156067, 221.5106m) sidewalk
+  Av. Itaquera, 1031: Position(Lane #156642, 28.2185m) driving, Position(Lane #156643, 28.2185m) sidewalk
+  Av. Itaquera, 737: Position(Lane #156674, 23.285m) driving, Position(Lane #156675, 23.1431m) sidewalk
+  Av. Itaquera, 481: Position(Lane #2500, 46.4557m) driving, Position(Lane #2501, 46.4557m) sidewalk
+403A-10 (403A-10) from Lane #161889 to Some(LaneID { road: RoadID(5092), offset: 1 })
+  Av. Itaquera, 1885: Position(Lane #161922, 9.8263m) driving, Position(Lane #161923, 9.8263m) sidewalk
+  Av. Waldemar Carlos Pereira, 2165: Position(Lane #226819, 42.6988m) driving, Position(Lane #226820, 42.6988m) sidewalk
+  Av. Waldemar Carlos Pereira, 2025: Position(Lane #156194, 31.8929m) driving, Position(Lane #156195, 31.7943m) sidewalk
+  Av. Waldemar Carlos Pereira, 1261: Position(Lane #206817, 53.0524m) driving, Position(Lane #206818, 54.2067m) sidewalk
+  Av. Waldemar Carlos Pereira, 811: Position(Lane #5282, 105.4061m) driving, Position(Lane #5283, 105.4061m) sidewalk
+4056-10 (4056-10) from Lane #203233 to Some(LaneID { road: RoadID(5330), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+  R. Forte Do Triunfo, 120: Position(Lane #170593, 30.2941m) driving, Position(Lane #170592, 30.294m) sidewalk
+407A-10 (407A-10) from Lane #161025 to Some(LaneID { road: RoadID(5971), offset: 2 })
+  Av. Principal Leste: Position(Lane #161025, 31.4445m) driving, Position(Lane #161026, 32.3911m) sidewalk
+  Av. Aricanduva, 5376: Position(Lane #148484, 78.5715m) driving, Position(Lane #148485, 78.8525m) sidewalk
+  Av. Inconfidência Mineira, 1827: Position(Lane #49506, 23.9877m) driving, Position(Lane #49507, 23.9877m) sidewalk
+  Av. Inconfidência Mineira, 1225: Position(Lane #49666, 95.74m) driving, Position(Lane #49667, 95.7399m) sidewalk
+  Av. Inconfidência Mineira, 1009: Position(Lane #190690, 93.4702m) driving, Position(Lane #190691, 93.8374m) sidewalk
+  Av. Inconfidência Mineira, 817: Position(Lane #190850, 37.9412m) driving, Position(Lane #190851, 37.9411m) sidewalk
+  Av. Inconfidência Mineira, 631: Position(Lane #190978, 29.4735m) driving, Position(Lane #190979, 29.4734m) sidewalk
+407F-10 (407F-10) from Lane #222752 to Some(LaneID { road: RoadID(6435), offset: 2 })
+  Av. Mateo Bei, 1641: Position(Lane #192033, 37.0149m) driving, Position(Lane #192034, 37.0149m) sidewalk
+  Av. Mateo Bei, 1473: Position(Lane #192065, 150.7887m) driving, Position(Lane #192066, 150.473m) sidewalk
+  Av. Rio Das Pedras, 3521: Position(Lane #141409, 47.4294m) driving, Position(Lane #141410, 47.4294m) sidewalk
+  R. Dos Fonsecas, 531: Position(Lane #43105, 144.8834m) driving, Position(Lane #43106, 144.8835m) sidewalk
+  Av. Dos Nacionalistas, 459: Position(Lane #138177, 0.5057m) driving, Position(Lane #138176, 0.5057m) sidewalk
+  Av. Dos Nacionalistas, 347: Position(Lane #138049, 5.1502m) driving, Position(Lane #138048, 5.1502m) sidewalk
+  Av. Cipriano Rodrigues, 1160: Position(Lane #182274, 98.3208m) driving, Position(Lane #182275, 98.9339m) sidewalk
+407J-10 (407J-10) from Lane #179040 to Some(LaneID { road: RoadID(4045), offset: 1 })
+  Av. Maria Luiza Americano, 275: Position(Lane #178945, 47.3141m) driving, Position(Lane #178944, 47.3141m) sidewalk
+  Av. Maria Luiza Americano, 97: Position(Lane #178848, 70.4983m) driving, Position(Lane #178849, 70.4982m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 2810: Position(Lane #238531, 198.4589m) driving, Position(Lane #238532, 197.8334m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 3092: Position(Lane #238691, 35.5923m) driving, Position(Lane #238692, 35.7044m) sidewalk
+  Av. Rio Das Pedras, 5000: Position(Lane #150403, 25.545m) driving, Position(Lane #150404, 25.545m) sidewalk
+  Av. Rio Das Pedras, 3521: Position(Lane #141409, 47.4294m) driving, Position(Lane #141410, 47.4294m) sidewalk
+  Av. Rio Das Pedras, 2943: Position(Lane #221089, 34.2016m) driving, Position(Lane #221090, 34.2016m) sidewalk
+  Av. Rio Das Pedras, 2147: Position(Lane #141057, 4.617m) driving, Position(Lane #141058, 4.617m) sidewalk
+  Av. Rio Das Pedras, 1023: Position(Lane #211329, 57.8717m) driving, Position(Lane #211330, 57.8717m) sidewalk
+  Av. Rio Das Pedras, 552: Position(Lane #112385, 56.5044m) driving, Position(Lane #112386, 56.5044m) sidewalk
+  Av. Rio Das Pedras, 175: Position(Lane #112513, 76.2506m) driving, Position(Lane #112514, 76.2506m) sidewalk
+  Av. Cons. Carrão, 3355: Position(Lane #194849, 57.7656m) driving, Position(Lane #194850, 57.7657m) sidewalk
+  Av. Cons. Carrão, 2929: Position(Lane #7969, 15.316m) driving, Position(Lane #7970, 15.316m) sidewalk
+  Av. Cons. Carrão, 0: Position(Lane #132577, 0m) driving, Position(Lane #132576, 1.9165m) sidewalk
+  Av. Cons. Carrão, 2043: Position(Lane #223009, 87.4172m) driving, Position(Lane #223010, 87.4172m) sidewalk
+  Av. Cons. Carrão, 1865: Position(Lane #150625, 71.0696m) driving, Position(Lane #150626, 71.0695m) sidewalk
+  Av. Cons. Carrão, 1719: Position(Lane #223329, 2.9092m) driving, Position(Lane #223330, 2.9092m) sidewalk
+  Av. Cons. Carrão, 1493: Position(Lane #115523, 32.3831m) driving, Position(Lane #115524, 32.3831m) sidewalk
+  R. Serra De Botucatu, 2041: Position(Lane #129218, 9.6248m) driving, Position(Lane #129219, 9.6248m) sidewalk
+  R. Serra De Botucatu, 1791: Position(Lane #129410, 42.3684m) driving, Position(Lane #129411, 42.3684m) sidewalk
+407R-10 (407R-10) from Lane #136484 to Some(LaneID { road: RoadID(4541), offset: 3 })
+  Av. João XxIII, 2771: Position(Lane #136484, 24.2673m) driving, Position(Lane #136485, 24.2673m) sidewalk
+  Av. João XxIII, 2508: Position(Lane #144772, 4.2173m) driving, Position(Lane #144773, 4.2174m) sidewalk
+  Av. João XxIII, 2274: Position(Lane #144868, 30.4451m) driving, Position(Lane #144869, 30.4451m) sidewalk
+  Av. João XxIII, 1982: Position(Lane #145028, 16.1484m) driving, Position(Lane #145029, 16.1484m) sidewalk
+  Av. João XxIII, 1670: Position(Lane #145188, 97.941m) driving, Position(Lane #145189, 98.3501m) sidewalk
+  Av. João XxIII, 1250: Position(Lane #145284, 58.0068m) driving, Position(Lane #145285, 58.1556m) sidewalk
+407W-10 (407W-10) from Lane #215617 to Some(LaneID { road: RoadID(4045), offset: 1 })
+  Av. Luís Pires De Minas, 716: Position(Lane #215617, 10.0864m) driving, Position(Lane #215618, 10.0864m) sidewalk
+  Av. Piranguçu, 214: Position(Lane #28257, 31.3399m) driving, Position(Lane #28258, 32.226m) sidewalk
+  Av. Piranguçu, 69: Position(Lane #142881, 41.7292m) driving, Position(Lane #142882, 42.7313m) sidewalk
+  Pça. Mater Dei, 711: Position(Lane #36193, 19.2717m) driving, Position(Lane #36194, 19.2717m) sidewalk
+  R. Adoniro Augusto De Paula, 8: Position(Lane #150913, 22.0269m) driving, Position(Lane #150912, 21.789m) sidewalk
+  R. Pedro Rabelo, 600: Position(Lane #71746, 54.7873m) driving, Position(Lane #71747, 54.7873m) sidewalk
+  R. Pedro Rabelo, 481: Position(Lane #71874, 15.4025m) driving, Position(Lane #71875, 15.6483m) sidewalk
+  Av. Pst. Cicero Canuto De Lima, 489: Position(Lane #239233, 24.2527m) driving, Position(Lane #239234, 24.2526m) sidewalk
+  Av. Dos Nacionalistas, 459: Position(Lane #138177, 0.5057m) driving, Position(Lane #138176, 0.5057m) sidewalk
+  Av. Dos Nacionalistas, 347: Position(Lane #138049, 5.1502m) driving, Position(Lane #138048, 5.1502m) sidewalk
+  Av. Cipriano Rodrigues, 1160: Position(Lane #182274, 98.3208m) driving, Position(Lane #182275, 98.9339m) sidewalk
+  Al. Rainha Santa, 374: Position(Lane #199521, 72.464m) driving, Position(Lane #199520, 52.3952m) sidewalk
+  R. Picinguaba, 576: Position(Lane #57249, 36.088m) driving, Position(Lane #57250, 36.088m) sidewalk
+  R. Picinguaba, 808: Position(Lane #190050, 64.6511m) driving, Position(Lane #190051, 64.6511m) sidewalk
+  R. Xiririca, 1171: Position(Lane #135137, 65.7142m) driving, Position(Lane #135136, 65.7142m) sidewalk
+  R. Dulce, 363: Position(Lane #60737, 88.0941m) driving, Position(Lane #60736, 88.094m) sidewalk
+  R. Luís Pinto, 460: Position(Lane #170497, 86.8609m) driving, Position(Lane #170496, 86.861m) sidewalk
+  Av. Cons. Carrão, 0: Position(Lane #132577, 0m) driving, Position(Lane #132576, 1.9165m) sidewalk
+  Av. Cons. Carrão, 2043: Position(Lane #223009, 87.4172m) driving, Position(Lane #223010, 87.4172m) sidewalk
+  Av. Cons. Carrão, 1865: Position(Lane #150625, 71.0696m) driving, Position(Lane #150626, 71.0695m) sidewalk
+  Av. Cons. Carrão, 1719: Position(Lane #223329, 2.9092m) driving, Position(Lane #223330, 2.9092m) sidewalk
+  Av. Cons. Carrão, 1493: Position(Lane #115523, 32.3831m) driving, Position(Lane #115524, 32.3831m) sidewalk
+  R. Serra De Botucatu, 2041: Position(Lane #129218, 9.6248m) driving, Position(Lane #129219, 9.6248m) sidewalk
+  R. Serra De Botucatu, 1791: Position(Lane #129410, 42.3684m) driving, Position(Lane #129411, 42.3684m) sidewalk
+4210-10 (4210-10) from Lane #203233 to Some(LaneID { road: RoadID(3615), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+  Av. Aricanduva, 7867: Position(Lane #219139, 924.7962m) driving, Position(Lane #219140, 923.1578m) sidewalk
+  Av. Aricanduva, 7351: Position(Lane #154595, 31.3698m) driving, Position(Lane #154596, 31.3698m) sidewalk
+  Av. Aricanduva, 9555: Position(Lane #154755, 31.7746m) driving, Position(Lane #154756, 31.8598m) sidewalk
+  Av. Aricanduva, 6949: Position(Lane #154883, 142.6777m) driving, Position(Lane #154884, 142.5434m) sidewalk
+  Av. Aricanduva, 6599: Position(Lane #218916, 26.4752m) driving, Position(Lane #218917, 26.4752m) sidewalk
+  Av. Aricanduva, 5831: Position(Lane #148644, 210.6826m) driving, Position(Lane #148645, 211.3424m) sidewalk
+  Av. Aricanduva, 4869: Position(Lane #234114, 0m) driving, Position(Lane #234115, 0m) sidewalk
+  Av. Aricanduva, 4053: Position(Lane #177347, 12.6413m) driving, Position(Lane #177348, 12.6413m) sidewalk
+  Av. Aricanduva, 5999: Position(Lane #148097, 39.9579m) driving, Position(Lane #148098, 39.9579m) sidewalk
+  Av. Aricanduva, 3465: Position(Lane #153793, 131.7175m) driving, Position(Lane #153794, 132.3792m) sidewalk
+  Av. Aricanduva, 3575: Position(Lane #221602, 67.8454m) driving, Position(Lane #221603, 67.8454m) sidewalk
+  Av. Aricanduva, 2969: Position(Lane #221634, 11.2248m) driving, Position(Lane #221635, 11.2248m) sidewalk
+  Av. Aricanduva, 2663: Position(Lane #222370, 22.9347m) driving, Position(Lane #222371, 22.848m) sidewalk
+  Av. Aricanduva, 1111: Position(Lane #222210, 126.906m) driving, Position(Lane #222211, 127.3232m) sidewalk
+  Av. Aricanduva, 1341: Position(Lane #157793, 24.3407m) driving, Position(Lane #157794, 24.1898m) sidewalk
+  Av. Aricanduva, 273: Position(Lane #157921, 57.2192m) driving, Position(Lane #157922, 57.2194m) sidewalk
+  Av. Cde. De Frontin, 542: Position(Lane #226595, 135.5629m) driving, Position(Lane #226596, 135.5293m) sidewalk
+507T-10 (507T-10) from Lane #181089 to Some(LaneID { road: RoadID(4064), offset: 2 })
+  Av. Luís Pires De Minas, 428: Position(Lane #181090, 7.6252m) driving, Position(Lane #181091, 7.6252m) sidewalk
+  Av. Luís Pires De Minas, 716: Position(Lane #215617, 10.0864m) driving, Position(Lane #215618, 10.0864m) sidewalk
+  Av. Piranguçu, 214: Position(Lane #28257, 31.3399m) driving, Position(Lane #28258, 32.226m) sidewalk
+  R. Estado Do Amazonas, 691: Position(Lane #44290, 4.9323m) driving, Position(Lane #44291, 4.9323m) sidewalk
+  R. Estado Do Amazonas, 403: Position(Lane #44386, 27.8568m) driving, Position(Lane #44387, 27.8568m) sidewalk
+  Av. Inconfidência Mineira, 524: Position(Lane #191009, 26.2895m) driving, Position(Lane #191008, 26.2895m) sidewalk
+  Av. Inconfidência Mineira, 846: Position(Lane #190785, 19.5934m) driving, Position(Lane #190784, 19.5934m) sidewalk
+  Av. Inconfidência Mineira, 1058: Position(Lane #190625, 31.7044m) driving, Position(Lane #190624, 31.7045m) sidewalk
+  Av. Inconfidência Mineira, 1422: Position(Lane #49633, 101.5948m) driving, Position(Lane #49632, 101.5948m) sidewalk
+  Av. Inconfidência Mineira, 1738: Position(Lane #49537, 45.6479m) driving, Position(Lane #49536, 45.648m) sidewalk
+  Av. Inconfidência Mineira, 2050: Position(Lane #49377, 26.4995m) driving, Position(Lane #49376, 26.4995m) sidewalk
+  Av. Rio Das Pedras, 1023: Position(Lane #211329, 57.8717m) driving, Position(Lane #211330, 57.8717m) sidewalk
+  Av. Rio Das Pedras, 552: Position(Lane #112385, 56.5044m) driving, Position(Lane #112386, 56.5044m) sidewalk
+  Av. Rio Das Pedras, 175: Position(Lane #112513, 76.2506m) driving, Position(Lane #112514, 76.2506m) sidewalk
+  Av. Cons. Carrão, 3355: Position(Lane #194849, 57.7656m) driving, Position(Lane #194850, 57.7657m) sidewalk
+  Av. Cons. Carrão, 2929: Position(Lane #7969, 15.316m) driving, Position(Lane #7970, 15.316m) sidewalk
+  Av. Cons. Carrão, 0: Position(Lane #132577, 0m) driving, Position(Lane #132576, 1.9165m) sidewalk
+  Av. Cons. Carrão, 2043: Position(Lane #223009, 87.4172m) driving, Position(Lane #223010, 87.4172m) sidewalk
+  Av. Cons. Carrão, 1865: Position(Lane #150625, 71.0696m) driving, Position(Lane #150626, 71.0695m) sidewalk
+  Av. Cons. Carrão, 1719: Position(Lane #223329, 2.9092m) driving, Position(Lane #223330, 2.9092m) sidewalk
+  Av. Cons. Carrão, 1493: Position(Lane #115523, 32.3831m) driving, Position(Lane #115524, 32.3831m) sidewalk
+  R. Cantagalo, 2615: Position(Lane #179299, 44.1582m) driving, Position(Lane #179300, 44.1581m) sidewalk
+513C-31 (513C-31) from Lane #203233 to Some(LaneID { road: RoadID(7157), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+573T-10 (573T-10) from Lane #218561 to Some(LaneID { road: RoadID(4014), offset: 1 })
+  R. Melo Freire, 4952: Position(Lane #218564, 31.8354m) driving, Position(Lane #218565, 31.8354m) sidewalk
+  Av. Cons. Carrão, 190: Position(Lane #5953, 80.1091m) driving, Position(Lane #5954, 80.1091m) sidewalk
+  Av. Cons. Carrão, 492: Position(Lane #150689, 77.2097m) driving, Position(Lane #150688, 77.2097m) sidewalk
+  Av. Cons. Carrão, 700: Position(Lane #219969, 27.0257m) driving, Position(Lane #219968, 27.0257m) sidewalk
+  R. Gonçalo Nunes, 242: Position(Lane #133153, 8.9308m) driving, Position(Lane #133154, 8.9308m) sidewalk
+  Av. Cons. Carrão, 1430: Position(Lane #238049, 34.2896m) driving, Position(Lane #238048, 34.2896m) sidewalk
+  Av. Cons. Carrão, 1706: Position(Lane #223137, 30.754m) driving, Position(Lane #223138, 30.754m) sidewalk
+  Av. Cons. Carrão, 1904: Position(Lane #223201, 78.5776m) driving, Position(Lane #223202, 78.5776m) sidewalk
+  Av. Cons. Carrão, 2148: Position(Lane #133505, 10.536m) driving, Position(Lane #133506, 10.536m) sidewalk
+  Av. Cons. Carrão, 2601: Position(Lane #151745, 24.7202m) driving, Position(Lane #151746, 24.7202m) sidewalk
+  Av. Dezenove De Janeiro, 322: Position(Lane #217313, 114.3114m) driving, Position(Lane #217314, 114.3114m) sidewalk
+  Av. Rio Das Pedras, 246: Position(Lane #112129, 108.3133m) driving, Position(Lane #112130, 108.3133m) sidewalk
+  Av. Rio Das Pedras, 650: Position(Lane #146241, 49.9475m) driving, Position(Lane #146242, 49.9476m) sidewalk
+  Av. Rio Das Pedras, 1016: Position(Lane #211297, 94.631m) driving, Position(Lane #211298, 94.631m) sidewalk
+  Av. Rio Das Pedras, 1200: Position(Lane #224513, 10.1584m) driving, Position(Lane #224514, 10.1584m) sidewalk
+  Av. Rio Das Pedras, 1746: Position(Lane #15425, 38.3017m) driving, Position(Lane #15426, 38.3016m) sidewalk
+  Av. Rio Das Pedras, 2022: Position(Lane #15585, 61.2113m) driving, Position(Lane #15586, 61.2113m) sidewalk
+  Av. Rio Das Pedras, 2224: Position(Lane #15649, 33.3714m) driving, Position(Lane #15650, 33.3714m) sidewalk
+  Av. Rio Das Pedras, 2626: Position(Lane #143137, 38.5418m) driving, Position(Lane #143138, 38.5418m) sidewalk
+  Av. Rio Das Pedras, 2984: Position(Lane #143265, 35.0512m) driving, Position(Lane #143266, 35.0512m) sidewalk
+  Av. Rio Das Pedras, 3620: Position(Lane #189729, 4.7341m) driving, Position(Lane #189730, 4.7341m) sidewalk
+  Av. Rio Das Pedras, 3893: Position(Lane #178529, 3.6424m) driving, Position(Lane #178530, 3.6424m) sidewalk
+  Av. Rio Das Pedras, 4088: Position(Lane #178689, 3.7307m) driving, Position(Lane #178690, 3.7307m) sidewalk
+  R. Cel. Ernesto Duprat, 25: Position(Lane #28673, 40.0418m) driving, Position(Lane #28674, 40.0418m) sidewalk
+  R. Côn. Antônio Dias Pequeno, 274: Position(Lane #128513, 44.5822m) driving, Position(Lane #128512, 45.2135m) sidewalk
+  R. Côn. Antônio Dias Pequeno, 460: Position(Lane #128449, 53.6687m) driving, Position(Lane #128448, 53.7501m) sidewalk
+N401-11 (N401-11) from Lane #136484 to Some(LaneID { road: RoadID(4541), offset: 3 })
+  Av. João XxIII, 2771: Position(Lane #136484, 24.2673m) driving, Position(Lane #136485, 24.2673m) sidewalk
+  Av. João XxIII, 2508: Position(Lane #144772, 4.2173m) driving, Position(Lane #144773, 4.2174m) sidewalk
+  Av. João XxIII, 2274: Position(Lane #144868, 30.4451m) driving, Position(Lane #144869, 30.4451m) sidewalk
+  Av. João XxIII, 1982: Position(Lane #145028, 16.1484m) driving, Position(Lane #145029, 16.1484m) sidewalk
+  Av. João XxIII, 1670: Position(Lane #145188, 97.941m) driving, Position(Lane #145189, 98.3501m) sidewalk
+  Av. João XxIII, 1250: Position(Lane #145284, 58.0068m) driving, Position(Lane #145285, 58.1556m) sidewalk
+N402-11 (N402-11) from Lane #150434 to None
+  Av. Afonso De Sampaio E Sousa, 2390: Position(Lane #150499, 212.4117m) driving, Position(Lane #150500, 211.3291m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 2810: Position(Lane #238531, 198.4589m) driving, Position(Lane #238532, 197.8334m) sidewalk
+  Av. Afonso De Sampaio E Sousa, 3092: Position(Lane #238691, 35.5923m) driving, Position(Lane #238692, 35.7044m) sidewalk
+  Av. Aricanduva, 7351: Position(Lane #154595, 31.3698m) driving, Position(Lane #154596, 31.3698m) sidewalk
+  Av. Aricanduva, 9555: Position(Lane #154755, 31.7746m) driving, Position(Lane #154756, 31.8598m) sidewalk
+  Av. Aricanduva, 6949: Position(Lane #154883, 142.6777m) driving, Position(Lane #154884, 142.5434m) sidewalk
+  Av. Aricanduva, 6599: Position(Lane #218916, 26.4752m) driving, Position(Lane #218917, 26.4752m) sidewalk
+  Av. Aricanduva, 5831: Position(Lane #148644, 210.6826m) driving, Position(Lane #148645, 211.3424m) sidewalk
+  Av. Aricanduva, 4869: Position(Lane #234114, 0m) driving, Position(Lane #234115, 0m) sidewalk
+  Av. Aricanduva, 4053: Position(Lane #177347, 12.6413m) driving, Position(Lane #177348, 12.6413m) sidewalk
+  Av. Itaquera, 481: Position(Lane #2500, 46.4557m) driving, Position(Lane #2501, 46.4557m) sidewalk
+N405-11 (N405-11) from Lane #82209 to Some(LaneID { road: RoadID(7085), offset: 1 })
+  R. Evangelina De Assis, 104: Position(Lane #82209, 0.4974m) driving, Position(Lane #82210, 0.4974m) sidewalk
+  Av. Itaquera, 310: Position(Lane #2657, 30.2921m) driving, Position(Lane #2656, 30.2921m) sidewalk
+  Av. Itaquera, 744: Position(Lane #93858, 60.5144m) driving, Position(Lane #93859, 60.5144m) sidewalk
+  Av. Itaquera, 650: Position(Lane #156546, 32.9578m) driving, Position(Lane #156547, 32.9578m) sidewalk
+  Av. Itaquera, 1660: Position(Lane #155842, 46.8278m) driving, Position(Lane #155843, 46.9653m) sidewalk
+  Av. Itaquera, 2240: Position(Lane #226690, 39.6356m) driving, Position(Lane #226691, 39.4286m) sidewalk
+N406-11 (N406-11) from Lane #203233 to Some(LaneID { road: RoadID(7157), offset: 1 })
+  Av. Ragueb Chohfi, 2729: Position(Lane #203233, 110.4383m) driving, Position(Lane #203234, 110.2224m) sidewalk
+N407-11 (N407-11) from Lane #130049 to None
+  R. Cantagalo, 2288: Position(Lane #129985, 34.5309m) driving, Position(Lane #129984, 34.5309m) sidewalk
+  Av. Aricanduva, 1054: Position(Lane #225793, 49.6778m) driving, Position(Lane #225794, 49.6777m) sidewalk
+  Av. Aricanduva, 1680: Position(Lane #231424, 26.9067m) driving, Position(Lane #231425, 26.9068m) sidewalk
+  Av. Aricanduva, 1100: Position(Lane #157986, 2.8598m) driving, Position(Lane #157987, 2.8597m) sidewalk
+  Av. Aricanduva, 2600: Position(Lane #158082, 37.7635m) driving, Position(Lane #158083, 37.8904m) sidewalk
+  Av. Aricanduva, 2880: Position(Lane #223842, 169.0047m) driving, Position(Lane #223843, 168.429m) sidewalk
+  Av. Aricanduva, 3164: Position(Lane #223682, 41.2734m) driving, Position(Lane #223683, 41.2734m) sidewalk
+  Av. Aricanduva, 3476: Position(Lane #158433, 26.8071m) driving, Position(Lane #158434, 26.8071m) sidewalk
+  Av. Itaquera, 481: Position(Lane #2500, 46.4557m) driving, Position(Lane #2501, 46.4557m) sidewalk
+N433-11 (N433-11) from Lane #55746 to Some(LaneID { road: RoadID(4187), offset: 1 })
+  R. Francisca De Paula, 288: Position(Lane #55746, 25.314m) driving, Position(Lane #55747, 25.314m) sidewalk
+  Av. Flor De Vila Formosa, 13: Position(Lane #134049, 21.7224m) driving, Position(Lane #134048, 21.7224m) sidewalk

@@ -15,7 +15,7 @@ use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPu
 
 fn main() -> Result<()> {
     abstutil::logger::setup();
-    if true {
+    if false {
         geometry_test()?;
     }
     test_blockfinding()?;
@@ -216,7 +216,7 @@ fn test_blockfinding() -> Result<()> {
 
     for name in vec![
         MapName::seattle("montlake"),
-        MapName::seattle("downtown"),
+        //MapName::seattle("downtown"),
         MapName::seattle("lakeslice"),
         MapName::new("us", "phoenix", "tempe"),
         MapName::new("gb", "bristol", "east"),

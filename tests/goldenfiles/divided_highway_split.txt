@@ -1,6 +1,4 @@
-TurnID(Lane #69, Lane #34, Intersection #0) is a SharedSidewalkCorner
-TurnID(Lane #34, Lane #2, Intersection #0) is a Crosswalk
-TurnID(Lane #2, Lane #64, Intersection #0) is a SharedSidewalkCorner
+TurnID(Lane #69, Lane #64, Intersection #0) is a Crosswalk
 TurnID(Lane #32, Lane #67, Intersection #0) is a Right
 TurnID(Lane #33, Lane #68, Intersection #0) is a Right
 TurnID(Lane #65, Lane #1, Intersection #0) is a Right
