@@ -180,28 +180,39 @@ mod tests {
 
     #[test]
     fn f64_trimming() {
-        // Roundtrip a bunch of random f64's
         let mut rng = rand_xorshift::XorShiftRng::seed_from_u64(42);
         for _ in 0..1_000 {
-            let input = rng.gen_range(-214_000.00..214_000.0);
-            let trimmed = trim_f64(input);
-            let json_roundtrip: f64 =
-                serde_json::from_slice(serde_json::to_string(&trimmed).unwrap().as_bytes())
-                    .unwrap();
-            let bincode_roundtrip: f64 =
-                bincode::deserialize(&bincode::serialize(&trimmed).unwrap()).unwrap();
-            assert_eq!(json_roundtrip, trimmed);
-            assert_eq!(bincode_roundtrip, trimmed);
+            // Generate a random point
+            let input = Pt2D::new(
+                rng.gen_range(-214_000.00..214_000.0),
+                rng.gen_range(-214_000.00..214_000.0),
+            );
+            // Round-trip to JSON and bincode
+            let json_roundtrip: Pt2D =
+                serde_json::from_slice(serde_json::to_string(&input).unwrap().as_bytes()).unwrap();
+            let bincode_roundtrip: Pt2D =
+                bincode::deserialize(&bincode::serialize(&input).unwrap()).unwrap();
+
+            // Make sure everything is EXACTLY equal
+            if !exactly_eq(input, json_roundtrip) || !exactly_eq(input, bincode_roundtrip) {
+                panic!("Round-tripping mismatch!\ninput=            {:?}\njson_roundtrip=   {:?}\nbincode_roundtrip={:?}", input,json_roundtrip, bincode_roundtrip);
+            }
         }
 
         // Hardcode a particular case, where we can hand-verify that it trims to 4 decimal places
-        let input = 1.2345678;
-        let trimmed = trim_f64(input);
-        let json_roundtrip: f64 =
-            serde_json::from_slice(serde_json::to_string(&trimmed).unwrap().as_bytes()).unwrap();
-        let bincode_roundtrip: f64 =
-            bincode::deserialize(&bincode::serialize(&trimmed).unwrap()).unwrap();
-        assert_eq!(json_roundtrip, 1.2346);
-        assert_eq!(bincode_roundtrip, 1.2346);
+        let input = Pt2D::new(1.2345678, 9.876543);
+        let json_roundtrip: Pt2D =
+            serde_json::from_slice(serde_json::to_string(&input).unwrap().as_bytes()).unwrap();
+        let bincode_roundtrip: Pt2D =
+            bincode::deserialize(&bincode::serialize(&input).unwrap()).unwrap();
+        assert_eq!(input.x(), 1.2346);
+        assert_eq!(input.y(), 9.8765);
+        assert!(exactly_eq(input, json_roundtrip));
+        assert!(exactly_eq(input, bincode_roundtrip));
+    }
+
+    // Don't use the PartialEq implementation, which does an epsilon check
+    fn exactly_eq(pt1: Pt2D, pt2: Pt2D) -> bool {
+        pt1.x() == pt2.x() && pt1.y() == pt2.y()
     }
 }
