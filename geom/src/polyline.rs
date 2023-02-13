@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashSet};
 use std::fmt;
 
 use anyhow::{Context, Result};
-use geo::ClosestPoint;
+use geo::prelude::ClosestPoint;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -40,8 +40,8 @@ impl PolyLine {
         });
 
         if pts.windows(2).any(|pair| pair[0] == pair[1]) {
-            println!(
-                "Warning: PL with total length {} and {} pts has ~dupe adjacent pts",
+            bail!(
+                "PL with total length {} and {} pts has ~dupe adjacent pts",
                 length,
                 pts.len(),
             );
@@ -67,7 +67,6 @@ impl PolyLine {
     }
 
     /// Doesn't check for duplicates. Use at your own risk.
-    // TODO Merge all of the constructors
     pub fn unchecked_new(pts: Vec<Pt2D>) -> PolyLine {
         assert!(pts.len() >= 2);
         let length = pts.windows(2).fold(Distance::ZERO, |so_far, pair| {
@@ -525,6 +524,14 @@ impl PolyLine {
     pub fn make_polygons(&self, width: Distance) -> Polygon {
         let tessellation = self.thicken_tessellation(width);
         let ring = Ring::deduping_new(tessellation.points.clone())
+            .expect("PolyLine::make_polygons() failed");
+        Polygon::pretessellated(vec![ring], tessellation)
+    }
+
+    /// This produces a `Polygon` with a possibly invalid `Ring`. It shouldn't crash. Use sparingly.
+    pub fn unsafe_make_polygons(&self, width: Distance) -> Polygon {
+        let tessellation = self.thicken_tessellation(width);
+        let ring = Ring::unsafe_deduping_new(tessellation.points.clone())
             .expect("PolyLine::make_polygons() failed");
         Polygon::pretessellated(vec![ring], tessellation)
     }
@@ -998,7 +1005,12 @@ impl PolyLine {
     }
 
     pub(crate) fn to_geo(&self) -> geo::LineString {
-        geo::LineString::from(self)
+        let pts: Vec<geo::Point> = self
+            .pts
+            .iter()
+            .map(|pt| geo::Point::new(pt.x(), pt.y()))
+            .collect();
+        pts.into()
     }
 
     /// Walk along the PolyLine, starting `buffer_ends` from the start and ending `buffer_ends`

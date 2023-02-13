@@ -11,12 +11,10 @@ use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
 pub struct Line(Pt2D, Pt2D);
 
 impl Line {
-    // TODO Merge this with must_new and change all callers
-    /// Creates a line segment between two points. Never fails. If the two points are extremely
-    /// close together, behavior may be unusual later.
+    /// Creates a line segment between two points, which must not be the same
     pub fn new(pt1: Pt2D, pt2: Pt2D) -> Result<Line> {
         if pt1.dist_to(pt2) <= EPSILON_DIST {
-            println!("Warning: Line from {:?} to {:?} is small", pt1, pt2);
+            bail!("Line from {:?} to {:?} too small", pt1, pt2);
         }
         Ok(Line(pt1, pt2))
     }

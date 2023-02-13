@@ -146,7 +146,7 @@ impl Polygon {
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
     pub fn maybe_rectangle(width: f64, height: f64) -> Result<Self> {
-        Ring::strict_new(vec![
+        Ring::new(vec![
             Pt2D::new(0.0, 0.0),
             Pt2D::new(width, 0.0),
             Pt2D::new(width, height),

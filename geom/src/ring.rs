@@ -24,10 +24,7 @@ impl Ring {
         }
 
         if let Some(pair) = pts.windows(2).find(|pair| pair[0] == pair[1]) {
-            println!(
-                "Warning: Ring has duplicate adjacent points near {}",
-                pair[0]
-            );
+            bail!("Ring has duplicate adjacent points near {}", pair[0]);
         }
 
         let result = Ring { pts };
@@ -43,12 +40,32 @@ impl Ring {
         Ok(result)
     }
 
-    pub fn strict_new(pts: Vec<Pt2D>) -> Result<Self> {
-        // Enforce no duplicate adjacent points
+    /// Use with caution. Ignores duplicate points
+    pub fn unsafe_deduping_new(mut pts: Vec<Pt2D>) -> Result<Ring> {
+        pts.dedup();
+        if pts.len() < 3 {
+            bail!("Can't make a ring with < 3 points");
+        }
+        if pts[0] != *pts.last().unwrap() {
+            bail!("Can't make a ring with mismatching first/last points");
+        }
+
         if let Some(pair) = pts.windows(2).find(|pair| pair[0] == pair[1]) {
             bail!("Ring has duplicate adjacent points near {}", pair[0]);
         }
-        Self::new(pts)
+
+        let result = Ring { pts };
+
+        let mut seen_pts = HashSet::new();
+        for pt in result.pts.iter().skip(1) {
+            if seen_pts.contains(&pt.to_hashable()) {
+                // Just spam logs instead of crashing
+                println!("Ring has repeat non-adjacent points near {}", pt);
+            }
+            seen_pts.insert(pt.to_hashable());
+        }
+
+        Ok(result)
     }
 
     pub fn must_new(pts: Vec<Pt2D>) -> Ring {
