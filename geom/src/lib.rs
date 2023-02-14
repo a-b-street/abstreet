@@ -46,9 +46,9 @@ mod utils;
 // About 0.4 inches... which is quite tiny on the scale of things. :)
 pub const EPSILON_DIST: Distance = Distance::const_meters(0.01);
 
-/// Reduce the precision of an f64. This helps ensure serialization is idempotent (everything is
-/// exactly the same before and after saving/loading). Ideally we'd use some kind of proper
-/// fixed-precision type instead of f64.
+/// Reduce the precision of an f64 to 4 decimal places. This helps ensure serialization is
+/// idempotent (everything is exactly the same before and after saving/loading). Ideally we'd use
+/// some kind of proper fixed-precision type instead of f64.
 pub fn trim_f64(x: f64) -> f64 {
     (x * 10_000.0).round() / 10_000.0
 }
@@ -209,6 +209,25 @@ mod tests {
         assert_eq!(input.y(), 9.8765);
         assert!(exactly_eq(input, json_roundtrip));
         assert!(exactly_eq(input, bincode_roundtrip));
+    }
+
+    #[test]
+    fn closest_adjacent_point() {
+        // Manually construct two adjacent points
+        let pt1 = Pt2D::new(0.00005, 0.0);
+        assert_eq!("{\"x\":1,\"y\":0}", serde_json::to_string(&pt1).unwrap());
+        let pt2 = Pt2D::new(1.00015, 0.0);
+        assert_eq!("{\"x\":10002,\"y\":0}", serde_json::to_string(&pt2).unwrap());
+        // TODO Fails
+        let pt2 = Pt2D::new(0.00015, 0.0);
+        assert_eq!("{\"x\":2,\"y\":0}", serde_json::to_string(&pt2).unwrap());
+
+        assert!(pt1 != pt2);
+        let dist = pt1.dist_to(pt2);
+        assert_eq!(dist, Distance::meters(0.0001));
+
+        let line = Line::must_new(pt1, pt2);
+        assert_eq!(line.length(), Distance::meters(0.0001));
     }
 
     // Don't use the PartialEq implementation, which does an epsilon check
