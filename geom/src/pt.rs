@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::conversions::pts_to_line_string;
 use crate::{
-    deserialize_f64, serialize_f64, trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST,
+    deserialize_f64, serialize_f64, trim_f64, Angle, Distance, GPSBounds, LonLat
 };
 
 /// This represents world-space in meters.
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Pt2D {
     #[serde(serialize_with = "serialize_f64", deserialize_with = "deserialize_f64")]
     x: f64,
@@ -18,19 +18,14 @@ pub struct Pt2D {
     y: f64,
 }
 
-impl std::cmp::PartialEq for Pt2D {
-    fn eq(&self, other: &Pt2D) -> bool {
-        self.approx_eq(*other, EPSILON_DIST)
-    }
-}
+// By construction, Pt2D has finite f64's with trimmed precision.
+impl Eq for Pt2D {}
 
 impl Pt2D {
     pub fn new(x: f64, y: f64) -> Pt2D {
         if !x.is_finite() || !y.is_finite() {
             panic!("Bad Pt2D {}, {}", x, y);
         }
-
-        // TODO enforce >=0
 
         Pt2D {
             x: trim_f64(x),
@@ -42,7 +37,6 @@ impl Pt2D {
         Self::new(0.0, 0.0)
     }
 
-    // TODO This is a small first step...
     pub fn approx_eq(self, other: Pt2D, threshold: Distance) -> bool {
         self.dist_to(other) <= threshold
     }
@@ -105,10 +99,8 @@ impl Pt2D {
         Pt2D::new(x / len, y / len)
     }
 
-    // Temporary until Pt2D has proper resolution.
+    /// Deduplicate adjacent points within some threshold
     pub fn approx_dedupe(pts: Vec<Pt2D>, threshold: Distance) -> Vec<Pt2D> {
-        // Just use dedup() on the Vec.
-        assert_ne!(threshold, EPSILON_DIST);
         let mut result: Vec<Pt2D> = Vec::new();
         for pt in pts {
             if result.is_empty() || !result.last().unwrap().approx_eq(pt, threshold) {

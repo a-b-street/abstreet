@@ -211,6 +211,21 @@ mod tests {
         assert!(exactly_eq(input, bincode_roundtrip));
     }
 
+    #[test]
+    fn dist_matters() {
+        // Manually construct an adjacent point with the trimming
+        let pt1 = Pt2D::new(1.00005, 0.0);
+        assert_eq!("{\"x\":10001,\"y\":0}", serde_json::to_string(&pt1).unwrap());
+        let pt2 = Pt2D::new(1.00015, 0.0);
+        assert_eq!("{\"x\":10002,\"y\":0}", serde_json::to_string(&pt2).unwrap());
+        assert!(pt1 != pt2);
+        let dist = pt1.dist_to(pt2);
+        assert_eq!(dist, Distance::meters(0.0001));
+
+        let line = Line::must_new(pt1, pt2);
+        assert_eq!(line.length(), Distance::meters(0.0001));
+    }
+
     // Don't use the PartialEq implementation, which does an epsilon check
     fn exactly_eq(pt1: Pt2D, pt2: Pt2D) -> bool {
         pt1.x() == pt2.x() && pt1.y() == pt2.y()

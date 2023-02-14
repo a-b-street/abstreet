@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     Angle, Bounds, Circle, Distance, GPSBounds, HashablePt2D, InfiniteLine, Line, LonLat, Polygon,
-    Pt2D, Ring, Tessellation, EPSILON_DIST,
+    Pt2D, Ring, Tessellation
 };
 
 // TODO How to tune this?
@@ -102,7 +102,7 @@ impl PolyLine {
         self_width: Distance,
         boundary_width: Distance,
     ) -> Option<Tessellation> {
-        if self_width <= boundary_width || self.length() <= boundary_width + EPSILON_DIST {
+        if self_width <= boundary_width || self.length() <= boundary_width {
             return None;
         }
         // TODO exact_slice() used to work fine here, but the SUMO montlake map triggers a problem
@@ -261,7 +261,7 @@ impl PolyLine {
                 self.length()
             );
         }
-        if end - start < EPSILON_DIST {
+        if start == end {
             bail!(
                 "Can't get a polyline slice [{}, {}] -- too small",
                 start,
@@ -332,7 +332,7 @@ impl PolyLine {
         let (pl, leftover) = self
             .slice(start, end)
             .with_context(|| format!("exact_slice({}, {}) yielded empty slice", start, end))?;
-        if leftover > EPSILON_DIST {
+        if leftover > Distance::ZERO {
             bail!(
                 "exact_slice({}, {}) on a PL of length {} yielded leftover distance of {}",
                 start,
@@ -364,16 +364,12 @@ impl PolyLine {
         }
 
         let mut dist_left = dist_along;
-        for (idx, l) in self.lines().enumerate() {
+        for l in self.lines() {
             let length = l.length();
-            let epsilon = if idx == self.pts.len() - 2 {
-                EPSILON_DIST
-            } else {
-                Distance::ZERO
-            };
-            if dist_left <= length + epsilon {
+            if dist_left <= length {
                 // Floating point errors means sometimes we ask for something slightly longer than
                 // the line
+                // TODO Revisit if dist_along clamps
                 let dist = l.dist_along(dist_left).unwrap_or_else(|_| l.pt2());
                 return Ok((dist, l.angle()));
             }
@@ -628,7 +624,7 @@ impl PolyLine {
         dash_len: Distance,
         dash_separation: Distance,
     ) -> Vec<Polygon> {
-        if self.length() <= dash_separation * 2.0 + EPSILON_DIST {
+        if self.length() <= dash_separation {
             return vec![self.make_polygons(width)];
         }
         self.exact_slice(dash_separation, self.length() - dash_separation)
@@ -686,7 +682,7 @@ impl PolyLine {
         let head_size = thickness * 2.0;
         let triangle_height = head_size / 2.0_f64.sqrt();
 
-        if self.length() < triangle_height * 2.0 + EPSILON_DIST {
+        if self.length() < triangle_height {
             // Just give up and make the thick line.
             return self.make_polygons(thickness);
         }

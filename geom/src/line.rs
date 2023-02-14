@@ -3,7 +3,7 @@ use std::fmt;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::{Angle, Distance, PolyLine, Polygon, Pt2D, EPSILON_DIST};
+use crate::{Angle, Distance, PolyLine, Polygon, Pt2D};
 
 /// A line segment.
 // TODO Rename?
@@ -13,8 +13,8 @@ pub struct Line(Pt2D, Pt2D);
 impl Line {
     /// Creates a line segment between two points, which must not be the same
     pub fn new(pt1: Pt2D, pt2: Pt2D) -> Result<Line> {
-        if pt1.dist_to(pt2) <= EPSILON_DIST {
-            bail!("Line from {:?} to {:?} too small", pt1, pt2);
+        if pt1 == pt2 {
+            bail!("Degenerate line at one point {pt1}");
         }
         Ok(Line(pt1, pt2))
     }
@@ -204,11 +204,13 @@ impl Line {
     }
 
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<Distance> {
-        let dist1 = self.pt1().raw_dist_to(pt);
-        let dist2 = pt.raw_dist_to(self.pt2());
-        let length = self.pt1().raw_dist_to(self.pt2());
-        if (dist1 + dist2 - length).abs() < EPSILON_DIST.inner_meters() {
-            Some(Distance::meters(dist1))
+        let dist1 = self.pt1().dist_to(pt);
+        let dist2 = pt.dist_to(self.pt2());
+        // TODO Maybe this is too strict, and we should use
+        // https://docs.rs/geo/latest/geo/algorithm/line_locate_point/trait.LineLocatePoint.html
+        // and trust the caller passes in something that's meant to be on the line
+        if dist1 + dist2 == self.length() {
+            Some(dist1)
         } else {
             None
         }
