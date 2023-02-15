@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use abstutil::{MultiMap, Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D, Ring};
 use osm2streets::osm::{OsmID, RelationID, WayID};
-use osm2streets::{osm, DrivingSide, NamePerLanguage};
+use osm2streets::{osm, NamePerLanguage};
 use raw_map::{Amenity, AreaType, CrossingType, RawArea, RawBuilding, RawMap, RawParkingLot};
 
 use crate::Options;
@@ -47,13 +47,7 @@ pub fn extract_osm(
         // No need to clip the Document in this case.
     }
 
-    // Calculate DrivingSide from some arbitrary point
-    map.streets.config.driving_side =
-        if driving_side::is_left_handed(map.streets.gps_bounds.get_rectangle()[0].into()) {
-            DrivingSide::Left
-        } else {
-            DrivingSide::Right
-        };
+    streets_reader::detect_country_code(&mut map.streets);
 
     let mut out = OsmExtract::new();
     let mut amenity_points = Vec::new();

@@ -707,7 +707,6 @@ dependencies = [
  "abstutil",
  "anyhow",
  "csv",
- "driving-side",
  "fs-err",
  "geom",
  "kml",
@@ -800,6 +799,16 @@ dependencies = [
  "bitfield",
  "embedded-hal",
  "volatile-register",
+]
+
+[[package]]
+name = "country-geocoder"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/country-geocoder#a71c0e3f925c4824b55cc90e8c0f234baf1ca285"
+dependencies = [
+ "geo",
+ "geojson",
+ "serde",
 ]
 
 [[package]]
@@ -1180,15 +1189,6 @@ name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
-
-[[package]]
-name = "driving-side"
-version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#e97599d62a45d63c12708a6ac53967fdf43d64b9"
-dependencies = [
- "geo",
- "geojson",
-]
 
 [[package]]
 name = "dwrote"
@@ -3247,7 +3247,7 @@ checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
 [[package]]
 name = "osm-tag-schemes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#e97599d62a45d63c12708a6ac53967fdf43d64b9"
+source = "git+https://github.com/a-b-street/osm2lanes#1a6c8d23215dc589614baf2994e2c419c5761546"
 dependencies = [
  "osm-tags",
  "strum",
@@ -3256,7 +3256,7 @@ dependencies = [
 [[package]]
 name = "osm-tags"
 version = "0.1.1"
-source = "git+https://github.com/a-b-street/osm2lanes#e97599d62a45d63c12708a6ac53967fdf43d64b9"
+source = "git+https://github.com/a-b-street/osm2lanes#1a6c8d23215dc589614baf2994e2c419c5761546"
 dependencies = [
  "kstring",
 ]
@@ -3264,7 +3264,7 @@ dependencies = [
 [[package]]
 name = "osm2lanes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#e97599d62a45d63c12708a6ac53967fdf43d64b9"
+source = "git+https://github.com/a-b-street/osm2lanes#1a6c8d23215dc589614baf2994e2c419c5761546"
 dependencies = [
  "celes",
  "locale-codes",
@@ -3276,11 +3276,13 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#d222c5f0074c007b24dc534b15749b866728e91f"
+source = "git+https://github.com/a-b-street/osm2streets#687ee0e63b63952d3399e66a5d731fa1f0c6b1cd"
 dependencies = [
  "abstutil",
  "anyhow",
+ "enumset",
  "geo",
+ "geojson",
  "geom",
  "itertools",
  "log",
@@ -4329,11 +4331,11 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#d222c5f0074c007b24dc534b15749b866728e91f"
+source = "git+https://github.com/a-b-street/osm2streets#687ee0e63b63952d3399e66a5d731fa1f0c6b1cd"
 dependencies = [
  "abstutil",
  "anyhow",
- "driving-side",
+ "country-geocoder",
  "geom",
  "log",
  "osm2streets",

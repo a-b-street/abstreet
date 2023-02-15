@@ -22,6 +22,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         map_config: osm2streets::MapConfig {
             // osm2streets will set this anyway, it doesn't matter here
             driving_side: DrivingSide::Right,
+            country_code: String::new(),
             bikes_can_use_bus_lanes: name.city.country != "pl",
             inferred_sidewalks: name.city.country != "pl",
             street_parking_spot_length: if name.city == CityName::new("ca", "montreal") {

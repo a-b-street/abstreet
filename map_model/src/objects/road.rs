@@ -206,7 +206,7 @@ impl Road {
                 dir: l.dir,
                 width: l.width,
                 // TODO These get lost from osm2streets
-                turn_restrictions: Vec::new(),
+                allowed_turns: Default::default(),
             })
             .collect()
     }
