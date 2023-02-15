@@ -18,7 +18,6 @@ use map_model::RawToMapOptions;
 use self::configuration::{load_configuration, ImporterConfiguration};
 pub use self::pick_geofabrik::pick_geofabrik;
 
-mod basemap;
 mod berlin;
 mod configuration;
 mod map_config;
@@ -245,17 +244,6 @@ impl Job {
                         "distribute residents from planning areas for {}",
                         name.describe()
                     ));
-
-                    map.save();
-                }
-
-                if name == MapName::new("br", "sao_paulo", "sao_miguel_paulista") {
-                    basemap::override_sidewalk_widths(
-                        &mut map,
-                        abstio::path("system/proposals/smp_sidewalk_basemap.json"),
-                        timer,
-                    )
-                    .unwrap();
 
                     map.save();
                 }
