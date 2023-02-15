@@ -19,7 +19,8 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
     fs_err::create_dir_all(Path::new(&output).parent().unwrap())
         .expect("Creating parent dir failed");
 
-    let tmp = "tmp_output";
+    let tmp_file = format!("{output}_TMP");
+    let tmp = &tmp_file;
     println!("- Missing {}, so downloading {}", output, url);
     abstio::download_to_file(url, None, tmp).await.unwrap();
 
@@ -66,7 +67,8 @@ pub async fn download_kml(
     fs_err::create_dir_all(Path::new(&output).parent().unwrap())
         .expect("Creating parent dir failed");
 
-    let tmp = "tmp_output";
+    let tmp_file = format!("{output}_TMP");
+    let tmp = &tmp_file;
     if Path::new(&output.replace(".bin", ".kml")).exists() {
         fs_err::copy(output.replace(".bin", ".kml"), tmp).unwrap();
     } else {
@@ -129,19 +131,9 @@ pub async fn osm_to_raw(
         "importer/config/{}/{}/{}.geojson",
         name.city.country, name.city.city, name.map
     );
-    let osm_url = crate::pick_geofabrik(boundary_polygon.clone())
+    let (osm_url, local_osm_file) = crate::pick_geofabrik(boundary_polygon.clone())
         .await
         .unwrap();
-
-    let local_osm_file = name.city.input_path(format!(
-        "osm/{}",
-        std::path::Path::new(&osm_url)
-            .file_name()
-            .unwrap()
-            .to_os_string()
-            .into_string()
-            .unwrap()
-    ));
     download(config, local_osm_file.clone(), &osm_url).await;
 
     osmium(

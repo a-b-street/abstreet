@@ -7,8 +7,8 @@ use geojson::GeoJson;
 use abstutil::Timer;
 
 /// Given the path to a GeoJSON boundary polygon, return the URL of the smallest Geofabrik osm.pbf
-/// file that completely covers the boundary.
-pub async fn pick_geofabrik(input: String) -> Result<String> {
+/// file that completely covers the boundary, and the path to where the local copy should go.
+pub async fn pick_geofabrik(input: String) -> Result<(String, String)> {
     let boundary = load_boundary(input)?;
 
     let geofabrik_idx = load_remote_geojson(
@@ -23,7 +23,15 @@ pub async fn pick_geofabrik(input: String) -> Result<String> {
         .into_iter()
         .min_by_key(|(mp, _)| mp.unsigned_area() as usize)
         .unwrap();
-    Ok(url)
+
+    // Contains some directory structure, like north-america/us/wyoming-latest.osm.pbf or
+    // asia/yemen-latest.osm.pbf
+    let basename = url
+        .strip_prefix("https://download.geofabrik.de/")
+        .expect("Geofabrik URLs changed");
+    let local = abstio::path_shared_input(format!("geofabrik/{basename}"));
+
+    Ok((url, local))
 }
 
 fn load_boundary(path: String) -> Result<geo::Polygon> {

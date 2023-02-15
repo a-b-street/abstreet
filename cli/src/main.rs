@@ -272,7 +272,7 @@ async fn main() -> Result<()> {
             output,
         } => generate_houses::run(map, num_required, rng_seed, output),
         Command::PickGeofabrik { input } => {
-            println!("{}", importer::pick_geofabrik(input).await?)
+            println!("{}", importer::pick_geofabrik(input).await?.0)
         }
         Command::OneStepImport {
             geojson_path,
