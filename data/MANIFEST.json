@@ -1570,6 +1570,11 @@
       "uncompressed_size_bytes": 14323905,
       "compressed_size_bytes": 3935475
     },
+    "data/input/us/lynnwood/raw_maps/hazelwood.bin": {
+      "checksum": "fa1e4f46f138e3b3de2612afcd7bf4d5",
+      "uncompressed_size_bytes": 722052,
+      "compressed_size_bytes": 198116
+    },
     "data/input/us/milwaukee/raw_maps/downtown.bin": {
       "checksum": "cf0c2b28afde18c1139633c15b029554",
       "uncompressed_size_bytes": 13417740,
@@ -3994,6 +3999,11 @@
       "checksum": "b94a1a29e1631155a46948d32e93311b",
       "uncompressed_size_bytes": 52696064,
       "compressed_size_bytes": 20592427
+    },
+    "data/system/us/lynnwood/maps/hazelwood.bin": {
+      "checksum": "2cb9a3dc89c8f03d2e71cb88b73aec2b",
+      "uncompressed_size_bytes": 2981346,
+      "compressed_size_bytes": 1163018
     },
     "data/system/us/milwaukee/maps/downtown.bin": {
       "checksum": "b63a6cffe983219ba8b0026dec5249ca",

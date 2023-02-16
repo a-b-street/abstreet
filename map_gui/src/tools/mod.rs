@@ -286,6 +286,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("bellevue", "huge") => "Bellevue",
             ("beltsville", "i495") => "I-495 in Beltsville, MD",
             ("detroit", "downtown") => "Detroit",
+            ("lynnwood", "hazelwood") => "Lynnwood, WA",
             ("milwaukee", "downtown") => "Downtown Milwaukee",
             ("milwaukee", "oak_creek") => "Oak Creek",
             ("mt_vernon", "burlington") => "Burlington",
