@@ -1095,11 +1095,6 @@
       "uncompressed_size_bytes": 14662057,
       "compressed_size_bytes": 3799783
     },
-    "data/input/pt/lisbon/raw_maps/huge.bin": {
-      "checksum": "75bb8e5c944a93d7007fc75c947a21fe",
-      "uncompressed_size_bytes": 41711849,
-      "compressed_size_bytes": 11365803
-    },
     "data/input/sg/jurong/raw_maps/center.bin": {
       "checksum": "aab8776f3dded8d5374711612346a119",
       "uncompressed_size_bytes": 17710665,
@@ -3960,20 +3955,10 @@
       "uncompressed_size_bytes": 115127850,
       "compressed_size_bytes": 38103381
     },
-    "data/system/pt/lisbon/city.bin": {
-      "checksum": "14a6188ce8c68a5f1fd8ea0eff97dcb3",
-      "uncompressed_size_bytes": 273883,
-      "compressed_size_bytes": 127896
-    },
     "data/system/pt/lisbon/maps/center.bin": {
       "checksum": "eaadf857421f25be0af31f6e3ed72200",
       "uncompressed_size_bytes": 35225402,
       "compressed_size_bytes": 12762377
-    },
-    "data/system/pt/lisbon/maps/huge.bin": {
-      "checksum": "324dd0532a0bd99c4acedc1dbcd23275",
-      "uncompressed_size_bytes": 103692030,
-      "compressed_size_bytes": 38992374
     },
     "data/system/sg/jurong/maps/center.bin": {
       "checksum": "ea212d3964172e0ad099ef1aecd065d3",

@@ -269,7 +269,6 @@ pub fn nice_map_name(name: &MapName) -> &str {
             _ => &name.map,
         },
         "pt" => match (name.city.city.as_ref(), name.map.as_ref()) {
-            ("lisbon", "huge") => "Lisbon (entire area)",
             ("lisbon", "center") => "Lisbon (city center)",
             _ => &name.map,
         },
