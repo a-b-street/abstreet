@@ -351,18 +351,28 @@ pub fn nice_country_name(code: &str) -> &str {
 
 /// Returns the path to an executable. Native-only.
 pub fn find_exe(cmd: &str) -> String {
-    for dir in [
+    let mut directories = Vec::new();
+    // Some cargo configurations explicitly use a platform-specific directory
+    for arch in ["x86_64-unknown-linux-gnu", ""] {
         // When running from source, prefer release builds, but fallback to debug. This might be
         // confusing when developing and not recompiling in release mode.
-        "./target/release",
-        "../target/release",
-        "../../target/release",
-        "./target/debug",
-        "../target/debug",
-        "../../target/debug",
-        // When running from the .zip release
-        ".",
-    ] {
+        for mode in ["release", "debug"] {
+            for relative_dir in [".", "..", "../.."] {
+                directories.push(
+                    std::path::Path::new(relative_dir)
+                        .join("target")
+                        .join(arch)
+                        .join(mode)
+                        .display()
+                        .to_string(),
+                );
+            }
+        }
+    }
+    // When running from the .zip release
+    directories.push(".".to_string());
+
+    for dir in directories {
         // Apparently std::path on Windows doesn't do any of this correction. We could build up a
         // PathBuf properly, I guess
         let path = if cfg!(windows) {
