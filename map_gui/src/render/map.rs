@@ -307,7 +307,7 @@ impl DrawMap {
                     unzoomed_pieces.push((
                         zorder + outline_z_offset,
                         outline_color.into(),
-                        pl.make_polygons(0.5 * outline_thickness).into(),
+                        pl.make_polygons(outline_thickness).into(),
                     ));
                 }
             }
