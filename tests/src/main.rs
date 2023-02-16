@@ -216,7 +216,7 @@ fn test_blockfinding() -> Result<()> {
 
     for name in vec![
         MapName::seattle("montlake"),
-        //MapName::seattle("downtown"),
+        MapName::seattle("downtown"),
         MapName::seattle("lakeslice"),
         MapName::new("us", "phoenix", "tempe"),
         MapName::new("gb", "bristol", "east"),
@@ -224,8 +224,8 @@ fn test_blockfinding() -> Result<()> {
         MapName::new("gb", "london", "camden"),
         MapName::new("gb", "london", "southwark"),
         MapName::new("gb", "manchester", "levenshulme"),
-        //MapName::new("fr", "lyon", "center"),
-        //MapName::new("us", "seattle", "north_seattle"),
+        MapName::new("fr", "lyon", "center"),
+        MapName::new("us", "seattle", "north_seattle"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let mut single_blocks =

@@ -84,6 +84,13 @@ impl Perimeter {
                 roads.push(start_road_side);
                 break;
             }
+
+            if roads.len() > map.all_roads().len() {
+                bail!(
+                    "Infinite loop starting from {start} ({})",
+                    map.get_parent(start).orig_id
+                );
+            }
         }
         assert_eq!(roads[0], *roads.last().unwrap());
         Ok(Perimeter {
