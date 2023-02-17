@@ -163,154 +163,146 @@ impl Perimeter {
         self.roads.push(self.roads[0]);
     }
 
-    /// Try to merge two blocks. Returns true if this is successful, which will only be when the
-    /// blocks are adjacent, but the merge wouldn't create an interior "hole".
+    /// Try to merge two blocks. This'll only succeed when the blocks are adjacent, but the merge
+    /// wouldn't create an interior "hole".
     ///
-    /// Note this may modify both perimeters and still return `false`. The modification is just to
-    /// rotate the order of the road loop; this doesn't logically change the perimeter.
-    ///
-    /// TODO Due to https://github.com/a-b-street/abstreet/issues/841, it seems like rotation
-    /// sometimes breaks `to_block`, so for now, always revert to the original upon failure.
-    // TODO Would it be cleaner to return a Result here and always restore the invariant?
+    /// Note this always modifies both perimeters, even upon failure. The caller should copy the
+    /// input and only use the output upon success.
     fn try_to_merge(
         &mut self,
         map: &Map,
         other: &mut Perimeter,
         debug_failures: bool,
         use_expensive_blockfinding: bool,
-    ) -> bool {
-        let orig_self = self.clone();
-        let orig_other = other.clone();
+    ) -> Result<()> {
+        for reverse_to_fix_winding_order in [false, true] {
+            self.undo_invariant();
+            other.undo_invariant();
 
-        self.undo_invariant();
-        other.undo_invariant();
-
-        // Calculate common roads
-        let roads1: HashSet<RoadID> = self.roads.iter().map(|id| id.road).collect();
-        let roads2: HashSet<RoadID> = other.roads.iter().map(|id| id.road).collect();
-        let common: HashSet<RoadID> = roads1.intersection(&roads2).cloned().collect();
-        if common.is_empty() {
-            if debug_failures {
-                warn!("No common roads");
-            }
-            *self = orig_self;
-            *other = orig_other;
-            return false;
-        }
-
-        // "Rotate" the order of roads, so that all of the overlapping roads are at the end of the
-        // list. If the entire perimeter is surrounded by the other, then no rotation needed.
-        if self.roads.len() != common.len() {
-            while common.contains(&self.roads[0].road)
-                || !common.contains(&self.roads.last().unwrap().road)
-            {
-                self.roads.rotate_left(1);
-            }
-        }
-        // Same thing with the other
-        if other.roads.len() != common.len() {
-            while common.contains(&other.roads[0].road)
-                || !common.contains(&other.roads.last().unwrap().road)
-            {
-                other.roads.rotate_left(1);
-            }
-        }
-
-        if debug_failures {
-            println!("\nCommon: {:?}\n{:?}\n{:?}", common, self, other);
-        }
-
-        if self.reverse_to_fix_winding_order(map, other) {
-            // Revert, reverse one, and try again. This should never recurse.
-            self.restore_invariant();
-            other.restore_invariant();
-            self.roads.reverse();
-            return self.try_to_merge(map, other, debug_failures, use_expensive_blockfinding);
-        }
-
-        // Check if all of the common roads are at the end of each perimeter,
-        // so we can "blindly" do this snipping. If this isn't true, then the overlapping portions
-        // are split by non-overlapping roads. This happens when merging the two blocks would
-        // result in a "hole."
-        let mut ok = true;
-        for id in self.roads.iter().rev().take(common.len()) {
-            if !common.contains(&id.road) {
+            // Calculate common roads
+            let roads1: HashSet<RoadID> = self.roads.iter().map(|id| id.road).collect();
+            let roads2: HashSet<RoadID> = other.roads.iter().map(|id| id.road).collect();
+            let common: HashSet<RoadID> = roads1.intersection(&roads2).cloned().collect();
+            if common.is_empty() {
                 if debug_failures {
-                    warn!(
+                    warn!("No common roads");
+                }
+                bail!("No common roads");
+            }
+
+            // "Rotate" the order of roads, so that all of the overlapping roads are at the end of the
+            // list. If the entire perimeter is surrounded by the other, then no rotation needed.
+            if self.roads.len() != common.len() {
+                while common.contains(&self.roads[0].road)
+                    || !common.contains(&self.roads.last().unwrap().road)
+                {
+                    self.roads.rotate_left(1);
+                }
+            }
+            // Same thing with the other
+            if other.roads.len() != common.len() {
+                while common.contains(&other.roads[0].road)
+                    || !common.contains(&other.roads.last().unwrap().road)
+                {
+                    other.roads.rotate_left(1);
+                }
+            }
+
+            if debug_failures {
+                println!("\nCommon: {:?}\n{:?}\n{:?}", common, self, other);
+            }
+
+            if !reverse_to_fix_winding_order && self.reverse_to_fix_winding_order(map, other) {
+                // Revert, reverse one, and try again.
+                self.restore_invariant();
+                other.restore_invariant();
+                self.roads.reverse();
+                continue;
+            }
+
+            // Check if all of the common roads are at the end of each perimeter, so we can
+            // "blindly" do this snipping. If this isn't true, then the overlapping portions are
+            // split by non-overlapping roads. This happens when merging the two blocks would
+            // result in a "hole."
+            for id in self.roads.iter().rev().take(common.len()) {
+                if !common.contains(&id.road) {
+                    if debug_failures {
+                        warn!(
+                            "The common roads on the first aren't consecutive, near {:?}",
+                            id
+                        );
+                    }
+                    bail!(
                         "The common roads on the first aren't consecutive, near {:?}",
                         id
                     );
                 }
-                ok = false;
-                break;
             }
-        }
-        for id in other.roads.iter().rev().take(common.len()) {
-            if !common.contains(&id.road) {
-                if debug_failures {
-                    warn!(
-                        "The common roads on the second aren't consecutive, near {:?}",
+            for id in other.roads.iter().rev().take(common.len()) {
+                if !common.contains(&id.road) {
+                    if debug_failures {
+                        warn!(
+                            "The common roads on the second aren't consecutive, near {:?}",
+                            id
+                        );
+                    }
+                    bail!(
+                        "The common roads on the first aren't consecutive, near {:?}",
                         id
                     );
                 }
-                ok = false;
-                break;
             }
-        }
-        if !ok {
-            *self = orig_self;
-            *other = orig_other;
-            return false;
-        }
 
-        // Very straightforward snipping now
-        for _ in 0..common.len() {
-            self.roads.pop().unwrap();
-            other.roads.pop().unwrap();
-        }
-
-        // This order assumes everything is clockwise to start with.
-        self.roads.append(&mut other.roads);
-
-        // TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
-        if self.roads.is_empty() {
-            if debug_failures {
-                warn!("Two perimeters had every road in common: {:?}", common);
+            // Very straightforward snipping now
+            for _ in 0..common.len() {
+                self.roads.pop().unwrap();
+                other.roads.pop().unwrap();
             }
-            *self = orig_self;
-            *other = orig_other;
-            return false;
+
+            // This order assumes everything is clockwise to start with.
+            self.roads.append(&mut other.roads);
+
+            // TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
+            if self.roads.is_empty() {
+                if debug_failures {
+                    warn!("Two perimeters had every road in common: {:?}", common);
+                }
+                bail!("Two perimeters had every road in common: {:?}", common);
+            }
+
+            self.interior.extend(common);
+            self.interior.append(&mut other.interior);
+
+            // Restore the first=last invariant
+            self.restore_invariant();
+
+            // Make sure we didn't wind up with any internal dead-ends
+            self.collapse_deadends();
+
+            // TODO Something in this method is buggy and produces invalid merges.
+            // https://github.com/a-b-street/abstreet/issues/841
+            // First try a lightweight detection for problems. If the caller detects the net result
+            // is invalid, they'll override this flag and try again.
+            let err = if use_expensive_blockfinding {
+                self.clone().to_block(map).err()
+            } else {
+                self.check_continuity(map).err()
+            };
+            if let Some(err) = err {
+                debug!(
+                    "A merged perimeter couldn't be blockified: {}. {:?}",
+                    err, self
+                );
+                bail!(
+                    "A merged perimeter couldn't be blockified: {}. {:?}",
+                    err,
+                    self
+                );
+            }
+
+            return Ok(());
         }
-
-        self.interior.extend(common);
-        self.interior.append(&mut other.interior);
-
-        // Restore the first=last invariant
-        self.restore_invariant();
-
-        // Make sure we didn't wind up with any internal dead-ends
-        self.collapse_deadends();
-
-        // TODO Something in this method is buggy and produces invalid merges.
-        // https://github.com/a-b-street/abstreet/issues/841
-        // First try a lightweight detection for problems. If the caller detects the net result is
-        // invalid, they'll override this flag and try again.
-        let err = if use_expensive_blockfinding {
-            self.clone().to_block(map).err()
-        } else {
-            self.check_continuity(map).err()
-        };
-        if let Some(err) = err {
-            debug!(
-                "A merged perimeter couldn't be blockified: {}. {:?}",
-                err, self
-            );
-            *self = orig_self;
-            *other = orig_other;
-            return false;
-        }
-
-        true
+        unreachable!()
     }
 
     fn check_continuity(&self, map: &Map) -> Result<()> {
@@ -384,19 +376,26 @@ impl Perimeter {
             let mut debug = false;
             let mut results: Vec<Perimeter> = Vec::new();
             let num_input = input.len();
-            'INPUT: for mut perimeter in input {
+            'INPUT: for perimeter in input {
                 if debug {
                     results.push(perimeter);
                     continue;
                 }
 
                 for other in &mut results {
-                    if other.try_to_merge(
+                    // TODO Due to https://github.com/a-b-street/abstreet/issues/841, it seems like
+                    // rotation sometimes breaks `to_block`, so for now, always revert to the
+                    // original upon failure.
+                    let mut copy_a = other.clone();
+                    let mut copy_b = perimeter.clone();
+                    if let Ok(()) = copy_a.try_to_merge(
                         map,
-                        &mut perimeter,
+                        &mut copy_b,
                         stepwise_debug,
                         use_expensive_blockfinding,
                     ) {
+                        *other = copy_a;
+
                         // To debug, return after any single change
                         debug = stepwise_debug;
                         continue 'INPUT;
