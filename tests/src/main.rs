@@ -246,9 +246,7 @@ fn test_blockfinding() -> Result<()> {
         let mut merged = Vec::new();
         for perimeters in partitions {
             let stepwise_debug = false;
-            let use_expensive_blockfinding = false;
-            let newly_merged =
-                Perimeter::merge_all(&map, perimeters, stepwise_debug, use_expensive_blockfinding);
+            let newly_merged = Perimeter::merge_all(&map, perimeters, stepwise_debug);
             if newly_merged.len() > 1 {
                 num_partial_merges += 1;
             }
@@ -258,7 +256,7 @@ fn test_blockfinding() -> Result<()> {
         let mut num_merged_block_failures = 0;
         for perimeter in merged {
             if perimeter.to_block(&map).is_err() {
-                // Note this means the LTN UI will fallback to use_expensive_blockfinding = true
+                // Note this would break LTN tool!
                 num_merged_block_failures += 1;
             }
         }

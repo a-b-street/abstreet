@@ -169,7 +169,6 @@ impl Perimeter {
         map: &Map,
         other: &mut Perimeter,
         debug_failures: bool,
-        use_expensive_blockfinding: bool,
     ) -> Result<()> {
         for reverse_to_fix_winding_order in [false, true] {
             self.undo_invariant();
@@ -295,16 +294,7 @@ impl Perimeter {
             // Make sure we didn't wind up with any internal dead-ends
             self.collapse_deadends();
 
-            // TODO Something in this method is buggy and produces invalid merges.
-            // https://github.com/a-b-street/abstreet/issues/841
-            // First try a lightweight detection for problems. If the caller detects the net result
-            // is invalid, they'll override this flag and try again.
-            let err = if use_expensive_blockfinding {
-                self.clone().to_block(map).err()
-            } else {
-                self.check_continuity(map).err()
-            };
-            if let Some(err) = err {
+            if let Err(err) = self.check_continuity(map) {
                 debug!(
                     "A merged perimeter couldn't be blockified: {}. {:?}",
                     err, self
@@ -376,12 +366,7 @@ impl Perimeter {
     /// Try to merge all given perimeters. If successful, only one perimeter will be returned.
     /// Perimeters are never "destroyed" -- if not merged, they'll appear in the results. If
     /// `stepwise_debug` is true, returns after performing just one merge.
-    pub fn merge_all(
-        map: &Map,
-        mut input: Vec<Perimeter>,
-        stepwise_debug: bool,
-        use_expensive_blockfinding: bool,
-    ) -> Vec<Perimeter> {
+    pub fn merge_all(map: &Map, mut input: Vec<Perimeter>, stepwise_debug: bool) -> Vec<Perimeter> {
         // Internal dead-ends break merging, so first collapse of those. Do this before even
         // looking for neighbors, since find_common_roads doesn't understand dead-ends.
         for p in &mut input {
@@ -404,12 +389,7 @@ impl Perimeter {
                     // original upon failure.
                     let mut copy_a = other.clone();
                     let mut copy_b = perimeter.clone();
-                    if let Ok(()) = copy_a.try_to_merge(
-                        map,
-                        &mut copy_b,
-                        stepwise_debug,
-                        use_expensive_blockfinding,
-                    ) {
+                    if let Ok(()) = copy_a.try_to_merge(map, &mut copy_b, stepwise_debug) {
                         *other = copy_a;
 
                         // To debug, return after any single change
@@ -723,13 +703,7 @@ impl Perimeter {
                 let perim2 = perims.remove(idx1);
 
                 let stepwise_debug = false;
-                let use_expensive_blockfinding = false;
-                perims.extend(Self::merge_all(
-                    map,
-                    vec![perim1, perim2],
-                    stepwise_debug,
-                    use_expensive_blockfinding,
-                ));
+                perims.extend(Self::merge_all(map, vec![perim1, perim2], stepwise_debug));
             }
 
             if perims.len() == num_before {

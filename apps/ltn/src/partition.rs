@@ -33,7 +33,7 @@ pub struct Partitioning {
     // Invariant: This is a surjection, every block belongs to exactly one neighbourhood
     block_to_neighbourhood: BTreeMap<BlockID, NeighbourhoodID>,
 
-    use_expensive_blockfinding: bool,
+    // TODO Possibly this never happens anymore and can go away
     pub broken: bool,
 
     #[serde(skip_serializing, skip_deserializing)]
@@ -87,7 +87,6 @@ impl Partitioning {
 
             block_to_neighbourhood: BTreeMap::new(),
 
-            use_expensive_blockfinding: false,
             broken: false,
             custom_boundaries: BTreeMap::new(),
         }
@@ -98,106 +97,87 @@ impl Partitioning {
     }
 
     pub fn seed_using_heuristics(map: &Map, timer: &mut Timer) -> Partitioning {
-        // Try the easy thing first, but then give up
-        'METHOD: for use_expensive_blockfinding in [false, true] {
-            timer.start("find single blocks");
-            let mut single_blocks = Vec::new();
-            let mut single_block_perims = Vec::new();
+        timer.start("find single blocks");
+        let mut single_blocks = Vec::new();
+        let mut single_block_perims = Vec::new();
 
-            // Merge holes upfront. Otherwise, it's usually impossible to expand a boundary with a
-            // block containing a hole. Plus, there's no known scenario when somebody would want to
-            // make a neighbourhood boundary involve a hole.
-            let input = Perimeter::merge_holes(map, Perimeter::find_all_single_blocks(map));
-            for mut perim in input {
-                // TODO Some perimeters don't blockify after collapsing dead-ends. So do this
-                // upfront, and separately work on any blocks that don't show up.
-                // https://github.com/a-b-street/abstreet/issues/841
-                perim.collapse_deadends();
-                if let Ok(block) = perim.to_block(map) {
-                    single_block_perims.push(block.perimeter.clone());
-                    single_blocks.push(block);
+        // Merge holes upfront. Otherwise, it's usually impossible to expand a boundary with a
+        // block containing a hole. Plus, there's no known scenario when somebody would want to
+        // make a neighbourhood boundary involve a hole.
+        let input = Perimeter::merge_holes(map, Perimeter::find_all_single_blocks(map));
+        for mut perim in input {
+            // TODO Some perimeters don't blockify after collapsing dead-ends. So do this
+            // upfront, and separately work on any blocks that don't show up.
+            // https://github.com/a-b-street/abstreet/issues/841
+            perim.collapse_deadends();
+            if let Ok(block) = perim.to_block(map) {
+                single_block_perims.push(block.perimeter.clone());
+                single_blocks.push(block);
+            }
+        }
+        timer.stop("find single blocks");
+
+        timer.start("partition");
+        let partitions = Perimeter::partition_by_predicate(single_block_perims, |r| {
+            // "Interior" roads of a neighbourhood aren't classified as arterial
+            map.get_r(r).get_rank() == RoadRank::Local
+        });
+
+        let mut merged = Vec::new();
+        for perimeters in partitions {
+            // If we got more than one result back, merging partially failed. Oh well?
+            let stepwise_debug = false;
+            merged.extend(Perimeter::merge_all(map, perimeters, stepwise_debug));
+        }
+        timer.stop("partition");
+
+        timer.start_iter("blockify", merged.len());
+        let mut blocks = Vec::new();
+        for perimeter in merged {
+            timer.next();
+            match perimeter.to_block(map) {
+                Ok(block) => {
+                    blocks.push(block);
+                }
+                Err(err) => {
+                    warn!("Failed to make a block from a merged perimeter: {}", err);
                 }
             }
-            timer.stop("find single blocks");
+        }
 
-            timer.start("partition");
-            let partitions = Perimeter::partition_by_predicate(single_block_perims, |r| {
-                // "Interior" roads of a neighbourhood aren't classified as arterial
-                map.get_r(r).get_rank() == RoadRank::Local
-            });
+        let mut neighbourhoods = BTreeMap::new();
+        for block in blocks {
+            neighbourhoods.insert(
+                NeighbourhoodID(neighbourhoods.len()),
+                NeighbourhoodInfo::new(map, block),
+            );
+        }
+        let neighbourhood_id_counter = neighbourhoods.len();
+        let mut p = Partitioning {
+            map: map.get_name().clone(),
+            neighbourhoods,
+            single_blocks,
 
-            let mut merged = Vec::new();
-            for perimeters in partitions {
-                // If we got more than one result back, merging partially failed. Oh well?
-                let stepwise_debug = false;
-                merged.extend(Perimeter::merge_all(
-                    map,
-                    perimeters,
-                    stepwise_debug,
-                    use_expensive_blockfinding,
-                ));
-            }
-            timer.stop("partition");
+            neighbourhood_id_counter,
+            block_to_neighbourhood: BTreeMap::new(),
+            broken: false,
+            custom_boundaries: BTreeMap::new(),
+        };
 
-            timer.start_iter("blockify", merged.len());
-            let mut blocks = Vec::new();
-            for perimeter in merged {
-                timer.next();
-                match perimeter.to_block(map) {
-                    Ok(block) => {
-                        blocks.push(block);
-                    }
-                    Err(err) => {
-                        warn!("Failed to make a block from a merged perimeter: {}", err);
-                    }
-                }
-            }
-
-            let mut neighbourhoods = BTreeMap::new();
-            for block in blocks {
-                neighbourhoods.insert(
-                    NeighbourhoodID(neighbourhoods.len()),
-                    NeighbourhoodInfo::new(map, block),
-                );
-            }
-            let neighbourhood_id_counter = neighbourhoods.len();
-            let mut p = Partitioning {
-                map: map.get_name().clone(),
-                neighbourhoods,
-                single_blocks,
-
-                neighbourhood_id_counter,
-                block_to_neighbourhood: BTreeMap::new(),
-                use_expensive_blockfinding,
-                broken: false,
-                custom_boundaries: BTreeMap::new(),
-            };
-
-            // TODO We could probably build this up as we go
-            for id in p.all_block_ids() {
-                if let Some(neighbourhood) = p.neighbourhood_containing(id) {
-                    p.block_to_neighbourhood.insert(id, neighbourhood);
-                } else {
-                    if !use_expensive_blockfinding {
-                        // Try the expensive check, then
-                        error!(
-                            "Block doesn't belong to any neighbourhood? Retrying with expensive checks {:?}",
-                            p.get_block(id).perimeter
-                        );
-                        continue 'METHOD;
-                    }
-                    // This will break everything downstream, so bail out immediately
-                    error!(
-                        "Block still doesn't belong to any neighbourhood, even with expensive checks. Continuing without boundary adjustment. {:?}",
+        // TODO We could probably build this up as we go
+        for id in p.all_block_ids() {
+            if let Some(neighbourhood) = p.neighbourhood_containing(id) {
+                p.block_to_neighbourhood.insert(id, neighbourhood);
+            } else {
+                error!(
+                        "Block doesn't belong to any neighbourhood. Continuing without boundary adjustment. {:?}",
                         p.get_block(id).perimeter
                     );
-                    p.broken = true;
-                }
+                p.broken = true;
             }
-
-            return p;
         }
-        unreachable!()
+
+        p
     }
 
     // TODO Explain return value
@@ -456,12 +436,7 @@ impl Partitioning {
         }
         let mut blocks = Vec::new();
         let stepwise_debug = false;
-        for perim in Perimeter::merge_all(
-            map,
-            perimeters,
-            stepwise_debug,
-            self.use_expensive_blockfinding,
-        ) {
+        for perim in Perimeter::merge_all(map, perimeters, stepwise_debug) {
             blocks.push(perim.to_block(map)?);
         }
         Ok(blocks)
