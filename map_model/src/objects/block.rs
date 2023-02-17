@@ -142,10 +142,6 @@ impl Perimeter {
                 skip.insert(r.id);
             } else if !PathConstraints::Car.can_use_road(r, map) {
                 skip.insert(r.id);
-            } else if r.orig_id.osm_way_id == crate::osm::WayID(827157342) {
-                // TODO A hack for Stapleford. Some geometry breaks around here, and after
-                // collapse_deadends, the entire block breaks. This one use case is important now.
-                skip.insert(r.id);
             }
         }
         skip
@@ -193,18 +189,38 @@ impl Perimeter {
             // "Rotate" the order of roads, so that all of the overlapping roads are at the end of the
             // list. If the entire perimeter is surrounded by the other, then no rotation needed.
             if self.roads.len() != common.len() {
+                let mut i = 0;
                 while common.contains(&self.roads[0].road)
                     || !common.contains(&self.roads.last().unwrap().road)
                 {
                     self.roads.rotate_left(1);
+
+                    i += 1;
+                    if i == self.roads.len() {
+                        bail!(
+                            "Rotating {:?} against common {:?} infinite-looped",
+                            self.roads,
+                            common
+                        );
+                    }
                 }
             }
             // Same thing with the other
             if other.roads.len() != common.len() {
+                let mut i = 0;
                 while common.contains(&other.roads[0].road)
                     || !common.contains(&other.roads.last().unwrap().road)
                 {
                     other.roads.rotate_left(1);
+
+                    i += 1;
+                    if i == other.roads.len() {
+                        bail!(
+                            "Rotating {:?} against common {:?} infinite-looped",
+                            self.roads,
+                            common
+                        );
+                    }
                 }
             }
 
@@ -646,7 +662,7 @@ impl Perimeter {
         }
         pts.push(pts[0]);
         pts.dedup();
-        let polygon = Ring::new(pts)?.into_polygon();
+        let polygon = Ring::unsafe_deduping_new(pts)?.into_polygon();
         // TODO To debug anyway, we could plumb through a Tessellation, but there's pretty much
         // always a root problem in the map geometry that should be properly fixed.
 
