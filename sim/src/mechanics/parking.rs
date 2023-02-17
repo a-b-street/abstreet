@@ -674,8 +674,8 @@ impl ParkingLane {
         let driving_lane = if let Some(l) = map.get_parent(lane.id).parking_to_driving(lane.id) {
             l
         } else {
-            // Serious enough to blow up loudly.
-            panic!("Parking lane {} has no driving lane!", lane.id);
+            error!("Parking lane {} has no driving lane!", lane.id);
+            return None;
         };
         if map.get_l(driving_lane).driving_blackhole {
             return None;
