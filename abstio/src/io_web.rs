@@ -93,7 +93,9 @@ pub fn slurp_file<I: AsRef<str>>(path: I) -> Result<Vec<u8>> {
         if path.ends_with(".json") {
             Ok(string.into_bytes())
         } else {
-            base64::decode(string).map_err(|err| err.into())
+            use base64::Engine;
+            let bytes = base64::engine::general_purpose::STANDARD.decode(string)?;
+            Ok(bytes)
         }
     } else {
         bail!("Can't slurp_file {}, it doesn't exist", path)
@@ -105,7 +107,9 @@ pub fn maybe_read_binary<T: DeserializeOwned>(path: String, _: &mut Timer) -> Re
         bincode::deserialize(raw.contents()).map_err(|err| err.into())
     } else if path.starts_with(&path_player("")) {
         let string = read_local_storage(&path)?;
-        bincode::deserialize(&base64::decode(string)?).map_err(|err| err.into())
+        use base64::Engine;
+        let out = bincode::deserialize(&base64::engine::general_purpose::STANDARD.decode(string)?)?;
+        Ok(out)
     } else {
         bail!("Can't maybe_read_binary {}, it doesn't exist", path)
     }
@@ -136,7 +140,8 @@ pub fn write_raw(path: String, bytes: &[u8]) -> Result<()> {
     let window = web_sys::window().unwrap();
     let storage = window.local_storage().unwrap().unwrap();
     // Local storage only supports strings, so base64 encoding needed
-    let encoded = base64::encode(bytes);
+    use base64::Engine;
+    let encoded = base64::engine::general_purpose::STANDARD.encode(bytes);
     storage.set_item(&path, &encoded).map_err(|err| {
         anyhow!(err.as_string().unwrap_or_else(|| format!(
             "set_item for {path} failed for encoded length {}",
