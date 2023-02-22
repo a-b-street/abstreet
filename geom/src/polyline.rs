@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashSet};
 use std::fmt;
 
 use anyhow::{Context, Result};
-use geo::prelude::ClosestPoint;
+use geo::{ClosestPoint, Winding};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -1138,6 +1138,11 @@ impl PolyLine {
             }
         }
         Ok(results)
+    }
+
+    // Note this being false does not necessarily imply counter-clockwise; it might be neither
+    pub fn is_clockwise(&self) -> bool {
+        self.to_geo().is_cw()
     }
 }
 

@@ -152,10 +152,32 @@ impl Intersection {
     }
 
     // TODO Use osm2streets RoadEdge?
+    // This skips the "interior" piece of any loop roads
     pub fn get_road_sides_sorted(&self, map: &Map) -> Vec<RoadSideID> {
+        // TODO For loop roads, osm2streets repeats the roads! Consider upstream fixes.
+        let mut deduped = self.roads.clone();
+        deduped.dedup();
+
         let mut sides = Vec::new();
-        for r in &self.roads {
-            let r = map.get_r(*r);
+        for r in deduped {
+            let r = map.get_r(r);
+            if r.src_i == r.dst_i {
+                // For loop roads, one of the sides is "interior" and should just be skipped. The
+                // side depends on clockwise orientation -- just sketching it out on paper is
+                // enough to be convincing.
+                if r.center_pts.is_clockwise() {
+                    sides.push(RoadSideID {
+                        road: r.id,
+                        side: SideOfRoad::Left,
+                    });
+                } else {
+                    sides.push(RoadSideID {
+                        road: r.id,
+                        side: SideOfRoad::Right,
+                    });
+                }
+                continue;
+            }
             if r.dst_i == self.id {
                 sides.push(RoadSideID {
                     road: r.id,
