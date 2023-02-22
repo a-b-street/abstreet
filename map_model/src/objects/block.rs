@@ -47,6 +47,17 @@ impl Perimeter {
             bail!("Started on a road we shouldn't trace");
         }
 
+        // We may start on a loop road on the "inner" direction
+        {
+            let start_r = map.get_parent(start);
+            if start_r.src_i == start_r.dst_i {
+                let i = map.get_i(start_r.src_i);
+                if !i.get_road_sides_sorted(map).contains(&start_road_side) {
+                    bail!("Starting on inner piece of a loop road");
+                }
+            }
+        }
+
         // We need to track which side of the road we're at, but also which direction we're facing
         let mut current_road_side = start_road_side;
         let mut current_intersection = map.get_l(start).dst_i;
@@ -57,6 +68,7 @@ impl Perimeter {
             }
             let mut sorted_roads = i.get_road_sides_sorted(map);
             sorted_roads.retain(|id| !skip.contains(&id.road));
+
             let idx = sorted_roads
                 .iter()
                 .position(|x| *x == current_road_side)
