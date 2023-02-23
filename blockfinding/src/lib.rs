@@ -431,39 +431,48 @@ impl Perimeter {
     /// If the perimeter follows any dead-end roads, "collapse" them and instead make the perimeter
     /// contain the dead-end.
     pub fn collapse_deadends(&mut self) {
-        let orig = self.clone();
-        self.undo_invariant();
+        // Repeatedly try to do this as long as something is changing.
+        loop {
+            let orig = self.clone();
+            self.undo_invariant();
 
-        // TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop
-        // around a disconnected fragment of road, don't touch it
-        if self.roads.len() == 2 && self.roads[0].road == self.roads[1].road {
+            // TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop
+            // around a disconnected fragment of road, don't touch it
+            if self.roads.len() == 2 && self.roads[0].road == self.roads[1].road {
+                self.restore_invariant();
+                return;
+            }
+
+            // If the dead-end straddles the loop, it's confusing. Just rotate until that's not true.
+            while self.roads[0].road == self.roads.last().unwrap().road {
+                self.roads.rotate_left(1);
+            }
+
+            // TODO This won't handle a deadend that's more than 1 segment long
+            let mut roads: Vec<RoadSideID> = Vec::new();
+            let mut changed = false;
+            for id in self.roads.drain(..) {
+                if Some(id.road) == roads.last().map(|id| id.road) {
+                    changed = true;
+                    roads.pop();
+                    self.interior.insert(id.road);
+                } else {
+                    roads.push(id);
+                }
+            }
+
+            self.roads = roads;
+            if self.roads.is_empty() {
+                // TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
+                *self = orig;
+                return;
+            }
             self.restore_invariant();
-            return;
-        }
 
-        // If the dead-end straddles the loop, it's confusing. Just rotate until that's not true.
-        while self.roads[0].road == self.roads.last().unwrap().road {
-            self.roads.rotate_left(1);
-        }
-
-        // TODO This won't handle a deadend that's more than 1 segment long
-        let mut roads: Vec<RoadSideID> = Vec::new();
-        for id in self.roads.drain(..) {
-            if Some(id.road) == roads.last().map(|id| id.road) {
-                roads.pop();
-                self.interior.insert(id.road);
-            } else {
-                roads.push(id);
+            if !changed {
+                return;
             }
         }
-
-        self.roads = roads;
-        if self.roads.is_empty() {
-            // TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
-            *self = orig;
-            return;
-        }
-        self.restore_invariant();
     }
 
     /// Consider the perimeters as a graph, with adjacency determined by sharing any road in common.
