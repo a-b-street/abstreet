@@ -1,9 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use abstutil::Timer;
+use blockfinding::{Block, Perimeter};
 use geom::Distance;
 use map_model::osm::RoadRank;
-use map_model::{Block, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,

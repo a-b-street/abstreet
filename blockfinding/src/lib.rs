@@ -1,3 +1,8 @@
+#[macro_use]
+extern crate anyhow;
+#[macro_use]
+extern crate log;
+
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fmt;
 
@@ -7,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
-use crate::{
+use map_model::{
     CommonEndpoint, Direction, LaneID, Map, PathConstraints, RoadID, RoadSideID, SideOfRoad,
 };
 

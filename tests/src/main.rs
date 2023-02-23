@@ -8,8 +8,9 @@ use rand::seq::SliceRandom;
 
 use abstio::{CityName, MapName};
 use abstutil::Timer;
+use blockfinding::Perimeter;
 use geom::{Distance, Duration, Time};
-use map_model::{IntersectionID, LaneType, Map, Perimeter, RoadID};
+use map_model::{IntersectionID, LaneType, Map, RoadID};
 use sim::{AlertHandler, PrebakeSummary, Sim, SimFlags, SimOptions};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 

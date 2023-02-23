@@ -50,7 +50,6 @@ pub use crate::edits::{
 };
 pub use crate::make::RawToMapOptions;
 pub use crate::objects::area::{Area, AreaID};
-pub use crate::objects::block::{Block, Perimeter};
 pub use crate::objects::building::{Building, BuildingID, BuildingType, OffstreetParking};
 pub use crate::objects::intersection::{Intersection, IntersectionID};
 pub use crate::objects::lane::{CommonEndpoint, Lane, LaneID, PARKING_LOT_SPOT_LENGTH};

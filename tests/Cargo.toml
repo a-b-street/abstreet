@@ -8,6 +8,7 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
+blockfinding = { path = "../blockfinding" }
 convert_osm = { path = "../convert_osm" }
 fs-err = { workspace = true }
 geom = { path = "../geom" }

@@ -15,6 +15,7 @@ wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 anyhow = { workspace = true }
+blockfinding = { path = "../../blockfinding" }
 contour = { workspace = true }
 csv = "1.1.4"
 flate2 = "1.0.20"

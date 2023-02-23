@@ -1,5 +1,4 @@
 pub mod area;
-pub mod block;
 pub mod building;
 pub mod intersection;
 pub mod lane;

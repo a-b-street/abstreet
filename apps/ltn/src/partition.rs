@@ -5,9 +5,10 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::Timer;
+use blockfinding::{Block, Perimeter};
 use geom::Polygon;
 use map_model::osm::RoadRank;
-use map_model::{Block, IntersectionID, Map, Perimeter, RoadID, RoadSideID};
+use map_model::{IntersectionID, Map, RoadID, RoadSideID};
 
 /// An opaque ID, won't be contiguous as we adjust boundaries
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]

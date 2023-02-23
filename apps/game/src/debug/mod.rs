@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
+use blockfinding::Perimeter;
 use geom::{ArrowCap, Circle, Distance, PolyLine, Pt2D};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
@@ -9,8 +10,7 @@ use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::AppLike;
 use map_model::{
-    ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
-    NORMAL_LANE_THICKNESS,
+    ControlTrafficSignal, IntersectionID, PathConstraints, Position, RoadID, NORMAL_LANE_THICKNESS,
 };
 use sim::Sim;
 use synthpop::TripEndpoint;

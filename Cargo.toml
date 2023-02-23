@@ -4,6 +4,7 @@ members = [
   "abstio",
   "abstutil",
   "apps/*",
+  "blockfinding",
   "cli",
   "collisions",
   "convert_osm",
