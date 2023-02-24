@@ -711,7 +711,7 @@ impl Perimeter {
             for (idx, perim) in perims.iter().enumerate() {
                 let copy = perim.clone().flip_side_of_road();
                 // Now that we've "expanded" the perimeter to the other side of the road, is there
-                // another perimeter that completely contins it?
+                // another perimeter that completely contains it?
                 if let Some(surrounding) = perims.iter().position(|p| p.contains(&copy)) {
                     hole = Some((idx, surrounding));
                     // TODO If the first hole found doesn't merge for some reason, then we'll get

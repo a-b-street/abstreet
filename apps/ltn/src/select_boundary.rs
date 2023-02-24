@@ -181,11 +181,10 @@ impl SelectBoundary {
     // focusing on a different neighborhood
     fn try_toggle_block(&mut self, app: &mut App, id: BlockID) -> Result<Option<NeighbourhoodID>> {
         if self.currently_have_block(app, id) {
-            mut_partitioning!(app).remove_block_from_neighbourhood(&app.per_map.map, id, self.id)
+            mut_partitioning!(app).remove_block_from_neighbourhood(&app.per_map.map, id)
         } else {
-            let old_owner = app.partitioning().block_to_neighbourhood(id);
             // Ignore the return value if the old neighbourhood is deleted
-            mut_partitioning!(app).transfer_block(&app.per_map.map, id, old_owner, self.id)?;
+            mut_partitioning!(app).transfer_block(&app.per_map.map, id, self.id)?;
             Ok(None)
         }
     }
@@ -220,11 +219,9 @@ impl SelectBoundary {
                 for block_id in add_blocks.drain(..) {
                     timer.next();
                     if self.frontier.contains(&block_id) {
-                        let old_owner = app.partitioning().block_to_neighbourhood(block_id);
                         if let Ok(_) = mut_partitioning!(app).transfer_block(
                             &app.per_map.map,
                             block_id,
-                            old_owner,
                             self.id,
                         ) {
                             changed = true;

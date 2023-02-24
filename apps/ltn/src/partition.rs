@@ -186,9 +186,9 @@ impl Partitioning {
         &mut self,
         map: &Map,
         id: BlockID,
-        old_owner: NeighbourhoodID,
         new_owner: NeighbourhoodID,
     ) -> Result<Option<NeighbourhoodID>> {
+        let old_owner = self.block_to_neighbourhood(id);
         assert_ne!(old_owner, new_owner);
 
         // Is the newly expanded neighbourhood a valid perimeter?
@@ -267,8 +267,8 @@ impl Partitioning {
         &mut self,
         map: &Map,
         id: BlockID,
-        old_owner: NeighbourhoodID,
     ) -> Result<Option<NeighbourhoodID>> {
+        let old_owner = self.block_to_neighbourhood(id);
         // Find all RoadSideIDs in the block matching the current neighbourhood perimeter. Look for
         // the first one that borders another neighbourhood, and transfer the block there.
         // TODO This can get unintuitive -- if we remove a block bordering two other
@@ -292,8 +292,7 @@ impl Partitioning {
                 .iter()
                 .find(|(_, info)| info.block.perimeter.roads.contains(&other_side))
             {
-                let new_owner = *new_owner;
-                return self.transfer_block(map, id, old_owner, new_owner);
+                return self.transfer_block(map, id, *new_owner);
             }
         }
 
@@ -305,7 +304,7 @@ impl Partitioning {
             new_owner,
             NeighbourhoodInfo::new(map, self.get_block(id).clone()),
         );
-        let result = self.transfer_block(map, id, old_owner, new_owner);
+        let result = self.transfer_block(map, id, new_owner);
         if result.is_err() {
             // Revert the change above!
             self.neighbourhoods.remove(&new_owner).unwrap();
