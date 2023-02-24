@@ -19,6 +19,7 @@ pub struct Layers {
     // (Mode, max zoom, min zoom, bottom bar position)
     panel_cache_key: (Mode, bool, bool, Option<f64>),
     show_bus_routes: bool,
+    pub show_main_roads: bool,
     pub show_crossing_time: bool,
 
     // For the design LTN mode
@@ -34,6 +35,7 @@ impl Layers {
             minimized: true,
             panel_cache_key: (Mode::Impact, false, false, None),
             show_bus_routes: false,
+            show_main_roads: false,
             show_crossing_time: false,
             autofix_bus_gates: false,
             autofix_one_ways: false,
@@ -72,6 +74,10 @@ impl Layers {
                     self.show_bus_routes = self.panel.is_checked(&x);
                     self.update_panel(ctx, cs, bottom_panel);
                     return Some(Transition::Keep);
+                } else if x == "show main roads" {
+                    self.show_main_roads = self.panel.is_checked(&x);
+                    self.update_panel(ctx, cs, bottom_panel);
+                    return Some(Transition::Recreate);
                 } else if x == "show time to nearest crossing" {
                     self.show_crossing_time = self.panel.is_checked(&x);
                     self.update_panel(ctx, cs, bottom_panel);
@@ -260,12 +266,28 @@ impl Mode {
 
         Widget::col(match self {
             Mode::PickArea => vec![
-                entry(ctx, colors::HIGHLIGHT_BOUNDARY, "boundary road"),
-                entry(ctx, Color::YELLOW.alpha(0.2), "regular neighbourhood"),
-                entry(
+                Toggle::switch(ctx, "show main roads", None, layers.show_main_roads),
+                if layers.show_main_roads {
+                    entry_tooltip(
+                        ctx,
+                        colors::HIGHLIGHT_BOUNDARY,
+                        "main road",
+                        "Classified as non-local, designed for through-traffic",
+                    )
+                } else {
+                    entry_tooltip(ctx, colors::HIGHLIGHT_BOUNDARY, "boundary road", "Currently used as a boundary for a neighbourhood in this tool. May not be a main road.")
+                },
+                entry_tooltip(
+                    ctx,
+                    Color::YELLOW.alpha(0.2),
+                    "regular neighbourhood",
+                    "The boundary has main roads on all sides",
+                ),
+                entry_tooltip(
                     ctx,
                     Color::YELLOW.alpha(0.1),
                     "neighbourhood with partial boundary",
+                    "The boundary has a local street on some side",
                 ),
             ],
             Mode::ModifyNeighbourhood => vec![
@@ -380,7 +402,7 @@ impl Mode {
     }
 }
 
-fn entry(ctx: &mut EventCtx, color: Color, label: &'static str) -> Widget {
+fn entry_builder<'a, 'c>(color: Color, label: &'static str) -> ButtonBuilder<'a, 'c> {
     ButtonBuilder::new()
         .label_text(label)
         .bg_color(color, ControlState::Disabled)
@@ -392,6 +414,20 @@ fn entry(ctx: &mut EventCtx, color: Color, label: &'static str) -> Widget {
             right: 20.0,
         })
         .corner_rounding(0.0)
+}
+
+fn entry(ctx: &mut EventCtx, color: Color, label: &'static str) -> Widget {
+    entry_builder(color, label).build_def(ctx)
+}
+
+fn entry_tooltip(
+    ctx: &mut EventCtx,
+    color: Color,
+    label: &'static str,
+    tooltip: &'static str,
+) -> Widget {
+    entry_builder(color, label)
+        .disabled_tooltip(tooltip)
         .build_def(ctx)
 }
 

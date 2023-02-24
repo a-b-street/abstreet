@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use abstutil::Counter;
 use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
+use map_model::{osm::RoadRank, RoadID};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{ChooseSomething, PromptInput};
 use widgetry::{
@@ -69,7 +70,11 @@ impl PickArea {
             bottom_panel,
             world,
             draw_over_roads,
-            draw_boundary_roads: draw_boundary_roads(ctx, app),
+            draw_boundary_roads: if app.session.layers.show_main_roads {
+                draw_main_roads(ctx, app)
+            } else {
+                draw_boundary_roads(ctx, app)
+            },
         })
     }
 }
@@ -222,31 +227,40 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> Drawable {
     colorer.build(ctx).unzoomed
 }
 
+pub fn draw_main_roads(ctx: &EventCtx, app: &App) -> Drawable {
+    let mut roads = HashSet::new();
+    for r in app.per_map.map.all_roads() {
+        if r.get_rank() != RoadRank::Local {
+            roads.insert(r.id);
+        }
+    }
+    draw_roads(ctx, app, roads)
+}
+
 pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> Drawable {
-    let mut seen_roads = HashSet::new();
-    let mut seen_borders = HashSet::new();
-    let mut batch = GeomBatch::new();
+    let mut roads = HashSet::new();
     for info in app.partitioning().all_neighbourhoods().values() {
         for id in &info.block.perimeter.roads {
-            let r = id.road;
-            if seen_roads.contains(&r) {
-                continue;
-            }
-            seen_roads.insert(r);
-            let road = app.per_map.map.get_r(r);
-            batch.push(colors::HIGHLIGHT_BOUNDARY, road.get_thick_polygon());
-
-            for i in [road.src_i, road.dst_i] {
-                if seen_borders.contains(&i) {
-                    continue;
-                }
-                seen_borders.insert(i);
-                batch.push(
-                    colors::HIGHLIGHT_BOUNDARY,
-                    app.per_map.map.get_i(i).polygon.clone(),
-                );
-            }
+            roads.insert(id.road);
         }
+    }
+    draw_roads(ctx, app, roads)
+}
+
+fn draw_roads(ctx: &EventCtx, app: &App, roads: HashSet<RoadID>) -> Drawable {
+    let mut batch = GeomBatch::new();
+    let mut intersections = HashSet::new();
+    for r in roads {
+        let road = app.per_map.map.get_r(r);
+        batch.push(colors::HIGHLIGHT_BOUNDARY, road.get_thick_polygon());
+        intersections.insert(road.src_i);
+        intersections.insert(road.dst_i);
+    }
+    for i in intersections {
+        batch.push(
+            colors::HIGHLIGHT_BOUNDARY,
+            app.per_map.map.get_i(i).polygon.clone(),
+        );
     }
     batch.build(ctx)
 }
