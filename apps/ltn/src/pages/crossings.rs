@@ -11,8 +11,8 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
-use crate::render::colors;
-use crate::{mut_edits, App, Crossing, Toggle3Zoomed, Transition};
+use crate::render::{colors, Toggle3Zoomed};
+use crate::{logic, mut_edits, App, Crossing, Transition};
 
 pub struct Crossings {
     appwide_panel: AppwidePanel,
@@ -115,7 +115,7 @@ impl State<App> for Crossings {
                     self.bottom_panel = BottomPanel::new(ctx, &self.appwide_panel, contents);
                 }
                 "undo" => {
-                    crate::edit::undo_proposal(ctx, app);
+                    logic::map_edits::undo_proposal(ctx, app);
                     self.update(ctx, app);
                 }
                 _ => unreachable!(),

@@ -6,9 +6,9 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Line, Speed};
 use map_model::{CrossingType, EditRoad, IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
+use widgetry::{Color, EventCtx, GeomBatch, RewriteColor};
 
-use crate::render::colors;
+use crate::render::{colors, Toggle3Zoomed};
 use crate::{mut_edits, App};
 
 /// Stored in App per-map state. Before making any changes, call `before_edit`.
@@ -406,31 +406,5 @@ impl DiagonalFilter {
         // Note this ignores filter_type.
         (self.r1, self.r2, self.i, &self.group1, &self.group2)
             == (other.r1, other.r2, other.i, &other.group1, &other.group2)
-    }
-}
-
-/// Depending on the canvas zoom level, draws one of 2 things.
-// TODO Rethink filter styles and do something better than this.
-pub struct Toggle3Zoomed {
-    draw_zoomed: Drawable,
-    unzoomed: DrawCustomUnzoomedShapes,
-}
-
-impl Toggle3Zoomed {
-    pub fn new(draw_zoomed: Drawable, unzoomed: DrawCustomUnzoomedShapes) -> Self {
-        Self {
-            draw_zoomed,
-            unzoomed,
-        }
-    }
-
-    pub fn empty(ctx: &EventCtx) -> Self {
-        Self::new(Drawable::empty(ctx), DrawCustomUnzoomedShapes::empty())
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        if !self.unzoomed.maybe_draw(g) {
-            self.draw_zoomed.draw(g);
-        }
     }
 }

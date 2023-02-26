@@ -2,6 +2,7 @@ mod auto_filters;
 pub mod crossings;
 mod existing_filters;
 pub mod impact;
+pub mod map_edits;
 mod partition;
 mod shortcuts;
 

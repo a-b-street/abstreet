@@ -12,7 +12,7 @@ mod select_boundary;
 pub use about::About;
 pub use crossings::Crossings;
 pub use customize_boundary::CustomizeBoundary;
-pub use design_ltn::DesignLTN;
+pub use design_ltn::{DesignLTN, EditMode};
 pub use freehand_boundary::FreehandBoundary;
 pub use per_resident_impact::PerResidentImpact;
 pub use pick_area::{PickArea, PickAreaStyle};

@@ -13,7 +13,6 @@ use widgetry::{
     TextBox, Widget,
 };
 
-use crate::edit::EditMode;
 use crate::logic::{BlockID, Partitioning};
 use crate::{pages, App, Edits, Transition};
 
@@ -617,13 +616,13 @@ impl PreserveState {
                     count.inc(app.partitioning().block_to_neighbourhood(*block));
                 }
 
-                if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
+                if let pages::EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
                     // TODO We should try to preserve the focused road at least, or the specific
                     // shortcut maybe.
                     *maybe_focus = None;
                 }
-                if let EditMode::FreehandFilters(_) = app.session.edit_mode {
-                    app.session.edit_mode = EditMode::Filters;
+                if let pages::EditMode::FreehandFilters(_) = app.session.edit_mode {
+                    app.session.edit_mode = pages::EditMode::Filters;
                 }
 
                 Transition::Replace(pages::DesignLTN::new_state(ctx, app, count.max_key()))

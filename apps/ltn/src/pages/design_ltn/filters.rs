@@ -2,7 +2,7 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Key, Text, Transition};
 
-use super::{road_name, EditOutcome, Obj};
+use super::{modals, road_name, EditOutcome, Obj};
 use crate::render::colors;
 use crate::{
     mut_edits, redraw_all_filters, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter,
@@ -73,12 +73,12 @@ pub fn handle_world_outcome(
 
             if road.oneway_for_driving().is_some() {
                 if app.session.layers.autofix_one_ways {
-                    super::fix_oneway_and_add_filter(ctx, app, &[(r, distance)]);
+                    modals::fix_oneway_and_add_filter(ctx, app, &[(r, distance)]);
                     return EditOutcome::Transition(Transition::Recreate);
                 }
 
                 return EditOutcome::Transition(Transition::Push(
-                    super::ResolveOneWayAndFilter::new_state(ctx, vec![(r, distance)]),
+                    modals::ResolveOneWayAndFilter::new_state(ctx, vec![(r, distance)]),
                 ));
             }
 
@@ -96,7 +96,7 @@ pub fn handle_world_outcome(
                         // won't warn about bus gates. Oh well.
                         app.per_map.proposals.cancel_empty_edit();
                         return EditOutcome::Transition(Transition::Push(
-                            super::ResolveBusGate::new_state(ctx, app, vec![(r, distance)]),
+                            modals::ResolveBusGate::new_state(ctx, app, vec![(r, distance)]),
                         ));
                     }
                 }
