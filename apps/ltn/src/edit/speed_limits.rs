@@ -4,7 +4,8 @@ use widgetry::tools::ColorLegend;
 use widgetry::{EventCtx, Text, Transition, Widget};
 
 use super::{EditOutcome, Obj};
-use crate::{colors, App, Neighbourhood};
+use crate::render::colors;
+use crate::{App, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
     ColorLegend::categories(

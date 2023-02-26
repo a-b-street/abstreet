@@ -18,7 +18,8 @@ use widgetry::{
 
 use crate::components::{AppwidePanel, Mode};
 use crate::impact::{end_of_day, Filters, Impact};
-use crate::{colors, App, Transition};
+use crate::render::colors;
+use crate::{App, Transition};
 
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?

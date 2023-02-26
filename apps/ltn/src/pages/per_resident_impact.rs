@@ -13,8 +13,9 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
+use crate::render::colors;
 use crate::save::PreserveState;
-use crate::{colors, pages, App, Neighbourhood, NeighbourhoodID, Transition};
+use crate::{pages, render, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct PerResidentImpact {
     appwide_panel: AppwidePanel,
@@ -69,7 +70,7 @@ impl PerResidentImpact {
         }
 
         // It's a subtle effect, but maybe useful to see
-        let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
+        let render_cells = render::RenderCells::new(map, &neighbourhood);
         let cell_outline = render_cells.draw_island_outlines();
 
         // Depending on the number of buildings_inside, Dijkstra may be faster, but this seems fast

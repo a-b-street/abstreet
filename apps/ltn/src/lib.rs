@@ -19,9 +19,7 @@ extern crate anyhow;
 extern crate log;
 
 mod app;
-mod colors;
 mod components;
-mod draw_cells;
 mod edit;
 mod export;
 mod filters;

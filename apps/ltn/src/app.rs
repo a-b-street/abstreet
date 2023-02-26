@@ -1,6 +1,6 @@
 use abstio::MapName;
 use abstutil::Timer;
-use geom::{Distance, Duration, Pt2D, Time};
+use geom::{Duration, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::load::MapLoader;
 use map_gui::options::Options;
@@ -8,14 +8,13 @@ use map_gui::render::{DrawMap, DrawOptions};
 use map_gui::tools::CameraState;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_gui::{AppLike, ID};
-use map_model::{AmenityType, CrossingType, IntersectionID, Map, RoutingParams};
+use map_model::{CrossingType, IntersectionID, Map, RoutingParams};
 use widgetry::tools::URLManager;
-use widgetry::{
-    Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, SharedAppState, State,
-    Warper,
-};
+use widgetry::{Canvas, Drawable, EventCtx, GfxCtx, SharedAppState, State, Warper};
 
-use crate::{logic, pages, Edits, FilterType, NeighbourhoodID, Partitioning, Toggle3Zoomed};
+use crate::{
+    logic, pages, render, Edits, FilterType, NeighbourhoodID, Partitioning, Toggle3Zoomed,
+};
 
 pub type Transition = widgetry::Transition<App>;
 
@@ -62,8 +61,8 @@ impl PerMap {
         timer: &mut Timer,
     ) -> Self {
         let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
-        let draw_poi_icons = render_poi_icons(ctx, &map);
-        let draw_bus_routes = render_bus_routes(ctx, &map);
+        let draw_poi_icons = render::render_poi_icons(ctx, &map);
+        let draw_bus_routes = render::render_bus_routes(ctx, &map);
 
         let proposals = crate::save::Proposals::new(&map, timer);
 
@@ -296,50 +295,4 @@ impl State<App> for SimpleWarper {
     }
 
     fn draw(&self, _: &mut GfxCtx, _: &App) {}
-}
-
-fn render_poi_icons(ctx: &EventCtx, map: &Map) -> Drawable {
-    let mut batch = GeomBatch::new();
-    let school = GeomBatch::load_svg(ctx, "system/assets/map/school.svg")
-        .scale(0.2)
-        .color(RewriteColor::ChangeAll(Color::WHITE));
-
-    for b in map.all_buildings() {
-        if b.amenities.iter().any(|a| {
-            let at = AmenityType::categorize(&a.amenity_type);
-            at == Some(AmenityType::School) || at == Some(AmenityType::University)
-        }) {
-            batch.append(school.clone().centered_on(b.polygon.polylabel()));
-        }
-    }
-
-    ctx.upload(batch)
-}
-
-fn render_bus_routes(ctx: &EventCtx, map: &Map) -> Drawable {
-    let mut batch = GeomBatch::new();
-    for r in map.all_roads() {
-        if map.get_bus_routes_on_road(r.id).is_empty() {
-            continue;
-        }
-        // Draw dashed outlines surrounding the road
-        let width = r.get_width();
-        for pl in [
-            r.center_pts.shift_left(width * 0.7),
-            r.center_pts.shift_right(width * 0.7),
-        ]
-        .into_iter()
-        .flatten()
-        {
-            batch.extend(
-                *crate::colors::BUS_ROUTE,
-                pl.exact_dashed_polygons(
-                    Distance::meters(2.0),
-                    Distance::meters(5.0),
-                    Distance::meters(2.0),
-                ),
-            );
-        }
-    }
-    ctx.upload(batch)
 }

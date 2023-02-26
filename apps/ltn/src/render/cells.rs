@@ -5,7 +5,8 @@ use map_gui::tools::Grid;
 use map_model::Map;
 use widgetry::{Color, GeomBatch};
 
-use crate::{colors, Neighbourhood};
+use crate::render::colors;
+use crate::Neighbourhood;
 
 const RESOLUTION_M: f64 = 10.0;
 

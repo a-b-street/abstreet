@@ -3,9 +3,9 @@ use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Key, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
+use crate::render::colors;
 use crate::{
-    colors, mut_edits, redraw_all_filters, App, DiagonalFilter, FilterType, Neighbourhood,
-    RoadFilter,
+    mut_edits, redraw_all_filters, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter,
 };
 
 /// Creates clickable objects for managing filters on roads and intersections. Everything is

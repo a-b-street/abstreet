@@ -11,7 +11,8 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, Mode};
-use crate::{colors, App, Transition};
+use crate::render::colors;
+use crate::{App, Transition};
 
 pub struct RoutePlanner {
     appwide_panel: AppwidePanel,

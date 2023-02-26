@@ -3,7 +3,8 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
-use crate::{colors, App, Neighbourhood};
+use crate::render::colors;
+use crate::{App, Neighbourhood};
 
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
     let map = &app.per_map.map;

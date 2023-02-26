@@ -3,7 +3,7 @@ use anyhow::Result;
 use geom::{PolyLine, Pt2D};
 use osm2streets::Direction;
 
-use crate::{App, Neighbourhood};
+use crate::{render, App, Neighbourhood};
 
 /// Returns the path where the file was written
 pub fn write_geojson_file(app: &App) -> Result<String> {
@@ -32,7 +32,7 @@ fn geojson_string(app: &App) -> Result<String> {
         features.push(feature);
 
         // Cells per neighbourhood
-        let render_cells = crate::draw_cells::RenderCells::new(map, &Neighbourhood::new(app, *id));
+        let render_cells = render::RenderCells::new(map, &Neighbourhood::new(app, *id));
         for (idx, multipolygon) in render_cells.to_multipolygons().into_iter().enumerate() {
             let mut feature = Feature {
                 bbox: None,
