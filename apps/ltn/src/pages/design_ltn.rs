@@ -9,11 +9,11 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
-use crate::draw_cells::RenderCells;
 use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::filters::auto::Heuristic;
+use crate::render::colors;
 use crate::{
-    colors, is_private, pages, App, FilterType, Neighbourhood, NeighbourhoodID, Transition,
+    is_private, pages, render, App, FilterType, Neighbourhood, NeighbourhoodID, Transition,
 };
 
 pub struct DesignLTN {
@@ -279,7 +279,7 @@ fn setup_editing(
     EditNeighbourhood,
     Drawable,
     Drawable,
-    RenderCells,
+    render::RenderCells,
     World<DummyID>,
 ) {
     let edit = EditNeighbourhood::new(ctx, app, neighbourhood);
@@ -291,7 +291,7 @@ fn setup_editing(
     // edit.world so that we draw it even while hovering on roads/intersections in a cell
     let mut highlight_cell = World::new();
 
-    let render_cells = RenderCells::new(map, neighbourhood);
+    let render_cells = render::RenderCells::new(map, neighbourhood);
 
     let draw_under_roads_layer = render_cells.draw_colored_areas();
     draw_top_layer.append(render_cells.draw_island_outlines());

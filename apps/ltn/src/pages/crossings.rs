@@ -11,7 +11,8 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
-use crate::{colors, mut_edits, App, Crossing, Toggle3Zoomed, Transition};
+use crate::render::colors;
+use crate::{mut_edits, App, Crossing, Toggle3Zoomed, Transition};
 
 pub struct Crossings {
     appwide_panel: AppwidePanel,

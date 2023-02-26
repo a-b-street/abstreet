@@ -9,7 +9,8 @@ use widgetry::{
 };
 
 use crate::components::Mode;
-use crate::{colors, pages, App, FilterType, Transition};
+use crate::render::colors;
+use crate::{pages, App, FilterType, Transition};
 
 // Partly copied from ungap/layers.s
 

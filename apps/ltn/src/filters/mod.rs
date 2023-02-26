@@ -12,7 +12,8 @@ use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
 pub use self::existing::transform_existing_filters;
-use crate::{colors, mut_edits, App};
+use crate::render::colors;
+use crate::{mut_edits, App};
 
 /// Stored in App per-map state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]

@@ -8,7 +8,8 @@ use widgetry::{
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::edit::EditMode;
-use crate::{colors, pages, render, App, Neighbourhood, NeighbourhoodID, Transition};
+use crate::render::colors;
+use crate::{pages, render, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct PickArea {
     appwide_panel: AppwidePanel,
@@ -155,7 +156,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                 }
                 PickAreaStyle::Cells => {
                     let neighbourhood = Neighbourhood::new(app, *id);
-                    let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
+                    let render_cells = render::RenderCells::new(map, &neighbourhood);
                     let hovered_batch = render_cells.draw_colored_areas();
                     world
                         .add(*id)

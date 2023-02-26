@@ -4,7 +4,8 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{Color, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 
 use super::{road_name, EditMode, EditOutcome, Obj};
-use crate::{colors, App, Neighbourhood};
+use crate::render::colors;
+use crate::{App, Neighbourhood};
 
 pub struct FocusedRoad {
     pub r: RoadID,
