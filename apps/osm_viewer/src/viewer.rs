@@ -19,6 +19,7 @@ pub struct Viewer {
     fixed_object_outline: Option<Drawable>,
     minimap: Minimap<App, MinimapController>,
     businesses: Option<BusinessSearch>,
+    maurader: Drawable,
 }
 
 impl Viewer {
@@ -30,6 +31,7 @@ impl Viewer {
             minimap: Minimap::new(ctx, app, MinimapController),
             businesses: None,
             top_panel: Panel::empty(ctx),
+            maurader: crate::maurader::draw(ctx, &app.map),
         };
         viewer.recalculate_top_panel(ctx, app, None);
         Box::new(viewer)
@@ -341,6 +343,14 @@ impl State<App> for Viewer {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
+        if true {
+            g.clear(app.cs.void_background);
+            g.redraw(&app.draw_map.boundary_polygon);
+            g.redraw(&app.draw_map.draw_all_areas);
+            g.redraw(&self.maurader);
+            return;
+        }
+
         if g.canvas.is_unzoomed() {
             app.draw_unzoomed(g);
         } else {
