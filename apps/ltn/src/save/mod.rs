@@ -14,8 +14,8 @@ use widgetry::{
 };
 
 use crate::edit::EditMode;
-use crate::partition::BlockID;
-use crate::{pages, App, Edits, Partitioning, Transition};
+use crate::logic::{BlockID, Partitioning};
+use crate::{pages, App, Edits, Transition};
 
 pub use share::PROPOSAL_HOST_URL;
 

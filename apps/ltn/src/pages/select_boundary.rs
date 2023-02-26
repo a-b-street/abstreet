@@ -13,9 +13,9 @@ use widgetry::{
 
 use crate::components::{AppwidePanel, Mode};
 use crate::edit::EditMode;
-use crate::partition::BlockID;
+use crate::logic::{BlockID, Partitioning};
 use crate::render::colors;
-use crate::{mut_partitioning, pages, render, App, NeighbourhoodID, Partitioning, Transition};
+use crate::{mut_partitioning, pages, render, App, NeighbourhoodID, Transition};
 
 pub struct SelectBoundary {
     appwide_panel: AppwidePanel,

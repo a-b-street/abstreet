@@ -10,7 +10,7 @@ use widgetry::{Choice, EventCtx};
 use crate::{mut_edits, redraw_all_filters, App, Neighbourhood, RoadFilter};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Heuristic {
+pub enum AutoFilterHeuristic {
     /// Find the road with the most shortcuts that can be closed without creating a disconnected
     /// cell, and filter it.
     ///
@@ -27,19 +27,22 @@ pub enum Heuristic {
     OnlyOneBorder,
 }
 
-impl Heuristic {
-    pub fn choices() -> Vec<Choice<Heuristic>> {
+impl AutoFilterHeuristic {
+    pub fn choices() -> Vec<Choice<Self>> {
         vec![
             Choice::new(
                 "filter the road with the most shortcuts (greedy)",
-                Heuristic::Greedy,
+                AutoFilterHeuristic::Greedy,
             ),
             Choice::new(
                 "stop the most shortcuts (brute-force)",
-                Heuristic::BruteForce,
+                AutoFilterHeuristic::BruteForce,
             ),
-            Choice::new("split large cells", Heuristic::SplitCells),
-            Choice::new("only one entrance per cell", Heuristic::OnlyOneBorder),
+            Choice::new("split large cells", AutoFilterHeuristic::SplitCells),
+            Choice::new(
+                "only one entrance per cell",
+                AutoFilterHeuristic::OnlyOneBorder,
+            ),
         ]
     }
 
@@ -65,10 +68,10 @@ impl Heuristic {
         app.per_map.proposals.before_edit();
 
         match self {
-            Heuristic::Greedy => greedy(app, neighbourhood),
-            Heuristic::BruteForce => brute_force(app, neighbourhood, timer),
-            Heuristic::SplitCells => split_cells(app, neighbourhood, timer),
-            Heuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
+            AutoFilterHeuristic::Greedy => greedy(app, neighbourhood),
+            AutoFilterHeuristic::BruteForce => brute_force(app, neighbourhood, timer),
+            AutoFilterHeuristic::SplitCells => split_cells(app, neighbourhood, timer),
+            AutoFilterHeuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
         }
 
         let empty = app.per_map.proposals.cancel_empty_edit();

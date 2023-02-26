@@ -6,8 +6,7 @@ use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{osm, Direction, IntersectionID, Map, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
-use crate::partition::CustomBoundary;
-use crate::shortcuts::Shortcuts;
+use crate::logic::{CustomBoundary, Shortcuts};
 use crate::{is_private, App, Edits, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
@@ -198,8 +197,7 @@ impl Neighbourhood {
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.
-        self.shortcuts =
-            crate::shortcuts::find_shortcuts(app, self, &mut abstutil::Timer::throwaway());
+        self.shortcuts = Shortcuts::new(app, self, &mut abstutil::Timer::throwaway());
 
         for r in &self.perimeter_roads {
             if map.get_r(*r).get_rank() == osm::RoadRank::Local {
