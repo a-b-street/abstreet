@@ -6,7 +6,7 @@ use widgetry::{
 };
 
 use crate::components::Mode;
-use crate::{App, PickArea, Transition};
+use crate::{pages, App, Transition};
 
 /// Both the top panel and the collapsible left sidebar.
 pub struct AppwidePanel {
@@ -40,37 +40,33 @@ impl AppwidePanel {
                                 ctx,
                                 app,
                                 map_gui::tools::Executable::LTN,
-                                Box::new(|ctx, app, _| PickArea::new_state(ctx, app)),
+                                Box::new(|ctx, app, _| pages::PickArea::new_state(ctx, app)),
                             ),
                         ]))
                     } else {
-                        Some(Transition::Push(super::about::About::new_state(ctx)))
+                        Some(Transition::Push(pages::About::new_state(ctx)))
                     }
                 }
                 "change map" => Some(Transition::Push(map_gui::tools::CityPicker::new_state(
                     ctx,
                     app,
-                    Box::new(|ctx, app| Transition::Replace(PickArea::new_state(ctx, app))),
+                    Box::new(|ctx, app| Transition::Replace(pages::PickArea::new_state(ctx, app))),
                 ))),
                 "search" => Some(Transition::Push(
                     map_gui::tools::Navigator::new_state_with_target_zoom(ctx, app, 4.0),
                 )),
                 "help" => Some(Transition::Push(PopupMsg::new_state(ctx, "Help", help()))),
-                "about this tool" => Some(Transition::Push(super::about::About::new_state(ctx))),
-                "Pick area" => Some(Transition::Replace(PickArea::new_state(ctx, app))),
-                "Design LTN" => Some(Transition::Replace(
-                    crate::design_ltn::DesignLTN::new_state(
-                        ctx,
-                        app,
-                        app.per_map.current_neighbourhood.unwrap(),
-                    ),
-                )),
-                "Plan route" => Some(Transition::Replace(
-                    crate::route_planner::RoutePlanner::new_state(ctx, app),
-                )),
-                "Crossings" => Some(Transition::Replace(crate::crossings::Crossings::new_state(
+                "about this tool" => Some(Transition::Push(pages::About::new_state(ctx))),
+                "Pick area" => Some(Transition::Replace(pages::PickArea::new_state(ctx, app))),
+                "Design LTN" => Some(Transition::Replace(pages::DesignLTN::new_state(
+                    ctx,
+                    app,
+                    app.per_map.current_neighbourhood.unwrap(),
+                ))),
+                "Plan route" => Some(Transition::Replace(pages::RoutePlanner::new_state(
                     ctx, app,
                 ))),
+                "Crossings" => Some(Transition::Replace(pages::Crossings::new_state(ctx, app))),
                 "Predict impact" => Some(launch_impact(ctx, app)),
                 _ => unreachable!(),
             };
@@ -101,7 +97,7 @@ fn launch_impact(ctx: &mut EventCtx, app: &mut App) -> Transition {
     if &app.per_map.impact.map == app.per_map.map.get_name()
         && app.per_map.impact.change_key == app.edits().get_change_key()
     {
-        return Transition::Replace(crate::impact::ShowResults::new_state(ctx, app));
+        return Transition::Replace(pages::ShowImpactResults::new_state(ctx, app));
     }
 
     Transition::Push(ChooseSomething::new_state(ctx,
@@ -113,7 +109,7 @@ fn launch_impact(ctx: &mut EventCtx, app: &mut App) -> Transition {
             } else {
                 Transition::Multi(vec![
                                   Transition::Pop,
-                                  Transition::Replace(crate::impact::ShowResults::new_state(ctx, app)),
+                                  Transition::Replace(pages::ShowImpactResults::new_state(ctx, app)),
                 ])
             }
         })))

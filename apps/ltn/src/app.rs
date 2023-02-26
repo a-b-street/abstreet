@@ -15,7 +15,7 @@ use widgetry::{
     Warper,
 };
 
-use crate::{Edits, FilterType, NeighbourhoodID, Partitioning, Toggle3Zoomed};
+use crate::{logic, pages, Edits, FilterType, NeighbourhoodID, Partitioning, Toggle3Zoomed};
 
 pub type Transition = widgetry::Transition<App>;
 
@@ -107,7 +107,7 @@ pub struct Session {
 
     // Remember form settings in different tabs.
     // Pick areas:
-    pub draw_neighbourhood_style: crate::pick_area::Style,
+    pub draw_neighbourhood_style: pages::PickAreaStyle,
     // Plan a route:
     pub main_road_penalty: f64,
     pub show_walking_cycling_routes: bool,
@@ -161,7 +161,7 @@ impl AppLike for App {
             .edits
             .draw(ctx, &self.per_map.map);
 
-        crate::crossings::populate_existing_crossings(self);
+        logic::crossings::populate_existing_crossings(self);
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, _l: DrawOptions) {
@@ -222,7 +222,7 @@ impl App {
             filter_type: FilterType::WalkCycleOnly,
             crossing_type: CrossingType::Unsignalized,
 
-            draw_neighbourhood_style: crate::pick_area::Style::Simple,
+            draw_neighbourhood_style: pages::PickAreaStyle::Simple,
             main_road_penalty: 1.0,
             show_walking_cycling_routes: false,
 

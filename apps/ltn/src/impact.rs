@@ -1,5 +1,3 @@
-mod ui;
-
 use std::collections::BTreeSet;
 
 use abstio::MapName;
@@ -10,7 +8,6 @@ use map_model::{PathConstraints, PathRequest, PathV2, Pathfinder, RoadID};
 use synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
 use widgetry::EventCtx;
 
-pub use self::ui::ShowResults;
 use crate::filters::ChangeKey;
 use crate::App;
 
@@ -68,7 +65,7 @@ impl Impact {
         }
     }
 
-    fn from_scenario(
+    pub fn from_scenario(
         ctx: &mut EventCtx,
         app: &App,
         scenario: Scenario,
@@ -116,7 +113,7 @@ impl Impact {
         )
     }
 
-    fn trips_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
+    pub fn trips_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
         let map = &app.per_map.map;
         let constraints: BTreeSet<PathConstraints> = self
             .filters
@@ -155,7 +152,7 @@ impl Impact {
         );
     }
 
-    fn map_edits_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
+    pub fn map_edits_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
         self.change_key = app.edits().get_change_key();
         let counts_b = self.counts_b(app, timer);
         self.compare_counts.recalculate_b(ctx, app, counts_b);
@@ -231,6 +228,6 @@ impl Impact {
 }
 
 // TODO Fixed, and sadly not const
-fn end_of_day() -> Time {
+pub fn end_of_day() -> Time {
     Time::START_OF_DAY + Duration::hours(24)
 }

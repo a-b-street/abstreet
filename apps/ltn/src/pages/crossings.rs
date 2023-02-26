@@ -13,13 +13,6 @@ use widgetry::{
 use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::{colors, mut_edits, App, Crossing, Toggle3Zoomed, Transition};
 
-pub fn svg_path(ct: CrossingType) -> &'static str {
-    match ct {
-        CrossingType::Signalized => "system/assets/tools/signalized_crossing.svg",
-        CrossingType::Unsignalized => "system/assets/tools/unsignalized_crossing.svg",
-    }
-}
-
 pub struct Crossings {
     appwide_panel: AppwidePanel,
     bottom_panel: Panel,
@@ -54,6 +47,13 @@ impl Crossings {
         };
         state.update(ctx, app);
         Box::new(state)
+    }
+
+    pub fn svg_path(ct: CrossingType) -> &'static str {
+        match ct {
+            CrossingType::Signalized => "system/assets/tools/signalized_crossing.svg",
+            CrossingType::Unsignalized => "system/assets/tools/unsignalized_crossing.svg",
+        }
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -198,7 +198,7 @@ fn draw_crossings(ctx: &EventCtx, app: &App) -> Toggle3Zoomed {
 
     let mut icons = BTreeMap::new();
     for ct in [CrossingType::Signalized, CrossingType::Unsignalized] {
-        icons.insert(ct, GeomBatch::load_svg(ctx, svg_path(ct)));
+        icons.insert(ct, GeomBatch::load_svg(ctx, Crossings::svg_path(ct)));
     }
 
     for r in boundary_roads(app) {
@@ -342,7 +342,7 @@ fn make_bottom_panel(ctx: &mut EventCtx, app: &App) -> Widget {
 
         ctx.style()
             .btn_solid_primary
-            .icon(svg_path(ct))
+            .icon(Crossings::svg_path(ct))
             .image_color(
                 RewriteColor::Change(hide_color, Color::CLEAR),
                 ControlState::Default,
@@ -388,25 +388,6 @@ fn make_bottom_panel(ctx: &mut EventCtx, app: &App) -> Widget {
                 .centered_vert(),
         ]),
     ])
-}
-
-pub fn populate_existing_crossings(app: &mut App) {
-    // (Don't call before_edit; this transformation happens before the user starts editing
-    // anything)
-    for road in app.per_map.map.all_roads() {
-        for (dist, kind) in &road.crossing_nodes {
-            let list = mut_edits!(app)
-                .crossings
-                .entry(road.id)
-                .or_insert_with(Vec::new);
-            list.push(Crossing {
-                kind: *kind,
-                dist: *dist,
-                user_modified: false,
-            });
-            list.sort_by_key(|c| c.dist);
-        }
-    }
 }
 
 fn draw_nearest_crossing(ctx: &EventCtx, app: &App) -> (Drawable, BTreeMap<RoadID, Duration>) {

@@ -12,7 +12,6 @@ use filters::Toggle3Zoomed;
 pub use filters::{Crossing, DiagonalFilter, Edits, FilterType, RoadFilter};
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
 pub use partition::{NeighbourhoodID, Partitioning};
-pub use pick_area::PickArea;
 
 #[macro_use]
 extern crate anyhow;
@@ -22,22 +21,17 @@ extern crate log;
 mod app;
 mod colors;
 mod components;
-mod crossings;
-mod customize_boundary;
-mod design_ltn;
 mod draw_cells;
 mod edit;
 mod export;
 mod filters;
-mod freehand_boundary;
 mod impact;
+mod logic;
 mod neighbourhood;
+mod pages;
 mod partition;
-mod per_resident_impact;
-mod pick_area;
-mod route_planner;
+mod render;
 mod save;
-mod select_boundary;
 mod shortcuts;
 
 pub fn main() {
@@ -182,13 +176,13 @@ fn setup_initial_states(
 
         // TODO Maybe center the camera, ignoring any saved values
 
-        states.push(design_ltn::DesignLTN::new_state(
+        states.push(pages::DesignLTN::new_state(
             ctx,
             app,
             app.per_map.consultation.unwrap(),
         ));
     } else {
-        states.push(PickArea::new_state(ctx, app));
+        states.push(pages::PickArea::new_state(ctx, app));
     }
     if let Some(state) = popup_state {
         states.push(state);

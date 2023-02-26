@@ -23,12 +23,12 @@ use crate::{colors, App, Transition};
 // TODO Share structure or pieces with Ungap's predict mode
 // ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
-pub struct ShowResults {
+pub struct ShowImpactResults {
     appwide_panel: AppwidePanel,
     left_panel: Panel,
 }
 
-impl ShowResults {
+impl ShowImpactResults {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let map_name = app.per_map.map.get_name().clone();
         if app.per_map.impact.map != map_name {
@@ -42,7 +42,7 @@ impl ShowResults {
                         // TODO Handle corrupt files
                         let scenario = maybe_scenario.unwrap();
                         app.per_map.impact = Impact::from_scenario(ctx, app, scenario, timer);
-                        Transition::Replace(ShowResults::new_state(ctx, app))
+                        Transition::Replace(ShowImpactResults::new_state(ctx, app))
                     }),
                 );
             }
@@ -111,7 +111,7 @@ impl ShowResults {
         })
     }
 }
-impl State<App> for ShowResults {
+impl State<App> for ShowImpactResults {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         // PreserveState doesn't matter
         if let Some(t) =

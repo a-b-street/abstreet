@@ -15,7 +15,7 @@ use widgetry::{
 
 use crate::edit::EditMode;
 use crate::partition::BlockID;
-use crate::{App, Edits, Partitioning, PickArea, Transition};
+use crate::{pages, App, Edits, Partitioning, Transition};
 
 pub use share::PROPOSAL_HOST_URL;
 
@@ -606,13 +606,9 @@ pub enum PreserveState {
 impl PreserveState {
     fn switch_to_state(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self {
-            PreserveState::PickArea => Transition::Replace(PickArea::new_state(ctx, app)),
-            PreserveState::Route => {
-                Transition::Replace(crate::route_planner::RoutePlanner::new_state(ctx, app))
-            }
-            PreserveState::Crossings => {
-                Transition::Replace(crate::crossings::Crossings::new_state(ctx, app))
-            }
+            PreserveState::PickArea => Transition::Replace(pages::PickArea::new_state(ctx, app)),
+            PreserveState::Route => Transition::Replace(pages::RoutePlanner::new_state(ctx, app)),
+            PreserveState::Crossings => Transition::Replace(pages::Crossings::new_state(ctx, app)),
             PreserveState::DesignLTN(blocks) => {
                 // Count which new neighbourhoods have the blocks from the original. Pick the one
                 // with the most matches
@@ -630,18 +626,14 @@ impl PreserveState {
                     app.session.edit_mode = EditMode::Filters;
                 }
 
-                Transition::Replace(crate::design_ltn::DesignLTN::new_state(
-                    ctx,
-                    app,
-                    count.max_key(),
-                ))
+                Transition::Replace(pages::DesignLTN::new_state(ctx, app, count.max_key()))
             }
             PreserveState::PerResidentImpact(blocks, current_target) => {
                 let mut count = Counter::new();
                 for block in blocks {
                     count.inc(app.partitioning().block_to_neighbourhood(*block));
                 }
-                Transition::Replace(crate::per_resident_impact::PerResidentImpact::new_state(
+                Transition::Replace(pages::PerResidentImpact::new_state(
                     ctx,
                     app,
                     count.max_key(),
