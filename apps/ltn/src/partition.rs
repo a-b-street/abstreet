@@ -207,7 +207,7 @@ impl Partitioning {
         if new_neighbourhood_blocks.len() != 1 {
             // This happens when a hole would be created by adding this block. There are probably
             // some smaller blocks nearby to add first.
-            bail!("Couldn't add block -- you may need to add an intermediate block first to avoid a hole, or there's a bug you can't workaround yet");
+            bail!("Couldn't add block -- you may need to add an intermediate block first to avoid a hole, or there's a bug you can't workaround yet. Try adding pink blocks first.");
         }
         let new_neighbourhood_block = new_neighbourhood_blocks.pop().unwrap();
 
@@ -427,6 +427,12 @@ impl Partitioning {
         frontier
     }
 
+    fn adjacent_blocks(&self, id: BlockID) -> BTreeSet<BlockID> {
+        let mut blocks = self.calculate_frontier(&self.get_block(id).perimeter);
+        blocks.retain(|x| *x != id);
+        blocks
+    }
+
     // Possibly returns multiple merged blocks. The input is never "lost" -- if any perimeter fails
     // to become a block, fail the whole operation.
     fn make_merged_blocks(&self, map: &Map, input: Vec<BlockID>) -> Result<Vec<Block>> {
@@ -440,5 +446,38 @@ impl Partitioning {
             blocks.push(perim.to_block(map)?);
         }
         Ok(blocks)
+    }
+
+    /// We want to add target_block to new_owner, but we can't. Find the blocks we may need to add
+    /// first.
+    pub fn find_intermediate_blocks(
+        &self,
+        new_owner: NeighbourhoodID,
+        target_block: BlockID,
+    ) -> Vec<BlockID> {
+        let adjacent_to_target_block = self.adjacent_blocks(target_block);
+        let _new_owner_frontier =
+            self.calculate_frontier(&self.neighbourhood_block(new_owner).perimeter);
+
+        let mut result = Vec::new();
+        for id in adjacent_to_target_block.clone() {
+            // TODO: intersect the two above -- aka, look for blocks adjacent both to target_block
+            // and new_owner. But this seems too eager and maybe covered by the below condition.
+            /*if self.block_to_neighbourhood(id) != new_owner && new_owner_frontier.contains(&id) {
+                result.push(id);
+                continue;
+            }*/
+
+            // Look for holes, totally surrounded by other holes or target_block.
+            if self
+                .adjacent_blocks(id)
+                .into_iter()
+                .all(|x| x == target_block || adjacent_to_target_block.contains(&x))
+            {
+                result.push(id);
+            }
+        }
+
+        result
     }
 }

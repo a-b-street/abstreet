@@ -7,7 +7,8 @@ use map_gui::tools::DrawSimpleRoadLabels;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{Lasso, PopupMsg};
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
+    Widget,
 };
 
 use crate::components::{AppwidePanel, Mode};
@@ -29,6 +30,7 @@ pub struct SelectBoundary {
     // As an optimization, don't repeatedly attempt to make an edit that'll fail. The bool is
     // whether the block is already included or not
     last_failed_change: Option<(BlockID, bool)>,
+    draw_last_error: Drawable,
 
     lasso: Option<Lasso>,
 }
@@ -78,6 +80,7 @@ impl SelectBoundary {
 
             orig_partitioning: app.partitioning().clone(),
             last_failed_change: None,
+            draw_last_error: Drawable::empty(ctx),
 
             lasso: None,
         };
@@ -138,6 +141,7 @@ impl SelectBoundary {
             return Transition::Keep;
         }
         self.last_failed_change = None;
+        self.draw_last_error = Drawable::empty(ctx);
 
         match self.try_toggle_block(app, id) {
             Ok(Some(new_neighbourhood)) => {
@@ -171,6 +175,18 @@ impl SelectBoundary {
                     .wrap_to_pct(ctx, 15)
                     .into_widget(ctx);
                 self.left_panel.replace(ctx, "warning", label);
+
+                // Figure out what we need to do first
+                if !self.currently_have_block(app, id) {
+                    let mut batch = GeomBatch::new();
+                    for block in app.partitioning().find_intermediate_blocks(self.id, id) {
+                        batch.push(
+                            Color::PINK.alpha(0.5),
+                            app.partitioning().get_block(block).polygon.clone(),
+                        );
+                    }
+                    self.draw_last_error = ctx.upload(batch);
+                }
             }
         }
 
@@ -194,6 +210,9 @@ impl SelectBoundary {
     }
 
     fn add_blocks_freehand(&mut self, ctx: &mut EventCtx, app: &mut App, lasso_polygon: Polygon) {
+        self.last_failed_change = None;
+        self.draw_last_error = Drawable::empty(ctx);
+
         ctx.loading_screen("expand current neighbourhood boundary", |ctx, timer| {
             timer.start("find matching blocks");
             // Find all of the blocks within the polygon
@@ -328,6 +347,7 @@ impl State<App> for SelectBoundary {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.world.draw(g);
+        g.redraw(&self.draw_last_error);
         self.draw_boundary_roads.draw(g);
         self.appwide_panel.draw(g);
         self.left_panel.draw(g);
