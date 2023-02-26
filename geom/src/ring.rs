@@ -78,11 +78,15 @@ impl Ring {
         Self::new(pts)
     }
 
+    pub fn as_polyline(&self) -> PolyLine {
+        PolyLine::unchecked_new(self.pts.clone())
+    }
+
     /// Draws the ring with some thickness, with half of it straddling the interor of the ring, and
     /// half on the outside.
     pub fn to_outline(&self, thickness: Distance) -> Tessellation {
         // TODO Has a weird corner. Use the polygon offset thing instead?
-        PolyLine::unchecked_new(self.pts.clone()).thicken_tessellation(thickness)
+        self.as_polyline().thicken_tessellation(thickness)
     }
 
     pub fn into_polygon(self) -> Polygon {
@@ -124,7 +128,7 @@ impl Ring {
         pt2: Pt2D,
     ) -> Option<(PolyLine, PolyLine)> {
         assert!(pt1 != pt2);
-        let pl = PolyLine::unchecked_new(self.pts.clone());
+        let pl = self.as_polyline();
 
         let mut dist1 = pl.dist_along_of_point(pt1)?.0;
         let mut dist2 = pl.dist_along_of_point(pt2)?.0;
@@ -216,9 +220,7 @@ impl Ring {
     }
 
     pub fn contains_pt(&self, pt: Pt2D) -> bool {
-        PolyLine::unchecked_new(self.pts.clone())
-            .dist_along_of_point(pt)
-            .is_some()
+        self.as_polyline().dist_along_of_point(pt).is_some()
     }
 
     /// Produces a GeoJSON polygon, optionally mapping the world-space points back to GPS.
