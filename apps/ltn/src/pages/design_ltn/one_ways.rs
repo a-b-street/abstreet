@@ -4,7 +4,7 @@ use widgetry::{EventCtx, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
 use crate::render::colors;
-use crate::{App, Neighbourhood};
+use crate::{logic, App, Neighbourhood};
 
 pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) -> World<Obj> {
     let map = &app.per_map.map;
@@ -54,7 +54,7 @@ pub fn handle_world_outcome(
                 LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
             }));
 
-            super::map_edits::modify_road(ctx, app, r, edits);
+            logic::map_edits::modify_road(ctx, app, r, edits);
 
             EditOutcome::Transition(Transition::Recreate)
         }

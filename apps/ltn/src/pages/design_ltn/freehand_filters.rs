@@ -1,7 +1,7 @@
 use geom::PolyLine;
 use widgetry::EventCtx;
 
-use crate::edit::{EditMode, EditOutcome};
+use super::{modals, EditMode, EditOutcome};
 use crate::{
     mut_edits, redraw_all_filters, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter,
     Transition,
@@ -50,7 +50,7 @@ fn make_filters_along_path(
 
             if road.oneway_for_driving().is_some() {
                 if app.session.layers.autofix_one_ways {
-                    super::fix_oneway_and_add_filter(ctx, app, &[(*r, dist)]);
+                    modals::fix_oneway_and_add_filter(ctx, app, &[(*r, dist)]);
                 } else {
                     oneways.push((*r, dist));
                 }
@@ -83,9 +83,9 @@ fn make_filters_along_path(
     redraw_all_filters(ctx, app);
 
     if !oneways.is_empty() {
-        Transition::Push(super::ResolveOneWayAndFilter::new_state(ctx, oneways))
+        Transition::Push(modals::ResolveOneWayAndFilter::new_state(ctx, oneways))
     } else if !bus_roads.is_empty() {
-        Transition::Push(super::ResolveBusGate::new_state(ctx, app, bus_roads))
+        Transition::Push(modals::ResolveBusGate::new_state(ctx, app, bus_roads))
     } else {
         Transition::Recreate
     }

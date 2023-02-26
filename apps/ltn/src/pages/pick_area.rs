@@ -7,7 +7,6 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
-use crate::edit::EditMode;
 use crate::render::colors;
 use crate::{pages, render, App, Neighbourhood, NeighbourhoodID, Transition};
 
@@ -24,11 +23,11 @@ impl PickArea {
         map_gui::tools::update_url_map_name(app);
 
         // Make sure we clear this state if we ever switch neighbourhoods
-        if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
+        if let pages::EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
             *maybe_focus = None;
         }
-        if let EditMode::FreehandFilters(_) = app.session.edit_mode {
-            app.session.edit_mode = EditMode::Filters;
+        if let pages::EditMode::FreehandFilters(_) = app.session.edit_mode {
+            app.session.edit_mode = pages::EditMode::Filters;
         }
 
         let (world, draw_over_roads) = (make_world(ctx, app), draw_over_roads(ctx, app));

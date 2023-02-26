@@ -8,8 +8,8 @@ use widgetry::{
     Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Widget,
 };
 
+use super::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::components::{AppwidePanel, BottomPanel, Mode};
-use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::logic::AutoFilterHeuristic;
 use crate::render::colors;
 use crate::{
@@ -492,9 +492,9 @@ fn make_bottom_panel(
     let row = Widget::row(vec![
         edit_mode(ctx, app),
         if let EditMode::Shortcuts(ref focus) = app.session.edit_mode {
-            crate::edit::shortcuts::widget(ctx, app, focus.as_ref())
+            super::shortcuts::widget(ctx, app, focus.as_ref())
         } else if let EditMode::SpeedLimits = app.session.edit_mode {
-            crate::edit::speed_limits::widget(ctx)
+            super::speed_limits::widget(ctx)
         } else {
             Widget::nothing()
         }

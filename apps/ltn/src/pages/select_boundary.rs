@@ -12,7 +12,6 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, Mode};
-use crate::edit::EditMode;
 use crate::logic::{BlockID, Partitioning};
 use crate::render::colors;
 use crate::{mut_partitioning, pages, render, App, NeighbourhoodID, Transition};
@@ -61,11 +60,11 @@ impl SelectBoundary {
         }
 
         // Make sure we clear this state if we ever modify neighbourhood boundaries
-        if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
+        if let pages::EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
             *maybe_focus = None;
         }
-        if let EditMode::FreehandFilters(_) = app.session.edit_mode {
-            app.session.edit_mode = EditMode::Filters;
+        if let pages::EditMode::FreehandFilters(_) = app.session.edit_mode {
+            app.session.edit_mode = pages::EditMode::Filters;
         }
 
         let appwide_panel = AppwidePanel::new(ctx, app, Mode::SelectBoundary);

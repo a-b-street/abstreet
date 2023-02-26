@@ -13,7 +13,7 @@ use widgetry::tools::URLManager;
 use widgetry::{Canvas, Drawable, EventCtx, GfxCtx, SharedAppState, State, Warper};
 
 use crate::logic::Partitioning;
-use crate::{logic, pages, render, Edits, FilterType, NeighbourhoodID, Toggle3Zoomed};
+use crate::{logic, pages, render, Edits, FilterType, NeighbourhoodID};
 
 pub type Transition = widgetry::Transition<App>;
 
@@ -42,7 +42,7 @@ pub struct PerMap {
     pub consultation: Option<NeighbourhoodID>,
     pub consultation_id: Option<String>,
 
-    pub draw_all_filters: Toggle3Zoomed,
+    pub draw_all_filters: render::Toggle3Zoomed,
     pub draw_major_road_labels: Option<DrawSimpleRoadLabels>,
     pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
     pub draw_poi_icons: Drawable,
@@ -78,7 +78,7 @@ impl PerMap {
             consultation: None,
             consultation_id: None,
 
-            draw_all_filters: Toggle3Zoomed::empty(ctx),
+            draw_all_filters: render::Toggle3Zoomed::empty(ctx),
             draw_major_road_labels: None,
             draw_all_road_labels: None,
             draw_poi_icons,
@@ -99,7 +99,7 @@ impl PerMap {
 }
 
 pub struct Session {
-    pub edit_mode: crate::edit::EditMode,
+    pub edit_mode: pages::EditMode,
     pub filter_type: FilterType,
     pub crossing_type: CrossingType,
 
@@ -216,7 +216,7 @@ impl App {
         ctx.canvas.settings = opts.canvas_settings.clone();
 
         let session = Session {
-            edit_mode: crate::edit::EditMode::Filters,
+            edit_mode: pages::EditMode::Filters,
             filter_type: FilterType::WalkCycleOnly,
             crossing_type: CrossingType::Unsignalized,
 

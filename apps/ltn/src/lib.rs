@@ -8,7 +8,6 @@ use widgetry::tools::FutureLoader;
 use widgetry::{EventCtx, Settings, State};
 
 pub use app::{App, PerMap, Session, Transition};
-use filters::Toggle3Zoomed;
 pub use filters::{Crossing, DiagonalFilter, Edits, FilterType, RoadFilter};
 pub use logic::NeighbourhoodID;
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
@@ -20,7 +19,6 @@ extern crate log;
 
 mod app;
 mod components;
-mod edit;
 mod export;
 mod filters;
 mod logic;
