@@ -1,6 +1,3 @@
-pub mod auto;
-mod existing;
-
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
@@ -11,7 +8,6 @@ use map_model::{CrossingType, EditRoad, IntersectionID, Map, RoadID, RoutingPara
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
-pub use self::existing::transform_existing_filters;
 use crate::render::colors;
 use crate::{mut_edits, App};
 

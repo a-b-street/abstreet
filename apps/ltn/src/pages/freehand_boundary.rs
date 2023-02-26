@@ -10,7 +10,7 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, Mode};
-use crate::partition::CustomBoundary;
+use crate::logic::CustomBoundary;
 use crate::{mut_partitioning, pages, App, NeighbourhoodID, Transition};
 
 pub struct FreehandBoundary {

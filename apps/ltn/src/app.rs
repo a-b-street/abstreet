@@ -12,9 +12,8 @@ use map_model::{CrossingType, IntersectionID, Map, RoutingParams};
 use widgetry::tools::URLManager;
 use widgetry::{Canvas, Drawable, EventCtx, GfxCtx, SharedAppState, State, Warper};
 
-use crate::{
-    logic, pages, render, Edits, FilterType, NeighbourhoodID, Partitioning, Toggle3Zoomed,
-};
+use crate::logic::Partitioning;
+use crate::{logic, pages, render, Edits, FilterType, NeighbourhoodID, Toggle3Zoomed};
 
 pub type Transition = widgetry::Transition<App>;
 
@@ -38,7 +37,7 @@ pub struct PerMap {
     // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
     pub routing_params_before_changes: RoutingParams,
     pub proposals: crate::save::Proposals,
-    pub impact: crate::impact::Impact,
+    pub impact: logic::Impact,
 
     pub consultation: Option<NeighbourhoodID>,
     pub consultation_id: Option<String>,
@@ -74,7 +73,7 @@ impl PerMap {
 
             routing_params_before_changes: RoutingParams::default(),
             proposals,
-            impact: crate::impact::Impact::empty(ctx),
+            impact: logic::Impact::empty(ctx),
 
             consultation: None,
             consultation_id: None,
@@ -152,7 +151,7 @@ impl AppLike for App {
         self.opts.units.metric = self.per_map.map.get_name().city.uses_metric();
 
         // These two logically belong in PerMap::new, but it's easier to have the full App
-        crate::filters::transform_existing_filters(ctx, self, timer);
+        logic::transform_existing_filters(ctx, self, timer);
         self.per_map.draw_all_filters = self
             .per_map
             .proposals
@@ -160,7 +159,7 @@ impl AppLike for App {
             .edits
             .draw(ctx, &self.per_map.map);
 
-        logic::crossings::populate_existing_crossings(self);
+        logic::populate_existing_crossings(self);
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, _l: DrawOptions) {

@@ -17,7 +17,7 @@ use widgetry::{
 };
 
 use crate::components::{AppwidePanel, Mode};
-use crate::impact::{end_of_day, Filters, Impact};
+use crate::logic::impact::{end_of_day, Filters, Impact};
 use crate::render::colors;
 use crate::{App, Transition};
 

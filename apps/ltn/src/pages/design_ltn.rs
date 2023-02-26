@@ -10,7 +10,7 @@ use widgetry::{
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
-use crate::filters::auto::Heuristic;
+use crate::logic::AutoFilterHeuristic;
 use crate::render::colors;
 use crate::{
     is_private, pages, render, App, FilterType, Neighbourhood, NeighbourhoodID, Transition,
@@ -447,7 +447,7 @@ fn launch_advanced(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Transi
                 Transition::Replace(ChooseSomething::new_state(
                     ctx,
                     "Add one filter automatically, using different heuristics",
-                    Heuristic::choices(),
+                    AutoFilterHeuristic::choices(),
                     Box::new(move |heuristic, ctx, app| {
                         match ctx.loading_screen(
                             "automatically filter a neighbourhood",

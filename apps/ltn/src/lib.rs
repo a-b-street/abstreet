@@ -10,8 +10,8 @@ use widgetry::{EventCtx, Settings, State};
 pub use app::{App, PerMap, Session, Transition};
 use filters::Toggle3Zoomed;
 pub use filters::{Crossing, DiagonalFilter, Edits, FilterType, RoadFilter};
+pub use logic::NeighbourhoodID;
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
-pub use partition::{NeighbourhoodID, Partitioning};
 
 #[macro_use]
 extern crate anyhow;
@@ -23,14 +23,11 @@ mod components;
 mod edit;
 mod export;
 mod filters;
-mod impact;
 mod logic;
 mod neighbourhood;
 mod pages;
-mod partition;
 mod render;
 mod save;
-mod shortcuts;
 
 pub fn main() {
     let settings = Settings::new("Low traffic neighbourhoods");

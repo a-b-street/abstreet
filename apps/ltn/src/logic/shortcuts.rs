@@ -26,6 +26,87 @@ impl Shortcuts {
         }
     }
 
+    pub fn new(app: &App, neighbourhood: &Neighbourhood, timer: &mut Timer) -> Self {
+        let map = &app.per_map.map;
+        let edits = &app.edits();
+        // The overall approach: look for all possible paths from an entrance to an exit, only if they
+        // connect to different major roads.
+        //
+        // But an entrance and exit to _what_? If we try to route from the entrance to one cell to the
+        // exit of another, then the route will make strange U-turns and probably use the perimeter. By
+        // definition, two cells aren't reachable without using the perimeter. So restrict our search
+        // to pairs of entrances/exits in the _same_ cell.
+        let mut requests = Vec::new();
+
+        for cell in &neighbourhood.cells {
+            let entrances = find_entrances_or_exits(map, neighbourhood, cell, true);
+            let exits = find_entrances_or_exits(map, neighbourhood, cell, false);
+
+            for entrance in &entrances {
+                for exit in &exits {
+                    // Most of the time, an entrance/exit connects to only "one" major road. But where
+                    // a road name changes, or two major roads meet, we'll have multiple. If two
+                    // corners meet and share one main road, still consider that a shortcut -- it might
+                    // be a "false positive" or there could be some legitimate reason for a driver to
+                    // attempt the shortcut.
+                    if entrance.major_road_names != exit.major_road_names {
+                        requests.push(PathRequest::vehicle(
+                            Position::start(entrance.lane),
+                            Position::end(exit.lane, map),
+                            PathConstraints::Car,
+                        ));
+                    }
+                }
+            }
+        }
+
+        let mut params = map.routing_params().clone();
+        edits.update_routing_params(&mut params);
+
+        // Restrict the pathfinding to the interior of the neighbourhood only. Don't allow using
+        // perimeter roads or leaving and re-entering at all.
+        //
+        // The point of this view is to show possible detours people might try to take in response to
+        // one filter. Note the original "demand model" input is bogus anyway; it's all possible
+        // entrances and exits to the neighbourhood, without regards for the larger path somebody
+        // actually wants to take.
+        params.avoid_roads.extend(
+            map.all_roads()
+                .iter()
+                .map(|r| r.id)
+                .collect::<BTreeSet<RoadID>>()
+                .difference(&neighbourhood.interior_roads),
+        );
+
+        // Also can't use private roads
+        for r in &neighbourhood.interior_roads {
+            if !crate::is_driveable(map.get_r(*r), map) {
+                params.avoid_roads.insert(*r);
+            }
+        }
+
+        // TODO Perf: when would it be worth creating a CH? Especially if we could subset just this
+        // part of the graph, it'd probably be helpful.
+        let pathfinder = Pathfinder::new_dijkstra(map, params, vec![PathConstraints::Car], timer);
+        let paths: Vec<PathV2> = timer
+            .parallelize(
+                "calculate paths between entrances and exits",
+                requests,
+                |req| pathfinder.pathfind_v2(req, map),
+            )
+            .into_iter()
+            .flatten()
+            .collect();
+
+        // TODO Rank the likeliness of each shortcut by
+        // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
+        //    starting and ending on a specific road that makes sense. (We have to pick the 'direction'
+        //    along the perimeter roads that's sensible.)
+        // 2) Comparing that time to the time for cutting through
+
+        Shortcuts::from_paths(neighbourhood, paths)
+    }
+
     pub fn from_paths(neighbourhood: &Neighbourhood, paths: Vec<PathV2>) -> Self {
         // How many shortcuts pass through each street?
         let mut count_per_road = Counter::new();
@@ -83,87 +164,6 @@ impl Shortcuts {
         colorer.ranked_intersections(self.count_per_intersection.clone(), &app.cs.good_to_bad_red);
         colorer.draw.unzoomed
     }
-}
-
-pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Timer) -> Shortcuts {
-    let map = &app.per_map.map;
-    let edits = &app.edits();
-    // The overall approach: look for all possible paths from an entrance to an exit, only if they
-    // connect to different major roads.
-    //
-    // But an entrance and exit to _what_? If we try to route from the entrance to one cell to the
-    // exit of another, then the route will make strange U-turns and probably use the perimeter. By
-    // definition, two cells aren't reachable without using the perimeter. So restrict our search
-    // to pairs of entrances/exits in the _same_ cell.
-    let mut requests = Vec::new();
-
-    for cell in &neighbourhood.cells {
-        let entrances = find_entrances_or_exits(map, neighbourhood, cell, true);
-        let exits = find_entrances_or_exits(map, neighbourhood, cell, false);
-
-        for entrance in &entrances {
-            for exit in &exits {
-                // Most of the time, an entrance/exit connects to only "one" major road. But where
-                // a road name changes, or two major roads meet, we'll have multiple. If two
-                // corners meet and share one main road, still consider that a shortcut -- it might
-                // be a "false positive" or there could be some legitimate reason for a driver to
-                // attempt the shortcut.
-                if entrance.major_road_names != exit.major_road_names {
-                    requests.push(PathRequest::vehicle(
-                        Position::start(entrance.lane),
-                        Position::end(exit.lane, map),
-                        PathConstraints::Car,
-                    ));
-                }
-            }
-        }
-    }
-
-    let mut params = map.routing_params().clone();
-    edits.update_routing_params(&mut params);
-
-    // Restrict the pathfinding to the interior of the neighbourhood only. Don't allow using
-    // perimeter roads or leaving and re-entering at all.
-    //
-    // The point of this view is to show possible detours people might try to take in response to
-    // one filter. Note the original "demand model" input is bogus anyway; it's all possible
-    // entrances and exits to the neighbourhood, without regards for the larger path somebody
-    // actually wants to take.
-    params.avoid_roads.extend(
-        map.all_roads()
-            .iter()
-            .map(|r| r.id)
-            .collect::<BTreeSet<RoadID>>()
-            .difference(&neighbourhood.interior_roads),
-    );
-
-    // Also can't use private roads
-    for r in &neighbourhood.interior_roads {
-        if !crate::is_driveable(map.get_r(*r), map) {
-            params.avoid_roads.insert(*r);
-        }
-    }
-
-    // TODO Perf: when would it be worth creating a CH? Especially if we could subset just this
-    // part of the graph, it'd probably be helpful.
-    let pathfinder = Pathfinder::new_dijkstra(map, params, vec![PathConstraints::Car], timer);
-    let paths: Vec<PathV2> = timer
-        .parallelize(
-            "calculate paths between entrances and exits",
-            requests,
-            |req| pathfinder.pathfind_v2(req, map),
-        )
-        .into_iter()
-        .flatten()
-        .collect();
-
-    // TODO Rank the likeliness of each shortcut by
-    // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
-    //    starting and ending on a specific road that makes sense. (We have to pick the 'direction'
-    //    along the perimeter roads that's sensible.)
-    // 2) Comparing that time to the time for cutting through
-
-    Shortcuts::from_paths(neighbourhood, paths)
 }
 
 struct EntryExit {
