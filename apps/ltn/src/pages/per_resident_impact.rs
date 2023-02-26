@@ -14,7 +14,7 @@ use widgetry::{
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::save::PreserveState;
-use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
+use crate::{colors, pages, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct PerResidentImpact {
     appwide_panel: AppwidePanel,
@@ -309,7 +309,7 @@ impl State<App> for PerResidentImpact {
         }
         if let Outcome::Clicked(x) = self.bottom_panel.event(ctx) {
             if x == "Back" {
-                return Transition::Replace(crate::design_ltn::DesignLTN::new_state(
+                return Transition::Replace(pages::DesignLTN::new_state(
                     ctx,
                     app,
                     self.neighbourhood.id,
@@ -323,14 +323,12 @@ impl State<App> for PerResidentImpact {
             WorldOutcome::ClickedObject(Obj::Building(b)) => {
                 if self.buildings_inside.contains(&b) {
                     if let Some(target) = self.current_target {
-                        crate::route_planner::RoutePlanner::add_new_trip(
+                        pages::RoutePlanner::add_new_trip(
                             app,
                             TripEndpoint::Building(b),
                             TripEndpoint::Building(target),
                         );
-                        return Transition::Replace(crate::route_planner::RoutePlanner::new_state(
-                            ctx, app,
-                        ));
+                        return Transition::Replace(pages::RoutePlanner::new_state(ctx, app));
                     }
                 } else {
                     self.current_target = Some(b);

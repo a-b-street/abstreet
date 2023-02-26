@@ -11,7 +11,7 @@ use widgetry::{
 
 use crate::components::{AppwidePanel, Mode};
 use crate::partition::CustomBoundary;
-use crate::{mut_partitioning, App, NeighbourhoodID, Transition};
+use crate::{mut_partitioning, pages, App, NeighbourhoodID, Transition};
 
 pub struct FreehandBoundary {
     appwide_panel: AppwidePanel,
@@ -165,7 +165,7 @@ impl State<App> for FreehandBoundary {
         if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
             match x.as_ref() {
                 "Cancel" => {
-                    return Transition::Replace(crate::PickArea::new_state(ctx, app));
+                    return Transition::Replace(pages::PickArea::new_state(ctx, app));
                 }
                 "Confirm" => {
                     if let Some(custom) = self.custom.take() {
@@ -177,9 +177,7 @@ impl State<App> for FreehandBoundary {
                             mut_partitioning!(app).add_custom_boundary(custom)
                         };
                         // TODO Clicking is weird, acts like we click load proposal
-                        return Transition::Replace(crate::design_ltn::DesignLTN::new_state(
-                            ctx, app, id,
-                        ));
+                        return Transition::Replace(pages::DesignLTN::new_state(ctx, app, id));
                     }
                 }
                 "Select freehand" => {

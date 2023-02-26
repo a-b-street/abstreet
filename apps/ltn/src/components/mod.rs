@@ -1,4 +1,3 @@
-mod about;
 mod appwide_panel;
 mod layers;
 mod left_panel;

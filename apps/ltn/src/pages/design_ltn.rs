@@ -12,7 +12,9 @@ use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::draw_cells::RenderCells;
 use crate::edit::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::filters::auto::Heuristic;
-use crate::{colors, is_private, App, FilterType, Neighbourhood, NeighbourhoodID, Transition};
+use crate::{
+    colors, is_private, pages, App, FilterType, Neighbourhood, NeighbourhoodID, Transition,
+};
 
 pub struct DesignLTN {
     appwide_panel: AppwidePanel,
@@ -433,18 +435,14 @@ fn launch_advanced(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID) -> Transi
         choices,
         Box::new(move |choice, ctx, app| {
             if choice == "Customize boundary (for drawing only)" {
-                Transition::Replace(crate::customize_boundary::CustomizeBoundary::new_state(
-                    ctx, app, id,
-                ))
+                Transition::Replace(pages::CustomizeBoundary::new_state(ctx, app, id))
             } else if choice == "Convert to freehand area" {
-                Transition::Replace(
-                    crate::freehand_boundary::FreehandBoundary::new_from_polygon(
-                        ctx,
-                        app,
-                        format!("Converted from {:?}", id),
-                        app.partitioning().get_info(id).block.polygon.clone(),
-                    ),
-                )
+                Transition::Replace(pages::FreehandBoundary::new_from_polygon(
+                    ctx,
+                    app,
+                    format!("Converted from {:?}", id),
+                    app.partitioning().get_info(id).block.polygon.clone(),
+                ))
             } else {
                 Transition::Replace(ChooseSomething::new_state(
                     ctx,

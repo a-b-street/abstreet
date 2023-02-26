@@ -1,18 +1,14 @@
-use std::collections::HashSet;
-
 use abstutil::Counter;
 use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
-use map_model::{osm::RoadRank, RoadID};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{ChooseSomething, PromptInput};
 use widgetry::{
-    Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, Panel, State,
-    Widget,
+    Choice, Color, DrawBaselayer, Drawable, EventCtx, GfxCtx, Outcome, Panel, State, Widget,
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::edit::EditMode;
-use crate::{colors, App, Neighbourhood, NeighbourhoodID, Transition};
+use crate::{colors, pages, render, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct PickArea {
     appwide_panel: AppwidePanel,
@@ -71,9 +67,9 @@ impl PickArea {
             world,
             draw_over_roads,
             draw_boundary_roads: if app.session.layers.show_main_roads {
-                draw_main_roads(ctx, app)
+                render::draw_main_roads(ctx, app)
             } else {
-                draw_boundary_roads(ctx, app)
+                render::draw_boundary_roads(ctx, app)
             },
         })
     }
@@ -105,7 +101,7 @@ impl State<App> for PickArea {
         }
 
         if let WorldOutcome::ClickedObject(id) = self.world.event(ctx) {
-            return Transition::Push(crate::design_ltn::DesignLTN::new_state(ctx, app, id));
+            return Transition::Push(pages::DesignLTN::new_state(ctx, app, id));
         }
 
         Transition::Keep
@@ -144,7 +140,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
         for (id, info) in app.partitioning().all_neighbourhoods() {
             timer.next();
             match app.session.draw_neighbourhood_style {
-                Style::Simple => {
+                PickAreaStyle::Simple => {
                     world
                         .add(*id)
                         .hitbox(info.block.polygon.clone())
@@ -157,7 +153,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                         .clickable()
                         .build(ctx);
                 }
-                Style::Cells => {
+                PickAreaStyle::Cells => {
                     let neighbourhood = Neighbourhood::new(app, *id);
                     let render_cells = crate::draw_cells::RenderCells::new(map, &neighbourhood);
                     let hovered_batch = render_cells.draw_colored_areas();
@@ -169,7 +165,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                         .clickable()
                         .build(ctx);
                 }
-                Style::Quietness => {
+                PickAreaStyle::Quietness => {
                     let neighbourhood = Neighbourhood::new(app, *id);
                     let (quiet_streets, total_streets) = neighbourhood
                         .shortcuts
@@ -188,7 +184,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                         .clickable()
                         .build(ctx);
                 }
-                Style::Shortcuts => {
+                PickAreaStyle::Shortcuts => {
                     world
                         .add(*id)
                         .hitbox(info.block.polygon.clone())
@@ -205,7 +201,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
 }
 
 fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> Drawable {
-    if app.session.draw_neighbourhood_style != Style::Shortcuts {
+    if app.session.draw_neighbourhood_style != PickAreaStyle::Shortcuts {
         return Drawable::empty(ctx);
     }
 
@@ -227,46 +223,8 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> Drawable {
     colorer.build(ctx).unzoomed
 }
 
-pub fn draw_main_roads(ctx: &EventCtx, app: &App) -> Drawable {
-    let mut roads = HashSet::new();
-    for r in app.per_map.map.all_roads() {
-        if r.get_rank() != RoadRank::Local {
-            roads.insert(r.id);
-        }
-    }
-    draw_roads(ctx, app, roads)
-}
-
-pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> Drawable {
-    let mut roads = HashSet::new();
-    for info in app.partitioning().all_neighbourhoods().values() {
-        for id in &info.block.perimeter.roads {
-            roads.insert(id.road);
-        }
-    }
-    draw_roads(ctx, app, roads)
-}
-
-fn draw_roads(ctx: &EventCtx, app: &App, roads: HashSet<RoadID>) -> Drawable {
-    let mut batch = GeomBatch::new();
-    let mut intersections = HashSet::new();
-    for r in roads {
-        let road = app.per_map.map.get_r(r);
-        batch.push(colors::HIGHLIGHT_BOUNDARY, road.get_thick_polygon());
-        intersections.insert(road.src_i);
-        intersections.insert(road.dst_i);
-    }
-    for i in intersections {
-        batch.push(
-            colors::HIGHLIGHT_BOUNDARY,
-            app.per_map.map.get_i(i).polygon.clone(),
-        );
-    }
-    batch.build(ctx)
-}
-
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Style {
+pub enum PickAreaStyle {
     Simple,
     Cells,
     Quietness,
@@ -286,13 +244,13 @@ fn change_draw_style(ctx: &mut EventCtx) -> Transition {
         ctx,
         "Change draw style",
         vec![
-            Choice::new("default", Style::Simple),
-            Choice::new("show cells when you hover on an area", Style::Cells),
+            Choice::new("default", PickAreaStyle::Simple),
+            Choice::new("show cells when you hover on an area", PickAreaStyle::Cells),
             Choice::new(
                 "color areas by how much shortcutting they have",
-                Style::Quietness,
+                PickAreaStyle::Quietness,
             ),
-            Choice::new("show shortcuts through all areas", Style::Shortcuts),
+            Choice::new("show shortcuts through all areas", PickAreaStyle::Shortcuts),
         ],
         Box::new(move |choice, _, app| {
             app.session.draw_neighbourhood_style = choice;
@@ -313,16 +271,14 @@ fn manage_custom_boundary(ctx: &mut EventCtx, app: &App) -> Transition {
         choices,
         Box::new(move |choice, ctx, app| {
             if let Some(id) = choice {
-                Transition::Clear(vec![crate::design_ltn::DesignLTN::new_state(ctx, app, id)])
+                Transition::Clear(vec![pages::DesignLTN::new_state(ctx, app, id)])
             } else {
                 Transition::Replace(PromptInput::new_state(
                     ctx,
                     "Name the custom boundary",
                     String::new(),
                     Box::new(|name, ctx, app| {
-                        Transition::Clear(vec![crate::freehand_boundary::FreehandBoundary::blank(
-                            ctx, app, name,
-                        )])
+                        Transition::Clear(vec![pages::FreehandBoundary::blank(ctx, app, name)])
                     }),
                 ))
             }

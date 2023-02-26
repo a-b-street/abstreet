@@ -9,7 +9,7 @@ use widgetry::{
 };
 
 use crate::components::Mode;
-use crate::{colors, crossings, App, FilterType, Transition};
+use crate::{colors, pages, App, FilterType, Transition};
 
 // Partly copied from ungap/layers.s
 
@@ -377,14 +377,14 @@ impl Mode {
             ],
             Mode::Crossings => vec![
                 Widget::row(vec![
-                    Image::from_path(crossings::svg_path(CrossingType::Unsignalized))
+                    Image::from_path(pages::Crossings::svg_path(CrossingType::Unsignalized))
                         .untinted()
                         .dims(30.0)
                         .into_widget(ctx),
                     "Unsignalized crossing".text_widget(ctx),
                 ]),
                 Widget::row(vec![
-                    Image::from_path(crossings::svg_path(CrossingType::Signalized))
+                    Image::from_path(pages::Crossings::svg_path(CrossingType::Signalized))
                         .untinted()
                         .dims(30.0)
                         .into_widget(ctx),

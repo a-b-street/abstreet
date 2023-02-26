@@ -14,8 +14,9 @@ use widgetry::{
 use crate::components::{AppwidePanel, Mode};
 use crate::edit::EditMode;
 use crate::partition::BlockID;
-use crate::pick_area::draw_boundary_roads;
-use crate::{colors, mut_partitioning, App, NeighbourhoodID, Partitioning, Transition};
+use crate::{
+    colors, mut_partitioning, pages, render, App, NeighbourhoodID, Partitioning, Transition,
+};
 
 pub struct SelectBoundary {
     appwide_panel: AppwidePanel,
@@ -75,7 +76,7 @@ impl SelectBoundary {
             left_panel,
             id,
             world: World::new(),
-            draw_boundary_roads: draw_boundary_roads(ctx, app),
+            draw_boundary_roads: render::draw_boundary_roads(ctx, app),
             frontier: BTreeSet::new(),
 
             orig_partitioning: app.partitioning().clone(),
@@ -166,7 +167,7 @@ impl SelectBoundary {
                     self.add_block(ctx, app, changed);
                 }
 
-                self.draw_boundary_roads = draw_boundary_roads(ctx, app);
+                self.draw_boundary_roads = render::draw_boundary_roads(ctx, app);
                 self.left_panel = make_panel(ctx, app, self.id, &self.appwide_panel.top_panel);
             }
             Err(err) => {
@@ -267,7 +268,7 @@ impl SelectBoundary {
             for id in app.partitioning().all_block_ids() {
                 self.add_block(ctx, app, id);
             }
-            self.draw_boundary_roads = draw_boundary_roads(ctx, app);
+            self.draw_boundary_roads = render::draw_boundary_roads(ctx, app);
         });
     }
 }
@@ -304,14 +305,10 @@ impl State<App> for SelectBoundary {
                     // back to a different neighbourhood than we started with. And also the original
                     // partitioning will have been lost!!!
                     mut_partitioning!(app) = self.orig_partitioning.clone();
-                    return Transition::Replace(crate::design_ltn::DesignLTN::new_state(
-                        ctx, app, self.id,
-                    ));
+                    return Transition::Replace(pages::DesignLTN::new_state(ctx, app, self.id));
                 }
                 "Confirm" => {
-                    return Transition::Replace(crate::design_ltn::DesignLTN::new_state(
-                        ctx, app, self.id,
-                    ));
+                    return Transition::Replace(pages::DesignLTN::new_state(ctx, app, self.id));
                 }
                 "Select freehand" => {
                     self.lasso = Some(Lasso::new(Distance::meters(1.0)));

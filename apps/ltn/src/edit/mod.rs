@@ -20,7 +20,7 @@ use widgetry::{
 
 pub use self::map_edits::undo_proposal;
 use crate::{
-    is_private, mut_edits, redraw_all_filters, App, FilterType, Neighbourhood, RoadFilter,
+    is_private, mut_edits, pages, redraw_all_filters, App, FilterType, Neighbourhood, RoadFilter,
     Transition,
 };
 
@@ -119,7 +119,7 @@ impl EditNeighbourhood {
         match action {
             "Adjust boundary" => EditOutcome::Transition(Transition::Replace(
                 if let Some(custom) = app.partitioning().custom_boundaries.get(&id).cloned() {
-                    crate::freehand_boundary::FreehandBoundary::edit_existing(
+                    pages::FreehandBoundary::edit_existing(
                         ctx,
                         app,
                         custom.name.clone(),
@@ -127,11 +127,11 @@ impl EditNeighbourhood {
                         custom,
                     )
                 } else {
-                    crate::select_boundary::SelectBoundary::new_state(ctx, app, id)
+                    pages::SelectBoundary::new_state(ctx, app, id)
                 },
             )),
             "Per-resident route impact" => EditOutcome::Transition(Transition::Replace(
-                crate::per_resident_impact::PerResidentImpact::new_state(ctx, app, id, None),
+                pages::PerResidentImpact::new_state(ctx, app, id, None),
             )),
             "undo" => {
                 undo_proposal(ctx, app);
