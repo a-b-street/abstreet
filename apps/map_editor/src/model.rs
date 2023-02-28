@@ -498,30 +498,14 @@ impl Model {
     }
 
     pub fn merge_r(&mut self, ctx: &EventCtx, id: RoadID) {
-        self.stop_showing_pts(id);
-
-        let (retained_i, deleted_i) = match self.map.streets.collapse_short_road(id) {
-            Ok(pair) => pair,
-            Err(err) => {
-                warn!("Can't merge this road: {}", err);
-                self.show_r_points(ctx, id);
-                return;
-            }
-        };
-
-        self.world
-            .delete_before_replacement(ID::Intersection(retained_i));
-        self.intersection_added(ctx, retained_i);
-
-        self.world.delete(ID::Intersection(deleted_i));
-
-        self.world.delete(ID::Road(id));
-        // Geometry might've changed for roads connected to the endpoints
-        for r in self.map.streets.intersections[&retained_i].roads.clone() {
-            self.road_added(ctx, r);
+        if let Err(err) = self.map.streets.collapse_short_road(id) {
+            warn!("Can't merge this road: {}", err);
+            return;
         }
-
         info!("Merged {id}");
+
+        // This is very blunt and slow. Multiple roads and intersections might've vanished.
+        self.recreate_world(ctx, &mut Timer::throwaway());
     }
 
     pub fn toggle_junction(&mut self, ctx: &EventCtx, id: RoadID) {
