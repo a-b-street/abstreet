@@ -14,7 +14,7 @@ abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 collisions = { path = "../collisions" }
 convert_osm = { path = "../convert_osm" }
-csv = "1.1.4"
+csv = { workspace = true }
 fs-err = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }

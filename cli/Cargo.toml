@@ -7,7 +7,7 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-csv = "1.1.4"
+csv = { workspace = true }
 fs-err = { workspace = true }
 geo = { workspace = true }
 geom = { path = "../geom" }

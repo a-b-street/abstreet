@@ -22,7 +22,7 @@ blockfinding = { path = "../../blockfinding" }
 collisions = { path = "../../collisions" }
 colorous = { workspace = true }
 contour = { workspace = true }
-csv = "1.1.4"
+csv = { workspace = true }
 downcast-rs = "1.2.0"
 enumset = "1.0.3"
 fs-err = { workspace = true }

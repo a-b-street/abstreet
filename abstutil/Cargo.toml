@@ -21,5 +21,5 @@ serde_json = { workspace = true }
 termion = "2.0.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-console_log = "0.2.0"
+console_log = "0.2.1"
 web-sys = { workspace = true, features=["Location", "Window"] }

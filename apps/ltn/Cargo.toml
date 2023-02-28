@@ -17,7 +17,7 @@ abstutil = { path = "../../abstutil" }
 anyhow = { workspace = true }
 blockfinding = { path = "../../blockfinding" }
 contour = { workspace = true }
-csv = "1.1.4"
+csv = { workspace = true }
 flate2 = "1.0.20"
 futures-channel = { version = "0.3.12"}
 geo = { workspace = true }

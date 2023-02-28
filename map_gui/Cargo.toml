@@ -14,7 +14,7 @@ release_s3 = []
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-built = { version = "0.5.2", optional = true, features=["chrono"] }
+built = { version = "0.6.0", optional = true, features=["chrono"] }
 chrono = "0.4.23"
 colorous = { workspace = true }
 contour = { workspace = true }
@@ -28,7 +28,7 @@ log = { workspace = true }
 lyon = "1.0.1"
 map_model = { path = "../map_model" }
 regex = "1.7.1"
-rfd = "0.11.0"
+rfd = "0.11.1"
 serde = { workspace = true }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
@@ -39,4 +39,4 @@ widgetry = { path = "../widgetry" }
 fs-err = { workspace = true }
 
 [build-dependencies]
-built = "0.5.0"
+built = "0.6.0"

@@ -23,7 +23,7 @@ map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
 rand = { workspace = true }
 rand_xorshift = { workspace = true }
-rodio = { version = "0.16.0", default-features = false, features = ["vorbis"] }
+rodio = { version = "0.17.1", default-features = false, features = ["vorbis"] }
 serde = { workspace = true }
 wasm-bindgen = { workspace = true, optional = true }
 widgetry = { path = "../../widgetry" }
