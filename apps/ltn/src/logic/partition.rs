@@ -98,15 +98,24 @@ impl Partitioning {
     }
 
     pub fn seed_using_heuristics(map: &Map, timer: &mut Timer) -> Partitioning {
+        timer.start("seed partitioning with heuristics");
+
         timer.start("find single blocks");
-        let mut single_blocks = Vec::new();
-        let mut single_block_perims = Vec::new();
+        let input_single_blocks = Perimeter::find_all_single_blocks(map);
+        timer.stop("find single blocks");
 
         // Merge holes upfront. Otherwise, it's usually impossible to expand a boundary with a
         // block containing a hole. Plus, there's no known scenario when somebody would want to
         // make a neighbourhood boundary involve a hole.
-        let input = Perimeter::merge_holes(map, Perimeter::find_all_single_blocks(map));
+        timer.start("merge holes");
+        let input = Perimeter::merge_holes(map, input_single_blocks);
+        timer.stop("merge holes");
+
+        let mut single_blocks = Vec::new();
+        let mut single_block_perims = Vec::new();
+        timer.start_iter("fix deadends and blockify", input.len());
         for mut perim in input {
+            timer.next();
             // TODO Some perimeters don't blockify after collapsing dead-ends. So do this
             // upfront, and separately work on any blocks that don't show up.
             // https://github.com/a-b-street/abstreet/issues/841
@@ -116,7 +125,6 @@ impl Partitioning {
                 single_blocks.push(block);
             }
         }
-        timer.stop("find single blocks");
 
         timer.start("partition");
         let partitions = Perimeter::partition_by_predicate(single_block_perims, |r| {
@@ -132,7 +140,7 @@ impl Partitioning {
         }
         timer.stop("partition");
 
-        timer.start_iter("blockify", merged.len());
+        timer.start_iter("blockify merged", merged.len());
         let mut blocks = Vec::new();
         for perimeter in merged {
             timer.next();
@@ -178,6 +186,7 @@ impl Partitioning {
             }
         }
 
+        timer.stop("seed partitioning with heuristics");
         p
     }
 
