@@ -5,7 +5,7 @@
 //! See https://github.com/a-b-street/abstreet/issues/393 for more context.
 
 use abstutil::prettyprint_usize;
-use geom::{Distance, Duration, Percent};
+use geom::{Distance, Duration, FindClosest, Percent};
 use map_gui::tools::{draw_isochrone, CityPicker, Navigator};
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
@@ -26,6 +26,7 @@ use crate::App;
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
 pub struct Viewer {
     panel: Panel,
+    snap_to_buildings: FindClosest<BuildingID>,
     highlight_start: Drawable,
     isochrone: Isochrone,
 
@@ -56,14 +57,35 @@ impl Viewer {
         let panel = build_panel(ctx, app, start, &isochrone);
         let draw_unwalkable_roads = draw_unwalkable_roads(ctx, app, &isochrone.options);
 
+        let mut snap_to_buildings = FindClosest::new();
+        for b in app.map.all_buildings() {
+            snap_to_buildings.add_polygon(b.id, &b.polygon);
+        }
+
         Box::new(Viewer {
             panel,
+            snap_to_buildings,
             highlight_start: ctx.upload(highlight_start),
             isochrone,
             hovering_on_bldg: Cached::new(),
             hovering_on_category: None,
             draw_unwalkable_roads,
         })
+    }
+
+    fn change_start(&mut self, ctx: &mut EventCtx, app: &App, b: BuildingID) {
+        if self.isochrone.start[0] == b {
+            return;
+        }
+
+        let start = app.map.get_b(b);
+        self.isochrone = Isochrone::new(ctx, app, vec![start.id], self.isochrone.options.clone());
+        let star = draw_star(ctx, start);
+        self.highlight_start = ctx.upload(star);
+        self.panel = build_panel(ctx, app, start, &self.isochrone);
+        // Any previous hover is from the perspective of the old `highlight_start`.
+        // Remove it so we don't have a dotted line to the previous isochrone's origin
+        self.hovering_on_bldg.clear();
     }
 }
 
@@ -106,21 +128,29 @@ impl State<App> for Viewer {
             } else {
                 self.hovering_on_category = None;
             }
+
+            if ctx.is_key_down(Key::LeftControl) {
+                if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
+                    if let Some((b, _)) = self
+                        .snap_to_buildings
+                        .closest_pt(cursor, Distance::meters(30.0))
+                    {
+                        self.change_start(ctx, app, b);
+                    }
+                }
+            }
         }
 
         // Don't call normal_left_click unless we're hovering on something in map-space; otherwise
         // panel.event never sees clicks.
-        if let Some((hover_id, _)) = self.hovering_on_bldg.key() {
+        if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
             if ctx.normal_left_click() {
-                let start = app.map.get_b(hover_id);
-                self.isochrone =
-                    Isochrone::new(ctx, app, vec![start.id], self.isochrone.options.clone());
-                let star = draw_star(ctx, start);
-                self.highlight_start = ctx.upload(star);
-                self.panel = build_panel(ctx, app, start, &self.isochrone);
-                // Any previous hover is from the perspective of the old `highlight_start`.
-                // Remove it so we don't have a dotted line to the previous isochrone's origin
-                self.hovering_on_bldg.clear();
+                if let Some((b, _)) = self
+                    .snap_to_buildings
+                    .closest_pt(cursor, Distance::meters(30.0))
+                {
+                    self.change_start(ctx, app, b);
+                }
             }
         }
 
@@ -316,6 +346,13 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
             .hotkey(Key::B)
             .build_def(ctx),
         Widget::horiz_separator(ctx, 1.0).margin_above(10),
+        Text::from_all(vec![
+            Line("Click").fg(ctx.style().text_hotkey_color),
+            Line(" a building or hold ").secondary(),
+            Line(Key::LeftControl.describe()).fg(ctx.style().text_hotkey_color),
+            Line(" to change the start point"),
+        ])
+        .into_widget(ctx),
         Text::from_all(vec![
             Line("Starting from: ").secondary(),
             Line(&start.address),
