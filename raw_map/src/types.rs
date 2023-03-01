@@ -16,7 +16,7 @@ pub struct Amenity {
 }
 
 /// Businesses are categorized into one of these types.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, EnumString, Display, EnumIter)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, EnumString, Display, EnumIter, Debug)]
 pub enum AmenityType {
     Bank,
     Bar,
