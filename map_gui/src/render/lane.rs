@@ -3,7 +3,8 @@ use std::cell::RefCell;
 use lyon::geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 
 use geom::{
-    Angle, ArrowCap, Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D, Tessellation,
+    Angle, ArrowCap, Bounds, Circle, Distance, InfiniteLine, Line, PolyLine, Polygon, Pt2D,
+    Tessellation,
 };
 use map_model::{BufferType, Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, TurnID};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
@@ -231,6 +232,10 @@ impl Renderable for DrawLane {
         lane.lane_center_pts
             .to_thick_boundary(lane.width, OUTLINE_THICKNESS)
             .unwrap_or_else(|| Tessellation::from(self.polygon.clone()))
+    }
+
+    fn get_bounds(&self, map: &Map) -> Bounds {
+        map.get_l(self.id).get_thick_polygon().get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {

@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring, Tessellation};
+use geom::{Angle, Bounds, Distance, Line, Polygon, Pt2D, Ring, Tessellation};
 use map_model::{Building, BuildingID, Map, OffstreetParking};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
@@ -248,6 +248,10 @@ impl Renderable for DrawBuilding {
 
     fn get_outline(&self, map: &Map) -> Tessellation {
         map.get_b(self.id).polygon.to_outline(OUTLINE_THICKNESS)
+    }
+
+    fn get_bounds(&self, map: &Map) -> Bounds {
+        map.get_b(self.id).polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

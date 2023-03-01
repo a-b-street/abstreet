@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use geom::{
-    Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Tessellation, Time,
+    Angle, ArrowCap, Bounds, Distance, Line, PolyLine, Polygon, Pt2D, Ring, Tessellation, Time,
     EPSILON_DIST,
 };
 use map_model::{
@@ -295,6 +295,10 @@ impl Renderable for DrawIntersection {
 
     fn get_outline(&self, map: &Map) -> Tessellation {
         map.get_i(self.id).polygon.to_outline(OUTLINE_THICKNESS)
+    }
+
+    fn get_bounds(&self, map: &Map) -> Bounds {
+        map.get_i(self.id).polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

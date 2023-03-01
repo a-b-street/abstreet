@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use geom::{Distance, PolyLine, Pt2D, Tessellation};
+use geom::{Bounds, Distance, PolyLine, Pt2D, Tessellation};
 use map_model::{
     osm, LaneType, Map, ParkingLot, ParkingLotID, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
 };
@@ -124,6 +124,10 @@ impl Renderable for DrawParkingLot {
 
     fn get_outline(&self, map: &Map) -> Tessellation {
         map.get_pl(self.id).polygon.to_outline(OUTLINE_THICKNESS)
+    }
+
+    fn get_bounds(&self, map: &Map) -> Bounds {
+        map.get_pl(self.id).polygon.get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {

@@ -103,20 +103,20 @@ impl DrawMap {
         let mut quadtree = QuadTree::builder();
         // TODO use iter chain if everything was boxed as a renderable...
         for obj in &roads {
-            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
+            quadtree.add_with_box(obj.get_id(), obj.get_bounds(map));
         }
         for obj in &intersections {
-            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
+            quadtree.add_with_box(obj.get_id(), obj.get_bounds(map));
         }
         for obj in &buildings {
-            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
+            quadtree.add_with_box(obj.get_id(), obj.get_bounds(map));
         }
         for obj in &parking_lots {
-            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
+            quadtree.add_with_box(obj.get_id(), obj.get_bounds(map));
         }
         // Don't put TransitStops in the quadtree
         for obj in &areas {
-            quadtree.add_with_box(obj.get_id(), obj.get_outline(map).get_bounds());
+            quadtree.add_with_box(obj.get_id(), obj.get_bounds(map));
         }
         let quadtree = quadtree.build();
         timer.stop("create quadtree");
@@ -501,7 +501,7 @@ impl DrawMap {
 
         let draw = DrawIntersection::new(map.get_i(i), map);
         self.quadtree
-            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds());
+            .insert_with_box(draw.get_id(), draw.get_bounds(map));
         self.intersections[i.0] = draw;
     }
 
@@ -510,7 +510,7 @@ impl DrawMap {
 
         let draw = DrawRoad::new(road);
         self.quadtree
-            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds());
+            .insert_with_box(draw.get_id(), draw.get_bounds(map));
         self.roads[road.id.0] = draw;
     }
 

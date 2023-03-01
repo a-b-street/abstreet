@@ -1,4 +1,4 @@
-use geom::{Angle, Circle, Distance, Line, Pt2D, Tessellation};
+use geom::{Angle, Bounds, Circle, Distance, Line, Pt2D, Tessellation};
 use map_model::{Map, TransitStop, TransitStopID};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx};
 
@@ -76,6 +76,10 @@ impl Renderable for DrawTransitStop {
                 .to_outline(OUTLINE_THICKNESS)
                 .expect("constants defined wrong"),
         )
+    }
+
+    fn get_bounds(&self, _: &Map) -> Bounds {
+        Circle::new(self.center, RADIUS).get_bounds()
     }
 
     fn contains_pt(&self, pt: Pt2D, _: &Map) -> bool {

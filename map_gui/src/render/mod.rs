@@ -1,6 +1,6 @@
 //! Render static map elements.
 
-use geom::{Distance, Pt2D, Tessellation};
+use geom::{Bounds, Distance, Pt2D, Tessellation};
 use map_model::{IntersectionID, Map};
 use widgetry::GfxCtx;
 
@@ -39,6 +39,7 @@ pub trait Renderable {
     // This outline is drawn over the base object to show that it's selected. It also represents
     // the boundaries for quadtrees. This isn't called often; don't worry about caching.
     fn get_outline(&self, map: &Map) -> Tessellation;
+    fn get_bounds(&self, map: &Map) -> Bounds;
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool;
 }
 
