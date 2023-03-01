@@ -10,10 +10,10 @@ extern crate log;
 mod amenities_details;
 mod bus;
 mod common;
-mod find_home;
 mod from_amenity;
 mod isochrone;
 mod render;
+mod score_homes;
 mod single_start;
 
 type App = map_gui::SimpleApp<()>;

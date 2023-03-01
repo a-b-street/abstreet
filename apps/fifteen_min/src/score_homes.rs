@@ -3,31 +3,30 @@ use std::collections::HashMap;
 use crate::App;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::Percent;
+use map_gui::tools::grey_out_map;
 use map_model::connectivity::Spot;
 use map_model::{AmenityType, BuildingID};
-use widgetry::tools::PopupMsg;
+use widgetry::tools::{PopupMsg, URLManager};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    SimpleState, State, TextExt, Toggle, Transition, VerticalAlignment, Widget,
+    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    SimpleState, State, TextExt, Toggle, Transition, Widget,
 };
 
 use crate::isochrone::Options;
+use crate::{common, render};
 
 /// Ask what types of amenities are necessary to be within a walkshed, then rank every house with
 /// how many of those needs are satisfied.
-pub struct FindHome {
+pub struct ScoreHomes {
     options: Options,
 }
 
-impl FindHome {
+impl ScoreHomes {
     pub fn new_state(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
         let panel = Panel::new_builder(Widget::col(vec![
-            Widget::row(vec![
-                Line("Find your walkable home")
-                    .small_heading()
-                    .into_widget(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
+            Widget::row(vec![Line("Calculate acces scores")
+                .small_heading()
+                .into_widget(ctx)]),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
             "Select the types of businesses you want within a 15 minute walkshed.".text_widget(ctx),
             Widget::custom_row(
@@ -39,17 +38,17 @@ impl FindHome {
             .flex_wrap(ctx, Percent::int(50)),
             ctx.style()
                 .btn_solid_primary
-                .text("Search")
+                .text("Calculate")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))
         .build(ctx);
 
-        <dyn SimpleState<_>>::new_state(panel, Box::new(FindHome { options }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(ScoreHomes { options }))
     }
 }
 
-impl SimpleState<App> for FindHome {
+impl SimpleState<App> for ScoreHomes {
     fn on_click(
         &mut self,
         ctx: &mut EventCtx,
@@ -58,8 +57,7 @@ impl SimpleState<App> for FindHome {
         panel: &mut Panel,
     ) -> Transition<App> {
         match x {
-            "close" => Transition::Pop,
-            "Search" => {
+            "Calculate" => {
                 let amenities: Vec<AmenityType> = AmenityType::all()
                     .into_iter()
                     .filter(|at| panel.is_checked(&at.to_string()))
@@ -72,13 +70,26 @@ impl SimpleState<App> for FindHome {
                     ));
                 }
 
-                let scores = ctx.loading_screen("search for houses", |_, timer| {
-                    score_houses(app, amenities.clone(), self.options.clone(), timer)
-                });
-                return Transition::Push(Results::new_state(ctx, app, scores, amenities));
+                return Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::Replace(Results::new_state(
+                        ctx,
+                        app,
+                        amenities,
+                        self.options.clone(),
+                    )),
+                ]);
             }
             _ => unreachable!(),
         }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 }
 
@@ -119,16 +130,26 @@ fn score_houses(
 // TODO Show the matching amenities.
 // TODO As you hover over a building, show the nearest amenity of each type
 struct Results {
+    panel: Panel,
     draw_houses: Drawable,
+    amenities: Vec<AmenityType>,
+    options: Options,
+    draw_unwalkable_roads: Drawable,
 }
 
 impl Results {
     fn new_state(
         ctx: &mut EventCtx,
         app: &App,
-        scores: HashMap<BuildingID, Percent>,
         amenities: Vec<AmenityType>,
+        options: Options,
     ) -> Box<dyn State<App>> {
+        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app, &options);
+
+        let scores = ctx.loading_screen("search for houses", |_, timer| {
+            score_houses(app, amenities.clone(), options.clone(), timer)
+        });
+
         // TODO Show imperfect matches with different colors.
         let mut batch = GeomBatch::new();
         let mut count = 0;
@@ -139,59 +160,87 @@ impl Results {
             }
         }
 
-        let panel = Panel::new_builder(Widget::col(vec![
-            Line("Results for your walkable home")
-                .small_heading()
-                .into_widget(ctx),
-            // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
-            format!("{} houses match", prettyprint_usize(count)).text_widget(ctx),
-            format!(
-                "Containing at least 1 of each: {}",
-                amenities
-                    .into_iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            )
-            .text_widget(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Back")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
-        ]))
-        .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
-        .build(ctx);
+        let panel = build_panel(ctx, app, &amenities, count, &options);
 
-        <dyn SimpleState<_>>::new_state(
+        Box::new(Self {
+            draw_unwalkable_roads,
             panel,
-            Box::new(Results {
-                draw_houses: ctx.upload(batch),
-            }),
-        )
+            draw_houses: ctx.upload(batch),
+            amenities,
+            options,
+        })
     }
 }
 
-impl SimpleState<App> for Results {
-    fn on_click(
-        &mut self,
-        _: &mut EventCtx,
-        _: &mut App,
-        x: &str,
-        _: &mut Panel,
-    ) -> Transition<App> {
-        match x {
-            "Back" => Transition::Pop,
-            _ => unreachable!(),
+impl State<App> for Results {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
+        // Allow panning and zooming
+        if ctx.canvas_movement() {
+            URLManager::update_url_cam(ctx, app.map.get_gps_bounds());
         }
-    }
 
-    fn other_event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition<App> {
-        ctx.canvas_movement();
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => {
+                if x == "change scoring criteria" {
+                    return Transition::Push(ScoreHomes::new_state(ctx, self.options.clone()));
+                }
+                return common::on_click(ctx, app, &x, &self.options);
+            }
+            Outcome::Changed(_) => {
+                let options = Options {
+                    movement: common::options_from_controls(&self.panel),
+                    thresholds: Options::default_thresholds(),
+                };
+                return Transition::Replace(Self::new_state(
+                    ctx,
+                    app,
+                    self.amenities.clone(),
+                    options,
+                ));
+            }
+            _ => {}
+        }
+
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
+        g.redraw(&self.draw_unwalkable_roads);
         g.redraw(&self.draw_houses);
+        self.panel.draw(g);
     }
+}
+
+fn build_panel(
+    ctx: &mut EventCtx,
+    app: &App,
+    amenities: &Vec<AmenityType>,
+    count: usize,
+    options: &Options,
+) -> Panel {
+    let contents = vec![
+        "What homes are within 15 minutes away?".text_widget(ctx),
+        format!(
+            "Containing at least 1 of each: {}",
+            amenities
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
+        .text_widget(ctx),
+        format!("{} houses match", prettyprint_usize(count)).text_widget(ctx),
+        ctx.style()
+            .btn_outline
+            .text("change scoring criteria")
+            .build_def(ctx),
+    ];
+
+    common::build_panel(
+        ctx,
+        app,
+        common::Mode::ScoreHomes,
+        Widget::col(contents),
+        &options,
+    )
 }
