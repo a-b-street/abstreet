@@ -9,11 +9,12 @@ extern crate log;
 
 mod amenities_details;
 mod bus;
+mod common;
 mod find_amenities;
 mod find_home;
 mod isochrone;
 mod render;
-mod viewer;
+mod single_start;
 
 type App = map_gui::SimpleApp<()>;
 
@@ -37,7 +38,7 @@ fn run(mut settings: Settings) {
             Some(args.map_name()),
             args.cam,
             (),
-            |ctx, app| vec![viewer::Viewer::random_start(ctx, app)],
+            |ctx, app| vec![single_start::SingleStart::random_start(ctx, app)],
         )
     });
 }
