@@ -7,8 +7,8 @@ use widgetry::{
     SimpleState, State, TextExt, Transition, VerticalAlignment, Widget,
 };
 
+use crate::common::{HoverKey, HoverOnBuilding};
 use crate::isochrone::{BorderIsochrone, Isochrone, Options};
-use crate::viewer::{HoverKey, HoverOnBuilding};
 use crate::{render, App};
 
 /// Calculate isochrones around each amenity on a map and merge them together using the min value
