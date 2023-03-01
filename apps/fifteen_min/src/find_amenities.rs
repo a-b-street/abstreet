@@ -8,8 +8,8 @@ use widgetry::{
 };
 
 use crate::isochrone::{BorderIsochrone, Isochrone, Options};
-use crate::viewer::{draw_star, HoverKey, HoverOnBuilding};
-use crate::App;
+use crate::viewer::{HoverKey, HoverOnBuilding};
+use crate::{render, App};
 
 /// Calculate isochrones around each amenity on a map and merge them together using the min value
 pub struct FindAmenity;
@@ -119,7 +119,7 @@ impl Results {
             &isochrone.colors,
         ));
         for &start in &isochrone.start {
-            batch.append(draw_star(ctx, app.map.get_b(start)));
+            batch.append(render::draw_star(ctx, app.map.get_b(start)));
         }
 
         <dyn SimpleState<_>>::new_state(
