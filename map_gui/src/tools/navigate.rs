@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 use map_model::RoadID;
 use widgetry::{
-    Autocomplete, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
-    Text, Transition, Widget,
+    Autocomplete, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome,
+    Panel, State, Text, Transition, Widget,
 };
 
 use crate::tools::grey_out_map;
@@ -82,6 +82,10 @@ impl<A: AppLike + 'static> State<A> for Navigator {
         }
 
         Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &A) {
@@ -204,6 +208,10 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &A) {
         g.redraw(&self.draw);
         grey_out_map(g, app);
@@ -310,6 +318,10 @@ impl<A: AppLike + 'static> State<A> for SearchBuildings {
         }
 
         Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &A) {
