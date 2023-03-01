@@ -34,6 +34,8 @@ pub struct Options {
     pub camera_angle: CameraAngle,
     /// Draw building driveways.
     pub show_building_driveways: bool,
+    /// Draw building outlines.
+    pub show_building_outlines: bool,
     /// Draw stop signs.
     pub show_stop_signs: bool,
     /// Draw crosswalks and unmarked crossings.
@@ -88,6 +90,7 @@ impl Options {
             toggle_day_night_colors: false,
             camera_angle: CameraAngle::TopDown,
             show_building_driveways: true,
+            show_building_outlines: true,
             show_stop_signs: true,
             show_crosswalks: true,
             show_traffic_signal_icon: false,
@@ -392,8 +395,11 @@ impl<A: AppLike> State<A> for OptionsPanel {
                     // Be careful -- there are some options not exposed by this panel, but per app.
                     let show_building_driveways = opts.show_building_driveways;
                     opts.show_building_driveways = true;
+                    let show_building_outlines = opts.show_building_outlines;
+                    opts.show_building_outlines = true;
                     abstio::write_json(abstio::path_player("settings.json"), &opts);
                     opts.show_building_driveways = show_building_driveways;
+                    opts.show_building_outlines = show_building_outlines;
                     *app.mut_opts() = opts;
 
                     return widgetry::Transition::Pop;

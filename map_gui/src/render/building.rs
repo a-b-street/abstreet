@@ -33,10 +33,12 @@ impl DrawBuilding {
         match &opts.camera_angle {
             CameraAngle::TopDown => {
                 bldg_batch.push(bldg_color, bldg.polygon.clone());
-                outlines_batch.push(
-                    cs.building_outline,
-                    bldg.polygon.to_outline(Distance::meters(0.1)),
-                );
+                if opts.show_building_outlines {
+                    outlines_batch.push(
+                        cs.building_outline,
+                        bldg.polygon.to_outline(Distance::meters(0.1)),
+                    );
+                }
 
                 let parking_icon = match bldg.parking {
                     OffstreetParking::PublicGarage(_, _) => true,
