@@ -9,7 +9,6 @@ use widgetry::{
     Toggle, Transition, VerticalAlignment, Widget,
 };
 
-use crate::find_home::FindHome;
 use crate::isochrone::{Isochrone, MovementOptions, Options};
 use crate::App;
 
@@ -37,22 +36,17 @@ pub fn build_panel(
     let rows = vec![
         map_gui::tools::app_header(ctx, app, "15-minute neighborhood explorer"),
         Widget::row(vec![
+            ctx.style().btn_outline.text("About").build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text("Find your perfect home")
+                .text("Sketch bus route (experimental)")
                 .build_def(ctx),
-            ctx.style().btn_outline.text("About").build_def(ctx),
             ctx.style()
                 .btn_plain
                 .icon("system/assets/tools/search.svg")
                 .hotkey(lctrl(Key::F))
                 .build_widget(ctx, "search"),
         ]),
-        ctx.style()
-            .btn_outline
-            .text("Sketch bus route (experimental)")
-            .hotkey(Key::B)
-            .build_def(ctx),
         Widget::horiz_separator(ctx, 1.0).margin_above(10),
         Widget::row(vec![
             if matches!(mode, Mode::SingleStart { .. }) {
@@ -141,9 +135,6 @@ pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str, options: &Options) -> Tr
         "search" => {
             return Transition::Push(Navigator::new_state(ctx, app));
         }
-        "Find your perfect home" => {
-            return Transition::Push(FindHome::new_state(ctx, options.clone()));
-        }
         "Start from a building" => {
             return Transition::Replace(crate::single_start::SingleStart::random_start(ctx, app));
         }
@@ -151,8 +142,10 @@ pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str, options: &Options) -> Tr
             return Transition::Replace(crate::from_amenity::FromAmenity::random_amenity(ctx, app));
         }
         "Score homes by access" => {
-            // TODO
-            return Transition::Keep;
+            return Transition::Push(crate::score_homes::ScoreHomes::new_state(
+                ctx,
+                options.clone(),
+            ));
         }
         _ => panic!("Unhandled click {x}"),
     }
