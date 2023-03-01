@@ -48,16 +48,18 @@ impl SingleStart {
             movement: MovementOptions::Walking(WalkingOptions::default()),
             thresholds: Options::default_thresholds(),
         };
-        let start = app.map.get_b(start);
-        let isochrone = Isochrone::new(ctx, app, vec![start.id], options);
-        let highlight_start = render::draw_star(ctx, start);
-        let panel = build_panel(ctx, app, start, &isochrone);
-        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app, &isochrone.options);
+
+        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app, &options);
 
         let mut snap_to_buildings = FindClosest::new();
         for b in app.map.all_buildings() {
             snap_to_buildings.add_polygon(b.id, &b.polygon);
         }
+
+        let start = app.map.get_b(start);
+        let isochrone = Isochrone::new(ctx, app, vec![start.id], options);
+        let highlight_start = render::draw_star(ctx, start);
+        let panel = build_panel(ctx, app, start, &isochrone);
 
         Box::new(Self {
             panel,

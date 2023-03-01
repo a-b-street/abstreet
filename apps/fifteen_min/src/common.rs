@@ -9,10 +9,8 @@ use widgetry::{
     Toggle, Transition, VerticalAlignment, Widget,
 };
 
-use crate::find_amenities::FindAmenity;
 use crate::find_home::FindHome;
 use crate::isochrone::{Isochrone, MovementOptions, Options};
-use crate::single_start::SingleStart;
 use crate::App;
 
 pub enum Mode {
@@ -42,10 +40,6 @@ pub fn build_panel(
             ctx.style()
                 .btn_outline
                 .text("Find your perfect home")
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Search by amenity")
                 .build_def(ctx),
             ctx.style().btn_outline.text("About").build_def(ctx),
             ctx.style()
@@ -106,7 +100,7 @@ pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str, options: &Options) -> Tr
                 ctx,
                 app,
                 map_gui::tools::Executable::FifteenMin,
-                Box::new(|ctx, app, _| SingleStart::random_start(ctx, app)),
+                Box::new(|ctx, app, _| crate::single_start::SingleStart::random_start(ctx, app)),
             )]);
         }
         "change map" => {
@@ -116,7 +110,9 @@ pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str, options: &Options) -> Tr
                 Box::new(|ctx, app| {
                     Transition::Multi(vec![
                         Transition::Pop,
-                        Transition::Replace(SingleStart::random_start(ctx, app)),
+                        Transition::Replace(crate::single_start::SingleStart::random_start(
+                            ctx, app,
+                        )),
                     ])
                 }),
             ));
@@ -148,16 +144,11 @@ pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str, options: &Options) -> Tr
         "Find your perfect home" => {
             return Transition::Push(FindHome::new_state(ctx, options.clone()));
         }
-        "Search by amenity" => {
-            return Transition::Push(FindAmenity::new_state(ctx, options.clone()));
-        }
         "Start from a building" => {
-            // TODO
-            return Transition::Keep;
+            return Transition::Replace(crate::single_start::SingleStart::random_start(ctx, app));
         }
         "Start from an amenity" => {
-            // TODO
-            return Transition::Keep;
+            return Transition::Replace(crate::from_amenity::FromAmenity::random_amenity(ctx, app));
         }
         "Score homes by access" => {
             // TODO
