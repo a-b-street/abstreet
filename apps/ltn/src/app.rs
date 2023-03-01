@@ -54,16 +54,30 @@ pub struct PerMap {
 impl PerMap {
     fn new(
         ctx: &mut EventCtx,
-        map: Map,
+        mut map: Map,
         opts: &Options,
         cs: &ColorScheme,
         timer: &mut Timer,
     ) -> Self {
+        // Note this happens before transform_existing_filters, which could influence the blocks
+        // traced for roads tagged as non-driveable that really mean filtered
+        let mut proposals = crate::save::Proposals::new(&map, timer);
+
+        logic::transform_existing_filters(&mut map, &mut proposals.current_proposal.edits, timer);
+        let mut routing_params_before_changes = map.routing_params().clone();
+        proposals
+            .current_proposal
+            .edits
+            .update_routing_params(&mut routing_params_before_changes);
+
+        let draw_all_filters = proposals.current_proposal.edits.draw(ctx, &map);
+
+        logic::populate_existing_crossings(&map, &mut proposals.current_proposal.edits);
+
+        // Create DrawMap after transform_existing_filters, which modifies road widths
         let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
         let draw_poi_icons = render::render_poi_icons(ctx, &map);
         let draw_bus_routes = render::render_bus_routes(ctx, &map);
-
-        let proposals = crate::save::Proposals::new(&map, timer);
 
         let per_map = Self {
             map,
@@ -71,14 +85,14 @@ impl PerMap {
 
             current_neighbourhood: None,
 
-            routing_params_before_changes: RoutingParams::default(),
+            routing_params_before_changes,
             proposals,
             impact: logic::Impact::empty(ctx),
 
             consultation: None,
             consultation_id: None,
 
-            draw_all_filters: render::Toggle3Zoomed::empty(ctx),
+            draw_all_filters,
             draw_major_road_labels: None,
             draw_all_road_labels: None,
             draw_poi_icons,
@@ -149,17 +163,6 @@ impl AppLike for App {
         CameraState::save(ctx.canvas, self.per_map.map.get_name());
         self.per_map = PerMap::new(ctx, map, &self.opts, &self.cs, timer);
         self.opts.units.metric = self.per_map.map.get_name().city.uses_metric();
-
-        // These two logically belong in PerMap::new, but it's easier to have the full App
-        logic::transform_existing_filters(ctx, self, timer);
-        self.per_map.draw_all_filters = self
-            .per_map
-            .proposals
-            .current_proposal
-            .edits
-            .draw(ctx, &self.per_map.map);
-
-        logic::populate_existing_crossings(self);
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, _l: DrawOptions) {

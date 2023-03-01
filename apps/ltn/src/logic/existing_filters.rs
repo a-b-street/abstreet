@@ -1,55 +1,44 @@
 use abstutil::{Tags, Timer};
 use geom::Distance;
-use map_gui::render::DrawMap;
 use map_model::{osm, Map, Road};
-use widgetry::EventCtx;
 
-use crate::{mut_edits, App, FilterType, RoadFilter};
+use crate::{Edits, FilterType, RoadFilter};
 
 /// Detect roads that're modelled in OSM as cycleways, but really are regular roads with modal
 /// filters. Transform them into normal roads, and instead use this tool's explicit representation
 /// for filters.
 ///
 /// Also detect modal filters defined in OSM as points.
-pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Timer) {
-    let mut edits = app.per_map.map.get_edits().clone();
+pub fn transform_existing_filters(map: &mut Map, proposal_edits: &mut Edits, timer: &mut Timer) {
+    let mut edits = map.get_edits().clone();
     let mut filtered_roads = Vec::new();
-    for r in detect_filters(&app.per_map.map) {
-        edits
-            .commands
-            .push(app.per_map.map.edit_road_cmd(r.id, |new| {
-                // Produce a fixed [sidewalk, driving, driving, sidewalk] configuration. We could get
-                // fancier and copy the tags of one of the roads we're connected to, but there might be
-                // turn lanes or something extraneous there.
-                let mut tags = Tags::empty();
-                tags.insert("highway", "residential");
-                tags.insert("lanes", "2");
-                tags.insert("sidewalk", "both");
-                new.lanes_ltr =
-                    osm2streets::get_lane_specs_ltr(&tags, app.per_map.map.get_config());
-            }));
+    for r in detect_filters(map) {
+        edits.commands.push(map.edit_road_cmd(r.id, |new| {
+            // Produce a fixed [sidewalk, driving, driving, sidewalk] configuration. We could get
+            // fancier and copy the tags of one of the roads we're connected to, but there might be
+            // turn lanes or something extraneous there.
+            let mut tags = Tags::empty();
+            tags.insert("highway", "residential");
+            tags.insert("lanes", "2");
+            tags.insert("sidewalk", "both");
+            new.lanes_ltr = osm2streets::get_lane_specs_ltr(&tags, map.get_config());
+        }));
         filtered_roads.push(r.id);
     }
 
     if !edits.commands.is_empty() {
-        app.per_map.map.must_apply_edits(edits, timer);
-        app.per_map
-            .draw_map
-            .draw_all_unzoomed_roads_and_intersections =
-            DrawMap::regenerate_unzoomed_layer(ctx, &app.per_map.map, &app.cs, &app.opts, timer);
-        // No need to recreate_road or recreate_intersection. They mostly have zoomed-in effects we
-        // ignore. The thickened polygon may change slightly due to width, but it's negligible.
+        map.must_apply_edits(edits, timer);
 
         // Create the filters after applying edits, since road length may change.
         //
         // (And don't call before_edit; this transformation happens before the user starts editing
         // anything)
         for r in filtered_roads {
-            mut_edits!(app).roads.insert(
+            proposal_edits.roads.insert(
                 r,
                 RoadFilter {
-                    dist: app.per_map.map.get_r(r).length() / 2.0,
-                    filter_type: if app.per_map.map.get_bus_routes_on_road(r).is_empty() {
+                    dist: map.get_r(r).length() / 2.0,
+                    filter_type: if map.get_bus_routes_on_road(r).is_empty() {
                         FilterType::WalkCycleOnly
                     } else {
                         FilterType::BusGate
@@ -61,15 +50,15 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
     }
 
     // Now handle modal filters defined as points in OSM
-    for r in app.per_map.map.all_roads() {
+    for r in map.all_roads() {
         for dist in &r.barrier_nodes {
             // The road might also be marked as non-driving. This'll move the filter position from
             // the center.
-            mut_edits!(app).roads.insert(
+            proposal_edits.roads.insert(
                 r.id,
                 RoadFilter {
                     dist: *dist,
-                    filter_type: if app.per_map.map.get_bus_routes_on_road(r.id).is_empty() {
+                    filter_type: if map.get_bus_routes_on_road(r.id).is_empty() {
                         FilterType::WalkCycleOnly
                     } else {
                         FilterType::BusGate
@@ -79,11 +68,6 @@ pub fn transform_existing_filters(ctx: &EventCtx, app: &mut App, timer: &mut Tim
             );
         }
     }
-
-    // Now that we've applied all pre-existing filters, calculate the RoutingParams.
-    let mut params = app.per_map.map.routing_params().clone();
-    app.edits().update_routing_params(&mut params);
-    app.per_map.routing_params_before_changes = params;
 
     // Do not call map.keep_pathfinder_despite_edits or recalculate_pathfinding_after_edits. We
     // should NEVER use the map's built-in pathfinder in this app. If we do, crash.
