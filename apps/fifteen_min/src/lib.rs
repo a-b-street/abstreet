@@ -16,7 +16,7 @@ mod render;
 mod score_homes;
 mod single_start;
 
-type App = map_gui::SimpleApp<()>;
+type App = map_gui::SimpleApp<crate::isochrone::Options>;
 
 pub fn main() {
     let settings = Settings::new("15-minute neighborhoods");
@@ -31,13 +31,21 @@ fn run(mut settings: Settings) {
     settings = args
         .update_widgetry_settings(settings)
         .canvas_settings(options.canvas_settings.clone());
+
+    let session = crate::isochrone::Options {
+        movement: crate::isochrone::MovementOptions::Walking(
+            map_model::connectivity::WalkingOptions::default(),
+        ),
+        thresholds: crate::isochrone::Options::default_thresholds(),
+    };
+
     widgetry::run(settings, |ctx| {
         map_gui::SimpleApp::new(
             ctx,
             options,
             Some(args.map_name()),
             args.cam,
-            (),
+            session,
             |ctx, app| vec![single_start::SingleStart::random_start(ctx, app)],
         )
     });

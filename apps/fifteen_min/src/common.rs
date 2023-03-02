@@ -18,13 +18,7 @@ pub enum Mode {
     ScoreHomes,
 }
 
-pub fn build_panel(
-    ctx: &mut EventCtx,
-    app: &App,
-    mode: Mode,
-    contents: Widget,
-    options: &Options,
-) -> Panel {
+pub fn build_panel(ctx: &mut EventCtx, app: &App, mode: Mode, contents: Widget) -> Panel {
     fn current_mode(ctx: &mut EventCtx, name: &str) -> Widget {
         ctx.style()
             .btn_solid_primary
@@ -76,7 +70,7 @@ pub fn build_panel(
         ]),
         contents,
         Widget::horiz_separator(ctx, 1.0).margin_above(10),
-        options_to_controls(ctx, options),
+        options_to_controls(ctx, &app.session),
     ];
 
     Panel::new_builder(Widget::col(rows))
@@ -84,7 +78,7 @@ pub fn build_panel(
         .build(ctx)
 }
 
-pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str, options: &Options) -> Transition<App> {
+pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str) -> Transition<App> {
     match x {
         "Sketch bus route (experimental)" => {
             return Transition::Push(crate::bus::BusExperiment::new_state(ctx, app));
@@ -142,10 +136,7 @@ pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str, options: &Options) -> Tr
             return Transition::Replace(crate::from_amenity::FromAmenity::random_amenity(ctx, app));
         }
         "Score homes by access" => {
-            return Transition::Push(crate::score_homes::ScoreHomes::new_state(
-                ctx,
-                options.clone(),
-            ));
+            return Transition::Push(crate::score_homes::ScoreHomes::new_state(ctx));
         }
         _ => panic!("Unhandled click {x}"),
     }
@@ -185,7 +176,7 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
         }
         MovementOptions::Biking => {}
     }
-    Widget::col(rows)
+    Widget::col(rows).section(ctx)
 }
 
 pub fn options_from_controls(panel: &Panel) -> MovementOptions {

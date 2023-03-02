@@ -17,12 +17,10 @@ use crate::{common, render};
 
 /// Ask what types of amenities are necessary to be within a walkshed, then rank every house with
 /// how many of those needs are satisfied.
-pub struct ScoreHomes {
-    options: Options,
-}
+pub struct ScoreHomes;
 
 impl ScoreHomes {
-    pub fn new_state(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![Line("Calculate acces scores")
                 .small_heading()
@@ -44,7 +42,7 @@ impl ScoreHomes {
         ]))
         .build(ctx);
 
-        <dyn SimpleState<_>>::new_state(panel, Box::new(ScoreHomes { options }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(ScoreHomes))
     }
 }
 
@@ -72,12 +70,7 @@ impl SimpleState<App> for ScoreHomes {
 
                 return Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(Results::new_state(
-                        ctx,
-                        app,
-                        amenities,
-                        self.options.clone(),
-                    )),
+                    Transition::Replace(Results::new_state(ctx, app, amenities)),
                 ]);
             }
             _ => unreachable!(),
@@ -98,13 +91,13 @@ impl SimpleState<App> for ScoreHomes {
 fn score_houses(
     app: &App,
     amenities: Vec<AmenityType>,
-    options: Options,
     timer: &mut Timer,
 ) -> HashMap<BuildingID, Percent> {
     let num_categories = amenities.len();
     let mut satisfied_per_bldg: Counter<BuildingID> = Counter::new();
 
     let map = &app.map;
+    let movement_opts = &app.session.movement;
     for times in timer.parallelize("find houses close to amenities", amenities, |category| {
         // For each category, find all matching stores
         let mut stores = Vec::new();
@@ -113,7 +106,7 @@ fn score_houses(
                 stores.push(Spot::Building(b.id));
             }
         }
-        options.movement.clone().times_from(map, stores)
+        movement_opts.clone().times_from(map, stores)
     }) {
         for (b, _) in times {
             satisfied_per_bldg.inc(b);
@@ -133,7 +126,6 @@ struct Results {
     panel: Panel,
     draw_houses: Drawable,
     amenities: Vec<AmenityType>,
-    options: Options,
     draw_unwalkable_roads: Drawable,
 }
 
@@ -142,12 +134,11 @@ impl Results {
         ctx: &mut EventCtx,
         app: &App,
         amenities: Vec<AmenityType>,
-        options: Options,
     ) -> Box<dyn State<App>> {
-        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app, &options);
+        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app);
 
         let scores = ctx.loading_screen("search for houses", |_, timer| {
-            score_houses(app, amenities.clone(), options.clone(), timer)
+            score_houses(app, amenities.clone(), timer)
         });
 
         // TODO Show imperfect matches with different colors.
@@ -160,14 +151,13 @@ impl Results {
             }
         }
 
-        let panel = build_panel(ctx, app, &amenities, count, &options);
+        let panel = build_panel(ctx, app, &amenities, count);
 
         Box::new(Self {
             draw_unwalkable_roads,
             panel,
             draw_houses: ctx.upload(batch),
             amenities,
-            options,
         })
     }
 }
@@ -182,21 +172,16 @@ impl State<App> for Results {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "change scoring criteria" {
-                    return Transition::Push(ScoreHomes::new_state(ctx, self.options.clone()));
+                    return Transition::Push(ScoreHomes::new_state(ctx));
                 }
-                return common::on_click(ctx, app, &x, &self.options);
+                return common::on_click(ctx, app, &x);
             }
             Outcome::Changed(_) => {
-                let options = Options {
+                app.session = Options {
                     movement: common::options_from_controls(&self.panel),
                     thresholds: Options::default_thresholds(),
                 };
-                return Transition::Replace(Self::new_state(
-                    ctx,
-                    app,
-                    self.amenities.clone(),
-                    options,
-                ));
+                return Transition::Replace(Self::new_state(ctx, app, self.amenities.clone()));
             }
             _ => {}
         }
@@ -211,13 +196,7 @@ impl State<App> for Results {
     }
 }
 
-fn build_panel(
-    ctx: &mut EventCtx,
-    app: &App,
-    amenities: &Vec<AmenityType>,
-    count: usize,
-    options: &Options,
-) -> Panel {
+fn build_panel(ctx: &mut EventCtx, app: &App, amenities: &Vec<AmenityType>, count: usize) -> Panel {
     let contents = vec![
         "What homes are within 15 minutes away?".text_widget(ctx),
         format!(
@@ -236,11 +215,5 @@ fn build_panel(
             .build_def(ctx),
     ];
 
-    common::build_panel(
-        ctx,
-        app,
-        common::Mode::ScoreHomes,
-        Widget::col(contents),
-        &options,
-    )
+    common::build_panel(ctx, app, common::Mode::ScoreHomes, Widget::col(contents))
 }

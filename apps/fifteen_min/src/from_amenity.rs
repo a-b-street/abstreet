@@ -1,7 +1,6 @@
 use abstutil::prettyprint_usize;
 use map_gui::tools::draw_isochrone;
 use map_gui::ID;
-use map_model::connectivity::WalkingOptions;
 use map_model::AmenityType;
 use widgetry::tools::{ColorLegend, URLManager};
 use widgetry::{
@@ -10,7 +9,7 @@ use widgetry::{
 };
 
 use crate::common::{HoverKey, HoverOnBuilding};
-use crate::isochrone::{BorderIsochrone, Isochrone, MovementOptions, Options};
+use crate::isochrone::{BorderIsochrone, Isochrone, Options};
 use crate::{common, render, App};
 
 // It could be useful in the future, but it's kind of noisy right now
@@ -28,24 +27,17 @@ pub struct FromAmenity {
 
 impl FromAmenity {
     pub fn random_amenity(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        // TODO Plumb
-        let options = Options {
-            movement: MovementOptions::Walking(WalkingOptions::default()),
-            thresholds: Options::default_thresholds(),
-        };
-
-        Self::new_state(ctx, app, AmenityType::Cafe, options)
+        Self::new_state(ctx, app, AmenityType::Cafe)
     }
 
     pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         amenity_type: AmenityType,
-        options: Options,
     ) -> Box<dyn State<App>> {
         map_gui::tools::update_url_map_name(app);
 
-        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app, &options);
+        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app);
 
         // For a category, find all matching stores
         let mut stores = Vec::new();
@@ -54,7 +46,7 @@ impl FromAmenity {
                 stores.push(b.id);
             }
         }
-        let isochrone = Isochrone::new(ctx, app, stores, options.clone());
+        let isochrone = Isochrone::new(ctx, app, stores, app.session.clone());
 
         let mut batch = GeomBatch::new();
 
@@ -66,7 +58,7 @@ impl FromAmenity {
                     borders.push(i.id);
                 }
             }
-            let border_isochrone = BorderIsochrone::new(ctx, app, borders, options);
+            let border_isochrone = BorderIsochrone::new(ctx, app, borders, app.session.clone());
 
             batch.append(draw_isochrone(
                 &app.map,
@@ -130,7 +122,7 @@ impl State<App> for FromAmenity {
                         ),
                     );
                 }
-                return common::on_click(ctx, app, &x, &self.isochrone.options);
+                return common::on_click(ctx, app, &x);
             }
             Outcome::Changed(x) => {
                 if x == "amenity_type" {
@@ -138,15 +130,14 @@ impl State<App> for FromAmenity {
                         ctx,
                         app,
                         self.panel.dropdown_value("amenity_type"),
-                        self.isochrone.options.clone(),
                     ));
                 }
 
-                let options = Options {
+                app.session = Options {
                     movement: common::options_from_controls(&self.panel),
                     thresholds: Options::default_thresholds(),
                 };
-                return Transition::Replace(Self::new_state(ctx, app, self.amenity_type, options));
+                return Transition::Replace(Self::new_state(ctx, app, self.amenity_type));
             }
             _ => {}
         }
@@ -223,6 +214,5 @@ fn build_panel(
         app,
         common::Mode::StartFromAmenity,
         Widget::col(contents),
-        &isochrone.options,
     )
 }
