@@ -1,13 +1,15 @@
+use std::collections::BTreeSet;
+
 use crate::App;
-use abstutil::{prettyprint_usize, Counter, Timer};
+use abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
 use geom::Percent;
 use map_gui::tools::grey_out_map;
 use map_model::connectivity::Spot;
 use map_model::{AmenityType, BuildingID};
 use widgetry::tools::{ColorLegend, PopupMsg, URLManager};
 use widgetry::{
-    DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, SimpleState,
-    State, Text, TextExt, Toggle, Transition, Widget,
+    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    SimpleState, State, Text, TextExt, Toggle, Transition, Widget,
 };
 
 use crate::isochrone::Options;
@@ -127,27 +129,37 @@ fn score_houses_by_one_match(
     app: &App,
     amenities: Vec<AmenityType>,
     timer: &mut Timer,
-) -> Counter<BuildingID> {
+) -> (Counter<BuildingID>, MultiMap<AmenityType, BuildingID>) {
     let mut satisfied_per_bldg: Counter<BuildingID> = Counter::new();
+    let mut amenities_reachable = MultiMap::new();
 
     let map = &app.map;
     let movement_opts = &app.session.movement;
-    for times in timer.parallelize("find houses close to amenities", amenities, |category| {
-        // For each category, find all matching stores
-        let mut stores = Vec::new();
-        for b in map.all_buildings() {
-            if b.has_amenity(category) {
-                stores.push(Spot::Building(b.id));
+    for (category, stores, times) in
+        timer.parallelize("find houses close to amenities", amenities, |category| {
+            // For each category, find all matching stores
+            let mut stores = BTreeSet::new();
+            let mut spots = Vec::new();
+            for b in map.all_buildings() {
+                if b.has_amenity(category) {
+                    stores.insert(b.id);
+                    spots.push(Spot::Building(b.id));
+                }
             }
-        }
-        movement_opts.clone().times_from(map, stores)
-    }) {
+            (
+                category,
+                stores,
+                movement_opts.clone().times_from(map, spots),
+            )
+        })
+    {
+        amenities_reachable.set(category, stores);
         for (b, _) in times {
             satisfied_per_bldg.inc(b);
         }
     }
 
-    satisfied_per_bldg
+    (satisfied_per_bldg, amenities_reachable)
 }
 
 // TODO Show the matching amenities.
@@ -156,7 +168,9 @@ struct Results {
     panel: Panel,
     draw_houses: Drawable,
     amenities: Vec<AmenityType>,
+    amenities_reachable: MultiMap<AmenityType, BuildingID>,
     draw_unwalkable_roads: Drawable,
+    hovering_on_category: common::HoverOnCategory,
 }
 
 impl Results {
@@ -168,7 +182,7 @@ impl Results {
         let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app);
 
         assert!(!amenities.is_empty());
-        let scores = ctx.loading_screen("search for houses", |_, timer| {
+        let (scores, amenities_reachable) = ctx.loading_screen("search for houses", |_, timer| {
             score_houses_by_one_match(app, amenities.clone(), timer)
         });
 
@@ -186,13 +200,15 @@ impl Results {
             batch.push(color, app.map.get_b(b).polygon.clone());
         }
 
-        let panel = build_panel(ctx, app, &amenities, matches_all);
+        let panel = build_panel(ctx, app, &amenities, &amenities_reachable, matches_all);
 
         Box::new(Self {
             draw_unwalkable_roads,
             panel,
             draw_houses: ctx.upload(batch),
             amenities,
+            amenities_reachable,
+            hovering_on_category: common::HoverOnCategory::new(Color::YELLOW),
         })
     }
 }
@@ -204,6 +220,15 @@ impl State<App> for Results {
             URLManager::update_url_cam(ctx, app.map.get_gps_bounds());
         }
 
+        if ctx.redo_mouseover() {
+            self.hovering_on_category.update_on_mouse_move(
+                ctx,
+                app,
+                &self.panel,
+                &self.amenities_reachable,
+            );
+        }
+
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "change scoring criteria" {
@@ -212,6 +237,9 @@ impl State<App> for Results {
                         app,
                         self.amenities.clone(),
                     ));
+                } else if x.starts_with("businesses: ") {
+                    // TODO Use ExploreAmenitiesDetails, but omit duration
+                    return Transition::Keep;
                 }
                 return common::on_click(ctx, app, &x);
             }
@@ -231,6 +259,7 @@ impl State<App> for Results {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.draw_unwalkable_roads);
         g.redraw(&self.draw_houses);
+        self.hovering_on_category.draw(g);
         self.panel.draw(g);
     }
 }
@@ -239,20 +268,27 @@ fn build_panel(
     ctx: &mut EventCtx,
     app: &App,
     amenities: &Vec<AmenityType>,
+    amenities_reachable: &MultiMap<AmenityType, BuildingID>,
     matches_all: usize,
 ) -> Panel {
     let contents = vec![
         "What homes are within 15 minutes away?".text_widget(ctx),
-        Text::from(format!(
-            "Containing at least 1 of each: {}",
-            amenities
+        "Containing at least 1 of each:".text_widget(ctx),
+        Widget::custom_row(
+            amenities_reachable
+                .borrow()
                 .iter()
-                .map(|x| x.to_string())
-                .collect::<Vec<_>>()
-                .join(", ")
-        ))
-        .wrap_to_pct(ctx, 30)
-        .into_widget(ctx),
+                .map(|(amenity, buildings)| {
+                    ctx.style()
+                        .btn_outline
+                        .text(format!("{}: {}", amenity, buildings.len()))
+                        .build_widget(ctx, format!("businesses: {}", amenity))
+                        .margin_right(4)
+                        .margin_below(4)
+                })
+                .collect(),
+        )
+        .flex_wrap(ctx, Percent::int(30)),
         format!(
             "{} houses match all categories",
             prettyprint_usize(matches_all)
