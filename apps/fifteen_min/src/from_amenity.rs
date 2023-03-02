@@ -2,7 +2,7 @@ use abstutil::prettyprint_usize;
 use map_gui::tools::draw_isochrone;
 use map_gui::ID;
 use map_model::AmenityType;
-use widgetry::tools::{ColorLegend, URLManager};
+use widgetry::tools::{ChooseSomething, ColorLegend, URLManager};
 use widgetry::{
     Cached, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, State,
     Text, Transition, Widget,
@@ -121,18 +121,27 @@ impl State<App> for FromAmenity {
                             self.amenity_type,
                         ),
                     );
-                }
-                return common::on_click(ctx, app, &x);
-            }
-            Outcome::Changed(x) => {
-                if x == "amenity_type" {
-                    return Transition::Replace(Self::new_state(
+                } else if x == "change amenity type" {
+                    return Transition::Push(ChooseSomething::new_state(
                         ctx,
-                        app,
-                        self.panel.dropdown_value("amenity_type"),
+                        "Search from all amenities of what type?",
+                        app.map
+                            .get_available_amenity_types()
+                            .into_iter()
+                            .map(|at| Choice::new(at.to_string(), at))
+                            .collect(),
+                        Box::new(move |choice, ctx, app| {
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(Self::new_state(ctx, app, choice)),
+                            ])
+                        }),
                     ));
                 }
 
+                return common::on_click(ctx, app, &x);
+            }
+            Outcome::Changed(_) => {
                 app.session = Options {
                     movement: common::options_from_controls(&self.panel),
                     thresholds: Options::default_thresholds(),
@@ -166,16 +175,10 @@ fn build_panel(
         Line(format!("What's within 15 minutes of all {}", amenity_type)).into_widget(ctx),
         Widget::row(vec![
             Line("Change amenity type:").into_widget(ctx),
-            Widget::dropdown(
-                ctx,
-                "amenity_type",
-                amenity_type,
-                app.map
-                    .get_available_amenity_types()
-                    .into_iter()
-                    .map(|at| Choice::new(at.to_string(), at))
-                    .collect(),
-            ),
+            ctx.style()
+                .btn_outline
+                .text(amenity_type.to_string())
+                .build_widget(ctx, "change amenity type"),
         ]),
         ctx.style()
             .btn_outline
