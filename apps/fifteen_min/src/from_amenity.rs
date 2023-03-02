@@ -170,7 +170,8 @@ fn build_panel(
                 ctx,
                 "amenity_type",
                 amenity_type,
-                AmenityType::all()
+                app.map
+                    .get_available_amenity_types()
                     .into_iter()
                     .map(|at| Choice::new(at.to_string(), at))
                     .collect(),

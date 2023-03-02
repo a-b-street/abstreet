@@ -136,7 +136,7 @@ pub fn on_click(ctx: &mut EventCtx, app: &App, x: &str) -> Transition<App> {
             return Transition::Replace(crate::from_amenity::FromAmenity::random_amenity(ctx, app));
         }
         "Score homes by access" => {
-            return Transition::Push(crate::score_homes::ScoreHomes::new_state(ctx));
+            return Transition::Push(crate::score_homes::ScoreHomes::new_state(ctx, app));
         }
         _ => panic!("Unhandled click {x}"),
     }

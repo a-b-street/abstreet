@@ -9,7 +9,7 @@ use map_model::{AmenityType, BuildingID};
 use widgetry::tools::{PopupMsg, URLManager};
 use widgetry::{
     Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    SimpleState, State, TextExt, Toggle, Transition, Widget,
+    SimpleState, State, Text, TextExt, Toggle, Transition, Widget,
 };
 
 use crate::isochrone::Options;
@@ -20,25 +20,39 @@ use crate::{common, render};
 pub struct ScoreHomes;
 
 impl ScoreHomes {
-    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        let amenities_present = app.map.get_available_amenity_types();
+        let mut toggles = Vec::new();
+        let mut missing = Vec::new();
+        for at in AmenityType::all() {
+            if amenities_present.contains(&at) {
+                toggles.push(Toggle::switch(ctx, &at.to_string(), None, false));
+            } else {
+                missing.push(at.to_string());
+            }
+        }
+
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![Line("Calculate acces scores")
                 .small_heading()
                 .into_widget(ctx)]),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
             "Select the types of businesses you want within a 15 minute walkshed.".text_widget(ctx),
-            Widget::custom_row(
-                AmenityType::all()
-                    .into_iter()
-                    .map(|at| Toggle::switch(ctx, &at.to_string(), None, false))
-                    .collect(),
-            )
-            .flex_wrap(ctx, Percent::int(50)),
+            Widget::custom_row(toggles).flex_wrap(ctx, Percent::int(50)),
             ctx.style()
                 .btn_solid_primary
                 .text("Calculate")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
+            Text::from(
+                Line(format!(
+                    "These amenities aren't present in this map: {}",
+                    missing.join(", ")
+                ))
+                .secondary(),
+            )
+            .wrap_to_pct(ctx, 50)
+            .into_widget(ctx),
         ]))
         .build(ctx);
 
@@ -58,7 +72,7 @@ impl SimpleState<App> for ScoreHomes {
             "Calculate" => {
                 let amenities: Vec<AmenityType> = AmenityType::all()
                     .into_iter()
-                    .filter(|at| panel.is_checked(&at.to_string()))
+                    .filter(|at| panel.maybe_is_checked(&at.to_string()).unwrap_or(false))
                     .collect();
                 if amenities.is_empty() {
                     return Transition::Push(PopupMsg::new_state(
@@ -172,7 +186,7 @@ impl State<App> for Results {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "change scoring criteria" {
-                    return Transition::Push(ScoreHomes::new_state(ctx));
+                    return Transition::Push(ScoreHomes::new_state(ctx, app));
                 }
                 return common::on_click(ctx, app, &x);
             }
