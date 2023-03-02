@@ -7,6 +7,7 @@ pub async fn run(
     geojson_path: String,
     name: String,
     use_geofabrik: bool,
+    use_osmium: bool,
     filter_crosswalks: bool,
     create_uk_travel_demand_model: bool,
 ) -> Result<()> {
@@ -55,8 +56,17 @@ pub async fn run(
         }
 
         // Clip it
-        println!("Clipping osm.pbf file to your boundary");
-        crate::clip_osm::run(pbf, geojson_path.clone(), osm.clone())?;
+        println!("Clipping {pbf} to your boundary");
+        if use_osmium {
+            importer::osmium(
+                pbf,
+                geojson_path.clone(),
+                osm.clone(),
+                &importer::ImporterConfiguration::load(),
+            );
+        } else {
+            crate::clip_osm::run(pbf, geojson_path.clone(), osm.clone())?;
+        }
     }
 
     // Import!

@@ -15,8 +15,9 @@ use abstio::{CityName, MapName};
 use abstutil::Timer;
 use map_model::RawToMapOptions;
 
-use self::configuration::{load_configuration, ImporterConfiguration};
+pub use self::configuration::ImporterConfiguration;
 pub use self::pick_geofabrik::pick_geofabrik;
+pub use utils::osmium;
 
 mod berlin;
 mod configuration;
@@ -73,7 +74,7 @@ pub async fn oneshot(
 
     if create_uk_travel_demand_model {
         timer.start("generating UK travel demand model");
-        uk::generate_scenario(&map, &load_configuration(), &mut timer)
+        uk::generate_scenario(&map, &ImporterConfiguration::load(), &mut timer)
             .await
             .unwrap();
         timer.stop("generating UK travel demand model");
@@ -172,7 +173,7 @@ impl Job {
             std::process::exit(1);
         }
 
-        let config: ImporterConfiguration = load_configuration();
+        let config = ImporterConfiguration::load();
 
         timer.start(format!("import {}", self.city.describe()));
         let names = if let Some(n) = self.only_map {

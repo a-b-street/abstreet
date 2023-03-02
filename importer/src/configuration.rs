@@ -20,12 +20,14 @@ impl Default for ImporterConfiguration {
     }
 }
 
-pub fn load_configuration() -> ImporterConfiguration {
-    // Safe to assume that {} can be parsed given struct-level Default implementation.
-    let default = serde_json::from_str("{}").unwrap();
+impl ImporterConfiguration {
+    pub fn load() -> Self {
+        // Safe to assume that {} can be parsed given struct-level Default implementation.
+        let default = serde_json::from_str("{}").unwrap();
 
-    match fs_err::read_to_string("importer.json") {
-        Ok(contents) => serde_json::from_str(&contents).unwrap_or(default),
-        Err(_) => default,
+        match fs_err::read_to_string("importer.json") {
+            Ok(contents) => serde_json::from_str(&contents).unwrap_or(default),
+            Err(_) => default,
+        }
     }
 }

@@ -155,6 +155,10 @@ enum Command {
         /// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.
         #[structopt(long)]
         use_geofabrik: bool,
+        /// Use osmium to clip osm.pbf files. Faster, but requires an external system dependency.
+        /// Falls back to something built-in and slower.
+        #[structopt(long)]
+        use_osmium: bool,
         /// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
         #[structopt(long)]
         filter_crosswalks: bool,
@@ -278,6 +282,7 @@ async fn main() -> Result<()> {
             geojson_path,
             map_name,
             use_geofabrik,
+            use_osmium,
             filter_crosswalks,
             create_uk_travel_demand_model,
         } => {
@@ -285,6 +290,7 @@ async fn main() -> Result<()> {
                 geojson_path,
                 map_name,
                 use_geofabrik,
+                use_osmium,
                 filter_crosswalks,
                 create_uk_travel_demand_model,
             )

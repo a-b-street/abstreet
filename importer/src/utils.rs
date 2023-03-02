@@ -87,7 +87,12 @@ pub async fn download_kml(
 
 /// Uses osmium to clip the input .osm (or .pbf) against a polygon and produce some output.  Skips
 /// if the output exists.
-fn osmium(input: String, clipping_polygon: String, output: String, config: &ImporterConfiguration) {
+pub fn osmium(
+    input: String,
+    clipping_polygon: String,
+    output: String,
+    config: &ImporterConfiguration,
+) {
     if Path::new(&output).exists() {
         println!("- {} already exists", output);
         return;
