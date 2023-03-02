@@ -18,13 +18,22 @@ use crate::{common, render};
 pub struct ScoreHomes;
 
 impl ScoreHomes {
-    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        amenities: Vec<AmenityType>,
+    ) -> Box<dyn State<App>> {
         let amenities_present = app.map.get_available_amenity_types();
         let mut toggles = Vec::new();
         let mut missing = Vec::new();
         for at in AmenityType::all() {
             if amenities_present.contains(&at) {
-                toggles.push(Toggle::switch(ctx, &at.to_string(), None, false));
+                toggles.push(Toggle::switch(
+                    ctx,
+                    &at.to_string(),
+                    None,
+                    amenities.contains(&at),
+                ));
             } else {
                 missing.push(at.to_string());
             }
@@ -36,6 +45,10 @@ impl ScoreHomes {
                 .into_widget(ctx)]),
             // TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
             "Select the types of businesses you want within a 15 minute walkshed.".text_widget(ctx),
+            Widget::row(vec![
+                ctx.style().btn_outline.text("Enable all").build_def(ctx),
+                ctx.style().btn_outline.text("Disable all").build_def(ctx),
+            ]),
             Widget::custom_row(toggles).flex_wrap(ctx, Percent::int(50)),
             ctx.style()
                 .btn_solid_primary
@@ -67,6 +80,16 @@ impl SimpleState<App> for ScoreHomes {
         panel: &mut Panel,
     ) -> Transition<App> {
         match x {
+            "Enable all" => {
+                return Transition::Replace(Self::new_state(
+                    ctx,
+                    app,
+                    app.map.get_available_amenity_types().into_iter().collect(),
+                ));
+            }
+            "Disable all" => {
+                return Transition::Replace(Self::new_state(ctx, app, Vec::new()));
+            }
             "Calculate" => {
                 let amenities: Vec<AmenityType> = AmenityType::all()
                     .into_iter()
@@ -184,7 +207,11 @@ impl State<App> for Results {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "change scoring criteria" {
-                    return Transition::Push(ScoreHomes::new_state(ctx, app));
+                    return Transition::Push(ScoreHomes::new_state(
+                        ctx,
+                        app,
+                        self.amenities.clone(),
+                    ));
                 }
                 return common::on_click(ctx, app, &x);
             }
