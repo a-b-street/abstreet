@@ -1,12 +1,15 @@
+use std::str::FromStr;
+
+use abstutil::MultiMap;
 use geom::Distance;
 use map_gui::tools::{CityPicker, Navigator};
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
-use map_model::BuildingID;
+use map_model::{AmenityType, BuildingID};
 use widgetry::tools::{ColorLegend, PopupMsg};
 use widgetry::{
-    lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, HorizontalAlignment, Key, Panel, Text,
-    Toggle, Transition, VerticalAlignment, Widget,
+    lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Panel,
+    Text, Toggle, Transition, VerticalAlignment, Widget,
 };
 
 use crate::isochrone::{Isochrone, MovementOptions, Options};
@@ -245,6 +248,53 @@ impl HoverOnBuilding {
                 Text::from("This is more than 15 minutes away")
             },
             drawn_route: ctx.upload(batch),
+        }
+    }
+}
+
+pub struct HoverOnCategory {
+    // TODO Try using Cached?
+    state: Option<(AmenityType, Drawable)>,
+    color: Color,
+}
+
+impl HoverOnCategory {
+    pub fn new(color: Color) -> Self {
+        Self { state: None, color }
+    }
+
+    pub fn update_on_mouse_move(
+        &mut self,
+        ctx: &EventCtx,
+        app: &App,
+        panel: &Panel,
+        amenities_reachable: &MultiMap<AmenityType, BuildingID>,
+    ) {
+        let key = panel
+            .currently_hovering()
+            .and_then(|x| x.strip_prefix("businesses: "));
+        if let Some(category) = key {
+            let category = AmenityType::from_str(category).unwrap();
+            if self
+                .state
+                .as_ref()
+                .map(|(cat, _)| *cat != category)
+                .unwrap_or(true)
+            {
+                let mut batch = GeomBatch::new();
+                for b in amenities_reachable.get(category) {
+                    batch.push(self.color, app.map.get_b(*b).polygon.clone());
+                }
+                self.state = Some((category, ctx.upload(batch)));
+            }
+        } else {
+            self.state = None;
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        if let Some((_, ref draw)) = self.state {
+            g.redraw(draw);
         }
     }
 }

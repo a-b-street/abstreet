@@ -4,18 +4,19 @@
 //!
 //! See https://github.com/a-b-street/abstreet/issues/393 for more context.
 
+use std::str::FromStr;
+
 use abstutil::prettyprint_usize;
 use geom::{Distance, FindClosest, Percent};
 use map_gui::ID;
 use map_model::{AmenityType, Building, BuildingID};
-use std::str::FromStr;
 use widgetry::tools::{ColorLegend, URLManager};
 use widgetry::{
-    Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text,
-    Transition, Widget,
+    Cached, Color, Drawable, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Transition,
+    Widget,
 };
 
-use crate::common::{HoverKey, HoverOnBuilding};
+use crate::common::{HoverKey, HoverOnBuilding, HoverOnCategory};
 use crate::isochrone::{Isochrone, Options};
 use crate::{common, render, App};
 
@@ -28,8 +29,7 @@ pub struct SingleStart {
     highlight_start: Drawable,
     isochrone: Isochrone,
     hovering_on_bldg: Cached<HoverKey, HoverOnBuilding>,
-    // TODO Can't use Cached due to a double borrow
-    hovering_on_category: Option<(AmenityType, Drawable)>,
+    hovering_on_category: HoverOnCategory,
 }
 
 impl SingleStart {
@@ -61,7 +61,7 @@ impl SingleStart {
             highlight_start: ctx.upload(highlight_start),
             isochrone,
             hovering_on_bldg: Cached::new(),
-            hovering_on_category: None,
+            hovering_on_category: HoverOnCategory::new(Color::RED),
             draw_unwalkable_roads,
         })
     }
@@ -99,28 +99,12 @@ impl State<App> for SingleStart {
             // inside the callback above, because it doesn't run when the key becomes None.
             app.current_selection = self.hovering_on_bldg.key().map(|(b, _)| ID::Building(b));
 
-            // Update the preview of all businesses belonging to one category
-            let key = self
-                .panel
-                .currently_hovering()
-                .and_then(|x| x.strip_prefix("businesses: "));
-            if let Some(category) = key {
-                let category = AmenityType::from_str(category).unwrap();
-                if self
-                    .hovering_on_category
-                    .as_ref()
-                    .map(|(cat, _)| *cat != category)
-                    .unwrap_or(true)
-                {
-                    let mut batch = GeomBatch::new();
-                    for b in self.isochrone.amenities_reachable.get(category) {
-                        batch.push(Color::RED, app.map.get_b(*b).polygon.clone());
-                    }
-                    self.hovering_on_category = Some((category, ctx.upload(batch)));
-                }
-            } else {
-                self.hovering_on_category = None;
-            }
+            self.hovering_on_category.update_on_mouse_move(
+                ctx,
+                app,
+                &self.panel,
+                &self.isochrone.amenities_reachable,
+            );
 
             if ctx.is_key_down(Key::LeftControl) {
                 if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
@@ -192,14 +176,12 @@ impl State<App> for SingleStart {
             g.draw_mouse_tooltip(hover.tooltip.clone());
             g.redraw(&hover.drawn_route);
         }
-        if let Some((_, ref draw)) = self.hovering_on_category {
-            g.redraw(draw);
-        }
+        self.hovering_on_category.draw(g);
     }
 }
 
 fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
-    let mut contents = vec![
+    let contents = vec![
         Text::from_all(vec![
             Line("Click").fg(ctx.style().text_hotkey_color),
             Line(" a building or hold ").secondary(),
@@ -230,20 +212,22 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
                 (Color::RED, "15 mins"),
             ],
         ),
+        Widget::custom_row(
+            isochrone
+                .amenities_reachable
+                .borrow()
+                .iter()
+                .map(|(amenity, buildings)| {
+                    ctx.style()
+                        .btn_outline
+                        .text(format!("{}: {}", amenity, buildings.len()))
+                        .build_widget(ctx, format!("businesses: {}", amenity))
+                        .margin_right(4)
+                        .margin_below(4)
+                })
+                .collect(),
+        )
+        .flex_wrap(ctx, Percent::int(30)),
     ];
-
-    let mut amenities = Vec::new();
-    for (amenity, buildings) in isochrone.amenities_reachable.borrow() {
-        amenities.push(
-            ctx.style()
-                .btn_outline
-                .text(format!("{}: {}", amenity, buildings.len()))
-                .build_widget(ctx, format!("businesses: {}", amenity))
-                .margin_right(4)
-                .margin_below(4),
-        );
-    }
-    contents.push(Widget::custom_row(amenities).flex_wrap(ctx, Percent::int(30)));
-
     common::build_panel(ctx, app, common::Mode::SingleStart, Widget::col(contents))
 }
