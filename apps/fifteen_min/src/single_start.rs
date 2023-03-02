@@ -7,7 +7,6 @@
 use abstutil::prettyprint_usize;
 use geom::{Distance, FindClosest, Percent};
 use map_gui::ID;
-use map_model::connectivity::WalkingOptions;
 use map_model::{AmenityType, Building, BuildingID};
 use std::str::FromStr;
 use widgetry::tools::{ColorLegend, URLManager};
@@ -17,7 +16,7 @@ use widgetry::{
 };
 
 use crate::common::{HoverKey, HoverOnBuilding};
-use crate::isochrone::{Isochrone, MovementOptions, Options};
+use crate::isochrone::{Isochrone, Options};
 use crate::{common, render, App};
 
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
@@ -44,12 +43,7 @@ impl SingleStart {
     pub fn new_state(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
         map_gui::tools::update_url_map_name(app);
 
-        let options = Options {
-            movement: MovementOptions::Walking(WalkingOptions::default()),
-            thresholds: Options::default_thresholds(),
-        };
-
-        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app, &options);
+        let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app);
 
         let mut snap_to_buildings = FindClosest::new();
         for b in app.map.all_buildings() {
@@ -57,7 +51,7 @@ impl SingleStart {
         }
 
         let start = app.map.get_b(start);
-        let isochrone = Isochrone::new(ctx, app, vec![start.id], options);
+        let isochrone = Isochrone::new(ctx, app, vec![start.id], app.session.clone());
         let highlight_start = render::draw_star(ctx, start);
         let panel = build_panel(ctx, app, start, &isochrone);
 
@@ -78,7 +72,7 @@ impl SingleStart {
         }
 
         let start = app.map.get_b(b);
-        self.isochrone = Isochrone::new(ctx, app, vec![start.id], self.isochrone.options.clone());
+        self.isochrone = Isochrone::new(ctx, app, vec![start.id], app.session.clone());
         let star = render::draw_star(ctx, start);
         self.highlight_start = ctx.upload(star);
         self.panel = build_panel(ctx, app, start, &self.isochrone);
@@ -165,16 +159,17 @@ impl State<App> for SingleStart {
                         ),
                     );
                 } else {
-                    return common::on_click(ctx, app, &x, &self.isochrone.options);
+                    return common::on_click(ctx, app, &x);
                 }
             }
             Outcome::Changed(_) => {
-                let options = Options {
+                app.session = Options {
                     movement: common::options_from_controls(&self.panel),
                     thresholds: Options::default_thresholds(),
                 };
-                self.draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app, &options);
-                self.isochrone = Isochrone::new(ctx, app, vec![self.isochrone.start[0]], options);
+                self.draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app);
+                self.isochrone =
+                    Isochrone::new(ctx, app, vec![self.isochrone.start[0]], app.session.clone());
                 self.panel = build_panel(
                     ctx,
                     app,
@@ -250,11 +245,5 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     }
     contents.push(Widget::custom_row(amenities).flex_wrap(ctx, Percent::int(30)));
 
-    common::build_panel(
-        ctx,
-        app,
-        common::Mode::SingleStart,
-        Widget::col(contents),
-        &isochrone.options,
-    )
+    common::build_panel(ctx, app, common::Mode::SingleStart, Widget::col(contents))
 }
