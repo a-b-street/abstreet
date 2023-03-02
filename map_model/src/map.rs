@@ -11,7 +11,7 @@ use geom::{Bounds, Distance, Duration, GPSBounds, LonLat, PolyLine, Polygon, Pt2
 use raw_map::{RawBuilding, RawMap};
 
 use crate::{
-    osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
+    osm, AmenityType, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
     CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
     DrivingSide, Intersection, IntersectionControl, IntersectionID, IntersectionKind, Lane, LaneID,
     LaneType, Map, MapConfig, MapEdits, Movement, MovementID, OffstreetParking, OriginalRoad,
@@ -998,5 +998,18 @@ impl Map {
     pub fn get_bus_routes_on_road(&self, r: RoadID) -> &BTreeSet<String> {
         let way = self.get_r(r).orig_id.osm_way_id;
         self.bus_routes_on_roads.get(way)
+    }
+
+    /// Find all amenity types that at least 1 building contains
+    pub fn get_available_amenity_types(&self) -> BTreeSet<AmenityType> {
+        let mut result = BTreeSet::new();
+        for b in self.all_buildings() {
+            for amenity in &b.amenities {
+                if let Some(t) = AmenityType::categorize(&amenity.amenity_type) {
+                    result.insert(t);
+                }
+            }
+        }
+        result
     }
 }
