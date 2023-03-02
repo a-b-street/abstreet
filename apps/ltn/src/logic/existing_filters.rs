@@ -6,10 +6,12 @@ use crate::{Edits, FilterType, RoadFilter};
 
 /// Detect roads that're modelled in OSM as cycleways, but really are regular roads with modal
 /// filters. Transform them into normal roads, and instead use this tool's explicit representation
-/// for filters.
+/// for filters. Returns Edits.
 ///
 /// Also detect modal filters defined in OSM as points.
-pub fn transform_existing_filters(map: &mut Map, proposal_edits: &mut Edits, timer: &mut Timer) {
+pub fn transform_existing_filters(map: &mut Map, timer: &mut Timer) -> Edits {
+    let mut proposal_edits = Edits::default();
+
     let mut edits = map.get_edits().clone();
     let mut filtered_roads = Vec::new();
     for r in detect_filters(map) {
@@ -71,6 +73,8 @@ pub fn transform_existing_filters(map: &mut Map, proposal_edits: &mut Edits, tim
 
     // Do not call map.keep_pathfinder_despite_edits or recalculate_pathfinding_after_edits. We
     // should NEVER use the map's built-in pathfinder in this app. If we do, crash.
+
+    proposal_edits
 }
 
 fn detect_filters(map: &Map) -> Vec<&Road> {

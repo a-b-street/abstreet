@@ -59,11 +59,12 @@ impl PerMap {
         cs: &ColorScheme,
         timer: &mut Timer,
     ) -> Self {
-        // Note this happens before transform_existing_filters, which could influence the blocks
-        // traced for roads tagged as non-driveable that really mean filtered
-        let mut proposals = crate::save::Proposals::new(&map, timer);
+        // Do this before creating the default partitioning. Non-driveable roads in OSM get turned
+        // into driveable roads and a filter here, and we want the partitioning to "see" those
+        // roads.
+        let edits = logic::transform_existing_filters(&mut map, timer);
+        let mut proposals = crate::save::Proposals::new(&map, edits, timer);
 
-        logic::transform_existing_filters(&mut map, &mut proposals.current_proposal.edits, timer);
         let mut routing_params_before_changes = map.routing_params().clone();
         proposals
             .current_proposal

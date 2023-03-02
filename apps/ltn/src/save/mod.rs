@@ -368,7 +368,8 @@ pub struct Proposals {
 }
 
 impl Proposals {
-    pub fn new(map: &Map, timer: &mut Timer) -> Self {
+    // This calculates partitioning, which is expensive
+    pub fn new(map: &Map, edits: Edits, timer: &mut Timer) -> Self {
         Self {
             list: vec![None],
             current: 0,
@@ -378,7 +379,7 @@ impl Proposals {
                 name: "existing LTNs".to_string(),
                 abst_version: map_gui::tools::version().to_string(),
                 partitioning: Partitioning::seed_using_heuristics(map, timer),
-                edits: Edits::default(),
+                edits,
                 unsaved_parent: None,
             },
         }
