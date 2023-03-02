@@ -1,15 +1,13 @@
-use std::collections::HashMap;
-
 use crate::App;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::Percent;
 use map_gui::tools::grey_out_map;
 use map_model::connectivity::Spot;
 use map_model::{AmenityType, BuildingID};
-use widgetry::tools::{PopupMsg, URLManager};
+use widgetry::tools::{ColorLegend, PopupMsg, URLManager};
 use widgetry::{
-    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    SimpleState, State, Text, TextExt, Toggle, Transition, Widget,
+    DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, SimpleState,
+    State, Text, TextExt, Toggle, Transition, Widget,
 };
 
 use crate::isochrone::Options;
@@ -100,14 +98,13 @@ impl SimpleState<App> for ScoreHomes {
     }
 }
 
-/// For every house in the map, return the percent of amenities located within a 15min walkshed. A
-/// single matching business per category is enough to count as satisfied.
-fn score_houses(
+/// For every house in the map, return the number of amenity types located within a 15min walkshed.
+/// A single matching business per category is enough to count as satisfied.
+fn score_houses_by_one_match(
     app: &App,
     amenities: Vec<AmenityType>,
     timer: &mut Timer,
-) -> HashMap<BuildingID, Percent> {
-    let num_categories = amenities.len();
+) -> Counter<BuildingID> {
     let mut satisfied_per_bldg: Counter<BuildingID> = Counter::new();
 
     let map = &app.map;
@@ -127,11 +124,7 @@ fn score_houses(
         }
     }
 
-    let mut scores = HashMap::new();
-    for (b, cnt) in satisfied_per_bldg.consume() {
-        scores.insert(b, Percent::of(cnt, num_categories));
-    }
-    scores
+    satisfied_per_bldg
 }
 
 // TODO Show the matching amenities.
@@ -151,21 +144,26 @@ impl Results {
     ) -> Box<dyn State<App>> {
         let draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app);
 
+        assert!(!amenities.is_empty());
         let scores = ctx.loading_screen("search for houses", |_, timer| {
-            score_houses(app, amenities.clone(), timer)
+            score_houses_by_one_match(app, amenities.clone(), timer)
         });
 
-        // TODO Show imperfect matches with different colors.
         let mut batch = GeomBatch::new();
-        let mut count = 0;
-        for (b, pct) in scores {
-            if pct == Percent::int(100) {
-                batch.push(Color::RED, app.map.get_b(b).polygon.clone());
-                count += 1;
+        let mut matches_all = 0;
+
+        for (b, count) in scores.consume() {
+            if count == amenities.len() {
+                matches_all += 1;
             }
+            let color = app
+                .cs
+                .good_to_bad_red
+                .eval((count as f64) / (amenities.len() as f64));
+            batch.push(color, app.map.get_b(b).polygon.clone());
         }
 
-        let panel = build_panel(ctx, app, &amenities, count);
+        let panel = build_panel(ctx, app, &amenities, matches_all);
 
         Box::new(Self {
             draw_unwalkable_roads,
@@ -210,19 +208,38 @@ impl State<App> for Results {
     }
 }
 
-fn build_panel(ctx: &mut EventCtx, app: &App, amenities: &Vec<AmenityType>, count: usize) -> Panel {
+fn build_panel(
+    ctx: &mut EventCtx,
+    app: &App,
+    amenities: &Vec<AmenityType>,
+    matches_all: usize,
+) -> Panel {
     let contents = vec![
         "What homes are within 15 minutes away?".text_widget(ctx),
-        format!(
+        Text::from(format!(
             "Containing at least 1 of each: {}",
             amenities
                 .iter()
                 .map(|x| x.to_string())
                 .collect::<Vec<_>>()
                 .join(", ")
+        ))
+        .wrap_to_pct(ctx, 30)
+        .into_widget(ctx),
+        format!(
+            "{} houses match all categories",
+            prettyprint_usize(matches_all)
         )
         .text_widget(ctx),
-        format!("{} houses match", prettyprint_usize(count)).text_widget(ctx),
+        Line("Darker is better; more categories")
+            .secondary()
+            .into_widget(ctx),
+        ColorLegend::gradient_with_width(
+            ctx,
+            &app.cs.good_to_bad_red,
+            vec!["0", &amenities.len().to_string()],
+            150.0,
+        ),
         ctx.style()
             .btn_outline
             .text("change scoring criteria")
