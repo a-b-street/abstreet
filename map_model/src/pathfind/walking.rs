@@ -131,7 +131,7 @@ impl SidewalkPathfinder {
             .collect();
         let steps = walking_path_to_steps(nodes, map);
         let cost = unround(raw_weight);
-        Some(PathV2::new(steps, req, cost, Vec::new()))
+        Some(PathV2::new(map, steps, req, cost, Vec::new()))
     }
 
     /// Attempt the pathfinding and see if we should ride public transit. If so, says (stop1,
@@ -526,5 +526,5 @@ fn one_step_walking_path(req: PathRequest, map: &Map) -> PathV2 {
     if map.get_l(l).is_shoulder() {
         cost = 2.0 * cost;
     }
-    PathV2::new(vec![step_v2], req, cost, Vec::new())
+    PathV2::new(map, vec![step_v2], req, cost, Vec::new())
 }

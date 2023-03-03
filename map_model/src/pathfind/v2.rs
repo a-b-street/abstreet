@@ -35,21 +35,46 @@ pub struct PathV2 {
     // TODO Temporarily we'll keep plumbing these along for path_v2_to_v1 to work, but we'll
     // probably just discover uber-turns lazily at the simulation layer instead.
     uber_turns: Vec<UberTurnV2>,
+
+    // If alt_start was used, this may differ from req.start.lane()
+    orig_start_lane: LaneID,
 }
 
 impl PathV2 {
     pub(crate) fn new(
+        map: &Map,
         steps: Vec<PathStepV2>,
-        req: PathRequest,
+        mut req: PathRequest,
         cost: Duration,
         uber_turns: Vec<UberTurnV2>,
     ) -> PathV2 {
+        let orig_start_lane = req.start.lane();
+
+        // If we had two possible start positions, figure out which one we wound up using
+        // TODO Doesn't make sense for pedestrians yet
+        if req.constraints != PathConstraints::Pedestrian {
+            if let Some((pos, _)) = req.alt_start {
+                if let PathStepV2::Along(dr) = steps[0] {
+                    if map.get_l(req.start.lane()).get_directed_parent() == dr {
+                        // We used the original side, fine. No need to preserve this.
+                    } else {
+                        assert_eq!(map.get_l(pos.lane()).get_directed_parent(), dr);
+                        req.start = pos;
+                    }
+                    req.alt_start = None;
+                } else {
+                    unreachable!()
+                }
+            }
+        }
+
         // TODO Port validate_continuity and validate_restrictions?
         PathV2 {
             steps,
             req,
             cost,
             uber_turns,
+            orig_start_lane,
         }
     }
 
@@ -73,7 +98,7 @@ impl PathV2 {
             }));
         }
         steps.push(PathStepV2::Along(roads.pop().unwrap()));
-        PathV2::new(steps, req, cost, uber_turns)
+        PathV2::new(map, steps, req, cost, uber_turns)
     }
 
     /// The original PathRequest used to produce this path.
@@ -148,22 +173,6 @@ impl PathV2 {
     pub fn into_v1(mut self, map: &Map) -> Result<Path> {
         if self.req.constraints == PathConstraints::Pedestrian {
             return self.into_v1_walking(map);
-        }
-
-        // If we had two possible start positions, figure out which one we wound up using
-        let orig_start_lane = self.req.start.lane();
-        if let Some((pos, _)) = self.req.alt_start {
-            if let PathStepV2::Along(dr) = self.steps[0] {
-                if map.get_l(self.req.start.lane()).get_directed_parent() == dr {
-                    // We used the original side, fine. No need to preserve this.
-                } else {
-                    assert_eq!(map.get_l(pos.lane()).get_directed_parent(), dr);
-                    self.req.start = pos;
-                }
-                self.req.alt_start = None;
-            } else {
-                unreachable!()
-            }
         }
 
         // This is a somewhat brute-force method: run Dijkstra's algorithm on a graph of lanes and
@@ -267,14 +276,14 @@ impl PathV2 {
                 }
                 steps.push(PathStep::Lane(self.req.end.lane()));
                 let mut blocked_starts = Vec::new();
-                if steps[0] != PathStep::Lane(orig_start_lane) {
+                if steps[0] != PathStep::Lane(self.orig_start_lane) {
                     let actual_start = match steps[0] {
                         PathStep::Lane(l) => l,
                         _ => unreachable!(),
                     };
-                    blocked_starts.push(orig_start_lane);
+                    blocked_starts.push(self.orig_start_lane);
                     blocked_starts
-                        .extend(start_road.get_lanes_between(orig_start_lane, actual_start));
+                        .extend(start_road.get_lanes_between(self.orig_start_lane, actual_start));
                     // Sometimes a no-op for exiting off-side
                     self.req.start = self.req.start.equiv_pos(actual_start, map);
                 }
