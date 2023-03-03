@@ -1,4 +1,4 @@
-use geom::{Duration, Polygon};
+use geom::{Distance, Duration, Polygon};
 use map_gui::tools::{
     DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
@@ -6,8 +6,8 @@ use map_model::{PathConstraints, PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, Panel, RoundedF64, Spinner,
-    State, TextExt, TextSpan, Toggle, Widget,
+    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, Panel,
+    RoundedF64, Spinner, State, TextExt, TextSpan, Toggle, Widget,
 };
 
 use crate::components::{AppwidePanel, Mode};
@@ -21,6 +21,7 @@ pub struct RoutePlanner {
     files: TripManagement<App, RoutePlanner>,
     world: World<WaypointID>,
     show_main_roads: Drawable,
+    draw_driveways: Drawable,
     draw_routes: Drawable,
     // TODO We could save the no-filter variations map-wide
     pathfinder_cache: PathfinderCache,
@@ -58,6 +59,16 @@ impl RoutePlanner {
             batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
         }
 
+        // Just so there's some explanation for occasionally odd building<->road snapping, show
+        // driveways very faintly
+        let mut driveways = GeomBatch::new();
+        for b in app.per_map.map.all_buildings() {
+            driveways.push(
+                Color::BLACK.alpha(0.2),
+                b.driveway_geom.make_polygons(Distance::meters(0.5)),
+            );
+        }
+
         let mut rp = RoutePlanner {
             appwide_panel: AppwidePanel::new(ctx, app, Mode::RoutePlanner),
             left_panel: Panel::empty(ctx),
@@ -65,6 +76,7 @@ impl RoutePlanner {
             files: TripManagement::new(app),
             world: World::new(),
             show_main_roads: ctx.upload(batch),
+            draw_driveways: ctx.upload(driveways),
             draw_routes: Drawable::empty(ctx),
             pathfinder_cache: PathfinderCache::new(),
         };
@@ -439,10 +451,12 @@ impl State<App> for RoutePlanner {
         Transition::Keep
     }
 
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::Custom
+    }
+
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.appwide_panel.draw(g);
-        self.left_panel.draw(g);
-        app.session.layers.draw(g, app);
+        app.draw_with_layering(g, |g| g.redraw(&self.draw_driveways));
 
         g.redraw(&self.show_main_roads);
         self.draw_routes.draw(g);
@@ -450,6 +464,10 @@ impl State<App> for RoutePlanner {
         app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
+
+        self.appwide_panel.draw(g);
+        self.left_panel.draw(g);
+        app.session.layers.draw(g, app);
     }
 
     fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
