@@ -166,6 +166,8 @@ enum Command {
         /// work if the boundary is in the UK.
         #[structopt(long)]
         create_uk_travel_demand_model: bool,
+        #[structopt(flatten)]
+        opts: map_model::RawToMapOptions,
     },
     /// Imports a one-shot A/B Street map from an .osm file in a single command.
     OneshotImport {
@@ -285,6 +287,7 @@ async fn main() -> Result<()> {
             use_osmium,
             filter_crosswalks,
             create_uk_travel_demand_model,
+            opts,
         } => {
             one_step_import::run(
                 geojson_path,
@@ -293,6 +296,7 @@ async fn main() -> Result<()> {
                 use_osmium,
                 filter_crosswalks,
                 create_uk_travel_demand_model,
+                opts,
             )
             .await?
         }

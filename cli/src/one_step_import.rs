@@ -10,6 +10,7 @@ pub async fn run(
     use_osmium: bool,
     filter_crosswalks: bool,
     create_uk_travel_demand_model: bool,
+    opts: map_model::RawToMapOptions,
 ) -> Result<()> {
     if name.contains(' ') || name.is_empty() {
         panic!(
@@ -76,7 +77,7 @@ pub async fn run(
         Some(geojson_path),
         filter_crosswalks,
         create_uk_travel_demand_model,
-        map_model::RawToMapOptions::default(),
+        opts,
     )
     .await;
 
