@@ -42,7 +42,7 @@ pub fn extract_osm(
         map.streets.boundary_polygon = Ring::deduping_new(map.streets.gps_bounds.convert(&pts))
             .unwrap()
             .into_polygon();
-        doc.clip(&map.streets.boundary_polygon);
+        doc.clip(&map.streets.boundary_polygon, timer);
     } else {
         map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();
         // No need to clip the Document in this case.
