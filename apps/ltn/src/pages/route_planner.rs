@@ -1,7 +1,5 @@
 use geom::{Distance, Duration, Polygon};
-use map_gui::tools::{
-    DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
-};
+use map_gui::tools::{InputWaypoints, TripManagement, TripManagementState, WaypointID};
 use map_model::{PathConstraints, PathV2, PathfinderCache};
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::mapspace::World;
@@ -45,13 +43,7 @@ impl TripManagementState<App> for RoutePlanner {
 
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        if app.per_map.draw_all_road_labels.is_none() {
-            app.per_map.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
-                ctx,
-                app,
-                colors::ROAD_LABEL,
-            ));
-        }
+        app.calculate_draw_all_road_labels(ctx);
 
         // Fade all neighbourhood interiors, so it's very clear when a route cuts through
         let mut batch = GeomBatch::new();

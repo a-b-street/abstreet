@@ -2,7 +2,6 @@ use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 
 use abstutil::PriorityQueueItem;
 use geom::{Circle, Duration};
-use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::{CrossingType, RoadID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, ObjectID, PerZoom, World, WorldOutcome};
 use widgetry::{
@@ -18,7 +17,6 @@ pub struct Crossings {
     appwide_panel: AppwidePanel,
     bottom_panel: Panel,
     world: World<Obj>,
-    labels: DrawSimpleRoadLabels,
     draw_porosity: Drawable,
     draw_crossings: Toggle3Zoomed,
     draw_nearest_crossing: Option<Drawable>,
@@ -36,11 +34,12 @@ impl Crossings {
             .layers
             .event(ctx, &app.cs, Mode::Crossings, Some(&bottom_panel));
 
+        app.calculate_draw_major_road_labels(ctx);
+
         let mut state = Self {
             appwide_panel,
             bottom_panel,
             world: World::new(),
-            labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
             draw_porosity: Drawable::empty(ctx),
             draw_crossings: Toggle3Zoomed::empty(ctx),
             draw_nearest_crossing: None,
@@ -161,7 +160,7 @@ impl State<App> for Crossings {
         self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
         g.redraw(&self.draw_porosity);
-        self.labels.draw(g);
+        app.per_map.draw_major_road_labels.as_ref().unwrap().draw(g);
         app.per_map.draw_poi_icons.draw(g);
         if let Some(ref draw) = self.draw_nearest_crossing {
             g.redraw(draw);

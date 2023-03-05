@@ -282,6 +282,26 @@ impl App {
     pub fn partitioning(&self) -> &Partitioning {
         &self.per_map.proposals.current_proposal.partitioning
     }
+
+    pub fn calculate_draw_major_road_labels(&mut self, ctx: &mut EventCtx) {
+        if self.per_map.draw_major_road_labels.is_none() {
+            self.per_map.draw_major_road_labels = Some(DrawSimpleRoadLabels::only_major_roads(
+                ctx,
+                self,
+                render::colors::ROAD_LABEL,
+            ));
+        }
+    }
+
+    pub fn calculate_draw_all_road_labels(&mut self, ctx: &mut EventCtx) {
+        if self.per_map.draw_all_road_labels.is_none() {
+            self.per_map.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
+                ctx,
+                self,
+                render::colors::ROAD_LABEL,
+            ));
+        }
+    }
 }
 
 struct SimpleWarper {

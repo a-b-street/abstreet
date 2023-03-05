@@ -3,7 +3,6 @@ use std::collections::BTreeSet;
 use anyhow::Result;
 
 use geom::{Distance, Polygon};
-use map_gui::tools::DrawSimpleRoadLabels;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{Lasso, PopupMsg};
 use widgetry::{
@@ -51,13 +50,7 @@ impl SelectBoundary {
             );
         }
 
-        if app.per_map.draw_all_road_labels.is_none() {
-            app.per_map.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
-                ctx,
-                app,
-                colors::ROAD_LABEL,
-            ));
-        }
+        app.calculate_draw_all_road_labels(ctx);
 
         // Make sure we clear this state if we ever modify neighbourhood boundaries
         if let pages::EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {

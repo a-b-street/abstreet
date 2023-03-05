@@ -1,5 +1,5 @@
 use abstutil::Counter;
-use map_gui::tools::{ColorNetwork, DrawSimpleRoadLabels};
+use map_gui::tools::ColorNetwork;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{ChooseSomething, PromptInput};
 use widgetry::{
@@ -53,13 +53,7 @@ impl PickArea {
             .layers
             .event(ctx, &app.cs, Mode::PickArea, Some(&bottom_panel));
 
-        if app.per_map.draw_major_road_labels.is_none() {
-            app.per_map.draw_major_road_labels = Some(DrawSimpleRoadLabels::only_major_roads(
-                ctx,
-                app,
-                colors::ROAD_LABEL,
-            ));
-        }
+        app.calculate_draw_major_road_labels(ctx);
 
         Box::new(Self {
             appwide_panel,
