@@ -236,26 +236,17 @@ fn bristol_hack(map: &mut RawMap) {
 fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     let boundary_polygon = map.streets.boundary_polygon.clone();
 
-    map.buildings = timer
-        .parallelize(
-            "clip buildings to boundary",
-            std::mem::take(&mut map.buildings).into_iter().collect(),
-            |(id, b)| {
-                if b.polygon
-                    .get_outer_ring()
-                    .points()
-                    .iter()
-                    .all(|pt| boundary_polygon.contains_pt(*pt))
-                {
-                    Some((id, b))
-                } else {
-                    None
-                }
-            },
-        )
-        .into_iter()
-        .flatten()
-        .collect();
+    map.buildings = timer.retain_parallelized(
+        "clip buildings to boundary",
+        std::mem::take(&mut map.buildings),
+        |b| {
+            b.polygon
+                .get_outer_ring()
+                .points()
+                .iter()
+                .all(|pt| boundary_polygon.contains_pt(*pt))
+        },
+    );
 
     map.areas = timer
         .parallelize(

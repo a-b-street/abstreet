@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::io::{stdout, BufReader, ErrorKind, Read, Write};
 
 use anyhow::{Context, Result};
@@ -376,6 +377,30 @@ impl<'a> Timer<'a> {
                 results.into_iter().map(|x| x.unwrap()).collect()
             })
         }
+    }
+
+    /// Like BTreeMap::retain, but parallelized
+    pub fn retain_parallelized<K, V, F: Fn(&V) -> bool>(
+        &mut self,
+        timer_name: &str,
+        input: BTreeMap<K, V>,
+        keep: F,
+    ) -> BTreeMap<K, V>
+    where
+        K: Send + Ord,
+        V: Send,
+        F: Send + Sync + Clone + Copy,
+    {
+        self.parallelize(timer_name, input.into_iter().collect(), |(k, v)| {
+            if keep(&v) {
+                Some((k, v))
+            } else {
+                None
+            }
+        })
+        .into_iter()
+        .flatten()
+        .collect()
     }
 
     /// Then the caller passes this in as a reader
