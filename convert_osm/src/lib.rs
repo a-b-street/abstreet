@@ -91,7 +91,9 @@ pub fn convert(
     map.streets.config = opts.map_config.clone();
 
     let clip_pts = clip_path.map(|path| LonLat::read_geojson_polygon(&path).unwrap());
+    timer.start("extract all from OSM");
     let extract = extract::extract_osm(&mut map, &osm_input_path, clip_pts, &opts, timer);
+    timer.stop("extract all from OSM");
     let pt_to_road =
         streets_reader::split_ways::split_up_roads(&mut map.streets, extract.osm, timer);
 
@@ -100,7 +102,7 @@ pub fn convert(
 
     map.bus_routes_on_roads = extract.bus_routes_on_roads;
 
-    clip_map(&mut map);
+    clip_map(&mut map, timer);
 
     for i in map.streets.intersections.keys() {
         map.elevation_per_intersection.insert(*i, Distance::ZERO);
@@ -110,6 +112,7 @@ pub fn convert(
     }
 
     // Remember OSM tags for all roads. Do this before apply_parking, which looks at tags
+    timer.start("preserve OSM tags");
     let mut way_ids = HashSet::new();
     for r in map.streets.roads.values() {
         for id in &r.osm_ids {
@@ -121,11 +124,14 @@ pub fn convert(
             map.osm_tags.insert(id, way.tags);
         }
     }
+    timer.stop("preserve OSM tags");
 
     parking::apply_parking(&mut map, &opts, timer);
 
+    timer.start("use barrier and crossing nodes");
     use_barrier_nodes(&mut map, extract.barrier_nodes, &pt_to_road);
     use_crossing_nodes(&mut map, &extract.crossing_nodes, &pt_to_road);
+    timer.stop("use barrier and crossing nodes");
 
     if opts.filter_crosswalks {
         filter_crosswalks(&mut map, extract.crossing_nodes, pt_to_road, timer);
@@ -227,33 +233,54 @@ fn bristol_hack(map: &mut RawMap) {
     map.extra_road_data.insert(id, ExtraRoadData::default());
 }
 
-fn clip_map(map: &mut RawMap) {
+fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     let boundary_polygon = map.streets.boundary_polygon.clone();
 
-    map.buildings.retain(|_, b| {
-        b.polygon
-            .get_outer_ring()
-            .points()
-            .iter()
-            .all(|pt| boundary_polygon.contains_pt(*pt))
-    });
+    map.buildings = timer
+        .parallelize(
+            "clip buildings to boundary",
+            std::mem::take(&mut map.buildings).into_iter().collect(),
+            |(id, b)| {
+                if b.polygon
+                    .get_outer_ring()
+                    .points()
+                    .iter()
+                    .all(|pt| boundary_polygon.contains_pt(*pt))
+                {
+                    Some((id, b))
+                } else {
+                    None
+                }
+            },
+        )
+        .into_iter()
+        .flatten()
+        .collect();
 
-    let mut result_areas = Vec::new();
-    for orig_area in map.areas.drain(..) {
-        // If clipping fails, giving up on some areas is fine
-        if let Ok(list) = map
-            .streets
-            .boundary_polygon
-            .intersection(&orig_area.polygon)
-        {
-            for polygon in list {
-                let mut area = orig_area.clone();
-                area.polygon = polygon;
-                result_areas.push(area);
-            }
-        }
-    }
-    map.areas = result_areas;
+    map.areas = timer
+        .parallelize(
+            "clip areas to boundary",
+            std::mem::take(&mut map.areas),
+            |orig_area| {
+                let mut result = Vec::new();
+                // If clipping fails, giving up on some areas is fine
+                if let Ok(list) = map
+                    .streets
+                    .boundary_polygon
+                    .intersection(&orig_area.polygon)
+                {
+                    for polygon in list {
+                        let mut area = orig_area.clone();
+                        area.polygon = polygon;
+                        result.push(area);
+                    }
+                }
+                result
+            },
+        )
+        .into_iter()
+        .flatten()
+        .collect();
 
     // TODO Don't touch parking lots. It'll be visually obvious if a clip intersects one of these.
     // The boundary should be manually adjusted.

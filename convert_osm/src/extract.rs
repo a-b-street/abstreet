@@ -37,6 +37,7 @@ pub fn extract_osm(
     // If GPSBounds aren't provided above, they'll be computed in the Document
     map.streets.gps_bounds = doc.gps_bounds.clone().unwrap();
 
+    timer.start("clip OSM document to boundary");
     if let Some(pts) = clip_pts {
         map.streets.boundary_polygon = Ring::deduping_new(map.streets.gps_bounds.convert(&pts))
             .unwrap()
@@ -46,6 +47,7 @@ pub fn extract_osm(
         map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();
         // No need to clip the Document in this case.
     }
+    timer.stop("clip OSM document to boundary");
 
     streets_reader::detect_country_code(&mut map.streets);
 
@@ -225,7 +227,6 @@ pub fn extract_osm(
     }
 
     // Special case the coastline.
-    println!("{} ways of coastline", coastline_groups.len());
     for polygon in glue_multipolygon(RelationID(-1), coastline_groups, Some(&boundary)) {
         let mut osm_tags = Tags::empty();
         osm_tags.insert("water", "ocean");
