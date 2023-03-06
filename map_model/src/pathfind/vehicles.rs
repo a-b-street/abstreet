@@ -222,7 +222,17 @@ fn make_input_graph(
         }
     }
 
-    for r in map.all_roads() {
+    let roads_to_consider = if params.only_use_roads.is_empty() {
+        map.all_roads().iter().collect::<Vec<_>>()
+    } else {
+        params
+            .only_use_roads
+            .iter()
+            .map(|r| map.get_r(*r))
+            .collect()
+    };
+
+    for r in roads_to_consider {
         for dr in r.id.both_directions() {
             let from = nodes.get(Node::Road(dr));
             if !dr.lanes(constraints, map).is_empty() {
@@ -292,6 +302,14 @@ pub fn vehicle_cost(
     params: &RoutingParams,
     map: &Map,
 ) -> Option<Duration> {
+    if params.avoid_roads.contains(&dr.road)
+        || params
+            .avoid_movements_between
+            .contains(&(mvmnt.from.road, mvmnt.to.road))
+    {
+        return None;
+    }
+
     let road = map.get_r(dr.road);
     let movement = &map.get_i(mvmnt.parent).movements[&mvmnt];
     let max_speed = match constraints {
@@ -352,14 +370,6 @@ pub fn vehicle_cost(
         && road.high_stress_for_bikes(map, dr.dir)
     {
         multiplier *= params.avoid_high_stress;
-    }
-
-    if params.avoid_roads.contains(&dr.road)
-        || params
-            .avoid_movements_between
-            .contains(&(mvmnt.from.road, mvmnt.to.road))
-    {
-        return None;
     }
 
     let mut extra = zone_cost(mvmnt, constraints, map);

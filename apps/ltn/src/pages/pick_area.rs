@@ -202,11 +202,19 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut count_per_road = Counter::new();
     let mut count_per_intersection = Counter::new();
 
-    for id in app.partitioning().all_neighbourhoods().keys() {
-        let neighbourhood = Neighbourhood::new(app, *id);
-        count_per_road.extend(neighbourhood.shortcuts.count_per_road);
-        count_per_intersection.extend(neighbourhood.shortcuts.count_per_intersection);
-    }
+    ctx.loading_screen("calculate shortcuts everywhere", |_, timer| {
+        let map = &app.per_map.map;
+        let edits = app.edits();
+        let partitioning = app.partitioning();
+        for neighbourhood in timer.parallelize(
+            "calculate shortcuts",
+            app.partitioning().all_neighbourhoods().keys().collect(),
+            |id| Neighbourhood::new_without_app(map, edits, partitioning, *id),
+        ) {
+            count_per_road.extend(neighbourhood.shortcuts.count_per_road);
+            count_per_intersection.extend(neighbourhood.shortcuts.count_per_intersection);
+        }
+    });
 
     // TODO It's a bit weird to draw one heatmap covering streets in every neighbourhood. The
     // shortcuts are calculated per neighbourhood, but now we're showing them all together, as if

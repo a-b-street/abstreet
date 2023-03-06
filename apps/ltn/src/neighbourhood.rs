@@ -6,7 +6,7 @@ use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{osm, Direction, IntersectionID, Map, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
-use crate::logic::{CustomBoundary, Shortcuts};
+use crate::logic::{CustomBoundary, Partitioning, Shortcuts};
 use crate::{is_private, App, Edits, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
@@ -106,12 +106,20 @@ pub struct DistanceInterval {
 
 impl Neighbourhood {
     pub fn new(app: &App, id: NeighbourhoodID) -> Neighbourhood {
-        if let Some(custom) = app.partitioning().custom_boundaries.get(&id) {
-            return Self::new_custom(app, id, custom.clone());
+        Self::new_without_app(&app.per_map.map, app.edits(), app.partitioning(), id)
+    }
+
+    pub fn new_without_app(
+        map: &Map,
+        edits: &Edits,
+        partitioning: &Partitioning,
+        id: NeighbourhoodID,
+    ) -> Neighbourhood {
+        if let Some(custom) = partitioning.custom_boundaries.get(&id) {
+            return Self::new_custom(map, edits, id, custom.clone());
         }
 
-        let map = &app.per_map.map;
-        let orig_perimeter = app.partitioning().neighbourhood_block(id).perimeter.clone();
+        let orig_perimeter = partitioning.neighbourhood_block(id).perimeter.clone();
 
         let mut n = Neighbourhood {
             id,
@@ -129,26 +137,11 @@ impl Neighbourhood {
         // The neighbourhood's perimeter hugs the "interior" of the neighbourhood. If we just use
         // the other side of the perimeter road, the highlighted area nicely shows the boundary
         // road too. (But sometimes this breaks, of course)
-        n.boundary_polygon = match orig_perimeter
-            .clone()
-            .flip_side_of_road()
-            .to_block(&app.per_map.map)
-        {
+        n.boundary_polygon = match orig_perimeter.clone().flip_side_of_road().to_block(map) {
             Ok(block) => block.polygon,
-            Err(_) => {
-                orig_perimeter
-                    .clone()
-                    .to_block(&app.per_map.map)
-                    .unwrap()
-                    .polygon
-            }
+            Err(_) => orig_perimeter.clone().to_block(map).unwrap().polygon,
         };
-        if let Some(polygon) = app
-            .partitioning()
-            .get_info(id)
-            .override_drawing_boundary
-            .clone()
-        {
+        if let Some(polygon) = partitioning.get_info(id).override_drawing_boundary.clone() {
             n.boundary_polygon = polygon;
         }
 
@@ -159,11 +152,16 @@ impl Neighbourhood {
             n.borders.insert(road.dst_i);
         }
 
-        n.finish_init(app);
+        n.finish_init(map, edits);
         n
     }
 
-    fn new_custom(app: &App, id: NeighbourhoodID, custom: CustomBoundary) -> Neighbourhood {
+    fn new_custom(
+        map: &Map,
+        edits: &Edits,
+        id: NeighbourhoodID,
+        custom: CustomBoundary,
+    ) -> Neighbourhood {
         let mut n = Neighbourhood {
             id,
             interior_roads: custom.interior_roads,
@@ -177,13 +175,11 @@ impl Neighbourhood {
             cells: Vec::new(),
             shortcuts: Shortcuts::empty(),
         };
-        n.finish_init(app);
+        n.finish_init(map, edits);
         n
     }
 
-    fn finish_init(&mut self, app: &App) {
-        let map = &app.per_map.map;
-
+    fn finish_init(&mut self, map: &Map, edits: &Edits) {
         for r in &self.interior_roads {
             let road = map.get_r(*r);
             for i in [road.src_i, road.dst_i] {
@@ -193,11 +189,11 @@ impl Neighbourhood {
             }
         }
 
-        self.cells = find_cells(map, &self.interior_roads, &self.borders, &app.edits());
+        self.cells = find_cells(map, &self.interior_roads, &self.borders, edits);
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.
-        self.shortcuts = Shortcuts::new(app, self, &mut abstutil::Timer::throwaway());
+        self.shortcuts = Shortcuts::new(map, edits, self, &mut abstutil::Timer::throwaway());
 
         for r in &self.perimeter_roads {
             if map.get_r(*r).get_rank() == osm::RoadRank::Local {
