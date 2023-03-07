@@ -591,8 +591,28 @@ impl Perimeter {
             // dead-end, or connects to some other road we didn't import. We'll just trace around
             // it like a normal dead-end road.
             let mut pl = match pair[0].side {
-                SideOfRoad::Right => road1.center_pts.must_shift_right(road1.get_half_width()),
-                SideOfRoad::Left => road1.center_pts.must_shift_left(road1.get_half_width()),
+                SideOfRoad::Right => road1
+                    .center_pts
+                    .shift_right(road1.get_half_width())
+                    // TODO Remove after fixing whatever map import error allows a bad PolyLine to
+                    // wind up here at all
+                    .unwrap_or_else(|err| {
+                        warn!(
+                            "Can't get right edge of {} ({}): {}",
+                            road1.id, err, road1.orig_id
+                        );
+                        road1.center_pts.clone()
+                    }),
+                SideOfRoad::Left => road1
+                    .center_pts
+                    .shift_left(road1.get_half_width())
+                    .unwrap_or_else(|err| {
+                        warn!(
+                            "Can't get left edge of {} ({}): {}",
+                            road1.id, err, road1.orig_id
+                        );
+                        road1.center_pts.clone()
+                    }),
             };
             if lane1.dir == Direction::Back {
                 pl = pl.reversed();
