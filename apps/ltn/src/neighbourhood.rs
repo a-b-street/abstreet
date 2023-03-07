@@ -146,10 +146,17 @@ impl Neighbourhood {
         }
 
         for id in &orig_perimeter.roads {
-            n.perimeter_roads.insert(id.road);
             let road = map.get_r(id.road);
-            n.borders.insert(road.src_i);
-            n.borders.insert(road.dst_i);
+            // Part of the perimeter may be a local road. This is all it takes to correct cell and
+            // shortcut calculation, and allow edits on local perimeter roads.
+            if road.get_rank() == osm::RoadRank::Local {
+                n.interior_roads.insert(road.id);
+                n.suspicious_perimeter_roads.insert(road.id);
+            } else {
+                n.perimeter_roads.insert(road.id);
+                n.borders.insert(road.src_i);
+                n.borders.insert(road.dst_i);
+            }
         }
 
         n.finish_init(map, edits);
@@ -194,12 +201,6 @@ impl Neighbourhood {
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.
         self.shortcuts = Shortcuts::new(map, edits, self, &mut abstutil::Timer::throwaway());
-
-        for r in &self.perimeter_roads {
-            if map.get_r(*r).get_rank() == osm::RoadRank::Local {
-                self.suspicious_perimeter_roads.insert(*r);
-            }
-        }
     }
 
     pub fn fade_irrelevant(&self, ctx: &EventCtx, app: &App) -> Drawable {

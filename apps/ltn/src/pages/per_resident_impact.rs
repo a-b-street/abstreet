@@ -55,7 +55,7 @@ impl PerResidentImpact {
         let labels = DrawSimpleRoadLabels::new(
             ctx,
             app,
-            colors::ROAD_LABEL,
+            colors::LOCAL_ROAD_LABEL,
             Box::new(move |r| label_roads.contains(&r.id)),
         );
 
@@ -364,6 +364,7 @@ impl State<App> for PerResidentImpact {
         self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
         self.labels.draw(g);
+        app.per_map.draw_major_road_labels.draw(g);
         app.per_map.draw_all_filters.draw(g);
         self.world.draw(g);
         if let Some((_, ref draw)) = self.compare_routes {

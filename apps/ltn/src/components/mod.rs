@@ -3,7 +3,7 @@ mod layers;
 mod left_panel;
 
 pub use appwide_panel::AppwidePanel;
-pub use layers::Layers;
+pub use layers::{legend_entry, Layers};
 pub use left_panel::{BottomPanel, LeftPanel};
 
 #[derive(Clone, Copy, PartialEq)]
