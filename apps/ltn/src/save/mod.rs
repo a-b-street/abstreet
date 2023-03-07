@@ -601,6 +601,7 @@ pub enum PreserveState {
     // TODO app.session.edit_mode now has state for Shortcuts...
     DesignLTN(Vec<BlockID>),
     PerResidentImpact(Vec<BlockID>, Option<BuildingID>),
+    CycleNetwork,
 }
 
 impl PreserveState {
@@ -639,6 +640,9 @@ impl PreserveState {
                     count.max_key(),
                     *current_target,
                 ))
+            }
+            PreserveState::CycleNetwork => {
+                Transition::Replace(pages::CycleNetwork::new_state(ctx, app))
             }
         }
     }
