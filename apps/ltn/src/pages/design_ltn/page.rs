@@ -49,7 +49,7 @@ impl DesignLTN {
         let labels = DrawSimpleRoadLabels::new(
             ctx,
             app,
-            colors::ROAD_LABEL,
+            colors::LOCAL_ROAD_LABEL,
             Box::new(move |r| label_roads.contains(&r.id)),
         );
 
@@ -187,17 +187,8 @@ impl State<App> for DesignLTN {
                         "Unusual perimeter",
                         vec![
                         "Part of this area's perimeter consists of streets classified as local.",
-                        "This software assumes perimeter roads are intended to carry through-traffic, and the cells and shortcuts calculated reflect this.",
-                        "(This is why you can't place filters on perimeter roads.)",
-                        "You usually want major roads to surround all sides of your neighbourhood.",
-                        "",
-                        "There are a few ways to fix this:",
-                        "",
-                        "- If the area is near the edge of the map, try importing a larger area, including the next major road in that direction",
-                        "- Use the 'Adjust boundary' tool",
-                        "",
-                        "Some boundaries can't be properly drawn due to bugs in the software.",
-                        "Contact dabreegster@gmail.com or file an issue on Github for help.",
+                        "This is usually fine, when this area doesn't connect to other main roads farther away.",
+                        "If you're near the edge of the map, it might be an error. Try importing a larger area, including the next major road in that direction",
                         ],
                         ));
             }
@@ -250,6 +241,7 @@ impl State<App> for DesignLTN {
         self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
         self.labels.draw(g);
+        app.per_map.draw_major_road_labels.draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
 
@@ -370,7 +362,7 @@ fn setup_editing(
                 .maybe_reverse(dir == Direction::Back);
 
                 draw_top_layer.push(
-                    colors::ROAD_LABEL,
+                    colors::LOCAL_ROAD_LABEL,
                     pl.make_arrow(thickness, ArrowCap::Triangle)
                         .to_outline(thickness / 4.0),
                 );

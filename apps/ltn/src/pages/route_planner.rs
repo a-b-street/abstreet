@@ -43,7 +43,7 @@ impl TripManagementState<App> for RoutePlanner {
 
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        app.calculate_draw_all_road_labels(ctx);
+        app.calculate_draw_all_local_road_labels(ctx);
 
         // Fade all neighbourhood interiors, so it's very clear when a route cuts through
         let mut batch = GeomBatch::new();
@@ -453,7 +453,12 @@ impl State<App> for RoutePlanner {
         g.redraw(&self.show_main_roads);
         self.draw_routes.draw(g);
         self.world.draw(g);
-        app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
+        app.per_map
+            .draw_all_local_road_labels
+            .as_ref()
+            .unwrap()
+            .draw(g);
+        app.per_map.draw_major_road_labels.draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
 

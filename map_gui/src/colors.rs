@@ -375,8 +375,10 @@ impl ColorScheme {
         cs.water = hex("#c7d7d9").into();
         // #ECEEED, but more green
         cs.grass = hex("#ddebe4").into();
-        cs.unzoomed_highway = Color::WHITE;
-        cs.unzoomed_arterial = Color::WHITE;
+        // Many maps would use line thickness to distinguish main and local roads, but we're stuck
+        // with geometric interpretation, so use black.
+        cs.unzoomed_highway = Color::BLACK;
+        cs.unzoomed_arterial = Color::BLACK;
         cs.unzoomed_residential = Color::WHITE;
         cs.unzoomed_cycleway = Color::CLEAR;
         cs.unzoomed_footway = Color::CLEAR;

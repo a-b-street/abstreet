@@ -15,7 +15,6 @@ pub struct PickArea {
     bottom_panel: Panel,
     world: World<NeighbourhoodID>,
     draw_over_roads: Drawable,
-    draw_boundary_roads: Drawable,
 }
 
 impl PickArea {
@@ -53,18 +52,11 @@ impl PickArea {
             .layers
             .event(ctx, &app.cs, Mode::PickArea, Some(&bottom_panel));
 
-        app.calculate_draw_major_road_labels(ctx);
-
         Box::new(Self {
             appwide_panel,
             bottom_panel,
             world,
             draw_over_roads,
-            draw_boundary_roads: if app.session.layers.show_main_roads {
-                render::draw_main_roads(ctx, app)
-            } else {
-                render::draw_boundary_roads(ctx, app)
-            },
         })
     }
 }
@@ -112,8 +104,7 @@ impl State<App> for PickArea {
         self.appwide_panel.draw(g);
         self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
-        self.draw_boundary_roads.draw(g);
-        app.per_map.draw_major_road_labels.as_ref().unwrap().draw(g);
+        app.per_map.draw_major_road_labels.draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
     }
@@ -138,11 +129,7 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
                     world
                         .add(*id)
                         .hitbox(info.block.polygon.clone())
-                        .draw_color(Color::YELLOW.alpha(if info.suspicious_perimeter_roads {
-                            0.1
-                        } else {
-                            0.2
-                        }))
+                        .draw_color(Color::YELLOW.alpha(0.2))
                         .hover_alpha(0.5)
                         .clickable()
                         .build(ctx);

@@ -39,10 +39,10 @@ lazy_static::lazy_static! {
 
 pub const DISCONNECTED_CELL: Color = Color::RED.alpha(0.5);
 
-pub const HIGHLIGHT_BOUNDARY: Color = Color::RED.alpha(0.6);
-
 pub const BLOCK_IN_BOUNDARY: Color = Color::BLUE.alpha(0.5);
 pub const BLOCK_IN_FRONTIER: Color = Color::CYAN.alpha(0.2);
 
-pub const ROAD_LABEL: Color = Color::BLACK;
+// TODO This doesn't show up easily against roads with dark red shortcuts
+pub const LOCAL_ROAD_LABEL: Color = Color::BLACK;
+pub const MAIN_ROAD_LABEL: Color = Color::WHITE;
 pub const HOVER: Color = Color::CYAN.alpha(0.5);

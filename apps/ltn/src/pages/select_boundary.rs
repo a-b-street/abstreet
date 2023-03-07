@@ -10,17 +10,16 @@ use widgetry::{
     Widget,
 };
 
-use crate::components::{AppwidePanel, Mode};
+use crate::components::{legend_entry, AppwidePanel, Mode};
 use crate::logic::{BlockID, Partitioning};
 use crate::render::colors;
-use crate::{mut_partitioning, pages, render, App, NeighbourhoodID, Transition};
+use crate::{mut_partitioning, pages, App, NeighbourhoodID, Transition};
 
 pub struct SelectBoundary {
     appwide_panel: AppwidePanel,
     left_panel: Panel,
     id: NeighbourhoodID,
     world: World<BlockID>,
-    draw_boundary_roads: Drawable,
     frontier: BTreeSet<BlockID>,
 
     orig_partitioning: Partitioning,
@@ -50,7 +49,7 @@ impl SelectBoundary {
             );
         }
 
-        app.calculate_draw_all_road_labels(ctx);
+        app.calculate_draw_all_local_road_labels(ctx);
 
         // Make sure we clear this state if we ever modify neighbourhood boundaries
         if let pages::EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
@@ -67,7 +66,6 @@ impl SelectBoundary {
             left_panel,
             id,
             world: World::new(),
-            draw_boundary_roads: render::draw_boundary_roads(ctx, app),
             frontier: BTreeSet::new(),
 
             orig_partitioning: app.partitioning().clone(),
@@ -158,7 +156,6 @@ impl SelectBoundary {
                     self.add_block(ctx, app, changed);
                 }
 
-                self.draw_boundary_roads = render::draw_boundary_roads(ctx, app);
                 self.left_panel = make_panel(ctx, app, self.id, &self.appwide_panel.top_panel);
             }
             Err(err) => {
@@ -259,7 +256,6 @@ impl SelectBoundary {
             for id in app.partitioning().all_block_ids() {
                 self.add_block(ctx, app, id);
             }
-            self.draw_boundary_roads = render::draw_boundary_roads(ctx, app);
         });
     }
 }
@@ -336,11 +332,14 @@ impl State<App> for SelectBoundary {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.world.draw(g);
         g.redraw(&self.draw_last_error);
-        self.draw_boundary_roads.draw(g);
         self.appwide_panel.draw(g);
         self.left_panel.draw(g);
         app.session.layers.draw(g, app);
-        app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
+        app.per_map
+            .draw_all_local_road_labels
+            .as_ref()
+            .unwrap()
+            .draw(g);
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
         }
@@ -395,6 +394,12 @@ fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID, top_panel: &Pa
                     .build_def(ctx),
             ]),
             Widget::placeholder(ctx, "warning"),
+            legend_entry(
+                ctx,
+                colors::BLOCK_IN_BOUNDARY,
+                "block part of current neighbourhood",
+            ),
+            legend_entry(ctx, colors::BLOCK_IN_FRONTIER, "block could be added"),
         ]),
     )
     .build(ctx)

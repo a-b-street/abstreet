@@ -8,7 +8,7 @@ use map_gui::render::{DrawMap, DrawOptions};
 use map_gui::tools::CameraState;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_gui::{AppLike, ID};
-use map_model::{CrossingType, IntersectionID, Map, RoutingParams};
+use map_model::{osm, CrossingType, IntersectionID, Map, RoutingParams};
 use widgetry::tools::URLManager;
 use widgetry::{Canvas, Drawable, EventCtx, GfxCtx, SharedAppState, State, Warper};
 
@@ -43,8 +43,8 @@ pub struct PerMap {
     pub consultation_id: Option<String>,
 
     pub draw_all_filters: render::Toggle3Zoomed,
-    pub draw_major_road_labels: Option<DrawSimpleRoadLabels>,
-    pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
+    pub draw_major_road_labels: DrawSimpleRoadLabels,
+    pub draw_all_local_road_labels: Option<DrawSimpleRoadLabels>,
     pub draw_poi_icons: Drawable,
     pub draw_bus_routes: Drawable,
 
@@ -94,8 +94,8 @@ impl PerMap {
             consultation_id: None,
 
             draw_all_filters,
-            draw_major_road_labels: None,
-            draw_all_road_labels: None,
+            draw_major_road_labels: DrawSimpleRoadLabels::empty(ctx),
+            draw_all_local_road_labels: None,
             draw_poi_icons,
             draw_bus_routes,
 
@@ -163,6 +163,8 @@ impl AppLike for App {
     fn map_switched(&mut self, ctx: &mut EventCtx, map: Map, timer: &mut Timer) {
         CameraState::save(ctx.canvas, self.per_map.map.get_name());
         self.per_map = PerMap::new(ctx, map, &self.opts, &self.cs, timer);
+        self.per_map.draw_major_road_labels =
+            DrawSimpleRoadLabels::only_major_roads(ctx, self, render::colors::MAIN_ROAD_LABEL);
         self.opts.units.metric = self.per_map.map.get_name().city.uses_metric();
     }
 
@@ -283,22 +285,13 @@ impl App {
         &self.per_map.proposals.current_proposal.partitioning
     }
 
-    pub fn calculate_draw_major_road_labels(&mut self, ctx: &mut EventCtx) {
-        if self.per_map.draw_major_road_labels.is_none() {
-            self.per_map.draw_major_road_labels = Some(DrawSimpleRoadLabels::only_major_roads(
+    pub fn calculate_draw_all_local_road_labels(&mut self, ctx: &mut EventCtx) {
+        if self.per_map.draw_all_local_road_labels.is_none() {
+            self.per_map.draw_all_local_road_labels = Some(DrawSimpleRoadLabels::new(
                 ctx,
                 self,
-                render::colors::ROAD_LABEL,
-            ));
-        }
-    }
-
-    pub fn calculate_draw_all_road_labels(&mut self, ctx: &mut EventCtx) {
-        if self.per_map.draw_all_road_labels.is_none() {
-            self.per_map.draw_all_road_labels = Some(DrawSimpleRoadLabels::all_roads(
-                ctx,
-                self,
-                render::colors::ROAD_LABEL,
+                render::colors::LOCAL_ROAD_LABEL,
+                Box::new(|r| r.get_rank() == osm::RoadRank::Local && !r.is_light_rail()),
             ));
         }
     }
