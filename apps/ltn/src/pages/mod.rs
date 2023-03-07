@@ -1,6 +1,7 @@
 mod about;
 mod crossings;
 mod customize_boundary;
+mod cycle_network;
 mod design_ltn;
 mod freehand_boundary;
 mod per_resident_impact;
@@ -12,6 +13,7 @@ mod select_boundary;
 pub use about::About;
 pub use crossings::Crossings;
 pub use customize_boundary::CustomizeBoundary;
+pub use cycle_network::CycleNetwork;
 pub use design_ltn::{DesignLTN, EditMode};
 pub use freehand_boundary::FreehandBoundary;
 pub use per_resident_impact::PerResidentImpact;

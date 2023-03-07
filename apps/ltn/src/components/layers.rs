@@ -128,6 +128,16 @@ impl Layers {
         self.update_panel(ctx, cs, bottom_panel);
     }
 
+    pub fn show_panel(
+        &mut self,
+        ctx: &mut EventCtx,
+        cs: &ColorScheme,
+        bottom_panel: Option<&Panel>,
+    ) {
+        self.minimized = false;
+        self.update_panel(ctx, cs, bottom_panel);
+    }
+
     fn update_panel(&mut self, ctx: &mut EventCtx, cs: &ColorScheme, bottom_panel: Option<&Panel>) {
         let mut builder = Panel::new_builder(
             Widget::col(vec![
@@ -345,7 +355,6 @@ impl Mode {
                 entry(ctx, *colors::PLAN_ROUTE_BIKE, "cycling route"),
                 // TODO Should we invert text color? This gets hard to read
                 entry(ctx, *colors::PLAN_ROUTE_WALK, "walking route"),
-                // TODO Highlighted roads are boundaries (or main?) roads
             ],
             Mode::Crossings => vec![
                 Widget::row(vec![
@@ -369,6 +378,24 @@ impl Mode {
             Mode::Impact => vec![
                 map_gui::tools::compare_counts::CompareCounts::relative_scale()
                     .make_legend(ctx, vec!["less", "same", "more"]),
+            ],
+            Mode::CycleNetwork => vec![
+                entry(
+                    ctx,
+                    *colors::NETWORK_SEGREGATED_LANE,
+                    "segregated cycle lane",
+                ),
+                entry(ctx, *colors::NETWORK_QUIET_STREET, "quiet local street"),
+                entry(
+                    ctx,
+                    *colors::NETWORK_PAINTED_LANE,
+                    "painted cycle lane or shared bus lane",
+                ),
+                entry(
+                    ctx,
+                    *colors::NETWORK_THROUGH_TRAFFIC_STREET,
+                    "local street with cut-through traffic",
+                ),
             ],
         })
     }

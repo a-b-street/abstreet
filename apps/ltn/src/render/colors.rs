@@ -35,6 +35,11 @@ lazy_static::lazy_static! {
         Color::hex("#F7BB00"),
         Color::hex("#BB0000"),
     ];
+
+    pub static ref NETWORK_SEGREGATED_LANE: Color = Color::hex("#028A0F");
+    pub static ref NETWORK_QUIET_STREET: Color = Color::hex("#03AC13");
+    pub static ref NETWORK_PAINTED_LANE: Color = Color::hex("#90EE90");
+    pub static ref NETWORK_THROUGH_TRAFFIC_STREET: Color = Color::hex("#F3A4A4");
 }
 
 pub const DISCONNECTED_CELL: Color = Color::RED.alpha(0.5);

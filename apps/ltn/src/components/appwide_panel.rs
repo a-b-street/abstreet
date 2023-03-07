@@ -68,6 +68,9 @@ impl AppwidePanel {
                 ))),
                 "Crossings" => Some(Transition::Replace(pages::Crossings::new_state(ctx, app))),
                 "Predict impact" => Some(launch_impact(ctx, app)),
+                "Cycle network" => Some(Transition::Replace(pages::CycleNetwork::new_state(
+                    ctx, app,
+                ))),
                 _ => unreachable!(),
             };
         }
@@ -179,6 +182,11 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
                     .disabled(app.per_map.consultation.is_some())
                     .disabled_tooltip("Not supported here yet")
                     .build_def(ctx)
+            },
+            if mode == Mode::CycleNetwork {
+                current_mode(ctx, "Cycle network")
+            } else {
+                ctx.style().btn_outline.text("Cycle network").build_def(ctx)
             },
         ])
         .centered_vert()
