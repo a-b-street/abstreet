@@ -283,7 +283,7 @@ impl Panel {
         {
             if let Some((dx, dy)) = ctx.input.get_mouse_scroll() {
                 let x_offset = if self.scrollable_x {
-                    self.scroll_offset().0 + dx * (ctx.canvas.settings.gui_scroll_speed as f64)
+                    self.scroll_offset().0 - dx * (ctx.canvas.settings.gui_scroll_speed as f64)
                 } else {
                     0.0
                 };
