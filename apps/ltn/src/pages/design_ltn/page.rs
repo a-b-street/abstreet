@@ -70,7 +70,7 @@ impl DesignLTN {
             highlight_cell: World::new(),
             edit: EditNeighbourhood::temporary(),
             preserve_state: crate::save::PreserveState::DesignLTN(
-                app.partitioning().all_blocks_in_neighbourhood(id),
+                app.partitioning().neighbourhood_to_blocks(id),
             ),
 
             show_unreachable_cell: Drawable::empty(ctx),

@@ -107,7 +107,7 @@ impl PerResidentImpact {
             cell_outline: cell_outline.upload(ctx),
             buildings_inside,
             preserve_state: PreserveState::PerResidentImpact(
-                app.partitioning().all_blocks_in_neighbourhood(id),
+                app.partitioning().neighbourhood_to_blocks(id),
                 current_target,
             ),
 

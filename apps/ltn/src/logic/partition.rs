@@ -184,24 +184,15 @@ impl Partitioning {
     pub fn transfer_block(
         &mut self,
         map: &Map,
-        id: BlockID,
+        add_block: BlockID,
         new_owner: NeighbourhoodID,
     ) -> Result<Option<NeighbourhoodID>> {
-        let old_owner = self.block_to_neighbourhood(id);
+        let old_owner = self.block_to_neighbourhood(add_block);
         assert_ne!(old_owner, new_owner);
 
         // Is the newly expanded neighbourhood a valid perimeter?
-        let new_owner_blocks: Vec<BlockID> = self
-            .block_to_neighbourhood
-            .iter()
-            .filter_map(|(block, neighbourhood)| {
-                if *neighbourhood == new_owner || *block == id {
-                    Some(*block)
-                } else {
-                    None
-                }
-            })
-            .collect();
+        let mut new_owner_blocks = self.neighbourhood_to_blocks(new_owner);
+        new_owner_blocks.insert(add_block);
         let mut new_neighbourhood_blocks = self.make_merged_blocks(map, new_owner_blocks)?;
         if new_neighbourhood_blocks.len() != 1 {
             // This happens when a hole would be created by adding this block. There are probably
@@ -212,22 +203,13 @@ impl Partitioning {
 
         // Is the old neighbourhood, minus this block, still valid?
         // TODO refactor Neighbourhood to BlockIDs?
-        let old_owner_blocks: Vec<BlockID> = self
-            .block_to_neighbourhood
-            .iter()
-            .filter_map(|(block, neighbourhood)| {
-                if *neighbourhood == old_owner && *block != id {
-                    Some(*block)
-                } else {
-                    None
-                }
-            })
-            .collect();
+        let mut old_owner_blocks = self.neighbourhood_to_blocks(old_owner);
+        old_owner_blocks.remove(&add_block);
         if old_owner_blocks.is_empty() {
             // We're deleting the old neighbourhood!
             self.neighbourhoods.get_mut(&new_owner).unwrap().block = new_neighbourhood_block;
             self.neighbourhoods.remove(&old_owner).unwrap();
-            self.block_to_neighbourhood.insert(id, new_owner);
+            self.block_to_neighbourhood.insert(add_block, new_owner);
             // Tell the caller to recreate this SelectBoundary state, switching to the neighbourhood
             // we just donated to, since the old is now gone
             return Ok(Some(new_owner));
@@ -257,7 +239,7 @@ impl Partitioning {
         }
 
         self.neighbourhoods.get_mut(&new_owner).unwrap().block = new_neighbourhood_block;
-        self.block_to_neighbourhood.insert(id, new_owner);
+        self.block_to_neighbourhood.insert(add_block, new_owner);
         Ok(None)
     }
 
@@ -389,11 +371,11 @@ impl Partitioning {
         self.block_to_neighbourhood[&id]
     }
 
-    pub fn all_blocks_in_neighbourhood(&self, id: NeighbourhoodID) -> Vec<BlockID> {
-        let mut result = Vec::new();
+    pub fn neighbourhood_to_blocks(&self, id: NeighbourhoodID) -> BTreeSet<BlockID> {
+        let mut result = BTreeSet::new();
         for (block, n) in &self.block_to_neighbourhood {
             if *n == id {
-                result.push(*block);
+                result.insert(*block);
             }
         }
         result
@@ -434,7 +416,7 @@ impl Partitioning {
 
     // Possibly returns multiple merged blocks. The input is never "lost" -- if any perimeter fails
     // to become a block, fail the whole operation.
-    fn make_merged_blocks(&self, map: &Map, input: Vec<BlockID>) -> Result<Vec<Block>> {
+    fn make_merged_blocks(&self, map: &Map, input: BTreeSet<BlockID>) -> Result<Vec<Block>> {
         let mut perimeters = Vec::new();
         for id in input {
             perimeters.push(self.get_block(id).perimeter.clone());

@@ -1,6 +1,8 @@
 mod perma;
 mod share;
 
+use std::collections::BTreeSet;
+
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
@@ -599,8 +601,8 @@ pub enum PreserveState {
     Route,
     Crossings,
     // TODO app.session.edit_mode now has state for Shortcuts...
-    DesignLTN(Vec<BlockID>),
-    PerResidentImpact(Vec<BlockID>, Option<BuildingID>),
+    DesignLTN(BTreeSet<BlockID>),
+    PerResidentImpact(BTreeSet<BlockID>, Option<BuildingID>),
     CycleNetwork,
 }
 
