@@ -7,7 +7,7 @@ use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::{Lasso, PopupMsg};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State, Text, TextExt,
-    Widget,
+    Toggle, Widget,
 };
 
 use crate::components::{legend_entry, AppwidePanel, Mode};
@@ -188,9 +188,19 @@ impl SelectBoundary {
         if self.currently_have_block(app, id) {
             mut_partitioning!(app).remove_block_from_neighbourhood(&app.per_map.map, id)
         } else {
-            // Ignore the return value if the old neighbourhood is deleted
-            mut_partitioning!(app).transfer_block(&app.per_map.map, id, self.id)?;
-            Ok(None)
+            match mut_partitioning!(app).transfer_blocks(&app.per_map.map, vec![id], self.id) {
+                // Ignore the return value if the old neighbourhood is deleted
+                Ok(_) => Ok(None),
+                Err(err) => {
+                    if app.session.add_intermediate_blocks {
+                        let mut add_all = app.partitioning().find_intermediate_blocks(self.id, id);
+                        add_all.push(id);
+                        mut_partitioning!(app).transfer_blocks(&app.per_map.map, add_all, self.id)
+                    } else {
+                        Err(err)
+                    }
+                }
+            }
         }
     }
 
@@ -224,12 +234,13 @@ impl SelectBoundary {
                 let mut changed = false;
                 let mut still_todo = Vec::new();
                 timer.start_iter("try to add blocks", add_blocks.len());
+                // TODO Sometimes it'd help to add all at once!
                 for block_id in add_blocks.drain(..) {
                     timer.next();
                     if self.frontier.contains(&block_id) {
-                        if let Ok(_) = mut_partitioning!(app).transfer_block(
+                        if let Ok(_) = mut_partitioning!(app).transfer_blocks(
                             &app.per_map.map,
-                            block_id,
+                            vec![block_id],
                             self.id,
                         ) {
                             changed = true;
@@ -285,8 +296,8 @@ impl State<App> for SelectBoundary {
         {
             return t;
         }
-        if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
-            match x.as_ref() {
+        match self.left_panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Cancel" => {
                     // TODO If we destroyed the current neighbourhood, then we cancel, we'll pop
                     // back to a different neighbourhood than we started with. And also the original
@@ -302,7 +313,13 @@ impl State<App> for SelectBoundary {
                     self.left_panel = make_panel_for_lasso(ctx, &self.appwide_panel.top_panel);
                 }
                 _ => unreachable!(),
+            },
+            Outcome::Changed(_) => {
+                app.session.add_intermediate_blocks = self
+                    .left_panel
+                    .is_checked("add intermediate blocks automatically");
             }
+            _ => {}
         }
 
         match self.world.event(ctx) {
@@ -371,6 +388,12 @@ fn make_panel(ctx: &mut EventCtx, app: &App, id: NeighbourhoodID, top_panel: &Pa
                 Line(" and paint over blocks to remove"),
             ])
             .into_widget(ctx),
+            Toggle::checkbox(
+                ctx,
+                "add intermediate blocks automatically",
+                None,
+                app.session.add_intermediate_blocks,
+            ),
             format!(
                 "Neighbourhood area: {}",
                 app.partitioning().neighbourhood_area_km2(id)

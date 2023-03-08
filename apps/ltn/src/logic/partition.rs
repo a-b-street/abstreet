@@ -180,19 +180,19 @@ impl Partitioning {
         p
     }
 
-    // TODO Explain return value
-    pub fn transfer_block(
+    /// Add all specified blocks to new_owner. `Ok(None)` is success.  `Ok(Some(x))` is also
+    /// success, but means the old neighbourhood of SOME block in `add_all` is now gone and
+    /// replaced with something new. (This call shouldn't be used to remove multiple blocks at
+    /// once, since interpreting the result is confusing!)
+    pub fn transfer_blocks(
         &mut self,
         map: &Map,
-        add_block: BlockID,
+        add_all: Vec<BlockID>,
         new_owner: NeighbourhoodID,
     ) -> Result<Option<NeighbourhoodID>> {
-        let old_owner = self.block_to_neighbourhood(add_block);
-        assert_ne!(old_owner, new_owner);
-
         // Is the newly expanded neighbourhood a valid perimeter?
         let mut new_owner_blocks = self.neighbourhood_to_blocks(new_owner);
-        new_owner_blocks.insert(add_block);
+        new_owner_blocks.extend(add_all.clone());
         let mut new_neighbourhood_blocks = self.make_merged_blocks(map, new_owner_blocks)?;
         if new_neighbourhood_blocks.len() != 1 {
             // This happens when a hole would be created by adding this block. There are probably
@@ -201,46 +201,53 @@ impl Partitioning {
         }
         let new_neighbourhood_block = new_neighbourhood_blocks.pop().unwrap();
 
-        // Is the old neighbourhood, minus this block, still valid?
-        // TODO refactor Neighbourhood to BlockIDs?
-        let mut old_owner_blocks = self.neighbourhood_to_blocks(old_owner);
-        old_owner_blocks.remove(&add_block);
-        if old_owner_blocks.is_empty() {
-            // We're deleting the old neighbourhood!
-            self.neighbourhoods.get_mut(&new_owner).unwrap().block = new_neighbourhood_block;
-            self.neighbourhoods.remove(&old_owner).unwrap();
-            self.block_to_neighbourhood.insert(add_block, new_owner);
-            // Tell the caller to recreate this SelectBoundary state, switching to the neighbourhood
-            // we just donated to, since the old is now gone
-            return Ok(Some(new_owner));
-        }
+        let old_owners: BTreeSet<NeighbourhoodID> = add_all
+            .iter()
+            .map(|block| self.block_to_neighbourhood[block])
+            .collect();
+        // Are each of the old neighbourhoods, minus any new blocks, still valid?
+        let mut return_value = None;
+        for old_owner in old_owners {
+            let mut old_owner_blocks = self.neighbourhood_to_blocks(old_owner);
+            for x in &add_all {
+                old_owner_blocks.remove(x);
+            }
+            if old_owner_blocks.is_empty() {
+                self.neighbourhoods.remove(&old_owner).unwrap();
+                return_value = Some(new_owner);
+                continue;
+            }
 
-        let mut old_neighbourhood_blocks =
-            self.make_merged_blocks(map, old_owner_blocks.clone())?;
-        // We might be splitting the old neighbourhood into multiple pieces! Pick the largest piece
-        // as the old_owner (so the UI for trimming a neighbourhood is less jarring), and create new
-        // neighbourhoods for the others.
-        old_neighbourhood_blocks.sort_by_key(|block| block.perimeter.interior.len());
-        self.neighbourhoods.get_mut(&old_owner).unwrap().block =
-            old_neighbourhood_blocks.pop().unwrap();
-        let new_splits = !old_neighbourhood_blocks.is_empty();
-        for split_piece in old_neighbourhood_blocks {
-            let new_neighbourhood = NeighbourhoodID(self.neighbourhood_id_counter);
-            self.neighbourhood_id_counter += 1;
-            self.neighbourhoods
-                .insert(new_neighbourhood, NeighbourhoodInfo::new(split_piece));
-        }
-        if new_splits {
-            // We need to update the owner of all single blocks in these new pieces
-            for id in old_owner_blocks {
-                self.block_to_neighbourhood
-                    .insert(id, self.neighbourhood_containing(id).unwrap());
+            let mut old_neighbourhood_blocks =
+                self.make_merged_blocks(map, old_owner_blocks.clone())?;
+            // We might be splitting the old neighbourhood into multiple pieces! Pick the largest piece
+            // as the old_owner (so the UI for trimming a neighbourhood is less jarring), and create new
+            // neighbourhoods for the others.
+            old_neighbourhood_blocks.sort_by_key(|block| block.perimeter.interior.len());
+            self.neighbourhoods.get_mut(&old_owner).unwrap().block =
+                old_neighbourhood_blocks.pop().unwrap();
+            let new_splits = !old_neighbourhood_blocks.is_empty();
+            for split_piece in old_neighbourhood_blocks {
+                let new_neighbourhood = NeighbourhoodID(self.neighbourhood_id_counter);
+                self.neighbourhood_id_counter += 1;
+                self.neighbourhoods
+                    .insert(new_neighbourhood, NeighbourhoodInfo::new(split_piece));
+            }
+            if new_splits {
+                // We need to update the owner of all single blocks in these new pieces
+                for id in old_owner_blocks {
+                    self.block_to_neighbourhood
+                        .insert(id, self.neighbourhood_containing(id).unwrap());
+                }
             }
         }
 
+        // Set up the newly expanded neighbourhood
         self.neighbourhoods.get_mut(&new_owner).unwrap().block = new_neighbourhood_block;
-        self.block_to_neighbourhood.insert(add_block, new_owner);
-        Ok(None)
+        for id in add_all {
+            self.block_to_neighbourhood.insert(id, new_owner);
+        }
+        Ok(return_value)
     }
 
     /// Needs to find an existing neighbourhood to take the block, or make a new one
@@ -273,7 +280,7 @@ impl Partitioning {
                 .iter()
                 .find(|(_, info)| info.block.perimeter.roads.contains(&other_side))
             {
-                return self.transfer_block(map, id, *new_owner);
+                return self.transfer_blocks(map, vec![id], *new_owner);
             }
         }
 
@@ -285,7 +292,7 @@ impl Partitioning {
             new_owner,
             NeighbourhoodInfo::new(self.get_block(id).clone()),
         );
-        let result = self.transfer_block(map, id, new_owner);
+        let result = self.transfer_blocks(map, vec![id], new_owner);
         if result.is_err() {
             // Revert the change above!
             self.neighbourhoods.remove(&new_owner).unwrap();

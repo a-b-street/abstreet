@@ -124,6 +124,8 @@ pub struct Session {
     // Plan a route:
     pub main_road_penalty: f64,
     pub show_walking_cycling_routes: bool,
+    // Select boundary:
+    pub add_intermediate_blocks: bool,
 
     // Shared in all modes
     pub layers: crate::components::Layers,
@@ -229,6 +231,7 @@ impl App {
             draw_neighbourhood_style: pages::PickAreaStyle::Simple,
             main_road_penalty: 1.0,
             show_walking_cycling_routes: false,
+            add_intermediate_blocks: true,
 
             layers: crate::components::Layers::new(ctx),
             manage_proposals: false,
