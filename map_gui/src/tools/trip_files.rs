@@ -49,6 +49,15 @@ struct SavedTrips {
 
 impl SavedTrips {
     fn load(app: &dyn AppLike) -> SavedTrips {
+        // Special case: if this is a one-shot imported map without an explicit name, ignore any
+        // saved file. It's likely for a previously imported and different map!
+        let map_name = app.map().get_name();
+        if map_name.city.city == "oneshot" && map_name.map.starts_with("imported_") {
+            return SavedTrips {
+                trips: BTreeMap::new(),
+            };
+        }
+
         abstio::maybe_read_json::<SavedTrips>(
             abstio::path_trips(app.map().get_name()),
             &mut Timer::throwaway(),
