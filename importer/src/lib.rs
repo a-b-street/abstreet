@@ -49,15 +49,13 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
 pub async fn oneshot(
     osm_path: String,
     clip: Option<String>,
-    filter_crosswalks: bool,
+    options: convert_osm::Options,
     create_uk_travel_demand_model: bool,
     opts: RawToMapOptions,
 ) {
     let mut timer = abstutil::Timer::new("oneshot");
     println!("- Running convert_osm on {}", osm_path);
     let name = abstutil::basename(&osm_path);
-    let mut options = convert_osm::Options::default();
-    options.filter_crosswalks = filter_crosswalks;
     let raw = convert_osm::convert(
         osm_path,
         MapName::new("zz", "oneshot", &name),

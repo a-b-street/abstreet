@@ -7,6 +7,7 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
+convert_osm = { path = "../convert_osm" }
 csv = { workspace = true }
 fs-err = { workspace = true }
 geo = { workspace = true }

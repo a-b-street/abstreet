@@ -8,7 +8,7 @@ pub async fn run(
     name: String,
     use_geofabrik: bool,
     use_osmium: bool,
-    filter_crosswalks: bool,
+    options: convert_osm::Options,
     create_uk_travel_demand_model: bool,
     opts: map_model::RawToMapOptions,
 ) -> Result<()> {
@@ -75,7 +75,7 @@ pub async fn run(
     importer::oneshot(
         osm,
         Some(geojson_path),
-        filter_crosswalks,
+        options,
         create_uk_travel_demand_model,
         opts,
     )

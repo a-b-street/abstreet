@@ -76,6 +76,7 @@ impl<A: AppLike + 'static> ImportCity<A> {
                             false,
                         ),
                     ]),
+                    Toggle::switch(ctx, "Infer sidewalks on roads", None, true),
                     Toggle::switch(ctx, "Filter crosswalks", None, false),
                     Toggle::switch(ctx, "Generate travel demand model (UK only)", None, false),
                 ])
@@ -115,6 +116,9 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     ];
                     if self.panel.is_checked("source") {
                         args.push("--use-geofabrik".to_string());
+                    }
+                    if self.panel.is_checked("Infer sidewalks on roads") {
+                        args.push("--inferred-sidewalks".to_string());
                     }
                     if self.panel.is_checked("Filter crosswalks") {
                         args.push("--filter-crosswalks".to_string());
