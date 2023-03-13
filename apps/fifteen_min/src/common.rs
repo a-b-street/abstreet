@@ -71,7 +71,7 @@ pub fn build_panel(ctx: &mut EventCtx, app: &App, mode: Mode, contents: Widget) 
                     .build_def(ctx)
             },
         ]),
-        contents,
+        contents.named("contents"),
         Widget::horiz_separator(ctx, 1.0).margin_above(10),
         options_to_controls(ctx, &app.session),
     ];

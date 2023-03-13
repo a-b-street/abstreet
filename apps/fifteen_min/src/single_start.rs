@@ -53,7 +53,8 @@ impl SingleStart {
         let start = app.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, vec![start.id], app.session.clone());
         let highlight_start = render::draw_star(ctx, start);
-        let panel = build_panel(ctx, app, start, &isochrone);
+        let contents = panel_contents(ctx, start, &isochrone);
+        let panel = common::build_panel(ctx, app, common::Mode::SingleStart, contents);
 
         Box::new(Self {
             panel,
@@ -75,7 +76,8 @@ impl SingleStart {
         self.isochrone = Isochrone::new(ctx, app, vec![start.id], app.session.clone());
         let star = render::draw_star(ctx, start);
         self.highlight_start = ctx.upload(star);
-        self.panel = build_panel(ctx, app, start, &self.isochrone);
+        let contents = panel_contents(ctx, start, &self.isochrone);
+        self.panel.replace(ctx, "contents", contents);
         // Any previous hover is from the perspective of the old `highlight_start`.
         // Remove it so we don't have a dotted line to the previous isochrone's origin
         self.hovering_on_bldg.clear();
@@ -154,12 +156,9 @@ impl State<App> for SingleStart {
                 self.draw_unwalkable_roads = render::draw_unwalkable_roads(ctx, app);
                 self.isochrone =
                     Isochrone::new(ctx, app, vec![self.isochrone.start[0]], app.session.clone());
-                self.panel = build_panel(
-                    ctx,
-                    app,
-                    app.map.get_b(self.isochrone.start[0]),
-                    &self.isochrone,
-                );
+                let contents =
+                    panel_contents(ctx, app.map.get_b(self.isochrone.start[0]), &self.isochrone);
+                self.panel.replace(ctx, "contents", contents);
             }
             _ => {}
         }
@@ -180,8 +179,8 @@ impl State<App> for SingleStart {
     }
 }
 
-fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isochrone) -> Panel {
-    let contents = vec![
+fn panel_contents(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -> Widget {
+    Widget::col(vec![
         Text::from_all(vec![
             Line("Click").fg(ctx.style().text_hotkey_color),
             Line(" a building or hold ").secondary(),
@@ -228,6 +227,5 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
                 .collect(),
         )
         .flex_wrap(ctx, Percent::int(30)),
-    ];
-    common::build_panel(ctx, app, common::Mode::SingleStart, Widget::col(contents))
+    ])
 }
