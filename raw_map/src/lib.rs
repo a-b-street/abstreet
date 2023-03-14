@@ -5,6 +5,7 @@
 use std::collections::BTreeMap;
 
 use osm2streets::{osm, IntersectionID, RoadID, StreetNetwork};
+use popgetter::CensusZone;
 use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
@@ -31,6 +32,7 @@ pub struct RawMap {
     pub parking_lots: Vec<RawParkingLot>,
     pub parking_aisles: Vec<(osm::WayID, Vec<Pt2D>)>,
     pub transit_routes: Vec<RawTransitRoute>,
+    pub census_zones: Vec<(Polygon, CensusZone)>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -74,6 +76,7 @@ impl RawMap {
             parking_lots: Vec::new(),
             parking_aisles: Vec::new(),
             transit_routes: Vec::new(),
+            census_zones: Vec::new(),
             transit_stops: BTreeMap::new(),
             bus_routes_on_roads: MultiMap::new(),
             osm_tags: BTreeMap::new(),

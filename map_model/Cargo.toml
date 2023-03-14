@@ -17,6 +17,7 @@ log = { workspace = true }
 lyon = "1.0.1"
 md5 = "0.7.0"
 petgraph = { version = "0.6.3", features=["serde-1"] }
+popgetter = { git = "https://github.com/dabreegster/popgetter/" }
 rand = { workspace = true }
 rand_xorshift = { workspace = true }
 raw_map = { path = "../raw_map" }

@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 use anyhow::Result;
 use petgraph::graphmap::{DiGraphMap, UnGraphMap};
+use popgetter::CensusZone;
 
 use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
@@ -104,6 +105,11 @@ impl Map {
                     self.zones.len(),
                     serialized_size_bytes(&self.zones),
                 ),
+                (
+                    "census_zones",
+                    self.census_zones.len(),
+                    serialized_size_bytes(&self.census_zones),
+                ),
                 ("pathfinder", 1, serialized_size_bytes(&self.pathfinder)),
             ];
             costs.sort_by_key(|(_, _, bytes)| *bytes);
@@ -135,6 +141,7 @@ impl Map {
             areas: Vec::new(),
             parking_lots: Vec::new(),
             zones: Vec::new(),
+            census_zones: Vec::new(),
             boundary_polygon: Ring::must_new(vec![
                 Pt2D::new(0.0, 0.0),
                 Pt2D::new(1.0, 0.0),
@@ -255,6 +262,10 @@ impl Map {
 
     pub fn all_zones(&self) -> &Vec<Zone> {
         &self.zones
+    }
+
+    pub fn all_census_zones(&self) -> &Vec<(Polygon, CensusZone)> {
+        &self.census_zones
     }
 
     pub fn maybe_get_r(&self, id: RoadID) -> Option<&Road> {

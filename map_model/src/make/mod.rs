@@ -54,6 +54,7 @@ impl Map {
             areas: Vec::new(),
             parking_lots: Vec::new(),
             zones: Vec::new(),
+            census_zones: raw.census_zones.clone(),
             boundary_polygon: raw.streets.boundary_polygon.clone(),
             stop_signs: BTreeMap::new(),
             traffic_signals: BTreeMap::new(),

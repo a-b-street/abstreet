@@ -30,6 +30,7 @@ extern crate log;
 
 use std::collections::BTreeMap;
 
+use popgetter::CensusZone;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
@@ -115,6 +116,7 @@ pub struct Map {
     routing_params: RoutingParams,
     // Not the source of truth, just cached.
     zones: Vec<Zone>,
+    census_zones: Vec<(Polygon, CensusZone)>,
 
     name: MapName,
 
