@@ -193,8 +193,6 @@ pub struct RoutingParams {
     /// TODO The route may cross one of these roads if it's the start or end!
     pub avoid_roads: BTreeSet<RoadID>,
     /// Related to `avoid_roads`, but used as an optimization in map construction
-    // TODO Serialize this normally. In the meantime, safe because the default is indeed empty.
-    #[serde(skip_serializing, skip_deserializing)]
     pub only_use_roads: BTreeSet<RoadID>,
 
     /// Don't allow movements between these roads at all. Only affects vehicle routing, not

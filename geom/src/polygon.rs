@@ -2,7 +2,9 @@ use std::collections::BTreeMap;
 use std::fmt;
 
 use anyhow::Result;
-use geo::{Area, BooleanOps, Contains, ConvexHull, Intersects, SimplifyVwPreserve};
+use geo::{
+    Area, BooleanOps, Contains, ConvexHull, Intersects, MapCoordsInPlace, SimplifyVwPreserve,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -410,8 +412,6 @@ impl Polygon {
 
     /// Optionally map the world-space points back to GPS.
     pub fn to_geojson(&self, gps: Option<&GPSBounds>) -> geojson::Geometry {
-        use geo::MapCoordsInPlace;
-
         let mut geom: geo::Geometry = self.to_geo().into();
         if let Some(ref gps_bounds) = gps {
             geom.map_coords_in_place(|c| {
@@ -497,6 +497,24 @@ impl Polygon {
     // clone.
     fn to_geo(&self) -> geo::Polygon {
         self.clone().into()
+    }
+
+    /// Convert to `geo` and also map from world-space to WGS84
+    pub fn to_geo_wgs84(&self, gps_bounds: &GPSBounds) -> geo::Polygon<f64> {
+        let mut p = self.to_geo();
+        p.map_coords_in_place(|c| {
+            let gps = Pt2D::new(c.x, c.y).to_gps(gps_bounds);
+            (gps.x(), gps.y()).into()
+        });
+        p
+    }
+
+    pub fn from_geo_wgs84(mut polygon: geo::Polygon<f64>, gps_bounds: &GPSBounds) -> Result<Self> {
+        polygon.map_coords_in_place(|c| {
+            let pt = LonLat::new(c.x, c.y).to_pt(gps_bounds);
+            (pt.x(), pt.y()).into()
+        });
+        polygon.try_into()
     }
 }
 

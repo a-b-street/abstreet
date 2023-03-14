@@ -152,6 +152,12 @@ pub fn convert(
         gtfs::import(&mut map).unwrap();
     }
 
+    timer.start("Add census data");
+    if let Err(err) = add_census(&mut map) {
+        error!("Skipping census data: {err}");
+    }
+    timer.stop("Add census data");
+
     if map.name == MapName::new("gb", "bristol", "east") {
         bristol_hack(&mut map);
     }
@@ -378,4 +384,24 @@ fn filter_crosswalks(
             }
         }
     }
+}
+
+fn add_census(map: &mut RawMap) -> Result<()> {
+    // TODO Fixed to one area right now. Assumes the file exists.
+    let input_path = "data/input/shared/popgetter/england.topojson";
+    let boundary = map
+        .streets
+        .boundary_polygon
+        .to_geo_wgs84(&map.streets.gps_bounds);
+    for (geo_polygon, census_zone) in popgetter::clip_zones(input_path, boundary)? {
+        match Polygon::from_geo_wgs84(geo_polygon, &map.streets.gps_bounds) {
+            Ok(polygon) => {
+                map.census_zones.push((polygon, census_zone));
+            }
+            Err(err) => {
+                warn!("Skipping census zone {}: {}", census_zone.id, err);
+            }
+        }
+    }
+    Ok(())
 }

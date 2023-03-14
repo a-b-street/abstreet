@@ -216,8 +216,8 @@
       "compressed_size_bytes": 13642164
     },
     "data/input/fr/paris/raw_maps/center.bin": {
-      "checksum": "6f2811ae79e8b71cb2f596fb456d7dfe",
-      "uncompressed_size_bytes": 25065354,
+      "checksum": "896d1a1ae5a7dacd63d32b5fd6d931f6",
+      "uncompressed_size_bytes": 25065338,
       "compressed_size_bytes": 6777329
     },
     "data/input/fr/paris/raw_maps/east.bin": {
@@ -1529,6 +1529,11 @@
       "checksum": "3e98410880913bae9f6692958c041ca8",
       "uncompressed_size_bytes": 272419737,
       "compressed_size_bytes": 271888733
+    },
+    "data/input/shared/popgetter/england.topojson": {
+      "checksum": "a894795a5bfadf60899f4ba892a32789",
+      "uncompressed_size_bytes": 52802533,
+      "compressed_size_bytes": 7976809
     },
     "data/input/shared/wu03ew_v2.csv": {
       "checksum": "6614880a64e448b4e9a7255ab5355d00",
