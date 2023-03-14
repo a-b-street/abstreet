@@ -12,6 +12,7 @@ use map_model::{osm, CrossingType, IntersectionID, Map, RoutingParams};
 use widgetry::tools::URLManager;
 use widgetry::{Canvas, Drawable, EventCtx, GfxCtx, SharedAppState, State, Warper};
 
+use crate::components::CensusOverlay;
 use crate::logic::Partitioning;
 use crate::{logic, pages, render, Edits, FilterType, NeighbourhoodID};
 
@@ -47,6 +48,7 @@ pub struct PerMap {
     pub draw_all_local_road_labels: Option<DrawSimpleRoadLabels>,
     pub draw_poi_icons: Drawable,
     pub draw_bus_routes: Drawable,
+    pub census_overlay: CensusOverlay,
 
     pub current_trip_name: Option<String>,
 }
@@ -79,6 +81,7 @@ impl PerMap {
         let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
         let draw_poi_icons = render::render_poi_icons(ctx, &map);
         let draw_bus_routes = render::render_bus_routes(ctx, &map);
+        let census_overlay = CensusOverlay::new(ctx, &map);
 
         let per_map = Self {
             map,
@@ -98,6 +101,7 @@ impl PerMap {
             draw_all_local_road_labels: None,
             draw_poi_icons,
             draw_bus_routes,
+            census_overlay,
 
             current_trip_name: None,
         };
