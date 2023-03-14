@@ -127,12 +127,15 @@ impl Pt2D {
 
     /// Simplifies a list of points using Ramer-Douglas-Peuckr
     pub fn simplify_rdp(pts: Vec<Pt2D>, epsilon: f64) -> Vec<Pt2D> {
-        pts_to_line_string(&pts)
+        let mut pts = pts_to_line_string(&pts)
             .simplify(&epsilon)
             .into_points()
             .into_iter()
             .map(|pt| pt.into())
-            .collect()
+            .collect::<Vec<_>>();
+        // TODO Not sure why, but from geo 0.23 to 0.24, this became necessary?
+        pts.dedup();
+        pts
     }
 
     pub fn to_geojson(self, gps: Option<&GPSBounds>) -> geojson::Geometry {

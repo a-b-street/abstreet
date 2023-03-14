@@ -46,6 +46,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "accurate"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f209f0bc218ee6cf50db56ec0d9fe10b3cbfb6f3900d019b36c8fdb6d3bc03e"
+dependencies = [
+ "cfg-if",
+ "ieee754",
+ "num-traits",
+]
+
+[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -557,7 +568,7 @@ dependencies = [
  "convert_osm",
  "csv",
  "fs-err",
- "geo",
+ "geo 0.24.0",
  "geom",
  "importer",
  "log",
@@ -812,9 +823,9 @@ dependencies = [
 [[package]]
 name = "country-geocoder"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/country-geocoder#a71c0e3f925c4824b55cc90e8c0f234baf1ca285"
+source = "git+https://github.com/a-b-street/country-geocoder#6a4fd01c948f0fb9f67377343a4893cc3e43ba15"
 dependencies = [
- "geo",
+ "geo 0.24.0",
  "geojson",
  "serde",
 ]
@@ -1413,6 +1424,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "float_next_after"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8bf7cc16383c4b8d58b9905a8509f02926ce3058053c056376248d958c9df1e8"
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1612,7 +1629,7 @@ dependencies = [
  "enumset",
  "fs-err",
  "futures-channel",
- "geo",
+ "geo 0.24.0",
  "geojson",
  "geom",
  "getrandom",
@@ -1698,37 +1715,54 @@ dependencies = [
 
 [[package]]
 name = "geo"
-version = "0.23.0"
+version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b684179d4c034f9e6718692601a7ec77e4a3b654dbc09b5e4fd342f0e48f2ba1"
+checksum = "b39f57e9624b1a17ce621375464e9878c705d0aaadaf25cb44e4e0005a16de2f"
 dependencies = [
- "float_next_after",
+ "float_next_after 0.1.5",
  "geo-types",
  "geographiclib-rs",
  "log",
  "num-traits",
  "robust",
- "rstar",
+ "rstar 0.9.3",
+]
+
+[[package]]
+name = "geo"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce129b525496519c00321a00772d4532d2229071699c6dc6c9cefa5fa7d2b9ae"
+dependencies = [
+ "float_next_after 1.0.0",
+ "geo-types",
+ "geographiclib-rs",
+ "log",
+ "num-traits",
+ "robust",
+ "rstar 0.10.0",
 ]
 
 [[package]]
 name = "geo-types"
-version = "0.7.8"
+version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e26879b63ac36ca5492918dc16f8c1e604b0f70f884fffbd3533f89953ab1991"
+checksum = "a5f0b3068e1537a4b861ec3734f4aa9c317d537cf0845bf6fb6221973499d26c"
 dependencies = [
  "approx",
  "num-traits",
- "rstar",
+ "rstar 0.10.0",
+ "rstar 0.9.3",
  "serde",
 ]
 
 [[package]]
 name = "geographiclib-rs"
-version = "0.2.0"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b78e20d5d868fa2c4182a8170cb4df261e781a605810e3c1500269c1907da461"
+checksum = "8ea804e7bd3c6a4ca6a01edfa35231557a8a81d4d3f3e1e2b650d028c42592be"
 dependencies = [
+ "accurate",
  "lazy_static",
 ]
 
@@ -1753,7 +1787,7 @@ dependencies = [
  "bincode",
  "earcutr",
  "fs-err",
- "geo",
+ "geo 0.24.0",
  "geojson",
  "histogram",
  "instant",
@@ -1761,7 +1795,7 @@ dependencies = [
  "polylabel",
  "rand",
  "rand_xorshift",
- "rstar",
+ "rstar 0.10.0",
  "serde",
  "serde_json",
 ]
@@ -2223,6 +2257,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "ieee754"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9007da9cacbd3e6343da136e98b0d2df013f553d35bdec8b518f07bea768e19c"
+
+[[package]]
 name = "image"
 version = "0.24.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2255,7 +2295,7 @@ dependencies = [
  "csv",
  "fs-err",
  "gdal",
- "geo",
+ "geo 0.24.0",
  "geojson",
  "geom",
  "kml",
@@ -2594,7 +2634,7 @@ dependencies = [
  "csv",
  "flate2",
  "futures-channel",
- "geo",
+ "geo 0.24.0",
  "geojson",
  "geom",
  "getrandom",
@@ -2669,7 +2709,7 @@ version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d2124218d5428149f9e09520b9acc024334a607e671f032d06567b61008977c"
 dependencies = [
- "float_next_after",
+ "float_next_after 0.1.5",
  "lyon_path",
  "thiserror",
 ]
@@ -3156,7 +3196,7 @@ checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
 [[package]]
 name = "osm-tag-schemes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#1a6c8d23215dc589614baf2994e2c419c5761546"
+source = "git+https://github.com/a-b-street/osm2lanes#0c166e5917748cd2dcb6eb3b798cf38136e776e6"
 dependencies = [
  "osm-tags",
  "strum",
@@ -3165,7 +3205,7 @@ dependencies = [
 [[package]]
 name = "osm-tags"
 version = "0.1.1"
-source = "git+https://github.com/a-b-street/osm2lanes#1a6c8d23215dc589614baf2994e2c419c5761546"
+source = "git+https://github.com/a-b-street/osm2lanes#0c166e5917748cd2dcb6eb3b798cf38136e776e6"
 dependencies = [
  "kstring",
 ]
@@ -3173,7 +3213,7 @@ dependencies = [
 [[package]]
 name = "osm2lanes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#1a6c8d23215dc589614baf2994e2c419c5761546"
+source = "git+https://github.com/a-b-street/osm2lanes#0c166e5917748cd2dcb6eb3b798cf38136e776e6"
 dependencies = [
  "celes",
  "locale-codes",
@@ -3185,12 +3225,12 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#dbe303dd8082ed06ecc13616ff3e78e4a19bb10c"
+source = "git+https://github.com/a-b-street/osm2streets#c9117baa5befe3612dc48ceca0b486240f241f54"
 dependencies = [
  "abstutil",
  "anyhow",
  "enumset",
- "geo",
+ "geo 0.23.1",
  "geojson",
  "geom",
  "itertools",
@@ -3387,11 +3427,11 @@ dependencies = [
 
 [[package]]
 name = "polylabel"
-version = "2.4.2"
+version = "2.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "070cbd209eeb23454a6536be5cc62e52e55ed56c0b42a87812c1cbaec5b2fdc7"
+checksum = "e10b96e9bc11d753dfd28a06b6d21ae0214f58252fe9554a775c1a073cf5ddca"
 dependencies = [
- "geo",
+ "geo 0.24.0",
  "libc",
  "num-traits",
  "thiserror",
@@ -3406,7 +3446,7 @@ dependencies = [
  "anyhow",
  "flatgeobuf",
  "futures",
- "geo",
+ "geo 0.24.0",
  "geojson",
  "geom",
  "geozero",
@@ -3792,6 +3832,17 @@ name = "rstar"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b40f1bfe5acdab44bc63e6699c28b74f75ec43afb59f3eda01e145aff86a25fa"
+dependencies = [
+ "heapless",
+ "num-traits",
+ "smallvec",
+]
+
+[[package]]
+name = "rstar"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f39465655a1e3d8ae79c6d9e007f4953bfc5d55297602df9dc38f9ae9f1359a"
 dependencies = [
  "heapless",
  "num-traits",
@@ -4228,7 +4279,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#dbe303dd8082ed06ecc13616ff3e78e4a19bb10c"
+source = "git+https://github.com/a-b-street/osm2streets#c9117baa5befe3612dc48ceca0b486240f241f54"
 dependencies = [
  "abstutil",
  "anyhow",

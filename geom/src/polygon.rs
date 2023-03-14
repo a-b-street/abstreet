@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::fmt;
 
 use anyhow::Result;
-use geo::{Area, BooleanOps, Contains, ConvexHull, Intersects, SimplifyVWPreserve};
+use geo::{Area, BooleanOps, Contains, ConvexHull, Intersects, SimplifyVwPreserve};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -483,7 +483,7 @@ impl Polygon {
     /// If simplification fails, just keep the original polygon
     pub fn simplify(&self, epsilon: f64) -> Self {
         self.to_geo()
-            .simplifyvw_preserve(&epsilon)
+            .simplify_vw_preserve(&epsilon)
             .try_into()
             .unwrap_or_else(|_| self.clone())
     }

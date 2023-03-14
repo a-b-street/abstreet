@@ -13,8 +13,8 @@ geojson = { workspace = true }
 histogram = "0.6.9"
 instant = { workspace = true }
 ordered-float = { version = "3.4.0", features=["serde"] }
-polylabel = "2.4.0"
-rstar = "0.9.3"
+polylabel = "2.4.3"
+rstar = "0.10.0"
 serde = { workspace = true }
 serde_json = { workspace = true }
 
