@@ -72,7 +72,7 @@ impl ColorLegend {
         Self::gradient_with_width(ctx, scale, labels, 300.0)
     }
 
-    pub fn categories(ctx: &mut EventCtx, pairs: Vec<(Color, &str)>) -> Widget {
+    pub fn categories(ctx: &mut EventCtx, pairs: Vec<(Color, &str)>, max: &str) -> Widget {
         assert!(pairs.len() >= 2);
         let width = 300.0;
         let n = pairs.len();
@@ -86,15 +86,14 @@ impl ColorLegend {
         }
         // Extra wrapping to make the labels stretch against just the scale, not everything else
         // TODO Long labels aren't nicely lined up with the boundaries between buckets
+        let mut labels = pairs
+            .into_iter()
+            .map(|(_, lbl)| Line(lbl).small().into_widget(ctx))
+            .collect::<Vec<_>>();
+        labels.push(Line(max).small().into_widget(ctx));
         Widget::col(vec![
             batch.into_widget(ctx),
-            Widget::custom_row(
-                pairs
-                    .into_iter()
-                    .map(|(_, lbl)| Line(lbl).small().into_widget(ctx))
-                    .collect(),
-            )
-            .evenly_spaced(),
+            Widget::custom_row(labels).evenly_spaced(),
         ])
         .container()
     }

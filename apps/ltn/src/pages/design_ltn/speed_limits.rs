@@ -11,11 +11,12 @@ pub fn widget(ctx: &mut EventCtx) -> Widget {
     ColorLegend::categories(
         ctx,
         vec![
-            (colors::SPEED_LIMITS[0], "<= 10mph"),
-            (colors::SPEED_LIMITS[1], "<= 20mph"),
-            (colors::SPEED_LIMITS[2], "<= 30mph"),
-            (colors::SPEED_LIMITS[3], "> 30mph"),
+            (colors::SPEED_LIMITS[0], "0mph"),
+            (colors::SPEED_LIMITS[1], "10"),
+            (colors::SPEED_LIMITS[2], "20"),
+            (colors::SPEED_LIMITS[3], "30"),
         ],
+        ">30",
     )
 }
 

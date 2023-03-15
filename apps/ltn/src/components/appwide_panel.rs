@@ -191,6 +191,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
             },
             if mode == Mode::Census {
                 current_mode(ctx, "Census")
+            } else if app.per_map.map.all_census_zones().is_empty() {
+                Widget::nothing()
             } else {
                 ctx.style().btn_outline.text("Census").build_def(ctx)
             },
