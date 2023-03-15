@@ -101,6 +101,7 @@ pub fn convert(
     map.streets.retain_roads(|r| r.src_i != r.dst_i);
 
     map.bus_routes_on_roads = extract.bus_routes_on_roads;
+    map.extra_pois = extract.extra_pois;
 
     clip_map(&mut map, timer);
 

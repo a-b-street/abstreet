@@ -64,6 +64,7 @@ pub struct RawMap {
         deserialize_with = "deserialize_btreemap"
     )]
     pub elevation_per_intersection: BTreeMap<IntersectionID, Distance>,
+    pub extra_pois: Vec<ExtraPOI>,
 }
 
 impl RawMap {
@@ -82,6 +83,7 @@ impl RawMap {
             osm_tags: BTreeMap::new(),
             extra_road_data: BTreeMap::new(),
             elevation_per_intersection: BTreeMap::new(),
+            extra_pois: Vec::new(),
         }
     }
 
@@ -187,4 +189,17 @@ impl ExtraRoadData {
             crossing_nodes: Vec::new(),
         }
     }
+}
+
+/// Extra point-of-interest
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ExtraPOI {
+    pub pt: Pt2D,
+    pub kind: ExtraPOIType,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ExtraPOIType {
+    LondonUndergroundStation(String),
+    NationalRailStation(String),
 }
