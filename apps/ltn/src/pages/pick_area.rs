@@ -70,9 +70,6 @@ impl State<App> for PickArea {
         {
             return t;
         }
-        if app.session.layers.show_census {
-            app.per_map.census_overlay.event(ctx);
-        }
 
         if let Outcome::Clicked(x) = self.bottom_panel.event(ctx) {
             if x == "Change draw style" {

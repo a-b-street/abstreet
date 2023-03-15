@@ -1531,9 +1531,9 @@
       "compressed_size_bytes": 271888733
     },
     "data/input/shared/popgetter/england.topojson": {
-      "checksum": "a894795a5bfadf60899f4ba892a32789",
-      "uncompressed_size_bytes": 52802533,
-      "compressed_size_bytes": 7976809
+      "checksum": "4065055feaecdd9787932db79f600b4c",
+      "uncompressed_size_bytes": 61959241,
+      "compressed_size_bytes": 14031643
     },
     "data/input/shared/wu03ew_v2.csv": {
       "checksum": "6614880a64e448b4e9a7255ab5355d00",

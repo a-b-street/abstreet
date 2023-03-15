@@ -1,10 +1,8 @@
 mod appwide_panel;
-mod census;
 mod layers;
 mod left_panel;
 
 pub use appwide_panel::AppwidePanel;
-pub use census::CensusOverlay;
 pub use layers::{legend_entry, Layers};
 pub use left_panel::{BottomPanel, LeftPanel};
 
@@ -19,4 +17,5 @@ pub enum Mode {
     Crossings,
     Impact,
     CycleNetwork,
+    Census,
 }
