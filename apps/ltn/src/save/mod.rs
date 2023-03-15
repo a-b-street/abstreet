@@ -604,6 +604,7 @@ pub enum PreserveState {
     DesignLTN(BTreeSet<BlockID>),
     PerResidentImpact(BTreeSet<BlockID>, Option<BuildingID>),
     CycleNetwork,
+    Census,
 }
 
 impl PreserveState {
@@ -646,6 +647,7 @@ impl PreserveState {
             PreserveState::CycleNetwork => {
                 Transition::Replace(pages::CycleNetwork::new_state(ctx, app))
             }
+            PreserveState::Census => Transition::Replace(pages::Census::new_state(ctx, app)),
         }
     }
 }

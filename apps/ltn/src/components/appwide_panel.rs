@@ -71,6 +71,7 @@ impl AppwidePanel {
                 "Cycle network" => Some(Transition::Replace(pages::CycleNetwork::new_state(
                     ctx, app,
                 ))),
+                "Census" => Some(Transition::Replace(pages::Census::new_state(ctx, app))),
                 _ => unreachable!(),
             };
         }
@@ -187,6 +188,11 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
                 current_mode(ctx, "Cycle network")
             } else {
                 ctx.style().btn_outline.text("Cycle network").build_def(ctx)
+            },
+            if mode == Mode::Census {
+                current_mode(ctx, "Census")
+            } else {
+                ctx.style().btn_outline.text("Census").build_def(ctx)
             },
         ])
         .centered_vert()

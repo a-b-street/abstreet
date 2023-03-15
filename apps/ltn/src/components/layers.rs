@@ -21,7 +21,6 @@ pub struct Layers {
     panel_cache_key: (Mode, bool, bool, Option<f64>),
     show_bus_routes: bool,
     pub show_crossing_time: bool,
-    pub show_census: bool,
 
     // For the design LTN mode
     pub autofix_bus_gates: bool,
@@ -37,7 +36,6 @@ impl Layers {
             panel_cache_key: (Mode::Impact, false, false, None),
             show_bus_routes: false,
             show_crossing_time: false,
-            show_census: false,
 
             autofix_bus_gates: false,
             autofix_one_ways: false,
@@ -74,10 +72,6 @@ impl Layers {
             Outcome::Changed(x) => {
                 if x == "show bus routes" {
                     self.show_bus_routes = self.panel.is_checked(&x);
-                    self.update_panel(ctx, cs, bottom_panel);
-                    return Some(Transition::Keep);
-                } else if x == "show census data" {
-                    self.show_census = self.panel.is_checked(&x);
                     self.update_panel(ctx, cs, bottom_panel);
                     return Some(Transition::Keep);
                 } else if x == "show time to nearest crossing" {
@@ -121,9 +115,6 @@ impl Layers {
         self.panel.draw(g);
         if self.show_bus_routes {
             g.redraw(&app.per_map.draw_bus_routes);
-        }
-        if self.show_census {
-            app.per_map.census_overlay.draw(g);
         }
     }
 
@@ -201,7 +192,6 @@ impl Layers {
                     checkbox
                 }
             },
-            Toggle::checkbox(ctx, "show census data", None, self.show_census),
             if self.panel_cache_key.0 == Mode::Crossings {
                 Widget::col(vec![
                     Toggle::checkbox(
@@ -408,6 +398,7 @@ impl Mode {
                     "local street with cut-through traffic",
                 ),
             ],
+            Mode::Census => vec![],
         })
     }
 }
