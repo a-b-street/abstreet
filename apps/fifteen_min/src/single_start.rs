@@ -206,10 +206,11 @@ fn panel_contents(ctx: &mut EventCtx, start: &Building, isochrone: &Isochrone) -
         ColorLegend::categories(
             ctx,
             vec![
-                (Color::GREEN, "5 mins"),
-                (Color::ORANGE, "10 mins"),
-                (Color::RED, "15 mins"),
+                (Color::GREEN, "0 mins"),
+                (Color::ORANGE, "5"),
+                (Color::RED, "10"),
             ],
+            "15",
         ),
         Widget::custom_row(
             isochrone

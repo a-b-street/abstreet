@@ -197,10 +197,11 @@ fn build_panel(
         ColorLegend::categories(
             ctx,
             vec![
-                (Color::GREEN, "5 mins"),
-                (Color::ORANGE, "10 mins"),
-                (Color::RED, "15 mins"),
+                (Color::GREEN, "0 mins"),
+                (Color::ORANGE, "5"),
+                (Color::RED, "10"),
             ],
+            "15",
         ),
         if SHOW_BORDER_ISOCHRONE {
             ColorLegend::row(

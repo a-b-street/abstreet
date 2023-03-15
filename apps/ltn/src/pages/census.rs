@@ -1,9 +1,12 @@
 use geom::Distance;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::tools::{open_browser, ColorLegend, PopupMsg};
-use widgetry::{EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, TextExt, Widget};
+use widgetry::{
+    Color, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, TextExt, Widget,
+};
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
+use crate::render::colors;
 use crate::{App, Transition};
 
 pub struct Census {
@@ -29,20 +32,20 @@ impl Census {
             .max()
             .unwrap_or(0)
             .max(1);
+        let buckets = bucketize(max_cars);
 
         let appwide_panel = AppwidePanel::new(ctx, app, Mode::Census);
-        let legend = ColorLegend::gradient_with_width(
-            ctx,
-            &app.cs.good_to_bad_red,
-            vec!["0", &max_cars.to_string()],
-            150.0,
-        );
+        let legend = make_legend(ctx, buckets);
         let bottom_panel = BottomPanel::new(
             ctx,
             &appwide_panel,
             Widget::row(vec![
-                ctx.style().btn_outline.text("About").build_def(ctx),
-                "Total vehicles owned:".text_widget(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("About")
+                    .build_def(ctx)
+                    .centered_vert(),
+                "Total vehicles owned:".text_widget(ctx).centered_vert(),
                 legend,
             ]),
         );
@@ -55,18 +58,24 @@ impl Census {
         let mut world = World::new();
 
         for (idx, (polygon, zone)) in app.per_map.map.all_census_zones().into_iter().enumerate() {
-            let color = app
-                .cs
-                .good_to_bad_red
-                .eval((zone.total_cars() as f64) / (max_cars as f64));
+            let n = zone.total_cars();
+            let color = if n < buckets[1] {
+                colors::SPEED_LIMITS[0]
+            } else if n < buckets[2] {
+                colors::SPEED_LIMITS[1]
+            } else if n < buckets[3] {
+                colors::SPEED_LIMITS[2]
+            } else {
+                colors::SPEED_LIMITS[3]
+            };
 
             let mut draw_normal = GeomBatch::new();
             draw_normal.push(color.alpha(0.5), polygon.clone());
-            draw_normal.push(color, polygon.to_outline(Distance::meters(5.0)));
+            draw_normal.push(Color::RED, polygon.to_outline(Distance::meters(5.0)));
 
             let mut draw_hover = GeomBatch::new();
-            draw_hover.push(color, polygon.clone());
-            draw_hover.push(color, polygon.to_outline(Distance::meters(5.0)));
+            draw_hover.push(color.alpha(0.5), polygon.clone());
+            draw_hover.push(Color::RED, polygon.to_outline(Distance::meters(10.0)));
 
             world
                 .add(ZoneID(idx))
@@ -149,4 +158,26 @@ impl State<App> for Census {
 
 fn help() -> Vec<&'static str> {
     vec!["This shows census data that may be useful to decide where LTNs could be placed."]
+}
+
+// TODO Don't we have something in widgetry like this?
+fn bucketize(max_cars: u16) -> [u16; 5] {
+    let max = max_cars as f64;
+    let p25 = (0.25 * max) as u16;
+    let p50 = (0.5 * max) as u16;
+    let p75 = (0.75 * max) as u16;
+    [0, p25, p50, p75, max_cars]
+}
+
+fn make_legend(ctx: &mut EventCtx, buckets: [u16; 5]) -> Widget {
+    ColorLegend::categories(
+        ctx,
+        vec![
+            (colors::SPEED_LIMITS[0], &buckets[0].to_string()),
+            (colors::SPEED_LIMITS[1], &buckets[1].to_string()),
+            (colors::SPEED_LIMITS[2], &buckets[2].to_string()),
+            (colors::SPEED_LIMITS[3], &buckets[3].to_string()),
+        ],
+        &buckets[4].to_string(),
+    )
 }
