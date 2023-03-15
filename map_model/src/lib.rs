@@ -43,7 +43,7 @@ pub use osm2streets::{
     LaneType, MapConfig, NamePerLanguage, RestrictionType, NORMAL_LANE_THICKNESS,
     SIDEWALK_THICKNESS,
 };
-pub use raw_map::{Amenity, AmenityType, AreaType, CrossingType};
+pub use raw_map::{Amenity, AmenityType, AreaType, CrossingType, ExtraPOI, ExtraPOIType};
 
 pub use crate::city::City;
 pub use crate::edits::{
@@ -117,6 +117,7 @@ pub struct Map {
     // Not the source of truth, just cached.
     zones: Vec<Zone>,
     census_zones: Vec<(Polygon, CensusZone)>,
+    extra_pois: Vec<ExtraPOI>,
 
     name: MapName,
 

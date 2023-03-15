@@ -258,6 +258,12 @@ impl GeomBatch {
         self.scale(ratio)
     }
 
+    /// Scales the batch so that the height matches something, preserving aspect ratio.
+    pub fn scale_to_fit_height(self, height: f64) -> GeomBatch {
+        let ratio = height / self.get_bounds().height();
+        self.scale(ratio)
+    }
+
     /// Overrides the Z-ordering offset for the batch. Must be in (-1, 0], with values closer to -1
     /// rendering on top.
     pub fn set_z_offset(mut self, offset: f64) -> GeomBatch {

@@ -4,7 +4,10 @@ use abstutil::{MultiMap, Tags, Timer};
 use geom::{Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D, Ring};
 use osm2streets::osm::{OsmID, RelationID, WayID};
 use osm2streets::{osm, NamePerLanguage};
-use raw_map::{Amenity, AreaType, CrossingType, RawArea, RawBuilding, RawMap, RawParkingLot};
+use raw_map::{
+    Amenity, AreaType, CrossingType, ExtraPOI, ExtraPOIType, RawArea, RawBuilding, RawMap,
+    RawParkingLot,
+};
 
 use crate::Options;
 use streets_reader::osm_reader::glue_multipolygon;
@@ -18,6 +21,7 @@ pub struct Extract {
     pub crossing_nodes: HashSet<(HashablePt2D, CrossingType)>,
     /// Some kind of barrier nodes at these points.
     pub barrier_nodes: Vec<(osm::NodeID, HashablePt2D)>,
+    pub extra_pois: Vec<ExtraPOI>,
 }
 
 pub fn extract_osm(
@@ -56,6 +60,7 @@ pub fn extract_osm(
     let mut bus_routes_on_roads: MultiMap<WayID, String> = MultiMap::new();
     let mut crossing_nodes = HashSet::new();
     let mut barrier_nodes = Vec::new();
+    let mut extra_pois = Vec::new();
 
     timer.start_iter("processing OSM nodes", doc.nodes.len());
     for (id, node) in &doc.nodes {
@@ -77,6 +82,26 @@ pub fn extract_osm(
         // TODO Any kind of barrier?
         if node.tags.is("barrier", "bollard") {
             barrier_nodes.push((*id, node.pt.to_hashable()));
+        }
+
+        if node.tags.is("railway", "station") {
+            if let Some(network) = node.tags.get("network") {
+                if let Some(name) = node.tags.get("name") {
+                    // network can be ; separated, like
+                    // https://www.openstreetmap.org/node/3663368460
+                    if network.contains("London Underground") {
+                        extra_pois.push(ExtraPOI {
+                            pt: node.pt,
+                            kind: ExtraPOIType::LondonUndergroundStation(name.to_string()),
+                        });
+                    } else if network.contains("National Rail") {
+                        extra_pois.push(ExtraPOI {
+                            pt: node.pt,
+                            kind: ExtraPOIType::NationalRailStation(name.to_string()),
+                        });
+                    }
+                }
+            }
         }
     }
 
@@ -296,6 +321,7 @@ pub fn extract_osm(
         bus_routes_on_roads,
         crossing_nodes,
         barrier_nodes,
+        extra_pois,
     }
 }
 

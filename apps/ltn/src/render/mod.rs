@@ -2,9 +2,9 @@ mod cells;
 pub mod colors;
 
 use geom::Distance;
-use map_model::{AmenityType, Map};
+use map_model::{AmenityType, ExtraPOIType, Map};
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 
 pub use cells::RenderCells;
 
@@ -21,6 +21,27 @@ pub fn render_poi_icons(ctx: &EventCtx, map: &Map) -> Drawable {
         }) {
             batch.append(school.clone().centered_on(b.polygon.polylabel()));
         }
+    }
+
+    let tfl =
+        GeomBatch::load_svg(ctx, "system/assets/map/tfl_underground.svg").scale_to_fit_width(20.0);
+    let national_rail =
+        GeomBatch::load_svg(ctx, "system/assets/map/national_rail.svg").scale_to_fit_width(20.0);
+
+    // TODO Toggle3Zoomed could be nicer; these're not terribly visible from afar
+    for extra in map.all_extra_pois() {
+        let (name, icon) = match extra.kind {
+            ExtraPOIType::LondonUndergroundStation(ref name) => (name, &tfl),
+            ExtraPOIType::NationalRailStation(ref name) => (name, &national_rail),
+        };
+        batch.append(icon.clone().centered_on(extra.pt));
+        batch.append(
+            Text::from(Line(name).fg(Color::WHITE))
+                .bg(Color::hex("#0019A8"))
+                .render_autocropped(ctx)
+                .scale_to_fit_height(10.0)
+                .centered_on(extra.pt.offset(0.0, icon.get_bounds().height())),
+        );
     }
 
     ctx.upload(batch)
