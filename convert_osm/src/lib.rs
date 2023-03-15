@@ -389,6 +389,9 @@ fn filter_crosswalks(
 
 fn add_census(map: &mut RawMap) -> Result<()> {
     // TODO Fixed to one area right now. Assumes the file exists.
+    if map.name.city.country != "gb" {
+        return Ok(());
+    }
     let input_path = "data/input/shared/popgetter/england.topojson";
     let boundary = map
         .streets
