@@ -7,16 +7,16 @@ data/system/us/seattle/maps/lakeslice.bin
 data/system/us/phoenix/maps/tempe.bin
     580 single blocks (0 failures to blockify), 0 partial merges, 0 failures to blockify partitions
 data/system/gb/bristol/maps/east.bin
-    918 single blocks (0 failures to blockify), 1 partial merges, 0 failures to blockify partitions
+    919 single blocks (0 failures to blockify), 1 partial merges, 0 failures to blockify partitions
 data/system/gb/leeds/maps/north.bin
     1977 single blocks (0 failures to blockify), 2 partial merges, 0 failures to blockify partitions
 data/system/gb/london/maps/camden.bin
-    1070 single blocks (0 failures to blockify), 0 partial merges, 0 failures to blockify partitions
+    1069 single blocks (0 failures to blockify), 0 partial merges, 0 failures to blockify partitions
 data/system/gb/london/maps/southwark.bin
     1345 single blocks (0 failures to blockify), 0 partial merges, 0 failures to blockify partitions
 data/system/gb/manchester/maps/levenshulme.bin
     1299 single blocks (0 failures to blockify), 1 partial merges, 0 failures to blockify partitions
 data/system/fr/lyon/maps/center.bin
-    4237 single blocks (0 failures to blockify), 15 partial merges, 0 failures to blockify partitions
+    4235 single blocks (0 failures to blockify), 15 partial merges, 0 failures to blockify partitions
 data/system/us/seattle/maps/north_seattle.bin
-    3911 single blocks (0 failures to blockify), 5 partial merges, 0 failures to blockify partitions
+    3910 single blocks (0 failures to blockify), 5 partial merges, 0 failures to blockify partitions

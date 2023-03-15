@@ -1,39 +1,39 @@
-100059 (167) from Lane #47969 to Some(LaneID { road: RoadID(899), offset: 2 })
-  Montlake Blvd E & E Shelby St: Position(Lane #41666, 33.6283m) driving, Position(Lane #41667, 33.6282m) sidewalk
+100059 (167) from Lane #48001 to Some(LaneID { road: RoadID(899), offset: 2 })
+  Montlake Blvd E & E Shelby St: Position(Lane #41698, 33.6598m) driving, Position(Lane #41699, 33.6124m) sidewalk
 100089 (2) from Lane #31394 to Some(LaneID { road: RoadID(792), offset: 1 })
   Madrona Dr & Madrona Pl E: Position(Lane #31458, 39.7603m) driving, Position(Lane #31460, 41.6006m) sidewalk
   E Denny Way & E Florence Ct: Position(Lane #15394, 71.4581m) driving, Position(Lane #15392, 73.2081m) sidewalk
-100146 (255) from Lane #47969 to Some(LaneID { road: RoadID(899), offset: 2 })
-  Montlake Blvd E & E Shelby St: Position(Lane #41666, 33.6283m) driving, Position(Lane #41667, 33.6282m) sidewalk
+100146 (255) from Lane #48001 to Some(LaneID { road: RoadID(899), offset: 2 })
+  Montlake Blvd E & E Shelby St: Position(Lane #41698, 33.6598m) driving, Position(Lane #41699, 33.6124m) sidewalk
 100223 (43) from Lane #13730 to Some(LaneID { road: RoadID(899), offset: 2 })
-  23rd Ave E & E John St: Position(Lane #7300, 37.0074m) driving, Position(Lane #7301, 37.0074m) sidewalk
-  23rd Ave E & E Republican St: Position(Lane #7428, 16.9183m) driving, Position(Lane #7429, 16.9182m) sidewalk
-  23rd Ave E & E Roy St: Position(Lane #7492, 8.9355m) driving, Position(Lane #7493, 8.9354m) sidewalk
+  23rd Ave E & E John St: Position(Lane #7300, 37.0105m) driving, Position(Lane #7301, 37.0111m) sidewalk
+  23rd Ave E & E Republican St: Position(Lane #7428, 16.9205m) driving, Position(Lane #7429, 16.9205m) sidewalk
+  23rd Ave E & E Roy St: Position(Lane #7492, 8.9148m) driving, Position(Lane #7493, 8.9291m) sidewalk
   23rd Ave E & E Aloha St: Position(Lane #7652, 15.4075m) driving, Position(Lane #7653, 15.4074m) sidewalk
-  24th Ave E & E Prospect St: Position(Lane #38497, 17.5471m) driving, Position(Lane #38496, 17.5471m) sidewalk
-  24th Ave E & E Galer St: Position(Lane #38369, 28.7291m) driving, Position(Lane #38368, 28.7291m) sidewalk
-  24th Ave E & Boyer Ave E: Position(Lane #38625, 27.367m) driving, Position(Lane #38624, 27.367m) sidewalk
-  24th Ave E & E Newton St: Position(Lane #38881, 13.7555m) driving, Position(Lane #38880, 13.7555m) sidewalk
-  24th Ave E & E Mcgraw St: Position(Lane #48865, 63.2578m) driving, Position(Lane #48864, 63.0213m) sidewalk
+  24th Ave E & E Prospect St: Position(Lane #38529, 17.5492m) driving, Position(Lane #38528, 17.5492m) sidewalk
+  24th Ave E & E Galer St: Position(Lane #38401, 28.7324m) driving, Position(Lane #38400, 28.7325m) sidewalk
+  24th Ave E & Boyer Ave E: Position(Lane #38657, 27.369m) driving, Position(Lane #38656, 27.3666m) sidewalk
+  24th Ave E & E Newton St: Position(Lane #38913, 13.6268m) driving, Position(Lane #38912, 13.751m) sidewalk
+  24th Ave E & E Mcgraw St: Position(Lane #48897, 63.243m) driving, Position(Lane #48896, 63.0066m) sidewalk
   East Montlake Pl E & E Roanoke St: Position(Lane #30689, 0m) driving, Position(Lane #30690, 0m) sidewalk
-100228 (48) from Lane #38754 to Some(LaneID { road: RoadID(899), offset: 2 })
-  23rd Ave E & E John St: Position(Lane #7300, 37.0074m) driving, Position(Lane #7301, 37.0074m) sidewalk
-  23rd Ave E & E Republican St: Position(Lane #7428, 16.9183m) driving, Position(Lane #7429, 16.9182m) sidewalk
-  23rd Ave E & E Roy St: Position(Lane #7492, 8.9355m) driving, Position(Lane #7493, 8.9354m) sidewalk
+100228 (48) from Lane #38786 to Some(LaneID { road: RoadID(899), offset: 2 })
+  23rd Ave E & E John St: Position(Lane #7300, 37.0105m) driving, Position(Lane #7301, 37.0111m) sidewalk
+  23rd Ave E & E Republican St: Position(Lane #7428, 16.9205m) driving, Position(Lane #7429, 16.9205m) sidewalk
+  23rd Ave E & E Roy St: Position(Lane #7492, 8.9148m) driving, Position(Lane #7493, 8.9291m) sidewalk
   23rd Ave E & E Aloha St: Position(Lane #7652, 15.4075m) driving, Position(Lane #7653, 15.4074m) sidewalk
-  24th Ave E & E Prospect St: Position(Lane #38497, 17.5471m) driving, Position(Lane #38496, 17.5471m) sidewalk
-  24th Ave E & E Galer St: Position(Lane #38369, 28.7291m) driving, Position(Lane #38368, 28.7291m) sidewalk
-  24th Ave E & Boyer Ave E: Position(Lane #38625, 27.367m) driving, Position(Lane #38624, 27.367m) sidewalk
-  24th Ave E & E Newton St: Position(Lane #38881, 13.7555m) driving, Position(Lane #38880, 13.7555m) sidewalk
-  24th Ave E & E Mcgraw St: Position(Lane #48865, 63.2578m) driving, Position(Lane #48864, 63.0213m) sidewalk
+  24th Ave E & E Prospect St: Position(Lane #38529, 17.5492m) driving, Position(Lane #38528, 17.5492m) sidewalk
+  24th Ave E & E Galer St: Position(Lane #38401, 28.7324m) driving, Position(Lane #38400, 28.7325m) sidewalk
+  24th Ave E & Boyer Ave E: Position(Lane #38657, 27.369m) driving, Position(Lane #38656, 27.3666m) sidewalk
+  24th Ave E & E Newton St: Position(Lane #38913, 13.6268m) driving, Position(Lane #38912, 13.751m) sidewalk
+  24th Ave E & E Mcgraw St: Position(Lane #48897, 63.243m) driving, Position(Lane #48896, 63.0066m) sidewalk
   East Montlake Pl E & E Roanoke St: Position(Lane #30689, 0m) driving, Position(Lane #30690, 0m) sidewalk
-100344 (986) from Lane #47969 to Some(LaneID { road: RoadID(899), offset: 2 })
-  Montlake Blvd E & E Shelby St: Position(Lane #41666, 33.6283m) driving, Position(Lane #41667, 33.6282m) sidewalk
+100344 (986) from Lane #48001 to Some(LaneID { road: RoadID(899), offset: 2 })
+  Montlake Blvd E & E Shelby St: Position(Lane #41698, 33.6598m) driving, Position(Lane #41699, 33.6124m) sidewalk
 100346 (988) from Lane #25026 to Some(LaneID { road: RoadID(899), offset: 2 })
-  E Madison St & 28th Ave E: Position(Lane #40866, 23.131m) driving, Position(Lane #40864, 23.131m) sidewalk
-  23rd Ave E & E Republican St: Position(Lane #7428, 16.9183m) driving, Position(Lane #7429, 16.9182m) sidewalk
+  E Madison St & 28th Ave E: Position(Lane #40898, 23.3718m) driving, Position(Lane #40896, 23.4531m) sidewalk
+  23rd Ave E & E Republican St: Position(Lane #7428, 16.9205m) driving, Position(Lane #7429, 16.9205m) sidewalk
   23rd Ave E & E Aloha St: Position(Lane #7652, 15.4075m) driving, Position(Lane #7653, 15.4074m) sidewalk
-  24th Ave E & E Galer St: Position(Lane #38369, 28.7291m) driving, Position(Lane #38368, 28.7291m) sidewalk
-  24th Ave E & E Mcgraw St: Position(Lane #48865, 63.2578m) driving, Position(Lane #48864, 63.0213m) sidewalk
-100511 (542) from Lane #47969 to Some(LaneID { road: RoadID(899), offset: 2 })
-  Montlake Blvd E & E Shelby St: Position(Lane #41666, 33.6283m) driving, Position(Lane #41667, 33.6282m) sidewalk
+  24th Ave E & E Galer St: Position(Lane #38401, 28.7324m) driving, Position(Lane #38400, 28.7325m) sidewalk
+  24th Ave E & E Mcgraw St: Position(Lane #48897, 63.243m) driving, Position(Lane #48896, 63.0066m) sidewalk
+100511 (542) from Lane #48001 to Some(LaneID { road: RoadID(899), offset: 2 })
+  Montlake Blvd E & E Shelby St: Position(Lane #41698, 33.6598m) driving, Position(Lane #41699, 33.6124m) sidewalk
