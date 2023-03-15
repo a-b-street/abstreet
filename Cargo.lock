@@ -3193,7 +3193,7 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#5be6a95408d27b28fec00493c85648847c632af0"
+source = "git+https://github.com/a-b-street/osm2streets#637d5f3b893f3b6b5af7b1fae80946da38d8e26a"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -4251,7 +4251,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#5be6a95408d27b28fec00493c85648847c632af0"
+source = "git+https://github.com/a-b-street/osm2streets#637d5f3b893f3b6b5af7b1fae80946da38d8e26a"
 dependencies = [
  "abstutil",
  "anyhow",
