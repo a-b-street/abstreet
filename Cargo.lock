@@ -3193,7 +3193,7 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#11fc81a9622ec3f66a7abc56e09703ca9ec266db"
+source = "git+https://github.com/a-b-street/osm2streets#5be6a95408d27b28fec00493c85648847c632af0"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -3432,7 +3432,7 @@ dependencies = [
 [[package]]
 name = "popgetter"
 version = "0.1.0"
-source = "git+https://github.com/dabreegster/popgetter/#20eb9d3facae9f0f01394fd5493a0adfbc8578f5"
+source = "git+https://github.com/dabreegster/popgetter/#e0b9a879424c15448f22964b56d827fe057b4997"
 dependencies = [
  "anyhow",
  "fs-err",
@@ -4251,7 +4251,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#11fc81a9622ec3f66a7abc56e09703ca9ec266db"
+source = "git+https://github.com/a-b-street/osm2streets#5be6a95408d27b28fec00493c85648847c632af0"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -4611,7 +4611,7 @@ dependencies = [
 [[package]]
 name = "topojson"
 version = "0.5.1"
-source = "git+https://github.com/dabreegster/topojson?branch=update#f962c7b3ae372925a74c327d90ee73ff487d8a6b"
+source = "git+https://github.com/dabreegster/topojson?branch=both_fixes#6efc6be1d4ef65909d6a4a68e53940d83f6015d7"
 dependencies = [
  "geojson",
  "log",
