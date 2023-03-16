@@ -115,6 +115,7 @@ impl State<App> for Census {
             self.appwide_panel
                 .event(ctx, app, &crate::save::PreserveState::Census, help)
         {
+            self.world.hack_unset_hovering();
             return t;
         }
         if let Some(t) =
