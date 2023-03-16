@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use geom::{Bounds, Duration, Histogram, Polygon, Pt2D, Statistic};
-use map_model::{BuildingID, Map};
+use geom::{Bounds, Distance, Duration, Histogram, Polygon, Pt2D, Statistic};
+use map_model::{BuildingID, Map, RoadID};
 use widgetry::tools::{ColorLegend, ColorScale};
 use widgetry::{
     Choice, Color, EventCtx, GeomBatch, Panel, RoundedF64, Spinner, TextExt, Toggle, Widget,
@@ -295,6 +295,7 @@ impl<T: Copy> Grid<T> {
 pub fn draw_isochrone(
     map: &Map,
     time_to_reach_building: &HashMap<BuildingID, Duration>,
+    time_to_reach_empty_road: &HashMap<RoadID, Duration>,
     thresholds: &[f64],
     colors: &[Color],
 ) -> GeomBatch {
@@ -319,6 +320,22 @@ pub fn draw_isochrone(
         );
         // Don't add! If two buildings map to the same cell, we should pick a finer resolution.
         grid.data[idx] = cost.inner_seconds();
+    }
+
+    for (r, cost) in time_to_reach_empty_road {
+        // Walk along the road in half-steps of our resolution
+        let buffer_ends = Distance::ZERO;
+        for (pt, _) in map
+            .get_r(*r)
+            .center_pts
+            .step_along(Distance::meters(resolution_m / 2.0), buffer_ends)
+        {
+            let idx = grid.idx(
+                ((pt.x() - bounds.min_x) / resolution_m) as usize,
+                ((pt.y() - bounds.min_y) / resolution_m) as usize,
+            );
+            grid.data[idx] = cost.inner_seconds();
+        }
     }
 
     let smooth = false;
