@@ -11,38 +11,24 @@ use widgetry::{EventCtx, Key, Transition};
 
 use crate::AppLike;
 
-// For each city, how many total bytes do the runtime files cost to download?
-
-/// How many bytes to download for a city?
-fn size_of_city(map: &MapName) -> u64 {
-    let mut data_packs = DataPacks {
-        runtime: BTreeSet::new(),
-        input: BTreeSet::new(),
-    };
-    data_packs.runtime.insert(map.to_data_pack_name());
-    let mut manifest = Manifest::load().filter(data_packs);
-    // Don't download files that already exist
-    manifest
-        .entries
-        .retain(|path, _| !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap())));
-    let mut bytes = 0;
-    for (_, entry) in manifest.entries {
-        bytes += entry.compressed_size_bytes;
-    }
-    bytes
-}
-
 pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
     ctx: &mut EventCtx,
     map_name: MapName,
     on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
 ) -> Transition<A> {
+    let manifest = files_to_download(&map_name);
+    let bytes = manifest
+        .entries
+        .iter()
+        .map(|(_, e)| e.compressed_size_bytes)
+        .sum();
+
     Transition::Push(ChooseSomething::new_state(
         ctx,
         format!(
             "Missing data. Download {} for {}?",
-            prettyprint_bytes(size_of_city(&map_name)),
-            map_name.city.describe()
+            prettyprint_bytes(bytes),
+            map_name.describe()
         ),
         vec![
             widgetry::Choice::string("Yes, download"),
@@ -53,20 +39,13 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
                 return Transition::Pop;
             }
 
-            let cities = vec![map_name.to_data_pack_name()];
-
-            // Adjust the updater's config, in case the user also runs that.
-            let mut packs = DataPacks::load_or_create();
-            packs.runtime.insert(cities[0].clone());
-            packs.save();
-
             let (outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(1000);
             let (inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1000);
             Transition::Replace(FutureLoader::<A, Result<()>>::new_state(
                 ctx,
                 Box::pin(async {
                     let result =
-                        download_cities(cities, outer_progress_tx, inner_progress_tx).await;
+                        download_files(manifest, outer_progress_tx, inner_progress_tx).await;
                     let wrap: Box<dyn Send + FnOnce(&A) -> Result<()>> =
                         Box::new(move |_: &A| result);
                     Ok(wrap)
@@ -91,22 +70,36 @@ pub fn prompt_to_download_missing_data<A: AppLike + 'static>(
     ))
 }
 
-async fn download_cities(
-    cities: Vec<String>,
-    mut outer_progress: mpsc::Sender<String>,
-    mut inner_progress: mpsc::Sender<String>,
-) -> Result<()> {
+fn files_to_download(map: &MapName) -> Manifest {
     let mut data_packs = DataPacks {
         runtime: BTreeSet::new(),
         input: BTreeSet::new(),
     };
-    data_packs.runtime.extend(cities);
+    data_packs.runtime.insert(map.to_data_pack_name());
     let mut manifest = Manifest::load().filter(data_packs);
     // Don't download files that already exist
     manifest
         .entries
         .retain(|path, _| !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap())));
 
+    // DataPacks are an updater tool concept, but we don't want everything from that city, just the
+    // one map (and it's scenarios, prebaked_results, and maybe the city.bin overview)
+    manifest.entries.retain(|path, _| {
+        // TODO This reinvents a bit of abst_data.rs
+        let parts = path.split('/').collect::<Vec<_>>();
+        parts[4] == "city.bin"
+            || (parts[4] == "maps" && parts[5] == format!("{}.bin", map.map))
+            || (parts.len() >= 6 && parts[5] == map.map)
+    });
+
+    manifest
+}
+
+async fn download_files(
+    manifest: Manifest,
+    mut outer_progress: mpsc::Sender<String>,
+    mut inner_progress: mpsc::Sender<String>,
+) -> Result<()> {
     let num_files = manifest.entries.len();
     let mut messages = Vec::new();
     let mut files_so_far = 0;
