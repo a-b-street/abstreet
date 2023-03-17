@@ -449,6 +449,11 @@ impl Partitioning {
 
         let mut result = Vec::new();
         for id in adjacent_to_target_block.clone() {
+            // A block already part of new_owner never makes sense
+            if self.block_to_neighbourhood[&id] == new_owner {
+                continue;
+            }
+
             // TODO: intersect the two above -- aka, look for blocks adjacent both to target_block
             // and new_owner. But this seems too eager and maybe covered by the below condition.
             /*if self.block_to_neighbourhood(id) != new_owner && new_owner_frontier.contains(&id) {
