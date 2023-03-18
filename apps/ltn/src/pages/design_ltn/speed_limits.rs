@@ -1,7 +1,7 @@
 use geom::{Speed, UnitFmt};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::ColorLegend;
-use widgetry::{EventCtx, Text, Transition, Widget};
+use widgetry::{EventCtx, Text, Widget};
 
 use super::{EditOutcome, Obj};
 use crate::render::colors;
@@ -76,7 +76,7 @@ pub fn handle_world_outcome(
 
             logic::map_edits::modify_road(ctx, app, r, edits);
 
-            EditOutcome::Transition(Transition::Recreate)
+            EditOutcome::UpdateAll
         }
         _ => EditOutcome::Nothing,
     }

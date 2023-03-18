@@ -1,6 +1,6 @@
 use osm2streets::LaneSpec;
 use widgetry::mapspace::{World, WorldOutcome};
-use widgetry::{EventCtx, Text, Transition};
+use widgetry::{EventCtx, Text};
 
 use super::{road_name, EditOutcome, Obj};
 use crate::render::colors;
@@ -56,7 +56,7 @@ pub fn handle_world_outcome(
 
             logic::map_edits::modify_road(ctx, app, r, edits);
 
-            EditOutcome::Transition(Transition::Recreate)
+            EditOutcome::UpdateAll
         }
         _ => EditOutcome::Nothing,
     }

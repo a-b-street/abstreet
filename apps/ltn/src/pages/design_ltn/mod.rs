@@ -40,8 +40,8 @@ pub enum EditOutcome {
     Nothing,
     /// Don't recreate the Neighbourhood
     UpdatePanelAndWorld,
-    /// Use this with Transition::Recreate to recalculate the Neighbourhood, because it's actually
-    /// been edited
+    /// Update the panel, world, and neighbourhood (cells and shortcuts only)
+    UpdateAll,
     Transition(Transition),
 }
 
@@ -133,7 +133,7 @@ impl EditNeighbourhood {
                 if let EditMode::FreehandFilters(_) = app.session.edit_mode {
                     app.session.edit_mode = EditMode::Filters;
                 }
-                EditOutcome::Transition(Transition::Recreate)
+                EditOutcome::UpdateAll
             }
             "Modal filter - no entry"
             | "Modal filter -- walking/cycling only"

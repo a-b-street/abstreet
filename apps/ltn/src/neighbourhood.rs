@@ -196,6 +196,10 @@ impl Neighbourhood {
             }
         }
 
+        self.edits_changed(map, edits);
+    }
+
+    pub fn edits_changed(&mut self, map: &Map, edits: &Edits) {
         self.cells = find_cells(map, &self.interior_roads, &self.borders, edits);
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is

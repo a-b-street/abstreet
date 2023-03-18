@@ -74,7 +74,7 @@ pub fn handle_world_outcome(
             if road.oneway_for_driving().is_some() {
                 if app.session.layers.autofix_one_ways {
                     modals::fix_oneway_and_add_filter(ctx, app, &[(r, distance)]);
-                    return EditOutcome::Transition(Transition::Recreate);
+                    return EditOutcome::UpdateAll;
                 }
 
                 return EditOutcome::Transition(Transition::Push(
@@ -106,13 +106,13 @@ pub fn handle_world_outcome(
                     .insert(r, RoadFilter::new_by_user(distance, filter_type));
             }
             redraw_all_filters(ctx, app);
-            EditOutcome::Transition(Transition::Recreate)
+            EditOutcome::UpdateAll
         }
         WorldOutcome::ClickedObject(Obj::Intersection(i)) => {
             app.per_map.proposals.before_edit();
             DiagonalFilter::cycle_through_alternatives(app, i);
             redraw_all_filters(ctx, app);
-            EditOutcome::Transition(Transition::Recreate)
+            EditOutcome::UpdateAll
         }
         WorldOutcome::Keypress("debug", Obj::Intersection(i)) => {
             open_browser(app.per_map.map.get_i(i).orig_id.to_string());

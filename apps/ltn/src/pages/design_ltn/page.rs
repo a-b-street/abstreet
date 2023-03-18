@@ -205,6 +205,12 @@ impl State<App> for DesignLTN {
                     self.update(ctx, app);
                     return Transition::Keep;
                 }
+                EditOutcome::UpdateAll => {
+                    self.neighbourhood
+                        .edits_changed(&app.per_map.map, app.edits());
+                    self.update(ctx, app);
+                    return Transition::Keep;
+                }
                 EditOutcome::Transition(t) => {
                     return t;
                 }
@@ -214,6 +220,11 @@ impl State<App> for DesignLTN {
         match self.edit.event(ctx, app, &self.neighbourhood) {
             EditOutcome::Nothing => {}
             EditOutcome::UpdatePanelAndWorld => {
+                self.update(ctx, app);
+            }
+            EditOutcome::UpdateAll => {
+                self.neighbourhood
+                    .edits_changed(&app.per_map.map, app.edits());
                 self.update(ctx, app);
             }
             EditOutcome::Transition(t) => {
@@ -309,6 +320,7 @@ fn setup_editing(
             .draw_hovered(batch)
             .build(ctx);
     }
+    highlight_cell.initialize_hover(ctx);
 
     if !matches!(
         app.session.edit_mode,

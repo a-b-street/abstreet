@@ -12,7 +12,7 @@ pub fn event(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) -
         if let Some(pl) = lasso.event(ctx) {
             // Reset the tool
             app.session.edit_mode = EditMode::Filters;
-            EditOutcome::Transition(make_filters_along_path(ctx, app, neighbourhood, pl))
+            make_filters_along_path(ctx, app, neighbourhood, pl)
         } else {
             // Do this instead of EditOutcome::Nothing to interrupt other processing
             EditOutcome::Transition(Transition::Keep)
@@ -27,7 +27,7 @@ fn make_filters_along_path(
     app: &mut App,
     neighbourhood: &Neighbourhood,
     path: PolyLine,
-) -> Transition {
+) -> EditOutcome {
     let mut oneways = Vec::new();
     let mut bus_roads = Vec::new();
 
@@ -83,10 +83,14 @@ fn make_filters_along_path(
     redraw_all_filters(ctx, app);
 
     if !oneways.is_empty() {
-        Transition::Push(modals::ResolveOneWayAndFilter::new_state(ctx, oneways))
+        EditOutcome::Transition(Transition::Push(modals::ResolveOneWayAndFilter::new_state(
+            ctx, oneways,
+        )))
     } else if !bus_roads.is_empty() {
-        Transition::Push(modals::ResolveBusGate::new_state(ctx, app, bus_roads))
+        EditOutcome::Transition(Transition::Push(modals::ResolveBusGate::new_state(
+            ctx, app, bus_roads,
+        )))
     } else {
-        Transition::Recreate
+        EditOutcome::UpdateAll
     }
 }
