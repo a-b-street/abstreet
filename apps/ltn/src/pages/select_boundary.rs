@@ -278,7 +278,16 @@ impl State<App> for SelectBoundary {
                 self.lasso = None;
                 self.add_blocks_freehand(ctx, app, polygon);
                 self.left_panel = make_panel(ctx, app, self.id, &self.appwide_panel.top_panel);
+                return Transition::Keep;
             }
+
+            if let Outcome::Clicked(x) = self.left_panel.event(ctx) {
+                if x == "Cancel" {
+                    self.lasso = None;
+                    self.left_panel = make_panel(ctx, app, self.id, &self.appwide_panel.top_panel);
+                }
+            }
+
             return Transition::Keep;
         }
 
@@ -441,6 +450,11 @@ fn make_panel_for_lasso(ctx: &mut EventCtx, top_panel: &Panel) -> Panel {
                 Line(" to select the blocks to add to this neighbourhood"),
             ])
             .into_widget(ctx),
+            ctx.style()
+                .btn_solid_destructive
+                .text("Cancel")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ]),
     )
     .build(ctx)
