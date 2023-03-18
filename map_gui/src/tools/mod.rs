@@ -245,8 +245,6 @@ pub fn nice_map_name(name: &MapName) -> &str {
         },
         "ir" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("tehran", "parliament") => "Tehran (near Parliament)",
-            // TODO I'm not naming the other 9 maps in Tehran, because I'm not sure yet the
-            // boundaries are the ones that a researcher needs.
             _ => &name.map,
         },
         "jp" => match (name.city.city.as_ref(), name.map.as_ref()) {
