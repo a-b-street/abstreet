@@ -100,6 +100,11 @@
       "uncompressed_size_bytes": 4167427,
       "compressed_size_bytes": 1205783
     },
+    "data/input/ca/toronto/raw_maps/dufferin.bin": {
+      "checksum": "8db738fee4856e517a91d059d1369a64",
+      "uncompressed_size_bytes": 8435892,
+      "compressed_size_bytes": 2973075
+    },
     "data/input/ch/geneva/raw_maps/center.bin": {
       "checksum": "d40fb4f76f3b019f3bed90b8529fc63a",
       "uncompressed_size_bytes": 14658270,
@@ -460,6 +465,11 @@
       "uncompressed_size_bytes": 5108079,
       "compressed_size_bytes": 1569257
     },
+    "data/input/gb/edinburgh/raw_maps/center.bin": {
+      "checksum": "6a1897664c82c0da30da08ef26776828",
+      "uncompressed_size_bytes": 31177790,
+      "compressed_size_bytes": 9105120
+    },
     "data/input/gb/exeter_red_cow_village/procgen_houses.json": {
       "checksum": "8eba7f093252d9b5f8441ddee5975847",
       "uncompressed_size_bytes": 869332,
@@ -514,6 +524,11 @@
       "checksum": "fe95468622ca1d33dcf2ae6e1c932abe",
       "uncompressed_size_bytes": 7422249,
       "compressed_size_bytes": 2387548
+    },
+    "data/input/gb/inverness/raw_maps/center.bin": {
+      "checksum": "70d8674d6e85436ac3563ad1e816e416",
+      "uncompressed_size_bytes": 6702977,
+      "compressed_size_bytes": 2080566
     },
     "data/input/gb/keighley/raw_maps/center.bin": {
       "checksum": "bf154537842b469b9b741384202e2de4",
@@ -1470,6 +1485,11 @@
       "uncompressed_size_bytes": 421726625,
       "compressed_size_bytes": 421414695
     },
+    "data/input/shared/geofabrik/north-america/canada/ontario-latest.osm.pbf": {
+      "checksum": "f57345309e9a3bbc1cb64c89d3036c1b",
+      "uncompressed_size_bytes": 792783798,
+      "compressed_size_bytes": 791699795
+    },
     "data/input/shared/geofabrik/north-america/canada/quebec-latest.osm.pbf": {
       "checksum": "9413e92c168297eb666f12d970a37be6",
       "uncompressed_size_bytes": 503335546,
@@ -1964,6 +1984,11 @@
       "checksum": "c15bb4c828e086c05053d6da2f8dfdc6",
       "uncompressed_size_bytes": 11864990,
       "compressed_size_bytes": 4511871
+    },
+    "data/system/ca/toronto/maps/dufferin.bin": {
+      "checksum": "f92e3ce08478d752180ff3ea352b49a5",
+      "uncompressed_size_bytes": 20664504,
+      "compressed_size_bytes": 8622145
     },
     "data/system/ch/geneva/maps/center.bin": {
       "checksum": "24022b79a9aab0529c9761fab078b0af",
@@ -2650,6 +2675,16 @@
       "uncompressed_size_bytes": 6429921,
       "compressed_size_bytes": 1588713
     },
+    "data/system/gb/edinburgh/maps/center.bin": {
+      "checksum": "fa85040174d1b3ad43aa2b61a6309383",
+      "uncompressed_size_bytes": 58590929,
+      "compressed_size_bytes": 22369365
+    },
+    "data/system/gb/edinburgh/scenarios/center/background.bin": {
+      "checksum": "4abf9bc4be4c220811fbdcbb2e8ad529",
+      "uncompressed_size_bytes": 68,
+      "compressed_size_bytes": 66
+    },
     "data/system/gb/exeter_red_cow_village/maps/center.bin": {
       "checksum": "768254c39a019ef4d26a3db4dab41816",
       "uncompressed_size_bytes": 49584372,
@@ -2784,6 +2819,16 @@
       "checksum": "72974efb4e6cc94b858963eb6dfbdcfc",
       "uncompressed_size_bytes": 6515472,
       "compressed_size_bytes": 1623934
+    },
+    "data/system/gb/inverness/maps/center.bin": {
+      "checksum": "5b536ca55b19fc18953b1820e1ffe80f",
+      "uncompressed_size_bytes": 20078170,
+      "compressed_size_bytes": 7729671
+    },
+    "data/system/gb/inverness/scenarios/center/background.bin": {
+      "checksum": "b21d1d5605313daafc843cee456ab451",
+      "uncompressed_size_bytes": 68,
+      "compressed_size_bytes": 67
     },
     "data/system/gb/keighley/maps/center.bin": {
       "checksum": "3c373b6dbaedad5797e620c88700676b",

@@ -12,6 +12,7 @@ data/system/at/salzburg
 data/system/au/melbourne
 data/system/br/sao_paulo
 data/system/ca/montreal
+data/system/ca/toronto
 data/system/ch/geneva
 data/system/ch/zurich
 data/system/cl/santiago
@@ -48,12 +49,14 @@ data/system/gb/dickens_heath
 data/system/gb/didcot
 data/system/gb/dunton_hills
 data/system/gb/ebbsfleet
+data/system/gb/edinburgh
 data/system/gb/exeter_red_cow_village
 data/system/gb/glenrothes
 data/system/gb/great_kneighton
 data/system/gb/halsnead
 data/system/gb/hampton
 data/system/gb/handforth
+data/system/gb/inverness
 data/system/gb/keighley
 data/system/gb/kergilliack
 data/system/gb/kidbrooke_village

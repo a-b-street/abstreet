@@ -112,6 +112,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         },
         "ca" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("montreal", "plateau") => "Montréal (Plateau)",
+            ("toronto", "dufferin") => "Toronto (Dufferin)",
             _ => &name.map,
         },
         "ch" => match (name.city.city.as_ref(), name.map.as_ref()) {
@@ -182,11 +183,13 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("didcot", "center") => "Didcot (Harwell)",
             ("dunton_hills", "center") => "Dunton Hills",
             ("ebbsfleet", "center") => "Ebbsfleet (Dartford)",
+            ("edinburgh", "center") => "Edinburgh",
             ("exeter_red_cow_village", "center") => "Exeter Red Cow Village",
             ("glenrothes", "center") => "Glenrothes (Scotland)",
             ("great_kneighton", "center") => "Great Kneighton (Cambridge)",
             ("halsnhead", "center") => "Halsnead",
             ("hampton", "center") => "Hampton",
+            ("inverness", "center") => "Inverness",
             ("kergilliack", "center") => "Kergilliack",
             ("keighley", "center") => "Keighley",
             ("kidbrooke_village", "center") => "Kidbrooke Village",
