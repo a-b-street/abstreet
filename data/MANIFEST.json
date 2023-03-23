@@ -105,6 +105,11 @@
       "uncompressed_size_bytes": 8435892,
       "compressed_size_bytes": 2973075
     },
+    "data/input/ca/toronto/raw_maps/sw.bin": {
+      "checksum": "2a382c95a4e22c804f751f273382fc68",
+      "uncompressed_size_bytes": 3814511,
+      "compressed_size_bytes": 1137614
+    },
     "data/input/ch/geneva/raw_maps/center.bin": {
       "checksum": "d40fb4f76f3b019f3bed90b8529fc63a",
       "uncompressed_size_bytes": 14658270,
@@ -1989,6 +1994,11 @@
       "checksum": "f92e3ce08478d752180ff3ea352b49a5",
       "uncompressed_size_bytes": 20664504,
       "compressed_size_bytes": 8622145
+    },
+    "data/system/ca/toronto/maps/sw.bin": {
+      "checksum": "359f7e45e352fa830fd196639c2a7d9d",
+      "uncompressed_size_bytes": 9407205,
+      "compressed_size_bytes": 3700533
     },
     "data/system/ch/geneva/maps/center.bin": {
       "checksum": "24022b79a9aab0529c9761fab078b0af",

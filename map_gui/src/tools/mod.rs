@@ -113,6 +113,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         "ca" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("montreal", "plateau") => "Montréal (Plateau)",
             ("toronto", "dufferin") => "Toronto (Dufferin)",
+            ("toronto", "sw") => "Toronto (southwest)",
             _ => &name.map,
         },
         "ch" => match (name.city.city.as_ref(), name.map.as_ref()) {
