@@ -13,13 +13,13 @@ fs-err = { workspace = true }
 instant = { workspace = true }
 lazy_static = "1.4.0"
 log = { workspace = true }
-reqwest = { version = "0.11.14", default-features=false, features=["rustls-tls"] }
+reqwest = { version = "0.11.15", default-features=false, features=["rustls-tls"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-futures-channel = { version = "0.3.26"}
-tokio = "1.25.0"
+futures-channel = { workspace = true }
+tokio = "1.26.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 include_dir = { git = "https://github.com/dabreegster/include_dir", branch = "union" }

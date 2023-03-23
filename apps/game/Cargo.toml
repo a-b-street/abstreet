@@ -26,7 +26,7 @@ csv = { workspace = true }
 downcast-rs = "1.2.0"
 enumset = "1.0.3"
 fs-err = { workspace = true }
-futures-channel = { version = "0.3.12"}
+futures-channel = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../../geom" }

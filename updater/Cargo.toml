@@ -10,8 +10,8 @@ abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 flate2 = "1.0.20"
 fs-err = { workspace = true }
-futures-channel = { version = "0.3.12"}
+futures-channel = { workspace = true }
 md5 = "0.7.0"
 structopt = { workspace = true }
-tokio = { version = "1.19.2", features = ["full"] }
-walkdir = "2.3.1"
+tokio = { version = "1.26.0", features = ["full"] }
+walkdir = "2.3.3"

@@ -43,7 +43,9 @@ colorous = "1.0.9"
 contour = "0.7.0"
 csv = "1.2.0"
 fs-err = "2.9.0"
-geo = "0.24.0"
+futures = { version = "0.3.27"}
+futures-channel = { version = "0.3.27"}
+geo = "0.24.1"
 geojson = { version = "0.24.0", features = ["geo-types"] }
 getrandom = "0.2.3"
 instant = "0.1.7"
@@ -65,9 +67,6 @@ abstutil = { path = "abstutil" }
 
 [patch.crates-io]
 http-range-client = { git = "https://github.com/pka/http-range-client", rev = "e62f72ab3553a19f4166f73efd18b13b4c4164ec" }
-
-# awaiting release to avoid duplicated geojson dep
-geozero = { git = "https://github.com/georust/geozero", rev = "0c3d6209eea8aa37bd42e9e784b92f2087e7efb4" }
 
 # To temporarily work on dependencies locally, uncomment this
 # TODO Do not commit. Update each repo
