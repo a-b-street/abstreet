@@ -361,9 +361,9 @@ impl State<App> for PerResidentImpact {
         g.redraw(&self.cell_outline);
         self.appwide_panel.draw(g);
         self.bottom_panel.draw(g);
-        app.session.layers.draw(g, app);
         self.labels.draw(g);
         app.per_map.draw_major_road_labels.draw(g);
+        app.session.layers.draw(g, app);
         app.per_map.draw_all_filters.draw(g);
         self.world.draw(g);
         if let Some((_, ref draw)) = self.compare_routes {
