@@ -360,12 +360,12 @@ impl State<App> for SelectBoundary {
         g.redraw(&self.draw_last_error);
         self.appwide_panel.draw(g);
         self.left_panel.draw(g);
-        app.session.layers.draw(g, app);
         app.per_map
             .draw_all_local_road_labels
             .as_ref()
             .unwrap()
             .draw(g);
+        app.session.layers.draw(g, app);
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
         }

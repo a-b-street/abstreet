@@ -47,6 +47,7 @@ pub struct PerMap {
     pub draw_all_local_road_labels: Option<DrawSimpleRoadLabels>,
     pub draw_poi_icons: Drawable,
     pub draw_bus_routes: Drawable,
+    pub draw_turn_restrictions: Drawable,
 
     pub current_trip_name: Option<String>,
 }
@@ -73,6 +74,7 @@ impl PerMap {
         let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
         let draw_poi_icons = render::render_poi_icons(ctx, &map);
         let draw_bus_routes = render::render_bus_routes(ctx, &map);
+        let draw_turn_restrictions = render::render_turn_restrictions(ctx, &map);
 
         let per_map = Self {
             map,
@@ -92,6 +94,7 @@ impl PerMap {
             draw_all_local_road_labels: None,
             draw_poi_icons,
             draw_bus_routes,
+            draw_turn_restrictions,
 
             current_trip_name: None,
         };

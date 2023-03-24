@@ -160,9 +160,9 @@ impl State<App> for Crossings {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.appwide_panel.draw(g);
         self.bottom_panel.draw(g);
-        app.session.layers.draw(g, app);
         g.redraw(&self.draw_porosity);
         app.per_map.draw_major_road_labels.draw(g);
+        app.session.layers.draw(g, app);
         app.per_map.draw_poi_icons.draw(g);
         if let Some(ref draw) = self.draw_nearest_crossing {
             g.redraw(draw);

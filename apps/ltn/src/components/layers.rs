@@ -20,6 +20,7 @@ pub struct Layers {
     // (Mode, max zoom, min zoom, bottom bar position)
     panel_cache_key: (Mode, bool, bool, Option<f64>),
     show_bus_routes: bool,
+    show_turn_restrictions: bool,
     pub show_crossing_time: bool,
 
     // For the design LTN mode
@@ -35,6 +36,7 @@ impl Layers {
             minimized: true,
             panel_cache_key: (Mode::Impact, false, false, None),
             show_bus_routes: false,
+            show_turn_restrictions: true,
             show_crossing_time: false,
 
             autofix_bus_gates: false,
@@ -74,6 +76,10 @@ impl Layers {
                     self.show_bus_routes = self.panel.is_checked(&x);
                     self.update_panel(ctx, cs, bottom_panel);
                     return Some(Transition::Keep);
+                } else if x == "show turn restrictions" {
+                    self.show_turn_restrictions = self.panel.is_checked(&x);
+                    self.update_panel(ctx, cs, bottom_panel);
+                    return Some(Transition::Keep);
                 } else if x == "show time to nearest crossing" {
                     self.show_crossing_time = self.panel.is_checked(&x);
                     self.update_panel(ctx, cs, bottom_panel);
@@ -111,10 +117,14 @@ impl Layers {
         None
     }
 
+    // Draw after road labels
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         if self.show_bus_routes {
             g.redraw(&app.per_map.draw_bus_routes);
+        }
+        if self.show_turn_restrictions {
+            g.redraw(&app.per_map.draw_turn_restrictions);
         }
     }
 
@@ -192,6 +202,12 @@ impl Layers {
                     checkbox
                 }
             },
+            Toggle::checkbox(
+                ctx,
+                "show turn restrictions",
+                None,
+                self.show_turn_restrictions,
+            ),
             if self.panel_cache_key.0 == Mode::Crossings {
                 Widget::col(vec![
                     Toggle::checkbox(
