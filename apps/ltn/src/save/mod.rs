@@ -1,4 +1,6 @@
+mod load;
 mod perma;
+mod save;
 mod share;
 
 use std::collections::BTreeSet;
@@ -552,7 +554,8 @@ impl Proposals {
                 return Some(Transition::Push(share::ShareProposal::new_state(ctx, app)));
             }
             "Export GeoJSON" => {
-                let result = crate::export::write_geojson_file(app);
+                //let result = crate::export::write_geojson_file(app);
+                let result = save::write_geojson_file(app);
                 return Some(Transition::Push(match result {
                     Ok(path) => PopupMsg::new_state(
                         ctx,

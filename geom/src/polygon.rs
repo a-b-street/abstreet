@@ -45,6 +45,7 @@ impl Polygon {
         }
     }
 
+    // TODO This API is inconsistent with others; rename stuff
     pub fn from_geojson(raw: &[Vec<Vec<f64>>]) -> Result<Self> {
         let mut rings = Vec::new();
         for pts in raw {
@@ -53,6 +54,23 @@ impl Polygon {
             rings.push(Ring::new(transformed)?);
         }
         Ok(Self::from_rings(rings))
+    }
+
+    pub fn from_geojson_new(
+        feature: &geojson::Feature,
+        gps_bounds: Option<&GPSBounds>,
+    ) -> Result<Self> {
+        if let Some(geo_polygon) = feature
+            .geometry
+            .as_ref()
+            .and_then(|x| TryInto::<geo::Polygon<f64>>::try_into(x).ok())
+        {
+            if let Some(gps_bounds) = gps_bounds {
+                return Self::from_geo_wgs84(geo_polygon, gps_bounds);
+            }
+            return Polygon::try_from(geo_polygon);
+        }
+        bail!("Feature doesn't have a polygon");
     }
 
     pub fn from_triangle(tri: &Triangle) -> Self {

@@ -1,5 +1,6 @@
 use std::fmt;
 
+use anyhow::Result;
 use geo::Simplify;
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
@@ -144,6 +145,23 @@ impl Pt2D {
         } else {
             geojson::Geometry::new(geojson::Value::Point(vec![self.x(), self.y()]))
         }
+    }
+
+    pub fn from_geojson(
+        feature: &geojson::Feature,
+        gps_bounds: Option<&GPSBounds>,
+    ) -> Result<Self> {
+        if let Some(pt) = feature
+            .geometry
+            .as_ref()
+            .and_then(|x| TryInto::<geo::Point<f64>>::try_into(x).ok())
+        {
+            if let Some(gps_bounds) = gps_bounds {
+                return Ok(LonLat::new(pt.x(), pt.y()).to_pt(gps_bounds));
+            }
+            return Ok(Pt2D::new(pt.x(), pt.y()));
+        }
+        bail!("Feature doesn't have a point");
     }
 }
 
