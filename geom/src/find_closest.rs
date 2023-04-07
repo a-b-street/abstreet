@@ -1,9 +1,11 @@
 use std::collections::BTreeMap;
 
-use geo::{ClosestPoint, Contains, EuclideanDistance, Intersects};
+use geo::{
+    ClosestPoint, Contains, EuclideanDistance, EuclideanLength, Intersects, LineLocatePoint,
+};
 
 use crate::conversions::pts_to_line_string;
-use crate::{Bounds, Distance, Polygon, Pt2D, QuadTree};
+use crate::{Bounds, Distance, PolyLine, Polygon, Pt2D, QuadTree};
 
 // TODO Maybe use https://crates.io/crates/spatial-join proximity maps
 
@@ -31,6 +33,11 @@ where
     pub fn add(&mut self, key: K, pts: &[Pt2D]) {
         self.geometries.insert(key.clone(), pts_to_line_string(pts));
         self.quadtree.insert_with_box(key, Bounds::from(pts));
+    }
+
+    /// Adds a polyline to the quadtree.
+    pub fn add_polyline(&mut self, key: K, polyline: &PolyLine) {
+        self.add(key, polyline.points());
     }
 
     /// Adds the outer ring of a polygon to the quadtree.
@@ -77,6 +84,21 @@ where
             .into_iter()
             .min_by_key(|(_, _, dist)| *dist)
             .map(|(k, pt, _)| (k, pt))
+    }
+
+    /// Finds the closest point on a polyline to the query pt, and also return the distance along
+    /// that polyline.
+    pub fn closest_pt_on_line(
+        &self,
+        query_pt: Pt2D,
+        max_dist_away: Distance,
+    ) -> Option<(K, Pt2D, Distance)> {
+        let (key, pt) = self.closest_pt(query_pt, max_dist_away)?;
+        // TODO Warn if anything below fails; it really shouldn't!
+        let pl = &self.geometries[&key];
+        let percent = pl.line_locate_point(&pt.into())?;
+        let dist = Distance::meters(percent * pl.euclidean_length());
+        Some((key, pt, dist))
     }
 
     /// Find all objects with a point inside the query polygon

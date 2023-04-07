@@ -39,12 +39,14 @@ pub fn to_new_savefile(app: &App) -> GeoJson {
     // Points: modal filters on roads
     // TODO Only modified ones, but also remember modifications or deletions of existing
     for (r, filter) in &app.edits().roads {
-        let pt = map.get_r(*r).center_pts.must_dist_along(filter.dist).0;
-        let mut feature = new_feature(pt.to_geojson(gps_bounds));
-        feature.set_property("type", "road filter");
-        // TODO or serde into value?
-        feature.set_property("filter_type", format!("{:?}", filter.filter_type));
-        features.push(feature);
+        // TODO What's breaking?
+        if let Ok((pt, _)) = map.get_r(*r).center_pts.dist_along(filter.dist) {
+            let mut feature = new_feature(pt.to_geojson(gps_bounds));
+            feature.set_property("type", "road filter");
+            // TODO or serde into value?
+            feature.set_property("filter_type", format!("{:?}", filter.filter_type));
+            features.push(feature);
+        }
     }
 
     // LineStrings: diagonal modal filters
@@ -60,11 +62,12 @@ pub fn to_new_savefile(app: &App) -> GeoJson {
     for (r, list) in &app.edits().crossings {
         let road = app.per_map.map.get_r(*r);
         for crossing in list {
-            let pt = road.center_pts.must_dist_along(crossing.dist).0;
-            let mut feature = new_feature(pt.to_geojson(gps_bounds));
-            feature.set_property("type", "crossing");
-            feature.set_property("crossing_type", format!("{:?}", crossing.kind));
-            features.push(feature);
+            if let Ok((pt, _)) = road.center_pts.dist_along(crossing.dist) {
+                let mut feature = new_feature(pt.to_geojson(gps_bounds));
+                feature.set_property("type", "crossing");
+                feature.set_property("crossing_type", format!("{:?}", crossing.kind));
+                features.push(feature);
+            }
         }
     }
 
