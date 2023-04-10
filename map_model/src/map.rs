@@ -15,7 +15,7 @@ use crate::{
     osm, AmenityType, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
     CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
     DrivingSide, ExtraPOI, Intersection, IntersectionControl, IntersectionID, IntersectionKind,
-    Lane, LaneID, LaneType, Map, MapConfig, MapEdits, Movement, MovementID, OffstreetParking,
+    Lane, LaneID, LaneType, Map, MapConfig, Movement, MovementID, OffstreetParking,
     OriginalRoad, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2, Pathfinder,
     PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute, TransitRouteID,
     TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
@@ -66,7 +66,7 @@ impl Map {
         #![allow(clippy::logic_bug)]
         // For debugging map file sizes
 
-        self.edits = self.new_edits();
+        // TODO MapEdits should get created now
         self.recalculate_road_to_buildings();
         self.recalculate_all_movements(timer);
 
@@ -165,8 +165,6 @@ impl Map {
             pathfinder_dirty: false,
             routing_params: RoutingParams::default(),
             name: MapName::blank(),
-            edits: MapEdits::new(),
-            edits_generation: 0,
             road_to_buildings: MultiMap::new(),
         }
     }
@@ -575,10 +573,8 @@ impl Map {
         result
     }
 
+    // TODO This should only be called on an unedited map
     pub fn save(&self) {
-        assert!(self.edits.edits_name.starts_with("Untitled Proposal"));
-        assert!(self.edits.commands.is_empty());
-        assert!(!self.pathfinder_dirty);
         abstio::write_binary(self.name.path(), self);
     }
 

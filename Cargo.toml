@@ -8,6 +8,7 @@ members = [
   "cli",
   "collisions",
   "convert_osm",
+  "edits",
   "geom",
   "headless",
   "importer",

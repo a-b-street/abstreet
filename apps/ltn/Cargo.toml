@@ -18,6 +18,7 @@ anyhow = { workspace = true }
 blockfinding = { path = "../../blockfinding" }
 contour = { workspace = true }
 csv = { workspace = true }
+edits = { path = "../../edits" }
 flate2 = "1.0.20"
 futures-channel = { workspace = true }
 geo = { workspace = true }

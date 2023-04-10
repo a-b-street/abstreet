@@ -1195,6 +1195,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "edits"
+version = "0.1.0"
+dependencies = [
+ "abstio",
+ "abstutil",
+ "anyhow",
+ "geom",
+ "log",
+ "map_model",
+ "md5",
+ "osm2streets",
+ "serde",
+ "serde_json",
+ "traffic_signal_data",
+]
+
+[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2616,6 +2633,7 @@ dependencies = [
  "blockfinding",
  "contour",
  "csv",
+ "edits",
  "flate2",
  "futures-channel",
  "geo",
@@ -2780,7 +2798,6 @@ dependencies = [
  "kml",
  "log",
  "lyon",
- "md5",
  "osm2streets",
  "petgraph",
  "popgetter",

@@ -1,0 +1,17 @@
+[package]
+name = "edits"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+abstio = { path = "../abstio" }
+abstutil = { path = "../abstutil" }
+anyhow = { workspace = true }
+geom = { path = "../geom" }
+log = { workspace = true }
+map_model = { path = "../map_model" }
+md5 = "0.7.0"
+osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+traffic_signal_data = { path = "../traffic_signal_data" }

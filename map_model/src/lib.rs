@@ -46,9 +46,9 @@ pub use osm2streets::{
 pub use raw_map::{Amenity, AmenityType, AreaType, CrossingType, ExtraPOI, ExtraPOIType};
 
 pub use crate::city::City;
-pub use crate::edits::{
+/*pub use crate::edits::{
     EditCmd, EditEffects, EditIntersection, EditRoad, MapEdits, PermanentMapEdits,
-};
+};*/
 pub use crate::make::RawToMapOptions;
 pub use crate::objects::area::{Area, AreaID};
 pub use crate::objects::building::{Building, BuildingID, BuildingType, OffstreetParking};
@@ -73,8 +73,8 @@ pub use crate::traversable::{Position, Traversable, MAX_BIKE_SPEED, MAX_WALKING_
 
 mod city;
 pub mod connectivity;
-mod edits;
-mod make;
+// TODO Only some stuff should be pub, for edits
+pub mod make;
 mod map;
 mod objects;
 mod pathfind;
@@ -121,10 +121,10 @@ pub struct Map {
 
     name: MapName,
 
-    #[serde(skip_serializing, skip_deserializing)]
-    edits: MapEdits,
-    #[serde(skip_serializing, skip_deserializing)]
-    edits_generation: usize,
+    //#[serde(skip_serializing, skip_deserializing)]
+    //edits: MapEdits,
+    //#[serde(skip_serializing, skip_deserializing)]
+    //edits_generation: usize,
     #[serde(skip_serializing, skip_deserializing)]
     road_to_buildings: MultiMap<RoadID, BuildingID>,
 }

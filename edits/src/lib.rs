@@ -2,6 +2,11 @@
 //! the changes to a file (as `PermanentMapEdits`). See
 //! <https://a-b-street.github.io/docs/tech/map/edits.html>.
 
+#[macro_use]
+extern crate anyhow;
+#[macro_use]
+extern crate log;
+
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 use anyhow::Result;
@@ -11,13 +16,14 @@ use abstutil::Timer;
 use geom::{Distance, HashablePt2D, Line, Speed, Time};
 use osm2streets::{get_lane_specs_ltr, osm, InputRoad};
 
-pub use self::perma::PermanentMapEdits;
-use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
-use crate::{
+use map_model::make::{match_points_to_lanes, snap_driveway, trim_path};
+use map_model::{
     connectivity, AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal,
     IntersectionControl, IntersectionID, LaneID, LaneSpec, Map, MapConfig, Movement, ParkingLotID,
     PathConstraints, Pathfinder, Road, RoadID, TransitRouteID, TurnID, TurnType, Zone,
 };
+
+pub use self::perma::PermanentMapEdits;
 
 mod compat;
 mod perma;
@@ -515,7 +521,7 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     }
 
     {
-        let turns = crate::make::turns::make_all_turns(map, map.get_i(id));
+        let turns = map_model::make::turns::make_all_turns(map, map.get_i(id));
         let i = &mut map.intersections[id.0];
         for t in turns {
             effects.added_turns.insert(t.id);
@@ -754,15 +760,16 @@ fn fix_parking_lot_driveways(map: &mut Map, input: Vec<ParkingLotID>) {
     }
 }
 
-impl Map {
-    pub fn new_edits(&self) -> MapEdits {
+// TODO These used to be implemented on Map
+impl MapEdits {
+    pub fn new_edits(map: &Map) -> MapEdits {
         let mut edits = MapEdits::new();
 
         // Automatically find a new filename
         let mut i = 1;
         loop {
             let name = format!("Untitled Proposal {}", i);
-            if !abstio::file_exists(abstio::path_edits(&self.name, &name)) {
+            if !abstio::file_exists(abstio::path_edits(&map.name, &name)) {
                 edits.edits_name = name;
                 return edits;
             }
@@ -770,16 +777,12 @@ impl Map {
         }
     }
 
-    pub fn get_edits(&self) -> &MapEdits {
-        &self.edits
-    }
-
     pub fn unsaved_edits(&self) -> bool {
-        self.edits.edits_name.starts_with("Untitled Proposal") && !self.edits.commands.is_empty()
+        self.edits_name.starts_with("Untitled Proposal") && !self.commands.is_empty()
     }
 
-    pub fn get_r_edit(&self, r: RoadID) -> EditRoad {
-        let r = self.get_r(r);
+    pub fn get_r_edit(map: &Map, r: RoadID) -> EditRoad {
+        let r = map.get_r(r);
         EditRoad {
             lanes_ltr: r.lane_specs(),
             speed_limit: r.speed_limit,
@@ -787,28 +790,28 @@ impl Map {
         }
     }
 
-    pub fn edit_road_cmd<F: Fn(&mut EditRoad)>(&self, r: RoadID, f: F) -> EditCmd {
-        let old = self.get_r_edit(r);
+    pub fn edit_road_cmd<F: Fn(&mut EditRoad)>(map: &Map, r: RoadID, f: F) -> EditCmd {
+        let old = map.get_r_edit(r);
         let mut new = old.clone();
         f(&mut new);
         EditCmd::ChangeRoad { r, old, new }
     }
 
-    pub fn get_i_edit(&self, i: IntersectionID) -> EditIntersection {
-        match self.get_i(i).control {
+    pub fn get_i_edit(map: &Map, i: IntersectionID) -> EditIntersection {
+        match map.get_i(i).control {
             IntersectionControl::Signed | IntersectionControl::Uncontrolled => {
-                EditIntersection::StopSign(self.get_stop_sign(i).clone())
+                EditIntersection::StopSign(map.get_stop_sign(i).clone())
             }
             IntersectionControl::Signalled => {
-                EditIntersection::TrafficSignal(self.get_traffic_signal(i).export(self))
+                EditIntersection::TrafficSignal(map.get_traffic_signal(i).export(map))
             }
             IntersectionControl::Construction => EditIntersection::Closed,
         }
     }
 
-    pub fn get_i_crosswalks_edit(&self, i: IntersectionID) -> EditCrosswalks {
+    pub fn get_i_crosswalks_edit(map: &Map, i: IntersectionID) -> EditCrosswalks {
         let mut turns = BTreeMap::new();
-        for turn in &self.get_i(i).turns {
+        for turn in &map.get_i(i).turns {
             if turn.turn_type.pedestrian_crossing() {
                 turns.insert(turn.id, turn.turn_type);
             }
@@ -816,39 +819,41 @@ impl Map {
         EditCrosswalks(turns)
     }
 
-    pub fn save_edits(&self) {
+    pub fn save_edits(&self, map: &Map) {
         // Don't overwrite the current edits with the compressed first. Otherwise, undo/redo order
         // in the UI gets messed up.
-        let mut edits = self.edits.clone();
+        let mut edits = self.clone();
         edits.commands.clear();
-        edits.compress(self);
-        edits.save(self);
+        edits.compress(map);
+        edits.save(map);
     }
 
     /// Returns (changed_roads, deleted_lanes, deleted_turns, added_turns, changed_intersections)
-    pub fn must_apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) -> EditEffects {
-        self.apply_edits(new_edits, true, timer)
+    // TODO Called on new_edits
+    pub fn must_apply_edits(mut self, old_edits: &MapEdits, map: &mut Map, timer: &mut Timer) -> EditEffects {
+        self.apply_edits(old_edits, map, true, timer)
     }
 
-    pub fn try_apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) {
-        self.apply_edits(new_edits, false, timer);
+    pub fn try_apply_edits(mut self, old_edits: &MapEdits, map: &mut Map, timer: &mut Timer) -> EditEffects {
+        self.apply_edits(old_edits, map, false, timer);
     }
 
     /// A hack. Use this to apply edits, then save the map anyway, pretending like the edits came
     /// from raw data.
-    pub fn clear_edits_before_save(&mut self) {
+    /*pub fn clear_edits_before_save(&mut self) {
         self.edits = self.new_edits();
-    }
+    }*/
 
-    // new_edits don't necessarily have to be valid; this could be used for speculatively testing
+    // Self (new_edits) don't necessarily have to be valid; this could be used for speculatively testing
     // edits. Doesn't update pathfinding yet.
     fn apply_edits(
-        &mut self,
-        mut new_edits: MapEdits,
+        mut self,
+        old_edits: &MapEdits,
+        map: &mut Map,
         enforce_valid: bool,
         timer: &mut Timer,
     ) -> EditEffects {
-        self.edits_generation += 1;
+        //self.edits_generation += 1;
 
         let mut effects = EditEffects {
             changed_roads: BTreeSet::new(),
@@ -861,7 +866,7 @@ impl Map {
         };
 
         // Short-circuit to avoid marking pathfinder_dirty
-        if self.edits == new_edits {
+        if old_edits == self {
             return effects;
         }
 
@@ -870,7 +875,7 @@ impl Map {
         // at the end. So a simple optimization with equivalent behavior is to skip the common
         // prefix of commands.
         let mut start_at_idx = 0;
-        for (cmd1, cmd2) in self.edits.commands.iter().zip(new_edits.commands.iter()) {
+        for (cmd1, cmd2) in self.commands.iter().zip(new_edits.commands.iter()) {
             if cmd1 == cmd2 {
                 start_at_idx += 1;
             } else {
@@ -878,36 +883,36 @@ impl Map {
             }
         }
 
-        timer.start_iter("undo old edits", self.edits.commands.len() - start_at_idx);
-        for _ in start_at_idx..self.edits.commands.len() {
+        timer.start_iter("undo old edits", self.commands.len() - start_at_idx);
+        for _ in start_at_idx..self.commands.len() {
             timer.next();
-            self.edits
+            self
                 .commands
                 .pop()
                 .unwrap()
                 .undo()
-                .apply(&mut effects, self);
+                .apply(&mut effects, map);
         }
 
         timer.start_iter("apply new edits", new_edits.commands.len() - start_at_idx);
         for cmd in &new_edits.commands[start_at_idx..] {
             timer.next();
-            cmd.apply(&mut effects, self);
+            cmd.apply(&mut effects, map);
         }
 
         timer.start("re-snap buildings");
         let mut recalc_buildings = Vec::new();
-        for b in self.all_buildings() {
+        for b in map.all_buildings() {
             if effects.modified_lanes.contains(&b.sidewalk()) {
                 recalc_buildings.push(b.id);
             }
         }
-        fix_building_driveways(self, recalc_buildings, &mut effects);
+        fix_building_driveways(map, recalc_buildings, &mut effects);
         timer.stop("re-snap buildings");
 
         timer.start("re-snap parking lots");
         let mut recalc_parking_lots = Vec::new();
-        for pl in self.all_parking_lots() {
+        for pl in map.all_parking_lots() {
             if effects.modified_lanes.contains(&pl.driving_pos.lane())
                 || effects.modified_lanes.contains(&pl.sidewalk_pos.lane())
             {
@@ -915,43 +920,43 @@ impl Map {
                 effects.changed_parking_lots.insert(pl.id);
             }
         }
-        fix_parking_lot_driveways(self, recalc_parking_lots);
+        fix_parking_lot_driveways(map, recalc_parking_lots);
         timer.stop("re-snap parking lots");
 
         // Might need to update bus stops.
         if enforce_valid {
             for id in &effects.changed_roads {
-                let stops = self.get_r(*id).transit_stops.clone();
+                let stops = map.get_r(*id).transit_stops.clone();
                 for s in stops {
-                    let sidewalk_pos = self.get_ts(s).sidewalk_pos;
+                    let sidewalk_pos = map.get_ts(s).sidewalk_pos;
                     // Must exist, because we aren't allowed to orphan a bus stop.
-                    let driving_lane = self
+                    let driving_lane = map
                         .get_r(*id)
                         .find_closest_lane(sidewalk_pos.lane(), |l| {
-                            PathConstraints::Bus.can_use(l, self)
+                            PathConstraints::Bus.can_use(l, map)
                         })
                         .unwrap();
-                    let driving_pos = sidewalk_pos.equiv_pos(driving_lane, self);
-                    self.transit_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
+                    let driving_pos = sidewalk_pos.equiv_pos(driving_lane, map);
+                    map.transit_stops.get_mut(&s).unwrap().driving_pos = driving_pos;
                 }
             }
         }
 
-        let merge_zones_changed = self.edits.merge_zones != new_edits.merge_zones;
+        let merge_zones_changed = old_edits.merge_zones != self.merge_zones;
 
-        new_edits.update_derived(self);
-        self.edits = new_edits;
-        self.pathfinder_dirty = true;
+        self.update_derived(map);
+        //self.edits = new_edits;
+        map.pathfinder_dirty = true;
 
         // Update zones after setting the new edits, since it'll pull merge_zones from there
         if !effects.changed_roads.is_empty() || merge_zones_changed {
-            self.zones = Zone::make_all(self);
+            map.zones = Zone::make_all(map);
         }
 
         // Some of these might've been added, then later deleted.
         effects
             .added_turns
-            .retain(|t| self.maybe_get_t(*t).is_some());
+            .retain(|t| map.maybe_get_t(*t).is_some());
 
         let mut more_changed_intersections = Vec::new();
         for t in effects
@@ -965,14 +970,14 @@ impl Map {
             .changed_intersections
             .extend(more_changed_intersections);
 
-        self.recalculate_road_to_buildings();
+        map.recalculate_road_to_buildings();
 
         effects
     }
 
     /// This can expensive, so don't constantly do it while editing in the UI. But this must happen
     /// before the simulation resumes.
-    pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
+    /*pub fn recalculate_pathfinding_after_edits(&mut self, timer: &mut Timer) {
         if !self.pathfinder_dirty {
             return;
         }
@@ -998,8 +1003,9 @@ impl Map {
         timer.stop("recompute blackholes");
 
         self.pathfinder_dirty = false;
-    }
+    }*/
 
+    /*
     /// Since the player is in the middle of editing, the signal may not be valid. Don't go through
     /// the entire apply_edits flow.
     pub fn incremental_edit_traffic_signal(&mut self, signal: ControlTrafficSignal) {
@@ -1013,5 +1019,5 @@ impl Map {
     /// If you need to regenerate anything when the map is edited, use this key to detect edits.
     pub fn get_edits_change_key(&self) -> usize {
         self.edits_generation
-    }
+    }*/
 }

@@ -17,7 +17,7 @@ use crate::pathfind::{CreateEngine, Pathfinder};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
     Intersection, IntersectionControl, IntersectionID, IntersectionKind, Lane, LaneID, Map,
-    MapEdits, OriginalRoad, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
+    OriginalRoad, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
 };
 
 mod bridges;
@@ -67,11 +67,8 @@ impl Map {
             pathfinder_dirty: false,
             routing_params: RoutingParams::default(),
             name: raw.name.clone(),
-            edits: MapEdits::new(),
-            edits_generation: 0,
             road_to_buildings: MultiMap::new(),
         };
-        map.edits = map.new_edits();
 
         let road_id_mapping: BTreeMap<osm2streets::RoadID, RoadID> = raw
             .streets

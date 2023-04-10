@@ -6,11 +6,12 @@ use serde_json::Value;
 
 use abstio::{CityName, MapName};
 use geom::Speed;
-
-use crate::{
-    osm, AccessRestrictions, Direction, EditCmd, EditRoad, LaneSpec, LaneType, Map, OriginalRoad,
-    PermanentMapEdits, RoadID,
+use map_model::{
+    osm, AccessRestrictions, Direction, LaneSpec, LaneType, Map, OriginalRoad,
+    RoadID,
 };
+
+use crate::{EditCmd, EditRoad, PermanentMapEdits};
 
 /// When the PermanentMapEdits format changes, add a transformation here to automatically convert
 /// edits written with the old format.
