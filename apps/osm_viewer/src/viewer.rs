@@ -434,22 +434,6 @@ impl BusinessSearch {
     }
 
     fn render(&self, ctx: &mut EventCtx) -> Widget {
-
-        match active_win_pos_rs::get_active_window() {
-            Ok(active_window) => {
-                if (active_window.process_name != String::from("osm_viewer")) {
-                    return ctx.style()
-                    .btn_outline
-                    .text("Search for businesses")
-                    .hotkey(Key::Tab)
-                    .build_def(ctx);
-                }
-            },
-            Err(()) => {
-                println!("error occurred while getting the active window");
-            }
-        }
-
         let mut col = Vec::new();
         col.push(
             ctx.style()
