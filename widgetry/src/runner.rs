@@ -1,6 +1,7 @@
 use std::cell::Cell;
 use std::panic;
 
+use glutin::event::WindowEvent;
 use image::{GenericImageView, Pixel};
 use instant::Instant;
 use winit::window::Icon;
@@ -406,6 +407,15 @@ pub fn run<
     let mut last_update = Instant::now();
     // The user will not manage to click immediately after the window opens, so this initial value is simpler than an `Option<Instant>`
     let mut previous_left_click_at = Instant::now();
+
+    /// To store previously pressed button 
+    /// as winit v 0.27.0 
+    /// do not provide mulitkey event but shower single events
+    /// For Example Alt+Tab gives 56 and 15 two separate events
+    /// issue #761 is also the same. as a result some OS
+    /// like windows may register Tab as a separate key and
+    /// hence opens searchbar in city select mode in osm_viewer module
+    let mut previous_keyboard_input_event: u32 = 1;
     event_loop.run(move |event, _, control_flow| {
         if dump_raw_events {
             debug!("Event: {:?}", event);
@@ -422,6 +432,21 @@ pub fn run<
                 std::process::exit(0);
             }
             winit::event::Event::WindowEvent { event, .. } => {
+
+                match event {
+                    WindowEvent::KeyboardInput { device_id: _, input , is_synthetic } => {
+                        println!("keyboardInpu is : scan_code: {}, synthatic: {}", input.scancode.to_string(), is_synthetic.to_string());
+                        if previous_keyboard_input_event == 56 && input.scancode == 15 {
+                            previous_keyboard_input_event = input.scancode;
+                            return ;
+                        }
+                        previous_keyboard_input_event = input.scancode;
+                    },
+                    _ => {
+                        println!("event is not keyboard input",);
+                    }
+                }
+
                 let scale_factor = prerender.get_scale_factor();
                 if let Some(ev) =
                     Event::from_winit_event(event, scale_factor, previous_left_click_at)
