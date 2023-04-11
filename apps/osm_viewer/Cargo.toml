@@ -12,7 +12,6 @@ default = ["map_gui/native", "widgetry/native-backend"]
 wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
-active-win-pos-rs = "0.7"
 abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 geom = { path = "../../geom" }
