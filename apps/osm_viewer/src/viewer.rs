@@ -61,9 +61,7 @@ impl Viewer {
             self.calculate_tags(ctx, app),
             Widget::horiz_separator(ctx, 1.0),
             if let Some(ref b) = self.businesses {
-                biz_search_panel.unwrap_or_else(|| {
-                    b.render(ctx).named("Search for businesses")
-                })
+                biz_search_panel.unwrap_or_else(|| b.render(ctx).named("Search for businesses"))
             } else {
                 ctx.style()
                     .btn_outline
