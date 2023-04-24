@@ -108,7 +108,7 @@ async fn download_files(
         files_so_far += 1;
         let local_path = abstio::path(path.strip_prefix("data/").unwrap());
         let url = format!(
-            "http://play.abstreet.org/{}/{}.gz",
+            "https://play.abstreet.org/{}/{}.gz",
             crate::tools::version(),
             path
         );
