@@ -38,7 +38,7 @@ impl ShareProposal {
                 .unwrap()
                 .to_string();
             url = Some(format!(
-                "http://play.abstreet.org/{}/abstreet.html?{}&{}&--edits=remote/{}",
+                "https://play.abstreet.org/{}/abstreet.html?{}&{}&--edits=remote/{}",
                 map_gui::tools::version(),
                 url_flag,
                 map_path,

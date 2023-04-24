@@ -51,7 +51,7 @@ impl ShareProposal {
                 String::new()
             };
             url = Some(format!(
-                "http://play.abstreet.org/{}/ltn.html?{}&--proposal=remote/{}{}",
+                "https://play.abstreet.org/{}/ltn.html?{}&--proposal=remote/{}{}",
                 map_gui::tools::version(),
                 map_path,
                 checksum,
