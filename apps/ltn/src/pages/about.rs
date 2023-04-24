@@ -37,7 +37,7 @@ impl SimpleState<App> for About {
         if x == "close" {
             return Transition::Pop;
         } else if x == "ltn.abstreet.org" {
-            open_browser("http://ltn.abstreet.org");
+            open_browser("https://ltn.abstreet.org");
         }
         Transition::Keep
     }
