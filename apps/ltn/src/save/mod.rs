@@ -8,8 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::{Counter, Timer};
-use map_gui::tools::FileSaver;
-use map_gui::tools::FileSaverContents;
+use map_gui::tools::{FilePicker, FileSaver, FileSaverContents};
 use map_model::{BuildingID, EditRoad, Map};
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
@@ -449,8 +448,10 @@ impl Proposals {
         let mut col = Vec::new();
         for (action, icon, hotkey) in [
             ("New", "pencil", None),
-            ("Load", "folder", None),
-            ("Save", "save", Some(MultiKey::from(lctrl(Key::S)))),
+            ("Load (quick)", "folder", None),
+            ("Save (quick)", "save", Some(MultiKey::from(lctrl(Key::S)))),
+            ("Load (file)", "folder", None),
+            ("Save (file)", "save", None),
             ("Share", "share", None),
             ("Export GeoJSON", "export", None),
         ] {
@@ -506,8 +507,8 @@ impl Proposals {
         let mut col = Vec::new();
         for (action, icon) in [
             ("New", "pencil"),
-            ("Load", "folder"),
-            ("Save", "save"),
+            ("Load (quick)", "folder"),
+            ("Save (quick)", "save"),
             ("Share", "share"),
             ("Export GeoJSON", "export"),
         ] {
@@ -536,19 +537,56 @@ impl Proposals {
 
                 app.per_map.proposals.before_edit();
             }
-            "Load" => {
+            "Load (quick)" => {
                 return Some(Transition::Push(load_picker_ui(
                     ctx,
                     app,
                     preserve_state.clone(),
                 )));
             }
-            "Save" => {
+            "Save (quick)" => {
                 return Some(Transition::Push(SaveDialog::new_state(
                     ctx,
                     app,
                     preserve_state.clone(),
                 )));
+            }
+            "Load (file)" => {
+                let preserve_state = preserve_state.clone();
+                return Some(Transition::Push(FilePicker::new_state(
+                    ctx,
+                    Some(abstio::path_all_ltn_proposals(app.per_map.map.get_name())),
+                    Box::new(move |ctx, app, maybe_file| {
+                        match maybe_file {
+                            Ok(Some((path, bytes))) => {
+                                match Proposal::load_from_bytes(ctx, app, &path, Ok(bytes)) {
+                                    Some(err_state) => Transition::Replace(err_state),
+                                    None => preserve_state.switch_to_state(ctx, app),
+                                }
+                            }
+                            // No file chosen, just quit the picker
+                            Ok(None) => Transition::Pop,
+                            Err(err) => Transition::Replace(PopupMsg::new_state(
+                                ctx,
+                                "Error",
+                                vec![err.to_string()],
+                            )),
+                        }
+                    }),
+                )));
+            }
+            "Save (file)" => {
+                let proposal = &app.per_map.proposals.current_proposal;
+
+                return Some(Transition::Push(match proposal.to_gzipped_bytes(app) {
+                    Ok(contents) => FileSaver::with_default_messages(
+                        ctx,
+                        // * is used to indicate an unsaved file; don't include it in the filename
+                        format!("{}.json.gz", proposal.name.replace("*", "")),
+                        FileSaverContents::Bytes(contents),
+                    ),
+                    Err(err) => PopupMsg::new_state(ctx, "Save failed", vec![err.to_string()]),
+                }));
             }
             "Share" => {
                 return Some(Transition::Push(share::ShareProposal::new_state(ctx, app)));
