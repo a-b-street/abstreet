@@ -583,6 +583,7 @@ impl Proposals {
                         ctx,
                         // * is used to indicate an unsaved file; don't include it in the filename
                         format!("{}.json.gz", proposal.name.replace("*", "")),
+                        Some(abstio::path_all_ltn_proposals(app.per_map.map.get_name())),
                         FileSaverContents::Bytes(contents),
                     ),
                     Err(err) => PopupMsg::new_state(ctx, "Save failed", vec![err.to_string()]),
@@ -596,6 +597,7 @@ impl Proposals {
                     Ok(contents) => FileSaver::with_default_messages(
                         ctx,
                         format!("ltn_{}.geojson", app.per_map.map.get_name().map),
+                        None,
                         FileSaverContents::String(contents),
                     ),
                     Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
