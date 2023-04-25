@@ -65,6 +65,7 @@ impl FileSaver {
     pub fn new_state<A: 'static + AppLike>(
         ctx: &mut EventCtx,
         filename: String,
+        start_dir: Option<String>,
         write: FileSaverContents,
         // TODO The double wrapped Result is silly, can't figure this out
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Result<String>>) -> Transition<A>>,
@@ -74,12 +75,13 @@ impl FileSaver {
         FutureLoader::<A, Result<String>>::new_state(
             ctx,
             Box::pin(async move {
+                let mut builder = rfd::AsyncFileDialog::new().set_file_name(&filename);
+                if let Some(dir) = start_dir {
+                    builder = builder.set_directory(&dir);
+                }
+
                 #[cfg(not(target_arch = "wasm32"))]
-                let result = if let Some(handle) = rfd::AsyncFileDialog::new()
-                    .set_file_name(&filename)
-                    .save_file()
-                    .await
-                {
+                let result = if let Some(handle) = builder.save_file().await {
                     let path = handle.path().display().to_string();
                     // Both cases do AsRef<[u8]>
                     match write {
@@ -94,14 +96,19 @@ impl FileSaver {
 
                 #[cfg(target_arch = "wasm32")]
                 let result = {
+                    // Hide an unused warning
+                    let _ = builder;
+
                     // TODO No file save dialog on WASM until
                     // https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker
                     match write {
                         FileSaverContents::String(string) => {
                             abstio::write_file(filename.clone(), string)
                         }
-                        FileSaverContents::Bytes(bytes) => {
-                            abstio::write_raw(filename.clone(), &bytes).map(|_| filename)
+                        FileSaverContents::Bytes(_bytes) => {
+                            // We need to use write_file (which downloads a file), but encode
+                            // binary data the right way
+                            Err(anyhow!("writing binary files on web unsupported"))
                         }
                     }
                 };
@@ -121,11 +128,13 @@ impl FileSaver {
     pub fn with_default_messages<A: 'static + AppLike>(
         ctx: &mut EventCtx,
         filename: String,
+        start_dir: Option<String>,
         write: FileSaverContents,
     ) -> Box<dyn State<A>> {
         Self::new_state(
             ctx,
             filename,
+            start_dir,
             write,
             Box::new(|ctx, _, result| {
                 Transition::Replace(match result {
