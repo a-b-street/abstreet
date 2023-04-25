@@ -21,7 +21,7 @@ pub use self::title_screen::{Executable, TitleScreen};
 pub use self::trip_files::{TripManagement, TripManagementState};
 pub use self::ui::{
     checkbox_per_mode, cmp_count, cmp_dist, cmp_duration, color_for_mode, percentage_bar,
-    FilePicker,
+    FilePicker, FileSaver, FileSaverContents,
 };
 pub use self::waypoints::{InputWaypoints, WaypointID};
 use crate::AppLike;

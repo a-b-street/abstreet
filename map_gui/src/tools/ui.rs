@@ -8,7 +8,7 @@ use anyhow::Result;
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon};
 use synthpop::TripMode;
-use widgetry::tools::FutureLoader;
+use widgetry::tools::{FutureLoader, PopupMsg};
 use widgetry::{Color, EventCtx, GeomBatch, Line, State, Text, Toggle, Transition, Widget};
 
 use crate::AppLike;
@@ -48,6 +48,97 @@ impl FilePicker {
             inner_progress_rx,
             "Waiting for a file to be chosen",
             on_load,
+        )
+    }
+}
+
+pub struct FileSaver;
+
+// TODO Lift to abstio, or just do AsRef<[u8]>
+pub enum FileSaverContents {
+    String(String),
+    Bytes(Vec<u8>),
+}
+
+impl FileSaver {
+    // The callback gets the filename
+    pub fn new_state<A: 'static + AppLike>(
+        ctx: &mut EventCtx,
+        filename: String,
+        write: FileSaverContents,
+        // TODO The double wrapped Result is silly, can't figure this out
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Result<String>>) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
+        let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+        let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
+        FutureLoader::<A, Result<String>>::new_state(
+            ctx,
+            Box::pin(async move {
+                #[cfg(not(target_arch = "wasm32"))]
+                let result = if let Some(handle) = rfd::AsyncFileDialog::new()
+                    .set_file_name(&filename)
+                    .save_file()
+                    .await
+                {
+                    let path = handle.path().display().to_string();
+                    // Both cases do AsRef<[u8]>
+                    match write {
+                        FileSaverContents::String(string) => fs_err::write(&path, string),
+                        FileSaverContents::Bytes(bytes) => fs_err::write(&path, bytes),
+                    }
+                    .map(|_| path)
+                    .map_err(|err| err.into())
+                } else {
+                    Err(anyhow!("no file chosen to save"))
+                };
+
+                #[cfg(target_arch = "wasm32")]
+                let result = {
+                    // TODO No file save dialog on WASM until
+                    // https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker
+                    match write {
+                        FileSaverContents::String(string) => {
+                            abstio::write_file(filename.clone(), string)
+                        }
+                        FileSaverContents::Bytes(bytes) => {
+                            abstio::write_raw(filename.clone(), &bytes).map(|_| filename)
+                        }
+                    }
+                };
+
+                let wrap: Box<dyn Send + FnOnce(&A) -> Result<String>> =
+                    Box::new(move |_: &A| result);
+                Ok(wrap)
+            }),
+            outer_progress_rx,
+            inner_progress_rx,
+            "Waiting for a file to be chosen",
+            on_load,
+        )
+    }
+
+    // Popup a success or failure message after
+    pub fn with_default_messages<A: 'static + AppLike>(
+        ctx: &mut EventCtx,
+        filename: String,
+        write: FileSaverContents,
+    ) -> Box<dyn State<A>> {
+        Self::new_state(
+            ctx,
+            filename,
+            write,
+            Box::new(|ctx, _, result| {
+                Transition::Replace(match result {
+                    Ok(Ok(path)) => PopupMsg::new_state(
+                        ctx,
+                        "File saved",
+                        vec![format!("File saved to {path}")],
+                    ),
+                    Err(err) | Ok(Err(err)) => {
+                        PopupMsg::new_state(ctx, "Save failed", vec![err.to_string()])
+                    }
+                })
+            }),
         )
     }
 }
