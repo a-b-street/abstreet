@@ -570,7 +570,10 @@ fn finish_app_setup(
                 ungap::ExploreMap::new_state(ctx, app, layers)
             }
             Mode::Devtools => devtools::DevToolsMode::new_state(ctx, app),
-            Mode::LoadKML(path) => crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path)),
+            // TODO Load bytes here
+            Mode::LoadKML(path) => {
+                crate::devtools::kml::ViewKML::new_state(ctx, app, Some((path, Vec::new())))
+            }
             Mode::CompareCounts(path1, path2) => {
                 crate::devtools::compare_counts::GenericCompareCounts::new_state(
                     ctx, app, path1, path2,

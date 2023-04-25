@@ -793,7 +793,7 @@ pub struct SessionState {
     pub tutorial: Option<TutorialState>,
     pub high_scores: BTreeMap<GameplayMode, Vec<HighScore>>,
     pub info_panel_tab: BTreeMap<&'static str, &'static str>,
-    pub last_gmns_timing_csv: Option<String>,
+    pub last_gmns_timing_csv: Option<(String, Vec<u8>)>,
     pub dash_tab: DashTab,
     pub buffer_lane_type: LaneType,
 
