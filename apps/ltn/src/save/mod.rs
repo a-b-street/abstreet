@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::{Counter, Timer};
+use map_gui::tools::FileSaver;
+use map_gui::tools::FileSaverContents;
 use map_model::{BuildingID, EditRoad, Map};
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
@@ -552,12 +554,11 @@ impl Proposals {
                 return Some(Transition::Push(share::ShareProposal::new_state(ctx, app)));
             }
             "Export GeoJSON" => {
-                let result = crate::export::write_geojson_file(app);
-                return Some(Transition::Push(match result {
-                    Ok(path) => PopupMsg::new_state(
+                return Some(Transition::Push(match crate::export::geojson_string(app) {
+                    Ok(contents) => FileSaver::with_default_messages(
                         ctx,
-                        "LTNs exported",
-                        vec![format!("Data exported to {}", path)],
+                        format!("ltn_{}.geojson", app.per_map.map.get_name().map),
+                        FileSaverContents::String(contents),
                     ),
                     Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
                 }));

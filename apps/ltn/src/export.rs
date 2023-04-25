@@ -5,14 +5,7 @@ use osm2streets::Direction;
 
 use crate::{render, App, Neighbourhood};
 
-/// Returns the path where the file was written
-pub fn write_geojson_file(app: &App) -> Result<String> {
-    let contents = geojson_string(app)?;
-    let path = format!("ltn_{}.geojson", app.per_map.map.get_name().map);
-    abstio::write_file(path, contents)
-}
-
-fn geojson_string(app: &App) -> Result<String> {
+pub fn geojson_string(app: &App) -> Result<String> {
     use geo::MapCoordsInPlace;
     use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
 
