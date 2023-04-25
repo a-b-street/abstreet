@@ -14,33 +14,33 @@ use widgetry::{Color, EventCtx, GeomBatch, Line, State, Text, Toggle, Transition
 use crate::AppLike;
 
 pub struct FilePicker;
+type PickerOutput = (String, Vec<u8>);
 
 impl FilePicker {
+    // The callback gets the filename and file contents as bytes
     pub fn new_state<A: 'static + AppLike>(
         ctx: &mut EventCtx,
         start_dir: Option<String>,
-        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Option<String>>) -> Transition<A>>,
+        on_load: Box<
+            dyn FnOnce(&mut EventCtx, &mut A, Result<Option<PickerOutput>>) -> Transition<A>,
+        >,
     ) -> Box<dyn State<A>> {
         let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
         let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-        FutureLoader::<A, Option<String>>::new_state(
+        FutureLoader::<A, Option<PickerOutput>>::new_state(
             ctx,
             Box::pin(async move {
                 let mut builder = rfd::AsyncFileDialog::new();
                 if let Some(dir) = start_dir {
                     builder = builder.set_directory(&dir);
                 }
-                let result = builder.pick_file().await.map(|x| {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        x.path().display().to_string()
-                    }
-                    #[cfg(target_arch = "wasm32")]
-                    {
-                        format!("TODO rfd on wasm: {:?}", x)
-                    }
-                });
-                let wrap: Box<dyn Send + FnOnce(&A) -> Option<String>> =
+                // Can't get map() or and_then() to work with async
+                let result = if let Some(handle) = builder.pick_file().await {
+                    Some((handle.file_name(), handle.read().await))
+                } else {
+                    None
+                };
+                let wrap: Box<dyn Send + FnOnce(&A) -> Option<PickerOutput>> =
                     Box::new(move |_: &A| result);
                 Ok(wrap)
             }),

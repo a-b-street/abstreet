@@ -1,6 +1,7 @@
 // TODO Move to map_model
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::io::Cursor;
 
 use anyhow::Result;
 use serde::{Deserialize, Deserializer};
@@ -19,10 +20,10 @@ use crate::App;
 /// This imports timing.csv from https://github.com/asu-trans-ai-lab/Vol2Timing. It operates in a
 /// best-effort / permissive mode, skipping over mismatched movements and other problems and should
 /// still be considered experimental.
-pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTrafficSignal> {
+pub fn import(map: &Map, i: IntersectionID, bytes: &Vec<u8>) -> Result<ControlTrafficSignal> {
     let i = map.get_i(i);
     let mut matches_per_plan: BTreeMap<String, Vec<Record>> = BTreeMap::new();
-    for rec in csv::Reader::from_reader(fs_err::File::open(path)?).deserialize() {
+    for rec in csv::Reader::from_reader(Cursor::new(bytes)).deserialize() {
         let rec: Record = rec?;
         if !rec.osm_ids.contains(&i.orig_id) {
             continue;
@@ -100,7 +101,12 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
     Ok(signal)
 }
 
-pub fn import_all(ctx: &mut EventCtx, app: &mut App, path: &str) -> Box<dyn State<App>> {
+pub fn import_all(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    path: &str,
+    bytes: Vec<u8>,
+) -> Box<dyn State<App>> {
     let all_signals: Vec<IntersectionID> = app
         .primary
         .map
@@ -123,7 +129,7 @@ pub fn import_all(ctx: &mut EventCtx, app: &mut App, path: &str) -> Box<dyn Stat
         timer.start_iter("import", all_signals.len());
         for i in all_signals {
             timer.next();
-            match import(&app.primary.map, i, path)
+            match import(&app.primary.map, i, &bytes)
                 .and_then(|signal| signal.validate(app.primary.map.get_i(i)).map(|_| signal))
             {
                 Ok(signal) => {

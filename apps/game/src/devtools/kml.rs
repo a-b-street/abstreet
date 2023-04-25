@@ -38,11 +38,15 @@ const RADIUS: Distance = Distance::const_meters(5.0);
 const THICKNESS: Distance = Distance::const_meters(2.0);
 
 impl ViewKML {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, path: Option<String>) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        file: Option<(String, Vec<u8>)>,
+    ) -> Box<dyn State<App>> {
         ctx.loading_screen("load kml", |ctx, timer| {
             // Enable to write a smaller .bin only with the shapes matching the bounds.
             let dump_clipped_shapes = false;
-            let (dataset_name, objects) = load_objects(app, path, dump_clipped_shapes, timer);
+            let (dataset_name, objects) = load_objects(app, file, dump_clipped_shapes, timer);
 
             let mut batch = GeomBatch::new();
             let mut quadtree = QuadTree::builder();
@@ -207,13 +211,15 @@ impl State<App> for ViewKML {
 /// Loads and clips objects to the current map. Also returns the dataset name.
 fn load_objects(
     app: &App,
-    path: Option<String>,
+    file: Option<(String, Vec<u8>)>,
     dump_clipped_shapes: bool,
     timer: &mut Timer,
 ) -> (String, Vec<Object>) {
     let map = &app.primary.map;
     let bounds = map.get_gps_bounds();
 
+    // TODO Use the bytes; don't re-read here. This is necessary to work on web.
+    let path = file.map(|x| x.0);
     let raw_shapes = if let Some(ref path) = path {
         if path.ends_with(".kml") {
             let shapes = kml::load(path.clone(), bounds, true, timer).unwrap();
@@ -424,11 +430,11 @@ fn pick_file(ctx: &mut EventCtx, app: &App) -> Transition {
     Transition::Push(FilePicker::new_state(
         ctx,
         Some(app.primary.map.get_city_name().input_path("")),
-        Box::new(|ctx, app, maybe_path| {
-            if let Ok(Some(path)) = maybe_path {
+        Box::new(|ctx, app, maybe_file| {
+            if let Ok(Some(file)) = maybe_file {
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(ViewKML::new_state(ctx, app, Some(path))),
+                    Transition::Replace(ViewKML::new_state(ctx, app, Some(file))),
                 ])
             } else {
                 Transition::Pop

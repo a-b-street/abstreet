@@ -18,8 +18,8 @@ pub fn import_grid2demand(ctx: &mut EventCtx) -> Transition {
     Transition::Push(FilePicker::new_state(
         ctx,
         None,
-        Box::new(|ctx, app, maybe_path| {
-            if let Ok(Some(path)) = maybe_path {
+        Box::new(|ctx, app, maybe_file| {
+            if let Ok(Some((path, _))) = maybe_file {
                 Transition::Replace(RunCommand::new_state(
                     ctx,
                     true,
@@ -60,10 +60,10 @@ pub fn import_json(ctx: &mut EventCtx) -> Transition {
     Transition::Push(FilePicker::new_state(
         ctx,
         None,
-        Box::new(|ctx, app, maybe_path| {
-            if let Ok(Some(path)) = maybe_path {
+        Box::new(|ctx, app, maybe_file| {
+            if let Ok(Some((_, bytes))) = maybe_file {
                 let result = ctx.loading_screen("import JSON scenario", |_, timer| {
-                    import_json_scenario(&app.primary.map, path, timer)
+                    import_json_scenario(&app.primary.map, bytes, timer)
                 });
                 match result {
                     Ok(scenario_name) => {
@@ -95,16 +95,18 @@ pub fn import_json(ctx: &mut EventCtx) -> Transition {
 
 // This works the same as importer/src/bin/import_traffic.rs. We should decide how to share
 // behavior between UI and CLI tools.
-fn import_json_scenario(map: &Map, input: String, timer: &mut Timer) -> Result<String> {
+fn import_json_scenario(map: &Map, bytes: Vec<u8>, timer: &mut Timer) -> Result<String> {
     let skip_problems = true;
-    let input: Input = abstio::maybe_read_json(input, timer)?;
+    let input: Input = abstutil::from_json(&bytes)?;
 
     let mut s = Scenario::empty(map, &input.scenario_name);
     // Include all buses/trains
     s.only_seed_buses = None;
+    timer.start("import from JSON");
     s.people = ExternalPerson::import(map, input.people, skip_problems)?;
     // Always clean up people with no-op trips (going between the same buildings)
     s = s.remove_weird_schedules(true);
+    timer.stop("import from JSON");
     s.save();
     Ok(s.scenario_name)
 }
