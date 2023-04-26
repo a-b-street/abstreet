@@ -1,5 +1,6 @@
 use anyhow::Result;
 
+use map_gui::tools::{FileSaver, FileSaverContents};
 use widgetry::tools::PopupMsg;
 use widgetry::{
     DrawBaselayer, EventCtx, GfxCtx, Key, Line, MultiKey, Outcome, Panel, State, TextBox, Widget,
@@ -34,6 +35,24 @@ impl SaveDialog {
                     Line("Save proposal").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(if cfg!(target_arch = "wasm32") {
+                        "Download as file"
+                    } else {
+                        "Save as file in other folder"
+                    })
+                    .build_widget(ctx, "save as file"),
+                Widget::horiz_separator(ctx, 1.0),
+                if cfg!(target_arch = "wasm32") {
+                    Line("Save in your browser's local storage")
+                        .small()
+                        .into_widget(ctx)
+                } else {
+                    Line("Save as a file in the A/B Street data folder")
+                        .small()
+                        .into_widget(ctx)
+                },
                 if can_overwrite {
                     Widget::row(vec![
                         ctx.style()
@@ -116,30 +135,42 @@ impl State<App> for SaveDialog {
 
                     app.per_map.proposals.current_proposal.name = name;
                     app.per_map.proposals.current_proposal.unsaved_parent = None;
-                    return match inner_save(app) {
+                    match inner_save(app) {
                         // If we changed the name, we'll want to recreate the panel
                         Ok(()) => self.preserve_state.switch_to_state(ctx, app),
                         Err(err) => {
                             self.error(ctx, app, format!("Couldn't save proposal: {}", err))
                         }
-                    };
+                    }
                 }
                 "Overwrite" => {
                     // TODO If the user loaded the parent file again, this'll be confusing. Maybe
                     // ban that?
-
                     let proposals = &mut app.per_map.proposals;
                     proposals.current_proposal.name =
                         proposals.current_proposal.unsaved_parent.take().unwrap();
 
-                    return match inner_save(app) {
+                    match inner_save(app) {
                         Ok(()) => self.preserve_state.switch_to_state(ctx, app),
                         // TODO If we fail to save for some reason, the Proposals panel gets out
                         // of sync with the filesystem
                         Err(err) => {
                             self.error(ctx, app, format!("Couldn't save proposal: {}", err))
                         }
-                    };
+                    }
+                }
+                "save as file" => {
+                    let proposal = &app.per_map.proposals.current_proposal;
+                    Transition::Replace(match proposal.to_gzipped_bytes(app) {
+                        Ok(contents) => FileSaver::with_default_messages(
+                            ctx,
+                            // * is used to indicate an unsaved file; don't include it in the filename
+                            format!("{}.json.gz", proposal.name.replace("*", "")),
+                            Some(abstio::path_all_ltn_proposals(app.per_map.map.get_name())),
+                            FileSaverContents::Bytes(contents),
+                        ),
+                        Err(err) => PopupMsg::new_state(ctx, "Save failed", vec![err.to_string()]),
+                    })
                 }
                 _ => unreachable!(),
             },
