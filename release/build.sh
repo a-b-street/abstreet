@@ -8,19 +8,16 @@ case $os in
     ubuntu-20.04)
         output="abst_linux";
         suffix="";
-        ext="sh";
         ;;
 
     macos-latest)
         output="abst_mac";
         suffix="";
-        ext="sh";
         ;;
 
     windows-latest)
         output="abst_windows";
         suffix=".exe";
-        ext="bat";
         ;;
 
     *)
@@ -29,8 +26,9 @@ case $os in
 esac
 
 mkdir $output
+mkdir $output/binaries
 
-cp release/play_abstreet.$ext release/ungap_the_map.$ext release/INSTRUCTIONS.txt $output
+cp release/INSTRUCTIONS.txt $output
 
 for name in game cli fifteen_min osm_viewer parking_mapper santa ltn; do
     bin="target/release/${name}${suffix}"
@@ -40,7 +38,34 @@ for name in game cli fifteen_min osm_viewer parking_mapper santa ltn; do
         # matching "Developer ID Application.*"
         codesign -fs "Developer ID Application" --timestamp -o runtime "$bin"
     fi
-    cp "$bin" "$output";
+    cp $bin $output/binaries;
+done
+
+# Generate a script to run each app and capture output logs
+# Note these're different than the executable names
+for name in play_abstreet ungap_the_map fifteen_min osm_viewer parking_mapper santa ltn; do
+	case $name in
+		play_abstreet)
+			cmd="./binaries/game${suffix}";
+			;;
+		ungap_the_map)
+			cmd="./binaries/game${suffix} --ungap";
+			;;
+		*)
+			cmd="./binaries/${name}${suffix}";
+			;;
+	esac
+	if [[ "$os" = "windows-latest" ]]; then
+		script="${output}/${name}.bat"
+		echo 'set RUST_BACKTRACE=1' > $script
+		echo "${cmd} 1> output.txt 2>&1" >> $script
+	else
+		script="${output}/${name}.sh"
+		echo '#!/bin/bash' > $script
+		echo 'echo See logs in output.txt' >> $script
+		echo "RUST_BACKTRACE=1 ${cmd} 1> output.txt 2>&1" >> $script
+	fi
+	chmod +x $script
 done
 
 mkdir $output/data
