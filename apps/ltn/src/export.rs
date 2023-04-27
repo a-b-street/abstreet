@@ -14,30 +14,14 @@ pub fn geojson_string(app: &App) -> Result<String> {
 
     // All neighbourhood boundaries
     for (id, info) in app.partitioning().all_neighbourhoods() {
-        let mut feature = Feature {
-            bbox: None,
-            geometry: Some(info.block.polygon.to_geojson(None)),
-            id: None,
-            properties: None,
-            foreign_members: None,
-        };
+        let mut feature = Feature::from(info.block.polygon.to_geojson(None));
         feature.set_property("type", "neighbourhood");
         features.push(feature);
 
         // Cells per neighbourhood
         let render_cells = render::RenderCells::new(map, &Neighbourhood::new(app, *id));
         for (idx, multipolygon) in render_cells.to_multipolygons().into_iter().enumerate() {
-            let mut feature = Feature {
-                bbox: None,
-                geometry: Some(Geometry {
-                    bbox: None,
-                    value: Value::from(&multipolygon),
-                    foreign_members: None,
-                }),
-                id: None,
-                properties: None,
-                foreign_members: None,
-            };
+            let mut feature = Feature::from(Value::from(&multipolygon));
             feature.set_property("type", "cell");
             feature.set_property("fill", render_cells.colors[idx].as_hex());
             features.push(feature);
@@ -53,13 +37,7 @@ pub fn geojson_string(app: &App) -> Result<String> {
                 pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
                 pt.project_away(0.8 * road_width, angle.rotate_degs(-90.0)),
             ]);
-            let mut feature = Feature {
-                bbox: None,
-                geometry: Some(pl.to_geojson(None)),
-                id: None,
-                properties: None,
-                foreign_members: None,
-            };
+            let mut feature = Feature::from(pl.to_geojson(None));
             feature.set_property("type", "road filter");
             feature.set_property("filter_type", format!("{:?}", filter.filter_type));
             feature.set_property("user_modified", filter.user_modified);
@@ -69,13 +47,7 @@ pub fn geojson_string(app: &App) -> Result<String> {
     }
     for (_, filter) in &app.edits().intersections {
         let pl = filter.geometry(map).to_polyline();
-        let mut feature = Feature {
-            bbox: None,
-            geometry: Some(pl.to_geojson(None)),
-            id: None,
-            properties: None,
-            foreign_members: None,
-        };
+        let mut feature = Feature::from(pl.to_geojson(None));
         feature.set_property("type", "diagonal filter");
         feature.set_property("filter_type", format!("{:?}", filter.filter_type));
         feature.set_property("stroke", "red");
@@ -84,13 +56,7 @@ pub fn geojson_string(app: &App) -> Result<String> {
 
     for r in app.edits().one_ways.keys() {
         let road = app.per_map.map.get_r(*r);
-        let mut feature = Feature {
-            bbox: None,
-            geometry: Some(road.center_pts.to_geojson(None)),
-            id: None,
-            properties: None,
-            foreign_members: None,
-        };
+        let mut feature = Feature::from(road.center_pts.to_geojson(None));
         feature.set_property("type", "one-way change");
         feature.set_property(
             "direction",
@@ -107,18 +73,12 @@ pub fn geojson_string(app: &App) -> Result<String> {
     for (r, list) in &app.edits().crossings {
         let road = app.per_map.map.get_r(*r);
         for crossing in list {
-            let mut feature = Feature {
-                bbox: None,
-                geometry: Some(
-                    road.center_pts
-                        .must_dist_along(crossing.dist)
-                        .0
-                        .to_geojson(None),
-                ),
-                id: None,
-                properties: None,
-                foreign_members: None,
-            };
+            let mut feature = Feature::from(
+                road.center_pts
+                    .must_dist_along(crossing.dist)
+                    .0
+                    .to_geojson(None),
+            );
             feature.set_property("type", "crossing");
             feature.set_property("crossing_type", format!("{:?}", crossing.kind));
             features.push(feature);
