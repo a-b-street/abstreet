@@ -324,6 +324,8 @@ fn floodfill(
             },
         );
 
+        let current_oneway_dir = current.oneway_for_driving();
+
         for i in [current.src_i, current.dst_i] {
             // It's possible for one border intersection to have two roads in the interior of the
             // neighbourhood. Don't consider a turn between those roads through this intersection as
@@ -334,6 +336,15 @@ fn floodfill(
                 continue;
             }
 
+            // TODO This seems redundant given below. Maybe only do this when we happen to start on
+            // a one-way?
+            // Don't search against the one-way direction
+            if (current_oneway_dir == Some(Direction::Fwd) && i == current.src_i)
+                || (current_oneway_dir == Some(Direction::Back) && i == current.dst_i)
+            {
+                continue;
+            }
+
             for next in &map.get_i(i).roads {
                 let next_road = map.get_r(*next);
                 if let Some(filter) = edits.intersections.get(&i) {
@@ -341,6 +352,18 @@ fn floodfill(
                         continue;
                     }
                 }
+
+                // TODO It might be simpler to search by intersections and start from borders?
+                // TODO More generally, is it possible to turn into the road this way?
+                if let Some(dir) = next_road.oneway_for_driving() {
+                    if dir == Direction::Fwd && i == next_road.dst_i {
+                        continue;
+                    }
+                    if dir == Direction::Back && i == next_road.src_i {
+                        continue;
+                    }
+                }
+
                 if let Some(filter) = edits.roads.get(next) {
                     // Which ends of the filtered road have we reached?
                     let mut visited_start = next_road.src_i == i;
