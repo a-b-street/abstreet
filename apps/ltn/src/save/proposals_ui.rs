@@ -1,3 +1,4 @@
+use abstutil::Timer;
 use map_gui::tools::{FilePicker, FileSaver, FileSaverContents};
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{lctrl, Choice, EventCtx, Key, MultiKey, State, Widget};
@@ -30,7 +31,11 @@ impl Proposals {
             let button = ctx
                 .style()
                 .btn_solid_primary
-                .text(format!("{} - {}", idx + 1, proposal.edits.edits_name))
+                .text(if idx == 0 {
+                    "1 - existing LTNs".to_string()
+                } else {
+                    format!("{} - {}", idx + 1, proposal.edits.edits_name)
+                })
                 .hotkey(Key::NUM_KEYS[idx])
                 .disabled(idx == self.current)
                 .build_widget(ctx, &format!("switch to proposal {}", idx));
@@ -145,7 +150,10 @@ impl Proposals {
 
 fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
     app.per_map.proposals.current = idx;
-    app.apply_edits(app.per_map.proposals.list[idx].edits.clone());
+    app.per_map.map.must_apply_edits(
+        app.per_map.proposals.get_current().edits.clone(),
+        &mut Timer::throwaway(),
+    );
     crate::redraw_all_filters(ctx, app);
 }
 
@@ -175,7 +183,6 @@ fn load_picker_ui(
         },
         Box::new(move |name, ctx, app| {
             if name == "Load from file on your computer" {
-                //let preserve_state = preserve_state.clone();
                 Transition::Replace(FilePicker::new_state(
                     ctx,
                     Some(abstio::path_all_ltn_proposals(app.per_map.map.get_name())),

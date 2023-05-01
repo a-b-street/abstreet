@@ -18,6 +18,7 @@ use crate::{pages, App, Transition};
 pub use share::PROPOSAL_HOST_URL;
 
 pub struct Proposals {
+    // The 0th thing is always treated as the immutable basemap
     // Note for the current proposal, we have to be very careful to sync MapEdits with this
     pub list: Vec<Proposal>,
     pub current: usize,
@@ -30,9 +31,6 @@ pub struct Proposals {
 pub struct Proposal {
     pub partitioning: Partitioning,
     pub edits: MapEdits,
-
-    /// If this proposal is an edit to another proposal, store its name
-    unsaved_parent: Option<String>,
 }
 
 impl Proposal {
@@ -74,11 +72,14 @@ impl Proposal {
         // TODO We could try to detect if the file's partitioning (road IDs and such) still matches
         // this version of the map or not
 
-        app.apply_edits(proposal.edits.clone());
-        crate::redraw_all_filters(ctx, app);
-
         app.per_map.proposals.list.push(proposal);
         app.per_map.proposals.current = app.per_map.proposals.list.len() - 1;
+
+        app.per_map.map.must_apply_edits(
+            app.per_map.proposals.get_current().edits.clone(),
+            &mut Timer::throwaway(),
+        );
+        crate::redraw_all_filters(ctx, app);
 
         Ok(())
     }
@@ -108,7 +109,6 @@ impl Proposals {
             list: vec![Proposal {
                 partitioning: Partitioning::seed_using_heuristics(map, timer),
                 edits: map.get_edits().clone(),
-                unsaved_parent: None,
             }],
             current: 0,
         }
@@ -117,41 +117,23 @@ impl Proposals {
     pub fn get_current(&self) -> &Proposal {
         &self.list[self.current]
     }
-    pub fn mut_current(&mut self) -> &mut Proposal {
-        &mut self.list[self.current]
-    }
 
     // Special case for locking into a consultation mode
     pub fn force_current_to_basemap(&mut self) {
-        let mut current = self.list.remove(self.current);
-        current.edits.edits_name = "existing LTNs".to_string();
+        let current = self.list.remove(self.current);
         self.list = vec![current];
         self.current = 0;
     }
 
-    /// Call before making any changes to fork a copy of the proposal
-    pub fn before_edit(&mut self, edits: &mut MapEdits) {
-        // Fork the proposal or not?
-        if self.get_current().unsaved_parent.is_none() {
-            // Fork a new proposal if we're starting from the immutable baseline
-            let from_immutable = self.current == 0;
-            if from_immutable {
-                // We don't need to to sync MapEdits before doing this; this is the immutable,
-                // original edits
-                self.list.insert(1, self.list[0].clone());
-                self.current = 1;
-            }
-            // Otherwise, just replace the current proposal with something that's clearly edited
-            self.list[self.current].unsaved_parent = Some(edits.edits_name.clone());
-
-            if from_immutable {
-                // There'll be name collision if people start multiple unsaved files, but it
-                // shouldn't cause problems
-                edits.edits_name = "new proposal*".to_string();
-            } else {
-                edits.edits_name = format!("{}*", self.get_current().edits.edits_name);
-            }
+    /// Call before making any changes
+    pub fn before_edit(&mut self, edits: MapEdits) {
+        if self.current == 0 {
+            // TODO Regenerate a better edits_name?
+            self.list.insert(1, self.list[0].clone());
+            self.current = 1;
         }
+        // TODO Maybe we could mark this as unsaved, depending how we decide to do autosave
+        self.list[self.current].edits = edits;
     }
 }
 

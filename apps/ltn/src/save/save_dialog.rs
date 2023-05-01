@@ -21,8 +21,7 @@ impl SaveDialog {
         app: &App,
         preserve_state: PreserveState,
     ) -> Box<dyn State<App>> {
-        let parent = app.per_map.proposals.get_current().unsaved_parent.clone();
-        let can_overwrite = parent.is_some() && parent != Some("existing LTNs".to_string());
+        let can_overwrite = app.per_map.proposals.current != 0;
 
         let mut state = Self {
             panel: Panel::new_builder(Widget::col(vec![
@@ -52,7 +51,10 @@ impl SaveDialog {
                     Widget::row(vec![
                         ctx.style()
                             .btn_solid_destructive
-                            .text(format!("Overwrite \"{}\"", parent.unwrap()))
+                            .text(format!(
+                                "Overwrite \"{}\"",
+                                app.per_map.proposals.get_current().edits.edits_name
+                            ))
                             .build_widget(ctx, "Overwrite"),
                         Line("Or save a new copy below")
                             .secondary()
@@ -122,35 +124,17 @@ impl State<App> for SaveDialog {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
-                "Save as" => {
-                    let name = self.panel.text_box("input");
-
+                "Save as" | "Overwrite" => {
                     // TODO If we're clobbering something that exists in Proposals especially...
                     // watch out
+                    let mut edits = app.per_map.map.get_edits().clone();
+                    edits.edits_name = self.panel.text_box("input");
+                    app.apply_edits(edits);
+                    // TODO Maybe "Save as" should copy the proposal
 
-                    let current = app.per_map.proposals.mut_current();
-                    // TODO apply edits?
-                    current.edits.edits_name = name;
-                    current.unsaved_parent = None;
                     match inner_save(app) {
                         // If we changed the name, we'll want to recreate the panel
                         Ok(()) => self.preserve_state.switch_to_state(ctx, app),
-                        Err(err) => {
-                            self.error(ctx, app, format!("Couldn't save proposal: {}", err))
-                        }
-                    }
-                }
-                "Overwrite" => {
-                    // TODO If the user loaded the parent file again, this'll be confusing. Maybe
-                    // ban that?
-
-                    let current = app.per_map.proposals.mut_current();
-                    current.edits.edits_name = current.unsaved_parent.take().unwrap();
-
-                    match inner_save(app) {
-                        Ok(()) => self.preserve_state.switch_to_state(ctx, app),
-                        // TODO If we fail to save for some reason, the Proposals panel gets out
-                        // of sync with the filesystem
                         Err(err) => {
                             self.error(ctx, app, format!("Couldn't save proposal: {}", err))
                         }
@@ -161,8 +145,7 @@ impl State<App> for SaveDialog {
                     Transition::Replace(match proposal.to_gzipped_bytes(app) {
                         Ok(contents) => FileSaver::with_default_messages(
                             ctx,
-                            // * is used to indicate an unsaved file; don't include it in the filename
-                            format!("{}.json.gz", proposal.edits.edits_name.replace("*", "")),
+                            format!("{}.json.gz", proposal.edits.edits_name),
                             Some(abstio::path_all_ltn_proposals(app.per_map.map.get_name())),
                             FileSaverContents::Bytes(contents),
                         ),
