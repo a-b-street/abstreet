@@ -1,12 +1,11 @@
+use map_model::{DiagonalFilter, FilterType, RoadFilter};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::tools::open_browser;
 use widgetry::{lctrl, EventCtx, Key, Text, Transition};
 
 use super::{modals, road_name, EditOutcome, Obj};
 use crate::render::colors;
-use crate::{
-    mut_edits, redraw_all_filters, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter,
-};
+use crate::{redraw_all_filters, App, Neighbourhood};
 
 /// Creates clickable objects for managing filters on roads and intersections. Everything is
 /// invisible; the caller is responsible for drawing things.
@@ -60,7 +59,7 @@ pub fn handle_world_outcome(
         WorldOutcome::ClickedObject(Obj::Road(r)) => {
             let road = map.get_r(r);
             // The world doesn't contain non-driveable roads, so no need to check for that error
-            if road.is_deadend_for_driving(&app.per_map.map) {
+            if road.is_deadend_for_driving(map) {
                 return EditOutcome::error(ctx, "You can't filter a dead-end");
             }
 
@@ -82,8 +81,12 @@ pub fn handle_world_outcome(
                 ));
             }
 
-            app.per_map.proposals.before_edit();
-            if mut_edits!(app).roads.remove(&r).is_none() {
+            let mut edits = map.get_edits().clone();
+            if map.get_r(r).modal_filter.is_some() {
+                edits.commands.push(map.edit_road_cmd(r, |new| {
+                    new.modal_filter = None;
+                }));
+            } else {
                 let mut filter_type = app.session.filter_type;
 
                 if filter_type != FilterType::BusGate
@@ -94,23 +97,30 @@ pub fn handle_world_outcome(
                     } else {
                         // If we have a one-way bus route, the one-way resolver will win and we
                         // won't warn about bus gates. Oh well.
-                        app.per_map.proposals.cancel_empty_edit();
                         return EditOutcome::Transition(Transition::Push(
                             modals::ResolveBusGate::new_state(ctx, app, vec![(r, distance)]),
                         ));
                     }
                 }
 
-                mut_edits!(app)
-                    .roads
-                    .insert(r, RoadFilter::new_by_user(distance, filter_type));
+                edits.commands.push(map.edit_road_cmd(r, |new| {
+                    new.modal_filter = Some(RoadFilter::new_by_user(distance, filter_type));
+                }));
             }
+            app.apply_edits(edits);
             redraw_all_filters(ctx, app);
             EditOutcome::UpdateAll
         }
         WorldOutcome::ClickedObject(Obj::Intersection(i)) => {
-            app.per_map.proposals.before_edit();
-            DiagonalFilter::cycle_through_alternatives(app, i);
+            let mut edits = map.get_edits().clone();
+            edits
+                .commands
+                .extend(DiagonalFilter::cycle_through_alternatives(
+                    &app.per_map.map,
+                    i,
+                    app.session.filter_type,
+                ));
+            app.apply_edits(edits);
             redraw_all_filters(ctx, app);
             EditOutcome::UpdateAll
         }

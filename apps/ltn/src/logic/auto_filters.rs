@@ -4,10 +4,11 @@
 use anyhow::Result;
 
 use abstutil::Timer;
+use map_model::RoadFilter;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
-use crate::{mut_edits, redraw_all_filters, App, Neighbourhood, RoadFilter};
+use crate::{redraw_all_filters, App, Neighbourhood};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AutoFilterHeuristic {
@@ -65,8 +66,6 @@ impl AutoFilterHeuristic {
 
         // TODO If we already have no shortcuts, stop
 
-        app.per_map.proposals.before_edit();
-
         match self {
             AutoFilterHeuristic::Greedy => greedy(app, neighbourhood),
             AutoFilterHeuristic::BruteForce => brute_force(app, neighbourhood, timer),
@@ -74,7 +73,8 @@ impl AutoFilterHeuristic {
             AutoFilterHeuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
         }
 
-        let empty = app.per_map.proposals.cancel_empty_edit();
+        // TODO Detect if we changed anything
+        let empty = false;
         redraw_all_filters(ctx, app);
         if empty {
             bail!("No new filters created");
@@ -106,14 +106,14 @@ fn brute_force(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
     // Which road leads to the fewest shortcuts?
     let mut best: Option<(RoadID, usize)> = None;
 
-    let orig_filters = app.edits().roads.len();
+    let orig_filters = app.per_map.map.all_roads_with_modal_filter().count();
     timer.start_iter(
         "evaluate candidate filters",
         neighbourhood.interior_roads.len(),
     );
     for r in &neighbourhood.interior_roads {
         timer.next();
-        if app.edits().roads.contains_key(r) {
+        if app.per_map.map.get_r(*r).modal_filter.is_some() {
             continue;
         }
         if let Some(new) = try_to_filter_road(app, neighbourhood, *r) {
@@ -123,10 +123,13 @@ fn brute_force(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
                 best = Some((*r, num_shortcuts));
             }
             // Always undo the new filter between each test
-            mut_edits!(app).roads.remove(r).unwrap();
+            remove_filter(app, *r);
         }
 
-        assert_eq!(orig_filters, app.edits().roads.len());
+        assert_eq!(
+            orig_filters,
+            app.per_map.map.all_roads_with_modal_filter().count()
+        );
     }
 
     if let Some((r, _)) = best {
@@ -138,14 +141,14 @@ fn split_cells(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
     // Filtering which road leads to new cells with the MOST streets in the smaller cell?
     let mut best: Option<(RoadID, usize)> = None;
 
-    let orig_filters = app.edits().roads.len();
+    let orig_filters = app.per_map.map.all_roads_with_modal_filter().count();
     timer.start_iter(
         "evaluate candidate filters",
         neighbourhood.interior_roads.len(),
     );
     for r in &neighbourhood.interior_roads {
         timer.next();
-        if app.edits().roads.contains_key(r) {
+        if app.per_map.map.get_r(*r).modal_filter.is_some() {
             continue;
         }
         if let Some(new) = try_to_filter_road(app, neighbourhood, *r) {
@@ -169,10 +172,13 @@ fn split_cells(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
                 }
             }
             // Always undo the new filter between each test
-            mut_edits!(app).roads.remove(r).unwrap();
+            remove_filter(app, *r);
         }
 
-        assert_eq!(orig_filters, app.edits().roads.len());
+        assert_eq!(
+            orig_filters,
+            app.per_map.map.all_roads_with_modal_filter().count()
+        );
     }
 
     if let Some((r, _)) = best {
@@ -189,16 +195,10 @@ fn only_one_border(app: &mut App, neighbourhood: &Neighbourhood) {
                 for r in cell.roads.keys() {
                     let road = app.per_map.map.get_r(*r);
                     if road.src_i == *i {
-                        mut_edits!(app).roads.insert(
-                            road.id,
-                            RoadFilter::new_by_user(0.1 * road.length(), app.session.filter_type),
-                        );
+                        add_filter(app, *r, 0.1);
                         break;
                     } else if road.dst_i == *i {
-                        mut_edits!(app).roads.insert(
-                            road.id,
-                            RoadFilter::new_by_user(0.9 * road.length(), app.session.filter_type),
-                        );
+                        add_filter(app, *r, 0.9);
                         break;
                     }
                 }
@@ -214,16 +214,34 @@ fn try_to_filter_road(
     neighbourhood: &Neighbourhood,
     r: RoadID,
 ) -> Option<Neighbourhood> {
-    let road = app.per_map.map.get_r(r);
-    mut_edits!(app).roads.insert(
-        r,
-        RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
-    );
+    add_filter(app, r, 0.5);
     let new_neighbourhood = Neighbourhood::new(app, neighbourhood.id);
     if new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {
-        mut_edits!(app).roads.remove(&r).unwrap();
+        remove_filter(app, r);
         None
     } else {
         Some(new_neighbourhood)
     }
+}
+
+fn add_filter(app: &mut App, r: RoadID, pct: f64) {
+    let map = &app.per_map.map;
+    let mut edits = map.get_edits().clone();
+    let road = map.get_r(r);
+    edits.commands.push(map.edit_road_cmd(r, |new| {
+        new.modal_filter = Some(RoadFilter::new_by_user(
+            pct * road.length(),
+            app.session.filter_type,
+        ));
+    }));
+    app.apply_edits(edits);
+}
+
+fn remove_filter(app: &mut App, r: RoadID) {
+    let map = &app.per_map.map;
+    let mut edits = map.get_edits().clone();
+    edits.commands.push(map.edit_road_cmd(r, |new| {
+        new.modal_filter = None;
+    }));
+    app.apply_edits(edits);
 }

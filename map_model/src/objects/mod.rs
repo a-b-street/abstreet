@@ -2,6 +2,7 @@ pub mod area;
 pub mod building;
 pub mod intersection;
 pub mod lane;
+pub mod modal_filter;
 pub mod movement;
 pub mod parking_lot;
 pub mod road;

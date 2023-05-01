@@ -1,6 +1,6 @@
 use geom::Polygon;
 use map_gui::colors::ColorScheme;
-use map_model::CrossingType;
+use map_model::{CrossingType, FilterType};
 use widgetry::tools::ColorLegend;
 use widgetry::{
     ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
@@ -9,8 +9,8 @@ use widgetry::{
 };
 
 use crate::components::Mode;
-use crate::render::colors;
-use crate::{pages, App, FilterType, Transition};
+use crate::render::{colors, filter_svg_path};
+use crate::{pages, App, Transition};
 
 // Partly copied from ungap/layers.s
 
@@ -299,19 +299,19 @@ impl Mode {
                 Widget::row(vec!["Cells:".text_widget(ctx), color_grid(ctx)]),
                 Widget::row(vec![
                     "Modal filters:".text_widget(ctx),
-                    Image::from_path(FilterType::WalkCycleOnly.svg_path())
+                    Image::from_path(filter_svg_path(FilterType::WalkCycleOnly))
                         .untinted()
                         .dims(30.0)
                         .into_widget(ctx),
-                    Image::from_path(FilterType::NoEntry.svg_path())
+                    Image::from_path(filter_svg_path(FilterType::NoEntry))
                         .untinted()
                         .dims(30.0)
                         .into_widget(ctx),
-                    Image::from_path(FilterType::BusGate.svg_path())
+                    Image::from_path(filter_svg_path(FilterType::BusGate))
                         .untinted()
                         .dims(30.0)
                         .into_widget(ctx),
-                    Image::from_path(FilterType::SchoolStreet.svg_path())
+                    Image::from_path(filter_svg_path(FilterType::SchoolStreet))
                         .untinted()
                         .dims(30.0)
                         .into_widget(ctx),

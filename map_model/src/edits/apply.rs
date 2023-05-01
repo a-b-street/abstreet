@@ -198,6 +198,8 @@ impl EditCmd {
                 let road = &mut map.roads[r.0];
                 road.speed_limit = new.speed_limit;
                 road.access_restrictions = new.access_restrictions.clone();
+                road.modal_filter = new.modal_filter.clone();
+                road.crossings = new.crossings.clone();
 
                 effects.changed_roads.insert(road.id);
                 for i in [road.src_i, road.dst_i] {
@@ -227,6 +229,7 @@ impl EditCmd {
                 if map.get_i_edit(*i) == new.clone() {
                     return;
                 }
+                map.intersections[i.0].modal_filter = new.modal_filter.clone();
 
                 map.stop_signs.remove(i);
                 map.traffic_signals.remove(i);

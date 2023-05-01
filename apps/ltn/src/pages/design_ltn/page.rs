@@ -1,5 +1,6 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine, Pt2D};
 use map_gui::tools::DrawSimpleRoadLabels;
+use map_model::FilterType;
 use osm2streets::Direction;
 use widgetry::mapspace::{DummyID, World};
 use widgetry::tools::{ChooseSomething, PopupMsg};
@@ -12,9 +13,7 @@ use super::{EditMode, EditNeighbourhood, EditOutcome};
 use crate::components::{AppwidePanel, BottomPanel, Mode};
 use crate::logic::AutoFilterHeuristic;
 use crate::render::colors;
-use crate::{
-    is_private, pages, render, App, FilterType, Neighbourhood, NeighbourhoodID, Transition,
-};
+use crate::{is_private, pages, render, App, Neighbourhood, NeighbourhoodID, Transition};
 
 pub struct DesignLTN {
     appwide_panel: AppwidePanel,
@@ -206,8 +205,10 @@ impl State<App> for DesignLTN {
                     return Transition::Keep;
                 }
                 EditOutcome::UpdateAll => {
-                    self.neighbourhood
-                        .edits_changed(&app.per_map.map, app.edits());
+                    if app.session.manage_proposals {
+                        self.appwide_panel = AppwidePanel::new(ctx, app, Mode::ModifyNeighbourhood);
+                    }
+                    self.neighbourhood.edits_changed(&app.per_map.map);
                     self.update(ctx, app);
                     return Transition::Keep;
                 }
@@ -223,8 +224,10 @@ impl State<App> for DesignLTN {
                 self.update(ctx, app);
             }
             EditOutcome::UpdateAll => {
-                self.neighbourhood
-                    .edits_changed(&app.per_map.map, app.edits());
+                if app.session.manage_proposals {
+                    self.appwide_panel = AppwidePanel::new(ctx, app, Mode::ModifyNeighbourhood);
+                }
+                self.neighbourhood.edits_changed(&app.per_map.map);
                 self.update(ctx, app);
             }
             EditOutcome::Transition(t) => {
@@ -493,6 +496,8 @@ fn make_bottom_panel(
     appwide_panel: &AppwidePanel,
     per_tab_contents: Widget,
 ) -> Panel {
+    let (road_filters, diagonal_filters, one_ways) = count_edits(app);
+
     let row = Widget::row(vec![
         edit_mode(ctx, app),
         if let EditMode::Shortcuts(ref focus) = app.session.edit_mode {
@@ -508,17 +513,13 @@ fn make_bottom_panel(
             ctx.style()
                 .btn_plain
                 .icon("system/assets/tools/undo.svg")
-                .disabled(app.edits().previous_version.is_none())
+                // TODO Basemap edits count in here
+                .disabled(app.per_map.map.get_edits().commands.is_empty())
                 .hotkey(lctrl(Key::Z))
                 .build_widget(ctx, "undo"),
             Widget::col(vec![
-                // TODO Only count new filters, not existing
-                format!(
-                    "{} filters",
-                    app.edits().roads.len() + app.edits().intersections.len()
-                )
-                .text_widget(ctx),
-                format!("{} road directions changed", app.edits().one_ways.len()).text_widget(ctx),
+                format!("{} filters", road_filters + diagonal_filters).text_widget(ctx),
+                format!("{} road directions changed", one_ways).text_widget(ctx),
             ]),
         ]),
         Widget::vertical_separator(ctx),
@@ -554,9 +555,38 @@ fn make_bottom_panel(
     BottomPanel::new(ctx, appwide_panel, row)
 }
 
+fn count_edits(app: &App) -> (usize, usize, usize) {
+    let map = &app.per_map.map;
+    let mut road_filters = 0;
+    let mut diagonal_filters = 0;
+    let mut one_ways = 0;
+
+    // TODO Don't include existing filters. But also, don't rely on user_modified
+    for (r, orig) in &map.get_edits().original_roads {
+        let road = map.get_r(*r);
+        // Don't count existing filters that were modified?
+        if road.modal_filter.is_some() && orig.modal_filter.is_none() {
+            road_filters += 1;
+        }
+        let dir_new = road.lanes.iter().map(|l| l.dir).collect::<Vec<_>>();
+        let dir_old = orig.lanes_ltr.iter().map(|l| l.dir).collect::<Vec<_>>();
+        // TODO This incorrectly includes some existing filters on cycleways
+        if dir_new != dir_old {
+            one_ways += 1;
+        }
+    }
+    for (i, orig) in &map.get_edits().original_intersections {
+        if map.get_i(*i).modal_filter.is_some() && orig.modal_filter.is_none() {
+            diagonal_filters += 1;
+        }
+    }
+
+    (road_filters, diagonal_filters, one_ways)
+}
+
 fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
     let edit_mode = &app.session.edit_mode;
-    let hide_color = app.session.filter_type.hide_color();
+    let hide_color = render::filter_hide_color(app.session.filter_type);
     let name = match app.session.filter_type {
         FilterType::WalkCycleOnly => "Modal filter -- walking/cycling only",
         FilterType::NoEntry => "Modal filter - no entry",
@@ -568,7 +598,7 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
         Widget::custom_row(vec![
             ctx.style()
                 .btn_solid_primary
-                .icon(app.session.filter_type.svg_path())
+                .icon(render::filter_svg_path(app.session.filter_type))
                 .image_color(
                     RewriteColor::Change(hide_color, Color::CLEAR),
                     ControlState::Default,

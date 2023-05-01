@@ -13,8 +13,9 @@ use osm2streets::get_lane_specs_ltr;
 
 pub use self::perma::PermanentMapEdits;
 use crate::{
-    AccessRestrictions, ControlStopSign, ControlTrafficSignal, IntersectionControl, IntersectionID,
-    LaneID, LaneSpec, Map, MapConfig, ParkingLotID, Road, RoadID, TransitRouteID, TurnID, TurnType,
+    AccessRestrictions, ControlStopSign, ControlTrafficSignal, Crossing, DiagonalFilter,
+    IntersectionControl, IntersectionID, LaneID, LaneSpec, Map, MapConfig, ParkingLotID, Road,
+    RoadFilter, RoadID, TransitRouteID, TurnID, TurnType,
 };
 
 mod apply;
@@ -76,11 +77,14 @@ pub struct EditRoad {
     pub lanes_ltr: Vec<LaneSpec>,
     pub speed_limit: Speed,
     pub access_restrictions: AccessRestrictions,
+    pub modal_filter: Option<RoadFilter>,
+    pub crossings: Vec<Crossing>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct EditIntersection {
     pub control: EditIntersectionControl,
+    pub modal_filter: Option<DiagonalFilter>,
     /// This must contain all crossing turns at one intersection, each mapped either to Crosswalk
     /// or UnmarkedCrossing
     pub crosswalks: BTreeMap<TurnID, TurnType>,
@@ -101,6 +105,10 @@ impl EditRoad {
             lanes_ltr: get_lane_specs_ltr(&r.osm_tags, cfg),
             speed_limit: r.speed_limit_from_osm(),
             access_restrictions: r.access_restrictions_from_osm(),
+            // TODO Port logic/existing_filters.rs here?
+            modal_filter: None,
+            // TODO From crossing_nodes?
+            crossings: Vec::new(),
         }
     }
 
@@ -143,6 +151,12 @@ impl EditRoad {
         if self.access_restrictions != other.access_restrictions {
             changes.push("access restrictions".to_string());
         }
+        if self.modal_filter != other.modal_filter {
+            changes.push("modal filter".to_string());
+        }
+        if self.crossings != other.crossings {
+            changes.push("crossings".to_string());
+        }
         changes
     }
 }
@@ -156,6 +170,9 @@ impl EditIntersection {
         }
         if self.crosswalks != other.crosswalks {
             changes.push("crosswalks".to_string());
+        }
+        if self.modal_filter != other.modal_filter {
+            changes.push("modal filter".to_string());
         }
         changes
     }
@@ -308,6 +325,8 @@ impl MapEdits {
             // What exactly changed?
             if r.speed_limit != orig.speed_limit
                 || r.access_restrictions != orig.access_restrictions
+                || r.modal_filter != orig.modal_filter
+                || r.crossings != orig.crossings
                 // If a lane was added or deleted, figuring out if any were modified is kind of
                 // unclear -- just mark the entire road.
                 || r.lanes.len() != orig.lanes_ltr.len()
@@ -400,6 +419,8 @@ impl Map {
             lanes_ltr: r.lane_specs(),
             speed_limit: r.speed_limit,
             access_restrictions: r.access_restrictions.clone(),
+            modal_filter: r.modal_filter.clone(),
+            crossings: r.crossings.clone(),
         }
     }
 
@@ -429,6 +450,7 @@ impl Map {
         }
         EditIntersection {
             control,
+            modal_filter: i.modal_filter.clone(),
             crosswalks,
         }
     }

@@ -2,14 +2,14 @@ use std::collections::BTreeSet;
 
 use geom::{Distance, Polygon};
 use map_gui::tools::grey_out_map;
-use map_model::{EditRoad, RoadID};
+use map_model::{FilterType, RoadFilter, RoadID};
 use osm2streets::{Direction, LaneSpec};
 use widgetry::{
     Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
     RewriteColor, State, Text, Texture, Toggle, Widget,
 };
 
-use crate::{mut_edits, redraw_all_filters, App, FilterType, RoadFilter, Transition};
+use crate::{redraw_all_filters, render, App, Transition};
 
 pub struct ResolveOneWayAndFilter {
     panel: Panel,
@@ -62,7 +62,7 @@ impl State<App> for ResolveOneWayAndFilter {
 pub fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[(RoadID, Distance)]) {
     let driving_side = app.per_map.map.get_config().driving_side;
     let mut edits = app.per_map.map.get_edits().clone();
-    for (r, _) in roads {
+    for (r, dist) in roads {
         edits
             .commands
             .push(app.per_map.map.edit_road_cmd(*r, |new| {
@@ -72,29 +72,10 @@ pub fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[(Ro
                 if LaneSpec::oneway_for_driving(&new.lanes_ltr) == Some(Direction::Back) {
                     LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
                 }
+                new.modal_filter = Some(RoadFilter::new_by_user(*dist, app.session.filter_type));
             }));
     }
-    ctx.loading_screen("apply edits", |_, timer| {
-        app.per_map.map.must_apply_edits(edits, timer);
-    });
-
-    app.per_map.proposals.before_edit();
-
-    for (r, dist) in roads {
-        let r = *r;
-        let road = app.per_map.map.get_r(r);
-        let r_edit = app.per_map.map.get_r_edit(r);
-        if r_edit == EditRoad::get_orig_from_osm(road, app.per_map.map.get_config()) {
-            mut_edits!(app).one_ways.remove(&r);
-        } else {
-            mut_edits!(app).one_ways.insert(r, r_edit);
-        }
-
-        mut_edits!(app)
-            .roads
-            .insert(r, RoadFilter::new_by_user(*dist, app.session.filter_type));
-    }
-
+    app.apply_edits(edits);
     redraw_all_filters(ctx, app);
 }
 
@@ -149,12 +130,13 @@ impl State<App> for ResolveBusGate {
             // Force the panel to show the new checkbox state
             app.session.layers.show_bus_routes(ctx, &app.cs, None);
 
-            app.per_map.proposals.before_edit();
+            let mut edits = app.per_map.map.get_edits().clone();
             for (r, dist) in self.roads.drain(..) {
-                mut_edits!(app)
-                    .roads
-                    .insert(r, RoadFilter::new_by_user(dist, FilterType::BusGate));
+                edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
+                    new.modal_filter = Some(RoadFilter::new_by_user(dist, FilterType::BusGate));
+                }));
             }
+            app.apply_edits(edits);
             redraw_all_filters(ctx, app);
 
             return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
@@ -181,13 +163,13 @@ impl ChangeFilterType {
         let filter = |ft: FilterType, hotkey: Key, name: &str| {
             ctx.style()
                 .btn_solid_primary
-                .icon_text(ft.svg_path(), name)
+                .icon_text(render::filter_svg_path(ft), name)
                 .image_color(
-                    RewriteColor::Change(ft.hide_color(), Color::CLEAR),
+                    RewriteColor::Change(render::filter_hide_color(ft), Color::CLEAR),
                     ControlState::Default,
                 )
                 .image_color(
-                    RewriteColor::Change(ft.hide_color(), Color::CLEAR),
+                    RewriteColor::Change(render::filter_hide_color(ft), Color::CLEAR),
                     ControlState::Disabled,
                 )
                 .disabled(app.session.filter_type == ft)

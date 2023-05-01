@@ -88,8 +88,7 @@ impl PerResidentImpact {
                 timer.stop("prepare pathfinding before changes");
 
                 timer.start("prepare pathfinding after changes");
-                let mut params = map.routing_params().clone();
-                app.edits().update_routing_params(&mut params);
+                let params = map.routing_params_respecting_modal_filters();
                 let pathfinder_after =
                     Pathfinder::new_ch(map, params, vec![PathConstraints::Car], timer);
                 timer.stop("prepare pathfinding after changes");

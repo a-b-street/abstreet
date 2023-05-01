@@ -1,12 +1,14 @@
 mod cells;
 pub mod colors;
+mod filters;
 
 use geom::Distance;
-use map_model::{AmenityType, ExtraPOIType, Map};
+use map_model::{AmenityType, ExtraPOIType, FilterType, Map};
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 
 pub use cells::RenderCells;
+pub use filters::render_modal_filters;
 
 pub fn render_poi_icons(ctx: &EventCtx, map: &Map) -> Drawable {
     let mut batch = GeomBatch::new();
@@ -98,5 +100,23 @@ impl Toggle3Zoomed {
         if !self.unzoomed.maybe_draw(g) {
             self.draw_zoomed.draw(g);
         }
+    }
+}
+
+pub fn filter_svg_path(ft: FilterType) -> &'static str {
+    match ft {
+        FilterType::NoEntry => "system/assets/tools/no_entry.svg",
+        FilterType::WalkCycleOnly => "system/assets/tools/modal_filter.svg",
+        FilterType::BusGate => "system/assets/tools/bus_gate.svg",
+        FilterType::SchoolStreet => "system/assets/tools/school_street.svg",
+    }
+}
+
+pub fn filter_hide_color(ft: FilterType) -> Color {
+    match ft {
+        FilterType::WalkCycleOnly => Color::hex("#0b793a"),
+        FilterType::NoEntry => Color::RED,
+        FilterType::BusGate => *colors::BUS_ROUTE,
+        FilterType::SchoolStreet => Color::hex("#e31017"),
     }
 }

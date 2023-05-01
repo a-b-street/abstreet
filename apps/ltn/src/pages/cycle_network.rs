@@ -130,15 +130,13 @@ fn draw_network(ctx: &mut EventCtx, app: &App) -> Drawable {
     // Now calculate shortcuts through each neighbourhood interior
     ctx.loading_screen("calculate shortcuts everywhere", |_, timer| {
         let map = &app.per_map.map;
-        let edits = app.edits();
         let partitioning = app.partitioning();
         for (r, color) in timer
             .parallelize(
                 "per neighbourhood",
                 partitioning.all_neighbourhoods().keys().collect(),
                 |id| {
-                    let neighbourhood =
-                        Neighbourhood::new_without_app(map, edits, partitioning, *id);
+                    let neighbourhood = Neighbourhood::new_without_app(map, partitioning, *id);
                     let mut result = Vec::new();
                     for r in neighbourhood.interior_roads {
                         let color = if neighbourhood.shortcuts.count_per_road.get(r) == 0 {

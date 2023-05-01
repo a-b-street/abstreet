@@ -210,8 +210,7 @@ impl RoutePlanner {
 
         // The route respecting the filters
         let driving_after_changes_time = {
-            let mut params = map.routing_params().clone();
-            app.edits().update_routing_params(&mut params);
+            let mut params = map.routing_params_respecting_modal_filters();
             params.main_road_penalty = app.session.main_road_penalty;
 
             let mut ok = true;
