@@ -225,7 +225,7 @@ impl Static {
             "map edits",
             format!("Map edits ({})", edits.edits_name),
             Text::from_multiline(vec![
-                Line(format!("{} roads changed", edits.changed_roads.len())),
+                Line(format!("{} roads changed", edits.original_roads.len())),
                 Line(format!(
                     "{} intersections changed",
                     edits.original_intersections.len()

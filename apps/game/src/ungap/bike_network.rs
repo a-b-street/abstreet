@@ -34,7 +34,13 @@ impl DrawNetworkLayer {
                 }
             }
 
-            let color = if app.primary.map.get_edits().changed_roads.contains(&r.id) {
+            let color = if app
+                .primary
+                .map
+                .get_edits()
+                .original_roads
+                .contains_key(&r.id)
+            {
                 Color::CYAN
             } else if r.is_cycleway() {
                 *DEDICATED_TRAIL

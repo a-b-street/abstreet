@@ -5,7 +5,7 @@ use maplit::btreeset;
 use geom::Polygon;
 use map_gui::render::DrawIntersection;
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, RoadID,
+    ControlStopSign, ControlTrafficSignal, EditIntersectionControl, IntersectionID, RoadID,
 };
 use widgetry::{
     EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text,
@@ -109,14 +109,14 @@ impl SimpleState<App> for StopSignEditor {
             "Finish" => Transition::Pop,
             "reset to default" => {
                 let mut edits = app.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeIntersection {
-                    i: self.id,
-                    old: app.primary.map.get_i_edit(self.id),
-                    new: EditIntersection::StopSign(ControlStopSign::new(
-                        &app.primary.map,
-                        self.id,
-                    )),
-                });
+                edits
+                    .commands
+                    .push(app.primary.map.edit_intersection_cmd(self.id, |new| {
+                        new.control = EditIntersectionControl::StopSign(ControlStopSign::new(
+                            &app.primary.map,
+                            self.id,
+                        ));
+                    }));
                 apply_map_edits(ctx, app, edits);
                 Transition::Replace(StopSignEditor::new_state(
                     ctx,
@@ -126,11 +126,9 @@ impl SimpleState<App> for StopSignEditor {
                 ))
             }
             "close intersection for construction" => {
-                let cmd = EditCmd::ChangeIntersection {
-                    i: self.id,
-                    old: app.primary.map.get_i_edit(self.id),
-                    new: EditIntersection::Closed,
-                };
+                let cmd = app.primary.map.edit_intersection_cmd(self.id, |new| {
+                    new.control = EditIntersectionControl::Closed;
+                });
                 if let Some(err) = check_sidewalk_connectivity(ctx, app, cmd.clone()) {
                     Transition::Push(err)
                 } else {
@@ -143,14 +141,14 @@ impl SimpleState<App> for StopSignEditor {
             }
             "convert to traffic signal" => {
                 let mut edits = app.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeIntersection {
-                    i: self.id,
-                    old: app.primary.map.get_i_edit(self.id),
-                    new: EditIntersection::TrafficSignal(
-                        ControlTrafficSignal::new(&app.primary.map, self.id)
-                            .export(&app.primary.map),
-                    ),
-                });
+                edits
+                    .commands
+                    .push(app.primary.map.edit_intersection_cmd(self.id, |new| {
+                        new.control = EditIntersectionControl::TrafficSignal(
+                            ControlTrafficSignal::new(&app.primary.map, self.id)
+                                .export(&app.primary.map),
+                        );
+                    }));
                 apply_map_edits(ctx, app, edits);
                 app.primary
                     .sim
@@ -195,11 +193,11 @@ impl SimpleState<App> for StopSignEditor {
                 sign.flip_sign(r);
 
                 let mut edits = app.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeIntersection {
-                    i: self.id,
-                    old: app.primary.map.get_i_edit(self.id),
-                    new: EditIntersection::StopSign(sign),
-                });
+                edits
+                    .commands
+                    .push(app.primary.map.edit_intersection_cmd(self.id, |new| {
+                        new.control = EditIntersectionControl::StopSign(sign);
+                    }));
                 apply_map_edits(ctx, app, edits);
                 return Transition::Replace(StopSignEditor::new_state(
                     ctx,

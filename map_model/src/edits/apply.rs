@@ -7,8 +7,8 @@ use osm2streets::{osm, InputRoad};
 use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
 use crate::{
     connectivity, BuildingID, ControlStopSign, ControlTrafficSignal, EditCmd, EditEffects,
-    EditIntersection, IntersectionControl, IntersectionID, LaneSpec, Map, MapEdits, Movement,
-    ParkingLotID, PathConstraints, Pathfinder, RoadID, Zone,
+    EditIntersectionControl, IntersectionControl, IntersectionID, LaneSpec, Map, MapEdits,
+    Movement, ParkingLotID, PathConstraints, Pathfinder, RoadID, Zone,
 };
 
 impl Map {
@@ -124,14 +124,11 @@ impl Map {
             }
         }
 
-        let merge_zones_changed = self.edits.merge_zones != new_edits.merge_zones;
-
         new_edits.update_derived(self);
         self.edits = new_edits;
         self.pathfinder_dirty = true;
 
-        // Update zones after setting the new edits, since it'll pull merge_zones from there
-        if !effects.changed_roads.is_empty() || merge_zones_changed {
+        if !effects.changed_roads.is_empty() {
             self.zones = Zone::make_all(self);
         }
 
@@ -234,14 +231,14 @@ impl EditCmd {
                 map.stop_signs.remove(i);
                 map.traffic_signals.remove(i);
                 effects.changed_intersections.insert(*i);
-                match new {
-                    EditIntersection::StopSign(ref ss) => {
+                match new.control {
+                    EditIntersectionControl::StopSign(ref ss) => {
                         map.intersections[i.0].control = IntersectionControl::Signed;
                         map.stop_signs.insert(*i, ss.clone());
                     }
-                    EditIntersection::TrafficSignal(ref raw_ts) => {
+                    EditIntersectionControl::TrafficSignal(ref raw_ts) => {
                         map.intersections[i.0].control = IntersectionControl::Signalled;
-                        if old == &EditIntersection::Closed {
+                        if old.control == EditIntersectionControl::Closed {
                             recalculate_turns(*i, map, effects);
                         }
                         map.traffic_signals.insert(
@@ -249,21 +246,18 @@ impl EditCmd {
                             ControlTrafficSignal::import(raw_ts.clone(), *i, map).unwrap(),
                         );
                     }
-                    EditIntersection::Closed => {
+                    EditIntersectionControl::Closed => {
                         map.intersections[i.0].control = IntersectionControl::Construction;
                     }
                 }
 
-                if old == &EditIntersection::Closed || new == &EditIntersection::Closed {
+                if old.control == EditIntersectionControl::Closed
+                    || new.control == EditIntersectionControl::Closed
+                {
                     recalculate_turns(*i, map, effects);
                 }
-            }
-            EditCmd::ChangeCrosswalks { i, ref new, .. } => {
-                if map.get_i_crosswalks_edit(*i) == new.clone() {
-                    return;
-                }
-                effects.changed_intersections.insert(*i);
-                for (turn, turn_type) in &new.0 {
+
+                for (turn, turn_type) in &new.crosswalks {
                     map.mut_turn(*turn).turn_type = *turn_type;
                 }
             }
@@ -281,11 +275,6 @@ impl EditCmd {
                 new: old,
             },
             EditCmd::ChangeIntersection { i, old, new } => EditCmd::ChangeIntersection {
-                i,
-                old: new,
-                new: old,
-            },
-            EditCmd::ChangeCrosswalks { i, old, new } => EditCmd::ChangeCrosswalks {
                 i,
                 old: new,
                 new: old,

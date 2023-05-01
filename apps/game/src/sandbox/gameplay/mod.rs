@@ -7,7 +7,7 @@ use rand_xorshift::XorShiftRng;
 use abstio::MapName;
 use abstutil::Timer;
 use geom::Duration;
-use map_model::{EditCmd, EditIntersection, MapEdits};
+use map_model::{EditCmd, EditIntersectionControl, MapEdits};
 use sim::ScenarioGenerator;
 use synthpop::{OrigPersonID, Scenario, ScenarioModifier};
 use widgetry::{
@@ -182,18 +182,20 @@ impl GameplayMode {
                         return false;
                     }
                 }
-                EditCmd::ChangeIntersection { ref new, .. } => match new {
-                    // TODO Conflating construction
-                    EditIntersection::StopSign(_) | EditIntersection::Closed => {
-                        if !self.can_edit_stop_signs() {
-                            return false;
+                EditCmd::ChangeIntersection {
+                    ref new, ref old, ..
+                } => {
+                    match new.control {
+                        // TODO Conflating construction
+                        EditIntersectionControl::StopSign(_) | EditIntersectionControl::Closed => {
+                            if !self.can_edit_stop_signs() {
+                                return false;
+                            }
                         }
+                        _ => {}
                     }
-                    _ => {}
-                },
-                EditCmd::ChangeCrosswalks { .. } => {
                     // TODO Another hack to see if we can only edit signal timing
-                    if !self.can_edit_stop_signs() {
+                    if old.crosswalks != new.crosswalks && !self.can_edit_stop_signs() {
                         return false;
                     }
                 }

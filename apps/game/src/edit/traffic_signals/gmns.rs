@@ -8,7 +8,7 @@ use serde::{Deserialize, Deserializer};
 
 use geom::{Angle, Duration, LonLat, Pt2D};
 use map_model::{
-    osm, ControlTrafficSignal, DirectedRoadID, DrivingSide, EditCmd, EditIntersection,
+    osm, ControlTrafficSignal, DirectedRoadID, DrivingSide, EditIntersectionControl,
     IntersectionID, Map, Movement, MovementID, Stage, StageType, TurnPriority, TurnType,
 };
 use widgetry::tools::PopupMsg;
@@ -135,11 +135,13 @@ pub fn import_all(
                 Ok(signal) => {
                     info!("Success at {}", i);
                     successes += 1;
-                    edits.commands.push(EditCmd::ChangeIntersection {
-                        i,
-                        old: app.primary.map.get_i_edit(i),
-                        new: EditIntersection::TrafficSignal(signal.export(&app.primary.map)),
-                    });
+                    edits
+                        .commands
+                        .push(app.primary.map.edit_intersection_cmd(i, |new| {
+                            new.control = EditIntersectionControl::TrafficSignal(
+                                signal.export(&app.primary.map),
+                            );
+                        }));
                 }
                 Err(err) => {
                     error!("Failure at {}: {}", i, err);

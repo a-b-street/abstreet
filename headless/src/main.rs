@@ -28,7 +28,7 @@ use abstio::MapName;
 use abstutil::{serialize_btreemap, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Time};
 use map_model::{
-    CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
+    CompressedMovementID, ControlTrafficSignal, EditIntersectionControl, IntersectionID, Map,
     MovementID, PermanentMapEdits, RoadID, TurnID,
 };
 use sim::{
@@ -215,11 +215,9 @@ fn handle_command(
             // incremental_edit_traffic_signal is the cheap option, but since we may need to call
             // get-edits later, go through the proper flow.
             let mut edits = map.get_edits().clone();
-            edits.commands.push(EditCmd::ChangeIntersection {
-                i: id,
-                old: map.get_i_edit(id),
-                new: EditIntersection::TrafficSignal(ts.export(map)),
-            });
+            edits.commands.push(map.edit_intersection_cmd(id, |new| {
+                new.control = EditIntersectionControl::TrafficSignal(ts.export(map));
+            }));
             map.must_apply_edits(edits, &mut Timer::throwaway());
             map.recalculate_pathfinding_after_edits(&mut Timer::throwaway());
 

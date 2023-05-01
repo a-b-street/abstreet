@@ -858,11 +858,11 @@ pub fn maybe_edit_intersection(
         // This resets to the original state; it doesn't undo the closure to the last
         // state. Seems reasonable to me.
         let mut edits = app.primary.map.get_edits().clone();
-        edits.commands.push(EditCmd::ChangeIntersection {
-            i: id,
-            old: app.primary.map.get_i_edit(id),
-            new: edits.original_intersections[&id].clone(),
-        });
+        edits
+            .commands
+            .push(app.primary.map.edit_intersection_cmd(id, |new| {
+                new.control = edits.original_intersections[&id].control.clone();
+            }));
         apply_map_edits(ctx, app, edits);
     }
 
@@ -891,7 +891,7 @@ fn make_changelist(ctx: &mut EventCtx, app: &App) -> Panel {
             app.cs.edits_layer,
             format!(
                 "{} roads, {} intersections changed",
-                edits.changed_roads.len(),
+                edits.original_roads.len(),
                 edits.original_intersections.len()
             ),
         ),
@@ -939,7 +939,6 @@ fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
     match cmd {
         EditCmd::ChangeRoad { r, .. } => Some(ID::Road(*r)),
         EditCmd::ChangeIntersection { i, .. } => Some(ID::Intersection(*i)),
-        EditCmd::ChangeCrosswalks { i, .. } => Some(ID::Intersection(*i)),
         EditCmd::ChangeRouteSchedule { .. } => None,
     }
 }

@@ -7,7 +7,7 @@ use abstio::MapName;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
 
-use crate::edits::{EditCmd, EditCrosswalks, EditIntersection, EditRoad, MapEdits};
+use crate::edits::{EditCmd, EditIntersection, EditIntersectionControl, EditRoad, MapEdits};
 use crate::{osm, ControlStopSign, IntersectionID, Map, MovementID, OriginalRoad, TurnType};
 
 // Manually change this to attempt to preserve edits after major OSM updates.
@@ -22,10 +22,6 @@ pub struct PermanentMapEdits {
     pub edits_name: String,
     pub version: usize,
     commands: Vec<PermanentEditCmd>,
-    /// If false, adjacent roads with the same AccessRestrictions will not be merged into the same
-    /// Zone; every Road will be its own Zone. This is used to experiment with a per-road cap. Note
-    /// this is a map-wide setting.
-    merge_zones: bool,
 
     /// Edits without these are player generated.
     pub proposal_description: Vec<String>,
@@ -34,7 +30,17 @@ pub struct PermanentMapEdits {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub enum PermanentEditIntersection {
+pub struct PermanentEditIntersection {
+    control: PermanentEditIntersectionControl,
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    crosswalks: BTreeMap<traffic_signal_data::Turn, TurnType>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub enum PermanentEditIntersectionControl {
     StopSign {
         #[serde(
             serialize_with = "serialize_btreemap",
@@ -44,15 +50,6 @@ pub enum PermanentEditIntersection {
     },
     TrafficSignal(traffic_signal_data::TrafficSignal),
     Closed,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct PermanentEditCrosswalks {
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    turns: BTreeMap<traffic_signal_data::Turn, TurnType>,
 }
 
 #[allow(clippy::enum_variant_names)]
@@ -67,11 +64,6 @@ pub enum PermanentEditCmd {
         i: osm::NodeID,
         new: PermanentEditIntersection,
         old: PermanentEditIntersection,
-    },
-    ChangeCrosswalks {
-        i: osm::NodeID,
-        new: PermanentEditCrosswalks,
-        old: PermanentEditCrosswalks,
     },
     ChangeRouteSchedule {
         gtfs_id: String,
@@ -89,11 +81,6 @@ impl EditCmd {
                 old: old.clone(),
             },
             EditCmd::ChangeIntersection { i, new, old } => PermanentEditCmd::ChangeIntersection {
-                i: map.get_i(*i).orig_id,
-                new: new.to_permanent(map),
-                old: old.to_permanent(map),
-            },
-            EditCmd::ChangeCrosswalks { i, new, old } => PermanentEditCmd::ChangeCrosswalks {
                 i: map.get_i(*i).orig_id,
                 new: new.to_permanent(map),
                 old: old.to_permanent(map),
@@ -123,6 +110,7 @@ impl PermanentEditCmd {
                         return Ok(EditCmd::ChangeRoad {
                             r: id,
                             new,
+                            // Note we change 'old' to match the current basemap
                             old: EditRoad::get_orig_from_osm(map.get_r(id), map.get_config()),
                         });
                     } else {
@@ -148,18 +136,6 @@ impl PermanentEditCmd {
                         .with_context(|| format!("old ChangeIntersection of {} invalid", i))?,
                 })
             }
-            PermanentEditCmd::ChangeCrosswalks { i, new, old } => {
-                let id = map.find_i_by_osm_id(i)?;
-                Ok(EditCmd::ChangeCrosswalks {
-                    i: id,
-                    new: new
-                        .with_permanent(id, map)
-                        .with_context(|| format!("new ChangeCrosswalks of {} invalid", i))?,
-                    old: old
-                        .with_permanent(id, map)
-                        .with_context(|| format!("old ChangeCrosswalks of {} invalid", i))?,
-                })
-            }
             PermanentEditCmd::ChangeRouteSchedule { gtfs_id, old, new } => {
                 let id = map
                     .find_tr_by_gtfs(&gtfs_id)
@@ -177,11 +153,10 @@ impl MapEdits {
             map_name: map.get_name().clone(),
             edits_name: self.edits_name.clone(),
             // Increase this every time there's a schema change
-            version: 12,
+            version: 13,
             proposal_description: self.proposal_description.clone(),
             proposal_link: self.proposal_link.clone(),
             commands: self.commands.iter().map(|cmd| cmd.to_perma(map)).collect(),
-            merge_zones: self.merge_zones,
         }
     }
 }
@@ -199,11 +174,9 @@ impl PermanentMapEdits {
                 .into_iter()
                 .map(|cmd| cmd.into_cmd(map))
                 .collect::<Result<Vec<EditCmd>>>()?,
-            merge_zones: self.merge_zones,
 
-            changed_roads: BTreeSet::new(),
+            original_roads: BTreeMap::new(),
             original_intersections: BTreeMap::new(),
-            original_crosswalks: BTreeMap::new(),
             changed_routes: BTreeSet::new(),
         };
         edits.update_derived(map);
@@ -228,11 +201,9 @@ impl PermanentMapEdits {
                     }
                 })
                 .collect(),
-            merge_zones: self.merge_zones,
 
-            changed_roads: BTreeSet::new(),
+            original_roads: BTreeMap::new(),
             original_intersections: BTreeMap::new(),
-            original_crosswalks: BTreeMap::new(),
             changed_routes: BTreeSet::new(),
         };
         edits.update_derived(map);
@@ -252,26 +223,35 @@ impl PermanentMapEdits {
 
 impl EditIntersection {
     fn to_permanent(&self, map: &Map) -> PermanentEditIntersection {
-        match self {
-            EditIntersection::StopSign(ref ss) => PermanentEditIntersection::StopSign {
-                must_stop: ss
-                    .roads
-                    .iter()
-                    .map(|(r, val)| (map.get_r(*r).orig_id, val.must_stop))
-                    .collect(),
+        PermanentEditIntersection {
+            control: match self.control {
+                EditIntersectionControl::StopSign(ref ss) => {
+                    PermanentEditIntersectionControl::StopSign {
+                        must_stop: ss
+                            .roads
+                            .iter()
+                            .map(|(r, val)| (map.get_r(*r).orig_id, val.must_stop))
+                            .collect(),
+                    }
+                }
+                EditIntersectionControl::TrafficSignal(ref raw_ts) => {
+                    PermanentEditIntersectionControl::TrafficSignal(raw_ts.clone())
+                }
+                EditIntersectionControl::Closed => PermanentEditIntersectionControl::Closed,
             },
-            EditIntersection::TrafficSignal(ref raw_ts) => {
-                PermanentEditIntersection::TrafficSignal(raw_ts.clone())
-            }
-            EditIntersection::Closed => PermanentEditIntersection::Closed,
+            crosswalks: self
+                .crosswalks
+                .iter()
+                .map(|(id, turn_type)| (id.to_movement(map).to_permanent(map), *turn_type))
+                .collect(),
         }
     }
 }
 
 impl PermanentEditIntersection {
     fn with_permanent(self, i: IntersectionID, map: &Map) -> Result<EditIntersection> {
-        match self {
-            PermanentEditIntersection::StopSign { must_stop } => {
+        let control = match self.control {
+            PermanentEditIntersectionControl::StopSign { must_stop } => {
                 let mut translated_must_stop = BTreeMap::new();
                 for (r, stop) in must_stop {
                     translated_must_stop.insert(map.find_r_by_osm_id(r)?, stop);
@@ -294,30 +274,16 @@ impl PermanentEditIntersection {
                     }
                 }
 
-                Ok(EditIntersection::StopSign(ss))
+                EditIntersectionControl::StopSign(ss)
             }
-            PermanentEditIntersection::TrafficSignal(ts) => Ok(EditIntersection::TrafficSignal(ts)),
-            PermanentEditIntersection::Closed => Ok(EditIntersection::Closed),
-        }
-    }
-}
+            PermanentEditIntersectionControl::TrafficSignal(ts) => {
+                EditIntersectionControl::TrafficSignal(ts)
+            }
+            PermanentEditIntersectionControl::Closed => EditIntersectionControl::Closed,
+        };
 
-impl EditCrosswalks {
-    fn to_permanent(&self, map: &Map) -> PermanentEditCrosswalks {
-        PermanentEditCrosswalks {
-            turns: self
-                .0
-                .iter()
-                .map(|(id, turn_type)| (id.to_movement(map).to_permanent(map), *turn_type))
-                .collect(),
-        }
-    }
-}
-
-impl PermanentEditCrosswalks {
-    fn with_permanent(self, i: IntersectionID, map: &Map) -> Result<EditCrosswalks> {
-        let mut turns = BTreeMap::new();
-        for (id, turn_type) in self.turns {
+        let mut crosswalks = BTreeMap::new();
+        for (id, turn_type) in self.crosswalks {
             let movement = MovementID::from_permanent(id, map)?;
             // Find all TurnIDs that map to this MovementID
             let mut turn_ids = Vec::new();
@@ -333,8 +299,12 @@ impl PermanentEditCrosswalks {
                     turn_ids
                 );
             }
-            turns.insert(turn_ids.pop().unwrap(), turn_type);
+            crosswalks.insert(turn_ids.pop().unwrap(), turn_type);
         }
-        Ok(EditCrosswalks(turns))
+
+        Ok(EditIntersection {
+            control,
+            crosswalks,
+        })
     }
 }

@@ -139,13 +139,9 @@ pub fn geometries_with_properties_to_geojson(
 ) -> geojson::GeoJson {
     let mut features = Vec::new();
     for (geom, properties) in input {
-        features.push(geojson::Feature {
-            bbox: None,
-            geometry: Some(geom),
-            id: None,
-            properties: Some(properties),
-            foreign_members: None,
-        });
+        let mut f = geojson::Feature::from(geom);
+        f.properties = Some(properties);
+        features.push(f);
     }
     geojson::GeoJson::from(geojson::FeatureCollection {
         bbox: None,

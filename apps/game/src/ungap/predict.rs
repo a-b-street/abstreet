@@ -443,7 +443,12 @@ impl ModeShiftData {
 
                         // TODO Assumes the edits have made the road stop being high stress!
                         if !crosses_edited_road
-                            && app.primary.map.get_edits().changed_roads.contains(&dr.road)
+                            && app
+                                .primary
+                                .map
+                                .get_edits()
+                                .original_roads
+                                .contains_key(&dr.road)
                         {
                             crosses_edited_road = true;
                         }

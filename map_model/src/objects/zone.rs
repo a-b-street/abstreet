@@ -62,7 +62,6 @@ impl Zone {
 
 fn floodfill(map: &Map, start: RoadID) -> Option<Zone> {
     let match_constraints = map.get_r(start).access_restrictions.clone();
-    let merge_zones = map.get_edits().merge_zones;
     let mut queue = vec![start];
     let mut members = BTreeSet::new();
     let mut borders = BTreeSet::new();
@@ -74,7 +73,7 @@ fn floodfill(map: &Map, start: RoadID) -> Option<Zone> {
         members.insert(current);
         for r in map.get_next_roads(current) {
             let r = map.get_r(r);
-            if r.access_restrictions == match_constraints && merge_zones {
+            if r.access_restrictions == match_constraints {
                 queue.push(r.id);
             } else {
                 // TODO Handle other cases

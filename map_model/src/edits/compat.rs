@@ -117,6 +117,9 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
             .unwrap()
             .insert("version".to_string(), Value::Number(12.into()));
     }
+    if value["version"] == Value::Number(12.into()) {
+        bail!("Breaking changes happened to map edits between v12 and v13. Recreate your edits from scratch; sorry.");
+    }
 
     abstutil::from_json(&value.to_string().into_bytes())
 }

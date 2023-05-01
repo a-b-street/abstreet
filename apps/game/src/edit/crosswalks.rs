@@ -1,5 +1,5 @@
 use geom::Distance;
-use map_model::{EditCmd, IntersectionID, TurnID, TurnType};
+use map_model::{IntersectionID, TurnID, TurnType};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
@@ -68,21 +68,18 @@ impl State<App> for CrosswalkEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let WorldOutcome::ClickedObject(ID(turn)) = self.world.event(ctx) {
             let mut edits = app.primary.map.get_edits().clone();
-            let old = app.primary.map.get_i_crosswalks_edit(self.id);
-            let mut new = old.clone();
-            new.0.insert(
-                turn,
-                if old.0[&turn] == TurnType::Crosswalk {
-                    TurnType::UnmarkedCrossing
-                } else {
-                    TurnType::Crosswalk
-                },
-            );
-            edits.commands.push(EditCmd::ChangeCrosswalks {
-                i: self.id,
-                old,
-                new,
-            });
+            edits
+                .commands
+                .push(app.primary.map.edit_intersection_cmd(self.id, |new| {
+                    new.crosswalks.insert(
+                        turn,
+                        if new.crosswalks[&turn] == TurnType::Crosswalk {
+                            TurnType::UnmarkedCrossing
+                        } else {
+                            TurnType::Crosswalk
+                        },
+                    );
+                }));
             apply_map_edits(ctx, app, edits);
             return Transition::Replace(Self::new_state(ctx, app, self.id));
         }

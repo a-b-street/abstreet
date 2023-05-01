@@ -1,7 +1,7 @@
 use geom::Duration;
 use map_gui::tools::FilePicker;
 use map_model::{
-    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
+    ControlStopSign, ControlTrafficSignal, EditIntersectionControl, IntersectionID, StageType,
 };
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
@@ -296,11 +296,14 @@ pub fn edit_entire_signal(
                 original.apply(app);
 
                 let mut edits = app.primary.map.get_edits().clone();
-                edits.commands.push(EditCmd::ChangeIntersection {
-                    i,
-                    old: app.primary.map.get_i_edit(i),
-                    new: EditIntersection::StopSign(ControlStopSign::new(&app.primary.map, i)),
-                });
+                edits
+                    .commands
+                    .push(app.primary.map.edit_intersection_cmd(i, |new| {
+                        new.control = EditIntersectionControl::StopSign(ControlStopSign::new(
+                            &app.primary.map,
+                            i,
+                        ));
+                    }));
                 apply_map_edits(ctx, app, edits);
                 Transition::Multi(vec![
                     Transition::Pop,
@@ -310,11 +313,9 @@ pub fn edit_entire_signal(
             x if x == close => {
                 original.apply(app);
 
-                let cmd = EditCmd::ChangeIntersection {
-                    i,
-                    old: app.primary.map.get_i_edit(i),
-                    new: EditIntersection::Closed,
-                };
+                let cmd = app.primary.map.edit_intersection_cmd(i, |new| {
+                    new.control = EditIntersectionControl::Closed;
+                });
                 if let Some(err) = check_sidewalk_connectivity(ctx, app, cmd.clone()) {
                     Transition::Replace(err)
                 } else {

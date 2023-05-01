@@ -7,7 +7,7 @@ use geom::{Distance, Line, Polygon, Pt2D};
 use map_gui::options::TrafficSignalStyle;
 use map_gui::render::{traffic_signal, DrawMovement, DrawOptions};
 use map_model::{
-    ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, MovementID, Stage, StageType,
+    ControlTrafficSignal, EditIntersectionControl, IntersectionID, MovementID, Stage, StageType,
     TurnPriority,
 };
 use widgetry::tools::PopupMsg;
@@ -802,11 +802,12 @@ impl BundleEdits {
         let mut edits = app.primary.map.get_edits().clone();
         // TODO Can we batch these commands somehow, so undo/redo in edit mode behaves properly?
         for signal in self.signals {
-            edits.commands.push(EditCmd::ChangeIntersection {
-                i: signal.id,
-                old: app.primary.map.get_i_edit(signal.id),
-                new: EditIntersection::TrafficSignal(signal.export(&app.primary.map)),
-            });
+            edits
+                .commands
+                .push(app.primary.map.edit_intersection_cmd(signal.id, |new| {
+                    new.control =
+                        EditIntersectionControl::TrafficSignal(signal.export(&app.primary.map));
+                }));
         }
         apply_map_edits(ctx, app, edits);
     }
