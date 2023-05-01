@@ -44,7 +44,6 @@ pub fn geojson_string(app: &App) -> Result<String> {
             let mut feature = Feature::from(pl.to_geojson(gps_bounds));
             feature.set_property("type", "road filter");
             feature.set_property("filter_type", format!("{:?}", filter.filter_type));
-            feature.set_property("user_modified", filter.user_modified);
             feature.set_property("stroke", "red");
             features.push(feature);
         }

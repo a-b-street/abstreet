@@ -561,7 +561,6 @@ fn count_edits(app: &App) -> (usize, usize, usize) {
     let mut diagonal_filters = 0;
     let mut one_ways = 0;
 
-    // TODO Don't include existing filters. But also, don't rely on user_modified
     for (r, orig) in &map.get_edits().original_roads {
         let road = map.get_r(*r);
         // Don't count existing filters that were modified?

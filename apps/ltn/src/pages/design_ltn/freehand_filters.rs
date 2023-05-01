@@ -70,7 +70,7 @@ fn make_filters_along_path(
             edits
                 .commands
                 .push(app.per_map.map.edit_road_cmd(*r, |new| {
-                    new.modal_filter = Some(RoadFilter::new_by_user(dist, filter_type));
+                    new.modal_filter = Some(RoadFilter::new(dist, filter_type));
                 }));
         }
     }

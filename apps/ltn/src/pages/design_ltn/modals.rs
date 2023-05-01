@@ -72,7 +72,7 @@ pub fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[(Ro
                 if LaneSpec::oneway_for_driving(&new.lanes_ltr) == Some(Direction::Back) {
                     LaneSpec::toggle_road_direction(&mut new.lanes_ltr, driving_side);
                 }
-                new.modal_filter = Some(RoadFilter::new_by_user(*dist, app.session.filter_type));
+                new.modal_filter = Some(RoadFilter::new(*dist, app.session.filter_type));
             }));
     }
     app.apply_edits(edits);
@@ -133,7 +133,7 @@ impl State<App> for ResolveBusGate {
             let mut edits = app.per_map.map.get_edits().clone();
             for (r, dist) in self.roads.drain(..) {
                 edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
-                    new.modal_filter = Some(RoadFilter::new_by_user(dist, FilterType::BusGate));
+                    new.modal_filter = Some(RoadFilter::new(dist, FilterType::BusGate));
                 }));
             }
             app.apply_edits(edits);

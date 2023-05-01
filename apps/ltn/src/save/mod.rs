@@ -18,8 +18,7 @@ use crate::{pages, App, Transition};
 pub use share::PROPOSAL_HOST_URL;
 
 pub struct Proposals {
-    // Note MapEdits for the current proposal is NOT up-to-date; map.get_edits() is
-    // TODO Or we could just copy here in apply_edits; would that be simpler?
+    // Note for the current proposal, we have to be very careful to sync MapEdits with this
     pub list: Vec<Proposal>,
     pub current: usize,
 }
@@ -75,12 +74,6 @@ impl Proposal {
         // TODO We could try to detect if the file's partitioning (road IDs and such) still matches
         // this version of the map or not
 
-        // When initially loading a proposal from CLI flag, the partitioning will be a placeholder.
-        // Don't stash it.
-        if !app.partitioning().is_empty() {
-            stash_current_proposal(app);
-        }
-
         app.apply_edits(proposal.edits.clone());
         crate::redraw_all_filters(ctx, app);
 
@@ -106,13 +99,6 @@ impl Proposal {
         context.consume(&bytes);
         Ok(format!("{:x}", context.compute()))
     }
-}
-
-fn stash_current_proposal(app: &mut App) {
-    // We need to sync MapEdits here!
-    app.per_map.proposals.list[app.per_map.proposals.current].edits =
-        app.per_map.map.get_edits().clone();
-    // TODO And compress?
 }
 
 impl Proposals {

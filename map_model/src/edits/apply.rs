@@ -21,9 +21,9 @@ impl Map {
         self.apply_edits(new_edits, false, timer);
     }
 
-    /// A hack. Use this to apply edits, then save the map anyway, pretending like the edits came
-    /// from raw data.
-    pub fn clear_edits_before_save(&mut self) {
+    /// Whatever edits have been applied, treat as the basemap. This erases all commands and
+    /// knowledge of what roads/intersections/etc looked like before.
+    pub fn treat_edits_as_basemap(&mut self) {
         self.edits = self.new_edits();
     }
 

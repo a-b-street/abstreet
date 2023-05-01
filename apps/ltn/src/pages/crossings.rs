@@ -135,7 +135,6 @@ impl State<App> for Crossings {
                     new.crossings.push(Crossing {
                         kind: app.session.crossing_type,
                         dist,
-                        user_modified: true,
                     });
                     new.crossings.sort_by_key(|c| c.dist);
                 }));
@@ -204,9 +203,11 @@ fn draw_crossings(ctx: &EventCtx, app: &App) -> Toggle3Zoomed {
         icons.insert(ct, GeomBatch::load_svg(ctx, Crossings::svg_path(ct)));
     }
 
+    let edits = app.per_map.map.get_edits();
+
     for road in main_roads(app) {
         for crossing in &road.crossings {
-            let rewrite_color = if crossing.user_modified {
+            let rewrite_color = if edits.is_crossing_modified(road.id, crossing) {
                 RewriteColor::NoOp
             } else {
                 RewriteColor::ChangeAlpha(0.7)

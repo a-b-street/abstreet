@@ -21,17 +21,11 @@ pub enum FilterType {
 pub struct RoadFilter {
     pub dist: Distance,
     pub filter_type: FilterType,
-    // TODO Need to remember original filter per road and compare
-    pub user_modified: bool,
 }
 
 impl RoadFilter {
-    pub fn new_by_user(dist: Distance, filter_type: FilterType) -> Self {
-        Self {
-            dist,
-            filter_type,
-            user_modified: true,
-        }
+    pub fn new(dist: Distance, filter_type: FilterType) -> Self {
+        Self { dist, filter_type }
     }
 }
 
@@ -47,7 +41,6 @@ pub struct DiagonalFilter {
     pub r1: RoadID,
     pub r2: RoadID,
     pub filter_type: FilterType,
-    pub user_modified: bool,
 
     pub group1: BTreeSet<RoadID>,
     pub group2: BTreeSet<RoadID>,
@@ -130,7 +123,7 @@ impl DiagonalFilter {
                     road.length()
                 };
                 commands.push(map.edit_road_cmd(r, |new| {
-                    new.modal_filter = Some(RoadFilter::new_by_user(dist, filter_type));
+                    new.modal_filter = Some(RoadFilter::new(dist, filter_type));
                 }));
             }
         }
@@ -170,8 +163,6 @@ impl DiagonalFilter {
             filter_type,
             group1,
             group2: roads.into_iter().collect(),
-            // We don't detect existing diagonal filters right now
-            user_modified: true,
         }
     }
 

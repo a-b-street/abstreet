@@ -27,8 +27,8 @@ mod perma;
 #[derive(Debug, Clone, PartialEq)]
 pub struct MapEdits {
     pub edits_name: String,
-    /// A stack, oldest edit is first. The same intersection may be edited multiple times in this
-    /// stack, until compress() happens.
+    /// A stack, oldest edit is first. The same object may be edited multiple times in this stack,
+    /// until compress() happens.
     pub commands: Vec<EditCmd>,
 
     /// Derived from commands, kept up to date by update_derived
@@ -358,6 +358,29 @@ impl MapEdits {
             &self.edits_name
         } else {
             &self.proposal_description[0]
+        }
+    }
+
+    pub fn is_crossing_modified(&self, r: RoadID, crossing: &Crossing) -> bool {
+        if let Some(orig) = self.original_roads.get(&r) {
+            !orig.crossings.contains(crossing)
+        } else {
+            // If this road isn't in original_roads at all, then nothing there has been modified
+            false
+        }
+    }
+    pub fn is_filter_modified(&self, r: RoadID, filter: &RoadFilter) -> bool {
+        if let Some(orig) = self.original_roads.get(&r) {
+            orig.modal_filter != Some(filter.clone())
+        } else {
+            false
+        }
+    }
+    pub fn is_diagonal_filter_modified(&self, i: IntersectionID, filter: &DiagonalFilter) -> bool {
+        if let Some(orig) = self.original_intersections.get(&i) {
+            orig.modal_filter != Some(filter.clone())
+        } else {
+            false
         }
     }
 }
