@@ -140,8 +140,6 @@ fn setup_initial_states(
             if crate::save::Proposal::load_from_path(ctx, app, path.clone()).is_some() {
                 panic!("Consultation mode broken; go fix {path} manually");
             }
-            // TODO Kind of a weird hack -- rename this to "existing LTNs" so we can't overwrite
-            // it!
             app.per_map.proposals.force_current_to_basemap();
         }
 

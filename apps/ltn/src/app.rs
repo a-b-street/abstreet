@@ -290,13 +290,12 @@ impl App {
         }
     }
 
-    pub fn apply_edits(&mut self, mut edits: MapEdits) {
-        // This may modify edits_name
-        self.per_map.proposals.before_edit(&mut edits);
+    pub fn apply_edits(&mut self, edits: MapEdits) {
+        // Keep the map and the current proposal synced
+        self.per_map.proposals.before_edit(edits.clone());
         self.per_map
             .map
             .must_apply_edits(edits, &mut Timer::throwaway());
-        self.per_map.proposals.mut_current().edits = self.per_map.map.get_edits().clone();
     }
 }
 

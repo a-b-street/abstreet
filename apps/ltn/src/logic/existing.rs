@@ -9,7 +9,6 @@ use map_model::{osm, Crossing, FilterType, Map, RoadFilter, RoadID};
 /// TODO Maybe do this in the map importer pipeline!
 pub fn transform_existing(map: &mut Map, timer: &mut Timer) {
     let mut edits = map.get_edits().clone();
-    edits.edits_name = "existing LTNs".to_string();
 
     let mut crossings = detect_crossings(map);
 

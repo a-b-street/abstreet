@@ -74,7 +74,6 @@ pub fn from_permanent(map: &Map, mut proposal_value: Value) -> Result<Proposal> 
     Ok(Proposal {
         edits,
         partitioning,
-        unsaved_parent: None,
     })
 }
 
