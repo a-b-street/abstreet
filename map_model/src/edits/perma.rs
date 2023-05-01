@@ -8,7 +8,9 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
 
 use crate::edits::{EditCmd, EditIntersection, EditIntersectionControl, EditRoad, MapEdits};
-use crate::{osm, ControlStopSign, IntersectionID, Map, MovementID, OriginalRoad, TurnType};
+use crate::{
+    osm, ControlStopSign, DiagonalFilter, IntersectionID, Map, MovementID, OriginalRoad, TurnType,
+};
 
 // Manually change this to attempt to preserve edits after major OSM updates.
 const IGNORE_OLD_LANES: bool = false;
@@ -32,6 +34,7 @@ pub struct PermanentMapEdits {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PermanentEditIntersection {
     control: PermanentEditIntersectionControl,
+    modal_filter: Option<DiagonalFilter>,
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -239,6 +242,9 @@ impl EditIntersection {
                 }
                 EditIntersectionControl::Closed => PermanentEditIntersectionControl::Closed,
             },
+            // TODO This uses local map IDs, not even OSM IDs. Inconsistent with PermanentMapEdits,
+            // but this should all get overhauled "soon" to be GeoJSON and reference no IDs at all.
+            modal_filter: self.modal_filter.clone(),
             crosswalks: self
                 .crosswalks
                 .iter()
@@ -304,6 +310,8 @@ impl PermanentEditIntersection {
 
         Ok(EditIntersection {
             control,
+            // TODO Express as GeoJSON
+            modal_filter: self.modal_filter.clone(),
             crosswalks,
         })
     }

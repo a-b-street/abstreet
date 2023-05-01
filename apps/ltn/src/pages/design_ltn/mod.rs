@@ -11,7 +11,7 @@ use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{EventCtx, Panel};
 
-use crate::{is_private, logic, pages, App, Neighbourhood, Transition};
+use crate::{is_private, pages, App, Neighbourhood, Transition};
 
 pub use page::DesignLTN;
 
@@ -90,7 +90,7 @@ impl EditNeighbourhood {
             EditMode::FreehandFilters(_) => unreachable!(),
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
             EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
-            EditMode::SpeedLimits => speed_limits::handle_world_outcome(ctx, app, outcome),
+            EditMode::SpeedLimits => speed_limits::handle_world_outcome(app, outcome),
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();
@@ -125,7 +125,10 @@ impl EditNeighbourhood {
                 pages::PerResidentImpact::new_state(ctx, app, id, None),
             )),
             "undo" => {
-                logic::map_edits::undo_proposal(ctx, app);
+                let mut edits = app.per_map.map.get_edits().clone();
+                edits.commands.pop().unwrap();
+                app.apply_edits(edits);
+                crate::redraw_all_filters(ctx, app);
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
                     *maybe_focus = None;

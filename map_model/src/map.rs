@@ -17,8 +17,8 @@ use crate::{
     DrivingSide, ExtraPOI, Intersection, IntersectionControl, IntersectionID, IntersectionKind,
     Lane, LaneID, LaneType, Map, MapConfig, MapEdits, Movement, MovementID, OffstreetParking,
     OriginalRoad, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2, Pathfinder,
-    PathfinderCaching, Position, Road, RoadID, RoutingParams, TransitRoute, TransitRouteID,
-    TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
+    PathfinderCaching, Position, Road, RoadFilter, RoadID, RoutingParams, TransitRoute,
+    TransitRouteID, TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
 };
 
 impl Map {
@@ -240,6 +240,16 @@ impl Map {
 
     pub fn all_roads(&self) -> &Vec<Road> {
         &self.roads
+    }
+
+    pub fn all_roads_with_modal_filter(&self) -> impl Iterator<Item = (&Road, &RoadFilter)> {
+        self.roads.iter().filter_map(|r| {
+            if let Some(ref filter) = r.modal_filter {
+                Some((r, filter))
+            } else {
+                None
+            }
+        })
     }
 
     pub fn all_lanes(&self) -> impl Iterator<Item = &Lane> {
@@ -883,6 +893,26 @@ impl Map {
     // in which case it should be easy to look for all places calling this.
     pub fn routing_params(&self) -> &RoutingParams {
         &self.routing_params
+    }
+
+    /// Adjusts the routing params baked into the map by accounting for any modal filters created
+    /// since.
+    /// TODO It's weird that these don't already take effect!
+    pub fn routing_params_respecting_modal_filters(&self) -> RoutingParams {
+        let mut params = self.routing_params.clone();
+        for r in &self.roads {
+            if r.modal_filter.is_some() {
+                params.avoid_roads.insert(r.id);
+            }
+        }
+        for i in &self.intersections {
+            if let Some(ref filter) = i.modal_filter {
+                params
+                    .avoid_movements_between
+                    .extend(filter.avoid_movements_between_roads());
+            }
+        }
+        params
     }
 
     pub fn road_to_buildings(&self, r: RoadID) -> &BTreeSet<BuildingID> {

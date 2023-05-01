@@ -8,7 +8,7 @@ use map_model::{
 };
 use widgetry::GeomBatch;
 
-use crate::{App, Cell, Edits, Neighbourhood};
+use crate::{App, Cell, Neighbourhood};
 
 pub struct Shortcuts {
     pub paths: Vec<PathV2>,
@@ -26,7 +26,7 @@ impl Shortcuts {
         }
     }
 
-    pub fn new(map: &Map, edits: &Edits, neighbourhood: &Neighbourhood, timer: &mut Timer) -> Self {
+    pub fn new(map: &Map, neighbourhood: &Neighbourhood, timer: &mut Timer) -> Self {
         // The overall approach: look for all possible paths from an entrance to an exit, only if they
         // connect to different major roads.
         //
@@ -64,8 +64,7 @@ impl Shortcuts {
             return Self::empty();
         }
 
-        let mut params = map.routing_params().clone();
-        edits.update_routing_params(&mut params);
+        let mut params = map.routing_params_respecting_modal_filters();
 
         // Restrict the pathfinding to the interior of the neighbourhood only. Don't allow using
         // perimeter roads or leaving and re-entering at all.

@@ -8,12 +8,12 @@ use map_gui::render::{DrawMap, DrawOptions};
 use map_gui::tools::CameraState;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_gui::{AppLike, ID};
-use map_model::{osm, CrossingType, IntersectionID, Map, RoutingParams};
+use map_model::{osm, CrossingType, FilterType, IntersectionID, Map, MapEdits, RoutingParams};
 use widgetry::tools::URLManager;
 use widgetry::{Canvas, Drawable, EventCtx, GfxCtx, SharedAppState, State, Warper};
 
 use crate::logic::Partitioning;
-use crate::{logic, pages, render, Edits, FilterType, NeighbourhoodID};
+use crate::{logic, pages, render, NeighbourhoodID};
 
 pub type Transition = widgetry::Transition<App>;
 
@@ -62,18 +62,12 @@ impl PerMap {
         // Do this before creating the default partitioning. Non-driveable roads in OSM get turned
         // into driveable roads and a filter here, and we want the partitioning to "see" those
         // roads.
-        let edits = logic::transform_existing_filters(&mut map, timer);
-        let mut proposals = crate::save::Proposals::new(&map, edits, timer);
+        logic::transform_existing(&mut map, timer);
+        let proposals = crate::save::Proposals::new(&map, timer);
 
-        let mut routing_params_before_changes = map.routing_params().clone();
-        proposals
-            .current_proposal
-            .edits
-            .update_routing_params(&mut routing_params_before_changes);
+        let routing_params_before_changes = map.routing_params_respecting_modal_filters();
 
-        let draw_all_filters = proposals.current_proposal.edits.draw(ctx, &map);
-
-        logic::populate_existing_crossings(&map, &mut proposals.current_proposal.edits);
+        let draw_all_filters = render::render_modal_filters(ctx, &map);
 
         // Create DrawMap after transform_existing_filters, which modifies road widths
         let draw_map = DrawMap::new(ctx, &map, opts, cs, timer);
@@ -281,11 +275,8 @@ impl App {
         g.redraw(&self.per_map.draw_map.draw_all_building_outlines);
     }
 
-    pub fn edits(&self) -> &Edits {
-        &self.per_map.proposals.current_proposal.edits
-    }
     pub fn partitioning(&self) -> &Partitioning {
-        &self.per_map.proposals.current_proposal.partitioning
+        &self.per_map.proposals.get_current().partitioning
     }
 
     pub fn calculate_draw_all_local_road_labels(&mut self, ctx: &mut EventCtx) {
@@ -297,6 +288,14 @@ impl App {
                 Box::new(|r| r.get_rank() == osm::RoadRank::Local && !r.is_light_rail()),
             ));
         }
+    }
+
+    pub fn apply_edits(&mut self, mut edits: MapEdits) {
+        // This may modify edits_name
+        self.per_map.proposals.before_edit(&mut edits);
+        self.per_map
+            .map
+            .must_apply_edits(edits, &mut Timer::throwaway());
     }
 }
 

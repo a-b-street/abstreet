@@ -5,7 +5,7 @@ use widgetry::{EventCtx, Text, Widget};
 
 use super::{EditOutcome, Obj};
 use crate::render::colors;
-use crate::{logic, App, Neighbourhood};
+use crate::{App, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx) -> Widget {
     ColorLegend::categories(
@@ -58,11 +58,7 @@ pub fn make_world(ctx: &mut EventCtx, app: &App, neighbourhood: &Neighbourhood) 
     world
 }
 
-pub fn handle_world_outcome(
-    ctx: &mut EventCtx,
-    app: &mut App,
-    outcome: WorldOutcome<Obj>,
-) -> EditOutcome {
+pub fn handle_world_outcome(app: &mut App, outcome: WorldOutcome<Obj>) -> EditOutcome {
     match outcome {
         WorldOutcome::ClickedObject(Obj::Road(r)) => {
             if app.per_map.map.get_r(r).speed_limit == Speed::miles_per_hour(20.0) {
@@ -73,8 +69,7 @@ pub fn handle_world_outcome(
             edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
                 new.speed_limit = Speed::miles_per_hour(20.0);
             }));
-
-            logic::map_edits::modify_road(ctx, app, r, edits);
+            app.apply_edits(edits);
 
             EditOutcome::UpdateAll
         }

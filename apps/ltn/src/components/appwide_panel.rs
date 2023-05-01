@@ -99,7 +99,7 @@ impl AppwidePanel {
 
 fn launch_impact(ctx: &mut EventCtx, app: &mut App) -> Transition {
     if &app.per_map.impact.map == app.per_map.map.get_name()
-        && app.per_map.impact.change_key == app.edits().get_change_key()
+        && app.per_map.impact.map_edit_key == app.per_map.map.get_edits_change_key()
     {
         return Transition::Replace(pages::ShowImpactResults::new_state(ctx, app));
     }
@@ -256,7 +256,7 @@ fn make_left_panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode)
                 .build_widget(ctx, "hide proposals")
                 .align_right(),
         );
-        col.push(app.per_map.proposals.to_widget_expanded(ctx, app));
+        col.push(app.per_map.proposals.to_widget_expanded(ctx));
     } else {
         col.push(
             ctx.style()

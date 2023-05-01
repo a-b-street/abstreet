@@ -106,6 +106,7 @@ impl Map {
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
+                modal_filter: None,
                 merged: !raw.streets.intersections[&i.id]
                     .trim_roads_for_merging
                     .is_empty(),
@@ -187,8 +188,10 @@ impl Map {
                 crosswalk_forward: extra.crosswalk_forward,
                 crosswalk_backward: extra.crosswalk_backward,
                 transit_stops: BTreeSet::new(),
+                modal_filter: None,
                 barrier_nodes,
                 crossing_nodes,
+                crossings: Vec::new(),
             };
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();

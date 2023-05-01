@@ -6,67 +6,37 @@ mod share;
 use std::collections::BTreeSet;
 
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
 
-use abstio::MapName;
 use abstutil::{Counter, Timer};
-use map_model::{BuildingID, EditRoad, Map};
+use map_model::{BuildingID, Map, MapEdits};
 use widgetry::tools::PopupMsg;
 use widgetry::{EventCtx, State};
 
 use crate::logic::{BlockID, Partitioning};
-use crate::{pages, App, Edits, Transition};
+use crate::{pages, App, Transition};
 
 pub use share::PROPOSAL_HOST_URL;
 
-/// Captures all of the edits somebody makes to a map in the LTN tool. Note this is separate from
-/// `map_model::MapEdits`.
-#[derive(Clone, Serialize, Deserialize)]
-pub struct Proposal {
-    pub map: MapName,
-    /// "existing LTNs" is a special reserved name
-    pub name: String,
-    pub abst_version: String,
+pub struct Proposals {
+    // Note MapEdits for the current proposal is NOT up-to-date; map.get_edits() is
+    // TODO Or we could just copy here in apply_edits; would that be simpler?
+    pub list: Vec<Proposal>,
+    pub current: usize,
+}
 
+/// Captures all of the edits somebody makes to a map in the LTN tool.
+/// TODO This should just be MapEdits, but we need to deal with Partitioning still
+/// Note "existing LTNs" is a special reserved name
+#[derive(Clone)]
+pub struct Proposal {
     pub partitioning: Partitioning,
-    pub edits: Edits,
+    pub edits: MapEdits,
 
     /// If this proposal is an edit to another proposal, store its name
-    #[serde(skip_serializing, skip_deserializing)]
     unsaved_parent: Option<String>,
 }
 
 impl Proposal {
-    fn make_active(self, ctx: &EventCtx, app: &mut App) {
-        // First undo any one-way changes
-        let mut edits = app.per_map.map.new_edits();
-        for r in app.edits().one_ways.keys().cloned() {
-            // Just revert to the original state
-            edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
-                *new = EditRoad::get_orig_from_osm(
-                    app.per_map.map.get_r(r),
-                    app.per_map.map.get_config(),
-                );
-            }));
-        }
-
-        app.per_map.proposals.current_proposal = self;
-        app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
-
-        // Then append any new one-way changes. Edits are applied in order, so the net effect
-        // should be correct.
-        for (r, r_edit) in &app.edits().one_ways {
-            edits
-                .commands
-                .push(app.per_map.map.edit_road_cmd(*r, move |new| {
-                    *new = r_edit.clone();
-                }));
-        }
-        app.per_map
-            .map
-            .must_apply_edits(edits, &mut Timer::throwaway());
-    }
-
     /// Try to load a proposal. If it fails, returns a popup message state.
     pub fn load_from_path(
         ctx: &mut EventCtx,
@@ -109,13 +79,13 @@ impl Proposal {
         // Don't stash it.
         if !app.partitioning().is_empty() {
             stash_current_proposal(app);
-
-            // Start a new proposal
-            app.per_map.proposals.list.push(None);
-            app.per_map.proposals.current = app.per_map.proposals.list.len() - 1;
         }
 
-        proposal.make_active(ctx, app);
+        app.apply_edits(proposal.edits.clone());
+        crate::redraw_all_filters(ctx, app);
+
+        app.per_map.proposals.list.push(proposal);
+        app.per_map.proposals.current = app.per_map.proposals.list.len() - 1;
 
         Ok(())
     }
@@ -139,94 +109,63 @@ impl Proposal {
 }
 
 fn stash_current_proposal(app: &mut App) {
-    // TODO Could we swap and be more efficient?
-    *app.per_map
-        .proposals
-        .list
-        .get_mut(app.per_map.proposals.current)
-        .unwrap() = Some(app.per_map.proposals.current_proposal.clone());
-}
-
-pub struct Proposals {
-    // All entries are filled out, except for the current proposal being worked on
-    list: Vec<Option<Proposal>>,
-    current: usize,
-
-    pub current_proposal: Proposal,
+    // We need to sync MapEdits here!
+    app.per_map.proposals.list[app.per_map.proposals.current].edits =
+        app.per_map.map.get_edits().clone();
+    // TODO And compress?
 }
 
 impl Proposals {
     // This calculates partitioning, which is expensive
-    pub fn new(map: &Map, edits: Edits, timer: &mut Timer) -> Self {
+    pub fn new(map: &Map, timer: &mut Timer) -> Self {
         Self {
-            list: vec![None],
-            current: 0,
-
-            current_proposal: Proposal {
-                map: map.get_name().clone(),
-                name: "existing LTNs".to_string(),
-                abst_version: map_gui::tools::version().to_string(),
+            list: vec![Proposal {
                 partitioning: Partitioning::seed_using_heuristics(map, timer),
-                edits,
+                edits: map.get_edits().clone(),
                 unsaved_parent: None,
-            },
+            }],
+            current: 0,
         }
+    }
+
+    pub fn get_current(&self) -> &Proposal {
+        &self.list[self.current]
+    }
+    pub fn mut_current(&mut self) -> &mut Proposal {
+        &mut self.list[self.current]
     }
 
     // Special case for locking into a consultation mode
-    pub fn clear_all_but_current(&mut self) {
-        self.list = vec![None];
+    pub fn force_current_to_basemap(&mut self) {
+        let mut current = self.list.remove(self.current);
+        current.edits.edits_name = "existing LTNs".to_string();
+        self.list = vec![current];
         self.current = 0;
     }
 
-    /// Call before making any changes to fork a copy of the proposal and to preserve edit history
-    pub fn before_edit(&mut self) {
+    /// Call before making any changes to fork a copy of the proposal
+    pub fn before_edit(&mut self, edits: &mut MapEdits) {
         // Fork the proposal or not?
-        if self.current_proposal.unsaved_parent.is_none() {
+        if self.get_current().unsaved_parent.is_none() {
             // Fork a new proposal if we're starting from the immutable baseline
             let from_immutable = self.current == 0;
             if from_immutable {
-                self.list
-                    .insert(self.current, Some(self.current_proposal.clone()));
-                self.current += 1;
-                assert!(self.list[self.current].is_none());
+                // We don't need to to sync MapEdits before doing this; this is the immutable,
+                // original edits
+                self.list.insert(1, self.list[0].clone());
+                self.current = 1;
             }
             // Otherwise, just replace the current proposal with something that's clearly edited
-            self.current_proposal.unsaved_parent = Some(self.current_proposal.name.clone());
+            self.list[self.current].unsaved_parent = Some(edits.edits_name.clone());
+
             if from_immutable {
                 // There'll be name collision if people start multiple unsaved files, but it
                 // shouldn't cause problems
-                self.current_proposal.name = "new proposal*".to_string();
+                edits.edits_name = "new proposal*".to_string();
             } else {
-                self.current_proposal.name = format!("{}*", self.current_proposal.name);
+                edits.edits_name = format!("{}*", self.get_current().edits.edits_name);
             }
         }
-
-        // Handle undo history
-        let copy = self.current_proposal.edits.clone();
-        self.current_proposal.edits.previous_version = Box::new(Some(copy));
-    }
-
-    /// If it's possible no edits were made, undo the previous call to `before_edit` and collapse
-    /// the redundant piece of history. Returns true if the edit was indeed empty.
-    pub fn cancel_empty_edit(&mut self) -> bool {
-        if let Some(prev) = self.current_proposal.edits.previous_version.take() {
-            if self.current_proposal.edits.roads == prev.roads
-                && self.current_proposal.edits.intersections == prev.intersections
-                && self.current_proposal.edits.one_ways == prev.one_ways
-            {
-                self.current_proposal.edits.previous_version = prev.previous_version;
-
-                // TODO Maybe "unfork" the proposal -- remove the unsaved marker. But that depends
-                // on if the previous proposal was already modified or not.
-
-                return true;
-            } else {
-                // There was a real difference, keep
-                self.current_proposal.edits.previous_version = Box::new(Some(prev));
-            }
-        }
-        false
     }
 }
 

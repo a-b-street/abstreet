@@ -7,7 +7,7 @@ use map_model::{osm, Direction, IntersectionID, Map, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
 use crate::logic::{CustomBoundary, Partitioning, Shortcuts};
-use crate::{is_private, App, Edits, NeighbourhoodID};
+use crate::{is_private, App, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
 pub struct Neighbourhood {
@@ -55,7 +55,7 @@ impl Cell {
                 // Design choice: when we have a filter right at the entrance of a neighbourhood, it
                 // creates its own little cell allowing access to just the very beginning of the
                 // road. Let's not draw anything for that.
-                if app.edits().roads.contains_key(r) {
+                if road.modal_filter.is_some() {
                     continue;
                 }
 
@@ -106,17 +106,16 @@ pub struct DistanceInterval {
 
 impl Neighbourhood {
     pub fn new(app: &App, id: NeighbourhoodID) -> Neighbourhood {
-        Self::new_without_app(&app.per_map.map, app.edits(), app.partitioning(), id)
+        Self::new_without_app(&app.per_map.map, app.partitioning(), id)
     }
 
     pub fn new_without_app(
         map: &Map,
-        edits: &Edits,
         partitioning: &Partitioning,
         id: NeighbourhoodID,
     ) -> Neighbourhood {
         if let Some(custom) = partitioning.custom_boundaries.get(&id) {
-            return Self::new_custom(map, edits, id, custom.clone());
+            return Self::new_custom(map, id, custom.clone());
         }
 
         let orig_perimeter = partitioning.neighbourhood_block(id).perimeter.clone();
@@ -159,16 +158,11 @@ impl Neighbourhood {
             }
         }
 
-        n.finish_init(map, edits);
+        n.finish_init(map);
         n
     }
 
-    fn new_custom(
-        map: &Map,
-        edits: &Edits,
-        id: NeighbourhoodID,
-        custom: CustomBoundary,
-    ) -> Neighbourhood {
+    fn new_custom(map: &Map, id: NeighbourhoodID, custom: CustomBoundary) -> Neighbourhood {
         let mut n = Neighbourhood {
             id,
             interior_roads: custom.interior_roads,
@@ -182,11 +176,11 @@ impl Neighbourhood {
             cells: Vec::new(),
             shortcuts: Shortcuts::empty(),
         };
-        n.finish_init(map, edits);
+        n.finish_init(map);
         n
     }
 
-    fn finish_init(&mut self, map: &Map, edits: &Edits) {
+    fn finish_init(&mut self, map: &Map) {
         for r in &self.interior_roads {
             let road = map.get_r(*r);
             for i in [road.src_i, road.dst_i] {
@@ -196,15 +190,16 @@ impl Neighbourhood {
             }
         }
 
-        self.edits_changed(map, edits);
+        self.edits_changed(map);
     }
 
-    pub fn edits_changed(&mut self, map: &Map, edits: &Edits) {
-        self.cells = find_cells(map, &self.interior_roads, &self.borders, edits);
+    /// Recalculates cells and shortcuts after a relevant edit
+    pub fn edits_changed(&mut self, map: &Map) {
+        self.cells = find_cells(map, &self.interior_roads, &self.borders);
 
         // TODO The timer could be nice for large areas. But plumbing through one everywhere is
         // tedious, and would hit a nested start_iter bug anyway.
-        self.shortcuts = Shortcuts::new(map, edits, self, &mut abstutil::Timer::throwaway());
+        self.shortcuts = Shortcuts::new(map, self, &mut abstutil::Timer::throwaway());
     }
 
     pub fn fade_irrelevant(&self, ctx: &EventCtx, app: &App) -> Drawable {
@@ -226,13 +221,12 @@ fn find_cells(
     map: &Map,
     interior_roads: &BTreeSet<RoadID>,
     borders: &BTreeSet<IntersectionID>,
-    edits: &Edits,
 ) -> Vec<Cell> {
     let mut cells = Vec::new();
     let mut visited = BTreeSet::new();
 
     for start in interior_roads {
-        if visited.contains(start) || edits.roads.contains_key(start) {
+        if visited.contains(start) || map.get_r(*start).modal_filter.is_some() {
             continue;
         }
         let start = *start;
@@ -253,15 +247,14 @@ fn find_cells(
             continue;
         }
 
-        let cell = floodfill(map, start, borders, interior_roads, &edits);
+        let cell = floodfill(map, start, borders, interior_roads);
         visited.extend(cell.roads.keys().cloned());
 
         cells.push(cell);
     }
 
     // Filtered roads right along the perimeter have a tiny cell
-    for (r, filter) in &edits.roads {
-        let road = map.get_r(*r);
+    for (road, filter) in map.all_roads_with_modal_filter() {
         if borders.contains(&road.src_i) {
             let mut cell = Cell {
                 roads: BTreeMap::new(),
@@ -300,7 +293,6 @@ fn floodfill(
     start: RoadID,
     neighbourhood_borders: &BTreeSet<IntersectionID>,
     interior_roads: &BTreeSet<RoadID>,
-    edits: &Edits,
 ) -> Cell {
     let mut visited_roads: BTreeMap<RoadID, DistanceInterval> = BTreeMap::new();
     let mut cell_borders = BTreeSet::new();
@@ -308,7 +300,7 @@ fn floodfill(
     let mut queue = vec![start];
 
     // The caller should handle this case
-    assert!(!edits.roads.contains_key(&start));
+    assert!(map.get_r(start).modal_filter.is_none());
     assert!(crate::is_driveable(map.get_r(start), map));
 
     while !queue.is_empty() {
@@ -336,12 +328,12 @@ fn floodfill(
 
             for next in &map.get_i(i).roads {
                 let next_road = map.get_r(*next);
-                if let Some(filter) = edits.intersections.get(&i) {
+                if let Some(ref filter) = map.get_i(i).modal_filter {
                     if !filter.allows_turn(current.id, *next) {
                         continue;
                     }
                 }
-                if let Some(filter) = edits.roads.get(next) {
+                if let Some(ref filter) = map.get_r(*next).modal_filter {
                     // Which ends of the filtered road have we reached?
                     let mut visited_start = next_road.src_i == i;
                     let mut visited_end = next_road.dst_i == i;

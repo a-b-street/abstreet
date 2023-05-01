@@ -21,12 +21,7 @@ impl SaveDialog {
         app: &App,
         preserve_state: PreserveState,
     ) -> Box<dyn State<App>> {
-        let parent = app
-            .per_map
-            .proposals
-            .current_proposal
-            .unsaved_parent
-            .clone();
+        let parent = app.per_map.proposals.get_current().unsaved_parent.clone();
         let can_overwrite = parent.is_some() && parent != Some("existing LTNs".to_string());
 
         let mut state = Self {
@@ -133,8 +128,10 @@ impl State<App> for SaveDialog {
                     // TODO If we're clobbering something that exists in Proposals especially...
                     // watch out
 
-                    app.per_map.proposals.current_proposal.name = name;
-                    app.per_map.proposals.current_proposal.unsaved_parent = None;
+                    let current = app.per_map.proposals.mut_current();
+                    // TODO apply edits?
+                    current.edits.edits_name = name;
+                    current.unsaved_parent = None;
                     match inner_save(app) {
                         // If we changed the name, we'll want to recreate the panel
                         Ok(()) => self.preserve_state.switch_to_state(ctx, app),
@@ -146,9 +143,9 @@ impl State<App> for SaveDialog {
                 "Overwrite" => {
                     // TODO If the user loaded the parent file again, this'll be confusing. Maybe
                     // ban that?
-                    let proposals = &mut app.per_map.proposals;
-                    proposals.current_proposal.name =
-                        proposals.current_proposal.unsaved_parent.take().unwrap();
+
+                    let current = app.per_map.proposals.mut_current();
+                    current.edits.edits_name = current.unsaved_parent.take().unwrap();
 
                     match inner_save(app) {
                         Ok(()) => self.preserve_state.switch_to_state(ctx, app),
@@ -160,12 +157,12 @@ impl State<App> for SaveDialog {
                     }
                 }
                 "save as file" => {
-                    let proposal = &app.per_map.proposals.current_proposal;
+                    let proposal = app.per_map.proposals.get_current();
                     Transition::Replace(match proposal.to_gzipped_bytes(app) {
                         Ok(contents) => FileSaver::with_default_messages(
                             ctx,
                             // * is used to indicate an unsaved file; don't include it in the filename
-                            format!("{}.json.gz", proposal.name.replace("*", "")),
+                            format!("{}.json.gz", proposal.edits.edits_name.replace("*", "")),
                             Some(abstio::path_all_ltn_proposals(app.per_map.map.get_name())),
                             FileSaverContents::Bytes(contents),
                         ),
@@ -198,8 +195,8 @@ impl State<App> for SaveDialog {
 }
 
 fn inner_save(app: &App) -> Result<()> {
-    let proposal = &app.per_map.proposals.current_proposal;
-    let path = abstio::path_ltn_proposals(app.per_map.map.get_name(), &proposal.name);
+    let proposal = app.per_map.proposals.get_current();
+    let path = abstio::path_ltn_proposals(app.per_map.map.get_name(), &proposal.edits.edits_name);
     let output_buffer = proposal.to_gzipped_bytes(app)?;
     abstio::write_raw(path, &output_buffer)
 }

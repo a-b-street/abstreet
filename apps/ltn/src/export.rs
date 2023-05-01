@@ -1,4 +1,6 @@
 use anyhow::Result;
+use geo::MapCoordsInPlace;
+use geojson::{Feature, FeatureCollection, GeoJson, Value};
 
 use geom::{PolyLine, Pt2D};
 use osm2streets::Direction;
@@ -6,21 +8,24 @@ use osm2streets::Direction;
 use crate::{render, App, Neighbourhood};
 
 pub fn geojson_string(app: &App) -> Result<String> {
-    use geo::MapCoordsInPlace;
-    use geojson::{Feature, FeatureCollection, GeoJson, Geometry, Value};
-
     let map = &app.per_map.map;
+    let gps_bounds = Some(map.get_gps_bounds());
     let mut features = Vec::new();
 
     // All neighbourhood boundaries
     for (id, info) in app.partitioning().all_neighbourhoods() {
-        let mut feature = Feature::from(info.block.polygon.to_geojson(None));
+        let mut feature = Feature::from(info.block.polygon.to_geojson(gps_bounds));
         feature.set_property("type", "neighbourhood");
         features.push(feature);
 
         // Cells per neighbourhood
         let render_cells = render::RenderCells::new(map, &Neighbourhood::new(app, *id));
-        for (idx, multipolygon) in render_cells.to_multipolygons().into_iter().enumerate() {
+        for (idx, mut multipolygon) in render_cells.to_multipolygons().into_iter().enumerate() {
+            // Transform to WGS84
+            multipolygon.map_coords_in_place(|c| {
+                let gps = Pt2D::new(c.x, c.y).to_gps(map.get_gps_bounds());
+                (gps.x(), gps.y()).into()
+            });
             let mut feature = Feature::from(Value::from(&multipolygon));
             feature.set_property("type", "cell");
             feature.set_property("fill", render_cells.colors[idx].as_hex());
@@ -29,15 +34,14 @@ pub fn geojson_string(app: &App) -> Result<String> {
     }
 
     // All modal filters
-    for (r, filter) in &app.edits().roads {
-        let road = map.get_r(*r);
+    for (road, filter) in map.all_roads_with_modal_filter() {
         if let Ok((pt, angle)) = road.center_pts.dist_along(filter.dist) {
             let road_width = road.get_width();
             let pl = PolyLine::must_new(vec![
                 pt.project_away(0.8 * road_width, angle.rotate_degs(90.0)),
                 pt.project_away(0.8 * road_width, angle.rotate_degs(-90.0)),
             ]);
-            let mut feature = Feature::from(pl.to_geojson(None));
+            let mut feature = Feature::from(pl.to_geojson(gps_bounds));
             feature.set_property("type", "road filter");
             feature.set_property("filter_type", format!("{:?}", filter.filter_type));
             feature.set_property("user_modified", filter.user_modified);
@@ -45,64 +49,48 @@ pub fn geojson_string(app: &App) -> Result<String> {
             features.push(feature);
         }
     }
-    for (_, filter) in &app.edits().intersections {
-        let pl = filter.geometry(map).to_polyline();
-        let mut feature = Feature::from(pl.to_geojson(None));
-        feature.set_property("type", "diagonal filter");
-        feature.set_property("filter_type", format!("{:?}", filter.filter_type));
-        feature.set_property("stroke", "red");
-        features.push(feature);
+    for i in map.all_intersections() {
+        if let Some(ref filter) = i.modal_filter {
+            let pl = filter.geometry(map).to_polyline();
+            let mut feature = Feature::from(pl.to_geojson(gps_bounds));
+            feature.set_property("type", "diagonal filter");
+            feature.set_property("filter_type", format!("{:?}", filter.filter_type));
+            feature.set_property("stroke", "red");
+            features.push(feature);
+        }
     }
 
-    for r in app.edits().one_ways.keys() {
-        let road = app.per_map.map.get_r(*r);
-        let mut feature = Feature::from(road.center_pts.to_geojson(None));
-        feature.set_property("type", "one-way change");
-        feature.set_property(
-            "direction",
-            match road.oneway_for_driving() {
-                Some(Direction::Fwd) => "one-way forwards",
-                Some(Direction::Back) => "one-way backwards",
-                None => "two-ways",
-            },
-        );
-        feature.set_property("stroke", "blue");
-        features.push(feature);
+    // This includes the direction of every driveable road, not just one-ways. Not sure who's using
+    // this export or how, so doesn't matter much.
+    for road in map.all_roads() {
+        if crate::is_driveable(road, map) {
+            let mut feature = Feature::from(road.center_pts.to_geojson(gps_bounds));
+            feature.set_property("type", "direction");
+            feature.set_property(
+                "direction",
+                match road.oneway_for_driving() {
+                    Some(Direction::Fwd) => "one-way forwards",
+                    Some(Direction::Back) => "one-way backwards",
+                    None => "two-ways",
+                },
+            );
+            feature.set_property("stroke", "blue");
+            features.push(feature);
+        }
     }
 
-    for (r, list) in &app.edits().crossings {
-        let road = app.per_map.map.get_r(*r);
-        for crossing in list {
+    for road in map.all_roads() {
+        for crossing in &road.crossings {
             let mut feature = Feature::from(
                 road.center_pts
                     .must_dist_along(crossing.dist)
                     .0
-                    .to_geojson(None),
+                    .to_geojson(gps_bounds),
             );
             feature.set_property("type", "crossing");
             feature.set_property("crossing_type", format!("{:?}", crossing.kind));
             features.push(feature);
         }
-    }
-
-    // Transform to WGS84
-    let gps_bounds = map.get_gps_bounds();
-    for feature in &mut features {
-        // geojson to geo
-        // This could be a Polygon, MultiPolygon, LineString, Point
-        let mut geom: geo::Geometry = feature.geometry.take().unwrap().value.try_into()?;
-
-        geom.map_coords_in_place(|c| {
-            let gps = Pt2D::new(c.x, c.y).to_gps(gps_bounds);
-            (gps.x(), gps.y()).into()
-        });
-
-        // geo to geojson
-        feature.geometry = Some(Geometry {
-            bbox: None,
-            value: Value::from(&geom),
-            foreign_members: None,
-        });
     }
 
     let gj = GeoJson::FeatureCollection(FeatureCollection {

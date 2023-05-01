@@ -7,8 +7,9 @@ use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
 
 use crate::{
-    osm, CompressedMovementID, DirectedRoadID, IntersectionControl, IntersectionKind, LaneID, Map,
-    Movement, MovementID, PathConstraints, Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
+    osm, CompressedMovementID, DiagonalFilter, DirectedRoadID, IntersectionControl,
+    IntersectionKind, LaneID, Map, Movement, MovementID, PathConstraints, Road, RoadID, RoadSideID,
+    SideOfRoad, Turn, TurnID,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -50,6 +51,8 @@ pub struct Intersection {
 
     // These're ordered clockwise around the intersection
     pub roads: Vec<RoadID>,
+
+    pub modal_filter: Option<DiagonalFilter>,
 
     /// Was a short road adjacent to this intersection merged?
     pub merged: bool,

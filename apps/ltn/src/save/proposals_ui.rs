@@ -8,7 +8,7 @@ use super::{stash_current_proposal, PreserveState, Proposal, Proposals};
 use crate::{App, Transition};
 
 impl Proposals {
-    pub fn to_widget_expanded(&self, ctx: &EventCtx, app: &App) -> Widget {
+    pub fn to_widget_expanded(&self, ctx: &EventCtx) -> Widget {
         let mut col = Vec::new();
         for (action, icon, hotkey) in [
             ("New", "pencil", None),
@@ -27,23 +27,13 @@ impl Proposals {
         }
 
         for (idx, proposal) in self.list.iter().enumerate() {
-            let button = if let Some(proposal) = proposal {
-                ctx.style()
-                    .btn_solid_primary
-                    .text(format!("{} - {}", idx + 1, proposal.name))
-                    .hotkey(Key::NUM_KEYS[idx])
-                    .build_widget(ctx, &format!("switch to proposal {}", idx))
-            } else {
-                ctx.style()
-                    .btn_solid_primary
-                    .text(format!(
-                        "{} - {}",
-                        idx + 1,
-                        app.per_map.proposals.current_proposal.name
-                    ))
-                    .disabled(true)
-                    .build_def(ctx)
-            };
+            let button = ctx
+                .style()
+                .btn_solid_primary
+                .text(format!("{} - {}", idx + 1, proposal.edits.edits_name))
+                .hotkey(Key::NUM_KEYS[idx])
+                .disabled(idx == self.current)
+                .build_widget(ctx, &format!("switch to proposal {}", idx));
             col.push(Widget::row(vec![
                 button,
                 // The first proposal (usually "existing LTNs", unless we're in a special consultation
@@ -96,8 +86,6 @@ impl Proposals {
                 if app.per_map.proposals.current != 0 {
                     switch_to_existing_proposal(ctx, app, 0);
                 }
-
-                app.per_map.proposals.before_edit();
             }
             "Load" => {
                 return Some(Transition::Push(load_picker_ui(
@@ -157,18 +145,9 @@ impl Proposals {
 
 fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
     stash_current_proposal(app);
-
-    let proposal = app
-        .per_map
-        .proposals
-        .list
-        .get_mut(idx)
-        .unwrap()
-        .take()
-        .unwrap();
     app.per_map.proposals.current = idx;
-
-    proposal.make_active(ctx, app);
+    app.apply_edits(app.per_map.proposals.list[idx].edits.clone());
+    crate::redraw_all_filters(ctx, app);
 }
 
 fn load_picker_ui(

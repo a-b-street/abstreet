@@ -8,7 +8,6 @@ use map_model::{PathConstraints, PathRequest, PathV2, Pathfinder, RoadID};
 use synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
 use widgetry::EventCtx;
 
-use crate::filters::ChangeKey;
 use crate::App;
 
 // TODO Configurable main road penalty, like in the pathfinding tool
@@ -19,7 +18,7 @@ use crate::App;
 //
 // - all_trips and everything else depends just on the map (we only have one scenario per map now)
 // - filtered_trips depend on filters
-// - the 'b' and 'relative' parts of compare_counts depend on change_key (for when the map is edited)
+// - the 'b' and 'relative' parts of compare_counts depend on map_edit_key
 pub struct Impact {
     pub map: MapName,
     pub filters: Filters,
@@ -33,7 +32,7 @@ pub struct Impact {
     filtered_trips: Vec<(PathRequest, usize)>,
 
     pub compare_counts: CompareCounts,
-    pub change_key: ChangeKey,
+    pub map_edit_key: usize,
 }
 
 #[derive(PartialEq)]
@@ -61,7 +60,7 @@ impl Impact {
             filtered_trips: Vec::new(),
 
             compare_counts: CompareCounts::empty(ctx),
-            change_key: ChangeKey::default(),
+            map_edit_key: usize::MAX,
         }
     }
 
@@ -82,7 +81,7 @@ impl Impact {
         );
 
         impact.map = app.per_map.map.get_name().clone();
-        impact.change_key = app.edits().get_change_key();
+        impact.map_edit_key = app.per_map.map.get_edits_change_key();
         impact.all_trips = timer
             .parallelize("analyze trips", scenario.all_trips().collect(), |trip| {
                 TripEndpoint::path_req(trip.origin, trip.destination, trip.mode, map)
@@ -95,7 +94,7 @@ impl Impact {
         impact
     }
 
-    // TODO Cache? It depends both on the change_key and modes belonging to filtered_trips.
+    // TODO Cache? It depends both on the map_edit_key and modes belonging to filtered_trips.
     fn pathfinder_after(&self, app: &App, timer: &mut Timer) -> Pathfinder {
         let constraints: BTreeSet<PathConstraints> = self
             .filters
@@ -103,11 +102,9 @@ impl Impact {
             .iter()
             .map(|m| m.to_constraints())
             .collect();
-        let mut params = app.per_map.map.routing_params().clone();
-        app.edits().update_routing_params(&mut params);
         Pathfinder::new_ch(
             &app.per_map.map,
-            params,
+            app.per_map.map.routing_params_respecting_modal_filters(),
             constraints.into_iter().collect(),
             timer,
         )
@@ -153,7 +150,7 @@ impl Impact {
     }
 
     pub fn map_edits_changed(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
-        self.change_key = app.edits().get_change_key();
+        self.map_edit_key = app.per_map.map.get_edits_change_key();
         let counts_b = self.counts_b(app, timer);
         self.compare_counts.recalculate_b(ctx, app, counts_b);
     }
