@@ -738,6 +738,4 @@ impl OriginalRoad {
 pub struct Crossing {
     pub kind: CrossingType,
     pub dist: Distance,
-    // TODO Nope, we need to detect from "original" state
-    pub user_modified: bool,
 }

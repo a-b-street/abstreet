@@ -34,7 +34,6 @@ pub fn transform_existing(map: &mut Map, timer: &mut Timer) {
                 } else {
                     FilterType::BusGate
                 },
-                user_modified: false,
             });
 
             new.crossings = crossings.remove(&r).unwrap_or_else(Vec::new);
@@ -52,6 +51,7 @@ pub fn transform_existing(map: &mut Map, timer: &mut Timer) {
 
     // Since these edits are "built-in' to the basemap, do this directly; don't call before_edit
     map.must_apply_edits(edits, timer);
+    map.treat_edits_as_basemap();
 
     // Do not call map.keep_pathfinder_despite_edits or recalculate_pathfinding_after_edits. We
     // should NEVER use the map's built-in pathfinder in this app. If we do, crash.
@@ -117,7 +117,6 @@ fn detect_crossings(map: &Map) -> BTreeMap<RoadID, Vec<Crossing>> {
             list.push(Crossing {
                 kind: *kind,
                 dist: *dist,
-                user_modified: false,
             });
         }
         list.sort_by_key(|c| c.dist);

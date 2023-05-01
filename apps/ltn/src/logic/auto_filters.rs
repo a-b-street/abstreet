@@ -229,7 +229,7 @@ fn add_filter(app: &mut App, r: RoadID, pct: f64) {
     let mut edits = map.get_edits().clone();
     let road = map.get_r(r);
     edits.commands.push(map.edit_road_cmd(r, |new| {
-        new.modal_filter = Some(RoadFilter::new_by_user(
+        new.modal_filter = Some(RoadFilter::new(
             pct * road.length(),
             app.session.filter_type,
         ));

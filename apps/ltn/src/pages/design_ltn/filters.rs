@@ -104,7 +104,7 @@ pub fn handle_world_outcome(
                 }
 
                 edits.commands.push(map.edit_road_cmd(r, |new| {
-                    new.modal_filter = Some(RoadFilter::new_by_user(distance, filter_type));
+                    new.modal_filter = Some(RoadFilter::new(distance, filter_type));
                 }));
             }
             app.apply_edits(edits);

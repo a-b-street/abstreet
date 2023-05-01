@@ -4,7 +4,7 @@ use widgetry::{lctrl, Choice, EventCtx, Key, MultiKey, State, Widget};
 
 use super::save_dialog::SaveDialog;
 use super::share::ShareProposal;
-use super::{stash_current_proposal, PreserveState, Proposal, Proposals};
+use super::{PreserveState, Proposal, Proposals};
 use crate::{App, Transition};
 
 impl Proposals {
@@ -144,7 +144,6 @@ impl Proposals {
 }
 
 fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
-    stash_current_proposal(app);
     app.per_map.proposals.current = idx;
     app.apply_edits(app.per_map.proposals.list[idx].edits.clone());
     crate::redraw_all_filters(ctx, app);

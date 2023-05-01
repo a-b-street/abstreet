@@ -23,7 +23,7 @@ pub fn render_modal_filters(ctx: &EventCtx, map: &Map) -> render::Toggle3Zoomed 
 
     for (road, filter) in map.all_roads_with_modal_filter() {
         let icon = &icons[&filter.filter_type];
-        let rewrite_color = if filter.user_modified {
+        let rewrite_color = if map.get_edits().is_filter_modified(road.id, filter) {
             RewriteColor::NoOp
         } else {
             RewriteColor::ChangeAlpha(0.7)
@@ -62,7 +62,7 @@ pub fn render_modal_filters(ctx: &EventCtx, map: &Map) -> render::Toggle3Zoomed 
     for i in map.all_intersections() {
         if let Some(ref filter) = i.modal_filter {
             let icon = &icons[&filter.filter_type];
-            let rewrite_color = if filter.user_modified {
+            let rewrite_color = if map.get_edits().is_diagonal_filter_modified(i.id, filter) {
                 RewriteColor::NoOp
             } else {
                 RewriteColor::ChangeAlpha(0.7)

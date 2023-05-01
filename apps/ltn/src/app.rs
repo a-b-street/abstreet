@@ -296,6 +296,7 @@ impl App {
         self.per_map
             .map
             .must_apply_edits(edits, &mut Timer::throwaway());
+        self.per_map.proposals.mut_current().edits = self.per_map.map.get_edits().clone();
     }
 }
 
