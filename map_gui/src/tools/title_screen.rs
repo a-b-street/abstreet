@@ -46,7 +46,8 @@ impl<A: AppLike + 'static> TitleScreen<A> {
                             .btn_outline
                             .text("Traffic simulation tutorial")
                             .hotkey(Key::T)
-                            .tooltip("Learn the basic controls")
+                            .disabled(true)
+                            .disabled_tooltip("Tutorial mode currently unmaintained, sorry")
                             .build_def(ctx)
                             .centered_vert(),
                     ]),
