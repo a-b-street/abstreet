@@ -6,13 +6,13 @@ edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
-earcutr = "0.4.1"
+earcutr = "0.4.2"
 fs-err = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
 histogram = "0.6.9"
 instant = { workspace = true }
-ordered-float = { version = "3.6.0", features=["serde"] }
+ordered-float = { version = "3.7.0", features=["serde"] }
 polylabel = "2.4.3"
 rstar = "0.10.0"
 serde = { workspace = true }

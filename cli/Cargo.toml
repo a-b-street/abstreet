@@ -23,4 +23,4 @@ serde = { workspace = true }
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
-tokio = { version = "1.25.0", features = ["full"] }
+tokio = { workspace = true }

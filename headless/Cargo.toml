@@ -10,7 +10,7 @@ abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../geom" }
-hyper = { version = "0.14.25", features = ["full"] }
+hyper = { version = "0.14.26", features = ["full"] }
 lazy_static = "1.4.0"
 log = { workspace = true }
 map_model = { path = "../map_model" }
@@ -21,5 +21,5 @@ serde_json = { workspace = true }
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
-tokio = { version = "1.15.0", features = ["full"] }
+tokio = { workspace = true }
 url = "2.3.1"

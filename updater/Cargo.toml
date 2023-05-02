@@ -8,10 +8,10 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-flate2 = "1.0.20"
+flate2 = { workspace = true }
 fs-err = { workspace = true }
 futures-channel = { workspace = true }
 md5 = "0.7.0"
 structopt = { workspace = true }
-tokio = { version = "1.26.0", features = ["full"] }
+tokio = { workspace = true }
 walkdir = "2.3.3"

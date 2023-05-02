@@ -18,7 +18,7 @@ anyhow = { workspace = true }
 blockfinding = { path = "../../blockfinding" }
 contour = { workspace = true }
 csv = { workspace = true }
-flate2 = "1.0.20"
+flate2 = { workspace = true }
 futures-channel = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
@@ -33,7 +33,7 @@ map_model = { path = "../../map_model" }
 md5 = "0.7.0"
 rand = { workspace = true }
 rand_xorshift = { workspace = true }
-regex = "1.7.2"
+regex = "1.8.1"
 serde = { workspace = true }
 serde_json = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }

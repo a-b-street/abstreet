@@ -13,7 +13,7 @@ futures = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../geom" }
-geozero = "0.9.7"
+geozero = "0.9.9"
 log = { workspace = true }
 map_model = { path = "../map_model" }
 rand = { workspace = true }

@@ -8,7 +8,7 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-enumset = { version = "1.0.12", features=["serde"] }
+enumset = { version = "1.0.13", features=["serde"] }
 fast_paths = { git = "https://github.com/easbar/fast_paths", rev = "9a954e02f01ed16939d3c4a2dc9dd3fb4f6c03ee"}
 geojson = { workspace = true }
 geom = { path = "../geom" }
