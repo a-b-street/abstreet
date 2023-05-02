@@ -190,11 +190,14 @@ impl EditCmd {
     fn apply(&self, effects: &mut EditEffects, map: &mut Map) {
         match self {
             EditCmd::ChangeRoad { r, ref new, .. } => {
-                if map.get_r_edit(*r) == new.clone() {
+                let old_state = map.get_r_edit(*r);
+                if old_state == new.clone() {
                     return;
                 }
 
-                modify_lanes(map, *r, new.lanes_ltr.clone(), effects);
+                if old_state.lanes_ltr != new.lanes_ltr {
+                    modify_lanes(map, *r, new.lanes_ltr.clone(), effects);
+                }
                 let road = &mut map.roads[r.0];
                 road.speed_limit = new.speed_limit;
                 road.access_restrictions = new.access_restrictions.clone();
@@ -202,6 +205,7 @@ impl EditCmd {
                 road.crossings = new.crossings.clone();
 
                 effects.changed_roads.insert(road.id);
+                // TODO If lanes_ltr didn't change, can we skip some of this?
                 for i in [road.src_i, road.dst_i] {
                     effects.changed_intersections.insert(i);
                     let i = &mut map.intersections[i.0];
