@@ -2,6 +2,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::fmt::Write;
 use std::hash::Hasher;
 
+use usvg::TreeParsing;
 use usvg_text_layout::TreeTextToPath;
 
 use geom::{PolyLine, Polygon};

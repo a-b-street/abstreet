@@ -2,6 +2,7 @@ use lyon::math::Point;
 use lyon::path::Path;
 use lyon::tessellation;
 use lyon::tessellation::geometry_builder::{simple_builder, VertexBuffers};
+use usvg::TreeParsing;
 
 use abstutil::VecMap;
 use geom::{Bounds, Pt2D, Tessellation};
