@@ -1,5 +1,5 @@
+use anyhow::Result;
 use instant::Instant;
-use log::warn;
 
 use crate::ID;
 use abstutil::prettyprint_usize;
@@ -33,8 +33,6 @@ impl JumpToTime {
         let target = app.primary.sim.time();
         let end_of_day = app.primary.sim.get_end_of_day();
 
-        //let mut timer = Timer::new("Initiating time warp");
-
         let jump_to_time_btn = ctx
             .style()
             .btn_tab
@@ -48,18 +46,21 @@ impl JumpToTime {
             Widget::col(vec![
                 Line("Jump to what time?").small_heading().into_widget(ctx),
                 if app.has_prebaked().is_some() {
-                    if let Ok(polygon) = area_under_curve(
+
+                    match area_under_curve(
                         app.prebaked().active_agents(end_of_day),
                         slider_width,
                         50.0,
                     ) {
-                        GeomBatch::from(vec![(
-                            ctx.style().icon_fg.alpha(0.7),
-                            polygon,)])
-                        .into_widget(ctx)
-                    } else {
-                        warn!("Unable to deduplicate points in \"area under curve\" graph");
-                        Widget::nothing()
+                        Ok(polygon) => GeomBatch::from(vec![(
+                                ctx.style().icon_fg.alpha(0.7),
+                                polygon,)])
+                            .into_widget(ctx),
+                        
+                        Err(err) => {
+                            warn!("Not drawing area under curve: {err}");
+                            Widget::nothing()
+                        }
                     }
 
                 } else {
@@ -409,7 +410,7 @@ impl State<App> for TimeWarpScreen {
     }
 }
 
-fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Result<Polygon, anyhow::Error> {
+fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Result<Polygon> {
     assert!(!raw.is_empty());
     let min_x = Time::START_OF_DAY;
     let min_y = 0;
@@ -430,13 +431,7 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Result<
     downsampled.push(Pt2D::new(width, height));
     downsampled.push(downsampled[0]);
 
-    Ring::deduping_new(downsampled)
-        .map_or_else(|e| {
-            Err(e)
-        },
-        |ring| {
-            Ok(ring.into_polygon())
-        })
+    Ring::deduping_new(downsampled).map(|ring| ring.into_polygon())
 }
 
 // TODO Maybe color, put in helpers
