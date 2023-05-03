@@ -1,4 +1,5 @@
 use instant::Instant;
+use log::warn;
 
 use crate::ID;
 use abstutil::prettyprint_usize;
@@ -32,6 +33,8 @@ impl JumpToTime {
         let target = app.primary.sim.time();
         let end_of_day = app.primary.sim.get_end_of_day();
 
+        //let mut timer = Timer::new("Initiating time warp");
+
         let jump_to_time_btn = ctx
             .style()
             .btn_tab
@@ -55,7 +58,7 @@ impl JumpToTime {
                             polygon,)])
                         .into_widget(ctx)
                     } else {
-                        // ADD LOG MSG HERE
+                        warn!("Unable to deduplicate points in \"area under curve\" graph");
                         Widget::nothing()
                     }
 
@@ -429,7 +432,6 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Result<
 
     Ring::deduping_new(downsampled)
         .map_or_else(|e| {
-            // ADD LOG MSG
             Err(e)
         },
         |ring| {
