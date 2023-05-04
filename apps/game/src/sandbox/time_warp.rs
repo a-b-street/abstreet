@@ -1,3 +1,4 @@
+use anyhow::Result;
 use instant::Instant;
 
 use crate::ID;
@@ -45,15 +46,23 @@ impl JumpToTime {
             Widget::col(vec![
                 Line("Jump to what time?").small_heading().into_widget(ctx),
                 if app.has_prebaked().is_some() {
-                    GeomBatch::from(vec![(
-                        ctx.style().icon_fg.alpha(0.7),
-                        area_under_curve(
-                            app.prebaked().active_agents(end_of_day),
-                            slider_width,
-                            50.0,
-                        ),
-                    )])
-                    .into_widget(ctx)
+
+                    match area_under_curve(
+                        app.prebaked().active_agents(end_of_day),
+                        slider_width,
+                        50.0,
+                    ) {
+                        Ok(polygon) => GeomBatch::from(vec![(
+                                ctx.style().icon_fg.alpha(0.7),
+                                polygon,)])
+                            .into_widget(ctx),
+                        
+                        Err(err) => {
+                            warn!("Not drawing area under curve: {err}");
+                            Widget::nothing()
+                        }
+                    }
+
                 } else {
                     Widget::nothing()
                 },
@@ -401,7 +410,7 @@ impl State<App> for TimeWarpScreen {
     }
 }
 
-fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon {
+fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Result<Polygon> {
     assert!(!raw.is_empty());
     let min_x = Time::START_OF_DAY;
     let min_y = 0;
@@ -421,7 +430,8 @@ fn area_under_curve(raw: Vec<(Time, usize)>, width: f64, height: f64) -> Polygon
     }
     downsampled.push(Pt2D::new(width, height));
     downsampled.push(downsampled[0]);
-    Ring::must_new(downsampled).into_polygon()
+
+    Ring::deduping_new(downsampled).map(|ring| ring.into_polygon())
 }
 
 // TODO Maybe color, put in helpers
