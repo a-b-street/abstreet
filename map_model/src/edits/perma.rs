@@ -7,6 +7,7 @@ use abstio::MapName;
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
 
+use super::perma_traffic_signal;
 use crate::edits::{EditCmd, EditIntersection, EditIntersectionControl, EditRoad, MapEdits};
 use crate::{
     osm, ControlStopSign, DiagonalFilter, IntersectionID, Map, MovementID, OriginalRoad, TurnType,
@@ -39,7 +40,7 @@ pub struct PermanentEditIntersection {
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
     )]
-    crosswalks: BTreeMap<traffic_signal_data::Turn, TurnType>,
+    crosswalks: BTreeMap<perma_traffic_signal::Turn, TurnType>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -51,7 +52,7 @@ pub enum PermanentEditIntersectionControl {
         )]
         must_stop: BTreeMap<OriginalRoad, bool>,
     },
-    TrafficSignal(traffic_signal_data::TrafficSignal),
+    TrafficSignal(perma_traffic_signal::TrafficSignal),
     Closed,
 }
 

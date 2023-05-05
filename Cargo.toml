@@ -21,7 +21,6 @@ members = [
   "synthpop",
   "tests",
   "traffic_seitan",
-  "traffic_signal_data",
   "updater",
   "widgetry",
   "widgetry_demo",

@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 
+use crate::edits::perma_traffic_signal;
 use crate::{osm, DirectedRoadID, Direction, IntersectionID, Map, OriginalRoad, TurnID, TurnType};
 
 /// A movement is like a turn, but with less detail -- it identifies a movement from one directed
@@ -214,18 +215,18 @@ fn movement_geom(
 }
 
 impl MovementID {
-    pub fn to_permanent(&self, map: &Map) -> traffic_signal_data::Turn {
+    pub fn to_permanent(&self, map: &Map) -> perma_traffic_signal::Turn {
         let from = map.get_r(self.from.road).orig_id;
         let to = map.get_r(self.to.road).orig_id;
 
-        traffic_signal_data::Turn {
-            from: traffic_signal_data::DirectedRoad {
+        perma_traffic_signal::Turn {
+            from: perma_traffic_signal::DirectedRoad {
                 osm_way_id: from.osm_way_id.0,
                 osm_node1: from.i1.0,
                 osm_node2: from.i2.0,
                 is_forwards: self.from.dir == Direction::Fwd,
             },
-            to: traffic_signal_data::DirectedRoad {
+            to: perma_traffic_signal::DirectedRoad {
                 osm_way_id: to.osm_way_id.0,
                 osm_node1: to.i1.0,
                 osm_node2: to.i2.0,
@@ -236,7 +237,7 @@ impl MovementID {
         }
     }
 
-    pub fn from_permanent(id: traffic_signal_data::Turn, map: &Map) -> Result<MovementID> {
+    pub fn from_permanent(id: perma_traffic_signal::Turn, map: &Map) -> Result<MovementID> {
         Ok(MovementID {
             from: find_r(id.from, map)?,
             to: find_r(id.to, map)?,
@@ -246,7 +247,7 @@ impl MovementID {
     }
 }
 
-fn find_r(id: traffic_signal_data::DirectedRoad, map: &Map) -> Result<DirectedRoadID> {
+fn find_r(id: perma_traffic_signal::DirectedRoad, map: &Map) -> Result<DirectedRoadID> {
     Ok(DirectedRoadID {
         road: map.find_r_by_osm_id(OriginalRoad::new(
             id.osm_way_id,

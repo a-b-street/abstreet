@@ -1,8 +1,0 @@
-[package]
-name = "traffic_signal_data"
-version = "0.1.0"
-authors = ["Dustin Carlino <dabreegster@gmail.com>"]
-edition = "2021"
-
-[dependencies]
-serde = { workspace = true }

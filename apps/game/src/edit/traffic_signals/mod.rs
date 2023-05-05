@@ -350,7 +350,7 @@ impl State<App> for TrafficSignalEditor {
                     for signal in BundleEdits::get_current(app, &self.members).signals {
                         let ts = signal.export(&app.primary.map);
                         abstio::write_json(
-                            format!("traffic_signal_data/{}.json", ts.intersection_osm_node_id),
+                            format!("traffic_signal_{}.json", ts.intersection_osm_node_id),
                             &ts,
                         );
                     }
@@ -555,7 +555,10 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, can_undo: bool, can_redo: bool)
                 .btn_outline
                 .text("Export")
                 .tooltip(Text::from_multiline(vec![
-                    Line("This will create a JSON file in traffic_signal_data/.").small(),
+                    Line(
+                        "This will create a JSON file in the directory where A/B Street is running",
+                    )
+                    .small(),
                     Line(
                         "Contribute this to map how this traffic signal is currently timed in \
                      real life.",

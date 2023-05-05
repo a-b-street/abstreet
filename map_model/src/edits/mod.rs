@@ -21,6 +21,7 @@ use crate::{
 mod apply;
 mod compat;
 mod perma;
+pub mod perma_traffic_signal;
 
 /// Represents changes to a map. Note this isn't serializable -- that's what `PermanentMapEdits`
 /// does.
@@ -95,7 +96,7 @@ pub enum EditIntersectionControl {
     StopSign(ControlStopSign),
     // Don't keep ControlTrafficSignal here, because it contains movements that should be
     // generated after all lane edits are applied.
-    TrafficSignal(traffic_signal_data::TrafficSignal),
+    TrafficSignal(perma_traffic_signal::TrafficSignal),
     Closed,
 }
 

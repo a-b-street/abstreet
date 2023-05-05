@@ -26,4 +26,3 @@ serde_json = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 structopt = { workspace = true }
 thread_local = "1.1.7"
-traffic_signal_data = { path = "../traffic_signal_data" }

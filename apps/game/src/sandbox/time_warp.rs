@@ -46,23 +46,21 @@ impl JumpToTime {
             Widget::col(vec![
                 Line("Jump to what time?").small_heading().into_widget(ctx),
                 if app.has_prebaked().is_some() {
-
                     match area_under_curve(
                         app.prebaked().active_agents(end_of_day),
                         slider_width,
                         50.0,
                     ) {
-                        Ok(polygon) => GeomBatch::from(vec![(
-                                ctx.style().icon_fg.alpha(0.7),
-                                polygon,)])
-                            .into_widget(ctx),
-                        
+                        Ok(polygon) => {
+                            GeomBatch::from(vec![(ctx.style().icon_fg.alpha(0.7), polygon)])
+                                .into_widget(ctx)
+                        }
+
                         Err(err) => {
                             warn!("Not drawing area under curve: {err}");
                             Widget::nothing()
                         }
                     }
-
                 } else {
                     Widget::nothing()
                 },

@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use geom::{Distance, Duration, Speed};
 
+use crate::edits::perma_traffic_signal;
 use crate::make::traffic_signals::get_possible_policies;
 use crate::{
     Intersection, IntersectionID, Map, Movement, MovementID, RoadID, TurnID, TurnPriority,
@@ -365,15 +366,15 @@ impl Stage {
 }
 
 impl ControlTrafficSignal {
-    pub fn export(&self, map: &Map) -> traffic_signal_data::TrafficSignal {
-        traffic_signal_data::TrafficSignal {
+    pub fn export(&self, map: &Map) -> perma_traffic_signal::TrafficSignal {
+        perma_traffic_signal::TrafficSignal {
             intersection_osm_node_id: map.get_i(self.id).orig_id.0,
-            plans: vec![traffic_signal_data::Plan {
+            plans: vec![perma_traffic_signal::Plan {
                 start_time_seconds: 0,
                 stages: self
                     .stages
                     .iter()
-                    .map(|s| traffic_signal_data::Stage {
+                    .map(|s| perma_traffic_signal::Stage {
                         protected_turns: s
                             .protected_movements
                             .iter()
@@ -386,10 +387,10 @@ impl ControlTrafficSignal {
                             .collect(),
                         stage_type: match s.stage_type {
                             StageType::Fixed(d) => {
-                                traffic_signal_data::StageType::Fixed(d.inner_seconds() as usize)
+                                perma_traffic_signal::StageType::Fixed(d.inner_seconds() as usize)
                             }
                             StageType::Variable(min, delay, additional) => {
-                                traffic_signal_data::StageType::Variable(
+                                perma_traffic_signal::StageType::Variable(
                                     min.inner_seconds() as usize,
                                     delay.inner_seconds() as usize,
                                     additional.inner_seconds() as usize,
@@ -404,7 +405,7 @@ impl ControlTrafficSignal {
     }
 
     pub(crate) fn import(
-        mut raw: traffic_signal_data::TrafficSignal,
+        mut raw: perma_traffic_signal::TrafficSignal,
         id: IntersectionID,
         map: &Map,
     ) -> Result<ControlTrafficSignal> {
@@ -440,10 +441,10 @@ impl ControlTrafficSignal {
                     protected_movements,
                     yield_movements: permitted_movements,
                     stage_type: match s.stage_type {
-                        traffic_signal_data::StageType::Fixed(d) => {
+                        perma_traffic_signal::StageType::Fixed(d) => {
                             StageType::Fixed(Duration::seconds(d as f64))
                         }
-                        traffic_signal_data::StageType::Variable(min, delay, additional) => {
+                        perma_traffic_signal::StageType::Variable(min, delay, additional) => {
                             StageType::Variable(
                                 Duration::seconds(min as f64),
                                 Duration::seconds(delay as f64),

@@ -2889,7 +2889,6 @@ dependencies = [
  "serde_json",
  "structopt",
  "thread_local",
- "traffic_signal_data",
 ]
 
 [[package]]
@@ -4848,13 +4847,6 @@ dependencies = [
  "rand_xorshift",
  "sim",
  "structopt",
-]
-
-[[package]]
-name = "traffic_signal_data"
-version = "0.1.0"
-dependencies = [
- "serde",
 ]
 
 [[package]]
