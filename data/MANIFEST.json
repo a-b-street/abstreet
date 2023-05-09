@@ -320,6 +320,11 @@
       "uncompressed_size_bytes": 19905975,
       "compressed_size_bytes": 6058355
     },
+    "data/input/gb/birmingham/raw_maps/center.bin": {
+      "checksum": "3bc7e28be6829bd2a1770d38903e14af",
+      "uncompressed_size_bytes": 107035301,
+      "compressed_size_bytes": 23605083
+    },
     "data/input/gb/bournemouth/raw_maps/center.bin": {
       "checksum": "a5ec631225b971226eaacd3fb45b3344",
       "uncompressed_size_bytes": 14519309,
@@ -2334,6 +2339,16 @@
       "checksum": "a1b69a77fef3f1f474cf9c258db60c82",
       "uncompressed_size_bytes": 10607066,
       "compressed_size_bytes": 2786658
+    },
+    "data/system/gb/birmingham/maps/center.bin": {
+      "checksum": "c9a5f9c0b4607a08c434b9e884370680",
+      "uncompressed_size_bytes": 208747205,
+      "compressed_size_bytes": 81559854
+    },
+    "data/system/gb/birmingham/scenarios/center/background.bin": {
+      "checksum": "df2d7b4de041ef4394b3f7ac8a3fab7c",
+      "uncompressed_size_bytes": 37638258,
+      "compressed_size_bytes": 10711805
     },
     "data/system/gb/bournemouth/maps/center.bin": {
       "checksum": "52463a71696c4d98c071faa50c8f9138",
