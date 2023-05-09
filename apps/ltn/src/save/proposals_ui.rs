@@ -114,7 +114,7 @@ impl Proposals {
                     Ok(contents) => FileSaver::with_default_messages(
                         ctx,
                         format!("ltn_{}.geojson", app.per_map.map.get_name().map),
-                        home::home_dir().map(|x| x.display().to_string()),
+                        super::start_dir(),
                         FileSaverContents::String(contents),
                     ),
                     Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
@@ -185,7 +185,7 @@ fn load_picker_ui(
             if name == "Load from file on your computer" {
                 Transition::Replace(FilePicker::new_state(
                     ctx,
-                    home::home_dir().map(|x| x.display().to_string()),
+                    super::start_dir(),
                     Box::new(move |ctx, app, maybe_file| {
                         match maybe_file {
                             Ok(Some((path, bytes))) => {

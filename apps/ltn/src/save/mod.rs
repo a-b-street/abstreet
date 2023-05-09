@@ -198,3 +198,13 @@ impl PreserveState {
         }
     }
 }
+
+#[cfg(not(target_arch = "wasm32"))]
+fn start_dir() -> Option<String> {
+    home::home_dir().map(|x| x.display().to_string())
+}
+
+#[cfg(target_arch = "wasm32")]
+fn start_dir() -> Option<String> {
+    None
+}

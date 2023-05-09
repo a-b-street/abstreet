@@ -8,7 +8,7 @@ edition = "2021"
 crate-type = ["cdylib", "lib"]
 
 [features]
-default = ["map_gui/native", "widgetry/native-backend"]
+default = ["home", "map_gui/native", "widgetry/native-backend"]
 wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 
 [dependencies]
@@ -24,7 +24,7 @@ geo = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../../geom" }
 getrandom = { workspace = true, optional = true }
-home = "0.5.5"
+home = { version = "0.5.5", optional = true }
 lazy_static = "1.4.0"
 log = { workspace = true }
 maplit = "1.0.2"

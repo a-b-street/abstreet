@@ -146,7 +146,7 @@ impl State<App> for SaveDialog {
                         Ok(contents) => FileSaver::with_default_messages(
                             ctx,
                             format!("{}.json.gz", proposal.edits.edits_name),
-                            home::home_dir().map(|x| x.display().to_string()),
+                            super::start_dir(),
                             FileSaverContents::Bytes(contents),
                         ),
                         Err(err) => PopupMsg::new_state(ctx, "Save failed", vec![err.to_string()]),
