@@ -769,7 +769,12 @@ impl PolyLine {
     /// Also return the angle of the line where the hit was found
     // TODO Also return distance along self of the hit
     pub fn intersection(&self, other: &PolyLine) -> Option<(Pt2D, Angle)> {
-        assert_ne!(self, other);
+        if self == other {
+            // This is likely a much biggger problem for the caller. Previously we would crash, but
+            // that's often inappropriate.
+            println!("intersection() between two PolyLines that're exactly the same");
+            return None;
+        }
 
         // There could be several collisions. Pick the "first" from self's perspective.
         let mut closest_intersection: Option<(Pt2D, Angle)> = None;
