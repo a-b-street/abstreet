@@ -102,7 +102,19 @@ fn draw_restriction(map: &Map, r1: &Road, r2: &Road) -> GeomBatch {
         CommonEndpoint::One(i) => i,
         // This is probably rare, just pick one side arbitrarily
         CommonEndpoint::Both => r1.src_i,
-        CommonEndpoint::None => unreachable!(),
+        CommonEndpoint::None => {
+            // This can occur, where two small road segments are part of the same intersection,
+            // but not directly connected. eg:
+            // r1=https://www.openstreetmap.org/way/658966226
+            // r2=https://www.openstreetmap.org/way/658966229
+            // TODO In this case check that the two roads are sections of the same parent relation
+            // in OSM, in which case it might be sane/permissable
+            // In this case it is part of a no-u-turns restriction on a intersection on a dual carriageway.
+            println!("Attempting to draw restriction on unpaired roads:");
+            println!("r1={}", r1.orig_id.osm_way_id);
+            println!("r2={}", r2.orig_id.osm_way_id);
+            unreachable!()
+        }
     };
     let (pt1, road_angle) = r1
         .center_pts
