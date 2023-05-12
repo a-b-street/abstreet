@@ -3,7 +3,7 @@ pub mod colors;
 mod filters;
 
 use geom::{ArrowCap, Circle, Distance, PolyLine};
-use map_model::{AmenityType, CommonEndpoint, ExtraPOIType, Map, RestrictionType, Road, TurnType};
+use map_model::{AmenityType, CommonEndpoint, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType};
 use map_model::turn_type_from_angles;
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};

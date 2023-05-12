@@ -2,6 +2,8 @@
 *.swp
 __pycache__
 .idea/
+.vscode/launch.json
+*.profraw
 
 data/player
 importer.json
@@ -118,6 +120,3 @@ data/system/us/providence
 data/system/us/san_francisco
 data/system/us/seattle
 data/system/us/tucson
-.vscode/launch.json
-data/system/assets/map/josm/
-*.profraw
