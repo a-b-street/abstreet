@@ -381,7 +381,7 @@ fn remove_merging_turns(map: &Map, input: Vec<Turn>, turn_type: TurnType) -> Vec
     turns
 }
 
-fn turn_type_from_angles(from: Angle, to: Angle) -> TurnType {
+pub fn turn_type_from_angles(from: Angle, to: Angle) -> TurnType {
     let diff = from.simple_shortest_rotation_towards(to);
     // This is a pretty arbitrary parameter, but a difference of 30 degrees seems reasonable for
     // some observed cases.
