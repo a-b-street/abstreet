@@ -292,6 +292,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("lynnwood", "hazelwood") => "Lynnwood, WA",
             ("milwaukee", "downtown") => "Downtown Milwaukee",
             ("milwaukee", "oak_creek") => "Oak Creek",
+            ("missoula", "center") => "Missoula",
             ("mt_vernon", "burlington") => "Burlington",
             ("mt_vernon", "downtown") => "Mt. Vernon",
             ("nyc", "fordham") => "Fordham",

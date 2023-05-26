@@ -1540,6 +1540,11 @@
       "uncompressed_size_bytes": 231639131,
       "compressed_size_bytes": 231358098
     },
+    "data/input/shared/geofabrik/north-america/us/montana-latest.osm.pbf": {
+      "checksum": "391b1d0c534668f3837c361bc7b96aca",
+      "uncompressed_size_bytes": 80982403,
+      "compressed_size_bytes": 80876004
+    },
     "data/input/shared/geofabrik/north-america/us/new-york-latest.osm.pbf": {
       "checksum": "101d249882ee93a3d8db8f9dc3ac1c8a",
       "uncompressed_size_bytes": 417982770,
@@ -1634,6 +1639,11 @@
       "checksum": "4862f494982c1508eead9743883f7c04",
       "uncompressed_size_bytes": 9602845,
       "compressed_size_bytes": 2618496
+    },
+    "data/input/us/missoula/raw_maps/center.bin": {
+      "checksum": "e88ad3243123166ce9ddc1d1e8f51360",
+      "uncompressed_size_bytes": 16313540,
+      "compressed_size_bytes": 4405811
     },
     "data/input/us/mt_vernon/raw_maps/burlington.bin": {
       "checksum": "534b6b6653a79aa67ed94cdefbc8051f",
@@ -4099,6 +4109,11 @@
       "checksum": "2c0b8b911618150456557110bf9bae5b",
       "uncompressed_size_bytes": 24091384,
       "compressed_size_bytes": 9521344
+    },
+    "data/system/us/missoula/maps/center.bin": {
+      "checksum": "6c1ed84c40976062776ab5580e67add4",
+      "uncompressed_size_bytes": 57348599,
+      "compressed_size_bytes": 22663648
     },
     "data/system/us/mt_vernon/city.bin": {
       "checksum": "6c1ccd19661e9bd33c55577e68f1c509",
