@@ -120,3 +120,4 @@ data/system/us/seattle
 data/system/us/tucson
 .vscode/launch.json
 data/system/assets/map/josm/
+*.profraw
