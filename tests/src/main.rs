@@ -47,6 +47,7 @@ fn test_map_importer() -> Result<()> {
         "divided_highway_split",
         "left_turn_and_bike_lane",
         "multiple_left_turn_lanes",
+        "false_positive_u_turns"
     ] {
         // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
         let map = import_map(abstio::path(format!("../tests/input/{}.osm", name)));
@@ -80,6 +81,8 @@ fn dump_turn_goldenfile(map: &Map) -> Result<()> {
     let path = abstio::path(format!("../tests/goldenfiles/{}.txt", map.get_name().map));
     let mut f = File::create(path)?;
     for t in map.all_turns() {
+        // TODO asmith
+        // add something here about turn restrictions, in addition to turn restrictions
         writeln!(f, "{} is a {:?}", t.id, t.turn_type)?;
     }
     Ok(())
@@ -416,4 +419,87 @@ fn geometry_test() -> Result<()> {
         }
     }
     Ok(())
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::main;
+    use super::import_map;
+    use super::geometry_test;
+    use super::test_blockfinding;
+    use super::test_lane_changing;
+    use super::test_map_importer;
+
+
+    #[test]
+    #[ignore]
+    fn test_main() {
+        main();
+    }
+
+    #[test]
+    fn test_make_vehicle_turns() {
+
+        for name in [
+            "divided_highway_split",
+            "left_turn_and_bike_lane",
+            "multiple_left_turn_lanes",
+            "false_positive_u_turns",
+        ] {
+            // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
+            let map = import_map(abstio::path(format!("../tests/input/{}.osm", name)));
+            // Enable to debug the result with the normal GUI
+            println!("Testing vehicle turn for {}", map.get_name().describe());
+        }
+    }
+
+    #[test]
+    fn run_test_map_importer() {
+        test_map_importer();
+    }
+
+    #[test]
+    #[ignore]
+    fn run_geometry_test() {
+        if false {
+            geometry_test();
+        }
+    }
+
+    // // abstutil::logger::setup();
+
+    #[test]
+    #[ignore]
+    fn run_test_blockfinding() {
+        test_blockfinding();
+    }
+
+    #[test]
+    #[ignore]
+    fn run_test_lane_changing() {
+        test_lane_changing(&import_map(abstio::path(
+            "../tests/input/lane_selection.osm",
+        )));
+    }
+
+    // #[test]
+    // fn run_recreate_goldenfile() {
+    //     dump_turn_goldenfile
+    // }
+
+    //     test_map_importer()?;
+    //     check_proposals()?;
+    //     if false {
+    //         ab_test_spurious_diff()?;
+    //     }
+    //     if false {
+    //         bus_test()?;
+    //     }
+    //     bus_route_test()?;
+    //     if false {
+    //         smoke_test()?;
+    //     }
+    //     Ok(())
+    // }
 }
