@@ -1100,6 +1100,11 @@
       "uncompressed_size_bytes": 50967516,
       "compressed_size_bytes": 13048536
     },
+    "data/input/nl/valkenburg/raw_maps/center.bin": {
+      "checksum": "384926ef44ae937b4b18ecea8708a6a5",
+      "uncompressed_size_bytes": 1263694,
+      "compressed_size_bytes": 329014
+    },
     "data/input/nz/auckland/raw_maps/mangere.bin": {
       "checksum": "077d1ae26df0a262b8ac8099ec9f2936",
       "uncompressed_size_bytes": 6141016,
@@ -1484,6 +1489,11 @@
       "checksum": "4fce9482a3b1a2cd4ec47ffefc17d33d",
       "uncompressed_size_bytes": 51356754,
       "compressed_size_bytes": 51242858
+    },
+    "data/input/shared/geofabrik/europe/netherlands/limburg-latest.osm.pbf": {
+      "checksum": "4f4e4a226843124440ff9e961acbf7f2",
+      "uncompressed_size_bytes": 92713290,
+      "compressed_size_bytes": 92518792
     },
     "data/input/shared/geofabrik/europe/poland/malopolskie-latest.osm.pbf": {
       "checksum": "08fcbc434462280fe778c4bfac765254",
@@ -4039,6 +4049,11 @@
       "checksum": "aad8a8faa569494ef741813161e55e99",
       "uncompressed_size_bytes": 96553686,
       "compressed_size_bytes": 37908501
+    },
+    "data/system/nl/valkenburg/maps/center.bin": {
+      "checksum": "92ec437e3a27d0a17cdc507dad652289",
+      "uncompressed_size_bytes": 2267539,
+      "compressed_size_bytes": 882328
     },
     "data/system/nz/auckland/maps/mangere.bin": {
       "checksum": "20e86b94ed051a8bc2f0e8f5e224233d",
