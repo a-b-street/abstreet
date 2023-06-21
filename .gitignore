@@ -4,6 +4,7 @@ __pycache__
 .idea/
 .vscode/launch.json
 *.profraw
+.DS_Store
 
 data/player
 importer.json
