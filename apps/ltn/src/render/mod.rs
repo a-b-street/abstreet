@@ -152,10 +152,10 @@ fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> Geom
     println!("drawing turn type {:?}, angle {}", t_type, r1_angle);
 
     // Which icon do we want?
-    let no_right_t = "system/assets/map/josm/no_right_turn_red.svg";
-    let no_left_t = "system/assets/map/josm/no_left_turn_red.svg";
-    let no_u_t = "system/assets/map/josm/no_u_turn.svg";
-    let no_straight = "system/assets/map/josm/no_straight_on_red.svg";
+    let no_right_t = "system/assets/map/no_right_turn.svg";
+    let no_left_t = "system/assets/map/no_left_turn.svg";
+    let no_u_t = "system/assets/map/no_u_turn_left_to_right.svg";
+    let no_straight = "system/assets/map/no_straight_ahead.svg";
     // TODO - what should we do with these?
     let other_t = "system/assets/map/thought_bubble.svg";
 
