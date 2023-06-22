@@ -16,3 +16,5 @@ map_model = { path = "../map_model" }
 rand = { workspace = true }
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
+ltn = { path = "../apps/ltn" }
+prettydiff = "0.6.4"

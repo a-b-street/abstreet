@@ -22,7 +22,9 @@ mod export;
 mod logic;
 mod neighbourhood;
 mod pages;
-mod render;
+// TODO make private
+// Public for now, purely for testing purposes
+pub mod render;
 mod save;
 
 pub fn main() {
