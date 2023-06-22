@@ -2,7 +2,7 @@ mod cells;
 pub mod colors;
 mod filters;
 
-use geom::{ArrowCap, Circle, Distance, PolyLine};
+use geom::{ArrowCap, Circle, Distance, PolyLine, Angle, Pt2D};
 use map_model::{AmenityType, CommonEndpoint, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType};
 use map_model::turn_type_from_angles;
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
@@ -117,8 +117,13 @@ fn draw_restriction(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatc
 }
 
 fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatch {
-    let mut batch = GeomBatch::new();
+    let (t_type, sign_pt, r1_angle) = get_ban_turn_info(r1, r2);
+    draw_turn_restriction_icon(ctx, t_type, sign_pt, r1, r1_angle)
+}
 
+// TODO: make private
+// Public for now, purely for testing purposes
+pub fn get_ban_turn_info(r1: &Road, r2: &Road) -> (TurnType, Pt2D, Angle){
     // Determine where to place the symbol
     let i = match r1.common_endpoint(r2) {
         CommonEndpoint::One(i) => i,
@@ -133,7 +138,7 @@ fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> Geom
     };
 
     // Determine what type of turn is it?
-    let (mut sign_pt, mut r1_angle) = r1
+    let (sign_pt, mut r1_angle) = r1
         .center_pts
         .must_dist_along((if r1.src_i == i { 0.2 } else { 0.8 })  * r1.center_pts.length());
 
@@ -150,6 +155,12 @@ fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> Geom
 
     let t_type = turn_type_from_angles(r1_angle, r2_angle);
     println!("drawing turn type {:?}, angle {}", t_type, r1_angle);
+    // t_type
+    (t_type, sign_pt, r1_angle)
+}
+
+fn draw_turn_restriction_icon(ctx: &EventCtx, t_type:TurnType, mut sign_pt: Pt2D, r1: &Road, r1_angle: Angle) -> GeomBatch{
+    let mut batch = GeomBatch::new();
 
     // Which icon do we want?
     let no_right_t = "system/assets/map/no_right_turn.svg";

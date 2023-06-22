@@ -1,0 +1,2 @@
+Turn from Road #1 into Road #0 is a BanTurns, type Left, location Pt2D(20060.4075, -19949.2126)
+
