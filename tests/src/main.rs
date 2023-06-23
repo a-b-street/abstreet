@@ -12,6 +12,7 @@ use abstutil::Timer;
 use blockfinding::Perimeter;
 use geom::{Distance, Duration, Time};
 use map_model::{IntersectionID, LaneType, Map, RoadID};
+use map_model::make::turns::make_vehicle_turns;
 use sim::{AlertHandler, PrebakeSummary, Sim, SimFlags, SimOptions};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 use ltn::render::get_ban_turn_info;
@@ -45,6 +46,8 @@ fn main() -> Result<()> {
 /// when they change. The goldenfiles (and changes to them) themselves aren't easy to understand,
 /// but the test maps are.
 fn test_map_importer() -> Result<()> {
+    let regenerate_goldenfiles = true;
+
     for name in [
         "divided_highway_split",
         "left_turn_and_bike_lane",
@@ -60,12 +63,12 @@ fn test_map_importer() -> Result<()> {
 
         // Set this to true, when there is reason to regenerate the goldenfiles.
         // Should normally be false.
-        if false {
+        if regenerate_goldenfiles {
             println!("Producing goldenfiles for {}", map.get_name().describe());
             dump_turn_goldenfile(&map)?;
             // Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally
             // left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.
-            assert!(false);
+            // assert!(false);
         }
 
         let path_types = abstio::path(format!("../tests/goldenfiles/turn_types/{}.txt", map.get_name().map));
@@ -78,6 +81,12 @@ fn test_map_importer() -> Result<()> {
                 false
             },
         });
+    }
+
+    if regenerate_goldenfiles {
+        // Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally
+        // left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.
+        assert!(false, "Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.");
     }
     Ok(())
 }
@@ -119,11 +128,31 @@ fn all_turn_info_as_string(map: &Map) -> String{
     s.push_str("\n------------\nRestrictions:\n------------\n");
     for r1 in map.all_roads() {
         for (restriction, r2) in &r1.turn_restrictions {
-            let (t_type, sign_pt, r1_angle) = get_ban_turn_info(r1, map.get_r(*r2));
-
+            let (t_type, sign_pt, r1_angle, i_id) =
+                 get_ban_turn_info(r1, map.get_r(*r2), map);
+            let i = map.get_i(i_id);
+            let vehicle_turns = make_vehicle_turns(i,map);
             s.push_str(&format!("Turn from {} into {} is a {:?}, type {:?}, location {}\n", r1.id, r2, restriction, t_type, sign_pt));
+
+            // for refined_t in vehicle_turns{
+            //     s.push_str(&format!("refined t: {:?}\n", refined_t));
+            // } 
+
+
         }
+
+        for (via, r2) in &r1.complicated_turn_restrictions {
+            // TODO Show the 'via'? Or just draw the entire shape?
+            s.push_str(&format!("complicated turn: from {0:?}, via {1:?}, to {2:?}",
+                        (r1.orig_id.osm_way_id, r1.id),
+                        (map.get_r(*via).orig_id.osm_way_id, map.get_r(*via).id),
+                        (map.get_r(*r2).orig_id.osm_way_id, map.get_r(*r2).id)
+                    ));
+
+        }
+        // s.push_str("\n");
     }
+
     s
 }
 

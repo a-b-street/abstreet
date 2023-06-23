@@ -3,8 +3,8 @@ pub mod colors;
 mod filters;
 
 use geom::{ArrowCap, Circle, Distance, PolyLine, Angle, Pt2D};
-use map_model::{AmenityType, CommonEndpoint, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType};
-use map_model::turn_type_from_angles;
+use map_model::{AmenityType, CommonEndpoint, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType, IntersectionID};
+use map_model::make::turns::{turn_type_from_road_geom, turn_type_from_angles};
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 
@@ -117,13 +117,13 @@ fn draw_restriction(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatc
 }
 
 fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatch {
-    let (t_type, sign_pt, r1_angle) = get_ban_turn_info(r1, r2);
+    let (t_type, sign_pt, r1_angle, _) = get_ban_turn_info(r1, r2, map);
     draw_turn_restriction_icon(ctx, t_type, sign_pt, r1, r1_angle)
 }
 
 // TODO: make private
 // Public for now, purely for testing purposes
-pub fn get_ban_turn_info(r1: &Road, r2: &Road) -> (TurnType, Pt2D, Angle){
+pub fn get_ban_turn_info(r1: &Road, r2: &Road, map: &Map) -> (TurnType, Pt2D, Angle, IntersectionID){
     // Determine where to place the symbol
     let i = match r1.common_endpoint(r2) {
         CommonEndpoint::One(i) => i,
@@ -153,10 +153,11 @@ pub fn get_ban_turn_info(r1: &Road, r2: &Road) -> (TurnType, Pt2D, Angle){
     // Correct the angle, based on whether the vector direction is towards or away from the intersection
     r2_angle = if r2.dst_i == i { r2_angle.rotate_degs(180.0) } else { r2_angle };
 
-    let t_type = turn_type_from_angles(r1_angle, r2_angle);
-    println!("drawing turn type {:?}, angle {}", t_type, r1_angle);
+    // let t_type = turn_type_from_angles(r1_angle, r2_angle);
+    let t_type = turn_type_from_road_geom(r1, r1_angle, r2, r2_angle, map.get_i(i), map);
+    // println!("drawing turn type {:?}, angle {}", t_type, r1_angle);
     // t_type
-    (t_type, sign_pt, r1_angle)
+    (t_type, sign_pt, r1_angle, i)
 }
 
 fn draw_turn_restriction_icon(ctx: &EventCtx, t_type:TurnType, mut sign_pt: Pt2D, r1: &Road, r1_angle: Angle) -> GeomBatch{

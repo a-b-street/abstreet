@@ -5,7 +5,7 @@ use lyon::geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 
 use geom::{Angle, PolyLine, Pt2D};
 
-use crate::{Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType};
+use crate::{Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType, Road};
 
 /// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
 pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
@@ -135,10 +135,10 @@ pub fn verify_vehicle_connectivity(turns: &[Turn], i: &Intersection, map: &Map) 
     Ok(())
 }
 
-fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
+pub fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     let mut turns = Vec::new();
 
-    let expected_turn_types = expected_turn_types_for_four_way(i, map);
+    // let expected_turn_types = expected_turn_types_for_four_way(i, map);
 
     // Just generate every possible combination of turns between incoming and outgoing lanes.
     let is_deadend = i.is_deadend_for_driving(map);
@@ -168,35 +168,37 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                 continue;
             }
 
-            let from_angle = src.last_line().angle();
-            let to_angle = dst.first_line().angle();
-            let mut turn_type = turn_type_from_angles(from_angle, to_angle);
-            if turn_type == TurnType::UTurn {
-                // Lots of false positives when classifying these just based on angles. So also
-                // require the road names to match.
-                if map.get_parent(src.id).get_name(None) != map.get_parent(dst.id).get_name(None) {
-                    // Distinguish really sharp lefts/rights based on clockwiseness
-                    if from_angle.simple_shortest_rotation_towards(to_angle) < 0.0 {
-                        turn_type = TurnType::Right;
-                    } else {
-                        turn_type = TurnType::Left;
-                    }
-                }
-            } else if let Some(expected_type) = expected_turn_types
-                .as_ref()
-                .and_then(|e| e.get(&(src.id.road, dst.id.road)))
-            {
-                // At some 4-way intersections, roads meet at strange angles, throwing off
-                // turn_type_from_angles. Correct it based on relative ordering.
-                if turn_type != *expected_type {
-                    warn!(
-                        "Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering",
-                        src.id.road, dst.id.road, turn_type, expected_type
-                    );
-                    turn_type = *expected_type;
-                }
-            }
+            // let from_angle = src.last_line().angle();
+            // let to_angle = dst.first_line().angle();
+            // let mut turn_type = turn_type_from_angles(from_angle, to_angle);
+            // if turn_type == TurnType::UTurn {
+            //     // Lots of false positives when classifying these just based on angles. So also
+            //     // require the road names to match.
+            //     if map.get_parent(src.id).get_name(None) != map.get_parent(dst.id).get_name(None) {
+            //         // Distinguish really sharp lefts/rights based on clockwiseness
+            //         if from_angle.simple_shortest_rotation_towards(to_angle) < 0.0 {
+            //             turn_type = TurnType::Right;
+            //         } else {
+            //             turn_type = TurnType::Left;
+            //         }
+            //     }
+            // } else if let Some(expected_type) = expected_turn_types
+            //     .as_ref()
+            //     .and_then(|e| e.get(&(src.id.road, dst.id.road)))
+            // {
+            //     // At some 4-way intersections, roads meet at strange angles, throwing off
+            //     // turn_type_from_angles. Correct it based on relative ordering.
+            //     if turn_type != *expected_type {
+            //         warn!(
+            //             "Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering",
+            //             src.id.road, dst.id.road, turn_type, expected_type
+            //         );
+            //         turn_type = *expected_type;
+            //     }
+            // }
 
+            let turn_type = turn_type_from_lane_geom(src, dst, i, map);
+            
             let geom = curvey_turn(src, dst, i)
                 .unwrap_or_else(|_| PolyLine::must_new(vec![src.last_pt(), dst.first_pt()]));
 
@@ -213,6 +215,58 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     }
 
     turns
+}
+
+fn turn_type_from_lane_geom(src: &Lane, dst: &Lane, i: &Intersection, map: &Map) -> TurnType {
+    // let l1_angle = l1.last_line().angle();
+    // let l2_angle = l2.first_line().angle();
+
+    // map.get_r(src.id.road), map.get_r(dst.id.road)
+
+    turn_type_from_road_geom(
+        map.get_r(src.id.road),
+        src.last_line().angle(),
+        map.get_r(dst.id.road),
+        dst.last_line().angle(),
+        i,
+        map
+    )
+}
+
+pub fn turn_type_from_road_geom(r1: &Road, r1_angle: Angle, r2: &Road, r2_angle: Angle, i: &Intersection, map: &Map) -> TurnType {
+    // let r1_angle = src.last_line().angle();
+    // let r2_angle = dst.first_line().angle();
+    let expected_turn_types = expected_turn_types_for_four_way(i, map);
+
+
+    let mut turn_type = turn_type_from_angles(r1_angle, r2_angle);
+    if turn_type == TurnType::UTurn {
+        // Lots of false positives when classifying these just based on angles. So also
+        // require the road names to match.
+
+        if r1.get_name(None) != r2.get_name(None) {
+            // Distinguish really sharp lefts/rights based on clockwiseness
+            if r1_angle.simple_shortest_rotation_towards(r2_angle) < 0.0 {
+                turn_type = TurnType::Right;
+            } else {
+                turn_type = TurnType::Left;
+            }
+        }
+    } else if let Some(expected_type) = expected_turn_types
+        .as_ref()
+        .and_then(|e| e.get(&(r1.id, r2.id)))
+    {
+        // At some 4-way intersections, roads meet at strange angles, throwing off
+        // turn_type_from_angles. Correct it based on relative ordering.
+        if turn_type != *expected_type {
+            warn!(
+                "Turn from {:?} to {:?} looks like {:?} by angle, but is {:?} by ordering",
+                r1, r2, turn_type, expected_type
+            );
+            turn_type = *expected_type;
+        }
+    }
+    turn_type
 }
 
 fn curvey_turn(src: &Lane, dst: &Lane, i: &Intersection) -> Result<PolyLine> {
