@@ -77,7 +77,7 @@ pub use crate::make::turns::turn_type_from_angles;
 mod city;
 pub mod connectivity;
 mod edits;
-mod make;
+pub mod make;
 mod map;
 mod objects;
 mod pathfind;
