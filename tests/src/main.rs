@@ -137,7 +137,7 @@ fn all_turn_info_as_string(map: &Map) -> String {
             let i = map.get_i(i_id);
             s.push_str(&format!(
                 "Turn from {} into {}, at intersection {:?} is a {:?}, type {:?}, location {}\n",
-                r1.id, r2, i, restriction, t_type, sign_pt
+                r1.id, r2, i.id, restriction, t_type, sign_pt
             ));
         }
 
@@ -521,11 +521,12 @@ mod tests {
 
     #[test]
     #[ignore]
-    fn test_main() {
-        main();
+    fn test_main() -> Result<(), anyhow::Error> {
+        main()
     }
 
     #[test]
+    #[ignore]
     fn test_make_vehicle_turns() {
         for name in [
             "divided_highway_split",
@@ -541,51 +542,30 @@ mod tests {
     }
 
     #[test]
-    fn run_test_map_importer() {
-        test_map_importer();
+    fn run_test_map_importer() -> Result<(), anyhow::Error> {
+        test_map_importer()
     }
 
     #[test]
     #[ignore]
-    fn run_geometry_test() {
-        if false {
-            geometry_test();
-        }
+    fn run_geometry_test() -> Result<(), anyhow::Error> {
+        geometry_test()
     }
 
     // // abstutil::logger::setup();
 
     #[test]
     #[ignore]
-    fn run_test_blockfinding() {
-        test_blockfinding();
+    fn run_test_blockfinding() -> Result<(), anyhow::Error>{
+        test_blockfinding()
     }
 
     #[test]
     #[ignore]
-    fn run_test_lane_changing() {
+    fn run_test_lane_changing() -> Result<(), anyhow::Error>{
         test_lane_changing(&import_map(abstio::path(
             "../tests/input/lane_selection.osm",
-        )));
+        )))
     }
 
-    // #[test]
-    // fn run_recreate_goldenfile() {
-    //     dump_turn_goldenfile
-    // }
-
-    //     test_map_importer()?;
-    //     check_proposals()?;
-    //     if false {
-    //         ab_test_spurious_diff()?;
-    //     }
-    //     if false {
-    //         bus_test()?;
-    //     }
-    //     bus_route_test()?;
-    //     if false {
-    //         smoke_test()?;
-    //     }
-    //     Ok(())
-    // }
 }

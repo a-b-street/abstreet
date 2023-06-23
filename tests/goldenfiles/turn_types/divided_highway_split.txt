@@ -14,5 +14,5 @@ TurnID(Lane #69, Lane #64, Intersection #3) is a SharedSidewalkCorner
 ------------
 Restrictions:
 ------------
-Turn from Road #1 into Road #0 is a BanTurns, type Left, location Pt2D(20060.4075, -19949.2126)
+Turn from Road #1 into Road #0, at intersection IntersectionID(0) is a BanTurns, type Left, location Pt2D(20060.4075, -19949.2126)
 

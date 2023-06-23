@@ -126,6 +126,7 @@ fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> Geom
 
 // TODO: make private
 // Public for now, purely for testing purposes
+// TODO: would it be more appropriate to have this function live in `map_model/src/make/turns.rs`?
 pub fn get_ban_turn_info(
     r1: &Road,
     r2: &Road,
@@ -204,7 +205,6 @@ fn draw_turn_restriction_icon(
 
     // Draw the svg icon
     let icon = GeomBatch::load_svg(ctx, icon_path)
-        .clone()
         .scale_to_fit_width(r1.get_width().inner_meters())
         .centered_on(sign_pt)
         .rotate_around_batch_center(r1_angle.rotate_degs(90.0));
