@@ -2,9 +2,12 @@ mod cells;
 pub mod colors;
 mod filters;
 
-use geom::{Distance, Angle, Pt2D};
-use map_model::{AmenityType, CommonEndpoint, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType, IntersectionID};
-use map_model::make::turns::{turn_type_from_road_geom};
+use geom::{Angle, Distance, Pt2D};
+use map_model::make::turns::turn_type_from_road_geom;
+use map_model::{
+    AmenityType, CommonEndpoint, ExtraPOIType, FilterType, IntersectionID, Map, RestrictionType,
+    Road, TurnType,
+};
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 
@@ -79,7 +82,6 @@ pub fn render_bus_routes(ctx: &EventCtx, map: &Map) -> Drawable {
 }
 
 pub fn render_turn_restrictions(ctx: &EventCtx, map: &Map) -> Drawable {
-   
     let mut batch = GeomBatch::new();
     for r1 in map.all_roads() {
         // TODO Also interpret lane-level? Maybe just check all the generated turns and see what's
@@ -87,7 +89,8 @@ pub fn render_turn_restrictions(ctx: &EventCtx, map: &Map) -> Drawable {
         for (restriction, r2) in &r1.turn_restrictions {
             // TODO "Invert" OnlyAllowTurns so we can just draw banned things
             if *restriction == RestrictionType::BanTurns {
-                println!("regular turn: from {0:?}, to {1:?}",
+                println!(
+                    "regular turn: from {0:?}, to {1:?}",
                     (r1.orig_id.osm_way_id, r1.id),
                     (map.get_r(*r2).orig_id.osm_way_id, map.get_r(*r2).id)
                 );
@@ -96,11 +99,12 @@ pub fn render_turn_restrictions(ctx: &EventCtx, map: &Map) -> Drawable {
         }
         for (via, r2) in &r1.complicated_turn_restrictions {
             // TODO Show the 'via'? Or just draw the entire shape?
-            println!("complicated turn: from {0:?}, via {1:?}, to {2:?}",
-                        (r1.orig_id.osm_way_id, r1.id),
-                        (map.get_r(*via).orig_id.osm_way_id, map.get_r(*via).id),
-                        (map.get_r(*r2).orig_id.osm_way_id, map.get_r(*r2).id)
-                    );
+            println!(
+                "complicated turn: from {0:?}, via {1:?}, to {2:?}",
+                (r1.orig_id.osm_way_id, r1.id),
+                (map.get_r(*via).orig_id.osm_way_id, map.get_r(*via).id),
+                (map.get_r(*r2).orig_id.osm_way_id, map.get_r(*r2).id)
+            );
 
             batch.append(draw_restriction(ctx, map, r1, map.get_r(*r2)));
         }
@@ -122,7 +126,11 @@ fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> Geom
 
 // TODO: make private
 // Public for now, purely for testing purposes
-pub fn get_ban_turn_info(r1: &Road, r2: &Road, map: &Map) -> (TurnType, Pt2D, Angle, IntersectionID){
+pub fn get_ban_turn_info(
+    r1: &Road,
+    r2: &Road,
+    map: &Map,
+) -> (TurnType, Pt2D, Angle, IntersectionID) {
     // Determine where to place the symbol
     let i = match r1.common_endpoint(r2) {
         CommonEndpoint::One(i) => i,
@@ -139,18 +147,26 @@ pub fn get_ban_turn_info(r1: &Road, r2: &Road, map: &Map) -> (TurnType, Pt2D, An
     // Determine what type of turn is it?
     let (sign_pt, mut r1_angle) = r1
         .center_pts
-        .must_dist_along((if r1.src_i == i { 0.2 } else { 0.8 })  * r1.center_pts.length());
+        .must_dist_along((if r1.src_i == i { 0.2 } else { 0.8 }) * r1.center_pts.length());
 
     // Correct the angle, based on whether the vector direction is towards or away from the intersection
     // TODO what is the standard way of describing the vector direction (rather than the traffic direction) for roads?
-    r1_angle = if r1.src_i == i { r1_angle.rotate_degs(180.0) } else { r1_angle };
+    r1_angle = if r1.src_i == i {
+        r1_angle.rotate_degs(180.0)
+    } else {
+        r1_angle
+    };
 
     let (_, mut r2_angle) = r2
         .center_pts
         .must_dist_along((if r2.src_i == i { 0.2 } else { 0.8 }) * r2.center_pts.length());
 
     // Correct the angle, based on whether the vector direction is towards or away from the intersection
-    r2_angle = if r2.dst_i == i { r2_angle.rotate_degs(180.0) } else { r2_angle };
+    r2_angle = if r2.dst_i == i {
+        r2_angle.rotate_degs(180.0)
+    } else {
+        r2_angle
+    };
 
     // let t_type = turn_type_from_angles(r1_angle, r2_angle);
     let t_type = turn_type_from_road_geom(r1, r1_angle, r2, r2_angle, map.get_i(i), map);
@@ -159,7 +175,13 @@ pub fn get_ban_turn_info(r1: &Road, r2: &Road, map: &Map) -> (TurnType, Pt2D, An
     (t_type, sign_pt, r1_angle, i)
 }
 
-fn draw_turn_restriction_icon(ctx: &EventCtx, t_type:TurnType, sign_pt: Pt2D, r1: &Road, r1_angle: Angle) -> GeomBatch{
+fn draw_turn_restriction_icon(
+    ctx: &EventCtx,
+    t_type: TurnType,
+    sign_pt: Pt2D,
+    r1: &Road,
+    r1_angle: Angle,
+) -> GeomBatch {
     let mut batch = GeomBatch::new();
 
     // Which icon do we want?
@@ -177,13 +199,13 @@ fn draw_turn_restriction_icon(ctx: &EventCtx, t_type:TurnType, sign_pt: Pt2D, r1
         TurnType::Crosswalk => other_t,
         TurnType::SharedSidewalkCorner => other_t,
         TurnType::Straight => no_straight,
-        TurnType::UnmarkedCrossing => other_t
+        TurnType::UnmarkedCrossing => other_t,
     };
-    
+
     // Draw the svg icon
     let icon = GeomBatch::load_svg(ctx, icon_path)
         .clone()
-        .scale_to_fit_width(r1.get_width().inner_meters() )
+        .scale_to_fit_width(r1.get_width().inner_meters())
         .centered_on(sign_pt)
         .rotate_around_batch_center(r1_angle.rotate_degs(90.0));
 

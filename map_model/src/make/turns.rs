@@ -5,7 +5,7 @@ use lyon::geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 
 use geom::{Angle, PolyLine, Pt2D};
 
-use crate::{Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType, Road};
+use crate::{Intersection, Lane, LaneID, LaneType, Map, Road, RoadID, Turn, TurnID, TurnType};
 
 /// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
 pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
@@ -169,7 +169,7 @@ pub fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
             }
 
             let turn_type = turn_type_from_lane_geom(src, dst, i, map);
-            
+
             let geom = curvey_turn(src, dst, i)
                 .unwrap_or_else(|_| PolyLine::must_new(vec![src.last_pt(), dst.first_pt()]));
 
@@ -195,15 +195,21 @@ fn turn_type_from_lane_geom(src: &Lane, dst: &Lane, i: &Intersection, map: &Map)
         map.get_r(dst.id.road),
         dst.last_line().angle(),
         i,
-        map
+        map,
     )
 }
 
-pub fn turn_type_from_road_geom(r1: &Road, r1_angle: Angle, r2: &Road, r2_angle: Angle, i: &Intersection, map: &Map) -> TurnType {
+pub fn turn_type_from_road_geom(
+    r1: &Road,
+    r1_angle: Angle,
+    r2: &Road,
+    r2_angle: Angle,
+    i: &Intersection,
+    map: &Map,
+) -> TurnType {
     // let r1_angle = src.last_line().angle();
     // let r2_angle = dst.first_line().angle();
     let expected_turn_types = expected_turn_types_for_four_way(i, map);
-
 
     let mut turn_type = turn_type_from_angles(r1_angle, r2_angle);
     if turn_type == TurnType::UTurn {
