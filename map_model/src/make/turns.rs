@@ -168,35 +168,6 @@ pub fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                 continue;
             }
 
-            // let from_angle = src.last_line().angle();
-            // let to_angle = dst.first_line().angle();
-            // let mut turn_type = turn_type_from_angles(from_angle, to_angle);
-            // if turn_type == TurnType::UTurn {
-            //     // Lots of false positives when classifying these just based on angles. So also
-            //     // require the road names to match.
-            //     if map.get_parent(src.id).get_name(None) != map.get_parent(dst.id).get_name(None) {
-            //         // Distinguish really sharp lefts/rights based on clockwiseness
-            //         if from_angle.simple_shortest_rotation_towards(to_angle) < 0.0 {
-            //             turn_type = TurnType::Right;
-            //         } else {
-            //             turn_type = TurnType::Left;
-            //         }
-            //     }
-            // } else if let Some(expected_type) = expected_turn_types
-            //     .as_ref()
-            //     .and_then(|e| e.get(&(src.id.road, dst.id.road)))
-            // {
-            //     // At some 4-way intersections, roads meet at strange angles, throwing off
-            //     // turn_type_from_angles. Correct it based on relative ordering.
-            //     if turn_type != *expected_type {
-            //         warn!(
-            //             "Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering",
-            //             src.id.road, dst.id.road, turn_type, expected_type
-            //         );
-            //         turn_type = *expected_type;
-            //     }
-            // }
-
             let turn_type = turn_type_from_lane_geom(src, dst, i, map);
             
             let geom = curvey_turn(src, dst, i)
@@ -218,11 +189,6 @@ pub fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
 }
 
 fn turn_type_from_lane_geom(src: &Lane, dst: &Lane, i: &Intersection, map: &Map) -> TurnType {
-    // let l1_angle = l1.last_line().angle();
-    // let l2_angle = l2.first_line().angle();
-
-    // map.get_r(src.id.road), map.get_r(dst.id.road)
-
     turn_type_from_road_geom(
         map.get_r(src.id.road),
         src.last_line().angle(),

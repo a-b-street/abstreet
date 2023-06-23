@@ -2,9 +2,9 @@ mod cells;
 pub mod colors;
 mod filters;
 
-use geom::{ArrowCap, Circle, Distance, PolyLine, Angle, Pt2D};
+use geom::{Distance, Angle, Pt2D};
 use map_model::{AmenityType, CommonEndpoint, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType, IntersectionID};
-use map_model::make::turns::{turn_type_from_road_geom, turn_type_from_angles};
+use map_model::make::turns::{turn_type_from_road_geom};
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 
@@ -112,7 +112,6 @@ fn draw_restriction(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatc
     let mut batch = GeomBatch::new();
     // TODO: remove/name this wrapper, which is just for debugging svg icon placement/rotation
     batch.append(draw_restriction_svg(ctx, map, r1, r2));
-    batch.append(draw_restriction_raw(ctx, map, r1, r2));
     batch
 }
 
@@ -160,7 +159,7 @@ pub fn get_ban_turn_info(r1: &Road, r2: &Road, map: &Map) -> (TurnType, Pt2D, An
     (t_type, sign_pt, r1_angle, i)
 }
 
-fn draw_turn_restriction_icon(ctx: &EventCtx, t_type:TurnType, mut sign_pt: Pt2D, r1: &Road, r1_angle: Angle) -> GeomBatch{
+fn draw_turn_restriction_icon(ctx: &EventCtx, t_type:TurnType, sign_pt: Pt2D, r1: &Road, r1_angle: Angle) -> GeomBatch{
     let mut batch = GeomBatch::new();
 
     // Which icon do we want?
@@ -182,9 +181,6 @@ fn draw_turn_restriction_icon(ctx: &EventCtx, t_type:TurnType, mut sign_pt: Pt2D
     };
     
     // Draw the svg icon
-    // TODO Remove this offset. For debug purposes the svg icon is shown 10m east of its correct location
-    sign_pt = sign_pt.offset(10.0, 0.0);
-
     let icon = GeomBatch::load_svg(ctx, icon_path)
         .clone()
         .scale_to_fit_width(r1.get_width().inner_meters() )
@@ -192,64 +188,6 @@ fn draw_turn_restriction_icon(ctx: &EventCtx, t_type:TurnType, mut sign_pt: Pt2D
         .rotate_around_batch_center(r1_angle.rotate_degs(90.0));
 
     batch.append(icon);
-    batch
-}
-
-fn draw_restriction_raw(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatch {
-    let mut batch = GeomBatch::new();
-
-    // Determine where to place the symbol
-    let i = match r1.common_endpoint(r2) {
-        CommonEndpoint::One(i) => i,
-        // This is probably rare, just pick one side arbitrarily
-        CommonEndpoint::Both => r1.src_i,
-        CommonEndpoint::None => {
-            // This may be that `r1` and `r2` are joined by a complicated_turn_restrictions,
-            // but don't have a CommonEndpoint.
-            // In this case the end of r1 appears to be the most appropriate location to pick here
-            r1.dst_i
-        }
-    };
-
-    let (pt1, road_angle) = r1
-        .center_pts
-        .must_dist_along((if r1.src_i == i { 0.2 } else { 0.8 }) * r1.center_pts.length());
-    let pt2 = map.get_i(i).polygon.center();
-    let pt3 = r2
-        .center_pts
-        .must_dist_along((if r2.src_i == i { 0.2 } else { 0.8 }) * r2.center_pts.length())
-        .0;
-    if let Ok(pl) = PolyLine::new(vec![pt1, pt2, pt3]) {
-        let border_thickness = Distance::meters(1.0);
-
-        // TODO The arrow cap is covered up sometimes, and the line has inconsistent thickness.
-        // Just use angles
-        batch.push(
-            Color::BLACK,
-            pl.make_arrow(Distance::meters(5.0), ArrowCap::Triangle),
-        );
-        let radius = r1.get_width() / 2.0;
-        // Shrink it to fit inside an icon
-        batch = batch
-            .autocrop()
-            .scale_to_fit_square(0.8 * 2.0 * radius.inner_meters())
-            .centered_on(pt1);
-
-        // Circle background
-        batch.unshift(Color::WHITE, Circle::new(pt1, radius).to_polygon());
-        if let Ok(outline) = Circle::new(pt1, radius).to_outline(border_thickness) {
-            batch.push(Color::PURPLE, outline);
-        }
-
-        // The Slash of Prohibition
-        // TODO Should it be oriented relative to the road or not? If not, just 135 and 315 degrees
-        if let Ok(pl) = PolyLine::new(vec![
-            pt1.project_away(radius, road_angle.rotate_degs(45.0)),
-            pt1.project_away(radius, road_angle.opposite().rotate_degs(45.0)),
-        ]) {
-            batch.push(Color::PURPLE, pl.make_polygons(border_thickness));
-        }
-    }
     batch
 }
 
