@@ -50,6 +50,7 @@ pub use crate::edits::{
     EditCmd, EditEffects, EditIntersection, EditIntersectionControl, EditRoad, MapEdits,
     PermanentMapEdits,
 };
+pub use crate::make::turns::turn_type_from_angles;
 pub use crate::make::RawToMapOptions;
 pub use crate::objects::area::{Area, AreaID};
 pub use crate::objects::building::{Building, BuildingID, BuildingType, OffstreetParking};
@@ -72,7 +73,6 @@ pub use crate::pathfind::{
     PathfinderCaching, RoutingParams,
 };
 pub use crate::traversable::{Position, Traversable, MAX_BIKE_SPEED, MAX_WALKING_SPEED};
-pub use crate::make::turns::turn_type_from_angles;
 
 mod city;
 pub mod connectivity;
