@@ -1,3 +1,5 @@
+Turns:
+------
 TurnID(Lane #34, Lane #1, Intersection #0) is a Straight
 TurnID(Lane #34, Lane #2, Intersection #0) is a Straight
 TurnID(Lane #34, Lane #3, Intersection #0) is a Straight
@@ -34,3 +36,8 @@ TurnID(Lane #4, Lane #0, Intersection #1) is a SharedSidewalkCorner
 TurnID(Lane #32, Lane #36, Intersection #2) is a SharedSidewalkCorner
 TurnID(Lane #64, Lane #69, Intersection #3) is a SharedSidewalkCorner
 TurnID(Lane #100, Lane #96, Intersection #4) is a SharedSidewalkCorner
+
+------------
+Restrictions:
+------------
+
