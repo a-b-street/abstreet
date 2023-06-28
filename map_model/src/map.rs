@@ -1111,10 +1111,7 @@ impl Map {
             r2_angle
         };
 
-        // let t_type = turn_type_from_angles(r1_angle, r2_angle);
         let t_type = turn_type_from_road_geom(r1, r1_angle, r2, r2_angle, self.get_i(i), self);
-        // println!("drawing turn type {:?}, angle {}", t_type, r1_angle);
-        // t_type
         (t_type, sign_pt, r1_angle, i)
     }
 }

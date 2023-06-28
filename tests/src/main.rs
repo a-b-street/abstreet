@@ -11,7 +11,6 @@ use abstio::{CityName, MapName};
 use abstutil::Timer;
 use blockfinding::Perimeter;
 use geom::{Distance, Duration, Time};
-// use map_model::make::turns::get_ban_turn_info;
 use map_model::{IntersectionID, LaneType, Map, RoadID};
 use sim::{AlertHandler, PrebakeSummary, Sim, SimFlags, SimOptions};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
@@ -517,22 +516,6 @@ mod tests {
     #[ignore]
     fn test_main() -> Result<(), anyhow::Error> {
         main()
-    }
-
-    #[test]
-    #[ignore]
-    fn test_make_vehicle_turns() {
-        for name in [
-            "divided_highway_split",
-            "left_turn_and_bike_lane",
-            "multiple_left_turn_lanes",
-            "false_positive_u_turns",
-        ] {
-            // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
-            let map = import_map(abstio::path(format!("../tests/input/{}.osm", name)));
-            // Enable to debug the result with the normal GUI
-            println!("Testing vehicle turn for {}", map.get_name().describe());
-        }
     }
 
     #[test]
