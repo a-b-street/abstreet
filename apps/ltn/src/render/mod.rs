@@ -3,11 +3,8 @@ pub mod colors;
 mod filters;
 
 use geom::{Angle, Distance, Pt2D};
-use map_model::make::turns::turn_type_from_road_geom;
-use map_model::{
-    AmenityType, CommonEndpoint, ExtraPOIType, FilterType, IntersectionID, Map, RestrictionType,
-    Road, TurnType,
-};
+// use map_model::make::turns::get_ban_turn_info;
+use map_model::{AmenityType, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType};
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 
@@ -120,60 +117,8 @@ fn draw_restriction(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatc
 }
 
 fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatch {
-    let (t_type, sign_pt, r1_angle, _) = get_ban_turn_info(r1, r2, map);
+    let (t_type, sign_pt, r1_angle, _) = map.get_ban_turn_info(r1, r2);
     draw_turn_restriction_icon(ctx, t_type, sign_pt, r1, r1_angle)
-}
-
-// TODO: make private
-// Public for now, purely for testing purposes
-// TODO: would it be more appropriate to have this function live in `map_model/src/make/turns.rs`?
-pub fn get_ban_turn_info(
-    r1: &Road,
-    r2: &Road,
-    map: &Map,
-) -> (TurnType, Pt2D, Angle, IntersectionID) {
-    // Determine where to place the symbol
-    let i = match r1.common_endpoint(r2) {
-        CommonEndpoint::One(i) => i,
-        // This is probably rare, just pick one side arbitrarily
-        CommonEndpoint::Both => r1.src_i,
-        CommonEndpoint::None => {
-            // This may be that `r1` and `r2` are joined by a complicated_turn_restrictions,
-            // but don't have a CommonEndpoint.
-            // In this case the end of r1 appears to be the most appropriate location to pick here
-            r1.dst_i
-        }
-    };
-
-    // Determine what type of turn is it?
-    let (sign_pt, mut r1_angle) = r1
-        .center_pts
-        .must_dist_along((if r1.src_i == i { 0.2 } else { 0.8 }) * r1.center_pts.length());
-
-    // Correct the angle, based on whether the vector direction is towards or away from the intersection
-    // TODO what is the standard way of describing the vector direction (rather than the traffic direction) for roads?
-    r1_angle = if r1.src_i == i {
-        r1_angle.rotate_degs(180.0)
-    } else {
-        r1_angle
-    };
-
-    let (_, mut r2_angle) = r2
-        .center_pts
-        .must_dist_along((if r2.src_i == i { 0.2 } else { 0.8 }) * r2.center_pts.length());
-
-    // Correct the angle, based on whether the vector direction is towards or away from the intersection
-    r2_angle = if r2.dst_i == i {
-        r2_angle.rotate_degs(180.0)
-    } else {
-        r2_angle
-    };
-
-    // let t_type = turn_type_from_angles(r1_angle, r2_angle);
-    let t_type = turn_type_from_road_geom(r1, r1_angle, r2, r2_angle, map.get_i(i), map);
-    // println!("drawing turn type {:?}, angle {}", t_type, r1_angle);
-    // t_type
-    (t_type, sign_pt, r1_angle, i)
 }
 
 fn draw_turn_restriction_icon(
