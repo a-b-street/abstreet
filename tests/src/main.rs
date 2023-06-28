@@ -11,7 +11,7 @@ use abstio::{CityName, MapName};
 use abstutil::Timer;
 use blockfinding::Perimeter;
 use geom::{Distance, Duration, Time};
-use ltn::render::get_ban_turn_info;
+// use map_model::make::turns::get_ban_turn_info;
 use map_model::{IntersectionID, LaneType, Map, RoadID};
 use sim::{AlertHandler, PrebakeSummary, Sim, SimFlags, SimOptions};
 use synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
@@ -133,7 +133,7 @@ fn all_turn_info_as_string(map: &Map) -> String {
     s.push_str("\n------------\nRestrictions:\n------------\n");
     for r1 in map.all_roads() {
         for (restriction, r2) in &r1.turn_restrictions {
-            let (t_type, sign_pt, _, i_id) = get_ban_turn_info(r1, map.get_r(*r2), map);
+            let (t_type, sign_pt, _, i_id) = map.get_ban_turn_info(r1, map.get_r(*r2));
             let i = map.get_i(i_id);
             s.push_str(&format!(
                 "Turn from {} into {}, at intersection {:?} is a {:?}, type {:?}, location {}\n",
@@ -556,16 +556,15 @@ mod tests {
 
     #[test]
     #[ignore]
-    fn run_test_blockfinding() -> Result<(), anyhow::Error>{
+    fn run_test_blockfinding() -> Result<(), anyhow::Error> {
         test_blockfinding()
     }
 
     #[test]
     #[ignore]
-    fn run_test_lane_changing() -> Result<(), anyhow::Error>{
+    fn run_test_lane_changing() -> Result<(), anyhow::Error> {
         test_lane_changing(&import_map(abstio::path(
             "../tests/input/lane_selection.osm",
         )))
     }
-
 }

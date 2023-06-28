@@ -8,17 +8,20 @@ use popgetter::CensusZone;
 
 use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
-use geom::{Bounds, Distance, Duration, GPSBounds, LonLat, PolyLine, Polygon, Pt2D, Ring, Time};
+use geom::{
+    Angle, Bounds, Distance, Duration, GPSBounds, LonLat, PolyLine, Polygon, Pt2D, Ring, Time,
+};
 use raw_map::{RawBuilding, RawMap};
 
 use crate::{
-    osm, AmenityType, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
-    CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
-    DrivingSide, ExtraPOI, Intersection, IntersectionControl, IntersectionID, IntersectionKind,
-    Lane, LaneID, LaneType, Map, MapConfig, MapEdits, Movement, MovementID, OffstreetParking,
-    OriginalRoad, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2, Pathfinder,
-    PathfinderCaching, Position, Road, RoadFilter, RoadID, RoutingParams, TransitRoute,
-    TransitRouteID, TransitStop, TransitStopID, Turn, TurnID, TurnType, Zone,
+    make::turns::turn_type_from_road_geom, osm, AmenityType, Area, AreaID, AreaType, Building,
+    BuildingID, BuildingType, CommonEndpoint, CompressedMovementID, ControlStopSign,
+    ControlTrafficSignal, DirectedRoadID, Direction, DrivingSide, ExtraPOI, Intersection,
+    IntersectionControl, IntersectionID, IntersectionKind, Lane, LaneID, LaneType, Map, MapConfig,
+    MapEdits, Movement, MovementID, OffstreetParking, OriginalRoad, ParkingLot, ParkingLotID, Path,
+    PathConstraints, PathRequest, PathV2, Pathfinder, PathfinderCaching, Position, Road,
+    RoadFilter, RoadID, RoutingParams, TransitRoute, TransitRouteID, TransitStop, TransitStopID,
+    Turn, TurnID, TurnType, Zone,
 };
 
 impl Map {
@@ -1062,5 +1065,56 @@ impl Map {
             }
         }
         result
+    }
+
+    // TODO This returns a mixture of different things related to the turn. It might be better
+    // to create and return a `Turn`.
+    pub fn get_ban_turn_info(
+        &self,
+        r1: &Road,
+        r2: &Road,
+    ) -> (TurnType, Pt2D, Angle, IntersectionID) {
+        // Determine where to place the symbol
+        let i = match r1.common_endpoint(r2) {
+            CommonEndpoint::One(i) => i,
+            // This is probably rare, just pick one side arbitrarily
+            CommonEndpoint::Both => r1.src_i,
+            CommonEndpoint::None => {
+                // This may be that `r1` and `r2` are joined by a complicated_turn_restrictions,
+                // but don't have a CommonEndpoint.
+                // In this case the end of r1 appears to be the most appropriate location to pick here
+                r1.dst_i
+            }
+        };
+
+        // Determine what type of turn is it?
+        let (sign_pt, mut r1_angle) = r1
+            .center_pts
+            .must_dist_along((if r1.src_i == i { 0.2 } else { 0.8 }) * r1.center_pts.length());
+
+        // Correct the angle, based on whether the vector direction is towards or away from the intersection
+        // TODO what is the standard way of describing the vector direction (rather than the traffic direction) for roads?
+        r1_angle = if r1.src_i == i {
+            r1_angle.rotate_degs(180.0)
+        } else {
+            r1_angle
+        };
+
+        let (_, mut r2_angle) = r2
+            .center_pts
+            .must_dist_along((if r2.src_i == i { 0.2 } else { 0.8 }) * r2.center_pts.length());
+
+        // Correct the angle, based on whether the vector direction is towards or away from the intersection
+        r2_angle = if r2.dst_i == i {
+            r2_angle.rotate_degs(180.0)
+        } else {
+            r2_angle
+        };
+
+        // let t_type = turn_type_from_angles(r1_angle, r2_angle);
+        let t_type = turn_type_from_road_geom(r1, r1_angle, r2, r2_angle, self.get_i(i), self);
+        // println!("drawing turn type {:?}, angle {}", t_type, r1_angle);
+        // t_type
+        (t_type, sign_pt, r1_angle, i)
     }
 }
