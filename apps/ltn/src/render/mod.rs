@@ -112,13 +112,11 @@ pub fn render_turn_restrictions(ctx: &EventCtx, map: &Map) -> Drawable {
 fn draw_restriction(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatch {
     let mut batch = GeomBatch::new();
     // TODO: remove/name this wrapper, which is just for debugging svg icon placement/rotation
-    batch.append(draw_restriction_svg(ctx, map, r1, r2));
-    batch
-}
-
-fn draw_restriction_svg(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatch {
     let (t_type, sign_pt, r1_angle, _) = map.get_ban_turn_info(r1, r2);
-    draw_turn_restriction_icon(ctx, t_type, sign_pt, r1, r1_angle)
+    batch.append(draw_turn_restriction_icon(
+        ctx, t_type, sign_pt, r1, r1_angle,
+    ));
+    batch
 }
 
 fn draw_turn_restriction_icon(

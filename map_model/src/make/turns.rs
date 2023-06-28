@@ -135,7 +135,7 @@ pub fn verify_vehicle_connectivity(turns: &[Turn], i: &Intersection, map: &Map) 
     Ok(())
 }
 
-pub fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
+fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     let mut turns = Vec::new();
 
     // let expected_turn_types = expected_turn_types_for_four_way(i, map);
