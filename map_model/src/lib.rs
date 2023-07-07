@@ -78,7 +78,7 @@ pub use map::turn_type_from_angles;
 mod city;
 pub mod connectivity;
 mod edits;
-pub mod make;
+mod make;
 mod map;
 mod objects;
 mod pathfind;
