@@ -1123,8 +1123,6 @@ pub fn turn_type_from_road_geom(
     i: &Intersection,
     map: &Map,
 ) -> TurnType {
-    // let r1_angle = src.last_line().angle();
-    // let r2_angle = dst.first_line().angle();
     let expected_turn_types = expected_turn_types_for_four_way(i, map);
 
     let mut turn_type = turn_type_from_angles(r1_angle, r2_angle);

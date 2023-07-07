@@ -3,7 +3,6 @@ pub mod colors;
 mod filters;
 
 use geom::{Angle, Distance, Pt2D};
-// use map_model::make::turns::get_ban_turn_info;
 use map_model::{AmenityType, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType};
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
@@ -86,23 +85,11 @@ pub fn render_turn_restrictions(ctx: &EventCtx, map: &Map) -> Drawable {
         for (restriction, r2) in &r1.turn_restrictions {
             // TODO "Invert" OnlyAllowTurns so we can just draw banned things
             if *restriction == RestrictionType::BanTurns {
-                println!(
-                    "regular turn: from {0:?}, to {1:?}",
-                    (r1.orig_id.osm_way_id, r1.id),
-                    (map.get_r(*r2).orig_id.osm_way_id, map.get_r(*r2).id)
-                );
                 batch.append(draw_restriction(ctx, map, r1, map.get_r(*r2)));
             }
         }
-        for (via, r2) in &r1.complicated_turn_restrictions {
+        for (_via, r2) in &r1.complicated_turn_restrictions {
             // TODO Show the 'via'? Or just draw the entire shape?
-            println!(
-                "complicated turn: from {0:?}, via {1:?}, to {2:?}",
-                (r1.orig_id.osm_way_id, r1.id),
-                (map.get_r(*via).orig_id.osm_way_id, map.get_r(*via).id),
-                (map.get_r(*r2).orig_id.osm_way_id, map.get_r(*r2).id)
-            );
-
             batch.append(draw_restriction(ctx, map, r1, map.get_r(*r2)));
         }
     }
