@@ -5,6 +5,7 @@ mod one_ways;
 mod page;
 mod shortcuts;
 mod speed_limits;
+mod turn_restrictions;
 
 use map_model::{IntersectionID, Road, RoadID};
 use widgetry::mapspace::{ObjectID, World};
@@ -15,6 +16,8 @@ use crate::{is_private, pages, App, Neighbourhood, Transition};
 
 pub use page::DesignLTN;
 
+use self::shortcuts::FocusedRoad;
+
 pub enum EditMode {
     Filters,
     FreehandFilters(PolyLineLasso),
@@ -22,6 +25,7 @@ pub enum EditMode {
     // Is a road clicked on right now?
     Shortcuts(Option<shortcuts::FocusedRoad>),
     SpeedLimits,
+    TurnRestrictions(Option<shortcuts::FocusedRoad>),
 }
 
 pub struct EditNeighbourhood {
@@ -70,6 +74,7 @@ impl EditNeighbourhood {
                 EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
                 EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
                 EditMode::SpeedLimits => speed_limits::make_world(ctx, app, neighbourhood),
+                EditMode::TurnRestrictions(focus) => turn_restrictions::make_world(ctx, app, neighbourhood, focus),
             },
         }
     }
@@ -91,6 +96,9 @@ impl EditNeighbourhood {
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
             EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
             EditMode::SpeedLimits => speed_limits::handle_world_outcome(app, outcome),
+            EditMode::TurnRestrictions(_) => {
+                turn_restrictions::handle_world_outcome(app, outcome, neighbourhood)
+            },
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();
@@ -185,6 +193,10 @@ impl EditNeighbourhood {
             }
             "Speed limits" => {
                 app.session.edit_mode = EditMode::SpeedLimits;
+                EditOutcome::UpdatePanelAndWorld
+            }
+            "Turn restrictions" => {
+                app.session.edit_mode = EditMode::TurnRestrictions(None);
                 EditOutcome::UpdatePanelAndWorld
             }
             _ => EditOutcome::Nothing,

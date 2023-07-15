@@ -504,6 +504,8 @@ fn make_bottom_panel(
             super::shortcuts::widget(ctx, app, focus.as_ref())
         } else if let EditMode::SpeedLimits = app.session.edit_mode {
             super::speed_limits::widget(ctx)
+        } else if let EditMode::TurnRestrictions(ref focus) = app.session.edit_mode {
+            super::turn_restrictions::widget(ctx, app, focus.as_ref())
         } else {
             Widget::nothing()
         }
@@ -687,13 +689,37 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
             .hotkey(Key::F5)
             .tooltip_and_disabled({
                 let mut txt = Text::new();
-                txt.add_line(Line(Key::F4.describe()).fg(ctx.style().text_hotkey_color));
+                txt.add_line(Line(Key::F5.describe()).fg(ctx.style().text_hotkey_color));
                 txt.append(Line(" - Speed limits"));
                 txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
                 txt.append(Line(" a road to convert it to 20mph (32kph)"));
                 txt
             })
             .build_widget(ctx, "Speed limits")
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/map/no_right_turn.svg")
+            // TODO check the RewriteColor params to match the style of the other buttons
+            .image_color(
+                RewriteColor::Change(Color::RED, Color::CLEAR),
+                ControlState::Default,
+            )
+            .image_color(
+                RewriteColor::Change(Color::RED, Color::CLEAR),
+                ControlState::Disabled,
+            )
+            .disabled(matches!(edit_mode, EditMode::TurnRestrictions(_)))
+            .hotkey(Key::F6)
+            .tooltip_and_disabled({
+                let mut txt = Text::new();
+                txt.add_line(Line(Key::F6.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" - Turn restrictions"));
+                txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" a road to edit turn restrictions at it's intersections"));
+                txt
+            })
+            .build_widget(ctx, "Turn restrictions")
             .centered_vert(),
     ])
 }
