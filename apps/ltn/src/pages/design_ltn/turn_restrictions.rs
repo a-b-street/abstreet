@@ -30,7 +30,6 @@ pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedTurns>) -> Wi
     }
 }
 
-
 pub fn make_world(
     ctx: &mut EventCtx,
     app: &App,
