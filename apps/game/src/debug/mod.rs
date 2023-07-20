@@ -550,7 +550,7 @@ fn search_osm(filter: String, ctx: &mut EventCtx, app: &mut App) -> Transition {
     Transition::Multi(vec![
         Transition::Pop,
         Transition::ModifyState(Box::new(|state, ctx, _| {
-            let mut mode = state.downcast_mut::<DebugMode>().unwrap();
+            let mode = state.downcast_mut::<DebugMode>().unwrap();
             mode.search_results = Some(results);
             mode.reset_info(ctx);
         })),
@@ -771,7 +771,7 @@ impl ContextualActions for Actions {
                                     Circle::new(pt, Distance::meters(1.0)).to_polygon(),
                                 );
                             }
-                            let mut mode = state.downcast_mut::<DebugMode>().unwrap();
+                            let mode = state.downcast_mut::<DebugMode>().unwrap();
                             // Just abuse this to display the results
                             mode.search_results = Some(SearchResults {
                                 query: format!("equiv_pos {}", base_pos),

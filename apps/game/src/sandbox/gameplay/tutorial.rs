@@ -1288,7 +1288,7 @@ pub fn actions(app: &App, id: ID) -> Vec<(Key, String)> {
 }
 
 pub fn execute(ctx: &mut EventCtx, app: &mut App, id: ID, action: &str) -> Transition {
-    let mut tut = app.session.tutorial.as_mut().unwrap();
+    let tut = app.session.tutorial.as_mut().unwrap();
     let response = match (id, action) {
         (ID::Car(c), "draw WASH ME") => {
             let is_parked = app

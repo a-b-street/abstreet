@@ -135,7 +135,7 @@ impl WalkingSimState {
         trips: &mut TripManager,
         transit: &mut TransitSimState,
     ) {
-        let mut ped = self.peds.get_mut(&id).unwrap();
+        let ped = self.peds.get_mut(&id).unwrap();
         match ped.state {
             PedState::Crossing { ref dist_int, .. } => {
                 if ped.path.is_last_step() {

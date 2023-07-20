@@ -889,7 +889,7 @@ impl DrivingSimState {
                 }
             }
 
-            let mut follower = self.cars.get_mut(&follower_id).unwrap();
+            let follower = self.cars.get_mut(&follower_id).unwrap();
             // TODO If the leader vanished at a border node, this still jumps a bit -- the lead
             // car's back is still sticking out. Need to still be bound by them, even though they
             // don't exist! If the leader just parked, then we're fine.
@@ -1062,7 +1062,7 @@ impl DrivingSimState {
                 if let Some(follower_id) = old_queue.get_active_cars().get(0) {
                     // TODO Stop using get_active_cars for this! Be paranoid.
                     if old_queue.is_car_at_front(*follower_id) {
-                        let mut follower = self.cars.get_mut(follower_id).unwrap();
+                        let follower = self.cars.get_mut(follower_id).unwrap();
 
                         match follower.state {
                             CarState::Queued { blocked_since, .. } => {

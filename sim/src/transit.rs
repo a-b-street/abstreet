@@ -131,7 +131,7 @@ impl TransitSimState {
         walking: &mut WalkingSimState,
         ctx: &mut Ctx,
     ) -> bool {
-        let mut bus = self.buses.get_mut(&id).unwrap();
+        let bus = self.buses.get_mut(&id).unwrap();
         match bus.state {
             BusState::DrivingToStop(stop_idx) => {
                 bus.state = BusState::AtStop(stop_idx);
@@ -215,7 +215,7 @@ impl TransitSimState {
     }
 
     pub fn bus_departed_from_stop(&mut self, id: CarID, _: &Map) -> Router {
-        let mut bus = self.buses.get_mut(&id).unwrap();
+        let bus = self.buses.get_mut(&id).unwrap();
         let route = self.routes.get_mut(&bus.route).unwrap();
         match bus.state {
             BusState::AtStop(stop_idx) => {

@@ -595,7 +595,7 @@ dependencies = [
  "convert_osm",
  "csv",
  "fs-err",
- "geo",
+ "geo 0.26.0",
  "geom",
  "importer",
  "log",
@@ -860,9 +860,9 @@ dependencies = [
 [[package]]
 name = "country-geocoder"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/country-geocoder#6a4fd01c948f0fb9f67377343a4893cc3e43ba15"
+source = "git+https://github.com/a-b-street/country-geocoder#395e847748f1db955e96ecbdbad2fedea3ceeb74"
 dependencies = [
- "geo",
+ "geo 0.26.0",
  "geojson",
  "serde",
 ]
@@ -1746,7 +1746,7 @@ dependencies = [
  "enumset",
  "fs-err",
  "futures-channel",
- "geo",
+ "geo 0.26.0",
  "geojson",
  "geom",
  "getrandom",
@@ -1841,19 +1841,36 @@ dependencies = [
  "geographiclib-rs",
  "log",
  "num-traits",
- "robust",
- "rstar",
+ "robust 0.2.3",
+ "rstar 0.10.0",
+]
+
+[[package]]
+name = "geo"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1645cf1d7fea7dac1a66f7357f3df2677ada708b8d9db8e9b043878930095a96"
+dependencies = [
+ "earcutr",
+ "float_next_after 1.0.0",
+ "geo-types",
+ "geographiclib-rs",
+ "log",
+ "num-traits",
+ "robust 1.1.0",
+ "rstar 0.11.0",
 ]
 
 [[package]]
 name = "geo-types"
-version = "0.7.9"
+version = "0.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5f0b3068e1537a4b861ec3734f4aa9c317d537cf0845bf6fb6221973499d26c"
+checksum = "9705398c5c7b26132e74513f4ee7c1d7dafd786004991b375c172be2be0eecaa"
 dependencies = [
  "approx",
  "num-traits",
- "rstar",
+ "rstar 0.10.0",
+ "rstar 0.11.0",
  "serde",
 ]
 
@@ -1868,9 +1885,9 @@ dependencies = [
 
 [[package]]
 name = "geojson"
-version = "0.24.0"
+version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff2cc39a555a57b2a5514e223d76e23779f853840cc3c67767f77f58dc2272b7"
+checksum = "a5d728c1df1fbf328d74151efe6cb0586f79ee813346ea981add69bd22c9241b"
 dependencies = [
  "geo-types",
  "log",
@@ -1887,7 +1904,7 @@ dependencies = [
  "bincode",
  "earcutr",
  "fs-err",
- "geo",
+ "geo 0.26.0",
  "geojson",
  "histogram",
  "instant",
@@ -1895,7 +1912,7 @@ dependencies = [
  "polylabel",
  "rand",
  "rand_xorshift",
- "rstar",
+ "rstar 0.11.0",
  "serde",
  "serde_json",
 ]
@@ -2399,7 +2416,7 @@ dependencies = [
  "csv",
  "fs-err",
  "gdal",
- "geo",
+ "geo 0.26.0",
  "geojson",
  "geom",
  "kml",
@@ -2751,7 +2768,7 @@ dependencies = [
  "csv",
  "flate2",
  "futures-channel",
- "geo",
+ "geo 0.26.0",
  "geojson",
  "geom",
  "getrandom",
@@ -3358,7 +3375,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "enumset",
- "geo",
+ "geo 0.24.1",
  "geojson",
  "geom",
  "itertools",
@@ -3590,11 +3607,11 @@ dependencies = [
 
 [[package]]
 name = "polylabel"
-version = "2.4.3"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e10b96e9bc11d753dfd28a06b6d21ae0214f58252fe9554a775c1a073cf5ddca"
+checksum = "61132847769c5a4f41a977fd56e58e7e7a3c8ca602008dd124c0928c7387bfcb"
 dependencies = [
- "geo",
+ "geo 0.26.0",
  "libc",
  "num-traits",
  "thiserror",
@@ -3609,7 +3626,7 @@ dependencies = [
  "anyhow",
  "flatgeobuf",
  "futures",
- "geo",
+ "geo 0.26.0",
  "geojson",
  "geom",
  "geozero",
@@ -3627,11 +3644,11 @@ dependencies = [
 [[package]]
 name = "popgetter"
 version = "0.1.0"
-source = "git+https://github.com/dabreegster/popgetter/#e0b9a879424c15448f22964b56d827fe057b4997"
+source = "git+https://github.com/dabreegster/popgetter/#d0e8167e37cedb773377dc96f325fba3ab5026b2"
 dependencies = [
  "anyhow",
  "fs-err",
- "geo",
+ "geo 0.26.0",
  "geo-types",
  "geojson",
  "serde",
@@ -4004,6 +4021,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5864e7ef1a6b7bcf1d6ca3f655e65e724ed3b52546a0d0a663c991522f552ea"
 
 [[package]]
+name = "robust"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cbf4a6aa5f6d6888f39e980649f3ad6b666acdce1d78e95b8a2cb076e687ae30"
+
+[[package]]
 name = "rodio"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4040,6 +4063,17 @@ name = "rstar"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f39465655a1e3d8ae79c6d9e007f4953bfc5d55297602df9dc38f9ae9f1359a"
+dependencies = [
+ "heapless",
+ "num-traits",
+ "smallvec",
+]
+
+[[package]]
+name = "rstar"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73111312eb7a2287d229f06c00ff35b51ddee180f017ab6dec1f69d62ac098d6"
 dependencies = [
  "heapless",
  "num-traits",

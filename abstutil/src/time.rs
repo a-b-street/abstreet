@@ -511,7 +511,7 @@ impl TimedFileReader {
 
 impl<'a> Read for Timer<'a> {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize, std::io::Error> {
-        let mut file = match self.stack.last_mut() {
+        let file = match self.stack.last_mut() {
             Some(StackEntry::File(ref mut f)) => f,
             _ => {
                 return Err(std::io::Error::new(
