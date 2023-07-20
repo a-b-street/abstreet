@@ -595,7 +595,7 @@ dependencies = [
  "convert_osm",
  "csv",
  "fs-err",
- "geo 0.26.0",
+ "geo",
  "geom",
  "importer",
  "log",
@@ -862,7 +862,7 @@ name = "country-geocoder"
 version = "0.1.0"
 source = "git+https://github.com/a-b-street/country-geocoder#395e847748f1db955e96ecbdbad2fedea3ceeb74"
 dependencies = [
- "geo 0.26.0",
+ "geo",
  "geojson",
  "serde",
 ]
@@ -1746,7 +1746,7 @@ dependencies = [
  "enumset",
  "fs-err",
  "futures-channel",
- "geo 0.26.0",
+ "geo",
  "geojson",
  "geom",
  "getrandom",
@@ -1832,21 +1832,6 @@ dependencies = [
 
 [[package]]
 name = "geo"
-version = "0.24.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7d640a4dd1d1c98b45f4653c841a8ec15f461a71b86bc30533ae64c6f20f268"
-dependencies = [
- "float_next_after 1.0.0",
- "geo-types",
- "geographiclib-rs",
- "log",
- "num-traits",
- "robust 0.2.3",
- "rstar 0.10.0",
-]
-
-[[package]]
-name = "geo"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1645cf1d7fea7dac1a66f7357f3df2677ada708b8d9db8e9b043878930095a96"
@@ -1857,8 +1842,8 @@ dependencies = [
  "geographiclib-rs",
  "log",
  "num-traits",
- "robust 1.1.0",
- "rstar 0.11.0",
+ "robust",
+ "rstar",
 ]
 
 [[package]]
@@ -1869,8 +1854,7 @@ checksum = "9705398c5c7b26132e74513f4ee7c1d7dafd786004991b375c172be2be0eecaa"
 dependencies = [
  "approx",
  "num-traits",
- "rstar 0.10.0",
- "rstar 0.11.0",
+ "rstar",
  "serde",
 ]
 
@@ -1904,7 +1888,7 @@ dependencies = [
  "bincode",
  "earcutr",
  "fs-err",
- "geo 0.26.0",
+ "geo",
  "geojson",
  "histogram",
  "instant",
@@ -1912,7 +1896,7 @@ dependencies = [
  "polylabel",
  "rand",
  "rand_xorshift",
- "rstar 0.11.0",
+ "rstar",
  "serde",
  "serde_json",
 ]
@@ -2416,7 +2400,7 @@ dependencies = [
  "csv",
  "fs-err",
  "gdal",
- "geo 0.26.0",
+ "geo",
  "geojson",
  "geom",
  "kml",
@@ -2768,7 +2752,7 @@ dependencies = [
  "csv",
  "flate2",
  "futures-channel",
- "geo 0.26.0",
+ "geo",
  "geojson",
  "geom",
  "getrandom",
@@ -3370,12 +3354,12 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#aba1831129a3d240179abdc328f3ee281b21b40b"
+source = "git+https://github.com/a-b-street/osm2streets#1276095c6d7b9d57a6407e71749f4ea0e2d32946"
 dependencies = [
  "abstutil",
  "anyhow",
  "enumset",
- "geo 0.24.1",
+ "geo",
  "geojson",
  "geom",
  "itertools",
@@ -3611,7 +3595,7 @@ version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61132847769c5a4f41a977fd56e58e7e7a3c8ca602008dd124c0928c7387bfcb"
 dependencies = [
- "geo 0.26.0",
+ "geo",
  "libc",
  "num-traits",
  "thiserror",
@@ -3626,7 +3610,7 @@ dependencies = [
  "anyhow",
  "flatgeobuf",
  "futures",
- "geo 0.26.0",
+ "geo",
  "geojson",
  "geom",
  "geozero",
@@ -3648,7 +3632,7 @@ source = "git+https://github.com/dabreegster/popgetter/#d0e8167e37cedb773377dc96
 dependencies = [
  "anyhow",
  "fs-err",
- "geo 0.26.0",
+ "geo",
  "geo-types",
  "geojson",
  "serde",
@@ -4016,12 +4000,6 @@ dependencies = [
 
 [[package]]
 name = "robust"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5864e7ef1a6b7bcf1d6ca3f655e65e724ed3b52546a0d0a663c991522f552ea"
-
-[[package]]
-name = "robust"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cbf4a6aa5f6d6888f39e980649f3ad6b666acdce1d78e95b8a2cb076e687ae30"
@@ -4056,17 +4034,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8f595a457b6b8c6cda66a48503e92ee8d19342f905948f29c383200ec9eb1d8"
 dependencies = [
  "xmlparser",
-]
-
-[[package]]
-name = "rstar"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f39465655a1e3d8ae79c6d9e007f4953bfc5d55297602df9dc38f9ae9f1359a"
-dependencies = [
- "heapless",
- "num-traits",
- "smallvec",
 ]
 
 [[package]]
@@ -4524,7 +4491,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#aba1831129a3d240179abdc328f3ee281b21b40b"
+source = "git+https://github.com/a-b-street/osm2streets#1276095c6d7b9d57a6407e71749f4ea0e2d32946"
 dependencies = [
  "abstutil",
  "anyhow",
