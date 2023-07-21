@@ -165,7 +165,7 @@ pub fn handle_world_outcome(
             app.session.edit_mode = EditMode::TurnRestrictions(None);
             EditOutcome::UpdatePanelAndWorld
         }
-        WorldOutcome::HoverChanged(Some(Obj::Road(old_r)), Some(Obj::Road(new_r))) => {
+        WorldOutcome::HoverChanged(_, Some(Obj::Road(new_r))) => {
             // TODO Fixme. At present I'm just doing this so that I can reuse the FocusedRoad
             // struct here. I suspect that it would be better to create a single path which artificially 
             // runs from one end of the FocusRoad to the other.
