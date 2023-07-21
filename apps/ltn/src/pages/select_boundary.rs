@@ -365,6 +365,7 @@ impl State<App> for SelectBoundary {
             .as_ref()
             .unwrap()
             .draw(g);
+        app.per_map.draw_major_road_labels.draw(g);
         app.session.layers.draw(g, app);
         if let Some(ref lasso) = self.lasso {
             lasso.draw(g);
