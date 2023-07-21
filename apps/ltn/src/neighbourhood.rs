@@ -4,6 +4,7 @@ use maplit::btreeset;
 
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{osm, Direction, IntersectionID, Map, RoadID};
+use osm2streets::RestrictionType;
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
 use crate::logic::{possible_destination_roads, CustomBoundary, Partitioning, Shortcuts};
