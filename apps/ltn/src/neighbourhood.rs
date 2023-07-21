@@ -4,9 +4,10 @@ use maplit::btreeset;
 
 use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{osm, Direction, IntersectionID, Map, RoadID};
+use osm2streets::RestrictionType;
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
-use crate::logic::{CustomBoundary, Partitioning, Shortcuts};
+use crate::logic::{destination_roads, CustomBoundary, Partitioning, Shortcuts};
 use crate::{is_private, App, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
@@ -29,6 +30,9 @@ pub struct Neighbourhood {
     pub perimeter_roads: BTreeSet<RoadID>,
     /// Roads which form part of the neighbourhood's perimeter, _**but**_ are classified as local roads based on their OSM tags. `suspicious_perimeter_roads` are always a subset of `interior_roads`.
     pub suspicious_perimeter_roads: BTreeSet<RoadID>,
+    /// Roads which are lie outside the `boundary_polygon` but could potentially be connected to an `interior_road` or `perimeter_road` by either a `road.turn_restrictions`, or `road.complicated_turn_restrictions`.
+    // `finish_init()` populates this field.
+    pub connected_exterior_roads: BTreeSet<RoadID>,
 
     pub cells: Vec<Cell>,
     pub shortcuts: Shortcuts,
@@ -135,6 +139,7 @@ impl Neighbourhood {
             interior_intersections: BTreeSet::new(),
             boundary_polygon: Polygon::dummy(),
             suspicious_perimeter_roads: BTreeSet::new(),
+            connected_exterior_roads: BTreeSet::new(),
 
             cells: Vec::new(),
             shortcuts: Shortcuts::empty(),
@@ -179,6 +184,7 @@ impl Neighbourhood {
             interior_intersections: BTreeSet::new(),
             boundary_polygon: custom.boundary_polygon,
             suspicious_perimeter_roads: BTreeSet::new(),
+            connected_exterior_roads: BTreeSet::new(),
 
             cells: Vec::new(),
             shortcuts: Shortcuts::empty(),
@@ -196,6 +202,43 @@ impl Neighbourhood {
                 }
             }
         }
+
+        // Add every connected road into connected_exterior_roads
+        let mut exterior: Vec<&RoadID> = Vec::new();
+        for r in [&self.perimeter_roads, &self.interior_roads]
+            .into_iter()
+            .flatten()
+        {
+            exterior.extend(destination_roads(map, r));
+        }
+
+        println!(
+            "BUILDING CONNECTED_EXTERIOR_ROADS: exterior.len() = {}",
+            exterior.len()
+        );
+        println!(
+            "BUILDING CONNECTED_EXTERIOR_ROADS: perimeter_roads.len() = {}",
+            &self.perimeter_roads.len()
+        );
+        println!(
+            "BUILDING CONNECTED_EXTERIOR_ROADS: interior_roads.len() = {}",
+            &self.interior_roads.len()
+        );
+
+        // TODO **Surely** there is some set-wise way to do this?
+        for r in exterior {
+            // Now remove the interior and perimeter roads
+            if !self.perimeter_roads.contains(r) & !self.interior_roads.contains(r) {
+                self.connected_exterior_roads.insert(*r);
+            }
+        }
+
+        println!(
+            "BUILDING CONNECTED_EXTERIOR_ROADS: connected_exterior_roads.len() = {}",
+            &self.connected_exterior_roads.len()
+        );
+
+        // self.connected_exterior_roads = &exterior;
 
         self.edits_changed(map);
     }

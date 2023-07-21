@@ -74,7 +74,9 @@ impl EditNeighbourhood {
                 EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
                 EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
                 EditMode::SpeedLimits => speed_limits::make_world(ctx, app, neighbourhood),
-                EditMode::TurnRestrictions(focus) => turn_restrictions::make_world(ctx, app, neighbourhood, focus),
+                EditMode::TurnRestrictions(focus) => {
+                    turn_restrictions::make_world(ctx, app, neighbourhood, focus)
+                }
             },
         }
     }
@@ -98,7 +100,7 @@ impl EditNeighbourhood {
             EditMode::SpeedLimits => speed_limits::handle_world_outcome(app, outcome),
             EditMode::TurnRestrictions(_) => {
                 turn_restrictions::handle_world_outcome(app, outcome, neighbourhood)
-            },
+            }
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();

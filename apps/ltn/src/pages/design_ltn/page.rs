@@ -716,7 +716,9 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
                 txt.add_line(Line(Key::F6.describe()).fg(ctx.style().text_hotkey_color));
                 txt.append(Line(" - Turn restrictions"));
                 txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
-                txt.append(Line(" a road to edit turn restrictions at it's intersections"));
+                txt.append(Line(
+                    " a road to edit turn restrictions at it's intersections",
+                ));
                 txt
             })
             .build_widget(ctx, "Turn restrictions")
