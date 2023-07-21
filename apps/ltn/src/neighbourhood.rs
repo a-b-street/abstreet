@@ -14,13 +14,20 @@ pub struct Neighbourhood {
     pub id: NeighbourhoodID,
 
     // Input
+    /// Intersections which form the boundary of the neighbourhood. This set includes any intersection which is connected to a road which is part of the neighbourhood's perimeter.
+    /// TODO: Unknown is there any meaning to the order of the Intersections in this set?
+    /// The roads which form the perimeter of the neighbourhood are the union of `perimeter_roads` and `suspicious_perimeter_roads`.
     pub borders: BTreeSet<IntersectionID>,
+    /// Intersections which are entirely inside the neighbourhood, and only connect interior roads to other interior roads.
     pub interior_intersections: BTreeSet<IntersectionID>,
     pub boundary_polygon: Polygon,
 
     // Derived stuff
+    /// Roads which are either (a) entirely inside the neighbourhood and (b) roads which are part of `suspicious_perimeter_roads`.
     pub interior_roads: BTreeSet<RoadID>,
+    /// Roads which form part of the neighbourhood's perimeter, and are classified as arterial roads based on their OSM tags. `suspicious_perimeter_roads` are NOT included in `perimeter_roads`.
     pub perimeter_roads: BTreeSet<RoadID>,
+    /// Roads which form part of the neighbourhood's perimeter, _**but**_ are classified as local roads based on their OSM tags. `suspicious_perimeter_roads` are always a subset of `interior_roads`.
     pub suspicious_perimeter_roads: BTreeSet<RoadID>,
 
     pub cells: Vec<Cell>,
