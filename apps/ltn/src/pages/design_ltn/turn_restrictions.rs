@@ -9,6 +9,7 @@ use super::{road_name, EditMode, EditOutcome, Obj};
 use crate::logic::turn_restrictions::{FocusedTurns, possible_destination_roads, restricted_destination_roads};
 use crate::render::{colors, render_turn_restrictions};
 use crate::{App, Neighbourhood};
+use crate::logic::turn_restrictions::destination_roads;
 
 
 pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedTurns>) -> Widget {
