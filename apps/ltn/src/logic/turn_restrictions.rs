@@ -1,4 +1,4 @@
-use map_model::{Map, RoadID, IntersectionID, Intersection, TurnType};
+use map_model::{Intersection, IntersectionID, Map, RoadID, TurnType};
 use osm2streets::{Direction, RestrictionType};
 use widgetry::GeomBatch;
 
@@ -28,35 +28,34 @@ use widgetry::GeomBatch;
 //     }
 // }
 
-
 /// Returns a Vec<RoadID> of all roads that are possible destinations from the given source road, accounting for one-way restrictions.
-/// 
+///
 // TODO exclude incoming one-way roads - add test cases
 // 1. T-junction: Three-way intersection, all roads are two way.
 // 2. Four-way, with two one-way roads, both approaching the intersection
 // 3. Four-way, with two one-way roads, one approaching and one leaving the intersection
 // 4. Something with a U-Turn
-// TODO highlighting possible destinations for complex turns 
+// TODO highlighting possible destinations for complex turns
 // TODO highlight possible roads leading away form the neighbourhood
 // TODO clickable/mouseover area to equal sign icon, not just the road geom.
-pub fn destination_roads(map: &Map, source_r_id: &RoadID) -> Vec<RoadID> {
+pub fn destination_roads<'a>(map: &'a Map, source_r_id: &'a RoadID) -> Vec<&'a RoadID> {
     let source_r = map.get_r(*source_r_id);
-    let mut destinations: Vec<RoadID> = Vec::new();
-    
+    let mut destinations: Vec<&'a RoadID> = Vec::new();
+
     let one_way = source_r.oneway_for_driving();
 
     if one_way != Some(Direction::Fwd) {
-        for r in & map.get_i(source_r.src_i).roads {
+        for r in &map.get_i(source_r.src_i).roads {
             if source_r.id != *r {
-                destinations.push(*r);
+                destinations.push(r);
             }
         }
     }
 
     if one_way != Some(Direction::Back) {
-        for r in & map.get_i(source_r.dst_i).roads {
+        for r in &map.get_i(source_r.dst_i).roads {
             if source_r.id != *r {
-                destinations.push(*r);
+                destinations.push(r);
             }
         }
     }
