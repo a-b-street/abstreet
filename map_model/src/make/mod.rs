@@ -207,9 +207,15 @@ impl Map {
 
         for i in map.intersections.iter_mut() {
             if i.is_border() && i.roads.len() != 1 {
+                // i.orig_id may be synthetic and useless, so also print OSM links of the roads
+                let border_roads = i
+                    .roads
+                    .iter()
+                    .map(|r| map.roads[r.0].orig_id.osm_way_id.to_string())
+                    .collect::<Vec<_>>();
                 panic!(
                     "{} ({}) is a border, but is connected to >1 road: {:?}",
-                    i.id, i.orig_id, i.roads
+                    i.id, i.orig_id, border_roads
                 );
             }
             if i.control == IntersectionControl::Signalled {
