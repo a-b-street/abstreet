@@ -1540,6 +1540,11 @@
       "uncompressed_size_bytes": 546125017,
       "compressed_size_bytes": 545582309
     },
+    "data/input/shared/geofabrik/north-america/us/connecticut-latest.osm.pbf": {
+      "checksum": "d7afa4663004176d8b577fd7e719fcc1",
+      "uncompressed_size_bytes": 196783700,
+      "compressed_size_bytes": 196646990
+    },
     "data/input/shared/geofabrik/north-america/us/maryland-latest.osm.pbf": {
       "checksum": "cdb4940515584e2e9390df2b07405f37",
       "uncompressed_size_bytes": 173223050,
@@ -1664,6 +1669,11 @@
       "checksum": "cd9b3a793169eeb2815ec6d4ebaa8299",
       "uncompressed_size_bytes": 8223772,
       "compressed_size_bytes": 2211005
+    },
+    "data/input/us/new_haven/raw_maps/center.bin": {
+      "checksum": "91b379e7f079e915efb35358808aaea6",
+      "uncompressed_size_bytes": 26216669,
+      "compressed_size_bytes": 8926328
     },
     "data/input/us/nyc/raw_maps/downtown_brooklyn.bin": {
       "checksum": "c3614d5980f9c9faa9d92b5af983d59f",
@@ -4144,6 +4154,11 @@
       "checksum": "81ab5933c9f633cc26982e083155d742",
       "uncompressed_size_bytes": 19626831,
       "compressed_size_bytes": 7937112
+    },
+    "data/system/us/new_haven/maps/center.bin": {
+      "checksum": "fec639cf343566aa976366ca28313e6f",
+      "uncompressed_size_bytes": 68011873,
+      "compressed_size_bytes": 27482772
     },
     "data/system/us/nyc/city.bin": {
       "checksum": "6f3f8a7029d2ed49f80c71b0670cae04",

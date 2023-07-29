@@ -295,6 +295,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("missoula", "center") => "Missoula",
             ("mt_vernon", "burlington") => "Burlington",
             ("mt_vernon", "downtown") => "Mt. Vernon",
+            ("new_haven", "center") => "New Haven",
             ("nyc", "fordham") => "Fordham",
             ("nyc", "lower_manhattan") => "Lower Manhattan",
             ("nyc", "midtown_manhattan") => "Midtown Manhattan",
