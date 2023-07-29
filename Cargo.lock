@@ -3398,9 +3398,9 @@ dependencies = [
 
 [[package]]
 name = "osmio"
-version = "0.7.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0db40ae840afac7f6c710abf757bb76c6b95b4a34a20d55811ef70d30b3ea24f"
+checksum = "ef304c46f8dce693d350b2ae08ce8858320d452b1cc029d001be6b7ada1f000c"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -3747,9 +3747,9 @@ checksum = "70731852eec72c56d11226c8a5f96ad5058a3dab73647ca5f7ee351e464f2571"
 
 [[package]]
 name = "quick-xml"
-version = "0.22.0"
+version = "0.30.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8533f14c8382aaad0d592c812ac3b826162128b65662331e1127b45c3d18536b"
+checksum = "eff6510e86862b57b210fd8cbe8ed3f0d7d600b9c2863cd4549a2e033c66e956"
 dependencies = [
  "memchr",
 ]
