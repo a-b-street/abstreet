@@ -376,7 +376,7 @@ pub fn find_exe(cmd: &str) -> String {
         }
     }
     // When running from the .zip release
-    directories.push(".".to_string());
+    directories.push("./binaries".to_string());
 
     for dir in directories {
         // Apparently std::path on Windows doesn't do any of this correction. We could build up a
