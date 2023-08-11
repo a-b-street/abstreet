@@ -204,12 +204,12 @@ impl Neighbourhood {
         }
 
         // Add every connected road into connected_exterior_roads
-        let mut exterior: Vec<&RoadID> = Vec::new();
+        let mut exterior: Vec<RoadID> = Vec::new();
         for r in [&self.perimeter_roads, &self.interior_roads]
             .into_iter()
             .flatten()
         {
-            exterior.extend(destination_roads(map, r));
+            exterior.extend(destination_roads(map, *r));
         }
 
         println!(
@@ -228,8 +228,8 @@ impl Neighbourhood {
         // TODO **Surely** there is some set-wise way to do this?
         for r in exterior {
             // Now remove the interior and perimeter roads
-            if !self.perimeter_roads.contains(r) & !self.interior_roads.contains(r) {
-                self.connected_exterior_roads.insert(*r);
+            if !self.perimeter_roads.contains(&r) & !self.interior_roads.contains(&r) {
+                self.connected_exterior_roads.insert(r);
             }
         }
 
