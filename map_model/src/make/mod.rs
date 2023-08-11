@@ -251,7 +251,7 @@ impl Map {
                 continue;
             }
 
-            let results = turns::make_all_turns(&map, i);
+            let (results, _) = turns::make_all_turns(&map, i);
             if turns::verify_vehicle_connectivity(&results, i, &map).is_err() {
                 connectivity_problems += 1;
             }

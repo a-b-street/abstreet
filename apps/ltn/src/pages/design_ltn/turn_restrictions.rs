@@ -1,7 +1,7 @@
 use geom::Distance;
 use map_model::{PathV2, RoadID};
 use osm2streets::{Direction, RestrictionType};
-use widgetry::mapspace::{World, WorldOutcome};
+use widgetry::mapspace::{World, WorldOutcome, ObjectID};
 use widgetry::{Color, EventCtx, GeomBatch, Key, Line, Text, TextExt, Widget};
 
 use super::{road_name, EditMode, EditOutcome, Obj};
@@ -36,7 +36,7 @@ pub fn make_world(
     let focused_road = focus.as_ref().map(|f| f.r);
 
     let mut restricted_destinations: Vec<&RoadID> = Vec::new();
-    let mut possible_destinations: Vec<&RoadID> = Vec::new();
+    let mut possible_destinations: Vec<RoadID> = Vec::new();
     if focused_road.is_some() {
         let focused_r = map.get_r(focused_road.unwrap());
         for (restriction, r2) in &focused_r.turn_restrictions {
@@ -53,19 +53,19 @@ pub fn make_world(
         // Account for one way streets when determining possible destinations
         // TODO This accounts for the oneway direction of the source street,
         // but not the oneway direction of the destination street
-        possible_destinations = destination_roads(map, &focused_r.id);
+        possible_destinations = destination_roads(map, focused_r.id);
     }
 
     println!("TURN RESTRICTIONS: make_world :{:?}", focused_road);
     println!(
         "TURN RESTRICTIONS: restricted_destinations :{:?}",
-        restricted_destinations
+        restricted_destinations.clone()
     );
     println!(
         "TURN RESTRICTIONS: possible_destinations :{:?}",
-        possible_destinations
+        possible_destinations.clone()
             .iter()
-            .map(|r| map.get_r(**r).get_name(app.opts.language.as_ref()))
+            .map(|r| map.get_r(*r).get_name(app.opts.language.as_ref()))
             .collect::<Vec<String>>()
     );
 
@@ -87,40 +87,32 @@ pub fn make_world(
         let road = map.get_r(*r);
         if focused_road == Some(*r) {
             let mut batch = GeomBatch::new();
-            batch.push(
-                Color::RED,
-                road.get_thick_polygon().to_outline(Distance::meters(3.0)),
-            );
-
-            world
-                .add(Obj::Road(*r))
-                .hitbox(road.get_thick_polygon())
-                .draw(batch)
-                .build(ctx);
-        } else if restricted_destinations.contains(&r) {
-            let mut batch = GeomBatch::new();
+            // Create a single compound geometry which represents a Road *and its connected roads* and draw
+            // that geom as the mouseover geom for the Road. This avoids needing to update the representation of 
+            // any Roads other then FocusedRoad.
+            // Add focus road segment itself
             batch.push(
                 Color::BLUE,
                 road.get_thick_polygon().to_outline(Distance::meters(3.0)),
             );
 
-            world
-                .add(Obj::Road(*r))
-                .hitbox(road.get_thick_polygon())
-                .draw(batch)
-                .build(ctx);
-        } else if possible_destinations.contains(&r) {
-            let mut batch = GeomBatch::new();
-            batch.push(
-                Color::YELLOW,
-                road.get_thick_polygon().to_outline(Distance::meters(3.0)),
-            );
+            // Add possible destinations
+            for possible_r in possible_destinations.clone() {
+                let possible_road = map.get_r(possible_r);
+                batch.push(
+                    Color::YELLOW,
+                    possible_road.get_thick_polygon().to_outline(Distance::meters(3.0)),
+                );
+            }
 
-            println!(
-                "adding to possible_destinations RoadID = {}, name = {}",
-                *r,
-                road.get_name(app.opts.language.as_ref())
-            );
+            // Add restricted_destinations
+            for restricted_r in restricted_destinations.clone() {
+                let restricted_road = map.get_r(*restricted_r);
+                batch.push(
+                    Color::RED,
+                    restricted_road.get_thick_polygon().to_outline(Distance::meters(3.0)),
+                );
+            }
 
             world
                 .add(Obj::Road(*r))
@@ -179,7 +171,30 @@ pub fn handle_world_outcome(
             app.session.edit_mode = EditMode::TurnRestrictions(None);
             EditOutcome::UpdatePanelAndWorld
         }
-        WorldOutcome::HoverChanged(_, Some(Obj::Road(new_r))) => {
+
+        WorldOutcome::HoverChanged(before, after) => {
+            handle_hover_change(before, after, app, neighbourhood)
+        }
+
+        _ => {
+            // println!("TURN RESTRICTIONS: handle_world_outcome - NOTHING");
+            EditOutcome::Nothing
+        }
+    }
+}
+
+fn handle_hover_change(before: Option<Obj>, after: Option<Obj>, app: &mut App, neighbourhood: &Neighbourhood) -> EditOutcome {
+
+    println!("TURN RESTRICTIONS: handle_world_outcome before {:?}, after {:?}", before, after);
+    match after {
+        None => {
+            // TODO Unsure why this isn't triggered when the mouse moves off the Road.
+            // Need to investigate
+            app.session.edit_mode = EditMode::TurnRestrictions(None);
+            println!("TURN RESTRICTIONS: handle_world_outcome - No road highlighted");
+            EditOutcome::UpdateAll
+        }
+        Some(Obj::Road(new_r)) => {
             // TODO Fixme. At present I'm just doing this so that I can reuse the FocusedRoad
             // struct here. I suspect that it would be better to create a single path which artificially
             // runs from one end of the FocusRoad to the other.
@@ -189,9 +204,13 @@ pub fn handle_world_outcome(
                 paths: subset.paths,
                 current_idx: 0,
             }));
-            println!("TURN RESTRICTIONS: handle_world_outcome - hoverChanged");
+            println!("TURN RESTRICTIONS: handle_world_outcome - new road highlighted");
             EditOutcome::UpdateAll
         }
-        _ => EditOutcome::Nothing,
+        _ => {
+            app.session.edit_mode = EditMode::TurnRestrictions(None);
+            println!("TURN RESTRICTIONS: handle_world_outcome - catch other hover changes");
+            EditOutcome::UpdateAll
+        }
     }
 }
