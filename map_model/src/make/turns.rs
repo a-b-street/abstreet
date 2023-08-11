@@ -11,7 +11,7 @@ use crate::{
 };
 
 /// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
-pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
+pub fn make_all_turns(map: &Map, i: &Intersection) -> (Vec<Turn>, Vec<Turn>) {
     let mut raw_turns: Vec<Turn> = Vec::new();
     raw_turns.extend(make_vehicle_turns(i, map));
     raw_turns.extend(crate::make::walking_turns::filter_turns(
@@ -59,14 +59,29 @@ pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
         });
     }
 
+    let banned_turns = banned_turns(&all_turns, &filtered_turns);
+
     // But then see how all of that filtering affects lane connectivity.
     match verify_vehicle_connectivity(&filtered_turns, i, map) {
-        Ok(()) => filtered_turns,
+        Ok(()) => (
+            filtered_turns,
+            banned_turns
+        ),
         Err(err) => {
             warn!("Not filtering turns. {}", err);
-            all_turns
+            (all_turns, Vec::<Turn>::new())
         }
     }
+}
+
+fn banned_turns(all_turns: &Vec<Turn>, filtered_turns: &Vec<Turn>) -> Vec<Turn> {
+    // let item_set: HashSet<_> = previous_items.iter().collect();
+    // let difference: Vec<_> = new_items.into_iter().filter(|item| !item_set.contains(item)).collect();
+    let difference: Vec<Turn> = all_turns.clone()
+                                         .into_iter()
+                                         .filter(|item| !filtered_turns.contains(item))
+                                         .collect::<Vec<Turn>>();
+    difference
 }
 
 fn ensure_unique(turns: Vec<Turn>) -> Vec<Turn> {
