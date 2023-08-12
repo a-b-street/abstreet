@@ -18,8 +18,6 @@ use crate::{is_private, pages, App, Neighbourhood, Transition};
 pub use page::DesignLTN;
 use crate::logic::turn_restrictions::FocusedTurns;
 
-use self::shortcuts::FocusedRoad;
-
 pub enum EditMode {
     Filters,
     FreehandFilters(PolyLineLasso),
