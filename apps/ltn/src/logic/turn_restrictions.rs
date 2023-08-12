@@ -1,6 +1,5 @@
-use map_model::{Intersection, IntersectionID, Map, RoadID, TurnType};
-use osm2streets::{Direction, RestrictionType};
-use widgetry::GeomBatch;
+use map_model::{Map, RoadID};
+use osm2streets::Direction;
 
 // TODO This should probably move to osm2streets
 // TODO TurnRestrictions is still incomplete so causes compilation problems
