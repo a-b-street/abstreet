@@ -16,8 +16,6 @@ use crate::{is_private, pages, App, Neighbourhood, Transition};
 
 pub use page::DesignLTN;
 
-use self::shortcuts::FocusedRoad;
-
 pub enum EditMode {
     Filters,
     FreehandFilters(PolyLineLasso),
@@ -25,7 +23,7 @@ pub enum EditMode {
     // Is a road clicked on right now?
     Shortcuts(Option<shortcuts::FocusedRoad>),
     SpeedLimits,
-    TurnRestrictions(Option<shortcuts::FocusedRoad>),
+    TurnRestrictions(Option<turn_restrictions::FocusedTurns>),
 }
 
 pub struct EditNeighbourhood {
@@ -92,15 +90,13 @@ impl EditNeighbourhood {
         }
 
         let outcome = self.world.event(ctx);
-        let outcome = match app.session.edit_mode {
+        let outcome = match &app.session.edit_mode {
             EditMode::Filters => filters::handle_world_outcome(ctx, app, outcome),
             EditMode::FreehandFilters(_) => unreachable!(),
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
             EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
             EditMode::SpeedLimits => speed_limits::handle_world_outcome(app, outcome),
-            EditMode::TurnRestrictions(_) => {
-                turn_restrictions::handle_world_outcome(app, outcome, neighbourhood)
-            }
+            EditMode::TurnRestrictions(_) => turn_restrictions::handle_world_outcome(ctx, app, outcome, neighbourhood)
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();
