@@ -1146,8 +1146,8 @@ pub fn turn_type_from_road_geom(
         // turn_type_from_angles. Correct it based on relative ordering.
         if turn_type != *expected_type {
             warn!(
-                "Turn from {:?} to {:?} looks like {:?} by angle, but is {:?} by ordering",
-                r1, r2, turn_type, expected_type
+                "Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering",
+                r1.orig_id, r2.orig_id, turn_type, expected_type
             );
             turn_type = *expected_type;
         }

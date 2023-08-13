@@ -131,7 +131,13 @@ impl<A: AppLike + 'static> State<A> for RunCommand<A> {
                 .small_heading(),
             );
             for line in &self.lines {
-                txt.add_line(line);
+                // Previously, map importing produced some very long lines, which slowed down
+                // rendering a bunch. The origin of the long output was fixed, but still skip very
+                // long lines generally -- this is just a loading screen showing command output, no
+                // need to display everything perfectly.
+                if line.len() < 300 {
+                    txt.add_line(line);
+                }
             }
             self.panel = ctx.make_loading_screen(txt);
             self.last_drawn = Instant::now();

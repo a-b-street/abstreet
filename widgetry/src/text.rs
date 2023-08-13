@@ -515,7 +515,11 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
     let mut batch = GeomBatch::new();
     match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
         Ok(_) => batch,
-        Err(err) => panic!("render_line({}): {}", contents, err),
+        Err(err) => {
+            error!("render_line({}): {}", contents, err);
+            // We'll just wind up with a blank line
+            batch
+        }
     }
 }
 
@@ -618,7 +622,10 @@ impl TextSpan {
         let mut batch = GeomBatch::new();
         match crate::svg::add_svg_inner(&mut batch, svg_tree, tolerance) {
             Ok(_) => batch,
-            Err(err) => panic!("curvey({}): {}", self.text, err),
+            Err(err) => {
+                error!("render_curvey({}): {}", self.text, err);
+                batch
+            }
         }
     }
 }
