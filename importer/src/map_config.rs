@@ -42,7 +42,6 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
                     }
                 }
             },
-            osm2lanes: false,
         },
         filter_crosswalks: false,
         onstreet_parking: match name.city.city.as_ref() {

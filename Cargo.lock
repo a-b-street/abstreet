@@ -449,15 +449,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "celes"
-version = "2.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39b9a21273925d7cc9e8a9a5f068122341336813c607014f5ef64f82b6acba58"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "cesu8"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2606,15 +2597,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kstring"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec3066350882a1cd6d950d055997f379ac37fd39f81cd4d8ed186032eb3c5747"
-dependencies = [
- "static_assertions",
-]
-
-[[package]]
 name = "kurbo"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2698,19 +2680,6 @@ name = "linux-raw-sys"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b64f40e5e03e0d54f03845c8197d0291253cdbedfb1cb46b13c2c117554a9f4c"
-
-[[package]]
-name = "locale-codes"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1f4cc9d2da40c19763d5dd398baf388f2cc1473ca3d53c578c75e9ad0402324"
-dependencies = [
- "lazy_static",
- "log",
- "regex",
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "lock_api"
@@ -3323,38 +3292,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
 
 [[package]]
-name = "osm-tag-schemes"
-version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#0c166e5917748cd2dcb6eb3b798cf38136e776e6"
-dependencies = [
- "osm-tags",
- "strum",
-]
-
-[[package]]
-name = "osm-tags"
-version = "0.1.1"
-source = "git+https://github.com/a-b-street/osm2lanes#0c166e5917748cd2dcb6eb3b798cf38136e776e6"
-dependencies = [
- "kstring",
-]
-
-[[package]]
-name = "osm2lanes"
-version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2lanes#0c166e5917748cd2dcb6eb3b798cf38136e776e6"
-dependencies = [
- "celes",
- "locale-codes",
- "log",
- "osm-tag-schemes",
- "osm-tags",
-]
-
-[[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#1276095c6d7b9d57a6407e71749f4ea0e2d32946"
+source = "git+https://github.com/a-b-street/osm2streets#c098792f790ce9cefce074f9e4a9c8b1f27900bc"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -3364,9 +3304,6 @@ dependencies = [
  "geom",
  "itertools",
  "log",
- "osm-tag-schemes",
- "osm-tags",
- "osm2lanes",
  "petgraph",
  "serde",
  "serde_json",
@@ -4491,7 +4428,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#1276095c6d7b9d57a6407e71749f4ea0e2d32946"
+source = "git+https://github.com/a-b-street/osm2streets#c098792f790ce9cefce074f9e4a9c8b1f27900bc"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -4552,9 +4489,6 @@ name = "strum"
 version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "063e6045c0e62079840579a7e47a355ae92f60eb74daaf156fb1e84ba164e63f"
-dependencies = [
- "strum_macros",
-]
 
 [[package]]
 name = "strum_macros"
