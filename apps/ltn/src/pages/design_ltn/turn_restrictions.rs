@@ -21,7 +21,7 @@ pub struct FocusedTurns {
     pub hull: Polygon,
     // pub permitted_t: Vec<Turn>,
     // pub prohibited_t: Vec<Turn>,
-    pub permitted_t: Vec<RoadID>,
+    pub permitted_t: HashSet<RoadID>,
     pub prohibited_t: HashSet<RoadID>,
 }
 
@@ -41,8 +41,8 @@ impl FocusedTurns {
             i = dst_i;
         }
 
-        let prohibited_t = restricted_destination_roads(map, r);
-        let permitted_t = destination_roads(map, r);
+        let prohibited_t = restricted_destination_roads(map, r, Some(i));
+        let permitted_t = destination_roads(map, r, Some(i));
 
         let mut ft = FocusedTurns {
             src_r: r,
@@ -57,7 +57,7 @@ impl FocusedTurns {
     }
 }
 
-fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &Vec<RoadID>, prohibited_t: &HashSet<RoadID>) -> Polygon {
+fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>, prohibited_t: &HashSet<RoadID>) -> Polygon {
 
     let mut all_pt: Vec<Pt2D> = Vec::new();
 
@@ -114,12 +114,12 @@ pub fn make_world(
         // for r in &neighbourhood.interior_roads {
         let road = map.get_r(*r);
 
-        let restricted_destinations = restricted_destination_roads(map, *r);
+        let restricted_destinations = restricted_destination_roads(map, *r, None);
 
         // Account for one way streets when determining possible destinations
         // TODO This accounts for the oneway direction of the source street,
         // but not the oneway direction of the destination street
-        let possible_destinations = destination_roads(map, road.id);
+        let possible_destinations = destination_roads(map, road.id, None);
 
         let mut hover_batch = GeomBatch::new();
         // Create a single compound geometry which represents a Road *and its connected roads* and draw
@@ -243,6 +243,10 @@ pub fn handle_world_outcome(
                     let prev = prev_selection.as_ref().unwrap();
                     if r == prev.src_r {
                         println!("The same road has been clicked on twice {:?}", r);
+                    } else if prev.prohibited_t.contains(&r) {
+                        println!("Remove existing banned turn from src={:?}, to dst {:?}", prev.src_r, r);
+                    } else if prev.permitted_t.contains(&r) {
+                        println!("Create new banned turn from src={:?}, to dst {:?}", prev.src_r, r);
                     } else {
                         println!("Two difference roads have been clicked on prev={:?}, new {:?}", prev.src_r, r);
                     }
