@@ -596,21 +596,28 @@ mod tests {
         // let file_name = "false_positive_u_turns";
         let map = import_map(abstio::path(format!("../tests/input/{}.osm", file_name)));
 
-        // for src_r in map.all_roads().iter() {
         let src_r = RoadID(11);
-        let _expected_prohib_r_1 = [RoadID(4)].iter().collect::<HashSet<_>>();
-        let expected_all_r_1 = vec![3usize, 4, 9, 12].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
-        // let expected_permitted_r_1 = vec![RoadID(3, 4, 9, 12)];
-        // let expected_permitted_r_1 = vec![RoadID(3, )];
+        let src_road = map.get_r(src_r);
+        // let _expected_prohib_r_1 = [RoadID(4)].iter().collect::<HashSet<_>>();
+        let expected_all_r = vec![3usize, 4, 9, 12].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+        let expected_filters_dst_i = vec![9usize, 12].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+        let expected_filters_src_i = vec![3usize, 4].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
 
-        let actual_vec = destination_roads(&map, src_r);
-        let mut actual = HashSet::<RoadID>::new();
-        actual.extend(actual_vec.iter());
+        // Three test cases
+        for (i , expected) in [
+            (None, expected_all_r),
+            (Some(src_road.dst_i), expected_filters_dst_i),
+            (Some(src_road.src_i), expected_filters_src_i),
+        ] {
+            let actual_vec = destination_roads(&map, src_r, i);
+            let mut actual = HashSet::<RoadID>::new();
+            actual.extend(actual_vec.iter());
 
-        for dst_r in actual.iter() {
-            println!("destination_roads, src_r {}, dst_r = {}", src_r, dst_r);
+            for dst_r in actual.iter() {
+                println!("destination_roads, src_r {}, dst_r = {}", src_r, dst_r);
+            }
+            assert_eq!(actual, expected);
         }
-        assert_eq!(actual, expected_all_r_1);
         Ok(())
     }
 }

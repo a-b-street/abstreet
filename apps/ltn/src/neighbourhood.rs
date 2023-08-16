@@ -208,7 +208,7 @@ impl Neighbourhood {
             .into_iter()
             .flatten()
         {
-            exterior.extend(destination_roads(map, *r));
+            exterior.extend(destination_roads(map, *r, None));
         }
 
         println!(
