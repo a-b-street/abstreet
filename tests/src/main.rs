@@ -473,6 +473,8 @@ fn geometry_test() -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use super::geometry_test;
     use super::import_map;
     use super::main;
