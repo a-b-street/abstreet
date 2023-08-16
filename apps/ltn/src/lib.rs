@@ -10,6 +10,8 @@ use widgetry::{EventCtx, Settings, State};
 pub use app::{App, PerMap, Session, Transition};
 pub use logic::NeighbourhoodID;
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
+pub use pages::FocusedTurns;
+pub use logic::destination_roads;
 
 #[macro_use]
 extern crate anyhow;

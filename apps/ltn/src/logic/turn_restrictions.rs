@@ -1,5 +1,8 @@
-use map_model::{Map, RoadID};
-use osm2streets::Direction;
+use std::collections::HashSet;
+
+use map_model::{Map, RoadID, IntersectionID};
+use osm2streets::{Direction, RestrictionType};
+
 
 // TODO This should probably move to osm2streets
 // TODO TurnRestrictions is still incomplete so causes compilation problems
@@ -37,7 +40,32 @@ use osm2streets::Direction;
 // TODO highlighting possible destinations for complex turns
 // TODO highlight possible roads leading away form the neighbourhood
 // TODO clickable/mouseover area to equal sign icon, not just the road geom.
+
+pub fn restricted_destination_roads(map: &Map, source_r_id: RoadID) -> HashSet<RoadID> {
+    let road = map.get_r(source_r_id);
+    let mut restricted_destinations: HashSet<RoadID> = HashSet::new();
+        
+    for (restriction, r2) in &road.turn_restrictions {
+        if *restriction == RestrictionType::BanTurns {
+            restricted_destinations.insert(*r2);
+        }
+    }
+    for (via, r2) in &road.complicated_turn_restrictions {
+        // TODO Show the 'via'? Or just draw the entire shape?
+        restricted_destinations.insert(*via);
+        restricted_destinations.insert(*r2);
+    }
+    restricted_destinations
+}
+
+/// checks that an Intersection ID is connected to a RoadID. Returns `true` if connected, `false` otherwise.
+fn verify_intersection(map: &Map, r: RoadID, i: IntersectionID) -> bool {
+    let road = map.get_r(r);
+    return road.dst_i == i || road.src_i == i
+}
+
 pub fn destination_roads(map: &Map, source_r_id: RoadID) -> Vec<RoadID> {
+
     let source_r = map.get_r(source_r_id);
     let mut destinations: Vec<RoadID> = Vec::new();
 
