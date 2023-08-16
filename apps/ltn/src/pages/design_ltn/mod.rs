@@ -15,6 +15,7 @@ use widgetry::{EventCtx, Panel};
 use crate::{is_private, pages, App, Neighbourhood, Transition};
 
 pub use page::DesignLTN;
+pub use turn_restrictions::FocusedTurns;
 
 pub enum EditMode {
     Filters,

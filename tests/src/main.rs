@@ -51,6 +51,7 @@ fn test_map_importer() -> Result<()> {
         "left_turn_and_bike_lane",
         "multiple_left_turn_lanes",
         "false_positive_u_turns",
+        "turn_restriction_ltn_boundary",
     ] {
         // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
         let map = import_map(abstio::path(format!("../tests/input/{}.osm", name)));
@@ -81,7 +82,8 @@ fn test_map_importer() -> Result<()> {
     if regenerate_goldenfiles {
         // Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally
         // left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.
-        assert!(false, "Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.");
+        // assert!(false, "Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.");
+        panic!("Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.")
     }
     Ok(())
 }
@@ -135,7 +137,6 @@ fn all_turn_info_as_string(map: &Map) -> String {
         }
 
         for (via, r2) in &r1.complicated_turn_restrictions {
-            // TODO Show the 'via'? Or just draw the entire shape?
             s.push_str(&format!(
                 "complicated turn: from {0:?}, via {1:?}, to {2:?}",
                 (r1.orig_id.osm_way_id, r1.id),
@@ -505,13 +506,15 @@ fn geometry_test() -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use super::geometry_test;
     use super::import_map;
     use super::main;
     use super::test_blockfinding;
     use super::test_lane_changing;
     use super::test_map_importer;
-
+    
     #[test]
     #[ignore]
     fn test_main() -> Result<(), anyhow::Error> {
@@ -543,5 +546,71 @@ mod tests {
         test_lane_changing(&import_map(abstio::path(
             "../tests/input/lane_selection.osm",
         )))
+    }
+
+    use geom::Pt2D;
+    use ltn::FocusedTurns;
+    use ltn::destination_roads;
+    use map_model::RoadID;
+    // use apps
+
+    #[test]
+    #[ignore]
+    fn test_focused_turn_restriction() -> Result<(), anyhow::Error> {
+        for file_name in [
+            "turn_restriction_ltn_boundary",
+        ] {
+            // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
+            let map = import_map(abstio::path(format!("../tests/input/{}.osm", file_name)));
+
+            let src_r = RoadID(8);
+            let click_pt_1 = Pt2D::new(278.3798, 165.0543);
+            let expected_prohib_r_1 = vec![RoadID(23)];
+            let expected_permitted_r_1 = vec![RoadID(15548)];
+
+            let ft = FocusedTurns::new(src_r, click_pt_1, &map);
+            let ft_dst_roads = ft.permitted_t.iter().map(|r| format!("{:?}", r)).collect::<Vec<_>>();
+            
+            println!("ft.src_r      {:?}", ft.src_r);
+            println!("ft.i          {:?}", ft.i);
+            for t in ft.permitted_t.iter() {
+                println!("ft.permitted  {:?}", t);
+            }
+            println!("ft.prohibited {:?}", ft.prohibited_t);
+            assert_eq!(expected_permitted_r_1.len(), ft.permitted_t.len());
+
+            assert_eq!(expected_prohib_r_1.len(), ft.prohibited_t.len());
+
+            // click_pt_2 = { x: 7595.8574, y: 6977.9579 }
+            // prohib_r_2 = []
+            // permitted_r_2 = [15546, 1271]
+
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn test_destination_roads() -> Result<(), anyhow::Error> {
+
+        let file_name = "turn_restriction_ltn_boundary";
+        // let file_name = "false_positive_u_turns";
+        let map = import_map(abstio::path(format!("../tests/input/{}.osm", file_name)));
+
+        // for src_r in map.all_roads().iter() {
+        let src_r = RoadID(11);
+        let _expected_prohib_r_1 = [RoadID(4)].iter().collect::<HashSet<_>>();
+        let expected_all_r_1 = vec![3usize, 4, 9, 12].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+        // let expected_permitted_r_1 = vec![RoadID(3, 4, 9, 12)];
+        // let expected_permitted_r_1 = vec![RoadID(3, )];
+
+        let actual_vec = destination_roads(&map, src_r);
+        let mut actual = HashSet::<RoadID>::new();
+        actual.extend(actual_vec.iter());
+
+        for dst_r in actual.iter() {
+            println!("destination_roads, src_r {}, dst_r = {}", src_r, dst_r);
+        }
+        assert_eq!(actual, expected_all_r_1);
+        Ok(())
     }
 }

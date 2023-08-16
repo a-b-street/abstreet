@@ -1,19 +1,82 @@
-use geom::Distance;
-use map_model::RoadID;
+use std::collections::HashSet;
+
+use geo::Point;
+use geom::{Distance, Polygon, Pt2D};
+use map_model::{RoadID, Map, Turn};
+use map_model::make_all_turns_per_road;
 use osm2streets::RestrictionType;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, GeomBatch, Text, TextExt, Widget};
+use widgetry::Color;
 
 use super::{road_name, EditMode, EditOutcome, Obj};
-use crate::logic::turn_restrictions::destination_roads;
+use crate::logic::turn_restrictions::{destination_roads, restricted_destination_roads};
 use crate::render::colors;
 use crate::{App, Neighbourhood};
 use map_model::IntersectionID;
 
 pub struct FocusedTurns {
-    pub r: RoadID,
+    pub src_r: RoadID,
     pub i: IntersectionID,
+    pub hull: Polygon,
+    // pub permitted_t: Vec<Turn>,
+    // pub prohibited_t: Vec<Turn>,
+    pub permitted_t: Vec<RoadID>,
+    pub prohibited_t: HashSet<RoadID>,
 }
+
+impl FocusedTurns {
+    pub fn new(r: RoadID, clicked_pt: Pt2D, map: &Map) -> Self {
+
+        let dst_i = map.get_r(r).dst_i;
+        let src_i = map.get_r(r).src_i;
+
+        let dst_m = clicked_pt.fast_dist(map.get_i(dst_i).polygon.center());
+        let src_m = clicked_pt.fast_dist(map.get_i(src_i).polygon.center());
+        
+        let i: IntersectionID;
+        if dst_m > src_m {
+            i = src_i;
+        } else {
+            i = dst_i;
+        }
+
+        let prohibited_t = restricted_destination_roads(map, r);
+        let permitted_t = destination_roads(map, r);
+
+        let mut ft = FocusedTurns {
+            src_r: r,
+            i,
+            hull : Polygon::dummy(),
+            permitted_t,
+            prohibited_t,
+        };
+
+        ft.hull = hull_around_focused_turns(map, r,&ft.permitted_t, &ft.prohibited_t);
+        ft
+    }
+}
+
+fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &Vec<RoadID>, prohibited_t: &HashSet<RoadID>) -> Polygon {
+
+    let mut all_pt: Vec<Pt2D> = Vec::new();
+
+    all_pt.extend(map.get_r(r).get_thick_polygon().get_outer_ring().clone().into_points());
+
+    // Polygon::concave_hull(points, concavity)
+    for t in permitted_t {
+        all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
+    }
+
+    for t in prohibited_t {
+        all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
+    }
+
+    // TODO the `200` value seems to work for some cases. But it is arbitary and there is no science
+    // behind its the value. Need to work out what is an appropriate value _and why_.
+    Polygon::concave_hull(all_pt, 200).unwrap_or(Polygon::dummy())
+}
+
 
 pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedTurns>) -> Widget {
     match focus {
@@ -21,7 +84,7 @@ pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedTurns>) -> Wi
             "Turn Restrictions from {}",
             app.per_map
                 .map
-                .get_r(focus.r)
+                .get_r(focus.src_r)
                 .get_name(app.opts.language.as_ref()),
         )
         .text_widget(ctx)]),
@@ -37,7 +100,7 @@ pub fn make_world(
 ) -> World<Obj> {
     let map = &app.per_map.map;
     let mut world = World::new();
-    let focused_road = focus.as_ref().map(|f| f.r);
+    let focused_src_r = focus.as_ref().map(|f| f.src_r);
 
     let all_r_id = [
         &neighbourhood.perimeter_roads,
@@ -51,24 +114,12 @@ pub fn make_world(
         // for r in &neighbourhood.interior_roads {
         let road = map.get_r(*r);
 
-        let mut restricted_destinations: Vec<&RoadID> = Vec::new();
-        
-        for (restriction, r2) in &road.turn_restrictions {
-            if *restriction == RestrictionType::BanTurns {
-                restricted_destinations.push(r2);
-            }
-        }
-        for (via, r2) in &road.complicated_turn_restrictions {
-            // TODO Show the 'via'? Or just draw the entire shape?
-            restricted_destinations.push(via);
-            restricted_destinations.push(r2);
-        }
+        let restricted_destinations = restricted_destination_roads(map, *r);
 
         // Account for one way streets when determining possible destinations
         // TODO This accounts for the oneway direction of the source street,
         // but not the oneway direction of the destination street
         let possible_destinations = destination_roads(map, road.id);
-
 
         let mut hover_batch = GeomBatch::new();
         // Create a single compound geometry which represents a Road *and its connected roads* and draw
@@ -91,7 +142,7 @@ pub fn make_world(
 
         // Add restricted_destinations
         for restricted_r in restricted_destinations.clone() {
-            let restricted_road = map.get_r(*restricted_r);
+            let restricted_road = map.get_r(restricted_r);
             hover_batch.push(
                 colors::TURN_PROHIBITED_DESTINATION,
                 restricted_road.get_thick_polygon()
@@ -102,15 +153,48 @@ pub fn make_world(
             .add(Obj::Road(*r))
             .hitbox(road.get_thick_polygon());
 
-        if focused_road == Some(*r) {
+        if focused_src_r == Some(*r) {
             let mut batch = GeomBatch::new();
+            let focused_t = focus.as_ref().unwrap();
+
+            // // Highlight the convex hull
+            batch.push(
+                Color::grey(0.4),
+                focused_t.hull.clone(),
+            );
+
+            batch.push(
+                Color::grey(0.2),
+                focused_t.hull.to_outline(Distance::meters(3.0)),
+            );
+
+            // Highlight permitted destinations
+            for pd in &focused_t.permitted_t {
+                batch.push(
+                    colors::TURN_PERMITTED_DESTINATION.alpha(1.0),
+                    map.get_r(*pd).get_thick_polygon().to_outline(Distance::meters(3.0)),
+                );
+            }
+
+            // Highlight prohibited destinations
+            for pd in &focused_t.prohibited_t {
+                batch.push(
+                    colors::TURN_PROHIBITED_DESTINATION.alpha(1.0),
+                    map.get_r(*pd).get_thick_polygon().to_outline(Distance::meters(3.0)),
+                );
+            }
+
             // Highlight the selected road
             batch.push(
                 colors::HOVER.alpha(1.0),
                 road.get_thick_polygon().to_outline(Distance::meters(3.0)),
             );
 
-            // let convex = Polygon::convex_hull(hover_batch.clone().get_bounds());
+            // Highlight the selected intersection (the same color as the selected road)
+            batch.push(
+                colors::HOVER.alpha(1.0),
+                map.get_i(focused_t.i).polygon.clone(),
+            );
 
             hover_batch.append(batch.clone());
 
@@ -121,14 +205,10 @@ pub fn make_world(
         }
 
         ob.draw_hovered(hover_batch)
-            .tooltip(Text::from(format!("{}", road_name(app, road))))
+            .tooltip(Text::from(format!("{} {}", road.id, road_name(app, road))))
             .clickable()
             .build(ctx);
     }
-
-    // TODO
-    // Highlight the current prohibited destination roads
-    // Highlight the potential prohibited destination roads
 
     world.initialize_hover(ctx);
     world
@@ -161,21 +241,17 @@ pub fn handle_world_outcome(
                 // let prev = prev_selection.unwrap();
                 if prev_selection.is_some() {
                     let prev = prev_selection.as_ref().unwrap();
-                    if r == prev.r {
+                    if r == prev.src_r {
                         println!("The same road has been clicked on twice {:?}", r);
                     } else {
-                        println!("Two difference roads have been clicked on prev={:?}, new {:?}", prev.r, r);
+                        println!("Two difference roads have been clicked on prev={:?}, new {:?}", prev.src_r, r);
                     }
                 } else {
                     println!("No previous road selected. New selection {:?}", r);
                 }
             }
 
-            // app.per_map.map.get_i
-            app.session.edit_mode = EditMode::TurnRestrictions(Some(FocusedTurns {
-                r,
-                i : app.per_map.map.get_r(r).dst_i
-            }));
+            app.session.edit_mode = EditMode::TurnRestrictions(Some(FocusedTurns::new(r, cursor_pt, &app.per_map.map))); 
             println!("TURN RESTRICTIONS: handle_world_outcome - Clicked on Road {:?}", r);
             EditOutcome::UpdatePanelAndWorld
         }
