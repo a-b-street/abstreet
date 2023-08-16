@@ -28,8 +28,8 @@ impl FocusedTurns {
             i = dst_i;
         }
 
-        let prohibited_t = restricted_destination_roads(map, r);
-        let permitted_t = destination_roads(map, r);
+        let prohibited_t = restricted_destination_roads(map, r, Some(i));
+        let permitted_t = destination_roads(map, r, Some(i));
 
         let mut ft = FocusedTurns {
             src_r: r,
@@ -44,7 +44,7 @@ impl FocusedTurns {
     }
 }
 
-fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &Vec<RoadID>, prohibited_t: &HashSet<RoadID>) -> Polygon {
+fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>, prohibited_t: &HashSet<RoadID>) -> Polygon {
 
     let mut all_pt: Vec<Pt2D> = Vec::new();
 
