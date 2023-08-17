@@ -2,16 +2,16 @@ use std::collections::HashSet;
 
 use geo::Point;
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{RoadID, Map, Turn};
+use map_model::{RoadID, Map, Turn, EditRoad};
 use map_model::make_all_turns_per_road;
-use osm2streets::RestrictionType;
+use osm2streets::{RestrictionType, LaneType};
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, GeomBatch, Text, TextExt, Widget};
 use widgetry::Color;
 
 use super::{road_name, EditMode, EditOutcome, Obj};
 use crate::logic::turn_restrictions::{destination_roads, restricted_destination_roads};
-use crate::render::colors;
+use crate::render::{colors, render_turn_restrictions};
 use crate::{App, Neighbourhood};
 use map_model::IntersectionID;
 
@@ -243,10 +243,22 @@ pub fn handle_world_outcome(
                     let prev = prev_selection.as_ref().unwrap();
                     if r == prev.src_r {
                         println!("The same road has been clicked on twice {:?}", r);
-                    } else if prev.prohibited_t.contains(&r) {
-                        println!("Remove existing banned turn from src={:?}, to dst {:?}", prev.src_r, r);
-                    } else if prev.permitted_t.contains(&r) {
-                        println!("Create new banned turn from src={:?}, to dst {:?}", prev.src_r, r);
+                    } else if prev.prohibited_t.contains(&r) || prev.permitted_t.contains(&r) {
+
+                        // Copied from speed_limits.rs for reference
+                        let mut edits = app.per_map.map.get_edits().clone();
+                        // We are editing the previous road, not the most recently clicked road
+                        let erc = app.per_map.map.edit_road_cmd(prev.src_r, |new| {
+                            update_turn_restriction_lane_spec(new, prev, r, &app.per_map.map)
+                        });
+                        println!("erc={:?}", erc);
+                        edits.commands.push(erc);
+                        app.apply_edits(edits);
+            
+                        app.per_map.draw_turn_restrictions = render_turn_restrictions(ctx, &app.per_map.map);
+                        // Now clear the highlighted intersection/turns
+                        app.session.edit_mode = EditMode::TurnRestrictions(None);
+                        return EditOutcome::UpdateAll
                     } else {
                         println!("Two difference roads have been clicked on prev={:?}, new {:?}", prev.src_r, r);
                     }
@@ -267,3 +279,27 @@ pub fn handle_world_outcome(
         _ => EditOutcome::Nothing
     }
 }
+
+fn update_turn_restriction_lane_spec(new: &mut EditRoad, ft: &FocusedTurns, dst_r: RoadID, map: &Map) {
+    if ft.prohibited_t.contains(&dst_r) {
+        println!("Remove existing banned turn from src={:?}, to dst {:?}", ft.src_r, dst_r);
+        new.turn_restrictions.retain(|(_, r)| *r !=dst_r );
+        new.complicated_turn_restrictions.retain(|(_, r)| *r !=dst_r );
+
+    } else if ft.permitted_t.contains(&dst_r) {
+        println!("Create new banned turn from src={:?}, to dst {:?}", ft.src_r, dst_r);
+        new.turn_restrictions.push((RestrictionType::BanTurns, dst_r));
+    } else {
+        println!("Nothing to change src={:?}, to dst {:?}", ft.src_r, dst_r);
+        return ()
+    }
+
+    // println!("Updating Road Lane Specs {:?}", map.get_r(ft.src_r).lane_specs());
+    // println!("Dest Road Lane Specs {:?}", map.get_r(dst_r).lane_specs());
+    // for l in &new.lanes_ltr {
+    //     if l.lt == LaneType::Driving {
+    //         println!("Lane = {:?}", l);
+    //     }
+    // }
+    ()
+} 

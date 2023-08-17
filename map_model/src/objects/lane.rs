@@ -282,7 +282,7 @@ impl Lane {
         // covered by an explicit turn lane.
         //
         // If a multi-lane road lacks markings, just listening to this function will mean that the
-        // rightmos lanes could turn left, which probably isn't great for people in the middle
+        // rightmost lanes could turn left, which probably isn't great for people in the middle
         // lanes going straight. Further filtering (in remove_merging_turns) will prune this out.
         if part.is_empty() || part == "none" {
             let all_explicit_types: BTreeSet<TurnType> = parts
