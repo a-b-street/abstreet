@@ -203,6 +203,8 @@ impl EditCmd {
                 road.access_restrictions = new.access_restrictions.clone();
                 road.modal_filter = new.modal_filter.clone();
                 road.crossings = new.crossings.clone();
+                road.turn_restrictions = new.turn_restrictions.clone();
+                road.complicated_turn_restrictions = new.complicated_turn_restrictions.clone();
 
                 effects.changed_roads.insert(road.id);
                 // TODO If lanes_ltr didn't change, can we skip some of this?
