@@ -97,7 +97,7 @@ impl EditNeighbourhood {
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
             EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
             EditMode::SpeedLimits => speed_limits::handle_world_outcome(app, outcome),
-            EditMode::TurnRestrictions(_) => turn_restrictions::handle_world_outcome(ctx, app, outcome, neighbourhood)
+            EditMode::TurnRestrictions(_) => turn_restrictions::handle_world_outcome(ctx, app, outcome),
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();

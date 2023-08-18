@@ -6,7 +6,7 @@ use lyon::geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 use geom::{PolyLine, Pt2D};
 
 use crate::{
-    map::turn_type_from_road_geom, Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID,
+    map::turn_type_from_road_geom, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID,
     TurnType,
 };
 
@@ -82,6 +82,21 @@ fn banned_turns(all_turns: &Vec<Turn>, filtered_turns: &Vec<Turn>) -> Vec<Turn> 
                                          .filter(|item| !filtered_turns.contains(item))
                                          .collect::<Vec<Turn>>();
     difference
+}
+
+pub fn make_all_turns_per_road(map: &Map, i: IntersectionID, src_r: RoadID) -> (Vec<Turn>, Vec<Turn>) {
+    let (mut permitted_t, mut prohibited_t) = make_all_turns(map, map.get_i(i));
+
+    // permitted_t = ensure_unique(permitted_t);
+    permitted_t.retain(|turn| {
+        turn.id.src.road == src_r
+    });
+
+    prohibited_t.retain(|turn| {
+        turn.id.src.road == src_r
+    });
+
+    (permitted_t, prohibited_t)
 }
 
 fn ensure_unique(turns: Vec<Turn>) -> Vec<Turn> {
