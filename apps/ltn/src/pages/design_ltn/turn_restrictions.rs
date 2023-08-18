@@ -1,10 +1,8 @@
 use std::collections::HashSet;
 
-use geo::Point;
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{RoadID, Map, Turn, EditRoad};
-use map_model::make_all_turns_per_road;
-use osm2streets::{RestrictionType, LaneType};
+use map_model::{RoadID, Map, EditRoad};
+use osm2streets::RestrictionType;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, GeomBatch, Text, TextExt, Widget};
 use widgetry::Color;
@@ -195,6 +193,12 @@ pub fn make_world(
                 colors::HOVER.alpha(1.0),
                 map.get_i(focused_t.i).polygon.clone(),
             );
+            batch.push(
+                colors::HOVER.alpha(1.0),
+                map.get_i(focused_t.i).polygon.to_outline(Distance::meters(3.0)),
+            );
+
+            
 
             hover_batch.append(batch.clone());
 
@@ -218,13 +222,12 @@ pub fn handle_world_outcome(
     ctx: &mut EventCtx,
     app: &mut App,
     outcome: WorldOutcome<Obj>,
-    neighbourhood: &Neighbourhood,
 ) -> EditOutcome {
     // println!("TURN RESTRICTIONS: handle_world_outcome");
 
     match outcome {
         WorldOutcome::ClickedObject(Obj::Road(r)) => {
-            // TODO - add logic based on which raod is clicked
+            // TODO - add logic based on which road is clicked
             // Check if the ClickedObject is already highlighted
             // If so, then we should unhighlight it
             // If not and is one of the current prohibited destination roads,
@@ -249,12 +252,16 @@ pub fn handle_world_outcome(
                         let mut edits = app.per_map.map.get_edits().clone();
                         // We are editing the previous road, not the most recently clicked road
                         let erc = app.per_map.map.edit_road_cmd(prev.src_r, |new| {
-                            update_turn_restriction_lane_spec(new, prev, r, &app.per_map.map)
+                            handle_edited_turn_restrictions(new, prev, r)
                         });
                         println!("erc={:?}", erc);
                         edits.commands.push(erc);
                         app.apply_edits(edits);
             
+                        // Redraw the turn restriction symbols
+                        // TODO find a better place for this. Forcing this here feels clunky. It seems like it would be
+                        // cleaner to be part of the `Map` or `PerMap` object. There isn't a comparable layer (bus 
+                        // routes etc), which are updated as a result of map edit.
                         app.per_map.draw_turn_restrictions = render_turn_restrictions(ctx, &app.per_map.map);
                         // Now clear the highlighted intersection/turns
                         app.session.edit_mode = EditMode::TurnRestrictions(None);
@@ -280,12 +287,11 @@ pub fn handle_world_outcome(
     }
 }
 
-fn update_turn_restriction_lane_spec(new: &mut EditRoad, ft: &FocusedTurns, dst_r: RoadID, map: &Map) {
+fn handle_edited_turn_restrictions(new: &mut EditRoad, ft: &FocusedTurns, dst_r: RoadID) {
     if ft.prohibited_t.contains(&dst_r) {
         println!("Remove existing banned turn from src={:?}, to dst {:?}", ft.src_r, dst_r);
         new.turn_restrictions.retain(|(_, r)| *r !=dst_r );
         new.complicated_turn_restrictions.retain(|(_, r)| *r !=dst_r );
-
     } else if ft.permitted_t.contains(&dst_r) {
         println!("Create new banned turn from src={:?}, to dst {:?}", ft.src_r, dst_r);
         new.turn_restrictions.push((RestrictionType::BanTurns, dst_r));
@@ -293,13 +299,5 @@ fn update_turn_restriction_lane_spec(new: &mut EditRoad, ft: &FocusedTurns, dst_
         println!("Nothing to change src={:?}, to dst {:?}", ft.src_r, dst_r);
         return ()
     }
-
-    // println!("Updating Road Lane Specs {:?}", map.get_r(ft.src_r).lane_specs());
-    // println!("Dest Road Lane Specs {:?}", map.get_r(dst_r).lane_specs());
-    // for l in &new.lanes_ltr {
-    //     if l.lt == LaneType::Driving {
-    //         println!("Lane = {:?}", l);
-    //     }
-    // }
     ()
 } 
