@@ -560,7 +560,7 @@ mod tests {
 
         let sample_test_files = vec![
             "does_not_exist",
-            "/really/shoud/not/exist",
+            "/really/should/not/exist",
         ];
         
         // test that each of the sample test files cannot be located
