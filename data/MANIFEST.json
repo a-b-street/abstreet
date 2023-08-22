@@ -195,6 +195,56 @@
       "uncompressed_size_bytes": 14469276,
       "compressed_size_bytes": 3388066
     },
+    "data/input/fr/brest/gtfs/agency.txt": {
+      "checksum": "91c6afeb7d66b6d13b9d4af4571bc0f4",
+      "uncompressed_size_bytes": 166,
+      "compressed_size_bytes": 136
+    },
+    "data/input/fr/brest/gtfs/calendar.txt": {
+      "checksum": "74a645ac322166bb5e288a681696df9b",
+      "uncompressed_size_bytes": 4011,
+      "compressed_size_bytes": 637
+    },
+    "data/input/fr/brest/gtfs/calendar_dates.txt": {
+      "checksum": "58fd642ebd71c8cc9b0968c7edb9d971",
+      "uncompressed_size_bytes": 27404,
+      "compressed_size_bytes": 1397
+    },
+    "data/input/fr/brest/gtfs/feed_info.txt": {
+      "checksum": "3d1d7c6f46b7aede17bd65731b7ebc12",
+      "uncompressed_size_bytes": 206,
+      "compressed_size_bytes": 160
+    },
+    "data/input/fr/brest/gtfs/routes.txt": {
+      "checksum": "67b6831d34835737ff3ec944352a0cb8",
+      "uncompressed_size_bytes": 4779,
+      "compressed_size_bytes": 1927
+    },
+    "data/input/fr/brest/gtfs/shapes.txt": {
+      "checksum": "3eef96cfca9d68788453782b427f0d47",
+      "uncompressed_size_bytes": 8283747,
+      "compressed_size_bytes": 807136
+    },
+    "data/input/fr/brest/gtfs/stop_times.txt": {
+      "checksum": "ba17bef1739d98a02942846bd57c05f7",
+      "uncompressed_size_bytes": 8556765,
+      "compressed_size_bytes": 1169930
+    },
+    "data/input/fr/brest/gtfs/stops.txt": {
+      "checksum": "ff548c0bbcafe0563ebf192d1f2f7794",
+      "uncompressed_size_bytes": 53984,
+      "compressed_size_bytes": 17107
+    },
+    "data/input/fr/brest/gtfs/trips.txt": {
+      "checksum": "76805e0519891bdfd6e10eb6b24c83ec",
+      "uncompressed_size_bytes": 1263036,
+      "compressed_size_bytes": 39139
+    },
+    "data/input/fr/brest/raw_maps/city.bin": {
+      "checksum": "f8f9ccf2d970c9b9b89d65fecb7356d4",
+      "uncompressed_size_bytes": 21460176,
+      "compressed_size_bytes": 5959608
+    },
     "data/input/fr/charleville_mezieres/raw_maps/secteur1.bin": {
       "checksum": "edcb9d26be6336aa60dd48fcaf6bbd2c",
       "uncompressed_size_bytes": 944363,
@@ -1325,6 +1375,11 @@
       "uncompressed_size_bytes": 819497925,
       "compressed_size_bytes": 818472077
     },
+    "data/input/shared/geofabrik/europe/france/bretagne-latest.osm.pbf": {
+      "checksum": "d2e2c80143b67c8bd0298fcfdc8ec3c0",
+      "uncompressed_size_bytes": 292941195,
+      "compressed_size_bytes": 292635296
+    },
     "data/input/shared/geofabrik/europe/france/champagne-ardenne-latest.osm.pbf": {
       "checksum": "44e3fe876cc9995dee60a9530b98234d",
       "uncompressed_size_bytes": 94171798,
@@ -2129,6 +2184,11 @@
       "checksum": "338584d1454293b6dfd84a9137153b3c",
       "uncompressed_size_bytes": 23614420,
       "compressed_size_bytes": 19085911
+    },
+    "data/system/fr/brest/maps/city.bin": {
+      "checksum": "325c5099d8600f2ad6ee8f682ec53e7c",
+      "uncompressed_size_bytes": 57067530,
+      "compressed_size_bytes": 22060821
     },
     "data/system/fr/charleville_mezieres/city.bin": {
       "checksum": "de03009ae2e47eae7e004d3d1e3828a2",
