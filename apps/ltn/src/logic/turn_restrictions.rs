@@ -350,9 +350,42 @@ mod tests {
 #[cfg(test)]
 mod tests {
     use tests::{import_map, get_test_file_path};
-    use super::destination_roads;
-    use map_model::RoadID;
+    use super::{destination_roads, FocusedTurns};
+    use map_model::{RoadID, IntersectionID};
     use std::collections::HashSet;
+    use geom::Pt2D;
+
+    #[test]
+    fn test_focused_turn_restriction() -> Result<(), anyhow::Error> {
+        // Test that the correct intersection is selected when creating a FocusTurns object
+
+        // Get example map
+        let file_name = get_test_file_path(String::from("input/turn_restriction_ltn_boundary.osm"));
+        let map = import_map(file_name.unwrap());
+
+        let r = RoadID(11);
+        let road = map.get_r(r);
+        // south west
+        let click_pt_1 = Pt2D::new(192.5633, 215.7847);
+        let expected_i_1 = 3;
+        // north east 
+        let click_pt_2 = Pt2D::new(214.7931, 201.7212);
+        let expects_i_2 = 13;
+
+        for (click_pt, i_id) in [
+            (click_pt_1, expected_i_1),
+            (click_pt_2, expects_i_2)
+        ] {
+            let ft = FocusedTurns::new(r, click_pt, &map);
+            
+            println!("ft.i          {:?}", ft.i);
+            assert_eq!(ft.i, IntersectionID(i_id));
+            assert!([road.src_i, road.dst_i].contains(&ft.i));
+        }
+
+        Ok(())
+    }
+
 
     #[test]
     fn test_destination_roads() -> Result<(), anyhow::Error> {
