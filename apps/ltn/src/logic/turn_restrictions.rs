@@ -345,3 +345,44 @@ mod tests {
 
 
 }
+
+
+#[cfg(test)]
+mod tests {
+    use tests::{import_map, get_test_file_path};
+    use super::destination_roads;
+    use map_model::RoadID;
+    use std::collections::HashSet;
+
+    #[test]
+    fn test_destination_roads() -> Result<(), anyhow::Error> {
+
+        // Get example map
+        let file_name = get_test_file_path(String::from("input/turn_restriction_ltn_boundary.osm"));
+        let map = import_map(file_name.unwrap());
+
+        // hard coded values for "turn_restriction_ltn_boundary"
+        let src_r = RoadID(11);
+        let src_road = map.get_r(src_r);
+        let expected_all_r = vec![3usize, 4, 9, 12].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+        let expected_filters_dst_i = vec![9usize, 12].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+        let expected_filters_src_i = vec![3usize, 4].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+
+        // Three test cases
+        for (i , expected) in [
+            (None, expected_all_r),
+            (Some(src_road.dst_i), expected_filters_dst_i),
+            (Some(src_road.src_i), expected_filters_src_i),
+        ] {
+            let actual_vec = destination_roads(&map, src_r, i);
+            let mut actual = HashSet::<RoadID>::new();
+            actual.extend(actual_vec.iter());
+
+            for dst_r in actual.iter() {
+                println!("destination_roads, src_r {}, dst_r = {}", src_r, dst_r);
+            }
+            assert_eq!(actual, expected);
+        }
+        Ok(())
+    }
+}
