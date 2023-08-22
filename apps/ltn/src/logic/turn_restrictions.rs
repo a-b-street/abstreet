@@ -2,33 +2,67 @@ use std::collections::HashSet;
 
 use map_model::{Map, RoadID, IntersectionID};
 use osm2streets::{Direction, RestrictionType};
+use geom::{Polygon, Pt2D};
 
+pub struct FocusedTurns {
+    pub src_r: RoadID,
+    pub i: IntersectionID,
+    pub hull: Polygon,
+    pub permitted_t: HashSet<RoadID>,
+    pub prohibited_t: HashSet<RoadID>,
+}
 
-// TODO This should probably move to osm2streets
-// TODO TurnRestrictions is still incomplete so causes compilation problems
-// pub struct TurnRestrictions {
-//     pub source_r: &RoadID,
-//     pub restriction_type: RestrictionType,
-//     pub turn_type: TurnType,
-//     pub icon: GeomBatch,
-//     pub dest_r: &RoadID,
-// }
+impl FocusedTurns {
+    pub fn new(r: RoadID, clicked_pt: Pt2D, map: &Map) -> Self {
 
-// impl TurnRestrictions {
-//     pub fn new(source_r: &RoadID, dest_r: &RoadID) {
-//         let tr = Self {
-//             source_r: source_r,
-//             // For now assign simple values here, which we'll override next
-//             restriction_type: RestrictionType::BanTurns,
-//             turn_type: TurnType::UnmarkedCrossing,
-//             icon: GeomBatch::new(),
-//             dest_r: dest_r,
-//         };
-//
-//         // Now calculate the correct values for the various params
-//         tr.XXX
-//     }
-// }
+        let dst_i = map.get_r(r).dst_i;
+        let src_i = map.get_r(r).src_i;
+
+        let dst_m = clicked_pt.fast_dist(map.get_i(dst_i).polygon.center());
+        let src_m = clicked_pt.fast_dist(map.get_i(src_i).polygon.center());
+        
+        let i: IntersectionID;
+        if dst_m > src_m {
+            i = src_i;
+        } else {
+            i = dst_i;
+        }
+
+        let prohibited_t = restricted_destination_roads(map, r, Some(i));
+        let permitted_t = destination_roads(map, r, Some(i));
+
+        let mut ft = FocusedTurns {
+            src_r: r,
+            i,
+            hull : Polygon::dummy(),
+            permitted_t,
+            prohibited_t,
+        };
+
+        ft.hull = hull_around_focused_turns(map, r,&ft.permitted_t, &ft.prohibited_t);
+        ft
+    }
+}
+
+fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>, prohibited_t: &HashSet<RoadID>) -> Polygon {
+
+    let mut all_pt: Vec<Pt2D> = Vec::new();
+
+    all_pt.extend(map.get_r(r).get_thick_polygon().get_outer_ring().clone().into_points());
+
+    // Polygon::concave_hull(points, concavity)
+    for t in permitted_t {
+        all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
+    }
+
+    for t in prohibited_t {
+        all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
+    }
+
+    // TODO the `200` value seems to work for some cases. But it is arbitary and there is no science
+    // behind its the value. Need to work out what is an appropriate value _and why_.
+    Polygon::concave_hull(all_pt, 200).unwrap_or(Polygon::dummy())
+}
 
 /// Returns a Vec<RoadID> of all roads that are possible destinations from the given source road, accounting for one-way restrictions.
 ///
@@ -40,7 +74,6 @@ use osm2streets::{Direction, RestrictionType};
 // TODO highlighting possible destinations for complex turns
 // TODO highlight possible roads leading away form the neighbourhood
 // TODO clickable/mouseover area to equal sign icon, not just the road geom.
-
 pub fn restricted_destination_roads(map: &Map, source_r_id: RoadID, i: Option<IntersectionID>) -> HashSet<RoadID> {
     let candidate_roads = destination_roads(map, source_r_id, i);
 
@@ -102,9 +135,42 @@ pub fn destination_roads(map: &Map, source_r_id: RoadID, i: Option<IntersectionI
 #[cfg(test)]
 mod tests {
     use tests::{import_map, get_test_file_path};
-    use super::destination_roads;
-    use map_model::RoadID;
+    use super::{destination_roads, FocusedTurns};
+    use map_model::{RoadID, IntersectionID};
     use std::collections::HashSet;
+    use geom::Pt2D;
+
+    #[test]
+    fn test_focused_turn_restriction() -> Result<(), anyhow::Error> {
+        // Test that the correct intersection is selected when creating a FocusTurns object
+
+        // Get example map
+        let file_name = get_test_file_path(String::from("input/turn_restriction_ltn_boundary.osm"));
+        let map = import_map(file_name.unwrap());
+
+        let r = RoadID(11);
+        let road = map.get_r(r);
+        // south west
+        let click_pt_1 = Pt2D::new(192.5633, 215.7847);
+        let expected_i_1 = 3;
+        // north east 
+        let click_pt_2 = Pt2D::new(214.7931, 201.7212);
+        let expects_i_2 = 13;
+
+        for (click_pt, i_id) in [
+            (click_pt_1, expected_i_1),
+            (click_pt_2, expects_i_2)
+        ] {
+            let ft = FocusedTurns::new(r, click_pt, &map);
+            
+            println!("ft.i          {:?}", ft.i);
+            assert_eq!(ft.i, IntersectionID(i_id));
+            assert!([road.src_i, road.dst_i].contains(&ft.i));
+        }
+
+        Ok(())
+    }
+
 
     #[test]
     fn test_destination_roads() -> Result<(), anyhow::Error> {
