@@ -78,6 +78,8 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             Some("https://gtfs.sfmta.com/transitdata/google_transit.zip".to_string())
         } else if name == &MapName::new("br", "sao_paulo", "aricanduva") {
             Some("https://github.com/transitland/gtfs-archives-not-hosted-elsewhere/blob/master/sao-paulo-sptrans.zip?raw=true".to_string())
+        } else if name.city == CityName::new("fr", "brest") {
+            Some("https://ratpdev-mosaic-prod-bucket-raw.s3-eu-west-1.amazonaws.com/11/exports/1/gtfs.zip".to_string())
         } else {
             None
         },

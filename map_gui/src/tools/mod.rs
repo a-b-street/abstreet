@@ -143,6 +143,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             _ => &name.map,
         },
         "fr" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("brest", "city") => "Brest",
             ("charleville_mezieres", "secteur1") => "Charleville-Mézières (secteur 1)",
             ("charleville_mezieres", "secteur2") => "Charleville-Mézières (secteur 2)",
             ("charleville_mezieres", "secteur3") => "Charleville-Mézières (secteur 3)",
