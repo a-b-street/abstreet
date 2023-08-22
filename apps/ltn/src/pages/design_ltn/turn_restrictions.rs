@@ -162,15 +162,15 @@ pub fn handle_world_outcome(
 
     match outcome {
         WorldOutcome::ClickedObject(Obj::Road(r)) => {
-            // TODO - add logic based on which road is clicked
+            // TODO - Rewrite the logic here. It is more complex that required.
+
             // Check if the ClickedObject is already highlighted
-            // If so, then we should unhighlight it
+            // If so, then we recreate the FocusTurns with the relevant clicked_point (as this
+            //      is the easiest way to ensure the correct intersection is selected)
             // If not and is one of the current prohibited destination roads,
             //      then we should remove that prohibited turn
             // If not and is one of the potential prohibited destination roads,
             //      then we should add that prohibited turn
-
-            // let prev_selection = app.session.edit_mode
 
             let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
             println!("click point {:?}", cursor_pt);
