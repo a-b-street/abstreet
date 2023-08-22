@@ -15,7 +15,7 @@ use widgetry::{EventCtx, Panel};
 use crate::{is_private, pages, App, Neighbourhood, Transition};
 
 pub use page::DesignLTN;
-pub use turn_restrictions::FocusedTurns;
+use crate::logic::turn_restrictions::FocusedTurns;
 
 pub enum EditMode {
     Filters,
@@ -24,7 +24,7 @@ pub enum EditMode {
     // Is a road clicked on right now?
     Shortcuts(Option<shortcuts::FocusedRoad>),
     SpeedLimits,
-    TurnRestrictions(Option<turn_restrictions::FocusedTurns>),
+    TurnRestrictions(Option<FocusedTurns>),
 }
 
 pub struct EditNeighbourhood {

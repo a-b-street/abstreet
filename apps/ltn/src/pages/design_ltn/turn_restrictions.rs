@@ -1,79 +1,14 @@
-use std::collections::HashSet;
-
-use geom::{Distance, Polygon, Pt2D};
-use map_model::{RoadID, Map, EditRoad};
+use geom::Distance;
+use map_model::{RoadID, EditRoad};
 use osm2streets::RestrictionType;
 use widgetry::mapspace::{World, WorldOutcome};
 use widgetry::{EventCtx, GeomBatch, Text, TextExt, Widget};
 use widgetry::Color;
 
 use super::{road_name, EditMode, EditOutcome, Obj};
-use crate::logic::turn_restrictions::{destination_roads, restricted_destination_roads};
+use crate::logic::turn_restrictions::{FocusedTurns, destination_roads, restricted_destination_roads};
 use crate::render::{colors, render_turn_restrictions};
 use crate::{App, Neighbourhood};
-use map_model::IntersectionID;
-
-pub struct FocusedTurns {
-    pub src_r: RoadID,
-    pub i: IntersectionID,
-    pub hull: Polygon,
-    // pub permitted_t: Vec<Turn>,
-    // pub prohibited_t: Vec<Turn>,
-    pub permitted_t: HashSet<RoadID>,
-    pub prohibited_t: HashSet<RoadID>,
-}
-
-impl FocusedTurns {
-    pub fn new(r: RoadID, clicked_pt: Pt2D, map: &Map) -> Self {
-
-        let dst_i = map.get_r(r).dst_i;
-        let src_i = map.get_r(r).src_i;
-
-        let dst_m = clicked_pt.fast_dist(map.get_i(dst_i).polygon.center());
-        let src_m = clicked_pt.fast_dist(map.get_i(src_i).polygon.center());
-        
-        let i: IntersectionID;
-        if dst_m > src_m {
-            i = src_i;
-        } else {
-            i = dst_i;
-        }
-
-        let prohibited_t = restricted_destination_roads(map, r, Some(i));
-        let permitted_t = destination_roads(map, r, Some(i));
-
-        let mut ft = FocusedTurns {
-            src_r: r,
-            i,
-            hull : Polygon::dummy(),
-            permitted_t,
-            prohibited_t,
-        };
-
-        ft.hull = hull_around_focused_turns(map, r,&ft.permitted_t, &ft.prohibited_t);
-        ft
-    }
-}
-
-fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>, prohibited_t: &HashSet<RoadID>) -> Polygon {
-
-    let mut all_pt: Vec<Pt2D> = Vec::new();
-
-    all_pt.extend(map.get_r(r).get_thick_polygon().get_outer_ring().clone().into_points());
-
-    // Polygon::concave_hull(points, concavity)
-    for t in permitted_t {
-        all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
-    }
-
-    for t in prohibited_t {
-        all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
-    }
-
-    // TODO the `200` value seems to work for some cases. But it is arbitary and there is no science
-    // behind its the value. Need to work out what is an appropriate value _and why_.
-    Polygon::concave_hull(all_pt, 200).unwrap_or(Polygon::dummy())
-}
 
 
 pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedTurns>) -> Widget {
