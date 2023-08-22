@@ -10,7 +10,7 @@ use widgetry::{EventCtx, Settings, State};
 pub use app::{App, PerMap, Session, Transition};
 pub use logic::NeighbourhoodID;
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
-pub use logic::destination_roads;
+// pub use logic::destination_roads;
 
 #[macro_use]
 extern crate anyhow;

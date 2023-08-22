@@ -346,11 +346,20 @@ mod tests {
 
 }
 
+fn is_road_drivable_from_i(map: &Map, r: RoadID, i: IntersectionID) -> bool {
+
+    let road = map.get_r(r);
+    let one_way = road.oneway_for_driving();
+    
+    return (road.src_i == i && one_way != Some(Direction::Back)) ||
+           (road.dst_i == i && one_way != Some(Direction::Fwd)) 
+
+}
 
 #[cfg(test)]
 mod tests {
     use tests::{import_map, get_test_file_path};
-    use super::{destination_roads, FocusedTurns};
+    use super::{destination_roads, restricted_destination_roads, FocusedTurns};
     use map_model::{RoadID, IntersectionID};
     use std::collections::HashSet;
     use geom::Pt2D;
@@ -418,4 +427,77 @@ mod tests {
         }
         Ok(())
     }
+
+    #[test]
+    fn test_destination_roads_connected_one_ways() -> Result<(), anyhow::Error> {
+        struct TurnRestrictionTestCase {
+            pub input_file: String,
+            pub r: RoadID,
+            pub permitted_dst_i: HashSet<RoadID>,
+            pub permitted_src_i: HashSet<RoadID>,
+            pub prohibited_dst_i: HashSet<RoadID>,
+            pub prohibited_src_i: HashSet<RoadID>,
+        }
+        
+        let test_cases = [
+            TurnRestrictionTestCase {
+                input_file: String::from("input/false_positive_u_turns.osm"),
+                // north end is dst according to JOSM
+                r: RoadID(5),
+                // Can continue on north bound left-hand lane past central barrier
+                permitted_dst_i: HashSet::from([RoadID(1)]),
+                // Cannot continue on southbound right-hand (opposing oneway) past barrier RoadID(3)
+                // but this is already restricted by virtue of being oneway 
+                prohibited_dst_i: HashSet::new(),
+                // Can continue south onto Tyne bridge (RoadID(0))
+                // Right turn would prevent turing onto right on Pilgrim Street North bound (RoadID(2))
+                permitted_src_i: HashSet::from([RoadID(2), RoadID(0)]),
+                // Cannot turn right onto Pilgrim Street North bound (RoadID(2)).
+                // Also cannot go backward up southbound ramp (RoadID(4) which is a oneway.
+                prohibited_src_i: HashSet::from([RoadID(2)]),
+            },
+            TurnRestrictionTestCase {
+                input_file: String::from("input/false_positive_u_turns.osm"),
+                // north end is src according to JOSM
+                r: RoadID(0),
+                // Off the edge of the map
+                permitted_dst_i: HashSet::new(),
+                // Off the edge of the map
+                prohibited_dst_i: HashSet::new(),
+                // Can continue south onto Tyne bridge
+                permitted_src_i: HashSet::from([RoadID(5), RoadID(2)]),
+                // Cannot turn right onto Pilgrim Street North bound - Cannot go backward up southbound oneway ramp (RoadID(4))
+                prohibited_src_i: HashSet::new(),
+            },
+        ];
+
+        for tc in test_cases {
+            // Get example map
+            let file_name = get_test_file_path(tc.input_file.clone());
+            let map = import_map(file_name.unwrap());
+
+            // Three combinations of road/intersection for each test case
+            for (i , expected_permitted, expected_prohibited) in [
+                (Some(map.get_r(tc.r).dst_i), tc.permitted_dst_i, tc.prohibited_dst_i),
+                (Some(map.get_r(tc.r).src_i), tc.permitted_src_i, tc.prohibited_src_i),
+                // (None,
+                //  tc.permitted_dst_i.union(tc.permitted_src_i).collect::<HashSet<_>>(),
+                //  tc.prohibited_dst_i.union(tc.prohibited_src_i).collect::<HashSet<_>>()
+                // )
+            ] {
+                let actual_permitted = destination_roads(&map, tc.r, i);
+                let actual_prohibited = restricted_destination_roads(&map, tc.r, i);
+
+                println!("r={:?}, i={:?}, file={:?}", &tc.r, i, &tc.input_file);
+                for dst_r in actual_permitted.iter() {
+                    println!("destination_roads, src_r {}, dst_r = {}", tc.r, dst_r);
+                }
+                assert_eq!(actual_prohibited, expected_prohibited);
+                assert_eq!(actual_permitted, expected_permitted);
+            }
+        }
+        Ok(())
+    }
+
+
 }
