@@ -500,6 +500,8 @@ mod tests {
     use super::test_blockfinding;
     use super::test_lane_changing;
     use super::test_map_importer;
+    use tests::get_test_file_path;
+
     
     #[test]
     #[ignore]
@@ -533,62 +535,6 @@ mod tests {
             "../tests/input/lane_selection.osm",
         )))
     }
-
-    use geom::Pt2D;
-    use ltn::FocusedTurns;
-    use map_model::RoadID;
-    use tests::get_test_file_path;
-    // use apps
-
-    #[test]
-    #[ignore]
-    fn test_focused_turn_restriction() -> Result<(), anyhow::Error> {
-        for file_name in [
-            "turn_restriction_ltn_boundary",
-        ] {
-            // TODO It's kind of a hack to reference the crate's directory relative to the data dir.
-            let map = import_map(abstio::path(format!("../tests/input/{}.osm", file_name)));
-
-            let src_r = RoadID(8);
-            let click_pt_1 = Pt2D::new(278.3798, 165.0543);
-            let expected_prohib_r_1 = vec![RoadID(23)];
-            let expected_permitted_r_1 = vec![RoadID(15548)];
-
-            let ft = FocusedTurns::new(src_r, click_pt_1, &map);
-            let ft_dst_roads = ft.permitted_t.iter().map(|r| format!("{:?}", r)).collect::<Vec<_>>();
-            
-            println!("ft.src_r      {:?}", ft.src_r);
-            println!("ft.i          {:?}", ft.i);
-            for t in ft.permitted_t.iter() {
-                println!("ft.permitted  {:?}", t);
-            }
-            println!("ft.prohibited {:?}", ft.prohibited_t);
-            assert_eq!(expected_permitted_r_1.len(), ft.permitted_t.len());
-
-            assert_eq!(expected_prohib_r_1.len(), ft.prohibited_t.len());
-
-            // click_pt_2 = { x: 7595.8574, y: 6977.9579 }
-            // prohib_r_2 = []
-            // permitted_r_2 = [15546, 1271]
-
-        }
-        Ok(())
-    }
-
-    // #[test]
-    // fn test_get_test_file_path() -> Result<(), anyhow::Error> {
-    //     for name in [
-    //         "divided_highway_split",
-    //         // "left_turn_and_bike_lane",
-    //         // "multiple_left_turn_lanes",
-    //         // "false_positive_u_turns",
-    //         // "turn_restriction_ltn_boundary",
-    //     ] {
-    //         get_test_file_path(String::from(name));
-    //     }
-    //     assert!(false);
-    //     Ok(())
-    // }
 
     #[test]
     /// Tests that the `get_test_file_path` convenience function itself works as expected.
