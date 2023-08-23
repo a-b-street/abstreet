@@ -1190,6 +1190,11 @@
       "uncompressed_size_bytes": 1769781898,
       "compressed_size_bytes": 185303605
     },
+    "data/input/shared/elevation/brest.geojson": {
+      "checksum": "ecca5af6800510569cd5a93e65c41525",
+      "uncompressed_size_bytes": 1030264949,
+      "compressed_size_bytes": 239519302
+    },
     "data/input/shared/elevation/kc_2016_lidar.tif": {
       "checksum": "65eb78f6fc1909389abde57931d48a90",
       "uncompressed_size_bytes": 5065433760,
