@@ -13,17 +13,23 @@ use crate::{App, Neighbourhood};
 
 pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedTurns>) -> Widget {
     match focus {
-        Some(focus) => Widget::col(vec![format!(
-            "Turn Restrictions from {}",
-            app.per_map
-                .map
-                .get_r(focus.src_r)
-                .get_name(app.opts.language.as_ref()),
-        )
-        .text_widget(ctx)]),
+        Some(focus) => {
+            let road = app.per_map.map.get_r(focus.src_r);
+            let prohibited = focus.prohibited_t.len();
+            let permitted = focus.permitted_t.len() - prohibited;
+            Widget::col(vec![
+                format!("{} permitted and {} restricted",
+                        permitted,
+                        prohibited,
+                        ).text_widget(ctx),
+                format!("turns from {} ", road.get_name(app.opts.language.as_ref())).text_widget(ctx),
+                format!("at selected intersection").text_widget(ctx),
+            ])
+        },
         None => Widget::nothing(),
     }
 }
+
 
 pub fn make_world(
     ctx: &mut EventCtx,
@@ -31,126 +37,199 @@ pub fn make_world(
     neighbourhood: &Neighbourhood,
     focus: &Option<FocusedTurns>,
 ) -> World<Obj> {
-    let map = &app.per_map.map;
     let mut world = World::new();
-    let focused_src_r = focus.as_ref().map(|f| f.src_r);
 
-    let all_r_id = [
-        &neighbourhood.perimeter_roads,
-        &neighbourhood.interior_roads,
-        &neighbourhood.connected_exterior_roads,
-    ]
-    .into_iter()
-    .flatten();
-
-    for r in all_r_id {
-        // for r in &neighbourhood.interior_roads {
-        let road = map.get_r(*r);
-
-        let restricted_destinations = restricted_destination_roads(map, *r, None);
-
-        // Account for one way streets when determining possible destinations
-        // TODO This accounts for the oneway direction of the source street,
-        // but not the oneway direction of the destination street
-        let possible_destinations = destination_roads(map, road.id, None);
-
-        let mut hover_batch = GeomBatch::new();
-        // Create a single compound geometry which represents a Road *and its connected roads* and draw
-        // that geom as the mouseover geom for the Road. This avoids needing to update the representation of 
-        // any Roads other then FocusedRoad.
-        // Add focus road segment itself
-        hover_batch.push(
-            colors::HOVER,
-            road.get_thick_polygon(),
-        );
-
-        // Add possible destinations
-        for possible_r in possible_destinations.clone() {
-            let possible_road = map.get_r(possible_r);
-            hover_batch.push(
-                colors::TURN_PERMITTED_DESTINATION,
-                possible_road.get_thick_polygon()
-            );
+    if focus.is_none() {
+        // Draw all roads as normal, with hoverover showing extant restrictions 
+        let all_r_id = [
+            &neighbourhood.perimeter_roads,
+            &neighbourhood.interior_roads,
+            &neighbourhood.connected_exterior_roads,
+        ]
+        .into_iter()
+        .flatten();
+    
+        for r in all_r_id {
+            build_turn_restriction_hoover_geom(*r, ctx, &mut world, app);
         }
-
-        // Add restricted_destinations
-        for restricted_r in restricted_destinations.clone() {
-            let restricted_road = map.get_r(restricted_r);
-            hover_batch.push(
-                colors::TURN_PROHIBITED_DESTINATION,
-                restricted_road.get_thick_polygon()
-            );
-        }
-
-        let mut ob = world
-            .add(Obj::Road(*r))
-            .hitbox(road.get_thick_polygon());
-
-        if focused_src_r == Some(*r) {
-            let mut batch = GeomBatch::new();
-            let focused_t = focus.as_ref().unwrap();
-
-            // // Highlight the convex hull
-            batch.push(
-                Color::grey(0.4),
-                focused_t.hull.clone(),
-            );
-
-            batch.push(
-                Color::grey(0.2),
-                focused_t.hull.to_outline(Distance::meters(3.0)),
-            );
-
-            // Highlight permitted destinations
-            for pd in &focused_t.permitted_t {
-                batch.push(
-                    colors::TURN_PERMITTED_DESTINATION.alpha(1.0),
-                    map.get_r(*pd).get_thick_polygon().to_outline(Distance::meters(3.0)),
-                );
-            }
-
-            // Highlight prohibited destinations
-            for pd in &focused_t.prohibited_t {
-                batch.push(
-                    colors::TURN_PROHIBITED_DESTINATION.alpha(1.0),
-                    map.get_r(*pd).get_thick_polygon().to_outline(Distance::meters(3.0)),
-                );
-            }
-
-            // Highlight the selected road
-            batch.push(
-                colors::HOVER.alpha(1.0),
-                road.get_thick_polygon().to_outline(Distance::meters(3.0)),
-            );
-
-            // Highlight the selected intersection (the same color as the selected road)
-            batch.push(
-                colors::HOVER.alpha(1.0),
-                map.get_i(focused_t.i).polygon.clone(),
-            );
-            batch.push(
-                colors::HOVER.alpha(1.0),
-                map.get_i(focused_t.i).polygon.to_outline(Distance::meters(3.0)),
-            );
-
-            
-
-            hover_batch.append(batch.clone());
-
-            ob = ob.draw(batch);
-
-        } else {
-            ob = ob.drawn_in_master_batch();
-        }
-
-        ob.draw_hovered(hover_batch)
-            .tooltip(Text::from(format!("{} {}", road.id, road_name(app, road))))
-            .clickable()
-            .build(ctx);
+    } else {
+        let focused_t = focus.as_ref().unwrap();
+        // Draw FocusTurns
+        build_focused_turns_geom(focused_t, ctx, &mut world, app);
+        // Create hoover geoms for each road connected to the FocusTurns
+        build_turn_options_geom(focused_t, ctx, &mut world, app);
     }
 
     world.initialize_hover(ctx);
     world
+}
+
+/// Builds the hoover geom for showing turn restrictions when no FocusTurns are selected
+fn build_turn_restriction_hoover_geom(r: RoadID, ctx: &mut EventCtx, world: &mut World<Obj>, app: &App) {
+    let map = &app.per_map.map;
+    let road = map.get_r(r);
+
+    let restricted_destinations = restricted_destination_roads(map, r, None);
+
+    // Account for one way streets when determining possible destinations
+    let possible_destinations = destination_roads(map, road.id, None);
+
+    let mut hover_batch = GeomBatch::new();
+    // Create a single compound geometry which represents a Road *and its connected roads* and draw
+    // that geom as the mouseover geom for the Road. This avoids needing to update the representation of 
+    // any Roads other then FocusedRoad.
+    // Add focus road segment itself
+    hover_batch.push(
+        colors::HOVER,
+        road.get_thick_polygon(),
+    );
+
+    // Add possible destinations
+    for possible_r in possible_destinations.clone() {
+        let possible_road = map.get_r(possible_r);
+        hover_batch.push(
+            colors::TURN_PERMITTED_DESTINATION,
+            possible_road.get_thick_polygon()
+        );
+    }
+
+    // Add restricted_destinations
+    for restricted_r in restricted_destinations.clone() {
+        let restricted_road = map.get_r(restricted_r);
+        hover_batch.push(
+            colors::TURN_PROHIBITED_DESTINATION,
+            restricted_road.get_thick_polygon()
+        );
+    }
+
+    world
+        .add(Obj::Road(r))
+        .hitbox(road.get_thick_polygon())
+        .drawn_in_master_batch()
+        .draw_hovered(hover_batch)
+        .tooltip(Text::from(format!("Click to edit turn restrictions from {}", road_name(app, road))))
+        .clickable()
+        .build(ctx);
+
+}
+
+fn build_focused_turns_geom(focused_t: &FocusedTurns, ctx: &mut EventCtx, world: &mut World<Obj>, app: &App) {
+    let map = &app.per_map.map;
+    let mut batch = GeomBatch::new();
+    let road = map.get_r(focused_t.src_r);
+
+    // Highlight the convex hull
+    batch.push(
+        Color::grey(0.4),
+        focused_t.hull.clone(),
+    );
+
+    batch.push(
+        Color::grey(0.2),
+        focused_t.hull.to_outline(Distance::meters(3.0)),
+    );
+
+    // Highlight the selected intersection (the same color as the selected road)
+    batch.push(
+        colors::HOVER.alpha(1.0),
+        map.get_i(focused_t.i).polygon.clone(),
+    );
+    batch.push(
+        colors::HOVER.alpha(1.0),
+        map.get_i(focused_t.i).polygon.to_outline(Distance::meters(3.0)),
+    );
+
+    // add the convex hull using the IntersectionID
+    world
+        .add(Obj::Intersection(focused_t.i))
+        .hitbox(focused_t.hull.clone())
+        .draw(batch.clone())
+        .draw_hovered(batch)
+        .zorder(1)
+        .tooltip(Text::from(format!("Edit restricted turn from {}", road_name(app, road))))
+        .build(ctx);
+
+}
+
+// TODO This function can/should be refactored to avoid code repetition
+fn build_turn_options_geom(focused_t: &FocusedTurns, ctx: &mut EventCtx, world: &mut World<Obj>, app: &App) {
+    let map = &app.per_map.map;
+    let src_road = map.get_r(focused_t.src_r);
+    let src_road_name = road_name(app, src_road);
+
+    let mut batch = GeomBatch::new();
+    // Highlight the selected road
+    batch.push(
+        colors::HOVER.alpha(1.0),
+        src_road.get_thick_polygon().to_outline(Distance::meters(3.0)),
+    );
+
+    world
+        .add(Obj::Road(focused_t.src_r))
+        .hitbox(focused_t.hull.clone())
+        .draw(batch.clone())
+        .draw_hovered(batch)
+        .zorder(2)
+        .tooltip(Text::from(format!("Edit restricted turn from {}", road_name(app, src_road))))
+        .clickable()
+        .build(ctx);
+
+    // Highlight permitted destinations
+    for pd in &focused_t.permitted_t {
+        if !&focused_t.prohibited_t.contains(pd) && pd != &focused_t.src_r {
+            let mut norm_batch = GeomBatch::new();
+            let mut hover_batch = GeomBatch::new();
+            let dst_road = map.get_r(*pd);
+
+            norm_batch.push(
+                colors::TURN_PERMITTED_DESTINATION.alpha(1.0),
+                dst_road.get_thick_polygon().to_outline(Distance::meters(3.0)),
+            );
+
+            hover_batch.push(
+                colors::TURN_PROHIBITED_DESTINATION.alpha(1.0),
+                dst_road.get_thick_polygon()
+            );
+
+            world
+                .add(Obj::Road(*pd))
+                .hitbox(dst_road.get_thick_polygon())
+                .draw(norm_batch)
+                .draw_hovered(hover_batch)
+                .zorder(3)
+                .tooltip(Text::from(format!("Add new restricted turn from '{}' to '{}'", src_road_name, road_name(app, dst_road))))
+                .clickable()
+                .build(ctx);
+        }
+    }
+
+    // Highlight prohibited destinations
+    for pd in &focused_t.prohibited_t {
+        // Don't show U-Turns
+        if pd != &focused_t.src_r {
+            let mut norm_batch = GeomBatch::new();
+            let mut hover_batch = GeomBatch::new();
+            let dst_road = map.get_r(*pd);
+
+            norm_batch.push(
+                colors::TURN_PROHIBITED_DESTINATION.alpha(1.0),
+                dst_road.get_thick_polygon().to_outline(Distance::meters(3.0)),
+            );
+            hover_batch.push(
+                colors::TURN_PERMITTED_DESTINATION.alpha(1.0),
+                dst_road.get_thick_polygon(),
+            );
+            world
+                .add(Obj::Road(*pd))
+                .hitbox(dst_road.get_thick_polygon())
+                .draw(norm_batch)
+                .draw_hovered(hover_batch)
+                .zorder(4)
+                .tooltip(Text::from(format!("Remove turn restriction from '{}' to '{}'", src_road_name, road_name(app, dst_road))))
+                .clickable()
+                .build(ctx);
+        }
+    }
 }
 
 pub fn handle_world_outcome(
