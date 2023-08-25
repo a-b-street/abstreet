@@ -12,6 +12,7 @@ use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{EventCtx, Panel};
 
+use crate::render::render_turn_restrictions;
 use crate::{is_private, pages, App, Neighbourhood, Transition};
 
 pub use page::DesignLTN;
@@ -136,6 +137,11 @@ impl EditNeighbourhood {
                 edits.commands.pop().unwrap();
                 app.apply_edits(edits);
                 crate::redraw_all_filters(ctx, app);
+
+                // TODO find a better place for this. Forcing this here feels clunky. It seems like it would be
+                // cleaner to be part of the `Map` or `PerMap` object. There isn't a comparable layer (bus 
+                // routes etc), which are updated as a result of map edit.
+                app.per_map.draw_turn_restrictions = render_turn_restrictions(ctx, &app.per_map.map);
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
                     *maybe_focus = None;
