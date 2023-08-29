@@ -711,16 +711,7 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
             .centered_vert(),
         ctx.style()
             .btn_solid_primary
-            .icon("system/assets/map/no_right_turn.svg")
-            // TODO check the RewriteColor params to match the style of the other buttons
-            .image_color(
-                RewriteColor::Change(Color::RED, Color::CLEAR),
-                ControlState::Default,
-            )
-            .image_color(
-                RewriteColor::Change(Color::RED, Color::CLEAR),
-                ControlState::Disabled,
-            )
+            .icon("system/assets/map/no_right_turn_button.svg")
             .disabled(matches!(edit_mode, EditMode::TurnRestrictions(_)))
             .hotkey(Key::F6)
             .tooltip_and_disabled({
