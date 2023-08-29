@@ -5,7 +5,7 @@ mod one_ways;
 mod page;
 mod shortcuts;
 mod speed_limits;
-mod turn_restrictions;
+pub mod turn_restrictions;
 
 use map_model::{IntersectionID, Road, RoadID};
 use widgetry::mapspace::{ObjectID, World};

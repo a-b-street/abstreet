@@ -44,3 +44,4 @@ structopt = { workspace = true }
 
 [dev-dependencies]
 tests = { path = "../../tests" }
+fs-err = { workspace = true }
