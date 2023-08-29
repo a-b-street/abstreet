@@ -1,8 +1,9 @@
 use std::path::PathBuf;
-
+use anyhow::{bail, Result};
 use map_model::Map;
 use abstio::MapName;
 use abstutil::Timer;
+use prettydiff::text::diff_lines;
 
 /// Run the contents of a .osm through the full map importer with default options.
 pub fn import_map(path: String) -> Map {
@@ -55,4 +56,25 @@ fn next_test_file_path(maybe_absolute_dir: &std::path::Path, file_path: &String)
     } else {
         Err(format!("Cannot locate file '{}'", file_path))
     }
+}
+
+/// Compares a string to the contents of the relevant goldenfile.
+/// Pretty prints the differences if necessary
+pub fn compare_with_goldenfile(actual: String, goldenfile_path: String) -> Result<bool> {
+    let goldenfile_path = get_test_file_path(goldenfile_path).unwrap();
+    // let expected = String::from_utf8(abstio::slurp_file(&goldenfile_path)?).unwrap().clone().trim();
+    let binding = String::from_utf8(abstio::slurp_file(&goldenfile_path)?)
+        .unwrap()
+        .clone();
+    let expected = binding.trim();
+    let actual_str = actual.trim();
+    if actual_str != expected {
+        let lcs = diff_lines(&actual_str, &expected);
+        bail!(
+            "contents differ from goldenfile {}:\n{}",
+            &goldenfile_path,
+            lcs
+        );
+    }
+    Ok(true)
 }

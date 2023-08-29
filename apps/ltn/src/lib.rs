@@ -19,11 +19,11 @@ extern crate log;
 mod app;
 mod components;
 mod export;
-mod logic;
+pub mod logic;
 mod neighbourhood;
-mod pages;
+pub mod pages;
 mod render;
-mod save;
+pub mod save;
 
 pub fn main() {
     let settings = Settings::new("Low traffic neighbourhoods");
