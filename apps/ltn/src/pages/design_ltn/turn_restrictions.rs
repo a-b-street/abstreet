@@ -301,7 +301,7 @@ pub fn handle_world_outcome(
     }
 }
 
-fn handle_edited_turn_restrictions(new: &mut EditRoad, ft: &FocusedTurns, dst_r: RoadID) {
+pub fn handle_edited_turn_restrictions(new: &mut EditRoad, ft: &FocusedTurns, dst_r: RoadID) {
     if ft.prohibited_t.contains(&dst_r) {
         println!("Remove existing banned turn from src={:?}, to dst {:?}", ft.src_r, dst_r);
         new.turn_restrictions.retain(|(_, r)| *r !=dst_r );

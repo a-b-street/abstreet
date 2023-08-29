@@ -1,0 +1,235 @@
+{
+  "map_name": {
+    "city": {
+      "country": "zz",
+      "city": "oneshot"
+    },
+    "map": "turn_restriction_ltn_boundary"
+  },
+  "edits_name": "Untitled Proposal 1",
+  "version": 13,
+  "commands": [
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 688145941,
+          "i1": 2018986239,
+          "i2": 8250742348
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 15000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Biking",
+              "dir": "Back",
+              "width": 15000,
+              "allowed_turns": 0
+            }
+          ],
+          "speed_limit": 134112,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          },
+          "modal_filter": null,
+          "crossings": [],
+          "turn_restrictions": [],
+          "complicated_turn_restrictions": []
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 15000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Biking",
+              "dir": "Back",
+              "width": 15000,
+              "allowed_turns": 0
+            }
+          ],
+          "speed_limit": 134112,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          },
+          "modal_filter": null,
+          "crossings": [],
+          "turn_restrictions": [
+            [
+              "BanTurns",
+              4
+            ]
+          ],
+          "complicated_turn_restrictions": []
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 688145941,
+          "i1": 2018986239,
+          "i2": 8250742348
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 15000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Biking",
+              "dir": "Back",
+              "width": 15000,
+              "allowed_turns": 0
+            }
+          ],
+          "speed_limit": 134112,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          },
+          "modal_filter": null,
+          "crossings": [],
+          "turn_restrictions": [
+            [
+              "BanTurns",
+              12
+            ]
+          ],
+          "complicated_turn_restrictions": []
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Driving",
+              "dir": "Back",
+              "width": 30000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Biking",
+              "dir": "Fwd",
+              "width": 15000,
+              "allowed_turns": 0
+            },
+            {
+              "lt": "Biking",
+              "dir": "Back",
+              "width": 15000,
+              "allowed_turns": 0
+            }
+          ],
+          "speed_limit": 134112,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          },
+          "modal_filter": null,
+          "crossings": [],
+          "turn_restrictions": [],
+          "complicated_turn_restrictions": []
+        }
+      }
+    }
+  ],
+  "proposal_description": [],
+  "proposal_link": null
+}
