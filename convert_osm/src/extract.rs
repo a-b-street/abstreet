@@ -312,7 +312,10 @@ pub fn extract_osm(
     });
 
     timer.start("find service roads crossing parking lots");
-    find_parking_aisles(map, &mut out.roads);
+    // TODO Something's crashing in one map, no time to investigate
+    if map.name != abstio::MapName::new("au", "melbourne", "maribyrnong") {
+        find_parking_aisles(map, &mut out.roads);
+    }
     timer.stop("find service roads crossing parking lots");
 
     Extract {

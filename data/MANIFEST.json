@@ -30,6 +30,11 @@
       "uncompressed_size_bytes": 6607504,
       "compressed_size_bytes": 1855060
     },
+    "data/input/au/melbourne/raw_maps/maribyrnong.bin": {
+      "checksum": "b81ffefcdab40c2a9cf5062412ab73a7",
+      "uncompressed_size_bytes": 20233034,
+      "compressed_size_bytes": 5508165
+    },
     "data/input/br/sao_paulo/gtfs/agency.txt": {
       "checksum": "3dd694b14c7bacfa33d8ad774db99100",
       "uncompressed_size_bytes": 155,
@@ -404,6 +409,11 @@
       "checksum": "51872af227f865757c1f501ac5d3f55a",
       "uncompressed_size_bytes": 74318691,
       "compressed_size_bytes": 19050531
+    },
+    "data/input/gb/bristol/raw_maps/south.bin": {
+      "checksum": "2ff63d09b50d76a744ad743f896c0f1d",
+      "uncompressed_size_bytes": 12921184,
+      "compressed_size_bytes": 3442421
     },
     "data/input/gb/burnley/raw_maps/center.bin": {
       "checksum": "4776145cb655fdf66508b90e1f867024",
@@ -2065,6 +2075,11 @@
       "uncompressed_size_bytes": 25615734,
       "compressed_size_bytes": 9996160
     },
+    "data/system/au/melbourne/maps/maribyrnong.bin": {
+      "checksum": "1f5cd5b6e7eea0e7d288ad3196182877",
+      "uncompressed_size_bytes": 74409264,
+      "compressed_size_bytes": 28775907
+    },
     "data/system/br/sao_paulo/maps/aricanduva.bin": {
       "checksum": "729f76e7a82b057c2a4257a17fbea421",
       "uncompressed_size_bytes": 49393386,
@@ -2494,6 +2509,11 @@
       "checksum": "6082fea25bab6ec1d674138ff3d1def1",
       "uncompressed_size_bytes": 160848778,
       "compressed_size_bytes": 64278768
+    },
+    "data/system/gb/bristol/maps/south.bin": {
+      "checksum": "b5989cedce214867404fc79fab931c0c",
+      "uncompressed_size_bytes": 30541056,
+      "compressed_size_bytes": 11838753
     },
     "data/system/gb/bristol/scenarios/east/background.bin": {
       "checksum": "0478813351ebf6fec0f004e87fc09b69",

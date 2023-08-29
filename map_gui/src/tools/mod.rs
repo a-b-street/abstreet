@@ -95,6 +95,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
         "au" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("melbourne", "brunswick") => "Melbourne (Brunswick)",
             ("melbourne", "dandenong") => "Melbourne (Dandenong)",
+            ("melbourne", "maribyrnong") => "Melbourne (Maribyrnong)",
             _ => &name.map,
         },
         "at" => match (name.city.city.as_ref(), name.map.as_ref()) {
@@ -171,6 +172,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("brighton", "center") => "Brighton",
             ("brighton", "shoreham_by_sea") => "Shoreham-by-Sea",
             ("bristol", "east") => "East Bristol",
+            ("bristol", "south") => "South Bristol",
             ("burnley", "center") => "Burnley",
             ("cambridge", "north") => "North Cambridge",
             ("castlemead", "center") => "Castlemead",
