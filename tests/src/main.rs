@@ -84,7 +84,6 @@ fn test_map_importer() -> Result<()> {
     if regenerate_goldenfiles {
         // Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally
         // left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.
-        // assert!(false, "Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.");
         panic!("Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.")
     }
     Ok(())
