@@ -12,6 +12,8 @@ use geom::{Polygon, Pt2D};
 /// -------
 /// ```notrust
 ///     {connected} == { permitted ∪ opposing_oneway ∪ restricted_turn }
+/// 
+///     {possible_turns} == { connected - opposing_oneways } == { permitted + restricted_turns }
 /// ```
 /// 
 /// Details:
@@ -35,8 +37,7 @@ use geom::{Polygon, Pt2D};
 ///                            RoadA to RoadB, OR there is an explicitly tagged turn restriction which mandates
 ///                            traffic from RoadA must turn onto a different road to RoadB.
 ///                         c) RoadB is not a member of "opposing_oneways"
-/// possible_turns = { connected - opposing_oneways } == { permitted + restricted_turns }
-///                  These are turns that would be possible if all turn restrictions where removed.
+/// possible_turns = These are turns that would be possible if all turn restrictions where removed.
 /// 
 /// Notes:
 /// -----
@@ -100,15 +101,12 @@ fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>
 
     let mut all_pt: Vec<Pt2D> = Vec::new();
 
-    all_pt.extend(map.get_r(r).get_thick_polygon().get_outer_ring().clone().into_points());
+    let mut all_r = HashSet::from([r]);
+    all_r.extend(permitted_t);
+    all_r.extend(restricted_t);
 
-    // Polygon::concave_hull(points, concavity)
-    for t in permitted_t {
-        all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
-    }
-
-    for t in restricted_t {
-        all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
+    for other_r in all_r {
+        all_pt.extend(map.get_r(other_r).get_thick_polygon().get_outer_ring().clone().into_points());
     }
 
     // TODO the `200` value seems to work for some cases. But it is arbitrary and there is no science
@@ -124,15 +122,15 @@ pub fn restricted_destination_roads(map: &Map, from_road_id: RoadID, i: Option<I
     let from_road = map.get_r(from_road_id);
     let mut restricted_destinations: HashSet<RoadID> = HashSet::new();
         
-    for (restriction, r2) in &from_road.turn_restrictions {
-        if *restriction == RestrictionType::BanTurns && candidate_roads.contains(r2) {
-            restricted_destinations.insert(*r2);
+    for (restriction, target_r) in &from_road.turn_restrictions {
+        if *restriction == RestrictionType::BanTurns && candidate_roads.contains(target_r) {
+            restricted_destinations.insert(*target_r);
         }
     }
-    for (via, r2) in &from_road.complicated_turn_restrictions {
+    for (via, target_r) in &from_road.complicated_turn_restrictions {
         if candidate_roads.contains(via) {
             restricted_destinations.insert(*via);
-            restricted_destinations.insert(*r2);
+            restricted_destinations.insert(*target_r);
         }
     }
     restricted_destinations
@@ -147,12 +145,12 @@ fn verify_intersection(map: &Map, r: RoadID, i: IntersectionID) -> bool {
 /// Returns a HashSet of all roads which are connected by driving from RoadID.
 /// This accounts for oneway restrictions, but not turn restrictions. eg:
 /// 
-/// - If a oneway restriction on either the 'source road' or the 'destination road' would prevent driving from
-/// source to destination, then 'destination road' it will NOT be included in the result.
-/// - If a turn restriction exists and is the only thing that would prevent driving from 'source road' or the
-/// 'destination road', then the 'destination road' will still be included in the result.
+/// - If a oneway restriction on either the 'from_road' or the 'target_road' would prevent driving from
+/// source to destination, then 'target_road' it will NOT be included in the result.
+/// - If a turn restriction exists and is the only thing that would prevent driving from 'from_road' or the
+/// 'target_road', then the 'target_road' will still be included in the result.
 /// 
-/// `i` is Optional. If `i` is `Some` then, it must be connected to `source_r_id`. It is used to filter
+/// `i` is Optional. If `i` is `Some` then, it must be connected to `from_r`. It is used to filter
 /// the results to return only the destination roads that connect to `i`.
 /// 
 // TODO highlighting possible destinations for complicated turns (at present both sections of existing
@@ -194,9 +192,9 @@ fn is_road_drivable_from_i(map: &Map, target_r: RoadID, i: IntersectionID) -> bo
     let road = map.get_r(target_r);
     let one_way = road.oneway_for_driving();
     
-    return (road.src_i == i && one_way != Some(Direction::Back)) ||
+    return road.is_driveable() &&
+           (road.src_i == i && one_way != Some(Direction::Back)) ||
            (road.dst_i == i && one_way != Some(Direction::Fwd)) 
-
 }
 
 #[cfg(test)]
