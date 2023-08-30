@@ -4,6 +4,54 @@ use map_model::{Map, RoadID, IntersectionID};
 use osm2streets::{Direction, RestrictionType};
 use geom::{Polygon, Pt2D};
 
+/// An attempt to standardise language around turn restrictions.
+/// NOTE AT PRESENT THIS IS ASPIRATIONAL - DO NOT ASSUME THAT THE RELEVANT CODE ADHERES TO THESE RULES
+/// Future refactoring should migrate to these conventions.
+///
+/// Summary:
+/// -------
+///     {connected} == { permitted ∪ opposing_oneway ∪ restricted_turn }
+///
+/// Details:
+/// ------- 
+/// When moving (or attempting to move) from "RoadA" to "RoadB" the follow terms should be used:
+/// "from_r"    = RoadA
+/// "target_r"  = RoadB
+/// "connected" = RoadB will be a member of "connected" if RoadB share a common intersection RoadA, or 
+///               is part of a shared complex turn with RoadA. The legality of driving from RoadA to RoadB
+///               is not a concern for "connected". "Connected" is the superset of all the other categories
+///               listed here.
+/// "permitted" = RoadB is a member of "permitted", if RoadB is a member of "connected" and it is legal to 
+///               drive from RoadA to RoadB. Lane-level restrictions are not considered, so as long as some
+///               route from one or more driving Lanes in RoadA to one or more Lanes in RoadB then RoadB is 
+///               considered "permitted".
+/// "opposing_oneways" = RoadB is oneway for driving, and driving from RoadA to RoadB would result in driving the
+///                     wrong way along RoadB.
+/// "restricted_turns" = RoadB will be a member of "restricted_turns" if
+///                         a) RoadB is a member of "connected"
+///                         b) There is explicitly tagged turn restriction which prohibits traffic turning from
+///                            RoadA to RoadB, OR there is an explicitly tagged turn restriction which mandates
+///                            traffic from RoadA must turn onto a different road to RoadB.
+///                         c) RoadB is not a member of "opposing_oneways"
+/// 
+/// Notes:
+/// -----
+/// * RoadA will NOT be a member of any of the groups connected, permitted, opposing_oneway, restricted_turn
+///   even if a no U-turns restriction exists
+/// * In reality a road/turn maybe signposted by both turn restrictions and oneway restrictions.
+///   Following (OSM practise)[https://wiki.openstreetmap.org/wiki/Relation:restriction#When_to_map] it is not 
+///   necessary mark turn restrictions when they are already implied by opposing oneway restrictions. We treat 
+///   "banned_turn" and "opposing_oneway" as mutually exclusive. 
+///
+/// Discouraged terms:
+/// -----------------
+/// "prohibited_turn" = use "restricted_turn" instead.
+/// "banned_turns" = use "restricted_turn" instead where practical. "Banned" is used elsewhere in A/BStreet,
+///                  (ie `RestrictionType::BanTurns`) but within the LTN tool "restricted" is preferred, as it
+///                  is more consistent with the `road.restricted_turns` and `road.complicated_turn_restrictions`
+///                  as well the general OSM tagging.
+/// "src_r" and "dst_r" = use "from_r" and "target_r" instead. ("src_r" and "dst_r" are too similar to
+///                       `road.src_i` and `road.dst_i` which are conceptually very different).
 pub struct FocusedTurns {
     pub src_r: RoadID,
     pub i: IntersectionID,
@@ -59,7 +107,7 @@ fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>
         all_pt.extend(map.get_r(*t).get_thick_polygon().get_outer_ring().clone().into_points());
     }
 
-    // TODO the `200` value seems to work for some cases. But it is arbitary and there is no science
+    // TODO the `200` value seems to work for some cases. But it is arbitrary and there is no science
     // behind its the value. Need to work out what is an appropriate value _and why_.
     Polygon::concave_hull(all_pt, 200).unwrap_or(Polygon::dummy())
 }
