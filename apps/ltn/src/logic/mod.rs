@@ -10,4 +10,4 @@ pub use existing::transform_existing;
 pub use impact::Impact;
 pub use partition::{BlockID, CustomBoundary, NeighbourhoodID, Partitioning};
 pub use shortcuts::Shortcuts;
-pub use turn_restrictions::destination_roads;
+pub use turn_restrictions::possible_destination_roads;
