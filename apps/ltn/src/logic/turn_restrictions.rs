@@ -353,7 +353,6 @@ fn is_road_drivable_from_i(map: &Map, target_r: RoadID, i: IntersectionID) -> bo
     
     return (road.src_i == i && one_way != Some(Direction::Back)) ||
            (road.dst_i == i && one_way != Some(Direction::Fwd)) 
-
 }
 
 #[cfg(test)]
