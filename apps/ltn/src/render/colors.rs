@@ -53,5 +53,5 @@ pub const MAIN_ROAD_LABEL: Color = Color::WHITE;
 pub const HOVER: Color = Color::CYAN.alpha(0.5);
 
 pub const TURN_PERMITTED_DESTINATION: Color = Color::YELLOW.alpha(0.8);
-pub const TURN_PROHIBITED_DESTINATION: Color = Color::RED.alpha(0.8);
+pub const TURN_RESTRICTED_DESTINATION: Color = Color::RED.alpha(0.8);
 
