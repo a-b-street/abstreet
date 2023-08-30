@@ -59,20 +59,20 @@ mod tests {
         let r = RoadID(11);
         // south west (Remove existing turn restriction)
         let click_pt_1 = Pt2D::new(192.5633, 215.7847);
-        let connected_road_1 = RoadID(4);
+        let target_road_1 = RoadID(4);
         // north east (Add a new turn restriction)
         let click_pt_2 = Pt2D::new(214.7931, 201.7212);
-        let connected_road_2 = RoadID(12);
+        let target_road_2 = RoadID(12);
 
-        for (click_pt, connected_r) in [
-            (click_pt_1, connected_road_1),
-            (click_pt_2, connected_road_2)
+        for (click_pt, target_r) in [
+            (click_pt_1, target_road_1),
+            (click_pt_2, target_road_2)
         ] {
             let ft = FocusedTurns::new(r, click_pt, &map);
             
             let mut edits = map.get_edits().clone();
-            let erc = map.edit_road_cmd(ft.src_r, |new| {
-                handle_edited_turn_restrictions(new, &ft, connected_r)
+            let erc = map.edit_road_cmd(ft.from_r, |new| {
+                handle_edited_turn_restrictions(new, &ft, target_r)
             });
             println!("erc={:?}", erc);
             edits.commands.push(erc);

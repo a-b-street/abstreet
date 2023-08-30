@@ -6,7 +6,7 @@ use geom::{ArrowCap, Distance, PolyLine, Polygon};
 use map_model::{osm, Direction, IntersectionID, Map, RoadID};
 use widgetry::{Drawable, EventCtx, GeomBatch};
 
-use crate::logic::{destination_roads, CustomBoundary, Partitioning, Shortcuts};
+use crate::logic::{possible_destination_roads, CustomBoundary, Partitioning, Shortcuts};
 use crate::{is_private, App, NeighbourhoodID};
 
 // Once constructed, a Neighbourhood is immutable
@@ -208,7 +208,7 @@ impl Neighbourhood {
             .into_iter()
             .flatten()
         {
-            exterior.extend(destination_roads(map, *r, None));
+            exterior.extend(possible_destination_roads(map, *r, None));
         }
 
         println!(

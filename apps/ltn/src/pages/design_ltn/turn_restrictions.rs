@@ -6,7 +6,7 @@ use widgetry::{EventCtx, GeomBatch, Text, TextExt, Widget};
 use widgetry::Color;
 
 use super::{road_name, EditMode, EditOutcome, Obj};
-use crate::logic::turn_restrictions::{FocusedTurns, destination_roads, restricted_destination_roads};
+use crate::logic::turn_restrictions::{FocusedTurns, possible_destination_roads, restricted_destination_roads};
 use crate::render::{colors, render_turn_restrictions};
 use crate::{App, Neighbourhood};
 
@@ -14,13 +14,13 @@ use crate::{App, Neighbourhood};
 pub fn widget(ctx: &mut EventCtx, app: &App, focus: Option<&FocusedTurns>) -> Widget {
     match focus {
         Some(focus) => {
-            let road = app.per_map.map.get_r(focus.src_r);
-            let prohibited = focus.prohibited_t.len();
-            let permitted = focus.permitted_t.len() - prohibited;
+            let road = app.per_map.map.get_r(focus.from_r);
+            let restricted = focus.restricted_t.len();
+            let permitted = focus.possible_t.len() - restricted;
             Widget::col(vec![
                 format!("{} permitted and {} restricted",
                         permitted,
-                        prohibited,
+                        restricted,
                         ).text_widget(ctx),
                 format!("turns from {} ", road.get_name(app.opts.language.as_ref())).text_widget(ctx),
                 format!("at selected intersection").text_widget(ctx),
@@ -69,10 +69,10 @@ fn build_turn_restriction_hoover_geom(r: RoadID, ctx: &mut EventCtx, world: &mut
     let map = &app.per_map.map;
     let road = map.get_r(r);
 
+    // Because we have "possible" destinations (rather than just "permitted") we must draw possible_destinations
+    // first so that the distinct rendering of restricted_destinations shows on top of possible_destinations.
     let restricted_destinations = restricted_destination_roads(map, r, None);
-
-    // Account for one way streets when determining possible destinations
-    let possible_destinations = destination_roads(map, road.id, None);
+    let possible_destinations = possible_destination_roads(map, road.id, None);
 
     let mut hover_batch = GeomBatch::new();
     // Create a single compound geometry which represents a Road *and its connected roads* and draw
@@ -97,7 +97,7 @@ fn build_turn_restriction_hoover_geom(r: RoadID, ctx: &mut EventCtx, world: &mut
     for restricted_r in restricted_destinations.clone() {
         let restricted_road = map.get_r(restricted_r);
         hover_batch.push(
-            colors::TURN_PROHIBITED_DESTINATION,
+            colors::TURN_RESTRICTED_DESTINATION,
             restricted_road.get_thick_polygon()
         );
     }
@@ -113,20 +113,21 @@ fn build_turn_restriction_hoover_geom(r: RoadID, ctx: &mut EventCtx, world: &mut
 
 }
 
+/// Builds the geom representing the FocusTurns hull and intersection
 fn build_focused_turns_geom(focused_t: &FocusedTurns, ctx: &mut EventCtx, world: &mut World<Obj>, app: &App) {
     let map = &app.per_map.map;
     let mut batch = GeomBatch::new();
-    let road = map.get_r(focused_t.src_r);
+    let from_road = map.get_r(focused_t.from_r);
 
     // Highlight the convex hull
     batch.push(
-        Color::grey(0.4),
+        Color::grey(0.4).alpha(0.8),
         focused_t.hull.clone(),
     );
 
     batch.push(
         Color::grey(0.2),
-        focused_t.hull.to_outline(Distance::meters(3.0)),
+        focused_t.hull.to_outline(Distance::meters(2.0)),
     );
 
     // Highlight the selected intersection (the same color as the selected road)
@@ -146,37 +147,41 @@ fn build_focused_turns_geom(focused_t: &FocusedTurns, ctx: &mut EventCtx, world:
         .draw(batch.clone())
         .draw_hovered(batch)
         .zorder(1)
-        .tooltip(Text::from(format!("Edit restricted turn from {}", road_name(app, road))))
+        .tooltip(Text::from(format!("Edit restricted turn from {}", road_name(app, from_road))))
         .build(ctx);
 
 }
 
+/// Builds the geom representing each of the individual turn options (permitted and restricted)
+/// within the FocusTurns.
+//
 // TODO This function can/should be refactored to avoid code repetition
 fn build_turn_options_geom(focused_t: &FocusedTurns, ctx: &mut EventCtx, world: &mut World<Obj>, app: &App) {
     let map = &app.per_map.map;
-    let src_road = map.get_r(focused_t.src_r);
-    let src_road_name = road_name(app, src_road);
+    let from_road = map.get_r(focused_t.from_r);
+    let from_road_name = road_name(app, from_road);
 
     let mut batch = GeomBatch::new();
     // Highlight the selected road
     batch.push(
         colors::HOVER.alpha(1.0),
-        src_road.get_thick_polygon().to_outline(Distance::meters(3.0)),
+        from_road.get_thick_polygon().to_outline(Distance::meters(3.0)),
     );
 
     world
-        .add(Obj::Road(focused_t.src_r))
+        .add(Obj::Road(focused_t.from_r))
         .hitbox(focused_t.hull.clone())
         .draw(batch.clone())
         .draw_hovered(batch)
         .zorder(2)
-        .tooltip(Text::from(format!("Edit restricted turn from {}", road_name(app, src_road))))
+        .tooltip(Text::from(format!("Edit restricted turn from {}", road_name(app, from_road))))
         .clickable()
         .build(ctx);
 
-    // Highlight permitted destinations
-    for pd in &focused_t.permitted_t {
-        if !&focused_t.prohibited_t.contains(pd) && pd != &focused_t.src_r {
+    // Highlight permitted destinations (Because we have "possible" but only what to show "permitted"
+    // we need to draw these first, and then "restricted" on top - with a higher z-order.)
+    for pd in &focused_t.possible_t {
+        if !&focused_t.restricted_t.contains(pd) && pd != &focused_t.from_r {
             let mut norm_batch = GeomBatch::new();
             let mut hover_batch = GeomBatch::new();
             let dst_road = map.get_r(*pd);
@@ -187,7 +192,7 @@ fn build_turn_options_geom(focused_t: &FocusedTurns, ctx: &mut EventCtx, world: 
             );
 
             hover_batch.push(
-                colors::TURN_PROHIBITED_DESTINATION.alpha(1.0),
+                colors::TURN_RESTRICTED_DESTINATION.alpha(1.0),
                 dst_road.get_thick_polygon()
             );
 
@@ -197,22 +202,22 @@ fn build_turn_options_geom(focused_t: &FocusedTurns, ctx: &mut EventCtx, world: 
                 .draw(norm_batch)
                 .draw_hovered(hover_batch)
                 .zorder(3)
-                .tooltip(Text::from(format!("Add new restricted turn from '{}' to '{}'", src_road_name, road_name(app, dst_road))))
+                .tooltip(Text::from(format!("Add new restricted turn from '{}' to '{}'", from_road_name, road_name(app, dst_road))))
                 .clickable()
                 .build(ctx);
         }
     }
 
-    // Highlight prohibited destinations
-    for pd in &focused_t.prohibited_t {
+    // Highlight restricted destinations
+    for pd in &focused_t.restricted_t {
         // Don't show U-Turns
-        if pd != &focused_t.src_r {
+        if pd != &focused_t.from_r {
             let mut norm_batch = GeomBatch::new();
             let mut hover_batch = GeomBatch::new();
             let dst_road = map.get_r(*pd);
 
             norm_batch.push(
-                colors::TURN_PROHIBITED_DESTINATION.alpha(1.0),
+                colors::TURN_RESTRICTED_DESTINATION.alpha(1.0),
                 dst_road.get_thick_polygon().to_outline(Distance::meters(3.0)),
             );
             hover_batch.push(
@@ -225,7 +230,7 @@ fn build_turn_options_geom(focused_t: &FocusedTurns, ctx: &mut EventCtx, world: 
                 .draw(norm_batch)
                 .draw_hovered(hover_batch)
                 .zorder(4)
-                .tooltip(Text::from(format!("Remove turn restriction from '{}' to '{}'", src_road_name, road_name(app, dst_road))))
+                .tooltip(Text::from(format!("Remove turn restriction from '{}' to '{}'", from_road_name, road_name(app, dst_road))))
                 .clickable()
                 .build(ctx);
         }
@@ -237,35 +242,31 @@ pub fn handle_world_outcome(
     app: &mut App,
     outcome: WorldOutcome<Obj>,
 ) -> EditOutcome {
-    // println!("TURN RESTRICTIONS: handle_world_outcome");
-
     match outcome {
         WorldOutcome::ClickedObject(Obj::Road(r)) => {
             // TODO - Rewrite the logic here. It is more complex that required.
 
-            // Check if the ClickedObject is already highlighted
+            // Check if the ClickedObject is already highlighted (ie there is a pre-existing FocusTurns)
             // If so, then we recreate the FocusTurns with the relevant clicked_point (as this
             //      is the easiest way to ensure the correct intersection is selected)
-            // If not and is one of the current prohibited destination roads,
-            //      then we should remove that prohibited turn
-            // If not and is one of the potential prohibited destination roads,
-            //      then we should add that prohibited turn
+            // If not and is one of the current restricted destination roads,
+            //      then we should remove that restricted turn
+            // If not and is one of the permitted destination roads,
+            //      then we should add that restricted turn
 
             let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
             println!("click point {:?}", cursor_pt);
 
             if let EditMode::TurnRestrictions(ref prev_selection) = app.session.edit_mode {
-                // let prev = prev_selection.unwrap();
                 if prev_selection.is_some() {
                     let prev = prev_selection.as_ref().unwrap();
-                    if r == prev.src_r {
+                    if r == prev.from_r {
                         println!("The same road has been clicked on twice {:?}", r);
-                    } else if prev.prohibited_t.contains(&r) || prev.permitted_t.contains(&r) {
+                    } else if prev.restricted_t.contains(&r) || prev.possible_t.contains(&r) {
 
-                        // Copied from speed_limits.rs for reference
                         let mut edits = app.per_map.map.get_edits().clone();
                         // We are editing the previous road, not the most recently clicked road
-                        let erc = app.per_map.map.edit_road_cmd(prev.src_r, |new| {
+                        let erc = app.per_map.map.edit_road_cmd(prev.from_r, |new| {
                             handle_edited_turn_restrictions(new, prev, r)
                         });
                         println!("erc={:?}", erc);
@@ -281,7 +282,7 @@ pub fn handle_world_outcome(
                         app.session.edit_mode = EditMode::TurnRestrictions(None);
                         return EditOutcome::UpdateAll
                     } else {
-                        println!("Two difference roads have been clicked on prev={:?}, new {:?}", prev.src_r, r);
+                        println!("Two difference roads have been clicked on prev={:?}, new {:?}", prev.from_r, r);
                     }
                 } else {
                     println!("No previous road selected. New selection {:?}", r);
@@ -301,16 +302,16 @@ pub fn handle_world_outcome(
     }
 }
 
-pub fn handle_edited_turn_restrictions(new: &mut EditRoad, ft: &FocusedTurns, dst_r: RoadID) {
-    if ft.prohibited_t.contains(&dst_r) {
-        println!("Remove existing banned turn from src={:?}, to dst {:?}", ft.src_r, dst_r);
-        new.turn_restrictions.retain(|(_, r)| *r !=dst_r );
-        new.complicated_turn_restrictions.retain(|(_, r)| *r !=dst_r );
-    } else if ft.permitted_t.contains(&dst_r) {
-        println!("Create new banned turn from src={:?}, to dst {:?}", ft.src_r, dst_r);
-        new.turn_restrictions.push((RestrictionType::BanTurns, dst_r));
+pub fn handle_edited_turn_restrictions(new: &mut EditRoad, ft: &FocusedTurns, target_r: RoadID) {
+    if ft.restricted_t.contains(&target_r) {
+        println!("Remove existing banned turn from src={:?}, to dst {:?}", ft.from_r, target_r);
+        new.turn_restrictions.retain(|(_, r)| *r !=target_r );
+        new.complicated_turn_restrictions.retain(|(_, r)| *r !=target_r );
+    } else if ft.possible_t.contains(&target_r) {
+        println!("Create new banned turn from src={:?}, to dst {:?}", ft.from_r, target_r);
+        new.turn_restrictions.push((RestrictionType::BanTurns, target_r));
     } else {
-        println!("Nothing to change src={:?}, to dst {:?}", ft.src_r, dst_r);
+        println!("Nothing to change src={:?}, to dst {:?}", ft.from_r, target_r);
         return ()
     }
     ()
