@@ -14,8 +14,8 @@ pub struct Neighbourhood {
     pub id: NeighbourhoodID,
 
     // Input
-    /// Intersections which form the boundary of the neighbourhood. This set includes any intersection which is connected to a road which is part of the neighbourhood's perimeter.
-    /// TODO: Unknown is there any meaning to the order of the Intersections in this set?
+    /// Intersections which form the boundary of the neighbourhood. This set includes any intersection which is
+    /// connected to a road which is part of the neighbourhood's perimeter.
     /// The roads which form the perimeter of the neighbourhood are the union of `perimeter_roads` and `suspicious_perimeter_roads`.
     pub borders: BTreeSet<IntersectionID>,
     /// Intersections which are entirely inside the neighbourhood, and only connect interior roads to other interior roads.
@@ -25,12 +25,15 @@ pub struct Neighbourhood {
     // Derived stuff
     /// Roads which are either (a) entirely inside the neighbourhood and (b) roads which are part of `suspicious_perimeter_roads`.
     pub interior_roads: BTreeSet<RoadID>,
-    /// Roads which form part of the neighbourhood's perimeter, and are classified as arterial roads based on their OSM tags. `suspicious_perimeter_roads` are NOT included in `perimeter_roads`.
+    /// Roads which form part of the neighbourhood's perimeter, and are classified as arterial roads based on their OSM tags.
+    /// `suspicious_perimeter_roads` are NOT included in `perimeter_roads`.
     pub perimeter_roads: BTreeSet<RoadID>,
-    /// Roads which form part of the neighbourhood's perimeter, _**but**_ are classified as local roads based on their OSM tags. `suspicious_perimeter_roads` are always a subset of `interior_roads`.
+    /// Roads which form part of the neighbourhood's perimeter, _**but**_ are classified as local roads based on their OSM tags.
+    /// `suspicious_perimeter_roads` are always a subset of `interior_roads`.
     pub suspicious_perimeter_roads: BTreeSet<RoadID>,
-    /// Roads which are lie outside the `boundary_polygon` but could potentially be connected to an `interior_road` or `perimeter_road` by either a `road.turn_restrictions`, or `road.complicated_turn_restrictions`.
-    // `finish_init()` populates this field.
+    /// Roads which are lie outside the `boundary_polygon` but could potentially be connected to an `interior_road` or
+    /// `perimeter_road` by either a `road.turn_restrictions`, or `road.complicated_turn_restrictions`. `finish_init()` populates
+    /// this field.
     pub connected_exterior_roads: BTreeSet<RoadID>,
 
     pub cells: Vec<Cell>,
@@ -211,18 +214,9 @@ impl Neighbourhood {
             exterior.extend(possible_destination_roads(map, *r, None));
         }
 
-        println!(
-            "BUILDING CONNECTED_EXTERIOR_ROADS: exterior.len() = {}",
-            exterior.len()
-        );
-        println!(
-            "BUILDING CONNECTED_EXTERIOR_ROADS: perimeter_roads.len() = {}",
-            &self.perimeter_roads.len()
-        );
-        println!(
-            "BUILDING CONNECTED_EXTERIOR_ROADS: interior_roads.len() = {}",
-            &self.interior_roads.len()
-        );
+        debug!("BUILDING CONNECTED_EXTERIOR_ROADS: exterior.len() = {}", exterior.len());
+        debug!("BUILDING CONNECTED_EXTERIOR_ROADS: perimeter_roads.len() = {}", &self.perimeter_roads.len());
+        debug!("BUILDING CONNECTED_EXTERIOR_ROADS: interior_roads.len() = {}", &self.interior_roads.len());
 
         // TODO **Surely** there is some set-wise way to do this?
         for r in exterior {
@@ -232,12 +226,7 @@ impl Neighbourhood {
             }
         }
 
-        println!(
-            "BUILDING CONNECTED_EXTERIOR_ROADS: connected_exterior_roads.len() = {}",
-            &self.connected_exterior_roads.len()
-        );
-
-        // self.connected_exterior_roads = &exterior;
+        debug!("BUILDING CONNECTED_EXTERIOR_ROADS: connected_exterior_roads.len() = {}", &self.connected_exterior_roads.len());
 
         self.edits_changed(map);
     }
