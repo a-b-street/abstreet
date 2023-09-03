@@ -305,70 +305,35 @@
       "uncompressed_size_bytes": 22684375,
       "compressed_size_bytes": 6568887
     },
-    "data/input/gb/allerton_bywater/procgen_houses.json": {
-      "checksum": "f48564a5cb394cf0f42ba768c5e92837",
-      "uncompressed_size_bytes": 2742460,
-      "compressed_size_bytes": 316976
-    },
     "data/input/gb/allerton_bywater/raw_maps/center.bin": {
       "checksum": "3b8a18cff324819846e3bfa07d952043",
       "uncompressed_size_bytes": 29682564,
       "compressed_size_bytes": 8743371
-    },
-    "data/input/gb/ashton_park/procgen_houses.json": {
-      "checksum": "c2acffa6480005001b218c70b3a8aa15",
-      "uncompressed_size_bytes": 5391373,
-      "compressed_size_bytes": 614596
     },
     "data/input/gb/ashton_park/raw_maps/center.bin": {
       "checksum": "02d886a70e536caeef86720bc4e25aa0",
       "uncompressed_size_bytes": 4342412,
       "compressed_size_bytes": 1327815
     },
-    "data/input/gb/aylesbury/procgen_houses.json": {
-      "checksum": "e6ae0cf341a8db1d927b7380ae4be49a",
-      "uncompressed_size_bytes": 7804246,
-      "compressed_size_bytes": 897738
-    },
     "data/input/gb/aylesbury/raw_maps/center.bin": {
       "checksum": "229d1ceca5ed6a197e16b6f8d03009eb",
       "uncompressed_size_bytes": 8459972,
       "compressed_size_bytes": 2551970
-    },
-    "data/input/gb/aylesham/procgen_houses.json": {
-      "checksum": "14b7e04f7c0754346633d04e9b8076cd",
-      "uncompressed_size_bytes": 3483587,
-      "compressed_size_bytes": 404371
     },
     "data/input/gb/aylesham/raw_maps/center.bin": {
       "checksum": "984a4a72e8f52f9a1a42065009ffce71",
       "uncompressed_size_bytes": 10341885,
       "compressed_size_bytes": 2578232
     },
-    "data/input/gb/bailrigg/procgen_houses.json": {
-      "checksum": "9b742049276a7d3e1f270b8fa81b81b9",
-      "uncompressed_size_bytes": 812547,
-      "compressed_size_bytes": 93174
-    },
     "data/input/gb/bailrigg/raw_maps/center.bin": {
       "checksum": "3b7114acef4e9b6924d815ceeee80e46",
       "uncompressed_size_bytes": 11775740,
       "compressed_size_bytes": 2630851
     },
-    "data/input/gb/bath_riverside/procgen_houses.json": {
-      "checksum": "e0a3ca9367fcfb4171d145c549d14360",
-      "uncompressed_size_bytes": 985033,
-      "compressed_size_bytes": 113277
-    },
     "data/input/gb/bath_riverside/raw_maps/center.bin": {
       "checksum": "b751927042d89a61b263ba53f2a23b86",
       "uncompressed_size_bytes": 11338772,
       "compressed_size_bytes": 3026962
-    },
-    "data/input/gb/bicester/procgen_houses.json": {
-      "checksum": "da8c9d1cbcac9ac7a1e6c2df6e06a8f5",
-      "uncompressed_size_bytes": 8586152,
-      "compressed_size_bytes": 986704
     },
     "data/input/gb/bicester/raw_maps/center.bin": {
       "checksum": "f15d0077b6da58785d797c5ce3c565ad",
@@ -425,30 +390,15 @@
       "uncompressed_size_bytes": 10235498,
       "compressed_size_bytes": 2444290
     },
-    "data/input/gb/castlemead/procgen_houses.json": {
-      "checksum": "63deec2dadf020c0f4e8a92293bc84f2",
-      "uncompressed_size_bytes": 5401979,
-      "compressed_size_bytes": 615333
-    },
     "data/input/gb/castlemead/raw_maps/center.bin": {
       "checksum": "c34a6cf6c0d3f67b45f4aa48d06ab702",
       "uncompressed_size_bytes": 4343265,
       "compressed_size_bytes": 1368161
     },
-    "data/input/gb/chapelford/procgen_houses.json": {
-      "checksum": "46b0789407ab30209cfc55ddef01bba3",
-      "uncompressed_size_bytes": 11249791,
-      "compressed_size_bytes": 1274247
-    },
     "data/input/gb/chapelford/raw_maps/center.bin": {
       "checksum": "a783681b583f6877875a7c7efcc3adfb",
       "uncompressed_size_bytes": 25054226,
       "compressed_size_bytes": 6710465
-    },
-    "data/input/gb/chapeltown_cohousing/procgen_houses.json": {
-      "checksum": "2b75f211327ad11b8a81b7812bf1fb71",
-      "uncompressed_size_bytes": 774090,
-      "compressed_size_bytes": 91645
     },
     "data/input/gb/chapeltown_cohousing/raw_maps/center.bin": {
       "checksum": "8b612a0a4dd7793f102bd1c773b664b2",
@@ -465,30 +415,15 @@
       "uncompressed_size_bytes": 6852639,
       "compressed_size_bytes": 1859464
     },
-    "data/input/gb/clackers_brook/procgen_houses.json": {
-      "checksum": "26e80f7c1962ab081d3f558b508e1b98",
-      "uncompressed_size_bytes": 8992924,
-      "compressed_size_bytes": 1024144
-    },
     "data/input/gb/clackers_brook/raw_maps/center.bin": {
       "checksum": "d85e9be2e732d30d2a969a78abbac68d",
       "uncompressed_size_bytes": 8512766,
       "compressed_size_bytes": 2750024
     },
-    "data/input/gb/cricklewood/procgen_houses.json": {
-      "checksum": "2c10c354ec54dc6002670fe6cf8e260e",
-      "uncompressed_size_bytes": 5470169,
-      "compressed_size_bytes": 638798
-    },
     "data/input/gb/cricklewood/raw_maps/center.bin": {
       "checksum": "568614761e89746f13f374a904796cd7",
       "uncompressed_size_bytes": 6636774,
       "compressed_size_bytes": 1938829
-    },
-    "data/input/gb/culm/procgen_houses.json": {
-      "checksum": "19de7fbe9e6d6ab5cac85f5bbc803462",
-      "uncompressed_size_bytes": 1733307,
-      "compressed_size_bytes": 201545
     },
     "data/input/gb/culm/raw_maps/center.bin": {
       "checksum": "c0c172a19b9cbaf58d996376db42a8fd",
@@ -505,30 +440,15 @@
       "uncompressed_size_bytes": 23210206,
       "compressed_size_bytes": 5134093
     },
-    "data/input/gb/didcot/procgen_houses.json": {
-      "checksum": "a27b19c28be40ae77ee4843c216010a8",
-      "uncompressed_size_bytes": 3181755,
-      "compressed_size_bytes": 364951
-    },
     "data/input/gb/didcot/raw_maps/center.bin": {
       "checksum": "645731da40ee9d7cdf7974faab3f3716",
       "uncompressed_size_bytes": 5447876,
       "compressed_size_bytes": 1620907
     },
-    "data/input/gb/dunton_hills/procgen_houses.json": {
-      "checksum": "7cfa865b2b2a5f64629739587d48c81b",
-      "uncompressed_size_bytes": 13926399,
-      "compressed_size_bytes": 1621830
-    },
     "data/input/gb/dunton_hills/raw_maps/center.bin": {
       "checksum": "a62107ca9682c9b4d0096293b4b49b08",
       "uncompressed_size_bytes": 16771433,
       "compressed_size_bytes": 5180085
-    },
-    "data/input/gb/ebbsfleet/procgen_houses.json": {
-      "checksum": "99b1ed66e3948ab18ad06380d64c8038",
-      "uncompressed_size_bytes": 4067176,
-      "compressed_size_bytes": 476446
     },
     "data/input/gb/ebbsfleet/raw_maps/center.bin": {
       "checksum": "8e1bfdc351161cdacc7d603b4c8c773c",
@@ -539,11 +459,6 @@
       "checksum": "fa1b85d41ae3fc6a7465c80d0d225ba6",
       "uncompressed_size_bytes": 31170085,
       "compressed_size_bytes": 9062344
-    },
-    "data/input/gb/exeter_red_cow_village/procgen_houses.json": {
-      "checksum": "8eba7f093252d9b5f8441ddee5975847",
-      "uncompressed_size_bytes": 869332,
-      "compressed_size_bytes": 101803
     },
     "data/input/gb/exeter_red_cow_village/raw_maps/center.bin": {
       "checksum": "a941184e245b6ba297844bf2312b6e09",
@@ -565,30 +480,15 @@
       "uncompressed_size_bytes": 17296521,
       "compressed_size_bytes": 4224143
     },
-    "data/input/gb/halsnead/procgen_houses.json": {
-      "checksum": "81dbe9df82b3fd9f82ceb63ad597859b",
-      "uncompressed_size_bytes": 12147800,
-      "compressed_size_bytes": 1377541
-    },
     "data/input/gb/halsnead/raw_maps/center.bin": {
       "checksum": "1acbf84eac988949b9d83ec75af97bff",
       "uncompressed_size_bytes": 14185485,
       "compressed_size_bytes": 4305978
     },
-    "data/input/gb/hampton/procgen_houses.json": {
-      "checksum": "c0209f1a447c386951f0fabc2fab57de",
-      "uncompressed_size_bytes": 8677467,
-      "compressed_size_bytes": 1014654
-    },
     "data/input/gb/hampton/raw_maps/center.bin": {
       "checksum": "07d9ac26ceaef9a8ea8a46134fccf569",
       "uncompressed_size_bytes": 15000967,
       "compressed_size_bytes": 4595749
-    },
-    "data/input/gb/handforth/procgen_houses.json": {
-      "checksum": "8917bb21716ede891cf789fea9723fa5",
-      "uncompressed_size_bytes": 4263612,
-      "compressed_size_bytes": 484486
     },
     "data/input/gb/handforth/raw_maps/center.bin": {
       "checksum": "b39faabd5925c73a5f918f982ab10746",
@@ -605,20 +505,10 @@
       "uncompressed_size_bytes": 2113713,
       "compressed_size_bytes": 626675
     },
-    "data/input/gb/kergilliack/procgen_houses.json": {
-      "checksum": "4bd140ca3b3424ae647ff275530ae119",
-      "uncompressed_size_bytes": 2236638,
-      "compressed_size_bytes": 253152
-    },
     "data/input/gb/kergilliack/raw_maps/center.bin": {
       "checksum": "e5a416299e29f4ab6d90ed54f3cdb799",
       "uncompressed_size_bytes": 9674752,
       "compressed_size_bytes": 3103975
-    },
-    "data/input/gb/kidbrooke_village/procgen_houses.json": {
-      "checksum": "e4f424511734325af1385d11e6aaf44b",
-      "uncompressed_size_bytes": 5548998,
-      "compressed_size_bytes": 667310
     },
     "data/input/gb/kidbrooke_village/raw_maps/center.bin": {
       "checksum": "ef712be86d67efb9875bde251e668ff1",
@@ -659,11 +549,6 @@
       "checksum": "39b8227faef9b805f5ef83722c7adb2c",
       "uncompressed_size_bytes": 17121511,
       "compressed_size_bytes": 4808717
-    },
-    "data/input/gb/lockleaze/procgen_houses.json": {
-      "checksum": "e21a363e339515d994329a2760d4eb96",
-      "uncompressed_size_bytes": 1574648,
-      "compressed_size_bytes": 182142
     },
     "data/input/gb/lockleaze/raw_maps/center.bin": {
       "checksum": "ebf5af386a966aa9f4b55a682886f094",
@@ -865,11 +750,6 @@
       "uncompressed_size_bytes": 7729846,
       "compressed_size_bytes": 2318312
     },
-    "data/input/gb/manchester/procgen_houses.json": {
-      "checksum": "28aa323e22430c95635a8ef3ea5827ea",
-      "uncompressed_size_bytes": 7570422,
-      "compressed_size_bytes": 860151
-    },
     "data/input/gb/manchester/raw_maps/levenshulme.bin": {
       "checksum": "776ca8d53ad15ae8592e449c833e583f",
       "uncompressed_size_bytes": 9309623,
@@ -880,40 +760,20 @@
       "uncompressed_size_bytes": 14341159,
       "compressed_size_bytes": 4452765
     },
-    "data/input/gb/marsh_barton/procgen_houses.json": {
-      "checksum": "798bd7ff7fff35be0ab336bdbb273042",
-      "uncompressed_size_bytes": 739762,
-      "compressed_size_bytes": 86690
-    },
     "data/input/gb/marsh_barton/raw_maps/center.bin": {
       "checksum": "40cc29e2ba8eb9cf96adee6e6887ebb4",
       "uncompressed_size_bytes": 17466537,
       "compressed_size_bytes": 4724924
-    },
-    "data/input/gb/micklefield/procgen_houses.json": {
-      "checksum": "f8fbcf14feb4f9829471251aa2c11f89",
-      "uncompressed_size_bytes": 2289962,
-      "compressed_size_bytes": 262589
     },
     "data/input/gb/micklefield/raw_maps/center.bin": {
       "checksum": "6473f31ec6d4de84f66776a6f045817b",
       "uncompressed_size_bytes": 26969616,
       "compressed_size_bytes": 7808799
     },
-    "data/input/gb/newborough_road/procgen_houses.json": {
-      "checksum": "86184da260b99e5dc33acea74b2c0718",
-      "uncompressed_size_bytes": 11231043,
-      "compressed_size_bytes": 1311307
-    },
     "data/input/gb/newborough_road/raw_maps/center.bin": {
       "checksum": "3b34c33ea2b9dce3c6cb96102551867c",
       "uncompressed_size_bytes": 16722308,
       "compressed_size_bytes": 5146398
-    },
-    "data/input/gb/newcastle_great_park/procgen_houses.json": {
-      "checksum": "7f7b4ee306b2e455b53be6e7412f4994",
-      "uncompressed_size_bytes": 1205752,
-      "compressed_size_bytes": 141580
     },
     "data/input/gb/newcastle_great_park/raw_maps/center.bin": {
       "checksum": "0558cb008063f72772ab87e2aa0ded7d",
@@ -924,11 +784,6 @@
       "checksum": "5f80b4117d1e22c11171b606ac220f87",
       "uncompressed_size_bytes": 8321477,
       "compressed_size_bytes": 2251568
-    },
-    "data/input/gb/northwick_park/procgen_houses.json": {
-      "checksum": "51fd4f5934a0ae465be41933b2c64786",
-      "uncompressed_size_bytes": 9029159,
-      "compressed_size_bytes": 1043392
     },
     "data/input/gb/northwick_park/raw_maps/center.bin": {
       "checksum": "cd0d0e08cd074d3f3a1190e56d280558",
@@ -955,20 +810,10 @@
       "uncompressed_size_bytes": 20892084,
       "compressed_size_bytes": 5685730
     },
-    "data/input/gb/poundbury/procgen_houses.json": {
-      "checksum": "faed8068a6200a4dfba5c37c4d80a49b",
-      "uncompressed_size_bytes": 1355143,
-      "compressed_size_bytes": 154204
-    },
     "data/input/gb/poundbury/raw_maps/center.bin": {
       "checksum": "fba2c07b9328dfb72fd088da9ddd3074",
       "uncompressed_size_bytes": 3196422,
       "compressed_size_bytes": 1019681
-    },
-    "data/input/gb/priors_hall/procgen_houses.json": {
-      "checksum": "9196ce20a76f1b92c7599a38d254c320",
-      "uncompressed_size_bytes": 5639569,
-      "compressed_size_bytes": 649236
     },
     "data/input/gb/priors_hall/raw_maps/center.bin": {
       "checksum": "5073258a642aae8fa57bdaa164ce4b4d",
@@ -995,11 +840,6 @@
       "uncompressed_size_bytes": 23958632,
       "compressed_size_bytes": 5558606
     },
-    "data/input/gb/tresham/procgen_houses.json": {
-      "checksum": "5fc8775ebc9eb46c3b06cb8f37c3f74b",
-      "uncompressed_size_bytes": 14640318,
-      "compressed_size_bytes": 1679795
-    },
     "data/input/gb/tresham/raw_maps/center.bin": {
       "checksum": "9cf8a67417d04d4507bb9aa1fbf6125d",
       "uncompressed_size_bytes": 19606276,
@@ -1010,50 +850,25 @@
       "uncompressed_size_bytes": 16152334,
       "compressed_size_bytes": 3968199
     },
-    "data/input/gb/tyersal_lane/procgen_houses.json": {
-      "checksum": "d0807b7154b295d82ad3c6ef86469266",
-      "uncompressed_size_bytes": 8113554,
-      "compressed_size_bytes": 929332
-    },
     "data/input/gb/tyersal_lane/raw_maps/center.bin": {
       "checksum": "abdc9f83a5bfad77138eb9fbca7f9f93",
       "uncompressed_size_bytes": 8186651,
       "compressed_size_bytes": 2551384
-    },
-    "data/input/gb/upton/procgen_houses.json": {
-      "checksum": "ded770e29e5798f2440894805296f764",
-      "uncompressed_size_bytes": 15924904,
-      "compressed_size_bytes": 1828327
     },
     "data/input/gb/upton/raw_maps/center.bin": {
       "checksum": "e1e9723f843724b2817583d41b820410",
       "uncompressed_size_bytes": 12782128,
       "compressed_size_bytes": 4048899
     },
-    "data/input/gb/water_lane/procgen_houses.json": {
-      "checksum": "798bd7ff7fff35be0ab336bdbb273042",
-      "uncompressed_size_bytes": 739762,
-      "compressed_size_bytes": 86690
-    },
     "data/input/gb/water_lane/raw_maps/center.bin": {
       "checksum": "6628002a8e51f6dba29022ccdb74126c",
       "uncompressed_size_bytes": 17466535,
       "compressed_size_bytes": 4724985
     },
-    "data/input/gb/wichelstowe/procgen_houses.json": {
-      "checksum": "cb5bc2125daaaf0c91dd6670fb5f53be",
-      "uncompressed_size_bytes": 10099363,
-      "compressed_size_bytes": 1157714
-    },
     "data/input/gb/wichelstowe/raw_maps/center.bin": {
       "checksum": "6799582d05971c744213c2dd9255e90e",
       "uncompressed_size_bytes": 11591446,
       "compressed_size_bytes": 3650759
-    },
-    "data/input/gb/wixams/procgen_houses.json": {
-      "checksum": "63cfb12689858ef0c4f3d7c1da81a18e",
-      "uncompressed_size_bytes": 7838385,
-      "compressed_size_bytes": 908968
     },
     "data/input/gb/wixams/raw_maps/center.bin": {
       "checksum": "02a77e6ce9ad61f6a82038f7ea20a26e",
@@ -1064,11 +879,6 @@
       "checksum": "8ce88f421644fd7c99dc410091a943e5",
       "uncompressed_size_bytes": 6254536,
       "compressed_size_bytes": 1655491
-    },
-    "data/input/gb/wynyard/procgen_houses.json": {
-      "checksum": "6ed2ec9f60fdfd0f2ea03a0aa790a46a",
-      "uncompressed_size_bytes": 24795876,
-      "compressed_size_bytes": 2830334
     },
     "data/input/gb/wynyard/raw_maps/center.bin": {
       "checksum": "4043b411d1df06d0b62c7330519200f8",
@@ -1084,11 +894,6 @@
       "checksum": "9f61916a7a11f61e90671a0b5a3d5e4d",
       "uncompressed_size_bytes": 16485560,
       "compressed_size_bytes": 4918808
-    },
-    "data/input/ir/tehran/procgen_houses.json": {
-      "checksum": "6832a39ca80a928a1190fafc691d416f",
-      "uncompressed_size_bytes": 2216401,
-      "compressed_size_bytes": 242372
     },
     "data/input/ir/tehran/raw_maps/boundary0.bin": {
       "checksum": "692b703db87cce249fd7fc4697c5a711",
