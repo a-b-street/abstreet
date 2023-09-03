@@ -9,15 +9,6 @@ use map_model::DrivingSide;
 // Slightly more verbose logic feels easier to read
 #[allow(clippy::match_like_matches_macro)]
 pub fn config_for_map(name: &MapName) -> convert_osm::Options {
-    // Some maps have extra procedurally generated houses. Just see if a file in a canonical
-    // location exists.
-    let procgen_houses = name.city.input_path("procgen_houses.json");
-    let extra_buildings = if abstio::file_exists(&procgen_houses) {
-        Some(procgen_houses)
-    } else {
-        None
-    };
-
     convert_osm::Options {
         map_config: osm2streets::MapConfig {
             // osm2streets will set this anyway, it doesn't matter here
@@ -70,7 +61,8 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         } else {
             convert_osm::PrivateOffstreetParking::FixedPerBldg(3)
         },
-        extra_buildings,
+        // Unused currently
+        extra_buildings: None,
         // https://www.transit.land is a great place to find the static GTFS URLs
         gtfs_url: if name == &MapName::new("us", "seattle", "arboretum") {
             Some("http://metro.kingcounty.gov/GTFS/google_transit.zip".to_string())
