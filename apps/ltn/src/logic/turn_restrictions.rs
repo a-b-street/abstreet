@@ -202,7 +202,7 @@ mod tests {
     use geom::Pt2D;
 
     #[test]
-    fn test_focused_turn_restriction() -> Result<(), anyhow::Error> {
+    fn test_focused_turn_restriction() {
         // Test that the correct intersection is selected when creating a FocusTurns object
 
         // Get example map
@@ -228,13 +228,11 @@ mod tests {
             assert_eq!(ft.i, IntersectionID(i_id));
             assert!([road.src_i, road.dst_i].contains(&ft.i));
         }
-
-        Ok(())
     }
 
 
     #[test]
-    fn test_destination_roads() -> Result<(), anyhow::Error> {
+    fn test_destination_roads() {
 
         // Get example map
         let file_name = get_test_file_path(String::from("input/turn_restriction_ltn_boundary.osm"));
@@ -244,11 +242,11 @@ mod tests {
         let from_r = RoadID(11);
         let from_road = map.get_r(from_r);
         // Expected possible turns for either intersection
-        let expected_possible_all_r = vec![3usize, 4, 9, 12].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+        let expected_possible_all_r = vec![3usize, 4, 9, 12].into_iter().map(|n| RoadID(n)).collect::<HashSet<_>>();
         // Expected possible turns via `from_r.dst_i`
-        let expected_possible_for_dst_i = vec![9usize, 12].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+        let expected_possible_for_dst_i = vec![9usize, 12].into_iter().map(|n| RoadID(n)).collect::<HashSet<_>>();
         // Expected possible turns via `from_r.src_i`
-        let expected_possible_for_src_i = vec![3usize, 4].iter().map(|n| RoadID(*n)).collect::<HashSet<_>>();
+        let expected_possible_for_src_i = vec![3usize, 4].into_iter().map(|n| RoadID(n)).collect::<HashSet<_>>();
 
         // Three test cases
         for (i , expected) in [
@@ -265,11 +263,10 @@ mod tests {
             }
             assert_eq!(actual, expected);
         }
-        Ok(())
     }
 
     #[test]
-    fn test_destination_roads_connected_one_ways() -> Result<(), anyhow::Error> {
+    fn test_destination_roads_connected_one_ways() {
         struct TurnRestrictionTestCase {
             pub input_file: String,
             pub from_r: RoadID,
@@ -336,7 +333,6 @@ mod tests {
                 assert_eq!(actual_possible, expected_possible);
             }
         }
-        Ok(())
     }
 
 
