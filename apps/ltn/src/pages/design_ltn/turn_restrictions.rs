@@ -41,22 +41,20 @@ pub fn make_world(
 
     if focus.is_none() {
         // Draw all roads as normal, with hoverover showing extant restrictions 
-        let all_r_id = [
+        for r in [
             &neighbourhood.perimeter_roads,
             &neighbourhood.interior_roads,
             &neighbourhood.connected_exterior_roads,
         ]
         .into_iter()
-        .flatten();
-    
-        for r in all_r_id {
-            build_turn_restriction_hoover_geom(*r, ctx, &mut world, app);
+        .flatten() {
+            build_turn_restriction_hover_geom(*r, ctx, &mut world, app);
         }
     } else {
         let focused_t = focus.as_ref().unwrap();
         // Draw FocusTurns
         build_focused_turns_geom(focused_t, ctx, &mut world, app);
-        // Create hoover geoms for each road connected to the FocusTurns
+        // Create hover geoms for each road connected to the FocusTurns
         build_turn_options_geom(focused_t, ctx, &mut world, app);
     }
 
@@ -64,8 +62,8 @@ pub fn make_world(
     world
 }
 
-/// Builds the hoover geom for showing turn restrictions when no FocusTurns are selected
-fn build_turn_restriction_hoover_geom(r: RoadID, ctx: &mut EventCtx, world: &mut World<Obj>, app: &App) {
+/// Builds the hover geom for showing turn restrictions when no FocusTurns are selected
+fn build_turn_restriction_hover_geom(r: RoadID, ctx: &mut EventCtx, world: &mut World<Obj>, app: &App) {
     let map = &app.per_map.map;
     let road = map.get_r(r);
 
@@ -270,7 +268,7 @@ pub fn handle_world_outcome(
             // If not and is one of the permitted destination roads,
             //      then we should add that restricted turn
             let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
-            println!("click point {:?}", cursor_pt);
+            debug!("click point {:?}", cursor_pt);
 
             if let EditMode::TurnRestrictions(ref prev_selection) = app.session.edit_mode {
                 if prev_selection.is_some() {
@@ -320,15 +318,13 @@ pub fn handle_world_outcome(
 
 pub fn handle_edited_turn_restrictions(new: &mut EditRoad, ft: &FocusedTurns, target_r: RoadID) {
     if ft.restricted_t.contains(&target_r) {
-        println!("Remove existing banned turn from src={:?}, to dst {:?}", ft.from_r, target_r);
+        debug!("Remove existing banned turn from src={:?}, to dst {:?}", ft.from_r, target_r);
         new.turn_restrictions.retain(|(_, r)| *r !=target_r );
         new.complicated_turn_restrictions.retain(|(_, r)| *r !=target_r );
     } else if ft.possible_t.contains(&target_r) {
-        println!("Create new banned turn from src={:?}, to dst {:?}", ft.from_r, target_r);
+        debug!("Create new banned turn from src={:?}, to dst {:?}", ft.from_r, target_r);
         new.turn_restrictions.push((RestrictionType::BanTurns, target_r));
     } else {
-        println!("Nothing to change src={:?}, to dst {:?}", ft.from_r, target_r);
-        return ()
+        debug!("Nothing to change src={:?}, to dst {:?}", ft.from_r, target_r);
     }
-    ()
 } 

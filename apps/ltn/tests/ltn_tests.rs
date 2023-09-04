@@ -15,7 +15,7 @@ mod tests {
     /// Note that this tests is identical to `test_get_test_file_path_tests_crate`. This is
     /// to assert that the behaviour of `get_test_file_path` is identical from different
     /// locations within the workspace.
-    fn test_get_test_file_path_ltn_crate() -> Result<(), anyhow::Error> {
+    fn test_get_test_file_path_ltn_crate() {
         let sample_test_files = vec![
             "input/divided_highway_split.osm",
             "input/left_turn_and_bike_lane.osm",
@@ -39,8 +39,6 @@ mod tests {
         
         // test that each of the sample test files cannot be located
         assert!(sample_test_files.iter().all(|f| get_test_file_path(String::from(*f)).is_err()));
-
-        Ok(())
     }
 
     /// Integration test for turn restrictions edits
@@ -49,7 +47,7 @@ mod tests {
     /// - save
     /// - assert that the edits are correctly represented in the saved file
     #[test]
-    fn test_edit_turn_restrictions() -> Result<(), anyhow::Error> {
+    fn test_edit_turn_restrictions() {
         // Load a sample map
         let input_file = get_test_file_path(String::from("input/turn_restriction_ltn_boundary.osm"));
         let mut map = import_map(input_file.unwrap());
@@ -87,22 +85,21 @@ mod tests {
         let p = proposals.get_current();
 
         // Get edit commands in json form (ignoring partitioning)
-        let actual = serde_json::to_string_pretty(&p.edits.to_permanent(&map))?;
+        let actual = serde_json::to_string_pretty(&p.edits.to_permanent(&map)).unwrap();
 
         // update goldenfile if required        
         let dump_turn_goldenfile = false;
         let goldenfile_path = get_test_file_path(String::from("goldenfiles/ltn_proposals/edit_turn_restrictions.json")).unwrap();
 
         if dump_turn_goldenfile {
-            let mut f_types = File::create(&goldenfile_path)?;
-            writeln!(f_types, "{}", actual)?;
+            let mut f_types = File::create(&goldenfile_path).unwrap();
+            writeln!(f_types, "{}", actual).unwrap();
 
             // panic so that we done get into the habit of re-writing the goldenfile
             panic!("Automatically fail when the goldenfiles are regenerated. This is so the test is not accidentally left in a set where there goldenfiles are recreated on each run, and the test does not achieve its purpose.");
         }
 
         // finally compare with goldenfile
-        assert!(compare_with_goldenfile(actual, goldenfile_path)?);
-        Ok(())
+        assert!(compare_with_goldenfile(actual, goldenfile_path).unwrap());
     }
 }
