@@ -114,7 +114,7 @@ impl EditRoad {
             crossings: Vec::new(),
             // TODO - read these from osm tags. Where is this already parsed?
             turn_restrictions: Vec::new(),
-            complicated_turn_restrictions: Vec::new()
+            complicated_turn_restrictions: Vec::new(),
         }
     }
 

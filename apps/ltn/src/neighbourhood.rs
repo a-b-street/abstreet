@@ -214,9 +214,18 @@ impl Neighbourhood {
             exterior.extend(possible_destination_roads(map, *r, None));
         }
 
-        debug!("BUILDING CONNECTED_EXTERIOR_ROADS: exterior.len() = {}", exterior.len());
-        debug!("BUILDING CONNECTED_EXTERIOR_ROADS: perimeter_roads.len() = {}", &self.perimeter_roads.len());
-        debug!("BUILDING CONNECTED_EXTERIOR_ROADS: interior_roads.len() = {}", &self.interior_roads.len());
+        debug!(
+            "BUILDING CONNECTED_EXTERIOR_ROADS: exterior.len() = {}",
+            exterior.len()
+        );
+        debug!(
+            "BUILDING CONNECTED_EXTERIOR_ROADS: perimeter_roads.len() = {}",
+            &self.perimeter_roads.len()
+        );
+        debug!(
+            "BUILDING CONNECTED_EXTERIOR_ROADS: interior_roads.len() = {}",
+            &self.interior_roads.len()
+        );
 
         // TODO **Surely** there is some set-wise way to do this?
         for r in exterior {
@@ -226,7 +235,10 @@ impl Neighbourhood {
             }
         }
 
-        debug!("BUILDING CONNECTED_EXTERIOR_ROADS: connected_exterior_roads.len() = {}", &self.connected_exterior_roads.len());
+        debug!(
+            "BUILDING CONNECTED_EXTERIOR_ROADS: connected_exterior_roads.len() = {}",
+            &self.connected_exterior_roads.len()
+        );
 
         self.edits_changed(map);
     }
