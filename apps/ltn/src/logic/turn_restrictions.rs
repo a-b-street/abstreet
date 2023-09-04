@@ -21,8 +21,8 @@ use geom::{Polygon, Pt2D};
 /// When moving (or attempting to move) from "RoadA" to "RoadB" the follow terms should be used:
 /// "from_r"    = RoadA
 /// "target_r"  = RoadB
-/// "connected" = RoadB will be a member of "connected" if RoadB share a common intersection RoadA, or 
-///               is part of a shared complex turn with RoadA. The legality of driving from RoadA to RoadB
+/// "connected" = RoadB will be a member of "connected" if RoadB share a common intersection with RoadA, or 
+///               is part of a shared complicated turn with RoadA. The legality of driving from RoadA to RoadB
 ///               is not a concern for "connected". "Connected" is the superset of all the other categories
 ///               listed here.
 /// "permitted" = RoadB is a member of "permitted", if RoadB is a member of "connected" and it is legal to 
@@ -31,13 +31,13 @@ use geom::{Polygon, Pt2D};
 ///               considered "permitted".
 /// "opposing_oneways" = RoadB is oneway for driving, and driving from RoadA to RoadB would result in driving the
 ///                     wrong way along RoadB.
-/// "restricted_turns" = RoadB will be a member of "restricted_turns" if
+/// "restricted_turns" = RoadB will be a member of "restricted_turns" if all of these are true:
 ///                         a) RoadB is a member of "connected"
 ///                         b) There is explicitly tagged turn restriction which prohibits traffic turning from
 ///                            RoadA to RoadB, OR there is an explicitly tagged turn restriction which mandates
 ///                            traffic from RoadA must turn onto a different road to RoadB.
 ///                         c) RoadB is not a member of "opposing_oneways"
-/// possible_turns = These are turns that would be possible if all turn restrictions where removed.
+/// "possible_turns" = These are turns that would be possible if all turn restrictions where removed.
 /// 
 /// Notes:
 /// -----
@@ -50,12 +50,12 @@ use geom::{Polygon, Pt2D};
 ///
 /// Discouraged terms:
 /// -----------------
-/// "prohibited_turn" = use "restricted_turn" instead.
-/// "banned_turns" = use "restricted_turn" instead where practical. "Banned" is used elsewhere in A/BStreet,
+/// "prohibited_turn" => use "restricted_turn" instead.
+/// "banned_turns" => use "restricted_turn" instead where practical. "Banned" is used elsewhere in A/BStreet,
 ///                  (ie `RestrictionType::BanTurns`) but within the LTN tool "restricted" is preferred, as it
 ///                  is more consistent with the `road.restricted_turns` and `road.complicated_turn_restrictions`
 ///                  as well the general OSM tagging.
-/// "src_r" and "dst_r" = use "from_r" and "target_r" instead. ("src_r" and "dst_r" are too similar to
+/// "src_r" and "dst_r" => use "from_r" and "target_r" instead. ("src_r" and "dst_r" are too similar to
 ///                       `road.src_i` and `road.dst_i` which are conceptually very different).
 pub struct FocusedTurns {
     pub from_r: RoadID,
@@ -74,26 +74,20 @@ impl FocusedTurns {
         let dst_m = clicked_pt.fast_dist(map.get_i(dst_i).polygon.center());
         let src_m = clicked_pt.fast_dist(map.get_i(src_i).polygon.center());
         
-        let i: IntersectionID;
-        if dst_m > src_m {
-            i = src_i;
-        } else {
-            i = dst_i;
-        }
+        // Find the closest intersection
+        let i = if dst_m > src_m { src_i } else { dst_i };
 
         let restricted_t = restricted_destination_roads(map, r, Some(i));
         let possible_t = possible_destination_roads(map, r, Some(i));
+        let hull = hull_around_focused_turns(map, r, &possible_t, &restricted_t);
 
-        let mut ft = FocusedTurns {
+        FocusedTurns {
             from_r: r,
             i,
-            hull : Polygon::dummy(),
+            hull,
             possible_t,
             restricted_t,
-        };
-
-        ft.hull = hull_around_focused_turns(map, r, &ft.possible_t, &ft.restricted_t);
-        ft
+        }
     }
 }
 
@@ -139,7 +133,7 @@ pub fn restricted_destination_roads(map: &Map, from_road_id: RoadID, i: Option<I
 /// checks that an Intersection ID is connected to a RoadID. Returns `true` if connected, `false` otherwise.
 fn verify_intersection(map: &Map, r: RoadID, i: IntersectionID) -> bool {
     let road = map.get_r(r);
-    return road.dst_i == i || road.src_i == i
+    road.dst_i == i || road.src_i == i
 }
 
 /// Returns a HashSet of all roads which are connected by driving from RoadID.
@@ -160,8 +154,10 @@ fn verify_intersection(map: &Map, r: RoadID, i: IntersectionID) -> bool {
 // returns a tupple `(permitted, opposing_oneway, restricted_turn)`
 pub fn possible_destination_roads(map: &Map, from_r: RoadID, i: Option<IntersectionID>) -> HashSet<RoadID> {
 
-    if i.is_some() && !verify_intersection(map, from_r, i.unwrap()){
-        panic!("IntersectionID {:?}, does not connect to RoadID {:?}", i, from_r);
+    if let Some(unverified_i) = i {
+        if !verify_intersection(map, from_r, unverified_i){
+            panic!("IntersectionID {:?}, does not connect to RoadID {:?}", unverified_i, from_r);
+        }
     }
 
     let from_road = map.get_r(from_r);
