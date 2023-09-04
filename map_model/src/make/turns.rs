@@ -75,8 +75,6 @@ pub fn make_all_turns(map: &Map, i: &Intersection) -> (Vec<Turn>, Vec<Turn>) {
 }
 
 fn banned_turns(all_turns: &Vec<Turn>, filtered_turns: &Vec<Turn>) -> Vec<Turn> {
-    // let item_set: HashSet<_> = previous_items.iter().collect();
-    // let difference: Vec<_> = new_items.into_iter().filter(|item| !item_set.contains(item)).collect();
     let difference: Vec<Turn> = all_turns.clone()
                                          .into_iter()
                                          .filter(|item| !filtered_turns.contains(item))
