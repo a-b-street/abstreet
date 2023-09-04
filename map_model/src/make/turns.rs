@@ -6,8 +6,8 @@ use lyon::geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 use geom::{PolyLine, Pt2D};
 
 use crate::{
-    map::turn_type_from_road_geom, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID,
-    TurnType,
+    map::turn_type_from_road_geom, Intersection, IntersectionID, Lane, LaneID, LaneType, Map,
+    RoadID, Turn, TurnID, TurnType,
 };
 
 /// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
@@ -63,10 +63,7 @@ pub fn make_all_turns(map: &Map, i: &Intersection) -> (Vec<Turn>, Vec<Turn>) {
 
     // But then see how all of that filtering affects lane connectivity.
     match verify_vehicle_connectivity(&filtered_turns, i, map) {
-        Ok(()) => (
-            filtered_turns,
-            banned_turns
-        ),
+        Ok(()) => (filtered_turns, banned_turns),
         Err(err) => {
             warn!("Not filtering turns. {}", err);
             (all_turns, Vec::<Turn>::new())
@@ -75,24 +72,25 @@ pub fn make_all_turns(map: &Map, i: &Intersection) -> (Vec<Turn>, Vec<Turn>) {
 }
 
 fn banned_turns(all_turns: &Vec<Turn>, filtered_turns: &Vec<Turn>) -> Vec<Turn> {
-    let difference: Vec<Turn> = all_turns.clone()
-                                         .into_iter()
-                                         .filter(|item| !filtered_turns.contains(item))
-                                         .collect::<Vec<Turn>>();
+    let difference: Vec<Turn> = all_turns
+        .clone()
+        .into_iter()
+        .filter(|item| !filtered_turns.contains(item))
+        .collect::<Vec<Turn>>();
     difference
 }
 
-pub fn make_all_turns_per_road(map: &Map, i: IntersectionID, src_r: RoadID) -> (Vec<Turn>, Vec<Turn>) {
+pub fn make_all_turns_per_road(
+    map: &Map,
+    i: IntersectionID,
+    src_r: RoadID,
+) -> (Vec<Turn>, Vec<Turn>) {
     let (mut permitted_t, mut prohibited_t) = make_all_turns(map, map.get_i(i));
 
     // permitted_t = ensure_unique(permitted_t);
-    permitted_t.retain(|turn| {
-        turn.id.src.road == src_r
-    });
+    permitted_t.retain(|turn| turn.id.src.road == src_r);
 
-    prohibited_t.retain(|turn| {
-        turn.id.src.road == src_r
-    });
+    prohibited_t.retain(|turn| turn.id.src.road == src_r);
 
     (permitted_t, prohibited_t)
 }

@@ -1,9 +1,9 @@
-use std::path::PathBuf;
-use anyhow::{bail, Result};
-use map_model::Map;
 use abstio::MapName;
 use abstutil::Timer;
+use anyhow::{bail, Result};
+use map_model::Map;
 use prettydiff::text::diff_lines;
+use std::path::PathBuf;
 
 /// Run the contents of a .osm through the full map importer with default options.
 pub fn import_map(path: String) -> Map {
@@ -32,7 +32,7 @@ pub fn get_test_file_path(path: String) -> Result<String, String> {
     let maybe_workspace_dir = std::path::Path::new(&maybe_workspace_dir);
     // Get the relative path to this source file within the workspace
     let this_source_file = String::from(file!());
-    
+
     // Try a find a suitable way to join the two paths to find something that exists
     let test_file = next_test_file_path(maybe_workspace_dir, &this_source_file);
     if test_file.is_ok() {
@@ -41,13 +41,15 @@ pub fn get_test_file_path(path: String) -> Result<String, String> {
             Ok(pb) => Ok(String::from(pb.to_str().unwrap())),
             Err(e) => Err(e),
         }
-
     } else {
         panic!("Cannot find the absolute path to {}. Check that this function being called from test code, not production code.", this_source_file);
     }
 }
 
-fn next_test_file_path(maybe_absolute_dir: &std::path::Path, file_path: &String) -> Result<PathBuf, String> {
+fn next_test_file_path(
+    maybe_absolute_dir: &std::path::Path,
+    file_path: &String,
+) -> Result<PathBuf, String> {
     let path_to_test = maybe_absolute_dir.join(file_path);
     if path_to_test.exists() {
         Ok(path_to_test)

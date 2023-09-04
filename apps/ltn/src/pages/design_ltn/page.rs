@@ -586,7 +586,8 @@ fn count_edits(app: &App) -> (usize, usize, usize, usize) {
         ctr_added.retain(|x| !orig.complicated_turn_restrictions.contains(x));
         let mut ctr_removed = orig.complicated_turn_restrictions.clone();
         ctr_removed.retain(|x| !road.complicated_turn_restrictions.contains(x));
-        turn_restrictions += tr_added.len() + tr_removed.len() + ctr_added.len() + ctr_removed.len();
+        turn_restrictions +=
+            tr_added.len() + tr_removed.len() + ctr_added.len() + ctr_removed.len();
     }
     for (i, orig) in &map.get_edits().original_intersections {
         if map.get_i(*i).modal_filter.is_some() && orig.modal_filter.is_none() {

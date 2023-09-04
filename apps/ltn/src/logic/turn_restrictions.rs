@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use map_model::{Map, RoadID, IntersectionID};
-use osm2streets::{Direction, RestrictionType};
 use geom::{Polygon, Pt2D};
+use map_model::{IntersectionID, Map, RoadID};
+use osm2streets::{Direction, RestrictionType};
 
 /// An attempt to standardise language around turn restrictions.
 /// NOTE AT PRESENT THIS IS ASPIRATIONAL - DO NOT ASSUME THAT THE RELEVANT CODE ADHERES TO THESE RULES
@@ -12,22 +12,22 @@ use geom::{Polygon, Pt2D};
 /// -------
 /// ```notrust
 ///     {connected} == { permitted ∪ opposing_oneway ∪ restricted_turn }
-/// 
+///
 ///     {possible_turns} == { connected - opposing_oneways } == { permitted + restricted_turns }
 /// ```
-/// 
+///
 /// Details:
-/// ------- 
+/// -------
 /// When moving (or attempting to move) from "RoadA" to "RoadB" the follow terms should be used:
 /// "from_r"    = RoadA
 /// "target_r"  = RoadB
-/// "connected" = RoadB will be a member of "connected" if RoadB share a common intersection with RoadA, or 
+/// "connected" = RoadB will be a member of "connected" if RoadB share a common intersection with RoadA, or
 ///               is part of a shared complicated turn with RoadA. The legality of driving from RoadA to RoadB
 ///               is not a concern for "connected". "Connected" is the superset of all the other categories
 ///               listed here.
-/// "permitted" = RoadB is a member of "permitted", if RoadB is a member of "connected" and it is legal to 
+/// "permitted" = RoadB is a member of "permitted", if RoadB is a member of "connected" and it is legal to
 ///               drive from RoadA to RoadB. Lane-level restrictions are not considered, so as long as some
-///               route from one or more driving Lanes in RoadA to one or more Lanes in RoadB then RoadB is 
+///               route from one or more driving Lanes in RoadA to one or more Lanes in RoadB then RoadB is
 ///               considered "permitted".
 /// "opposing_oneways" = RoadB is oneway for driving, and driving from RoadA to RoadB would result in driving the
 ///                     wrong way along RoadB.
@@ -38,15 +38,15 @@ use geom::{Polygon, Pt2D};
 ///                            traffic from RoadA must turn onto a different road to RoadB.
 ///                         c) RoadB is not a member of "opposing_oneways"
 /// "possible_turns" = These are turns that would be possible if all turn restrictions where removed.
-/// 
+///
 /// Notes:
 /// -----
 /// * RoadA will NOT be a member of any of the groups connected, permitted, opposing_oneway, restricted_turn
 ///   even if a no U-turns restriction exists
 /// * In reality a road/turn maybe signposted by both turn restrictions and oneway restrictions.
-///   Following (OSM practise)[https://wiki.openstreetmap.org/wiki/Relation:restriction#When_to_map] it is not 
-///   necessary mark turn restrictions when they are already implied by opposing oneway restrictions. We treat 
-///   "banned_turn" and "opposing_oneway" as mutually exclusive. 
+///   Following (OSM practise)[https://wiki.openstreetmap.org/wiki/Relation:restriction#When_to_map] it is not
+///   necessary mark turn restrictions when they are already implied by opposing oneway restrictions. We treat
+///   "banned_turn" and "opposing_oneway" as mutually exclusive.
 ///
 /// Discouraged terms:
 /// -----------------
@@ -67,13 +67,12 @@ pub struct FocusedTurns {
 
 impl FocusedTurns {
     pub fn new(r: RoadID, clicked_pt: Pt2D, map: &Map) -> Self {
-
         let dst_i = map.get_r(r).dst_i;
         let src_i = map.get_r(r).src_i;
 
         let dst_m = clicked_pt.fast_dist(map.get_i(dst_i).polygon.center());
         let src_m = clicked_pt.fast_dist(map.get_i(src_i).polygon.center());
-        
+
         // Find the closest intersection
         let i = if dst_m > src_m { src_i } else { dst_i };
 
@@ -91,8 +90,12 @@ impl FocusedTurns {
     }
 }
 
-fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>, restricted_t: &HashSet<RoadID>) -> Polygon {
-
+fn hull_around_focused_turns(
+    map: &Map,
+    r: RoadID,
+    permitted_t: &HashSet<RoadID>,
+    restricted_t: &HashSet<RoadID>,
+) -> Polygon {
     let mut all_pt: Vec<Pt2D> = Vec::new();
 
     let mut all_r = HashSet::from([r]);
@@ -100,7 +103,13 @@ fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>
     all_r.extend(restricted_t);
 
     for other_r in all_r {
-        all_pt.extend(map.get_r(other_r).get_thick_polygon().get_outer_ring().clone().into_points());
+        all_pt.extend(
+            map.get_r(other_r)
+                .get_thick_polygon()
+                .get_outer_ring()
+                .clone()
+                .into_points(),
+        );
     }
 
     // TODO the `200` value seems to work for some cases. But it is arbitrary and there is no science
@@ -110,12 +119,16 @@ fn hull_around_focused_turns(map: &Map, r: RoadID, permitted_t: &HashSet<RoadID>
 
 /// Returns all roads that are possible destinations from the given "from_road" where the turn is currently
 /// prohibited by a turn restriction.
-pub fn restricted_destination_roads(map: &Map, from_road_id: RoadID, i: Option<IntersectionID>) -> HashSet<RoadID> {
+pub fn restricted_destination_roads(
+    map: &Map,
+    from_road_id: RoadID,
+    i: Option<IntersectionID>,
+) -> HashSet<RoadID> {
     let candidate_roads = possible_destination_roads(map, from_road_id, i);
 
     let from_road = map.get_r(from_road_id);
     let mut restricted_destinations: HashSet<RoadID> = HashSet::new();
-        
+
     for (restriction, target_r) in &from_road.turn_restrictions {
         if *restriction == RestrictionType::BanTurns && candidate_roads.contains(target_r) {
             restricted_destinations.insert(*target_r);
@@ -138,25 +151,31 @@ fn verify_intersection(map: &Map, r: RoadID, i: IntersectionID) -> bool {
 
 /// Returns a HashSet of all roads which are connected by driving from RoadID.
 /// This accounts for oneway restrictions, but not turn restrictions. eg:
-/// 
+///
 /// - If a oneway restriction on either the 'from_road' or the 'target_road' would prevent driving from
 /// source to destination, then 'target_road' it will NOT be included in the result.
 /// - If a turn restriction exists and is the only thing that would prevent driving from 'from_road' or the
 /// 'target_road', then the 'target_road' will still be included in the result.
-/// 
+///
 /// `i` is Optional. If `i` is `Some` then, it must be connected to `from_r`. It is used to filter
 /// the results to return only the destination roads that connect to `i`.
-/// 
+///
 // TODO highlighting possible destinations for complicated turns (at present both sections of existing
 // complicated_turn_restrictions are included). However possible future complicated turns are not detected.
 //
 // TODO Rework `possible_destination_roads()` and `restricted_destination_roads()` to a extra function that
 // returns a tupple `(permitted, opposing_oneway, restricted_turn)`
-pub fn possible_destination_roads(map: &Map, from_r: RoadID, i: Option<IntersectionID>) -> HashSet<RoadID> {
-
+pub fn possible_destination_roads(
+    map: &Map,
+    from_r: RoadID,
+    i: Option<IntersectionID>,
+) -> HashSet<RoadID> {
     if let Some(unverified_i) = i {
-        if !verify_intersection(map, from_r, unverified_i){
-            panic!("IntersectionID {:?}, does not connect to RoadID {:?}", unverified_i, from_r);
+        if !verify_intersection(map, from_r, unverified_i) {
+            panic!(
+                "IntersectionID {:?}, does not connect to RoadID {:?}",
+                unverified_i, from_r
+            );
         }
     }
 
@@ -167,7 +186,7 @@ pub fn possible_destination_roads(map: &Map, from_r: RoadID, i: Option<Intersect
 
     if one_way != Some(Direction::Fwd) && Some(from_road.dst_i) != i {
         for r in &map.get_i(from_road.src_i).roads {
-            if from_road.id != *r && is_road_drivable_from_i(&map, *r, from_road.src_i){
+            if from_road.id != *r && is_road_drivable_from_i(&map, *r, from_road.src_i) {
                 target_roads.insert(*r);
             }
         }
@@ -184,22 +203,20 @@ pub fn possible_destination_roads(map: &Map, from_r: RoadID, i: Option<Intersect
 }
 
 fn is_road_drivable_from_i(map: &Map, target_r: RoadID, i: IntersectionID) -> bool {
-
     let road = map.get_r(target_r);
     let one_way = road.oneway_for_driving();
-    
-    return road.is_driveable() &&
-           (road.src_i == i && one_way != Some(Direction::Back)) ||
-           (road.dst_i == i && one_way != Some(Direction::Fwd)) 
+
+    return road.is_driveable() && (road.src_i == i && one_way != Some(Direction::Back))
+        || (road.dst_i == i && one_way != Some(Direction::Fwd));
 }
 
 #[cfg(test)]
 mod tests {
-    use tests::{import_map, get_test_file_path};
     use super::{possible_destination_roads, restricted_destination_roads, FocusedTurns};
-    use map_model::{RoadID, IntersectionID};
-    use std::collections::HashSet;
     use geom::Pt2D;
+    use map_model::{IntersectionID, RoadID};
+    use std::collections::HashSet;
+    use tests::{get_test_file_path, import_map};
 
     #[test]
     fn test_focused_turn_restriction() {
@@ -214,26 +231,21 @@ mod tests {
         // south west
         let click_pt_1 = Pt2D::new(192.5633, 215.7847);
         let expected_i_1 = 3;
-        // north east 
+        // north east
         let click_pt_2 = Pt2D::new(214.7931, 201.7212);
         let expects_i_2 = 13;
 
-        for (click_pt, i_id) in [
-            (click_pt_1, expected_i_1),
-            (click_pt_2, expects_i_2)
-        ] {
+        for (click_pt, i_id) in [(click_pt_1, expected_i_1), (click_pt_2, expects_i_2)] {
             let ft = FocusedTurns::new(r, click_pt, &map);
-            
+
             println!("ft.i          {:?}", ft.i);
             assert_eq!(ft.i, IntersectionID(i_id));
             assert!([road.src_i, road.dst_i].contains(&ft.i));
         }
     }
 
-
     #[test]
     fn test_destination_roads() {
-
         // Get example map
         let file_name = get_test_file_path(String::from("input/turn_restriction_ltn_boundary.osm"));
         let map = import_map(file_name.unwrap());
@@ -242,14 +254,23 @@ mod tests {
         let from_r = RoadID(11);
         let from_road = map.get_r(from_r);
         // Expected possible turns for either intersection
-        let expected_possible_all_r = vec![3usize, 4, 9, 12].into_iter().map(|n| RoadID(n)).collect::<HashSet<_>>();
+        let expected_possible_all_r = vec![3usize, 4, 9, 12]
+            .into_iter()
+            .map(|n| RoadID(n))
+            .collect::<HashSet<_>>();
         // Expected possible turns via `from_r.dst_i`
-        let expected_possible_for_dst_i = vec![9usize, 12].into_iter().map(|n| RoadID(n)).collect::<HashSet<_>>();
+        let expected_possible_for_dst_i = vec![9usize, 12]
+            .into_iter()
+            .map(|n| RoadID(n))
+            .collect::<HashSet<_>>();
         // Expected possible turns via `from_r.src_i`
-        let expected_possible_for_src_i = vec![3usize, 4].into_iter().map(|n| RoadID(n)).collect::<HashSet<_>>();
+        let expected_possible_for_src_i = vec![3usize, 4]
+            .into_iter()
+            .map(|n| RoadID(n))
+            .collect::<HashSet<_>>();
 
         // Three test cases
-        for (i , expected) in [
+        for (i, expected) in [
             (None, expected_possible_all_r),
             (Some(from_road.dst_i), expected_possible_for_dst_i),
             (Some(from_road.src_i), expected_possible_for_src_i),
@@ -275,7 +296,7 @@ mod tests {
             pub restricted_for_dst_i: HashSet<RoadID>,
             pub restricted_for_src_i: HashSet<RoadID>,
         }
-        
+
         let test_cases = [
             TurnRestrictionTestCase {
                 input_file: String::from("input/false_positive_u_turns.osm"),
@@ -284,7 +305,7 @@ mod tests {
                 // Can continue on north bound left-hand lane past central barrier
                 possible_for_dst_i: HashSet::from([RoadID(1)]),
                 // Cannot continue on southbound right-hand (opposing oneway) past barrier RoadID(3)
-                // but this is already restricted by virtue of being oneway 
+                // but this is already restricted by virtue of being oneway
                 restricted_for_dst_i: HashSet::new(),
                 // Can continue south onto Tyne bridge (RoadID(0))
                 // Right turn would prevent turing onto right on Pilgrim Street North bound (RoadID(2))
@@ -314,9 +335,17 @@ mod tests {
             let map = import_map(file_name.unwrap());
 
             // Three combinations of road/intersection for each test case
-            for (i , expected_possible, expected_restricted) in [
-                (Some(map.get_r(tc.from_r).dst_i), tc.possible_for_dst_i, tc.restricted_for_dst_i),
-                (Some(map.get_r(tc.from_r).src_i), tc.possible_for_src_i, tc.restricted_for_src_i),
+            for (i, expected_possible, expected_restricted) in [
+                (
+                    Some(map.get_r(tc.from_r).dst_i),
+                    tc.possible_for_dst_i,
+                    tc.restricted_for_dst_i,
+                ),
+                (
+                    Some(map.get_r(tc.from_r).src_i),
+                    tc.possible_for_src_i,
+                    tc.restricted_for_src_i,
+                ),
                 // (None,
                 //  tc.permitted_dst_i.union(tc.permitted_src_i).collect::<HashSet<_>>(),
                 //  tc.prohibited_dst_i.union(tc.prohibited_src_i).collect::<HashSet<_>>()
@@ -327,13 +356,14 @@ mod tests {
 
                 println!("r={:?}, i={:?}, file={:?}", &tc.from_r, i, &tc.input_file);
                 for target_r in actual_possible.iter() {
-                    println!("destination_roads, src_r {}, dst_r = {}", tc.from_r, target_r);
+                    println!(
+                        "destination_roads, src_r {}, dst_r = {}",
+                        tc.from_r, target_r
+                    );
                 }
                 assert_eq!(actual_restricted, expected_restricted);
                 assert_eq!(actual_possible, expected_possible);
             }
         }
     }
-
-
 }

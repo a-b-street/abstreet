@@ -15,8 +15,8 @@ use widgetry::{EventCtx, Panel};
 use crate::render::render_turn_restrictions;
 use crate::{is_private, pages, App, Neighbourhood, Transition};
 
-pub use page::DesignLTN;
 use crate::logic::turn_restrictions::FocusedTurns;
+pub use page::DesignLTN;
 
 pub enum EditMode {
     Filters,
@@ -98,7 +98,9 @@ impl EditNeighbourhood {
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
             EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
             EditMode::SpeedLimits => speed_limits::handle_world_outcome(app, outcome),
-            EditMode::TurnRestrictions(_) => turn_restrictions::handle_world_outcome(ctx, app, outcome),
+            EditMode::TurnRestrictions(_) => {
+                turn_restrictions::handle_world_outcome(ctx, app, outcome)
+            }
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();
@@ -139,9 +141,10 @@ impl EditNeighbourhood {
                 crate::redraw_all_filters(ctx, app);
 
                 // TODO find a better place for this. Forcing this here feels clunky. It seems like it would be
-                // cleaner to be part of the `Map` or `PerMap` object. There isn't a comparable layer (bus 
+                // cleaner to be part of the `Map` or `PerMap` object. There isn't a comparable layer (bus
                 // routes etc), which are updated as a result of map edit.
-                app.per_map.draw_turn_restrictions = render_turn_restrictions(ctx, &app.per_map.map);
+                app.per_map.draw_turn_restrictions =
+                    render_turn_restrictions(ctx, &app.per_map.map);
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
                     *maybe_focus = None;

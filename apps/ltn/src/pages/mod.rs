@@ -16,7 +16,7 @@ pub use census::Census;
 pub use crossings::Crossings;
 pub use customize_boundary::CustomizeBoundary;
 pub use cycle_network::CycleNetwork;
-pub use design_ltn::{DesignLTN, EditMode, turn_restrictions::handle_edited_turn_restrictions};
+pub use design_ltn::{turn_restrictions::handle_edited_turn_restrictions, DesignLTN, EditMode};
 pub use freehand_boundary::FreehandBoundary;
 pub use per_resident_impact::PerResidentImpact;
 pub use pick_area::{PickArea, PickAreaStyle};
