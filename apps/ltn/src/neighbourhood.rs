@@ -206,7 +206,7 @@ impl Neighbourhood {
         }
 
         // Add every connected road into connected_exterior_roads
-        let mut exterior: Vec<RoadID> = Vec::new();
+        let mut exterior: BTreeSet<RoadID> = BTreeSet::new();
         for r in [&self.perimeter_roads, &self.interior_roads]
             .into_iter()
             .flatten()
@@ -227,13 +227,9 @@ impl Neighbourhood {
             &self.interior_roads.len()
         );
 
-        // TODO **Surely** there is some set-wise way to do this?
-        for r in exterior {
-            // Now remove the interior and perimeter roads
-            if !self.perimeter_roads.contains(&r) & !self.interior_roads.contains(&r) {
-                self.connected_exterior_roads.insert(r);
-            }
-        }
+        // Now remove the interior and perimeter roads
+        exterior.retain(|r| !self.perimeter_roads.contains(r) & !self.interior_roads.contains(r));
+        self.connected_exterior_roads = exterior;
 
         debug!(
             "BUILDING CONNECTED_EXTERIOR_ROADS: connected_exterior_roads.len() = {}",
