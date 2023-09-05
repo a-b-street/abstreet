@@ -73,7 +73,6 @@ pub use crate::pathfind::{
     PathfinderCaching, RoutingParams,
 };
 pub use crate::traversable::{Position, Traversable, MAX_BIKE_SPEED, MAX_WALKING_SPEED};
-pub use make::turns::make_all_turns_per_road;
 pub use map::turn_type_from_angles;
 
 mod city;

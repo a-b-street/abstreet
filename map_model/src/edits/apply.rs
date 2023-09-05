@@ -319,7 +319,7 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     }
 
     {
-        let (turns, _) = crate::make::turns::make_all_turns(map, map.get_i(id));
+        let turns = crate::make::turns::make_all_turns(map, map.get_i(id));
         let i = &mut map.intersections[id.0];
         for t in turns {
             effects.added_turns.insert(t.id);

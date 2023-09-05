@@ -12,7 +12,6 @@ use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{EventCtx, Panel};
 
-use crate::render::render_turn_restrictions;
 use crate::{is_private, pages, App, Neighbourhood, Transition};
 
 use crate::logic::turn_restrictions::FocusedTurns;
