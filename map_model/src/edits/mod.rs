@@ -112,7 +112,10 @@ impl EditRoad {
             modal_filter: None,
             // TODO From crossing_nodes?
             crossings: Vec::new(),
-            // TODO - read these from osm tags. Where is this already parsed?
+            // TODO - review this. When editing turn restrictions, within the LTN tool we do not
+            // use `get_orig_from_osm()`. The `EditRoad` is populated `map.get_r_edit()`.
+            // Therefore we just create empty vecs here for now.
+            // See https://github.com/a-b-street/abstreet/pull/1091#discussion_r1311717165
             turn_restrictions: Vec::new(),
             complicated_turn_restrictions: Vec::new(),
         }
