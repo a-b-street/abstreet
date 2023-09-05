@@ -154,7 +154,7 @@ fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
         app.per_map.proposals.get_current().edits.clone(),
         &mut Timer::throwaway(),
     );
-    crate::redraw_all_filters(ctx, app);
+    crate::redraw_all_icons(ctx, app);
 }
 
 fn load_picker_ui(

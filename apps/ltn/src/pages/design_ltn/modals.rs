@@ -9,7 +9,7 @@ use widgetry::{
     RewriteColor, State, Text, Texture, Toggle, Widget,
 };
 
-use crate::{redraw_all_filters, render, App, Transition};
+use crate::{redraw_all_icons, render, App, Transition};
 
 pub struct ResolveOneWayAndFilter {
     panel: Panel,
@@ -76,7 +76,7 @@ pub fn fix_oneway_and_add_filter(ctx: &mut EventCtx, app: &mut App, roads: &[(Ro
             }));
     }
     app.apply_edits(edits);
-    redraw_all_filters(ctx, app);
+    redraw_all_icons(ctx, app);
 }
 
 pub struct ResolveBusGate {
@@ -137,7 +137,7 @@ impl State<App> for ResolveBusGate {
                 }));
             }
             app.apply_edits(edits);
-            redraw_all_filters(ctx, app);
+            redraw_all_icons(ctx, app);
 
             return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
         }

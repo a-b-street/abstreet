@@ -79,7 +79,7 @@ impl Proposal {
             app.per_map.proposals.get_current().edits.clone(),
             &mut Timer::throwaway(),
         );
-        crate::redraw_all_filters(ctx, app);
+        crate::redraw_all_icons(ctx, app);
 
         Ok(())
     }

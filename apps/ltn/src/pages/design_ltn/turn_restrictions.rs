@@ -361,11 +361,8 @@ pub fn handle_world_outcome(
                         app.apply_edits(edits);
 
                         // Redraw the turn restriction symbols
-                        // TODO find a better place for this. Forcing this here feels clunky. It seems like it would be
-                        // cleaner to be part of the `Map` or `PerMap` object. There isn't a comparable layer (bus
-                        // routes etc), which are updated as a result of map edit.
-                        app.per_map.draw_turn_restrictions =
-                            render_turn_restrictions(ctx, &app.per_map.map);
+                        crate::redraw_all_icons(ctx, app);
+
                         // Now clear the highlighted intersection/turns
                         app.session.edit_mode = EditMode::TurnRestrictions(None);
                         return EditOutcome::UpdateAll;

@@ -223,8 +223,9 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
     run(settings);
 }
 
-pub fn redraw_all_filters(ctx: &EventCtx, app: &mut App) {
+pub fn redraw_all_icons(ctx: &EventCtx, app: &mut App) {
     app.per_map.draw_all_filters = render::render_modal_filters(ctx, &app.per_map.map);
+    app.per_map.draw_turn_restrictions = render::render_turn_restrictions(ctx, &app.per_map.map);
 }
 
 fn is_private(road: &Road) -> bool {

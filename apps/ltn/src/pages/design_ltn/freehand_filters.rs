@@ -3,7 +3,7 @@ use map_model::{DiagonalFilter, FilterType, RoadFilter};
 use widgetry::EventCtx;
 
 use super::{modals, EditMode, EditOutcome};
-use crate::{redraw_all_filters, App, Neighbourhood, Transition};
+use crate::{redraw_all_icons, App, Neighbourhood, Transition};
 
 pub fn event(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) -> EditOutcome {
     if let EditMode::FreehandFilters(ref mut lasso) = app.session.edit_mode {
@@ -87,7 +87,7 @@ fn make_filters_along_path(
         }
     }
     app.apply_edits(edits);
-    redraw_all_filters(ctx, app);
+    redraw_all_icons(ctx, app);
 
     if !oneways.is_empty() {
         EditOutcome::Transition(Transition::Push(modals::ResolveOneWayAndFilter::new_state(
