@@ -206,8 +206,9 @@ fn is_road_drivable_from_i(map: &Map, target_r: RoadID, i: IntersectionID) -> bo
     let road = map.get_r(target_r);
     let one_way = road.oneway_for_driving();
 
-    return road.is_driveable() && (road.src_i == i && one_way != Some(Direction::Back))
-        || (road.dst_i == i && one_way != Some(Direction::Fwd));
+    return road.is_driveable()
+        && ((road.src_i == i && one_way != Some(Direction::Back))
+            || (road.dst_i == i && one_way != Some(Direction::Fwd)));
 }
 
 #[cfg(test)]
