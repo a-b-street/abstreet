@@ -8,7 +8,7 @@ use map_model::RoadFilter;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
-use crate::{redraw_all_filters, App, Neighbourhood};
+use crate::{redraw_all_icons, App, Neighbourhood};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AutoFilterHeuristic {
@@ -75,7 +75,7 @@ impl AutoFilterHeuristic {
 
         // TODO Detect if we changed anything
         let empty = false;
-        redraw_all_filters(ctx, app);
+        redraw_all_icons(ctx, app);
         if empty {
             bail!("No new filters created");
         } else {

@@ -5,7 +5,7 @@ use widgetry::{lctrl, EventCtx, Key, Text, Transition};
 
 use super::{modals, road_name, EditOutcome, Obj};
 use crate::render::colors;
-use crate::{redraw_all_filters, App, Neighbourhood};
+use crate::{redraw_all_icons, App, Neighbourhood};
 
 /// Creates clickable objects for managing filters on roads and intersections. Everything is
 /// invisible; the caller is responsible for drawing things.
@@ -108,7 +108,7 @@ pub fn handle_world_outcome(
                 }));
             }
             app.apply_edits(edits);
-            redraw_all_filters(ctx, app);
+            redraw_all_icons(ctx, app);
             EditOutcome::UpdateAll
         }
         WorldOutcome::ClickedObject(Obj::Intersection(i)) => {
@@ -121,7 +121,7 @@ pub fn handle_world_outcome(
                     app.session.filter_type,
                 ));
             app.apply_edits(edits);
-            redraw_all_filters(ctx, app);
+            redraw_all_icons(ctx, app);
             EditOutcome::UpdateAll
         }
         WorldOutcome::Keypress("debug", Obj::Intersection(i)) => {
