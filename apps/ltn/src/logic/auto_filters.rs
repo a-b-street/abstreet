@@ -160,15 +160,20 @@ fn split_cells(app: &mut App, neighbourhood: &Neighbourhood, timer: &mut Timer) 
                     .iter()
                     .filter(|cell| cell.roads.contains_key(r))
                     .collect();
-                assert_eq!(2, split_cells.len());
-                // We want cells to be roughly evenly-sized. Just count the number of road segments
-                // as a proxy for that.
-                let new_score = split_cells[0].roads.len().min(split_cells[1].roads.len());
-                if best
-                    .map(|(_, old_score)| new_score > old_score)
-                    .unwrap_or(true)
-                {
-                    best = Some((*r, new_score));
+                if split_cells.len() == 2 {
+                    // We want cells to be roughly evenly-sized. Just count the number of road
+                    // segments as a proxy for that.
+                    let new_score = split_cells[0].roads.len().min(split_cells[1].roads.len());
+                    if best
+                        .map(|(_, old_score)| new_score > old_score)
+                        .unwrap_or(true)
+                    {
+                        best = Some((*r, new_score));
+                    }
+                } else {
+                    // Happens for example at https://www.openstreetmap.org/way/514353312, a
+                    // dead-end and private road
+                    warn!("The split cell heuristic wound up with an unexpected number of cells after trying to split {r}; skipping");
                 }
             }
             // Always undo the new filter between each test
