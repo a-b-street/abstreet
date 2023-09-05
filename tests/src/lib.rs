@@ -1,6 +1,6 @@
 use abstio::MapName;
 use abstutil::Timer;
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
 use map_model::Map;
 use prettydiff::text::diff_lines;
 use std::path::PathBuf;
@@ -26,7 +26,7 @@ pub fn import_map(path: String) -> Map {
 /// the `tests` package.
 /// This function make direct reference to the location of this source file (using the `file!()` marco)
 /// and hence should only be used in test code and not in any production code.
-pub fn get_test_file_path(path: String) -> Result<String, String> {
+pub fn get_test_file_path(path: String) -> Result<String> {
     // Get the absolute path to the crate that called was invoked at the cli (or equivalent)
     let maybe_workspace_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let maybe_workspace_dir = std::path::Path::new(&maybe_workspace_dir);
@@ -49,20 +49,20 @@ pub fn get_test_file_path(path: String) -> Result<String, String> {
 fn next_test_file_path(
     maybe_absolute_dir: &std::path::Path,
     file_path: &String,
-) -> Result<PathBuf, String> {
+) -> Result<PathBuf> {
     let path_to_test = maybe_absolute_dir.join(file_path);
     if path_to_test.exists() {
         Ok(path_to_test)
     } else if maybe_absolute_dir.parent().is_some() {
         next_test_file_path(maybe_absolute_dir.parent().unwrap(), file_path)
     } else {
-        Err(format!("Cannot locate file '{}'", file_path))
+        Err(anyhow!("Cannot locate file '{}'", file_path))
     }
 }
 
 /// Compares a string to the contents of the relevant goldenfile.
 /// Pretty prints the differences if necessary
-pub fn compare_with_goldenfile(actual: String, goldenfile_path: String) -> Result<bool> {
+pub fn compare_with_goldenfile(actual: String, goldenfile_path: String) -> Result<()> {
     let goldenfile_path = get_test_file_path(goldenfile_path).unwrap();
     // let expected = String::from_utf8(abstio::slurp_file(&goldenfile_path)?).unwrap().clone().trim();
     let binding = String::from_utf8(abstio::slurp_file(&goldenfile_path)?)
@@ -78,5 +78,5 @@ pub fn compare_with_goldenfile(actual: String, goldenfile_path: String) -> Resul
             lcs
         );
     }
-    Ok(true)
+    Ok(())
 }

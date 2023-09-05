@@ -101,6 +101,6 @@ mod tests {
         }
 
         // finally compare with goldenfile
-        assert!(compare_with_goldenfile(actual, goldenfile_path).unwrap());
+        assert!(compare_with_goldenfile(actual, goldenfile_path).is_ok());
     }
 }

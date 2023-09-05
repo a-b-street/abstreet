@@ -77,8 +77,8 @@ fn test_map_importer() -> Result<()> {
             map.get_name().map
         ));
         let turn_types = all_turn_info_as_string(&map);
-        // TODO - I'm sure there is an more idiomatic way to do this.
-        assert!(compare_with_goldenfile(turn_types, path_types)?);
+
+        assert!(compare_with_goldenfile(turn_types, path_types).is_ok());
     }
 
     if regenerate_goldenfiles {
