@@ -47,7 +47,7 @@ pub struct DiagonalFilter {
 }
 
 impl DiagonalFilter {
-    /// The caller must call this in a `before_edit` / `redraw_all_filters` "transaction."
+    /// The caller must call this in a `before_edit` / `redraw_all_icons` "transaction."
     pub fn cycle_through_alternatives(
         map: &Map,
         i: IntersectionID,

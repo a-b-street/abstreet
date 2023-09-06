@@ -2720,6 +2720,7 @@ dependencies = [
  "contour",
  "csv",
  "flate2",
+ "fs-err",
  "futures-channel",
  "geo",
  "geojson",
@@ -2740,6 +2741,7 @@ dependencies = [
  "serde_json",
  "structopt",
  "synthpop",
+ "tests",
  "wasm-bindgen",
  "widgetry",
 ]

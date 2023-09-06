@@ -41,3 +41,7 @@ synthpop = { path = "../../synthpop" }
 wasm-bindgen = { workspace = true, optional = true }
 widgetry = { path = "../../widgetry" }
 structopt = { workspace = true }
+
+[dev-dependencies]
+tests = { path = "../../tests" }
+fs-err = { workspace = true }

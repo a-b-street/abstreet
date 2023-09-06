@@ -496,7 +496,7 @@ fn make_bottom_panel(
     appwide_panel: &AppwidePanel,
     per_tab_contents: Widget,
 ) -> Panel {
-    let (road_filters, diagonal_filters, one_ways) = count_edits(app);
+    let (road_filters, diagonal_filters, one_ways, turn_restrictions) = count_edits(app);
 
     let row = Widget::row(vec![
         edit_mode(ctx, app),
@@ -504,6 +504,8 @@ fn make_bottom_panel(
             super::shortcuts::widget(ctx, app, focus.as_ref())
         } else if let EditMode::SpeedLimits = app.session.edit_mode {
             super::speed_limits::widget(ctx)
+        } else if let EditMode::TurnRestrictions(ref focus) = app.session.edit_mode {
+            super::turn_restrictions::widget(ctx, app, focus.as_ref())
         } else {
             Widget::nothing()
         }
@@ -518,7 +520,8 @@ fn make_bottom_panel(
                 .hotkey(lctrl(Key::Z))
                 .build_widget(ctx, "undo"),
             Widget::col(vec![
-                format!("{} filters", road_filters + diagonal_filters).text_widget(ctx),
+                format!("{} new filters", road_filters + diagonal_filters).text_widget(ctx),
+                format!("{} turn restrictions changed", turn_restrictions).text_widget(ctx),
                 format!("{} road directions changed", one_ways).text_widget(ctx),
             ]),
         ]),
@@ -555,11 +558,12 @@ fn make_bottom_panel(
     BottomPanel::new(ctx, appwide_panel, row)
 }
 
-fn count_edits(app: &App) -> (usize, usize, usize) {
+fn count_edits(app: &App) -> (usize, usize, usize, usize) {
     let map = &app.per_map.map;
     let mut road_filters = 0;
     let mut diagonal_filters = 0;
     let mut one_ways = 0;
+    let mut turn_restrictions = 0;
 
     for (r, orig) in &map.get_edits().original_roads {
         let road = map.get_r(*r);
@@ -573,6 +577,17 @@ fn count_edits(app: &App) -> (usize, usize, usize) {
         if dir_new != dir_old {
             one_ways += 1;
         }
+        // Counts both new adding new turn restrictions and removing pre-existing turn restrictions
+        let mut tr_added = road.turn_restrictions.clone();
+        tr_added.retain(|x| !orig.turn_restrictions.contains(x));
+        let mut tr_removed = orig.turn_restrictions.clone();
+        tr_removed.retain(|x| !road.turn_restrictions.contains(x));
+        let mut ctr_added = road.complicated_turn_restrictions.clone();
+        ctr_added.retain(|x| !orig.complicated_turn_restrictions.contains(x));
+        let mut ctr_removed = orig.complicated_turn_restrictions.clone();
+        ctr_removed.retain(|x| !road.complicated_turn_restrictions.contains(x));
+        turn_restrictions +=
+            tr_added.len() + tr_removed.len() + ctr_added.len() + ctr_removed.len();
     }
     for (i, orig) in &map.get_edits().original_intersections {
         if map.get_i(*i).modal_filter.is_some() && orig.modal_filter.is_none() {
@@ -580,7 +595,7 @@ fn count_edits(app: &App) -> (usize, usize, usize) {
         }
     }
 
-    (road_filters, diagonal_filters, one_ways)
+    (road_filters, diagonal_filters, one_ways, turn_restrictions)
 }
 
 fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
@@ -687,13 +702,30 @@ fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
             .hotkey(Key::F5)
             .tooltip_and_disabled({
                 let mut txt = Text::new();
-                txt.add_line(Line(Key::F4.describe()).fg(ctx.style().text_hotkey_color));
+                txt.add_line(Line(Key::F5.describe()).fg(ctx.style().text_hotkey_color));
                 txt.append(Line(" - Speed limits"));
                 txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
                 txt.append(Line(" a road to convert it to 20mph (32kph)"));
                 txt
             })
             .build_widget(ctx, "Speed limits")
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon("system/assets/map/no_right_turn_button.svg")
+            .disabled(matches!(edit_mode, EditMode::TurnRestrictions(_)))
+            .hotkey(Key::F6)
+            .tooltip_and_disabled({
+                let mut txt = Text::new();
+                txt.add_line(Line(Key::F6.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(" - Turn restrictions"));
+                txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
+                txt.append(Line(
+                    " a road to edit turn restrictions at its intersections",
+                ));
+                txt
+            })
+            .build_widget(ctx, "Turn restrictions")
             .centered_vert(),
     ])
 }

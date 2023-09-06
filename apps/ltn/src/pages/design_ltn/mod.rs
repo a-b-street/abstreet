@@ -5,6 +5,7 @@ mod one_ways;
 mod page;
 mod shortcuts;
 mod speed_limits;
+pub mod turn_restrictions;
 
 use map_model::{IntersectionID, Road, RoadID};
 use widgetry::mapspace::{ObjectID, World};
@@ -13,6 +14,7 @@ use widgetry::{EventCtx, Panel};
 
 use crate::{is_private, pages, App, Neighbourhood, Transition};
 
+use crate::logic::turn_restrictions::FocusedTurns;
 pub use page::DesignLTN;
 
 pub enum EditMode {
@@ -22,6 +24,7 @@ pub enum EditMode {
     // Is a road clicked on right now?
     Shortcuts(Option<shortcuts::FocusedRoad>),
     SpeedLimits,
+    TurnRestrictions(Option<FocusedTurns>),
 }
 
 pub struct EditNeighbourhood {
@@ -70,6 +73,9 @@ impl EditNeighbourhood {
                 EditMode::Oneways => one_ways::make_world(ctx, app, neighbourhood),
                 EditMode::Shortcuts(focus) => shortcuts::make_world(ctx, app, neighbourhood, focus),
                 EditMode::SpeedLimits => speed_limits::make_world(ctx, app, neighbourhood),
+                EditMode::TurnRestrictions(focus) => {
+                    turn_restrictions::make_world(ctx, app, neighbourhood, focus)
+                }
             },
         }
     }
@@ -85,12 +91,15 @@ impl EditNeighbourhood {
         }
 
         let outcome = self.world.event(ctx);
-        let outcome = match app.session.edit_mode {
+        let outcome = match &app.session.edit_mode {
             EditMode::Filters => filters::handle_world_outcome(ctx, app, outcome),
             EditMode::FreehandFilters(_) => unreachable!(),
             EditMode::Oneways => one_ways::handle_world_outcome(ctx, app, outcome),
             EditMode::Shortcuts(_) => shortcuts::handle_world_outcome(app, outcome, neighbourhood),
             EditMode::SpeedLimits => speed_limits::handle_world_outcome(app, outcome),
+            EditMode::TurnRestrictions(_) => {
+                turn_restrictions::handle_world_outcome(ctx, app, outcome)
+            }
         };
         if matches!(outcome, EditOutcome::Transition(_)) {
             self.world.hack_unset_hovering();
@@ -128,7 +137,9 @@ impl EditNeighbourhood {
                 let mut edits = app.per_map.map.get_edits().clone();
                 edits.commands.pop().unwrap();
                 app.apply_edits(edits);
-                crate::redraw_all_filters(ctx, app);
+                // Redraw the relevant icons
+                crate::redraw_all_icons(ctx, app);
+
                 // TODO Ideally, preserve panel state (checkboxes and dropdowns)
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {
                     *maybe_focus = None;
@@ -185,6 +196,10 @@ impl EditNeighbourhood {
             }
             "Speed limits" => {
                 app.session.edit_mode = EditMode::SpeedLimits;
+                EditOutcome::UpdatePanelAndWorld
+            }
+            "Turn restrictions" => {
+                app.session.edit_mode = EditMode::TurnRestrictions(None);
                 EditOutcome::UpdatePanelAndWorld
             }
             _ => EditOutcome::Nothing,

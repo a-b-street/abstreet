@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Speed, Time};
-use osm2streets::get_lane_specs_ltr;
+use osm2streets::{get_lane_specs_ltr, RestrictionType};
 
 pub use self::perma::PermanentMapEdits;
 use crate::{
@@ -80,6 +80,8 @@ pub struct EditRoad {
     pub access_restrictions: AccessRestrictions,
     pub modal_filter: Option<RoadFilter>,
     pub crossings: Vec<Crossing>,
+    pub turn_restrictions: Vec<(RestrictionType, RoadID)>,
+    pub complicated_turn_restrictions: Vec<(RoadID, RoadID)>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -110,6 +112,12 @@ impl EditRoad {
             modal_filter: None,
             // TODO From crossing_nodes?
             crossings: Vec::new(),
+            // TODO - review this. When editing turn restrictions, within the LTN tool we do not
+            // use `get_orig_from_osm()`. The `EditRoad` is populated `map.get_r_edit()`.
+            // Therefore we just create empty vecs here for now.
+            // See https://github.com/a-b-street/abstreet/pull/1091#discussion_r1311717165
+            turn_restrictions: Vec::new(),
+            complicated_turn_restrictions: Vec::new(),
         }
     }
 
@@ -445,6 +453,8 @@ impl Map {
             access_restrictions: r.access_restrictions.clone(),
             modal_filter: r.modal_filter.clone(),
             crossings: r.crossings.clone(),
+            turn_restrictions: r.turn_restrictions.clone(),
+            complicated_turn_restrictions: r.complicated_turn_restrictions.clone(),
         }
     }
 

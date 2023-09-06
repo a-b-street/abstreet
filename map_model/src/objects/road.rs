@@ -210,7 +210,7 @@ pub struct Road {
 }
 
 impl Road {
-    pub(crate) fn lane_specs(&self) -> Vec<LaneSpec> {
+    pub fn lane_specs(&self) -> Vec<LaneSpec> {
         self.lanes
             .iter()
             .map(|l| LaneSpec {

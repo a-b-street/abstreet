@@ -115,7 +115,7 @@ impl State<App> for Crossings {
                     let mut edits = app.per_map.map.get_edits().clone();
                     edits.commands.pop().unwrap();
                     app.apply_edits(edits);
-                    crate::redraw_all_filters(ctx, app);
+                    crate::redraw_all_icons(ctx, app);
                     self.update(ctx, app);
                 }
                 _ => unreachable!(),
