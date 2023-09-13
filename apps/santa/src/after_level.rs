@@ -28,11 +28,13 @@ impl Strategize {
         path: RecordPath,
     ) -> Box<dyn State<App>> {
         ctx.canvas.cam_zoom = ZOOM;
-        let start = app
+
+        let intersection_id = app
             .map
-            .get_i(app.map.find_i_by_osm_id(level.start).unwrap())
-            .polygon
-            .center();
+            .find_i_by_pt2d(app.map.localise_lon_lat_to_map(&level.start))
+            .expect("Failed to get level start point");
+
+        let start = app.map.get_i(intersection_id).polygon.center();
         ctx.canvas.center_on_map_pt(start);
 
         let unlock_messages = app.session.record_score(level.title.clone(), score);

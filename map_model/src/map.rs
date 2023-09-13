@@ -1,15 +1,19 @@
 //! A bunch of (mostly read-only) queries on a Map.
 
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::{
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque},
+    sync::{Arc, RwLock},
+};
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use petgraph::graphmap::{DiGraphMap, UnGraphMap};
 use popgetter::CensusZone;
 
 use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
 use geom::{
-    Angle, Bounds, Distance, Duration, GPSBounds, LonLat, PolyLine, Polygon, Pt2D, Ring, Time,
+    Angle, Bounds, Distance, Duration, FindClosest, GPSBounds, LonLat, PolyLine, Polygon, Pt2D,
+    Ring, Time,
 };
 use raw_map::{RawBuilding, RawMap};
 
@@ -142,6 +146,7 @@ impl Map {
         Map {
             roads: Vec::new(),
             intersections: Vec::new(),
+            intersection_quad_tree: Arc::new(RwLock::new(None)),
             buildings: Vec::new(),
             transit_stops: BTreeMap::new(),
             transit_routes: Vec::new(),
@@ -733,6 +738,41 @@ impl Map {
             }
         }
         bail!("Can't find {}", id)
+    }
+
+    fn populate_intersection_quad_tree(&self) -> Result<()> {
+        let quad_tree_lock = Arc::clone(&self.intersection_quad_tree);
+        let mut quad_tree = quad_tree_lock.write().unwrap();
+
+        let mut quad: FindClosest<IntersectionID> = FindClosest::new();
+
+        for intersection in self.all_intersections() {
+            quad.add_polygon(intersection.id, &intersection.polygon);
+        }
+        *quad_tree = Some(quad);
+        Ok(())
+    }
+
+    pub fn localise_lon_lat_to_map(&self, point: &LonLat) -> Pt2D {
+        point.to_pt(&self.gps_bounds)
+    }
+
+    pub fn find_i_by_pt2d(&self, pnt: Pt2D) -> Result<IntersectionID> {
+        let quad_tree_lock = Arc::clone(&self.intersection_quad_tree);
+        let quad_tree = quad_tree_lock.read().unwrap();
+
+        if quad_tree.is_none() {
+            self.populate_intersection_quad_tree().unwrap();
+        }
+
+        if let Some(tree) = &*quad_tree {
+            let (intersection_id, _) = tree
+                .closest_pt(pnt, Distance::meters(100.0))
+                .context("Failed to find intersection within 100m of specified point")?;
+            Ok(intersection_id)
+        } else {
+            bail!("Intersection Quad tree was somehow blank even after generation")
+        }
     }
 
     pub fn find_b_by_osm_id(&self, id: osm::OsmID) -> Option<BuildingID> {

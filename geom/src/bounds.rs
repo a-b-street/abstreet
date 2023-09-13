@@ -250,6 +250,7 @@ impl GPSBounds {
 }
 
 // Convenient wrapper around rstar
+#[derive(Clone)]
 pub struct QuadTree<T>(RTree<GeomWithData<Rectangle<[f64; 2]>, T>>);
 
 impl<T> QuadTree<T> {

@@ -2,6 +2,7 @@
 //! covers the RawMap->Map stage.
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::sync::{Arc, RwLock};
 
 use structopt::StructOpt;
 
@@ -48,6 +49,7 @@ impl Map {
         let mut map = Map {
             roads: Vec::new(),
             intersections: Vec::new(),
+            intersection_quad_tree: Arc::new(RwLock::new(None)),
             buildings: Vec::new(),
             transit_stops: BTreeMap::new(),
             transit_routes: Vec::new(),
