@@ -48,7 +48,7 @@ impl Picker {
 
                 let intersection_id = app
                     .map
-                    .find_i_by_pt2d(app.map.localise_lon_lat_to_map(&level.start))
+                    .find_i_by_pt2d(app.map.localise_lon_lat_to_map(level.start))
                     .expect("Failed to get level start point");
 
                 let start = app.map.get_i(intersection_id).polygon.center();

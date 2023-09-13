@@ -92,7 +92,7 @@ impl Game {
 
         let start = app
             .map
-            .find_i_by_pt2d(app.map.localise_lon_lat_to_map(&level.start))
+            .find_i_by_pt2d(app.map.localise_lon_lat_to_map(level.start))
             .expect("To find starting point");
 
         let player = Player::new(ctx, app, start);

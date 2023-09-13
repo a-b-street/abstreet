@@ -756,7 +756,7 @@ impl Map {
         *quad_tree = Some(quad);
     }
 
-    pub fn localise_lon_lat_to_map(&self, point: &LonLat) -> Pt2D {
+    pub fn localise_lon_lat_to_map(&self, point: LonLat) -> Pt2D {
         point.to_pt(&self.gps_bounds)
     }
 
