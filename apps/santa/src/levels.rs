@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use geom::Duration;
-use map_model::osm;
+use geom::{Duration, LonLat};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct Level {
@@ -10,7 +9,7 @@ pub struct Level {
     pub description: String,
     pub map: MapName,
     pub music: String,
-    pub start: osm::NodeID,
+    pub start: LonLat,
     pub minimap_zoom: usize,
     pub time_limit: Duration,
     pub goal: usize,
@@ -29,7 +28,7 @@ impl Level {
                     .to_string(),
                 map: MapName::seattle("qa"),
                 music: "jingle_bells".to_string(),
-                start: osm::NodeID(53234637),
+                start: LonLat::new(-122.3649489, 47.6395838),
                 minimap_zoom: 1,
                 time_limit: Duration::seconds(90.0),
                 goal: 350,
@@ -44,7 +43,7 @@ impl Level {
                     .to_string(),
                 map: MapName::seattle("udistrict_ravenna"),
                 music: "god_rest_ye_merry_gentlemen".to_string(),
-                start: osm::NodeID(53162661),
+                start: LonLat::new(-122.3130618, 47.6648984),
                 minimap_zoom: 1,
                 time_limit: Duration::minutes(2),
                 goal: 1500,
@@ -59,7 +58,7 @@ impl Level {
                     .to_string(),
                 map: MapName::seattle("wallingford"),
                 music: "silent_night".to_string(),
-                start: osm::NodeID(53218389),
+                start: LonLat::new(-122.3427877, 47.648515),
                 minimap_zoom: 2,
                 time_limit: Duration::minutes(3),
                 goal: 1500,
@@ -74,7 +73,7 @@ impl Level {
                     .to_string(),
                 map: MapName::seattle("montlake"),
                 music: "dance_sugar_plum_fairy".to_string(),
-                start: osm::NodeID(53084814),
+                start: LonLat::new(-122.3020559, 47.639528),
                 minimap_zoom: 1,
                 time_limit: Duration::minutes(3),
                 goal: 1000,
@@ -89,7 +88,7 @@ impl Level {
                     .to_string(),
                 map: MapName::seattle("phinney"),
                 music: "silent_night".to_string(),
-                start: osm::NodeID(53233319),
+                start: LonLat::new(-122.3552942, 47.6869442),
                 minimap_zoom: 1,
                 time_limit: Duration::minutes(3),
                 goal: 1500,
@@ -104,7 +103,7 @@ impl Level {
                     .to_string(),
                 map: MapName::seattle("slu"),
                 music: "carol_bells".to_string(),
-                start: osm::NodeID(53142423),
+                start: LonLat::new(-122.334343, 47.623173),
                 minimap_zoom: 1,
                 time_limit: Duration::seconds(90.0),
                 goal: 1300,
@@ -119,7 +118,7 @@ impl Level {
                     .to_string(),
                 map: MapName::seattle("central_seattle"),
                 music: "god_rest_ye_merry_gentlemen".to_string(),
-                start: osm::NodeID(53130883),
+                start: LonLat::new(-122.4008951, 47.6558634),
                 minimap_zoom: 2,
                 time_limit: Duration::minutes(4),
                 goal: 5000,

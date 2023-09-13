@@ -29,6 +29,7 @@ extern crate anyhow;
 extern crate log;
 
 use std::collections::BTreeMap;
+use std::sync::{Arc, RwLock};
 
 use popgetter::CensusZone;
 use serde::{Deserialize, Serialize};
@@ -37,7 +38,7 @@ use abstio::MapName;
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
-use geom::{Bounds, GPSBounds, Polygon};
+use geom::{Bounds, FindClosest, GPSBounds, Polygon};
 pub use osm2streets::{
     osm, BufferType, Direction, DrivingSide, IntersectionControl, IntersectionKind, LaneSpec,
     LaneType, MapConfig, NamePerLanguage, RestrictionType, NORMAL_LANE_THICKNESS,
@@ -90,6 +91,8 @@ mod traversable;
 pub struct Map {
     roads: Vec<Road>,
     intersections: Vec<Intersection>,
+    #[serde(skip_serializing, skip_deserializing)]
+    intersection_quad_tree: Arc<RwLock<Option<FindClosest<IntersectionID>>>>,
     buildings: Vec<Building>,
     #[serde(
         serialize_with = "serialize_btreemap",

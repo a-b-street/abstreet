@@ -8,6 +8,7 @@ use crate::{Bounds, Distance, Polygon, Pt2D, QuadTree};
 // TODO Maybe use https://crates.io/crates/spatial-join proximity maps
 
 /// A quad-tree to quickly find the closest points to some polylines.
+#[derive(Clone)]
 pub struct FindClosest<K> {
     // TODO maybe any type of geo:: thing
     geometries: BTreeMap<K, geo::LineString>,
