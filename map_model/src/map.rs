@@ -744,6 +744,10 @@ impl Map {
         let quad_tree_lock = Arc::clone(&self.intersection_quad_tree);
         let mut quad_tree = quad_tree_lock.write().unwrap();
 
+        if quad_tree.is_some() {
+            return Ok(());
+        }
+
         let mut quad: FindClosest<IntersectionID> = FindClosest::new();
 
         for intersection in self.all_intersections() {
@@ -758,12 +762,9 @@ impl Map {
     }
 
     pub fn find_i_by_pt2d(&self, pnt: Pt2D) -> Result<IntersectionID> {
+        self.populate_intersection_quad_tree().unwrap();
         let quad_tree_lock = Arc::clone(&self.intersection_quad_tree);
         let quad_tree = quad_tree_lock.read().unwrap();
-
-        if quad_tree.is_none() {
-            self.populate_intersection_quad_tree().unwrap();
-        }
 
         if let Some(tree) = &*quad_tree {
             let (intersection_id, _) = tree
