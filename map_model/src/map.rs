@@ -771,7 +771,7 @@ impl Map {
                 .context("Failed to find intersection within 100m of specified point")?;
             Ok(intersection_id)
         } else {
-            bail!("Intersection Quad tree was somehow blank even after generation")
+            unreachable!("Intersection Quad tree was somehow blank even after generation")
         }
     }
 
