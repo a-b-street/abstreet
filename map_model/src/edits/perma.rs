@@ -12,7 +12,8 @@ use crate::edits::{
     EditBuilding, EditCmd, EditIntersection, EditIntersectionControl, EditRoad, MapEdits,
 };
 use crate::{
-    osm, ControlStopSign, DiagonalFilter, IntersectionID, Map, MovementID, OriginalRoad, TurnType,
+    osm, ControlStopSign, DiagonalFilter, IntersectionID, Map, MovementID, OffstreetParking,
+    OriginalRoad, TurnType,
 };
 
 // Manually change this to attempt to preserve edits after major OSM updates.
@@ -158,7 +159,57 @@ impl PermanentEditCmd {
                     .ok_or_else(|| anyhow!("can't find {}", gtfs_id))?;
                 Ok(EditCmd::ChangeRouteSchedule { id, old, new })
             }
-            PermanentEditCmd::ChangeBuilding { b, new, old } => todo!(),
+            PermanentEditCmd::ChangeBuilding { b, new, old } => {
+                let id = map
+                    .find_b_by_osm_id(b)
+                    .ok_or_else(|| anyhow!("can't find {}", b))?;
+                let current_parking = &map.get_b(id).parking;
+                let old_parking = &old.parking;
+
+                match (old_parking, current_parking) {
+                    (
+                        OffstreetParking::Private(old_size, old_garage),
+                        OffstreetParking::Private(current_size, current_garage),
+                    ) => {
+                        if current_size != old_size {
+                            bail!(
+                                "building {} has {} parking lots now, but {} in the edits",
+                                id,
+                                current_size,
+                                old_size
+                            )
+                        }
+                        if current_garage != old_garage {
+                            bail!(
+                                "building {} has a garage {} now, but {} in the edits",
+                                id,
+                                current_garage,
+                                old_garage
+                            )
+                        }
+                    }
+                    (
+                        OffstreetParking::PublicGarage(_, old_size),
+                        OffstreetParking::PublicGarage(_, current_size),
+                    ) => {
+                        if current_size != old_size {
+                            bail!(
+                                "building {} has {} parking lots now, but {} in the edits",
+                                id,
+                                current_size,
+                                old_size
+                            )
+                        }
+                    }
+                    _ => bail!(
+                        "building {} has {:?} parking now, but {:?} in the edits",
+                        id,
+                        current_parking,
+                        old_parking
+                    ),
+                }
+                Ok(EditCmd::ChangeBuilding { b: id, old, new })
+            }
         }
     }
 }
