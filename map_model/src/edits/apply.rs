@@ -273,7 +273,13 @@ impl EditCmd {
             EditCmd::ChangeRouteSchedule { id, new, .. } => {
                 map.transit_routes[id.0].spawn_times = new.clone();
             }
-            EditCmd::ChangeBuilding { b, old, new } => todo!(),
+            EditCmd::ChangeBuilding { b, ref new, .. } => {
+                let old_state = map.get_b_edit(*b);
+                if old_state == new.clone() {
+                    return;
+                }
+                map.buildings[b.0].parking = new.parking.clone()
+            }
         }
     }
 
