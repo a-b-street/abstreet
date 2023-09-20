@@ -14,8 +14,8 @@ use widgetry::{
     Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
 };
 
-pub use self::roads::RoadEditor;
 pub use self::buildings::BuildingEditor;
+pub use self::roads::RoadEditor;
 pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
@@ -25,10 +25,10 @@ use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
+mod buildings;
 mod crosswalks;
 mod multiple_roads;
 mod roads;
-mod buildings;
 mod routes;
 mod stop_signs;
 mod traffic_signals;
@@ -942,6 +942,7 @@ fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
         EditCmd::ChangeRoad { r, .. } => Some(ID::Road(*r)),
         EditCmd::ChangeIntersection { i, .. } => Some(ID::Intersection(*i)),
         EditCmd::ChangeRouteSchedule { .. } => None,
+        EditCmd::ChangeBuilding { b, .. } => Some(ID::Building(*b)),
     }
 }
 
