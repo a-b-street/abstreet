@@ -13,9 +13,9 @@ use osm2streets::{get_lane_specs_ltr, RestrictionType};
 
 pub use self::perma::PermanentMapEdits;
 use crate::{
-    AccessRestrictions, ControlStopSign, ControlTrafficSignal, Crossing, DiagonalFilter,
-    IntersectionControl, IntersectionID, LaneID, LaneSpec, Map, MapConfig, ParkingLotID, Road,
-    RoadFilter, RoadID, TransitRouteID, TurnID, TurnType,
+    AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal, Crossing,
+    DiagonalFilter, IntersectionControl, IntersectionID, LaneID, LaneSpec, Map, MapConfig,
+    OffstreetParking, ParkingLotID, Road, RoadFilter, RoadID, TransitRouteID, TurnID, TurnType,
 };
 
 mod apply;
@@ -36,6 +36,7 @@ pub struct MapEdits {
     pub original_roads: BTreeMap<RoadID, EditRoad>,
     pub original_intersections: BTreeMap<IntersectionID, EditIntersection>,
     pub changed_routes: BTreeSet<TransitRouteID>,
+    pub original_buildings: BTreeMap<BuildingID, EditBuilding>,
 
     /// Some edits are included in the game by default, in data/system/proposals, as "community
     /// proposals." They require a description and may have a link to a write-up.
@@ -59,6 +60,11 @@ pub enum EditCmd {
         id: TransitRouteID,
         old: Vec<Time>,
         new: Vec<Time>,
+    },
+    ChangeBuilding {
+        b: BuildingID,
+        old: EditBuilding,
+        new: EditBuilding,
     },
 }
 
@@ -91,6 +97,11 @@ pub struct EditIntersection {
     /// This must contain all crossing turns at one intersection, each mapped either to Crosswalk
     /// or UnmarkedCrossing
     pub crosswalks: BTreeMap<TurnID, TurnType>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct EditBuilding {
+    pub parking: OffstreetParking,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -187,6 +198,16 @@ impl EditIntersection {
     }
 }
 
+impl EditBuilding {
+    fn diff(&self, other: &EditBuilding) -> Vec<String> {
+        let mut changes = Vec::new();
+        if self.parking != other.parking {
+            changes.push("parking".to_string());
+        }
+        changes
+    }
+}
+
 impl MapEdits {
     pub(crate) fn new() -> MapEdits {
         MapEdits {
@@ -198,6 +219,7 @@ impl MapEdits {
             original_roads: BTreeMap::new(),
             original_intersections: BTreeMap::new(),
             changed_routes: BTreeSet::new(),
+            original_buildings: BTreeMap::new(),
         }
     }
 
@@ -269,6 +291,7 @@ impl MapEdits {
         self.original_roads.clear();
         self.original_intersections.clear();
         self.changed_routes.clear();
+        self.original_buildings.clear();
 
         for cmd in &self.commands {
             match cmd {
@@ -285,6 +308,11 @@ impl MapEdits {
                 EditCmd::ChangeRouteSchedule { id, .. } => {
                     self.changed_routes.insert(*id);
                 }
+                EditCmd::ChangeBuilding { b, old, new } => {
+                    if !self.original_buildings.contains_key(b) {
+                        self.original_buildings.insert(*b, old.clone());
+                    }
+                }
             }
         }
 
@@ -296,6 +324,8 @@ impl MapEdits {
             let r = map.get_tr(*br);
             r.spawn_times != r.orig_spawn_times
         });
+        self.original_buildings
+            .retain(|b, orig| map.get_b_edit(*b) != orig.clone());
     }
 
     /// Assumes update_derived has been called.
@@ -320,6 +350,13 @@ impl MapEdits {
                 id: r.id,
                 new: r.spawn_times.clone(),
                 old: r.orig_spawn_times.clone(),
+            });
+        }
+        for (b, old) in &self.original_buildings {
+            self.commands.push(EditCmd::ChangeBuilding {
+                b: *b,
+                old: old.clone(),
+                new: map.get_b_edit(*b),
             });
         }
     }
@@ -416,6 +453,10 @@ impl EditCmd {
             EditCmd::ChangeRouteSchedule { id, .. } => {
                 format!("reschedule route {}", map.get_tr(*id).short_name)
             }
+            EditCmd::ChangeBuilding { b, old, new } => {
+                details = new.diff(old);
+                format!("building #{}", b.0)
+            }
         };
         (summary, details)
     }
@@ -456,6 +497,11 @@ impl Map {
             turn_restrictions: r.turn_restrictions.clone(),
             complicated_turn_restrictions: r.complicated_turn_restrictions.clone(),
         }
+    }
+
+    pub fn get_b_edit(&self, b: BuildingID) -> EditBuilding {
+        let b = self.get_b(b);
+        EditBuilding { parking: b.parking }
     }
 
     pub fn edit_road_cmd<F: FnOnce(&mut EditRoad)>(&self, r: RoadID, f: F) -> EditCmd {
