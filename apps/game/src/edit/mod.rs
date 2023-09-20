@@ -15,6 +15,7 @@ use widgetry::{
 };
 
 pub use self::roads::RoadEditor;
+pub use self::buildings::BuildingEditor;
 pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
@@ -27,6 +28,7 @@ use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 mod crosswalks;
 mod multiple_roads;
 mod roads;
+mod buildings;
 mod routes;
 mod stop_signs;
 mod traffic_signals;

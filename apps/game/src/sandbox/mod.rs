@@ -21,7 +21,8 @@ use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState};
 use crate::debug::DebugMode;
 use crate::edit::{
-    can_edit_lane, EditMode, RoadEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
+    can_edit_lane, BuildingEditor, EditMode, RoadEditor, SaveEdits, StopSignEditor,
+    TrafficSignalEditor,
 };
 use crate::info::ContextualActions;
 use crate::layer::favorites::{Favorites, ShowFavorites};
@@ -397,12 +398,10 @@ impl ContextualActions for Actions {
                 app.primary.layer = Some(Box::new(ShowFavorites::new(ctx, app)));
                 Transition::Keep
             }
-            (ID::Building(b), "edit the parking of this building") => {
-                Transition::Multi(vec![
-                    Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
-                    // TODO Building editor
-                ])
-            }
+            (ID::Building(b), "edit the parking of this building") => Transition::Multi(vec![
+                Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
+                Transition::Push(BuildingEditor::new_state(ctx, app, b)),
+            ]),
             (_, "follow (run the simulation)") => {
                 *close_panel = false;
                 Transition::ModifyState(Box::new(|state, ctx, app| {
