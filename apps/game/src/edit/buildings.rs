@@ -1,4 +1,4 @@
-use map_model::{BuildingID, EditCmd};
+use map_model::{BuildingID, EditBuilding, EditCmd};
 use widgetry::{EventCtx, State};
 
 use crate::app::{App, Transition};

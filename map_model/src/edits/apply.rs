@@ -273,6 +273,7 @@ impl EditCmd {
             EditCmd::ChangeRouteSchedule { id, new, .. } => {
                 map.transit_routes[id.0].spawn_times = new.clone();
             }
+            EditCmd::ChangeBuilding { b, old, new } => todo!(),
         }
     }
 
@@ -290,6 +291,11 @@ impl EditCmd {
             },
             EditCmd::ChangeRouteSchedule { id, old, new } => EditCmd::ChangeRouteSchedule {
                 id,
+                old: new,
+                new: old,
+            },
+            EditCmd::ChangeBuilding { b, old, new } => EditCmd::ChangeBuilding {
+                b,
                 old: new,
                 new: old,
             },

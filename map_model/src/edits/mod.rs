@@ -501,7 +501,9 @@ impl Map {
 
     pub fn get_b_edit(&self, b: BuildingID) -> EditBuilding {
         let b = self.get_b(b);
-        EditBuilding { parking: b.parking }
+        EditBuilding {
+            parking: b.parking.clone(),
+        }
     }
 
     pub fn edit_road_cmd<F: FnOnce(&mut EditRoad)>(&self, r: RoadID, f: F) -> EditCmd {

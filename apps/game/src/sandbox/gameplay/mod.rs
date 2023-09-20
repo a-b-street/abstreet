@@ -200,6 +200,7 @@ impl GameplayMode {
                     }
                 }
                 EditCmd::ChangeRouteSchedule { .. } => {}
+                EditCmd::ChangeBuilding { b, old, new } => todo!(),
             }
         }
         true
