@@ -338,6 +338,7 @@ impl ContextualActions for Actions {
                     } else {
                         actions.push((Key::F, "add this building to favorites".to_string()));
                     }
+                    actions.push((Key::E, "edit the parking of this building".to_string()))
                 }
                 _ => {}
             }
@@ -395,6 +396,12 @@ impl ContextualActions for Actions {
                 Favorites::remove(app, b);
                 app.primary.layer = Some(Box::new(ShowFavorites::new(ctx, app)));
                 Transition::Keep
+            }
+            (ID::Building(b), "edit the parking of this building") => {
+                Transition::Multi(vec![
+                    Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
+                    // TODO Building editor
+                ])
             }
             (_, "follow (run the simulation)") => {
                 *close_panel = false;
