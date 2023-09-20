@@ -99,7 +99,7 @@ pub struct EditIntersection {
     pub crosswalks: BTreeMap<TurnID, TurnType>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EditBuilding {
     pub parking: OffstreetParking,
 }

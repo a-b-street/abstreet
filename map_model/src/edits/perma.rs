@@ -8,7 +8,9 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::Time;
 
 use super::perma_traffic_signal;
-use crate::edits::{EditCmd, EditIntersection, EditIntersectionControl, EditRoad, MapEdits};
+use crate::edits::{
+    EditBuilding, EditCmd, EditIntersection, EditIntersectionControl, EditRoad, MapEdits,
+};
 use crate::{
     osm, ControlStopSign, DiagonalFilter, IntersectionID, Map, MovementID, OriginalRoad, TurnType,
 };
@@ -74,6 +76,11 @@ pub enum PermanentEditCmd {
         old: Vec<Time>,
         new: Vec<Time>,
     },
+    ChangeBuilding {
+        b: osm::OsmID,
+        new: EditBuilding,
+        old: EditBuilding,
+    },
 }
 
 impl EditCmd {
@@ -96,6 +103,11 @@ impl EditCmd {
                     new: new.clone(),
                 }
             }
+            EditCmd::ChangeBuilding { b, old, new } => PermanentEditCmd::ChangeBuilding {
+                b: map.get_b(*b).orig_id,
+                new: new.clone(),
+                old: old.clone(),
+            },
         }
     }
 }
@@ -146,6 +158,7 @@ impl PermanentEditCmd {
                     .ok_or_else(|| anyhow!("can't find {}", gtfs_id))?;
                 Ok(EditCmd::ChangeRouteSchedule { id, old, new })
             }
+            PermanentEditCmd::ChangeBuilding { b, new, old } => todo!(),
         }
     }
 }
@@ -182,6 +195,7 @@ impl PermanentMapEdits {
             original_roads: BTreeMap::new(),
             original_intersections: BTreeMap::new(),
             changed_routes: BTreeSet::new(),
+            original_buildings: BTreeMap::new(),
         };
         edits.update_derived(map);
         Ok(edits)
@@ -209,6 +223,7 @@ impl PermanentMapEdits {
             original_roads: BTreeMap::new(),
             original_intersections: BTreeMap::new(),
             changed_routes: BTreeSet::new(),
+            original_buildings: BTreeMap::new(),
         };
         edits.update_derived(map);
         edits
