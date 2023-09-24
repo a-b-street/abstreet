@@ -1,9 +1,9 @@
 use std::vec;
 
-use map_model::{BuildingID, EditBuilding, EditCmd};
+use map_model::{BuildingID, EditBuilding, EditCmd, OffstreetParking};
 use widgetry::{
-    lctrl, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, VerticalAlignment,
-    Widget,
+    lctrl, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
+    VerticalAlignment, Widget,
 };
 
 use crate::{
@@ -11,6 +11,8 @@ use crate::{
     common::Warping,
     id::ID,
 };
+
+use super::can_edit_building_parking;
 
 pub struct BuildingEditor {
     b: BuildingID,
@@ -22,7 +24,6 @@ pub struct BuildingEditor {
     // Undo/redo management
     num_edit_cmds_originally: usize,
     redo_stack: Vec<EditCmd>,
-    orig_building_state: EditBuilding,
 }
 
 impl BuildingEditor {
@@ -40,7 +41,6 @@ impl BuildingEditor {
 
             num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
             redo_stack: Vec::new(),
-            orig_building_state: app.primary.map.get_b_edit(b), // TODO
         };
         editor.recalc_all_panels(ctx, app);
         Box::new(editor)
@@ -81,6 +81,7 @@ impl State<App> for BuildingEditor {
         match self.main_panel.event(ctx) {
             Outcome::Changed(x) => match x.as_ref() {
                 "parking type" => {
+                    // TODO allow changing between public and private
                     unimplemented!()
                 }
                 "parking capacity" => {
@@ -157,13 +158,30 @@ fn make_top_panel(
 }
 
 fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
+    if !can_edit_building_parking(app, b) {
+        return Panel::empty(ctx);
+    }
     let map = &app.primary.map;
     let current_state = map.get_b_edit(b);
-
+    let current_parking_capacity = match current_state.parking {
+        OffstreetParking::PublicGarage(_, _) | OffstreetParking::Private(_, false) => {
+            // TODO support editing parking for these cases
+            unreachable!()
+        }
+        OffstreetParking::Private(count, true) => count,
+    };
     Panel::new_builder(Widget::col(vec![Widget::row(vec![
-        Line("Parking").secondary().into_widget(ctx).centered_vert(),
-        Widget::dropdown(ctx, "parking type", current_state.parking, todo!()).centered_vert(),
-        // TODO: edit capacity
+        Line("Parking capacity")
+            .secondary()
+            .into_widget(ctx)
+            .centered_vert(),
+        Spinner::widget(
+            ctx,
+            "parking capacity",
+            (0, 999_999),
+            current_parking_capacity,
+            1,
+        ),
     ])]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
     .build(ctx)

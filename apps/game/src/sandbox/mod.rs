@@ -21,8 +21,8 @@ use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState};
 use crate::debug::DebugMode;
 use crate::edit::{
-    can_edit_lane, BuildingEditor, EditMode, RoadEditor, SaveEdits, StopSignEditor,
-    TrafficSignalEditor,
+    can_edit_building_parking, can_edit_lane, BuildingEditor, EditMode, RoadEditor, SaveEdits,
+    StopSignEditor, TrafficSignalEditor,
 };
 use crate::info::ContextualActions;
 use crate::layer::favorites::{Favorites, ShowFavorites};
@@ -339,7 +339,9 @@ impl ContextualActions for Actions {
                     } else {
                         actions.push((Key::F, "add this building to favorites".to_string()));
                     }
-                    actions.push((Key::E, "edit the parking of this building".to_string()))
+                    if can_edit_building_parking(app, b) {
+                        actions.push((Key::E, "edit the parking of this building".to_string()));
+                    }
                 }
                 _ => {}
             }
