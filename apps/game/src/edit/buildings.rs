@@ -12,7 +12,7 @@ use crate::{
     id::ID,
 };
 
-use super::{apply_map_edits, can_edit_building_parking};
+use super::apply_map_edits;
 
 pub struct BuildingEditor {
     b: BuildingID,
@@ -124,7 +124,7 @@ impl State<App> for BuildingEditor {
                         &mut app.primary,
                     ))
                 }
-                _ => unreachable!(),
+                _ => unreachable!("received unknown clicked key: {}", x),
             }
         }
 
@@ -134,7 +134,7 @@ impl State<App> for BuildingEditor {
                     // TODO allow changing between public and private
                     unimplemented!()
                 }
-                "parking capacity" => {
+                "parking_capacity" => {
                     let parking_capacity: usize = self.main_panel.spinner("parking_capacity");
 
                     let mut edits = app.primary.map.get_edits().clone();
@@ -152,7 +152,7 @@ impl State<App> for BuildingEditor {
 
                     panels_need_recalc = true;
                 }
-                _ => unreachable!(),
+                _ => unreachable!("received unknown change key: {}", x),
             },
             _ => debug!("main_panel had unhandled outcome"),
         }
@@ -218,17 +218,19 @@ fn make_top_panel(
 }
 
 fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
-    if !can_edit_building_parking(app, b) {
-        return Panel::empty(ctx);
-    }
     let map = &app.primary.map;
     let current_state = map.get_b_edit(b);
     let current_parking_capacity = match current_state.parking {
-        OffstreetParking::PublicGarage(_, _) | OffstreetParking::Private(_, false) => {
-            // TODO support editing parking for these cases
-            unreachable!()
-        }
         OffstreetParking::Private(count, true) => count,
+        // TODO support editing for the following 2
+        OffstreetParking::PublicGarage(_, _) => {
+            // unreachable!("parking cannot be edited for public garages")
+            0
+        }
+        OffstreetParking::Private(_, false) => {
+            // unreachable!("parking cannot be edited for buildings with no garages")
+            0
+        }
     };
     Panel::new_builder(Widget::col(vec![Widget::row(vec![
         Line("Parking capacity")
