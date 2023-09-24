@@ -13,7 +13,7 @@ use osm2streets::{get_lane_specs_ltr, RestrictionType};
 
 pub use self::perma::PermanentMapEdits;
 use crate::{
-    AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal, Crossing,
+    AccessRestrictions, Building, BuildingID, ControlStopSign, ControlTrafficSignal, Crossing,
     DiagonalFilter, IntersectionControl, IntersectionID, LaneID, LaneSpec, Map, MapConfig,
     OffstreetParking, ParkingLotID, Road, RoadFilter, RoadID, TransitRouteID, TurnID, TurnType,
 };
@@ -199,6 +199,11 @@ impl EditIntersection {
 }
 
 impl EditBuilding {
+    pub fn get_orig_from_osm(b: &Building, cfg: &MapConfig) -> EditBuilding {
+        todo!()
+        // EditBuilding { parking: b.parking }
+    }
+
     fn diff(&self, other: &EditBuilding) -> Vec<String> {
         let mut changes = Vec::new();
         if self.parking != other.parking {
