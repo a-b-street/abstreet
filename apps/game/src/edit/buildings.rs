@@ -2,7 +2,7 @@ use std::vec;
 
 use map_model::{BuildingID, EditCmd, MapEdits, OffstreetParking};
 use widgetry::{
-    lctrl, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
+    lctrl, Choice, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
     VerticalAlignment, Widget,
 };
 
@@ -131,8 +131,33 @@ impl State<App> for BuildingEditor {
         match self.main_panel.event(ctx) {
             Outcome::Changed(x) => match x.as_ref() {
                 "parking type" => {
-                    // TODO allow changing between public and private
-                    unimplemented!()
+                    let parking_type = self.main_panel.dropdown_value("parking type");
+                    let parking_capacity: usize = self.main_panel.spinner("parking_capacity");
+
+                    let mut edits = app.primary.map.get_edits().clone();
+                    let old = app.primary.map.get_b_edit(self.b);
+                    let mut new = old.clone();
+
+                    new.parking = match parking_type {
+                        "public" => {
+                            // TODO support input public garage name
+                            OffstreetParking::PublicGarage("TODO".to_string(), parking_capacity)
+                        }
+                        "private" => {
+                            OffstreetParking::Private(parking_capacity, parking_capacity > 0)
+                        }
+                        _ => unreachable!("unknown parking type received: {}", parking_type),
+                    };
+
+                    edits.commands.push(EditCmd::ChangeBuilding {
+                        b: self.b,
+                        old,
+                        new,
+                    });
+                    apply_map_edits(ctx, app, edits);
+                    self.redo_stack.clear();
+
+                    panels_need_recalc = true;
                 }
                 "parking_capacity" => {
                     let parking_capacity: usize = self.main_panel.spinner("parking_capacity");
@@ -140,8 +165,14 @@ impl State<App> for BuildingEditor {
                     let mut edits = app.primary.map.get_edits().clone();
                     let old = app.primary.map.get_b_edit(self.b);
                     let mut new = old.clone();
-                    // TODO support editing other types of parking
-                    new.parking = OffstreetParking::Private(parking_capacity, true);
+                    new.parking = match old.parking {
+                        OffstreetParking::Private(_, has_parking) => {
+                            OffstreetParking::Private(parking_capacity, has_parking)
+                        }
+                        OffstreetParking::PublicGarage(ref name, _) => {
+                            OffstreetParking::PublicGarage(name.to_string(), parking_capacity)
+                        }
+                    };
                     edits.commands.push(EditCmd::ChangeBuilding {
                         b: self.b,
                         old,
@@ -221,30 +252,44 @@ fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
     let map = &app.primary.map;
     let current_state = map.get_b_edit(b);
     let current_parking_capacity = match current_state.parking {
-        OffstreetParking::Private(count, true) => count,
-        // TODO support editing for the following 2
-        OffstreetParking::PublicGarage(_, _) => {
-            // unreachable!("parking cannot be edited for public garages")
-            0
-        }
-        OffstreetParking::Private(_, false) => {
-            // unreachable!("parking cannot be edited for buildings with no garages")
-            0
-        }
+        OffstreetParking::Private(count, true) | OffstreetParking::PublicGarage(_, count) => count,
+        OffstreetParking::Private(_, false) => 0,
     };
-    Panel::new_builder(Widget::col(vec![Widget::row(vec![
-        Line("Parking capacity")
-            .secondary()
-            .into_widget(ctx)
-            .centered_vert(),
-        Spinner::widget(
-            ctx,
-            "parking_capacity",
-            (0, 999_999),
-            current_parking_capacity,
-            1,
-        ),
-    ])]))
+    Panel::new_builder(Widget::col(vec![
+        Widget::row(vec![
+            Line("Parking type")
+                .secondary()
+                .into_widget(ctx)
+                .centered_vert(),
+            Widget::dropdown(
+                ctx,
+                "parking type",
+                "public".to_string(),
+                parking_type_choices(),
+            ),
+        ]),
+        Widget::row(vec![
+            Line("Parking capacity")
+                .secondary()
+                .into_widget(ctx)
+                .centered_vert(),
+            Spinner::widget(
+                ctx,
+                "parking_capacity",
+                (0, 999_999),
+                current_parking_capacity,
+                1,
+            ),
+        ]),
+    ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
     .build(ctx)
+}
+
+fn parking_type_choices() -> Vec<Choice<String>> {
+    let choices = vec!["public", "private"];
+    choices
+        .into_iter()
+        .map(|choice| Choice::new(choice.to_string(), choice.to_string()))
+        .collect()
 }
