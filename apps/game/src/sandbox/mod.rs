@@ -339,9 +339,9 @@ impl ContextualActions for Actions {
                     } else {
                         actions.push((Key::F, "add this building to favorites".to_string()));
                     }
-                    if can_edit_building_parking(app, b) {
-                        actions.push((Key::E, "edit the parking of this building".to_string()));
-                    }
+                    // if can_edit_building_parking(app, b) {
+                    actions.push((Key::E, "edit the parking of this building".to_string()));
+                    // }
                 }
                 _ => {}
             }

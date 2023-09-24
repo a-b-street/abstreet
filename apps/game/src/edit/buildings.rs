@@ -1,6 +1,6 @@
 use std::vec;
 
-use map_model::{BuildingID, EditCmd, OffstreetParking};
+use map_model::{BuildingID, EditCmd, MapEdits, OffstreetParking};
 use widgetry::{
     lctrl, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
     VerticalAlignment, Widget,
@@ -57,6 +57,26 @@ impl BuildingEditor {
             self.b,
         );
     }
+
+    fn compress_edits(&self, app: &App) -> Option<MapEdits> {
+        // Compress all of the edits, unless there were 0 or 1 changes
+        if app.primary.map.get_edits().commands.len() > self.num_edit_cmds_originally + 2 {
+            let mut edits = app.primary.map.get_edits().clone();
+            let last_edit = match edits.commands.pop().unwrap() {
+                EditCmd::ChangeBuilding { new, .. } => new,
+                _ => unreachable!(),
+            };
+            edits.commands.truncate(self.num_edit_cmds_originally + 1);
+            match edits.commands.last_mut().unwrap() {
+                EditCmd::ChangeBuilding { ref mut new, .. } => {
+                    *new = last_edit;
+                }
+                _ => unreachable!(),
+            }
+            return Some(edits);
+        }
+        None
+    }
 }
 
 impl State<App> for BuildingEditor {
@@ -67,6 +87,34 @@ impl State<App> for BuildingEditor {
 
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
+                "Finish" => {
+                    if let Some(edits) = self.compress_edits(app) {
+                        apply_map_edits(ctx, app, edits);
+                    }
+                    return Transition::Pop;
+                }
+                "Cancel" => {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    if edits.commands.len() != self.num_edit_cmds_originally {
+                        edits.commands.truncate(self.num_edit_cmds_originally);
+                        apply_map_edits(ctx, app, edits);
+                    }
+                    return Transition::Pop;
+                }
+                "undo" => {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    self.redo_stack.push(edits.commands.pop().unwrap());
+                    apply_map_edits(ctx, app, edits);
+
+                    panels_need_recalc = true;
+                }
+                "redo" => {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    edits.commands.push(self.redo_stack.pop().unwrap());
+                    apply_map_edits(ctx, app, edits);
+
+                    panels_need_recalc = true;
+                }
                 "jump to building" => {
                     return Transition::Push(Warping::new_state(
                         ctx,
