@@ -13,7 +13,7 @@ use osm2streets::{get_lane_specs_ltr, RestrictionType};
 
 pub use self::perma::PermanentMapEdits;
 use crate::{
-    AccessRestrictions, Building, BuildingID, ControlStopSign, ControlTrafficSignal, Crossing,
+    AccessRestrictions, BuildingID, ControlStopSign, ControlTrafficSignal, Crossing,
     DiagonalFilter, IntersectionControl, IntersectionID, LaneID, LaneSpec, Map, MapConfig,
     OffstreetParking, ParkingLotID, Road, RoadFilter, RoadID, TransitRouteID, TurnID, TurnType,
 };
@@ -199,11 +199,6 @@ impl EditIntersection {
 }
 
 impl EditBuilding {
-    pub fn get_orig_from_osm(b: &Building, cfg: &MapConfig) -> EditBuilding {
-        todo!()
-        // EditBuilding { parking: b.parking }
-    }
-
     fn diff(&self, other: &EditBuilding) -> Vec<String> {
         let mut changes = Vec::new();
         if self.parking != other.parking {
@@ -313,7 +308,7 @@ impl MapEdits {
                 EditCmd::ChangeRouteSchedule { id, .. } => {
                     self.changed_routes.insert(*id);
                 }
-                EditCmd::ChangeBuilding { b, old, new } => {
+                EditCmd::ChangeBuilding { b, old, .. } => {
                     if !self.original_buildings.contains_key(b) {
                         self.original_buildings.insert(*b, old.clone());
                     }

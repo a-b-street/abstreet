@@ -1,6 +1,6 @@
 use std::vec;
 
-use map_model::{BuildingID, EditBuilding, EditCmd, OffstreetParking};
+use map_model::{BuildingID, EditCmd, OffstreetParking};
 use widgetry::{
     lctrl, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
     VerticalAlignment, Widget,
@@ -130,7 +130,6 @@ fn make_top_panel(
     b: BuildingID,
 ) -> Panel {
     let map = &app.primary.map;
-    let current_state = map.get_b_edit(b);
 
     Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
@@ -159,14 +158,6 @@ fn make_top_panel(
                 // TODO ctrl+shift+Z!
                 .hotkey(lctrl(Key::Y))
                 .build_widget(ctx, "redo"),
-            ctx.style()
-                .btn_plain_destructive
-                .text("Revert")
-                .disabled(
-                    current_state
-                        == EditBuilding::get_orig_from_osm(map.get_b(b), map.get_config()),
-                )
-                .build_def(ctx),
             ctx.style()
                 .btn_plain
                 .text("Cancel")
