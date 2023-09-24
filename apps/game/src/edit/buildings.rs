@@ -255,6 +255,7 @@ fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
         OffstreetParking::Private(count, true) | OffstreetParking::PublicGarage(_, count) => count,
         OffstreetParking::Private(_, false) => 0,
     };
+
     Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
             Line("Parking type")
@@ -264,7 +265,7 @@ fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
             Widget::dropdown(
                 ctx,
                 "parking type",
-                "public".to_string(),
+                current_state.parking.get_variant_name(),
                 parking_type_choices(),
             ),
         ]),

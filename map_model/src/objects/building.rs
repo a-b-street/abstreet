@@ -58,6 +58,15 @@ pub enum OffstreetParking {
     Private(usize, bool),
 }
 
+impl OffstreetParking {
+    pub fn get_variant_name(&self) -> String {
+        match self {
+            OffstreetParking::Private(_, _) => "private".to_string(),
+            OffstreetParking::PublicGarage(_, _) => "public".to_string(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum BuildingType {
     Residential {
