@@ -2,18 +2,22 @@ use std::vec;
 
 use map_model::{BuildingID, EditBuilding, EditCmd};
 use widgetry::{
-    lctrl, Drawable, EventCtx, GeomBatch, HorizontalAlignment, Key, Line, Panel, State,
-    VerticalAlignment, Widget,
+    lctrl, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, VerticalAlignment,
+    Widget,
 };
 
-use crate::app::{App, Transition};
+use crate::{
+    app::{App, Transition},
+    common::Warping,
+    id::ID,
+};
 
 pub struct BuildingEditor {
     b: BuildingID,
 
     top_panel: Panel,
     main_panel: Panel,
-    fade_irrelevant: Drawable,
+    // TODO: fade_irrelevant to make things look nicer
 
     // Undo/redo management
     num_edit_cmds_originally: usize,
@@ -33,7 +37,6 @@ impl BuildingEditor {
             b,
             top_panel: Panel::empty(ctx),
             main_panel: Panel::empty(ctx),
-            fade_irrelevant: Drawable::empty(ctx),
 
             num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
             redo_stack: Vec::new(),
@@ -53,19 +56,47 @@ impl BuildingEditor {
             self.redo_stack.is_empty(),
             self.b,
         );
-
-        self.fade_irrelevant = fade_irrelevant(app, self.b).upload(ctx);
     }
 }
 
 impl State<App> for BuildingEditor {
-    fn event(&mut self, ctx: &mut EventCtx, shared_app_state: &mut App) -> Transition {
-        // TODO: jump to building action
-        todo!()
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        ctx.canvas_movement();
+
+        if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
+            match x.as_ref() {
+                "jump to building" => {
+                    return Transition::Push(Warping::new_state(
+                        ctx,
+                        app.primary.canonical_point(ID::Building(self.b)).unwrap(),
+                        Some(10.0),
+                        Some(ID::Building(self.b)),
+                        &mut app.primary,
+                    ))
+                }
+                _ => unreachable!(),
+            }
+        }
+
+        match self.main_panel.event(ctx) {
+            Outcome::Changed(x) => match x.as_ref() {
+                "parking type" => {
+                    unimplemented!()
+                }
+                "parking capacity" => {
+                    unimplemented!()
+                }
+                _ => unreachable!(),
+            },
+            _ => debug!("main_panel had unhandled outcome"),
+        }
+
+        Transition::Keep
     }
 
-    fn draw(&self, g: &mut widgetry::GfxCtx, shared_app_state: &App) {
-        todo!()
+    fn draw(&self, g: &mut widgetry::GfxCtx, _: &App) {
+        self.top_panel.draw(g);
+        self.main_panel.draw(g);
     }
 }
 
@@ -131,13 +162,9 @@ fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
 
     Panel::new_builder(Widget::col(vec![Widget::row(vec![
         Line("Parking").secondary().into_widget(ctx).centered_vert(),
-        Widget::dropdown(ctx, "type", current_state.parking, todo!()).centered_vert(),
+        Widget::dropdown(ctx, "parking type", current_state.parking, todo!()).centered_vert(),
         // TODO: edit capacity
     ])]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
     .build(ctx)
-}
-
-fn fade_irrelevant(app: &App, b: BuildingID) -> GeomBatch {
-    todo!()
 }
