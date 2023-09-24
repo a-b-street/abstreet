@@ -6,7 +6,7 @@ use geom::Speed;
 use map_gui::options::OptionsPanel;
 use map_gui::render::DrawMap;
 use map_gui::tools::grey_out_map;
-use map_model::{BuildingID, EditCmd, IntersectionID, LaneID, MapEdits, OffstreetParking};
+use map_model::{EditCmd, IntersectionID, LaneID, MapEdits};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::tools::{ChooseSomething, ColorLegend, PopupMsg};
 use widgetry::{
@@ -810,15 +810,6 @@ pub fn can_edit_lane(app: &App, l: LaneID) -> bool {
     }
 
     true
-}
-
-pub fn can_edit_building_parking(app: &App, b: BuildingID) -> bool {
-    let map = &app.primary.map;
-    let building = map.get_b(b);
-    match building.parking {
-        OffstreetParking::PublicGarage(_, _) | OffstreetParking::Private(_, false) => false,
-        OffstreetParking::Private(_, true) => true,
-    }
 }
 
 pub fn speed_limit_choices(app: &App, preset: Option<Speed>) -> Vec<Choice<Speed>> {
