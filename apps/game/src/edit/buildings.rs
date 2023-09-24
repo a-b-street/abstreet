@@ -12,7 +12,7 @@ use crate::{
     id::ID,
 };
 
-use super::can_edit_building_parking;
+use super::{apply_map_edits, can_edit_building_parking};
 
 pub struct BuildingEditor {
     b: BuildingID,
@@ -63,6 +63,8 @@ impl State<App> for BuildingEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
+        let mut panels_need_recalc = false;
+
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "jump to building" => {
@@ -85,11 +87,30 @@ impl State<App> for BuildingEditor {
                     unimplemented!()
                 }
                 "parking capacity" => {
-                    unimplemented!()
+                    let parking_capacity: usize = self.main_panel.spinner("parking_capacity");
+
+                    let mut edits = app.primary.map.get_edits().clone();
+                    let old = app.primary.map.get_b_edit(self.b);
+                    let mut new = old.clone();
+                    // TODO support editing other types of parking
+                    new.parking = OffstreetParking::Private(parking_capacity, true);
+                    edits.commands.push(EditCmd::ChangeBuilding {
+                        b: self.b,
+                        old,
+                        new,
+                    });
+                    apply_map_edits(ctx, app, edits);
+                    self.redo_stack.clear();
+
+                    panels_need_recalc = true;
                 }
                 _ => unreachable!(),
             },
             _ => debug!("main_panel had unhandled outcome"),
+        }
+
+        if panels_need_recalc {
+            self.recalc_all_panels(ctx, app);
         }
 
         Transition::Keep
@@ -177,7 +198,7 @@ fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
             .centered_vert(),
         Spinner::widget(
             ctx,
-            "parking capacity",
+            "parking_capacity",
             (0, 999_999),
             current_parking_capacity,
             1,
