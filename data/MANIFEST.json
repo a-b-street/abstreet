@@ -820,6 +820,11 @@
       "uncompressed_size_bytes": 6090624,
       "compressed_size_bytes": 1921370
     },
+    "data/input/gb/sheffield/raw_maps/center.bin": {
+      "checksum": "3ddd966f2bd246848004b1ab66d73662",
+      "uncompressed_size_bytes": 7782816,
+      "compressed_size_bytes": 2092917
+    },
     "data/input/gb/sheffield/raw_maps/darnall.bin": {
       "checksum": "9ea507dc78009fc367a1ed8667a7f1ad",
       "uncompressed_size_bytes": 6155087,
@@ -3585,10 +3590,20 @@
       "uncompressed_size_bytes": 5135906,
       "compressed_size_bytes": 1279366
     },
+    "data/system/gb/sheffield/maps/center.bin": {
+      "checksum": "6533471368007fc090c6dff9b4d55233",
+      "uncompressed_size_bytes": 20447830,
+      "compressed_size_bytes": 7810275
+    },
     "data/system/gb/sheffield/maps/darnall.bin": {
       "checksum": "f85f04391ee93d8c79f2429f54ba319c",
       "uncompressed_size_bytes": 20612736,
       "compressed_size_bytes": 8054967
+    },
+    "data/system/gb/sheffield/scenarios/center/background.bin": {
+      "checksum": "4dc8b0c9dc1a279e4c5e64afea1386a1",
+      "uncompressed_size_bytes": 9802967,
+      "compressed_size_bytes": 2581277
     },
     "data/system/gb/sheffield/scenarios/darnall/background.bin": {
       "checksum": "73b55e326b3fb61a4ee96538937950f1",
