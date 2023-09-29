@@ -416,7 +416,12 @@ fn recalculate_intersection_polygon(
             dst_i: osm2streets::IntersectionID(r.dst_i.0),
             center_line: r.untrimmed_center_pts.clone(),
             total_width,
-            highway_type: r.osm_tags.get(osm::HIGHWAY).unwrap().to_string(),
+            highway_type: r
+                .osm_tags
+                .get(osm::HIGHWAY)
+                .or_else(|| r.osm_tags.get("railway"))
+                .unwrap()
+                .to_string(),
         });
     }
 
