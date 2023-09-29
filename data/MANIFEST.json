@@ -1906,9 +1906,9 @@
       "compressed_size_bytes": 322827
     },
     "data/system/br/sao_paulo/prebaked_results/sao_miguel_paulista/Full.bin": {
-      "checksum": "fe10522df3baefe2af326e9c2faaea0e",
-      "uncompressed_size_bytes": 26172612,
-      "compressed_size_bytes": 8964604
+      "checksum": "69970fe65718df6be06b0a84d07da7c2",
+      "uncompressed_size_bytes": 19793161,
+      "compressed_size_bytes": 6980768
     },
     "data/system/br/sao_paulo/scenarios/sao_miguel_paulista/Full.bin": {
       "checksum": "f464d2228d1686c06c45c79ac1e6b405",
@@ -3945,11 +3945,6 @@
       "uncompressed_size_bytes": 5138080,
       "compressed_size_bytes": 1902328
     },
-    "data/system/ir/tehran/prebaked_results/parliament/random people going to and from work.bin": {
-      "checksum": "2946cf0560b72d968ca86080a6e4259a",
-      "uncompressed_size_bytes": 7366156,
-      "compressed_size_bytes": 2618945
-    },
     "data/system/jp/hiroshima/maps/uni.bin": {
       "checksum": "f10b26db68c0e1ef55c73e202e63b14b",
       "uncompressed_size_bytes": 1672245,
@@ -4194,11 +4189,6 @@
       "checksum": "c4a2a8b4d21a051f30506e319a3f2d97",
       "uncompressed_size_bytes": 4884,
       "compressed_size_bytes": 1436
-    },
-    "data/system/us/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "b804537cfad1e1b2f766e3e6af04ff75",
-      "uncompressed_size_bytes": 9608528,
-      "compressed_size_bytes": 3698888
     },
     "data/system/us/seattle/scenarios/arboretum/weekday.bin": {
       "checksum": "5e101af7dfcdd4792962b06ff9f76362",

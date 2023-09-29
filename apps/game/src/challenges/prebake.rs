@@ -24,18 +24,20 @@ pub fn prebake_all() {
     }
 
     let mut summaries = Vec::new();
-    for name in vec![
-        //MapName::seattle("arboretum"),
-        MapName::seattle("montlake"),
-        //MapName::seattle("lakeslice"),
-        //MapName::seattle("phinney"),
-        //MapName::seattle("qa"),
-        //MapName::seattle("wallingford"),
-    ] {
-        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
-        let scenario: Scenario =
-            abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
-        summaries.push(prebake(&map, scenario, &mut timer));
+    if false {
+        for name in vec![
+            //MapName::seattle("arboretum"),
+            MapName::seattle("montlake"),
+            //MapName::seattle("lakeslice"),
+            //MapName::seattle("phinney"),
+            //MapName::seattle("qa"),
+            //MapName::seattle("wallingford"),
+        ] {
+            let map = map_model::Map::load_synchronously(name.path(), &mut timer);
+            let scenario: Scenario =
+                abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
+            summaries.push(prebake(&map, scenario, &mut timer));
+        }
     }
 
     // Since adding off-map traffic, these all gridlock now
