@@ -3,7 +3,7 @@ use std::vec;
 use map_model::{BuildingID, EditCmd, MapEdits, OffstreetParking};
 use widgetry::{
     lctrl, Choice, EventCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner, State,
-    VerticalAlignment, Widget,
+    TextBox, VerticalAlignment, Widget,
 };
 
 use crate::{
@@ -183,6 +183,27 @@ impl State<App> for BuildingEditor {
 
                     panels_need_recalc = true;
                 }
+                "new_garage_name" => {
+                    let new_garage_name = self.main_panel.text_box("new_garage_name");
+
+                    let mut edits = app.primary.map.get_edits().clone();
+                    let old = app.primary.map.get_b_edit(self.b);
+                    let mut new = old.clone();
+
+                    new.parking = match old.parking {
+                        OffstreetParking::Private(_, _) => {
+                            unreachable!("Garage name can only be edited if it is public");
+                        }
+                        OffstreetParking::PublicGarage(_, size) => {
+                            OffstreetParking::PublicGarage(new_garage_name, size)
+                        }
+                    };
+                    edits.commands.push(EditCmd::ChangeBuilding {
+                        b: self.b,
+                        old,
+                        new,
+                    })
+                }
                 _ => unreachable!("received unknown change key: {}", x),
             },
             _ => debug!("main_panel had unhandled outcome"),
@@ -256,7 +277,7 @@ fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
         OffstreetParking::Private(_, false) => 0,
     };
 
-    Panel::new_builder(Widget::col(vec![
+    let mut fields = vec![
         Widget::row(vec![
             Line("Parking type")
                 .secondary()
@@ -282,9 +303,21 @@ fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
                 1,
             ),
         ]),
-    ]))
-    .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
-    .build(ctx)
+    ];
+
+    if let OffstreetParking::PublicGarage(name, _) = current_state.parking {
+        fields.push(Widget::row(vec![
+            Line("Garage Name")
+                .secondary()
+                .into_widget(ctx)
+                .centered_vert(),
+            TextBox::widget(ctx, "new_garage_name", name, false, 100),
+        ]));
+    }
+
+    Panel::new_builder(Widget::col(fields))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
+        .build(ctx)
 }
 
 fn parking_type_choices() -> Vec<Choice<String>> {
