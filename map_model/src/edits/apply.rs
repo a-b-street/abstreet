@@ -45,6 +45,7 @@ impl Map {
             deleted_turns: BTreeSet::new(),
             changed_parking_lots: BTreeSet::new(),
             modified_lanes: BTreeSet::new(),
+            changed_buildings: BTreeSet::new(),
         };
 
         // Short-circuit to avoid marking pathfinder_dirty

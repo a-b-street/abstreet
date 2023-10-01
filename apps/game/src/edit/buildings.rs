@@ -130,8 +130,8 @@ impl State<App> for BuildingEditor {
 
         match self.main_panel.event(ctx) {
             Outcome::Changed(x) => match x.as_ref() {
-                "parking type" => {
-                    let parking_type = self.main_panel.dropdown_value("parking type");
+                "parking_type" => {
+                    let parking_type = self.main_panel.dropdown_value("parking_type");
                     let parking_capacity: usize = self.main_panel.spinner("parking_capacity");
 
                     let mut edits = app.primary.map.get_edits().clone();
@@ -285,7 +285,7 @@ fn make_main_panel(ctx: &mut EventCtx, app: &App, b: BuildingID) -> Panel {
                 .centered_vert(),
             Widget::dropdown(
                 ctx,
-                "parking type",
+                "parking_type",
                 current_state.parking.get_variant_name(),
                 parking_type_choices(),
             ),

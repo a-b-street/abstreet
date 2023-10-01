@@ -72,6 +72,7 @@ pub struct EditEffects {
     pub changed_roads: BTreeSet<RoadID>,
     pub deleted_lanes: BTreeSet<LaneID>,
     pub changed_intersections: BTreeSet<IntersectionID>,
+    pub changed_buildings: BTreeSet<BuildingID>,
     // TODO Will we need modified turns?
     pub added_turns: BTreeSet<TurnID>,
     pub deleted_turns: BTreeSet<TurnID>,

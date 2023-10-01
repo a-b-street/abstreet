@@ -786,6 +786,10 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
             app.primary.draw_map.get_pl(pl).clear_rendering();
         }
 
+        for b in effects.changed_buildings {
+            app.primary.draw_map.recreate_building(b, &app.primary.map);
+        }
+
         if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
             app.primary.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
         }

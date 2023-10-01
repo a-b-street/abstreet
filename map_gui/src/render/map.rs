@@ -514,6 +514,15 @@ impl DrawMap {
         self.roads[road.id.0] = draw;
     }
 
+    pub fn recreate_building(&mut self, b: BuildingID, map: &Map) {
+        self.quadtree.remove(ID::Building(b)).unwrap();
+
+        let draw = DrawBuilding::new_empty(b);
+        self.quadtree
+            .insert_with_box(draw.get_id(), draw.get_bounds(map));
+        self.buildings[b.0] = draw;
+    }
+
     pub fn free_memory(&mut self) {
         // Clear the lazily evaluated zoomed-in details
         for r in &mut self.roads {
@@ -527,6 +536,9 @@ impl DrawMap {
         }
         for pl in &mut self.parking_lots {
             pl.clear_rendering();
+        }
+        for b in &mut self.buildings {
+            b.clear_rendering();
         }
     }
 }
