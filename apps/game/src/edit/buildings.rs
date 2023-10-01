@@ -139,10 +139,10 @@ impl State<App> for BuildingEditor {
                     let mut new = old.clone();
 
                     new.parking = match parking_type {
-                        "public" => {
-                            // TODO support input public garage name
-                            OffstreetParking::PublicGarage("TODO".to_string(), parking_capacity)
-                        }
+                        "public" => OffstreetParking::PublicGarage(
+                            "untitled public garage".to_string(),
+                            parking_capacity,
+                        ),
                         "private" => {
                             OffstreetParking::Private(parking_capacity, parking_capacity > 0)
                         }
