@@ -56,6 +56,8 @@ for name in play_abstreet ungap_the_map fifteen_min osm_viewer parking_mapper sa
 			;;
 	esac
 	if [[ "$os" = "windows-latest" ]]; then
+		# The directory separator is backslash
+		cmd=`$cmd | sed 's/\\//\\\/g'`
 		script="${output}/${name}.bat"
 		echo 'set RUST_BACKTRACE=1' > $script
 		echo "${cmd} 1> output.txt 2>&1" >> $script
