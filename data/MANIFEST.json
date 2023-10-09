@@ -2996,9 +2996,9 @@
       "compressed_size_bytes": 4468771
     },
     "data/system/gb/london/city.bin": {
-      "checksum": "5e8e117b81d2d1364b0a12ddeac8091f",
-      "uncompressed_size_bytes": 3744442,
-      "compressed_size_bytes": 1963903
+      "checksum": "c0cef67dadb269d3faccd0529755e3f5",
+      "uncompressed_size_bytes": 3812104,
+      "compressed_size_bytes": 1999780
     },
     "data/system/gb/london/maps/barking_and_dagenham.bin": {
       "checksum": "4dbb325db01ad26ec4a41fab8395f5f4",
