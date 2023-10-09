@@ -435,6 +435,11 @@
       "uncompressed_size_bytes": 24880501,
       "compressed_size_bytes": 7500972
     },
+    "data/input/gb/darlington/raw_maps/center.bin": {
+      "checksum": "93c6ea07cc4cba58611f42b0ac9c3a1d",
+      "uncompressed_size_bytes": 5227653,
+      "compressed_size_bytes": 1503698
+    },
     "data/input/gb/derby/raw_maps/center.bin": {
       "checksum": "bff3c200d27b4930915280cee74e8d0f",
       "uncompressed_size_bytes": 16070966,
@@ -2559,6 +2564,16 @@
       "checksum": "0656f9e9f222391e98dd5f528620c235",
       "uncompressed_size_bytes": 7912165,
       "compressed_size_bytes": 2144732
+    },
+    "data/system/gb/darlington/maps/center.bin": {
+      "checksum": "0f9f47678ba902f3b5f67e5084b84850",
+      "uncompressed_size_bytes": 22043626,
+      "compressed_size_bytes": 8695226
+    },
+    "data/system/gb/darlington/scenarios/center/background.bin": {
+      "checksum": "99921a58d68b8ff3ea8bacd93e2176f2",
+      "uncompressed_size_bytes": 4362456,
+      "compressed_size_bytes": 1087517
     },
     "data/system/gb/derby/maps/center.bin": {
       "checksum": "1ff4b4ed3868d76000fef0dbeba267eb",
