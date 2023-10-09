@@ -175,6 +175,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("bristol", "south") => "South Bristol",
             ("burnley", "center") => "Burnley",
             ("cambridge", "north") => "North Cambridge",
+            ("cardiff", "north") => "Cardiff",
             ("castlemead", "center") => "Castlemead",
             ("chapelford", "center") => "Chapelford (Cheshire)",
             ("chapeltown_cohousing", "center") => "Chapeltown Cohousing",

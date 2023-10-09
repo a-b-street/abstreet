@@ -390,6 +390,11 @@
       "uncompressed_size_bytes": 10235498,
       "compressed_size_bytes": 2444290
     },
+    "data/input/gb/cardiff/raw_maps/center.bin": {
+      "checksum": "ac7294cbbf603b989668d41204eb98fc",
+      "uncompressed_size_bytes": 29055486,
+      "compressed_size_bytes": 9095700
+    },
     "data/input/gb/castlemead/raw_maps/center.bin": {
       "checksum": "c709f9f08ac1a518fdee2a173ea36d41",
       "uncompressed_size_bytes": 3144552,
@@ -645,6 +650,11 @@
       "uncompressed_size_bytes": 15585569,
       "compressed_size_bytes": 4582465
     },
+    "data/input/gb/london/raw_maps/highgate.bin": {
+      "checksum": "5a78215f2e3b5aa78f46ac0b505e41b2",
+      "uncompressed_size_bytes": 5756013,
+      "compressed_size_bytes": 1594632
+    },
     "data/input/gb/london/raw_maps/hillingdon.bin": {
       "checksum": "753015655a3138fc95ef43fb41b0b7c7",
       "uncompressed_size_bytes": 17842369,
@@ -709,6 +719,11 @@
       "checksum": "649ccf560b08cf7a24464c026619337b",
       "uncompressed_size_bytes": 9714486,
       "compressed_size_bytes": 2911744
+    },
+    "data/input/gb/london/raw_maps/regents_park.bin": {
+      "checksum": "2351bc5386fa28750f5aa147ecd3ac4c",
+      "uncompressed_size_bytes": 17925251,
+      "compressed_size_bytes": 4454515
     },
     "data/input/gb/london/raw_maps/richmond_upon_thames.bin": {
       "checksum": "2e8db377a421b4bca7549d3b47d57e7c",
@@ -1359,6 +1374,11 @@
       "checksum": "960923b059d1ea514eda146152a57cd4",
       "uncompressed_size_bytes": 238095072,
       "compressed_size_bytes": 237887274
+    },
+    "data/input/shared/geofabrik/europe/great-britain/wales-latest.osm.pbf": {
+      "checksum": "1da41a826e5551539d9ed0f85c6bff47",
+      "uncompressed_size_bytes": 109189752,
+      "compressed_size_bytes": 109081588
     },
     "data/input/shared/geofabrik/europe/netherlands-latest.osm.pbf": {
       "checksum": "529b1e1757b5dae777948e674052bdf8",
@@ -2360,6 +2380,16 @@
       "uncompressed_size_bytes": 6057508,
       "compressed_size_bytes": 1469381
     },
+    "data/system/gb/cardiff/maps/center.bin": {
+      "checksum": "b5ffd9a847ad5e95f2a6ac7976e4f3ef",
+      "uncompressed_size_bytes": 88451386,
+      "compressed_size_bytes": 35586511
+    },
+    "data/system/gb/cardiff/scenarios/center/background.bin": {
+      "checksum": "34d8723142d4451901debce46a6cb52b",
+      "uncompressed_size_bytes": 15262590,
+      "compressed_size_bytes": 3956216
+    },
     "data/system/gb/castlemead/maps/center.bin": {
       "checksum": "35ca65f47811b3956b42caa5435f0d39",
       "uncompressed_size_bytes": 13446085,
@@ -3040,6 +3070,11 @@
       "uncompressed_size_bytes": 47954188,
       "compressed_size_bytes": 18949109
     },
+    "data/system/gb/london/maps/highgate.bin": {
+      "checksum": "aff1e4dd26e51cb1a5326618e678bdb2",
+      "uncompressed_size_bytes": 13588118,
+      "compressed_size_bytes": 5150304
+    },
     "data/system/gb/london/maps/hillingdon.bin": {
       "checksum": "c982032813b5f39f7c61646cb7f4a505",
       "uncompressed_size_bytes": 60061881,
@@ -3104,6 +3139,11 @@
       "checksum": "66ae78c5fbacd62317a6fbfcbc481be2",
       "uncompressed_size_bytes": 34161572,
       "compressed_size_bytes": 13463196
+    },
+    "data/system/gb/london/maps/regents_park.bin": {
+      "checksum": "78012a51c27ec1f8be84e793c59359a6",
+      "uncompressed_size_bytes": 34764594,
+      "compressed_size_bytes": 13071873
     },
     "data/system/gb/london/maps/richmond_upon_thames.bin": {
       "checksum": "fe8fa14c175fc15e97ee51f4be4b7237",
@@ -3220,6 +3260,11 @@
       "uncompressed_size_bytes": 18094627,
       "compressed_size_bytes": 4543954
     },
+    "data/system/gb/london/scenarios/highgate/background.bin": {
+      "checksum": "2a302450c8a1ba493108fa636f158762",
+      "uncompressed_size_bytes": 18414235,
+      "compressed_size_bytes": 4705163
+    },
     "data/system/gb/london/scenarios/hillingdon/background.bin": {
       "checksum": "11925e95b8f116942eb5a2c4a47f0f81",
       "uncompressed_size_bytes": 26176047,
@@ -3284,6 +3329,11 @@
       "checksum": "8d57518d184e6031822da5862a3331c3",
       "uncompressed_size_bytes": 19405421,
       "compressed_size_bytes": 5055218
+    },
+    "data/system/gb/london/scenarios/regents_park/background.bin": {
+      "checksum": "e01e965cd4557f020aa77fd1f6ebf0c1",
+      "uncompressed_size_bytes": 51602480,
+      "compressed_size_bytes": 14037197
     },
     "data/system/gb/london/scenarios/richmond_upon_thames/background.bin": {
       "checksum": "8cb9c5c6dc0b5e7fd424085567529c14",
