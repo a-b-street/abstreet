@@ -44,24 +44,35 @@ done
 # Generate a script to run each app and capture output logs
 # Note these're different than the executable names
 for name in play_abstreet ungap_the_map fifteen_min osm_viewer parking_mapper santa ltn; do
-	case $name in
-		play_abstreet)
-			cmd="./binaries/game${suffix}";
-			;;
-		ungap_the_map)
-			cmd="./binaries/game${suffix} --ungap";
-			;;
-		*)
-			cmd="./binaries/${name}${suffix}";
-			;;
-	esac
 	if [[ "$os" = "windows-latest" ]]; then
-		# The directory separator is backslash
-		cmd=`$cmd | sed 's/\\//\\\/g'`
+		case $name in
+			play_abstreet)
+				cmd=".\\binaries\\game.exe";
+				;;
+			ungap_the_map)
+				cmd=".\\binaries\\game.exe --ungap";
+				;;
+			*)
+				cmd=".\\binaries\\${name}.exe";
+				;;
+		esac
+
 		script="${output}/${name}.bat"
 		echo 'set RUST_BACKTRACE=1' > $script
 		echo "${cmd} 1> output.txt 2>&1" >> $script
 	else
+		case $name in
+			play_abstreet)
+				cmd="./binaries/game";
+				;;
+			ungap_the_map)
+				cmd="./binaries/game --ungap";
+				;;
+			*)
+				cmd="./binaries/${name}";
+				;;
+		esac
+
 		script="${output}/${name}.sh"
 		echo '#!/bin/bash' > $script
 		echo 'echo See logs in output.txt' >> $script
