@@ -1112,6 +1112,7 @@ impl Map {
         &self,
         r1: &Road,
         r2: &Road,
+        icon_counter: &HashMap<IntersectionID, i32>,
     ) -> (TurnType, Pt2D, Angle, IntersectionID) {
         // Determine where to place the symbol
         let i = match r1.common_endpoint(r2) {
@@ -1126,10 +1127,25 @@ impl Map {
             }
         };
 
-        // Determine what type of turn is it?
+        // Determine where to place and orientate the icon
+        let sign_count = *icon_counter.get(&i).unwrap_or(&1);
+        let mut ideal_dist_from_intersection = sign_count as f64 * 1.1 * r1.get_width();
+        if 2.0 * ideal_dist_from_intersection > r1.center_pts.length() {
+            // We've run out of space on the road to fit all of the icons on. We will just pile them up where we can
+            // Next try near the end of the stack, but just still in the appropriate half of the road
+            ideal_dist_from_intersection = 0.5 * (r1.center_pts.length() - r1.get_width());
+            if ideal_dist_from_intersection < Distance::ZERO {
+                // The road is wider than it is long, so just squeeze them in:
+                ideal_dist_from_intersection = 0.3 * r1.center_pts.length();
+            }
+        }
+        
+        // Adjust according to which end of the road we've measuring from
+        let dist_from_intersection = if r1.src_i == i { ideal_dist_from_intersection } else { r1.center_pts.length() - ideal_dist_from_intersection };
+
         let (sign_pt, mut r1_angle) = r1
             .center_pts
-            .must_dist_along((if r1.src_i == i { 0.2 } else { 0.8 }) * r1.center_pts.length());
+            .must_dist_along(dist_from_intersection);
 
         // Correct the angle, based on whether the vector direction is towards or away from the intersection
         // TODO what is the standard way of describing the vector direction (rather than the traffic direction) for roads?
