@@ -2,8 +2,10 @@ mod cells;
 pub mod colors;
 mod filters;
 
+use std::collections::HashMap;
+
 use geom::{Angle, Distance, Pt2D};
-use map_model::{AmenityType, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType};
+use map_model::{AmenityType, ExtraPOIType, FilterType, Map, RestrictionType, Road, TurnType, RoadID};
 use widgetry::mapspace::DrawCustomUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, RewriteColor, Text};
 
@@ -77,33 +79,40 @@ pub fn render_bus_routes(ctx: &EventCtx, map: &Map) -> Drawable {
     ctx.upload(batch)
 }
 
+
 pub fn render_turn_restrictions(ctx: &EventCtx, map: &Map) -> Drawable {
     let mut batch = GeomBatch::new();
     for r1 in map.all_roads() {
         // TODO Also interpret lane-level? Maybe just check all the generated turns and see what's
         // allowed / banned in practice?
+
+        // Count the number of turn restrictions at each end of the road
+        let mut icon_counter = HashMap::from([
+            (r1.dst_i, 1),
+            (r1.src_i, 1),
+        ]);
+
         for (restriction, r2) in &r1.turn_restrictions {
             // TODO "Invert" OnlyAllowTurns so we can just draw banned things
             if *restriction == RestrictionType::BanTurns {
-                batch.append(draw_restriction(ctx, map, r1, map.get_r(*r2)));
+                let (t_type, sign_pt, r1_angle, i) = map.get_ban_turn_info(r1, map.get_r(*r2), &icon_counter);
+                // add to the counter
+                icon_counter.entry(i).and_modify(|n| *n+=1);
+                batch.append(draw_turn_restriction_icon(
+                    ctx, t_type, sign_pt, r1, r1_angle,
+                ));
             }
         }
         for (_via, r2) in &r1.complicated_turn_restrictions {
             // TODO Show the 'via'? Or just draw the entire shape?
-            batch.append(draw_restriction(ctx, map, r1, map.get_r(*r2)));
+            let (t_type, sign_pt, r1_angle, i) = map.get_ban_turn_info(r1, map.get_r(*r2), &icon_counter);
+            icon_counter.entry(i).and_modify(|n| *n+=1);
+            batch.append(draw_turn_restriction_icon(
+                ctx, t_type, sign_pt, r1, r1_angle,
+            ));
         }
     }
     ctx.upload(batch)
-}
-
-fn draw_restriction(ctx: &EventCtx, map: &Map, r1: &Road, r2: &Road) -> GeomBatch {
-    let mut batch = GeomBatch::new();
-    // TODO: remove/name this wrapper, which is just for debugging svg icon placement/rotation
-    let (t_type, sign_pt, r1_angle, _) = map.get_ban_turn_info(r1, r2);
-    batch.append(draw_turn_restriction_icon(
-        ctx, t_type, sign_pt, r1, r1_angle,
-    ));
-    batch
 }
 
 fn draw_turn_restriction_icon(
