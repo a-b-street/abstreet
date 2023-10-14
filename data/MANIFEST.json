@@ -850,6 +850,11 @@
       "uncompressed_size_bytes": 6155087,
       "compressed_size_bytes": 1828414
     },
+    "data/input/gb/sheffield/raw_maps/woodseats.bin": {
+      "checksum": "82fd623a384449736acd1030a6b6839d",
+      "uncompressed_size_bytes": 7074506,
+      "compressed_size_bytes": 1689382
+    },
     "data/input/gb/st_albans/raw_maps/center.bin": {
       "checksum": "a47fc199c2183b98f8462df26112a12a",
       "uncompressed_size_bytes": 6454778,
@@ -3665,6 +3670,11 @@
       "uncompressed_size_bytes": 20612736,
       "compressed_size_bytes": 8054967
     },
+    "data/system/gb/sheffield/maps/woodseats.bin": {
+      "checksum": "da1898f4ef08dce93cf50dbfe9fc9810",
+      "uncompressed_size_bytes": 15181082,
+      "compressed_size_bytes": 5837322
+    },
     "data/system/gb/sheffield/scenarios/center/background.bin": {
       "checksum": "4dc8b0c9dc1a279e4c5e64afea1386a1",
       "uncompressed_size_bytes": 9802967,
@@ -3674,6 +3684,11 @@
       "checksum": "73b55e326b3fb61a4ee96538937950f1",
       "uncompressed_size_bytes": 8279793,
       "compressed_size_bytes": 2144138
+    },
+    "data/system/gb/sheffield/scenarios/woodseats/background.bin": {
+      "checksum": "7d6409c0d751356b0de2a7002ae7e69c",
+      "uncompressed_size_bytes": 5324801,
+      "compressed_size_bytes": 1382130
     },
     "data/system/gb/st_albans/maps/center.bin": {
       "checksum": "1b9ddaf227ca5465008c083ee3e878e4",
