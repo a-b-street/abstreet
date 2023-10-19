@@ -156,6 +156,9 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("paris", "south") => "Paris (south)",
             ("paris", "east") => "Paris (east)",
             ("paris", "west") => "Paris (west)",
+            ("strasbourg", "center") => "Strasbourg (center)",
+            ("strasbourg", "north") => "Strasbourg (north)",
+            ("strasbourg", "south") => "Strasbourg (south)",
             _ => &name.map,
         },
         "gb" => match (name.city.city.as_ref(), name.map.as_ref()) {

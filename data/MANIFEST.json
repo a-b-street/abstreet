@@ -305,6 +305,21 @@
       "uncompressed_size_bytes": 22684375,
       "compressed_size_bytes": 6568887
     },
+    "data/input/fr/strasbourg/raw_maps/center.bin": {
+      "checksum": "0d53bdd84b88e588d84c5ce8bd2db8f8",
+      "uncompressed_size_bytes": 56197234,
+      "compressed_size_bytes": 14211279
+    },
+    "data/input/fr/strasbourg/raw_maps/north.bin": {
+      "checksum": "96a92dd16ac28b9d136c0c919af8915b",
+      "uncompressed_size_bytes": 17956038,
+      "compressed_size_bytes": 4394297
+    },
+    "data/input/fr/strasbourg/raw_maps/south.bin": {
+      "checksum": "bb2fadfd93a39a2e2d0ead77694f6976",
+      "uncompressed_size_bytes": 29441864,
+      "compressed_size_bytes": 7455806
+    },
     "data/input/gb/allerton_bywater/raw_maps/center.bin": {
       "checksum": "7816a14514e6369383f4c75371e73256",
       "uncompressed_size_bytes": 25610589,
@@ -1225,6 +1240,11 @@
       "uncompressed_size_bytes": 819497925,
       "compressed_size_bytes": 818472077
     },
+    "data/input/shared/geofabrik/europe/france/alsace-latest.osm.pbf": {
+      "checksum": "a0e24d3d6239f4bb451f549ae52ad062",
+      "uncompressed_size_bytes": 119446116,
+      "compressed_size_bytes": 119351725
+    },
     "data/input/shared/geofabrik/europe/france/bretagne-latest.osm.pbf": {
       "checksum": "d2e2c80143b67c8bd0298fcfdc8ec3c0",
       "uncompressed_size_bytes": 292941195,
@@ -2114,6 +2134,21 @@
       "checksum": "5e18cb9c96472615117f11988ebdf005",
       "uncompressed_size_bytes": 43508731,
       "compressed_size_bytes": 17033282
+    },
+    "data/system/fr/strasbourg/maps/center.bin": {
+      "checksum": "e21a34b259118fe160f5699ab22d86e4",
+      "uncompressed_size_bytes": 119521441,
+      "compressed_size_bytes": 45958947
+    },
+    "data/system/fr/strasbourg/maps/north.bin": {
+      "checksum": "52bb8ccb84685c075f2a5b1477fafb6e",
+      "uncompressed_size_bytes": 34747151,
+      "compressed_size_bytes": 13831540
+    },
+    "data/system/fr/strasbourg/maps/south.bin": {
+      "checksum": "f1df06275e9a35d288802c039bb966ce",
+      "uncompressed_size_bytes": 64469025,
+      "compressed_size_bytes": 25381835
     },
     "data/system/gb/allerton_bywater/maps/center.bin": {
       "checksum": "12139d2a5f131670311e176a151b44c3",
