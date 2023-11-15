@@ -390,6 +390,11 @@
       "uncompressed_size_bytes": 74454330,
       "compressed_size_bytes": 19067349
     },
+    "data/input/gb/bristol/raw_maps/north.bin": {
+      "checksum": "9e01cd2918920e4450a5947171219fb9",
+      "uncompressed_size_bytes": 15663783,
+      "compressed_size_bytes": 3566202
+    },
     "data/input/gb/bristol/raw_maps/south.bin": {
       "checksum": "5265bb1af79325cee2dd610998f4bf38",
       "uncompressed_size_bytes": 12921184,
@@ -1294,6 +1299,11 @@
       "checksum": "f14afd3d7dbd55a7a96045ced56fc144",
       "uncompressed_size_bytes": 16960347,
       "compressed_size_bytes": 16942454
+    },
+    "data/input/shared/geofabrik/europe/great-britain/england/bristol-latest.osm.pbf": {
+      "checksum": "6bc0a4d2575ca7497e557477e80fbe37",
+      "uncompressed_size_bytes": 10776857,
+      "compressed_size_bytes": 10767677
     },
     "data/input/shared/geofabrik/europe/great-britain/england/buckinghamshire-latest.osm.pbf": {
       "checksum": "28ad77ca6b042bdebad6992bd2f37b78",
@@ -2385,6 +2395,11 @@
       "uncompressed_size_bytes": 160790084,
       "compressed_size_bytes": 64257356
     },
+    "data/system/gb/bristol/maps/north.bin": {
+      "checksum": "2cdd500f82a38e36558c3a7c981616f6",
+      "uncompressed_size_bytes": 27633732,
+      "compressed_size_bytes": 10585205
+    },
     "data/system/gb/bristol/maps/south.bin": {
       "checksum": "976310485c5fffd450066e465e620f15",
       "uncompressed_size_bytes": 30555536,
@@ -2399,6 +2414,11 @@
       "checksum": "f9d6176536c039f0c588427c0021f441",
       "uncompressed_size_bytes": 21426979,
       "compressed_size_bytes": 6005741
+    },
+    "data/system/gb/bristol/scenarios/north/background.bin": {
+      "checksum": "12a4ae605ec1260e8cfbf1f966aef686",
+      "uncompressed_size_bytes": 11664584,
+      "compressed_size_bytes": 3108179
     },
     "data/system/gb/bristol/scenarios/south/background.bin": {
       "checksum": "5dc525716c22cd667b32530512f6b784",
