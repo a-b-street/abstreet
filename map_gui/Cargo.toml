@@ -23,7 +23,6 @@ futures-channel = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../geom" }
 instant = { workspace = true }
-lazy_static = "1.4.0"
 log = { workspace = true }
 lyon = "1.0.1"
 map_model = { path = "../map_model" }

@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::sync::OnceLock;
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 use abstutil::Timer;
@@ -108,6 +108,8 @@ impl DrawRoadLabels {
     }
 }
 
+static SIMPLIFY_PATTERNS: OnceLock<Vec<(Regex, String)>> = OnceLock::new();
+
 // TODO Surely somebody has written one of these.
 fn simplify_name(mut x: String) -> Option<String> {
     // Skip unnamed roads and highway exits
@@ -115,11 +117,7 @@ fn simplify_name(mut x: String) -> Option<String> {
         return None;
     }
 
-    lazy_static! {
-        static ref SIMPLIFY_PATTERNS: Vec<(Regex, String)> = simplify_patterns();
-    }
-
-    for (search, replace_with) in SIMPLIFY_PATTERNS.iter() {
+    for (search, replace_with) in SIMPLIFY_PATTERNS.get_or_init(simplify_patterns).iter() {
         // TODO The string copies are probably avoidable...
         x = search.replace(&x, replace_with).to_string();
     }

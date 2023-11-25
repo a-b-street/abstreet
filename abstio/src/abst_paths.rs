@@ -4,6 +4,8 @@
 // have a Source enum and simplify the API. But we would either have to call Manifest::load
 // constantly, or plumb it around with a borrow? Or maybe even owned.
 
+use std::sync::OnceLock;
+
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
@@ -11,57 +13,56 @@ use abstutil::basename;
 
 use crate::{file_exists, list_all_objects, Manifest};
 
-lazy_static::lazy_static! {
-    static ref ROOT_DIR: String = {
-        // If you're packaging for a release and need the data directory to be in some fixed
-        // location: ABST_DATA_DIR=/some/path cargo build ...
-        if let Some(dir) = option_env!("ABST_DATA_DIR") {
-            dir.trim_end_matches('/').to_string()
-        } else if cfg!(target_arch = "wasm32") {
-            "../data".to_string()
-        } else if file_exists("data/".to_string()) {
-            "data".to_string()
-        } else if file_exists("../data/".to_string()) {
-            "../data".to_string()
-        } else if file_exists("../../data/".to_string()) {
-            "../../data".to_string()
-        } else if file_exists("../../../data/".to_string()) {
-            "../../../data".to_string()
-        } else {
-            panic!("Can't find the data/ directory");
-        }
-    };
-
-    static ref ROOT_PLAYER_DIR: String = {
-        // If you're packaging for a release and want the player's local data directory to be
-        // $HOME/.abstreet, set ABST_PLAYER_HOME_DIR=1
-        if option_env!("ABST_PLAYER_HOME_DIR").is_some() {
-            match std::env::var("HOME") {
-                Ok(dir) => format!("{}/.abstreet", dir.trim_end_matches('/')),
-                Err(err) => panic!("This build of A/B Street stores player data in $HOME/.abstreet, but $HOME isn't set: {}", err),
-            }
-        } else if cfg!(target_arch = "wasm32") {
-            "../data".to_string()
-        } else if file_exists("data/".to_string()) {
-            "data".to_string()
-        } else if file_exists("../data/".to_string()) {
-            "../data".to_string()
-        } else if file_exists("../../data/".to_string()) {
-            "../../data".to_string()
-        } else if file_exists("../../../data/".to_string()) {
-            "../../../data".to_string()
-        } else {
-            panic!("Can't find the data/ directory");
-        }
-    };
-}
+static ROOT_DIR: OnceLock<String> = OnceLock::new();
+static ROOT_PLAYER_DIR: OnceLock<String> = OnceLock::new();
 
 pub fn path<I: AsRef<str>>(p: I) -> String {
     let p = p.as_ref();
     if p.starts_with("player/") {
-        format!("{}/{}", *ROOT_PLAYER_DIR, p)
+        let dir = ROOT_PLAYER_DIR.get_or_init(|| {
+            // If you're packaging for a release and want the player's local data directory to be
+            // $HOME/.abstreet, set ABST_PLAYER_HOME_DIR=1
+            if option_env!("ABST_PLAYER_HOME_DIR").is_some() {
+                match std::env::var("HOME") {
+                    Ok(dir) => format!("{}/.abstreet", dir.trim_end_matches('/')),
+                    Err(err) => panic!("This build of A/B Street stores player data in $HOME/.abstreet, but $HOME isn't set: {}", err),
+                }
+            } else if cfg!(target_arch = "wasm32") {
+                "../data".to_string()
+            } else if file_exists("data/".to_string()) {
+                "data".to_string()
+            } else if file_exists("../data/".to_string()) {
+                "../data".to_string()
+            } else if file_exists("../../data/".to_string()) {
+                "../../data".to_string()
+            } else if file_exists("../../../data/".to_string()) {
+                "../../../data".to_string()
+            } else {
+                panic!("Can't find the data/ directory");
+            }
+        });
+        format!("{dir}/{p}")
     } else {
-        format!("{}/{}", *ROOT_DIR, p)
+        let dir = ROOT_DIR.get_or_init(|| {
+            // If you're packaging for a release and need the data directory to be in some fixed
+            // location: ABST_DATA_DIR=/some/path cargo build ...
+            if let Some(dir) = option_env!("ABST_DATA_DIR") {
+                dir.trim_end_matches('/').to_string()
+            } else if cfg!(target_arch = "wasm32") {
+                "../data".to_string()
+            } else if file_exists("data/".to_string()) {
+                "data".to_string()
+            } else if file_exists("../data/".to_string()) {
+                "../data".to_string()
+            } else if file_exists("../../data/".to_string()) {
+                "../../data".to_string()
+            } else if file_exists("../../../data/".to_string()) {
+                "../../../data".to_string()
+            } else {
+                panic!("Can't find the data/ directory");
+            }
+        });
+        format!("{dir}/{p}")
     }
 }
 
