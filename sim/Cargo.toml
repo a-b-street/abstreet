@@ -8,12 +8,12 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-ctrlc = { version = "3.2.5", optional = true }
+ctrlc = { version = "3.4.1", optional = true }
 downcast-rs = "1.2.0"
-enum_dispatch = "0.3.11"
+enum_dispatch = "0.3.12"
 geom = { path = "../geom" }
 instant = { workspace = true }
-libm = "0.2.6"
+libm = "0.2.8"
 log = { workspace = true }
 map_model = { path = "../map_model" }
 rand = { workspace = true }

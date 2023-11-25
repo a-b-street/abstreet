@@ -22,4 +22,4 @@ sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
 tokio = { workspace = true }
-url = "2.3.1"
+url = "2.5.0"

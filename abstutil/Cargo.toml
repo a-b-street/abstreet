@@ -7,18 +7,18 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 bincode = { workspace = true }
-env_logger = { version = "0.10.0" }
+env_logger = { version = "0.10.1" }
 fs-err = { workspace = true }
 instant = { workspace = true }
-itertools = "0.10.5"
+itertools = "0.12.0"
 log = { workspace = true }
-num_cpus = "1.15.0"
+num_cpus = "1.16.0"
 scoped_threadpool = "0.1.9"
 serde = { workspace = true }
 serde_json = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
-termion = "2.0.1"
+termion = "2.0.3"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_log = "1.0.0"

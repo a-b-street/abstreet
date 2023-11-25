@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
-earcutr = "0.4.2"
+earcutr = "0.4.3"
 fs-err = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
