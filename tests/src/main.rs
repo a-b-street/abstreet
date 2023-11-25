@@ -1,6 +1,6 @@
 //! Integration tests
 
-use std::{io::Write, collections::HashMap};
+use std::{collections::HashMap, io::Write};
 
 use anyhow::{bail, Result};
 use fs_err::File;
@@ -113,14 +113,11 @@ fn all_turn_info_as_string(map: &Map) -> String {
 
     s.push_str("\n------------\nRestrictions:\n------------\n");
     for r1 in map.all_roads() {
-
-        let icon_counter = HashMap::from([
-            (r1.dst_i, 1),
-            (r1.src_i, 1),
-        ]);
+        let icon_counter = HashMap::from([(r1.dst_i, 1), (r1.src_i, 1)]);
 
         for (restriction, r2) in &r1.turn_restrictions {
-            let (t_type, sign_pt, _, i_id) = map.get_ban_turn_info(r1, map.get_r(*r2), &icon_counter);
+            let (t_type, sign_pt, _, i_id) =
+                map.get_ban_turn_info(r1, map.get_r(*r2), &icon_counter);
             let i = map.get_i(i_id);
             s.push_str(&format!(
                 "Turn from {} into {}, at intersection {:?} is a {:?}, type {:?}, location {}\n",

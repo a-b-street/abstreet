@@ -1139,13 +1139,15 @@ impl Map {
                 ideal_dist_from_intersection = 0.3 * r1.center_pts.length();
             }
         }
-        
-        // Adjust according to which end of the road we've measuring from
-        let dist_from_intersection = if r1.src_i == i { ideal_dist_from_intersection } else { r1.center_pts.length() - ideal_dist_from_intersection };
 
-        let (sign_pt, mut r1_angle) = r1
-            .center_pts
-            .must_dist_along(dist_from_intersection);
+        // Adjust according to which end of the road we've measuring from
+        let dist_from_intersection = if r1.src_i == i {
+            ideal_dist_from_intersection
+        } else {
+            r1.center_pts.length() - ideal_dist_from_intersection
+        };
+
+        let (sign_pt, mut r1_angle) = r1.center_pts.must_dist_along(dist_from_intersection);
 
         // Correct the angle, based on whether the vector direction is towards or away from the intersection
         // TODO what is the standard way of describing the vector direction (rather than the traffic direction) for roads?
