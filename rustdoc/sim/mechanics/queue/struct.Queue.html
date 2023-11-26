@@ -2,8 +2,8 @@
     pub id: Traversable,
     members: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/collections/vec_deque/struct.VecDeque.html" title="struct alloc::collections::vec_deque::VecDeque">VecDeque</a>&lt;<a class="enum" href="enum.Queued.html" title="enum sim::mechanics::queue::Queued">Queued</a>&gt;,
     pub laggy_head: <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>&gt;,
-    pub geom_len: Distance,
-    pub reserved_length: Distance,
+    pub geom_len: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>,
+    pub reserved_length: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>,
 }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Queue of vehicles on a single lane or turn. This is where
 https://a-b-street.github.io/docs/tech/trafficsim/discrete_event.html#exact-positions is
 implemented.</p>
@@ -23,37 +23,37 @@ it.</li>
 blockages.</li>
 </ul>
 </div></details><h2 id="fields" class="fields small-section-header">Fields<a href="#fields" class="anchor">§</a></h2><span id="structfield.id" class="structfield small-section-header"><a href="#structfield.id" class="anchor field">§</a><code>id: Traversable</code></span><span id="structfield.members" class="structfield small-section-header"><a href="#structfield.members" class="anchor field">§</a><code>members: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/collections/vec_deque/struct.VecDeque.html" title="struct alloc::collections::vec_deque::VecDeque">VecDeque</a>&lt;<a class="enum" href="enum.Queued.html" title="enum sim::mechanics::queue::Queued">Queued</a>&gt;</code></span><span id="structfield.laggy_head" class="structfield small-section-header"><a href="#structfield.laggy_head" class="anchor field">§</a><code>laggy_head: <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>&gt;</code></span><div class="docblock"><p>This car’s back is still partly in this queue.</p>
-</div><span id="structfield.geom_len" class="structfield small-section-header"><a href="#structfield.geom_len" class="anchor field">§</a><code>geom_len: Distance</code></span><div class="docblock"><p>How long the lane or turn physically is.</p>
-</div><span id="structfield.reserved_length" class="structfield small-section-header"><a href="#structfield.reserved_length" class="anchor field">§</a><code>reserved_length: Distance</code></span><div class="docblock"><p>When a car’s turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
+</div><span id="structfield.geom_len" class="structfield small-section-header"><a href="#structfield.geom_len" class="anchor field">§</a><code>geom_len: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a></code></span><div class="docblock"><p>How long the lane or turn physically is.</p>
+</div><span id="structfield.reserved_length" class="structfield small-section-header"><a href="#structfield.reserved_length" class="anchor field">§</a><code>reserved_length: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a></code></span><div class="docblock"><p>When a car’s turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
 target lane. When the car completely leaves (stops being the laggy_head), free up that
 space. To prevent blocking the box for possibly scary amounts of time, allocate some of
 this length first. This is unused for turns themselves. This value can exceed geom_len
 (for the edge case of ONE long car on a short queue).</p>
 </div><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Queue" class="impl"><a class="src rightside" href="../../../src/sim/mechanics/queue.rs.html#76-557">source</a><a href="#impl-Queue" class="anchor">§</a><h3 class="code-header">impl <a class="struct" href="struct.Queue.html" title="struct sim::mechanics::queue::Queue">Queue</a></h3></section></summary><div class="impl-items"><section id="method.new" class="method"><a class="src rightside" href="../../../src/sim/mechanics/queue.rs.html#77-85">source</a><h4 class="code-header">pub fn <a href="#method.new" class="fn">new</a>(id: Traversable, map: &amp;Map) -&gt; <a class="struct" href="struct.Queue.html" title="struct sim::mechanics::queue::Queue">Queue</a></h4></section><details class="toggle method-toggle" open><summary><section id="method.get_last_car_position" class="method"><a class="src rightside" href="../../../src/sim/mechanics/queue.rs.html#88-95">source</a><h4 class="code-header">pub fn <a href="#method.get_last_car_position" class="fn">get_last_car_position</a>(
     &amp;self,
-    now: Time,
+    now: <a class="struct" href="../../../geom/time/struct.Time.html" title="struct geom::time::Time">Time</a>,
     cars: &amp;FixedMap&lt;<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, <a class="struct" href="../car/struct.Car.html" title="struct sim::mechanics::car::Car">Car</a>&gt;,
     queues: &amp;<a class="struct" href="https://doc.rust-lang.org/1.74.0/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;Traversable, <a class="struct" href="struct.Queue.html" title="struct sim::mechanics::queue::Queue">Queue</a>&gt;
-) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, Distance)&gt;</h4></section></summary><div class="docblock"><p>Get the front of the last car in the queue.</p>
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>)&gt;</h4></section></summary><div class="docblock"><p>Get the front of the last car in the queue.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.get_car_positions" class="method"><a class="src rightside" href="../../../src/sim/mechanics/queue.rs.html#98-113">source</a><h4 class="code-header">pub fn <a href="#method.get_car_positions" class="fn">get_car_positions</a>(
     &amp;self,
-    now: Time,
+    now: <a class="struct" href="../../../geom/time/struct.Time.html" title="struct geom::time::Time">Time</a>,
     cars: &amp;FixedMap&lt;<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, <a class="struct" href="../car/struct.Car.html" title="struct sim::mechanics::car::Car">Car</a>&gt;,
     queues: &amp;<a class="struct" href="https://doc.rust-lang.org/1.74.0/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;Traversable, <a class="struct" href="struct.Queue.html" title="struct sim::mechanics::queue::Queue">Queue</a>&gt;
 ) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="struct.QueueEntry.html" title="struct sim::mechanics::queue::QueueEntry">QueueEntry</a>&gt;</h4></section></summary><div class="docblock"><p>Return the exact position of each member of the queue. The farthest along (greatest distance) is first.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.inner_get_last_car_position" class="method"><a class="src rightside" href="../../../src/sim/mechanics/queue.rs.html#116-294">source</a><h4 class="code-header">fn <a href="#method.inner_get_last_car_position" class="fn">inner_get_last_car_position</a>(
     &amp;self,
-    now: Time,
+    now: <a class="struct" href="../../../geom/time/struct.Time.html" title="struct geom::time::Time">Time</a>,
     cars: &amp;FixedMap&lt;<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, <a class="struct" href="../car/struct.Car.html" title="struct sim::mechanics::car::Car">Car</a>&gt;,
     queues: &amp;<a class="struct" href="https://doc.rust-lang.org/1.74.0/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;Traversable, <a class="struct" href="struct.Queue.html" title="struct sim::mechanics::queue::Queue">Queue</a>&gt;,
     recursed_queues: &amp;mut <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/collections/btree/set/struct.BTreeSet.html" title="struct alloc::collections::btree::set::BTreeSet">BTreeSet</a>&lt;Traversable&gt;,
     intermediate_results: <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;mut <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="struct.QueueEntry.html" title="struct sim::mechanics::queue::QueueEntry">QueueEntry</a>&gt;&gt;
-) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, Distance)&gt;</h4></section></summary><div class="docblock"><p>Returns the front of the last car in the queue, only if the last member is an active car.</p>
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>)&gt;</h4></section></summary><div class="docblock"><p>Returns the front of the last car in the queue, only if the last member is an active car.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.get_idx_to_insert_car" class="method"><a class="src rightside" href="../../../src/sim/mechanics/queue.rs.html#297-344">source</a><h4 class="code-header">pub fn <a href="#method.get_idx_to_insert_car" class="fn">get_idx_to_insert_car</a>(
     &amp;self,
-    start_dist: Distance,
-    vehicle_len: Distance,
-    now: Time,
+    start_dist: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>,
+    vehicle_len: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>,
+    now: <a class="struct" href="../../../geom/time/struct.Time.html" title="struct geom::time::Time">Time</a>,
     cars: &amp;FixedMap&lt;<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, <a class="struct" href="../car/struct.Car.html" title="struct sim::mechanics::car::Car">Car</a>&gt;,
     queues: &amp;<a class="struct" href="https://doc.rust-lang.org/1.74.0/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;Traversable, <a class="struct" href="struct.Queue.html" title="struct sim::mechanics::queue::Queue">Queue</a>&gt;
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.usize.html">usize</a>&gt;</h4></section></summary><div class="docblock"><p>If the specified car can appear in the queue, return the position in the queue to do so.</p>
@@ -77,8 +77,8 @@ head).</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.add_static_blockage" class="method"><a class="src rightside" href="../../../src/sim/mechanics/queue.rs.html#465-478">source</a><h4 class="code-header">pub fn <a href="#method.add_static_blockage" class="fn">add_static_blockage</a>(
     &amp;mut self,
     cause: <a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>,
-    front: Distance,
-    back: Distance,
+    front: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>,
+    back: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>,
     idx: <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.usize.html">usize</a>
 )</h4></section></summary><div class="docblock"><p>Record that a car is blocking a static portion of the queue (from front to back). Must use
 the index from can_block_from_driveway.</p>
@@ -88,8 +88,8 @@ the index from can_block_from_driveway.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.can_block_from_driveway" class="method"><a class="src rightside" href="../../../src/sim/mechanics/queue.rs.html#521-530">source</a><h4 class="code-header">pub fn <a href="#method.can_block_from_driveway" class="fn">can_block_from_driveway</a>(
     &amp;self,
     pos: &amp;Position,
-    vehicle_len: Distance,
-    now: Time,
+    vehicle_len: <a class="struct" href="../../../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>,
+    now: <a class="struct" href="../../../geom/time/struct.Time.html" title="struct geom::time::Time">Time</a>,
     cars: &amp;FixedMap&lt;<a class="struct" href="../../struct.CarID.html" title="struct sim::CarID">CarID</a>, <a class="struct" href="../car/struct.Car.html" title="struct sim::mechanics::car::Car">Car</a>&gt;,
     queues: &amp;<a class="struct" href="https://doc.rust-lang.org/1.74.0/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;Traversable, <a class="struct" href="struct.Queue.html" title="struct sim::mechanics::queue::Queue">Queue</a>&gt;
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.usize.html">usize</a>&gt;</h4></section></summary><div class="docblock"><p>True if a static blockage can be inserted into the queue without anything already there

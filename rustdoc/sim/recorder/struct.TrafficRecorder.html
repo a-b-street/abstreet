@@ -7,13 +7,13 @@ capture and reproduce behavior in a gridlock-prone chunk of the map, without sim
 everything.</p>
 </div></details><h2 id="fields" class="fields small-section-header">Fields<a href="#fields" class="anchor">§</a></h2><span id="structfield.capture_points" class="structfield small-section-header"><a href="#structfield.capture_points" class="anchor field">§</a><code>capture_points: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/collections/btree/set/struct.BTreeSet.html" title="struct alloc::collections::btree::set::BTreeSet">BTreeSet</a>&lt;IntersectionID&gt;</code></span><span id="structfield.trips" class="structfield small-section-header"><a href="#structfield.trips" class="anchor field">§</a><code>trips: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;IndividTrip&gt;</code></span><span id="structfield.seen_trips" class="structfield small-section-header"><a href="#structfield.seen_trips" class="anchor field">§</a><code>seen_trips: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/collections/btree/set/struct.BTreeSet.html" title="struct alloc::collections::btree::set::BTreeSet">BTreeSet</a>&lt;<a class="struct" href="../struct.TripID.html" title="struct sim::TripID">TripID</a>&gt;</code></span><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-TrafficRecorder" class="impl"><a class="src rightside" href="../../src/sim/recorder.rs.html#21-116">source</a><a href="#impl-TrafficRecorder" class="anchor">§</a><h3 class="code-header">impl <a class="struct" href="struct.TrafficRecorder.html" title="struct sim::recorder::TrafficRecorder">TrafficRecorder</a></h3></section></summary><div class="impl-items"><section id="method.new" class="method"><a class="src rightside" href="../../src/sim/recorder.rs.html#22-28">source</a><h4 class="code-header">pub fn <a href="#method.new" class="fn">new</a>(capture_points: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/collections/btree/set/struct.BTreeSet.html" title="struct alloc::collections::btree::set::BTreeSet">BTreeSet</a>&lt;IntersectionID&gt;) -&gt; <a class="struct" href="struct.TrafficRecorder.html" title="struct sim::recorder::TrafficRecorder">TrafficRecorder</a></h4></section><section id="method.handle_event" class="method"><a class="src rightside" href="../../src/sim/recorder.rs.html#30-34">source</a><h4 class="code-header">pub fn <a href="#method.handle_event" class="fn">handle_event</a>(
     &amp;mut self,
-    time: Time,
+    time: <a class="struct" href="../../geom/time/struct.Time.html" title="struct geom::time::Time">Time</a>,
     ev: &amp;<a class="enum" href="../events/enum.Event.html" title="enum sim::events::Event">Event</a>,
     map: &amp;Map,
     driving: &amp;<a class="struct" href="../mechanics/driving/struct.DrivingSimState.html" title="struct sim::mechanics::driving::DrivingSimState">DrivingSimState</a>
 )</h4></section><section id="method.on_car_enters_traversable" class="method"><a class="src rightside" href="../../src/sim/recorder.rs.html#36-51">source</a><h4 class="code-header">fn <a href="#method.on_car_enters_traversable" class="fn">on_car_enters_traversable</a>(
     &amp;mut self,
-    time: Time,
+    time: <a class="struct" href="../../geom/time/struct.Time.html" title="struct geom::time::Time">Time</a>,
     car: <a class="struct" href="../struct.CarID.html" title="struct sim::CarID">CarID</a>,
     trip: <a class="struct" href="../struct.TripID.html" title="struct sim::TripID">TripID</a>,
     on: Traversable,
@@ -21,7 +21,7 @@ everything.</p>
     driving: &amp;<a class="struct" href="../mechanics/driving/struct.DrivingSimState.html" title="struct sim::mechanics::driving::DrivingSimState">DrivingSimState</a>
 )</h4></section><section id="method.on_car_enters_lane" class="method"><a class="src rightside" href="../../src/sim/recorder.rs.html#53-94">source</a><h4 class="code-header">fn <a href="#method.on_car_enters_lane" class="fn">on_car_enters_lane</a>(
     &amp;mut self,
-    time: Time,
+    time: <a class="struct" href="../../geom/time/struct.Time.html" title="struct geom::time::Time">Time</a>,
     car: <a class="struct" href="../struct.CarID.html" title="struct sim::CarID">CarID</a>,
     trip: <a class="struct" href="../struct.TripID.html" title="struct sim::TripID">TripID</a>,
     lane: LaneID,

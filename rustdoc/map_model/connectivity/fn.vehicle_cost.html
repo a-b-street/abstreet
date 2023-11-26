@@ -4,7 +4,7 @@
     constraints: <a class="enum" href="../pathfind/enum.PathConstraints.html" title="enum map_model::pathfind::PathConstraints">PathConstraints</a>,
     params: &amp;<a class="struct" href="../pathfind/struct.RoutingParams.html" title="struct map_model::pathfind::RoutingParams">RoutingParams</a>,
     map: &amp;<a class="struct" href="../struct.Map.html" title="struct map_model::Map">Map</a>
-) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Duration&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This returns the pathfinding cost of crossing one road and turn, in units of time. It factors
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.74.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../geom/duration/struct.Duration.html" title="struct geom::duration::Duration">Duration</a>&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This returns the pathfinding cost of crossing one road and turn, in units of time. It factors
 in the ideal time to cross the space and penalties for entering an access-restricted zone,
 taking an unprotected turn, or going up a steep hill for some vehicle types. If this returns
 <code>None</code>, then the movement isn’t actually allowed.</p>
