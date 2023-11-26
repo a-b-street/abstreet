@@ -2070,6 +2070,11 @@
       "uncompressed_size_bytes": 187000,
       "compressed_size_bytes": 85904
     },
+    "data/system/extra_fonts/NotoSansHebrew-Regular.ttf": {
+      "checksum": "5199b3892ba596a6bf8d0f930729157f",
+      "uncompressed_size_bytes": 42704,
+      "compressed_size_bytes": 24130
+    },
     "data/system/extra_fonts/NotoSerifCJKtc-Regular.otf": {
       "checksum": "338584d1454293b6dfd84a9137153b3c",
       "uncompressed_size_bytes": 23614420,
