@@ -3,7 +3,7 @@
     pub country_code: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
     pub bikes_can_use_bus_lanes: <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.bool.html">bool</a>,
     pub inferred_sidewalks: <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.bool.html">bool</a>,
-    pub street_parking_spot_length: <a class="struct" href="../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a>,
+    pub street_parking_spot_length: Distance,
     pub turn_on_red: <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.bool.html">bool</a>,
     pub include_railroads: <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.bool.html">bool</a>,
 }</code></pre><h2 id="fields" class="fields small-section-header">Fields<a href="#fields" class="anchor">§</a></h2><span id="structfield.driving_side" class="structfield small-section-header"><a href="#structfield.driving_side" class="anchor field">§</a><code>driving_side: <a class="enum" href="enum.DrivingSide.html" title="enum map_model::DrivingSide">DrivingSide</a></code></span><div class="docblock"><p>If true, driving happens on the right side of the road (USA). If false, on the left
@@ -16,7 +16,7 @@ this network exists. Note osm2streets doesn’t support areas that cross country
 to set it.</p>
 </div><span id="structfield.bikes_can_use_bus_lanes" class="structfield small-section-header"><a href="#structfield.bikes_can_use_bus_lanes" class="anchor field">§</a><code>bikes_can_use_bus_lanes: <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.bool.html">bool</a></code></span><span id="structfield.inferred_sidewalks" class="structfield small-section-header"><a href="#structfield.inferred_sidewalks" class="anchor field">§</a><code>inferred_sidewalks: <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.bool.html">bool</a></code></span><div class="docblock"><p>If true, roads without explicitly tagged sidewalks may be assigned sidewalks or shoulders.
 If false, no inference will occur and separate sidewalks and crossings will be included.</p>
-</div><span id="structfield.street_parking_spot_length" class="structfield small-section-header"><a href="#structfield.street_parking_spot_length" class="anchor field">§</a><code>street_parking_spot_length: <a class="struct" href="../geom/distance/struct.Distance.html" title="struct geom::distance::Distance">Distance</a></code></span><div class="docblock"><p>Street parking is divided into spots of this length. 8 meters is a reasonable default, but
+</div><span id="structfield.street_parking_spot_length" class="structfield small-section-header"><a href="#structfield.street_parking_spot_length" class="anchor field">§</a><code>street_parking_spot_length: Distance</code></span><div class="docblock"><p>Street parking is divided into spots of this length. 8 meters is a reasonable default, but
 people in some regions might be more accustomed to squeezing into smaller spaces. This
 value can be smaller than the hardcoded maximum car length; cars may render on top of each
 other, but otherwise the simulation doesn’t care.</p>
