@@ -1,8 +1,8 @@
-name: Rust docs
+name: Rust docs and WASM app
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   book:
     name: Build and Deploy
@@ -14,10 +14,19 @@ jobs:
       - name: Install Rust
         uses: hecrj/setup-rust-action@v1
 
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+
       - name: Update apt
         run: sudo apt-get update
       - name: Install dependencies
         run: sudo apt-get install libasound2-dev libxcb-shape0-dev libxcb-xfixes0-dev libpango1.0-dev libgtk-3-dev
+
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: doesnt-matter-share-everything
 
       - name: Generate rustdoc
         run: |
@@ -27,6 +36,16 @@ jobs:
             cd ..
             mkdir -p book/book
             mv target/doc book/book/rustdoc
+
+      - name: Built LTN app for web
+        run: |
+            cd web
+            sed -i 's/^APPS=.*/APPS=ltn/' Makefile
+            sed -i 's/new LTN("app");/new LTN("app");\n  app.setAssetsBaseURL("https:\/\/play.abstreet.org\/dev\/data");/' src/web_root/ltn.html
+            npm i
+            make release
+            cp -Rv build/dist ../book/book/web/
+            rm -fv ../book/book/web/ltn/wasm_pkg/.gitignore
 
       - name: Publish HTML
         uses: peaceiris/actions-gh-pages@v3
