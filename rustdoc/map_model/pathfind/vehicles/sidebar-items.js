@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Node",""]],"fn":[["make_input_graph",""],["vehicle_cost","This returns the pathfinding cost of crossing one road and turn, in units of time. It factors in the ideal time to cross the space and penalties for entering an access-restricted zone, taking an unprotected turn, or going up a steep hill for some vehicle types. If this returns `None`, then the movement isn’t actually allowed."]],"struct":[["VehiclePathfinder",""]]};
+window.SIDEBAR_ITEMS = {"enum":["Node"],"fn":["make_input_graph","vehicle_cost"],"struct":["VehiclePathfinder"]};

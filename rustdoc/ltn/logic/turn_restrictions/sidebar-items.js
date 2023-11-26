@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["hull_around_focused_turns","is_road_drivable_from_i","possible_destination_roads","restricted_destination_roads","verify_intersection"],"struct":["FocusedTurns"]};

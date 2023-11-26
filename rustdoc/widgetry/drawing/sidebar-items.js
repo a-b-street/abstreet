@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["MAPSPACE_Z",""],["MENU_Z",""],["SCREENSPACE_Z",""],["TOOLTIP_Z",""]],"struct":[["GfxCtx",""],["Prerender",""],["Uniforms",""]]};
+window.SIDEBAR_ITEMS = {"constant":["MAPSPACE_Z","MENU_Z","SCREENSPACE_Z","TOOLTIP_Z"],"struct":["GfxCtx","Prerender","Uniforms"]};

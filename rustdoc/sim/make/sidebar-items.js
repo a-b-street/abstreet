@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["load",""],["spawner","Intermediate structures used to instantiate a Scenario. Badly needs simplification: https://github.com/a-b-street/abstreet/issues/258"]]};
+window.SIDEBAR_ITEMS = {"mod":["load","spawner"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["chose_city",""],["cities_per_country",""],["reimport_city",""]],"struct":[["AllCityPicker",""],["CitiesInCountryPicker",""],["CityPicker","Lets the player switch maps."]]};
+window.SIDEBAR_ITEMS = {"fn":["chose_city","cities_per_country","reimport_city"],"struct":["AllCityPicker","CitiesInCountryPicker","CityPicker"]};

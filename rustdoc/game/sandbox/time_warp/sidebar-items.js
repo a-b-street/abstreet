@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["area_under_curve",""],["build_jump_to_delay_button",""],["build_jump_to_time_btn",""],["compare_count",""]],"struct":[["JumpToTime",""],["TimeWarpScreen",""]]};
+window.SIDEBAR_ITEMS = {"fn":["area_under_curve","build_jump_to_delay_button","build_jump_to_time_btn","compare_count"],"struct":["JumpToTime","TimeWarpScreen"]};

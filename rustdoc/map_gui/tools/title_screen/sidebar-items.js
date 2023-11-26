@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Executable",""]],"mod":[["built_info",""]],"struct":[["TitleScreen","A title screen shared among all of the A/B Street apps."]]};
+window.SIDEBAR_ITEMS = {"enum":["Executable"],"mod":["built_info"],"struct":["TitleScreen"]};

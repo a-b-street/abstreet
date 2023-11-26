@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Hovering",""],["LinePlot",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Hovering","LinePlot"]};

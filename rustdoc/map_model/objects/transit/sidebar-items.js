@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["TransitRoute",""],["TransitRouteID",""],["TransitStop",""],["TransitStopID",""]]};
+window.SIDEBAR_ITEMS = {"struct":["TransitRoute","TransitRouteID","TransitStop","TransitStopID"]};

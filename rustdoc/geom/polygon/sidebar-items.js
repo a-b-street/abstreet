@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["from_multi",""]],"struct":[["Polygon",""]]};
+window.SIDEBAR_ITEMS = {"fn":["from_multi"],"struct":["Polygon"]};

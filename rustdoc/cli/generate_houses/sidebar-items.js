@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["generate_buildings_on_empty_residential_roads",""],["rand_dist",""],["run",""]]};
+window.SIDEBAR_ITEMS = {"fn":["generate_buildings_on_empty_residential_roads","rand_dist","run"]};

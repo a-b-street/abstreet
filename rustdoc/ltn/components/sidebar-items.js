@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Mode",""]],"mod":[["about",""],["appwide_panel",""],["layers",""],["left_panel",""]]};
+window.SIDEBAR_ITEMS = {"enum":["Mode"],"mod":["appwide_panel","layers","left_panel"]};

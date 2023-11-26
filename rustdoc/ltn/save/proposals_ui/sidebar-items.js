@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["load_picker_ui","switch_to_existing_proposal"]};

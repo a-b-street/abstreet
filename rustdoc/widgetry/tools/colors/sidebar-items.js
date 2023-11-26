@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ColorLegend",""],["ColorScale",""],["DivergingScale",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ColorLegend","ColorScale","DivergingScale"]};

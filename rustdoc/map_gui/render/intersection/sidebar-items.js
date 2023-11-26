@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["approx_eq",""],["calculate_border_arrows",""],["calculate_corner_curbs",""],["calculate_corners",""],["make_crosswalk","Draws both zebra crosswalks and unmarked crossings"],["make_octagon",""],["make_rainbow_crosswalk",""],["make_unmarked_crossing",""],["perp_line",""]],"struct":[["DrawIntersection",""]]};
+window.SIDEBAR_ITEMS = {"fn":["approx_eq","calculate_border_arrows","calculate_corner_curbs","calculate_corners","make_crosswalk","make_octagon","make_rainbow_crosswalk","make_unmarked_crossing","perp_line"],"struct":["DrawIntersection"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Obj"],"fn":["help"],"struct":["PerResidentImpact"]};

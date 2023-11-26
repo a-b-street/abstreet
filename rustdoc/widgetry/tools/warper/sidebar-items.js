@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Warper",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Warper"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ControlStopSign",""],["RoadWithStopSign",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ControlStopSign","RoadWithStopSign"]};

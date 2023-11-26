@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ScreenDims","ScreenDims is in units of logical pixels, as opposed to physical pixels."],["ScreenPt","ScreenPt is in units of logical pixels, as opposed to physical pixels."],["ScreenRectangle","ScreenRectangle is in units of logical pixels, as opposed to physical pixels."]]};
+window.SIDEBAR_ITEMS = {"struct":["ScreenDims","ScreenPt","ScreenRectangle"]};

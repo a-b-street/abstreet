@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["screenshot_everything","Take a screenshot of the entire canvas, tiling it based on the window’s width and height."]]};
+window.SIDEBAR_ITEMS = {"fn":["screenshot_everything"]};

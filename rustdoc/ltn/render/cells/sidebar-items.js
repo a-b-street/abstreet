@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["RESOLUTION_M"],"fn":["color_cells","diffusion"],"struct":["RenderCells","RenderCellsBuilder"]};

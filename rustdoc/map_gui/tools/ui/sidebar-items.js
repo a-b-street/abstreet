@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["checkbox_per_mode",""],["cmp_count","Less is better"],["cmp_dist","Shorter is better"],["cmp_duration","Shorter is better"],["color_for_mode",""],["percentage_bar",""]],"struct":[["FilePicker",""]]};
+window.SIDEBAR_ITEMS = {"enum":["FileSaverContents"],"fn":["checkbox_per_mode","cmp_count","cmp_dist","cmp_duration","color_for_mode","percentage_bar"],"struct":["FilePicker","FileSaver"],"type":["PickerOutput"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":[["override_sidewalk_widths",""]]};

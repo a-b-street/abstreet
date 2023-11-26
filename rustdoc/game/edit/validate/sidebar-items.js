@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["check_blackholes",""],["check_sidewalk_connectivity",""],["fix_sidewalk_direction","Looks at all changed roads and makes sure sidewalk directions are correct – this is easy for the user to mix up. Returns a list of new fixes to apply on top of the original edits."]]};
+window.SIDEBAR_ITEMS = {"fn":["check_blackholes","check_sidewalk_connectivity","fix_sidewalk_direction"]};

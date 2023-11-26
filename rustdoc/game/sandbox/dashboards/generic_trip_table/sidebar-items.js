@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["open_trip_transition",""],["preview_route",""],["preview_trip",""]]};
+window.SIDEBAR_ITEMS = {"fn":["open_trip_transition","preview_route","preview_trip"]};

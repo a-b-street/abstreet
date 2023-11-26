@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["Style",""]],"fn":[["change_draw_style",""],["draw_boundary_roads",""],["draw_over_roads",""],["help",""],["make_world",""]],"struct":[["PickArea",""]]};

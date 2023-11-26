@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["edit_entire_signal",""]],"struct":[["ChangeDuration",""]]};
+window.SIDEBAR_ITEMS = {"fn":["edit_entire_signal"],"struct":["ChangeDuration"]};

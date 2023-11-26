@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Layout",""]],"fn":[["make_panel",""]],"struct":[["CutsceneBuilder",""],["CutscenePlayer",""],["Scene",""],["ShowMessage",""]]};
+window.SIDEBAR_ITEMS = {"enum":["Layout"],"fn":["make_panel"],"struct":["CutsceneBuilder","CutscenePlayer","Scene","ShowMessage"]};

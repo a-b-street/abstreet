@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EditMode","EditOutcome","Obj"],"fn":["road_name"],"mod":["filters","freehand_filters","modals","one_ways","page","shortcuts","speed_limits","turn_restrictions"],"struct":["DesignLTN","EditNeighbourhood"]};

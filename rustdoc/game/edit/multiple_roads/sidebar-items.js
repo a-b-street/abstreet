@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["SelectSegments",""]]};
+window.SIDEBAR_ITEMS = {"struct":["SelectSegments"]};

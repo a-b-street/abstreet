@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["THRESHOLD",""]],"fn":[["cutscene_pt1_task",""],["final_score",""]],"struct":[["FixTrafficSignals",""]]};
+window.SIDEBAR_ITEMS = {"constant":["THRESHOLD"],"fn":["cutscene_pt1_task","final_score"],"struct":["FixTrafficSignals"]};

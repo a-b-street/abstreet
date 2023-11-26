@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["setup",""]],"struct":[["WindowAdapter",""]]};
+window.SIDEBAR_ITEMS = {"fn":["setup"],"struct":["WindowAdapter"]};

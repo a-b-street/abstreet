@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["from_permanent",""],["is_intersection_id",""],["is_road_id",""],["to_permanent",""],["walk",""]]};
+window.SIDEBAR_ITEMS = {"fn":["from_permanent","is_road_id","to_permanent","walk"]};

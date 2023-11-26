@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["EditMode",""],["EditOutcome",""],["Obj",""]],"fn":[["fix_oneway_and_add_filter",""],["road_name",""]],"mod":[["filters",""],["freehand_filters",""],["one_ways",""],["shortcuts",""]],"struct":[["ChangeFilterType",""],["EditNeighbourhood",""],["ResolveBusGate",""],["ResolveOneWayAndFilter",""]]};

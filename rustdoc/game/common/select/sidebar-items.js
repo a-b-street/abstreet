@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Mode",""]],"struct":[["RoadSelector","A tool for selecting multiple roads."]]};
+window.SIDEBAR_ITEMS = {"enum":["Mode"],"struct":["RoadSelector"]};

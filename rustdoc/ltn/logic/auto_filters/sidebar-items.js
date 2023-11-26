@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AutoFilterHeuristic"],"fn":["add_filter","brute_force","greedy","only_one_border","remove_filter","split_cells","try_to_filter_road"]};

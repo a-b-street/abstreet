@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["arrivals",""],["current_demand",""],["current_demand_body",""],["delay",""],["delay_body",""],["delay_plot",""],["header",""],["info",""],["info_body",""],["problems",""],["problems_body",""],["traffic",""],["traffic_body",""],["traffic_signal",""],["traffic_signal_body",""]]};
+window.SIDEBAR_ITEMS = {"fn":["arrivals","current_demand","current_demand_body","delay","delay_body","delay_plot","header","info","info_body","problems","problems_body","traffic","traffic_body","traffic_signal","traffic_signal_body"]};

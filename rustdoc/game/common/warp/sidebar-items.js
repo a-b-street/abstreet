@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["WARP_TO_CAM_ZOOM",""]],"fn":[["inner_warp_to_id",""],["warp_to_id",""]],"struct":[["DebugWarp",""],["Warping",""]]};
+window.SIDEBAR_ITEMS = {"constant":["WARP_TO_CAM_ZOOM"],"fn":["inner_warp_to_id","warp_to_id"],"struct":["DebugWarp","Warping"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Time","In seconds since midnight. Can’t be negative."]]};
+window.SIDEBAR_ITEMS = {"struct":["Time"]};

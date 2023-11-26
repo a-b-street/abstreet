@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["SPACE_BETWEEN_CARDS",""]],"enum":[["State",""]],"struct":[["Card",""],["DragDrop",""]]};
+window.SIDEBAR_ITEMS = {"constant":["SPACE_BETWEEN_CARDS"],"enum":["State"],"struct":["Card","DragDrop"]};

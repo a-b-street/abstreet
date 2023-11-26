@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ExploreMap",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ExploreMap"]};

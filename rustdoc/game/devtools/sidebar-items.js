@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["collisions",""],["compare_counts",""],["destinations",""],["kml",""],["polygon",""],["scenario",""],["story",""]],"struct":[["DevToolsMode",""]]};
+window.SIDEBAR_ITEMS = {"mod":["collisions","compare_counts","destinations","kml","polygon","scenario","story"],"struct":["DevToolsMode"]};

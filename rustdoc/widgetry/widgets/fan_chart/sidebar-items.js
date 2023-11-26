@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["slidey_window",""]],"struct":[["FanChart",""]]};
+window.SIDEBAR_ITEMS = {"fn":["slidey_window"],"struct":["FanChart"]};

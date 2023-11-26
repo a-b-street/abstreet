@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":[["export_csv",""],["export_geojson",""],["help",""]],"struct":[["ChangedRoutes",""],["ExportRow",""],["ShowResults",""]]};

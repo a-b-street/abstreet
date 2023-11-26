@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Mode",""]],"struct":[["Area",""],["AreaSpawner",""],["Obj",""],["SelectRectangle",""]]};
+window.SIDEBAR_ITEMS = {"enum":["Mode"],"struct":["Area","AreaSpawner","Obj","SelectRectangle"]};

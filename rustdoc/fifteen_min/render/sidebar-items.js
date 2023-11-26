@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["draw_star","draw_unwalkable_roads"]};

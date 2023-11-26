@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Speed","In meters per second. Can be negative."]]};
+window.SIDEBAR_ITEMS = {"struct":["Speed"]};

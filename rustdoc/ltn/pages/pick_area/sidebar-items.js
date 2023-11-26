@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PickAreaStyle"],"fn":["change_draw_style","help","make_world","manage_custom_boundary"],"struct":["PickArea"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["PanelDims",""]],"struct":[["Panel",""],["PanelBuilder",""]]};
+window.SIDEBAR_ITEMS = {"enum":["PanelDims"],"struct":["Panel","PanelBuilder"]};

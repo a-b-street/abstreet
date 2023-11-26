@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":[["handle_world_outcome",""],["make_world","Creates clickable objects for managing filters on roads and intersections. Everything is invisible; the caller is responsible for drawing things."]]};

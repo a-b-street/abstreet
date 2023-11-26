@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["SpeedSetting",""]],"struct":[["TimePanel",""]]};
+window.SIDEBAR_ITEMS = {"enum":["SpeedSetting"],"struct":["TimePanel"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["DrawFreehand",""],["EditingMarker",""],["Marker",""],["MarkerID",""],["RecordedStoryMap",""],["StoryMap",""],["StoryMapEditor","A simple tool to place markers and free-hand shapes over a map, then label them."]]};
+window.SIDEBAR_ITEMS = {"struct":["DrawFreehand","EditingMarker","Marker","MarkerID","RecordedStoryMap","StoryMap","StoryMapEditor"]};

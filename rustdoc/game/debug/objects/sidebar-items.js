@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ObjectDebugger",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ObjectDebugger"]};

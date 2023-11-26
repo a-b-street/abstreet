@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["State",""],["StateEvent",""]],"mod":[["model",""]],"struct":[["AnyTime",""],["Event",""]]};
+window.SIDEBAR_ITEMS = {"enum":["State","StateEvent"],"mod":["model"],"struct":["AnyTime","Event"]};

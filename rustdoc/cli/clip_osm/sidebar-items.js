@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["clip",""],["run",""],["to_pt",""]]};
+window.SIDEBAR_ITEMS = {"fn":["clip","run","to_pt"]};

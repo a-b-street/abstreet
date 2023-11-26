@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["bucketize","help","make_legend"],"struct":["Census","ZoneID"]};

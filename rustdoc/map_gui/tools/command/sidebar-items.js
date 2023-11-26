@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["RunCommand","Executes a command and displays STDOUT and STDERR in a loading screen window. Only works on native, of course."]]};
+window.SIDEBAR_ITEMS = {"struct":["RunCommand"]};

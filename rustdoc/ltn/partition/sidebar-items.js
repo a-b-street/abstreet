@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["BlockID","Identifies a single / unmerged block, which never changes"],["NeighbourhoodID","An opaque ID, won’t be contiguous as we adjust boundaries"],["NeighbourhoodInfo",""],["Partitioning",""]]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["add_lunch_trips",""],["add_return_trips",""],["delete_cancelled_trips",""],["pick_lunch_spot",""],["rand_duration",""],["run",""]]};
+window.SIDEBAR_ITEMS = {"fn":["add_lunch_trips","add_return_trips","delete_cancelled_trips","pick_lunch_spot","rand_duration","run"]};

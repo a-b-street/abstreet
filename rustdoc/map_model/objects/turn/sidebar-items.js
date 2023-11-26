@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["TurnPriority",""],["TurnType",""]],"struct":[["Turn","A Turn leads from the end of one Lane to the start of another. (Except for pedestrians; sidewalks are bidirectional.)"],["TurnID","Turns are uniquely identified by their (src, dst) lanes and their parent intersection. Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk."]]};
+window.SIDEBAR_ITEMS = {"enum":["TurnPriority","TurnType"],"struct":["Turn","TurnID"]};

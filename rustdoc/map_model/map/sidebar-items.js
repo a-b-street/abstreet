@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {};
+window.SIDEBAR_ITEMS = {"fn":["expected_turn_types_for_four_way","turn_type_from_angles","turn_type_from_road_geom"]};

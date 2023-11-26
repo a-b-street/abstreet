@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["crosswalk_icon",""],["dont_walk_icon",""],["draw_signal_stage",""],["draw_stage_number",""],["draw_time_left",""],["walk_icon",""]]};
+window.SIDEBAR_ITEMS = {"fn":["crosswalk_icon","dont_walk_icon","draw_signal_stage","draw_stage_number","draw_time_left","walk_icon"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["help","make_panel","make_panel_for_lasso","make_quadtree","polygon_to_custom_boundary","render"],"struct":["FreehandBoundary"]};

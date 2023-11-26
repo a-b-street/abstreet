@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["floodfill",""]],"struct":[["AccessRestrictions",""],["Zone","A contiguous set of roads with access restrictions. This is derived from all the map’s roads and kept cached for performance."]]};
+window.SIDEBAR_ITEMS = {"fn":["floodfill"],"struct":["AccessRestrictions","Zone"]};

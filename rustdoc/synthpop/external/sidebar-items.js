@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ExternalTripEndpoint",""]],"struct":[["ExternalPerson",""],["ExternalTrip",""]]};
+window.SIDEBAR_ITEMS = {"enum":["ExternalTripEndpoint"],"struct":["ExternalPerson","ExternalTrip"]};

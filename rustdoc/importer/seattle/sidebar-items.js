@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["adjust_private_parking",""],["ensure_popdat_exists","Download and pre-process data needed to generate Seattle scenarios."],["input",""],["match_parcels_to_buildings","Match OSM buildings to parcels, scraping the number of housing units."]]};
+window.SIDEBAR_ITEMS = {"fn":["adjust_private_parking","ensure_popdat_exists","input","match_parcels_to_buildings"]};

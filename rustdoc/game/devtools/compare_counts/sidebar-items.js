@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["GenericCompareCounts",""]]};
+window.SIDEBAR_ITEMS = {"struct":["GenericCompareCounts"]};

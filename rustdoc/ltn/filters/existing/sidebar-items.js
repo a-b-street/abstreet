@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":[["detect_filters",""],["transform_existing_filters","Detect roads that’re modelled in OSM as cycleways, but really are regular roads with modal filters. Transform them into normal roads, and instead use this tool’s explicit representation for filters."]]};

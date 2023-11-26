@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["BikeActivity",""],["Static",""]]};
+window.SIDEBAR_ITEMS = {"struct":["BikeActivity","Static"]};

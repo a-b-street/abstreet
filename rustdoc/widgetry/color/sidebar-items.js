@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Fill",""]],"fn":[["lerp",""],["to_pct",""]],"struct":[["Color",""],["LinearGradient",""],["Texture",""]]};
+window.SIDEBAR_ITEMS = {"enum":["Fill"],"fn":["lerp","to_pct"],"struct":["Color","LinearGradient","Texture"]};

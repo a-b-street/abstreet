@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_focused_turns_geom","build_individual_target_road_geom","build_turn_options_geom","build_turn_restriction_hover_geom","handle_edited_turn_restrictions","handle_world_outcome","make_world","widget"]};

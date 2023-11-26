@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["MAX_DOUBLE_CLICK_DURATION",""]],"enum":[["Event",""],["Key",""],["MultiKey",""]],"fn":[["hotkeys",""],["lctrl",""]]};
+window.SIDEBAR_ITEMS = {"constant":["MAX_DOUBLE_CLICK_DURATION"],"enum":["Event","Key","MultiKey"],"fn":["hotkeys","lctrl"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["find_entrances_or_exits","find_major_road_names"],"struct":["EntryExit","Shortcuts"]};

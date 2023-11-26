@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Favorites","A set of buildings that the player has starred, persisted as player data."],["ShowFavorites",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Favorites","ShowFavorites"]};

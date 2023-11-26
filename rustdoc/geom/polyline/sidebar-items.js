@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["MITER_THRESHOLD",""]],"enum":[["ArrowCap",""]],"fn":[["fix_angles",""],["to_set",""]],"struct":[["PolyLine",""]]};
+window.SIDEBAR_ITEMS = {"constant":["MITER_THRESHOLD"],"enum":["ArrowCap"],"fn":["fix_angles","to_set"],"struct":["PolyLine"]};

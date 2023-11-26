@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Intersection","An intersection connects roads. Most have >2 roads and are controlled by stop signs or traffic signals. Roads that lead to the boundary of the map end at border intersections, with only that one road attached."],["IntersectionID",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Intersection","IntersectionID"]};

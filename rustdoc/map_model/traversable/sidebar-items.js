@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["MAX_BIKE_SPEED",""],["MAX_WALKING_SPEED",""]],"enum":[["Traversable","Either a lane or a turn, where most movement happens."]],"fn":[["bike_speed_on_incline",""],["walking_speed_on_incline",""]],"struct":[["Position","Represents a specific point some distance along a lane."]]};
+window.SIDEBAR_ITEMS = {"constant":["MAX_BIKE_SPEED","MAX_WALKING_SPEED"],"enum":["Traversable"],"fn":["bike_speed_on_incline","walking_speed_on_incline"],"struct":["Position"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["parse_linestring",""],["parse_time",""],["parse_trips",""],["run",""]],"struct":[["Record",""]]};
+window.SIDEBAR_ITEMS = {"fn":["parse_linestring","parse_time","parse_trips","run"],"struct":["Record"]};

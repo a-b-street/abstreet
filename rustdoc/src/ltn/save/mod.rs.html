@@ -1,712 +1,249 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/save/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
-<span id="2">2</span>
-<span id="3">3</span>
-<span id="4">4</span>
-<span id="5">5</span>
-<span id="6">6</span>
-<span id="7">7</span>
-<span id="8">8</span>
-<span id="9">9</span>
-<span id="10">10</span>
-<span id="11">11</span>
-<span id="12">12</span>
-<span id="13">13</span>
-<span id="14">14</span>
-<span id="15">15</span>
-<span id="16">16</span>
-<span id="17">17</span>
-<span id="18">18</span>
-<span id="19">19</span>
-<span id="20">20</span>
-<span id="21">21</span>
-<span id="22">22</span>
-<span id="23">23</span>
-<span id="24">24</span>
-<span id="25">25</span>
-<span id="26">26</span>
-<span id="27">27</span>
-<span id="28">28</span>
-<span id="29">29</span>
-<span id="30">30</span>
-<span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
-<span id="90">90</span>
-<span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
-<span id="100">100</span>
-<span id="101">101</span>
-<span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
-</pre><pre class="rust"><code><span class="kw">mod </span>perma;
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/save/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-fa3bb1812debf86c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.74.0 (79e9716c9 2023-11-13)" data-channel="1.74.0" data-search-js="search-8be46b629f5f14a8.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-c5bd66d33317d69f.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<a href="#2" id="2">2</a>
+<a href="#3" id="3">3</a>
+<a href="#4" id="4">4</a>
+<a href="#5" id="5">5</a>
+<a href="#6" id="6">6</a>
+<a href="#7" id="7">7</a>
+<a href="#8" id="8">8</a>
+<a href="#9" id="9">9</a>
+<a href="#10" id="10">10</a>
+<a href="#11" id="11">11</a>
+<a href="#12" id="12">12</a>
+<a href="#13" id="13">13</a>
+<a href="#14" id="14">14</a>
+<a href="#15" id="15">15</a>
+<a href="#16" id="16">16</a>
+<a href="#17" id="17">17</a>
+<a href="#18" id="18">18</a>
+<a href="#19" id="19">19</a>
+<a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
+<a href="#42" id="42">42</a>
+<a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a>
+<a href="#47" id="47">47</a>
+<a href="#48" id="48">48</a>
+<a href="#49" id="49">49</a>
+<a href="#50" id="50">50</a>
+<a href="#51" id="51">51</a>
+<a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+</pre></div><pre class="rust"><code><span class="kw">mod </span>perma;
+<span class="kw">mod </span>proposals_ui;
+<span class="kw">mod </span>save_dialog;
 <span class="kw">mod </span>share;
 
+<span class="kw">use </span>std::collections::BTreeSet;
+
 <span class="kw">use </span>anyhow::Result;
-<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use </span>abstio::MapName;
 <span class="kw">use </span>abstutil::{Counter, Timer};
-<span class="kw">use </span>map_model::{EditRoad, Map};
-<span class="kw">use </span>widgetry::tools::{ChooseSomething, PopupMsg};
-<span class="kw">use </span>widgetry::{
-    lctrl, Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, MultiKey, Outcome, Panel, State,
-    TextBox, Widget,
-};
+<span class="kw">use </span>map_model::{BuildingID, Map, MapEdits};
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{EventCtx, State};
 
-<span class="kw">use </span><span class="kw">crate</span>::edit::EditMode;
-<span class="kw">use </span><span class="kw">crate</span>::partition::BlockID;
-<span class="kw">use crate</span>::{App, Edits, Partitioning, PickArea, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::logic::{BlockID, Partitioning};
+<span class="kw">use crate</span>::{pages, App, Transition};
 
 <span class="kw">pub use </span>share::PROPOSAL_HOST_URL;
 
-<span class="doccomment">/// Captures all of the edits somebody makes to a map in the LTN tool. Note this is separate from
-/// `map_model::MapEdits`.
-</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+<span class="kw">pub struct </span>Proposals {
+    <span class="comment">// The 0th thing is always treated as the immutable basemap
+    // Note for the current proposal, we have to be very careful to sync MapEdits with this
+    </span><span class="kw">pub </span>list: Vec&lt;Proposal&gt;,
+    <span class="kw">pub </span>current: usize,
+}
+
+<span class="doccomment">/// Captures all of the edits somebody makes to a map in the LTN tool.
+/// TODO This should just be MapEdits, but we need to deal with Partitioning still
+/// Note &quot;existing LTNs&quot; is a special reserved name
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>Proposal {
-    <span class="kw">pub </span>map: MapName,
-    <span class="doccomment">/// &quot;existing LTNs&quot; is a special reserved name
-    </span><span class="kw">pub </span>name: String,
-    <span class="kw">pub </span>abst_version: String,
-
     <span class="kw">pub </span>partitioning: Partitioning,
-    <span class="kw">pub </span>edits: Edits,
-
-    <span class="doccomment">/// If this proposal is an edit to another proposal, store its name
-    </span><span class="attribute">#[serde(skip_serializing, skip_deserializing)]
-    </span>unsaved_parent: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>edits: MapEdits,
 }
 
 <span class="kw">impl </span>Proposal {
-    <span class="kw">fn </span>make_active(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
-        <span class="comment">// First undo any one-way changes
-        </span><span class="kw">let </span><span class="kw-2">mut </span>edits = app.per_map.map.new_edits();
-        <span class="kw">for </span>r <span class="kw">in </span>app.edits().one_ways.keys().cloned() {
-            <span class="comment">// Just revert to the original state
-            </span>edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
-                <span class="kw-2">*</span>new = EditRoad::get_orig_from_osm(
-                    app.per_map.map.get_r(r),
-                    app.per_map.map.get_config(),
-                );
-            }));
-        }
-
-        app.per_map.proposals.current_proposal = <span class="self">self</span>;
-        app.per_map.draw_all_filters = app.edits().draw(ctx, <span class="kw-2">&amp;</span>app.per_map.map);
-
-        <span class="comment">// Then append any new one-way changes. Edits are applied in order, so the net effect
-        // should be correct.
-        </span><span class="kw">for </span>(r, r_edit) <span class="kw">in </span><span class="kw-2">&amp;</span>app.edits().one_ways {
-            edits
-                .commands
-                .push(app.per_map.map.edit_road_cmd(<span class="kw-2">*</span>r, <span class="kw">move </span>|new| {
-                    <span class="kw-2">*</span>new = r_edit.clone();
-                }));
-        }
-        app.per_map
-            .map
-            .must_apply_edits(edits, <span class="kw-2">&amp;mut </span>Timer::throwaway());
-    }
-
     <span class="doccomment">/// Try to load a proposal. If it fails, returns a popup message state.
     </span><span class="kw">pub fn </span>load_from_path(
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
@@ -745,17 +282,14 @@
         <span class="comment">// TODO We could try to detect if the file&#39;s partitioning (road IDs and such) still matches
         // this version of the map or not
 
-        // When initially loading a proposal from CLI flag, the partitioning will be a placeholder.
-        // Don&#39;t stash it.
-        </span><span class="kw">if </span>!app.partitioning().is_empty() {
-            stash_current_proposal(app);
+        </span>app.per_map.proposals.list.push(proposal);
+        app.per_map.proposals.current = app.per_map.proposals.list.len() - <span class="number">1</span>;
 
-            <span class="comment">// Start a new proposal
-            </span>app.per_map.proposals.list.push(<span class="prelude-val">None</span>);
-            app.per_map.proposals.current = app.per_map.proposals.list.len() - <span class="number">1</span>;
-        }
-
-        proposal.make_active(ctx, app);
+        app.per_map.map.must_apply_edits(
+            app.per_map.proposals.get_current().edits.clone(),
+            <span class="kw-2">&amp;mut </span>Timer::throwaway(),
+        );
+        <span class="kw">crate</span>::redraw_all_icons(ctx, app);
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -778,453 +312,38 @@
     }
 }
 
-<span class="kw">fn </span>stash_current_proposal(app: <span class="kw-2">&amp;mut </span>App) {
-    <span class="comment">// TODO Could we swap and be more efficient?
-    </span><span class="kw-2">*</span>app.per_map
-        .proposals
-        .list
-        .get_mut(app.per_map.proposals.current)
-        .unwrap() = <span class="prelude-val">Some</span>(app.per_map.proposals.current_proposal.clone());
-}
-
-<span class="kw">fn </span>switch_to_existing_proposal(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, idx: usize) {
-    stash_current_proposal(app);
-
-    <span class="kw">let </span>proposal = app
-        .per_map
-        .proposals
-        .list
-        .get_mut(idx)
-        .unwrap()
-        .take()
-        .unwrap();
-    app.per_map.proposals.current = idx;
-
-    proposal.make_active(ctx, app);
-}
-
-<span class="kw">struct </span>SaveDialog {
-    panel: Panel,
-    preserve_state: PreserveState,
-    can_overwrite: bool,
-}
-
-<span class="kw">impl </span>SaveDialog {
-    <span class="kw">fn </span>new_state(
-        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
-        app: <span class="kw-2">&amp;</span>App,
-        preserve_state: PreserveState,
-    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
-        <span class="kw">let </span>parent = app
-            .per_map
-            .proposals
-            .current_proposal
-            .unsaved_parent
-            .clone();
-        <span class="kw">let </span>can_overwrite = parent.is_some() &amp;&amp; parent != <span class="prelude-val">Some</span>(<span class="string">&quot;existing LTNs&quot;</span>.to_string());
-
-        <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">Self </span>{
-            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Save proposal&quot;</span>).small_heading().into_widget(ctx),
-                    ctx.style().btn_close_widget(ctx),
-                ]),
-                <span class="kw">if </span>can_overwrite {
-                    Widget::row(<span class="macro">vec!</span>[
-                        ctx.style()
-                            .btn_solid_destructive
-                            .text(<span class="macro">format!</span>(<span class="string">&quot;Overwrite \&quot;{}\&quot;&quot;</span>, parent.unwrap()))
-                            .build_widget(ctx, <span class="string">&quot;Overwrite&quot;</span>),
-                        Line(<span class="string">&quot;Or save a new copy below&quot;</span>)
-                            .secondary()
-                            .into_widget(ctx)
-                            .centered_vert(),
-                    ])
-                } <span class="kw">else </span>{
-                    Widget::nothing()
-                },
-                Widget::row(<span class="macro">vec!</span>[
-                    TextBox::default_widget(ctx, <span class="string">&quot;input&quot;</span>, String::new()),
-                    Widget::placeholder(ctx, <span class="string">&quot;Save as&quot;</span>),
-                ]),
-                Widget::placeholder(ctx, <span class="string">&quot;warning&quot;</span>),
-            ]))
-            .build(ctx),
-            preserve_state,
-            can_overwrite,
-        };
-        state.name_updated(ctx);
-        Box::new(state)
-    }
-
-    <span class="kw">fn </span>name_updated(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
-        <span class="kw">let </span>name = <span class="self">self</span>.panel.text_box(<span class="string">&quot;input&quot;</span>);
-
-        <span class="kw">let </span>warning = <span class="kw">if </span>name == <span class="string">&quot;existing LTNs&quot; </span>{
-            <span class="prelude-val">Some</span>(<span class="string">&quot;You can&#39;t overwrite the name \&quot;existing LTNs\&quot;&quot;</span>)
-        } <span class="kw">else if </span>name.is_empty() {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;You have to name this proposal&quot;</span>)
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>};
-
-        <span class="kw">let </span>btn = ctx
-            .style()
-            .btn_solid_primary
-            .text(<span class="string">&quot;Save as&quot;</span>)
-            .disabled(warning.is_some())
-            .hotkey(<span class="kw">if </span><span class="self">self</span>.can_overwrite {
-                <span class="prelude-val">None
-            </span>} <span class="kw">else </span>{
-                <span class="prelude-val">Some</span>(MultiKey::from(Key::Enter))
-            })
-            .build_def(ctx);
-        <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;Save as&quot;</span>, btn);
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(warning) = warning {
-            <span class="self">self</span>.panel
-                .replace(ctx, <span class="string">&quot;warning&quot;</span>, Line(warning).into_widget(ctx));
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.panel
-                .replace(ctx, <span class="string">&quot;warning&quot;</span>, Widget::placeholder(ctx, <span class="string">&quot;warning&quot;</span>));
-        }
-    }
-
-    <span class="kw">fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, err: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; Transition {
-        Transition::Multi(<span class="macro">vec!</span>[
-            <span class="self">self</span>.preserve_state.switch_to_state(ctx, app),
-            Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[err])),
-        ])
-    }
-}
-
-<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>SaveDialog {
-    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
-        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
-            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-                <span class="string">&quot;Save as&quot; </span>=&gt; {
-                    <span class="kw">let </span>name = <span class="self">self</span>.panel.text_box(<span class="string">&quot;input&quot;</span>);
-
-                    <span class="comment">// TODO If we&#39;re clobbering something that exists in Proposals especially...
-                    // watch out
-
-                    </span>app.per_map.proposals.current_proposal.name = name;
-                    app.per_map.proposals.current_proposal.unsaved_parent = <span class="prelude-val">None</span>;
-                    <span class="kw">return match </span>inner_save(app) {
-                        <span class="comment">// If we changed the name, we&#39;ll want to recreate the panel
-                        </span><span class="prelude-val">Ok</span>(()) =&gt; <span class="self">self</span>.preserve_state.switch_to_state(ctx, app),
-                        <span class="prelude-val">Err</span>(err) =&gt; {
-                            <span class="self">self</span>.error(ctx, app, <span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t save proposal: {}&quot;</span>, err))
-                        }
-                    };
-                }
-                <span class="string">&quot;Overwrite&quot; </span>=&gt; {
-                    <span class="comment">// TODO If the user loaded the parent file again, this&#39;ll be confusing. Maybe
-                    // ban that?
-
-                    </span><span class="kw">let </span>proposals = <span class="kw-2">&amp;mut </span>app.per_map.proposals;
-                    proposals.current_proposal.name =
-                        proposals.current_proposal.unsaved_parent.take().unwrap();
-
-                    <span class="kw">return match </span>inner_save(app) {
-                        <span class="prelude-val">Ok</span>(()) =&gt; <span class="self">self</span>.preserve_state.switch_to_state(ctx, app),
-                        <span class="comment">// TODO If we fail to save for some reason, the Proposals panel gets out
-                        // of sync with the filesystem
-                        </span><span class="prelude-val">Err</span>(err) =&gt; {
-                            <span class="self">self</span>.error(ctx, app, <span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t save proposal: {}&quot;</span>, err))
-                        }
-                    };
-                }
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
-            },
-            Outcome::Changed(<span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.name_updated(ctx);
-                Transition::Keep
-            }
-            <span class="kw">_ </span>=&gt; {
-                <span class="kw">if </span>ctx.normal_left_click() &amp;&amp; ctx.canvas.get_cursor_in_screen_space().is_none() {
-                    <span class="kw">return </span>Transition::Pop;
-                }
-                Transition::Keep
-            }
-        }
-    }
-
-    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
-        DrawBaselayer::PreviousState
-    }
-
-    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
-        map_gui::tools::grey_out_map(g, app);
-        <span class="self">self</span>.panel.draw(g);
-    }
-}
-
-<span class="kw">fn </span>inner_save(app: <span class="kw-2">&amp;</span>App) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>proposal = <span class="kw-2">&amp;</span>app.per_map.proposals.current_proposal;
-    <span class="kw">let </span>path = abstio::path_ltn_proposals(app.per_map.map.get_name(), <span class="kw-2">&amp;</span>proposal.name);
-    <span class="kw">let </span>output_buffer = proposal.to_gzipped_bytes(app)<span class="question-mark">?</span>;
-    abstio::write_raw(path, <span class="kw-2">&amp;</span>output_buffer)
-}
-
-<span class="kw">fn </span>load_picker_ui(
-    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
-    app: <span class="kw-2">&amp;</span>App,
-    preserve_state: PreserveState,
-) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
-    <span class="comment">// Don&#39;t bother trying to filter out proposals currently loaded -- by loading twice, somebody
-    // effectively makes a copy to modify a bit
-    </span>ChooseSomething::new_state(
-        ctx,
-        <span class="string">&quot;Load which proposal?&quot;</span>,
-        <span class="comment">// basename (and thus list_all_objects) turn &quot;foo.json.gz&quot; into &quot;foo.json&quot;, so further
-        // strip out the extension.
-        // TODO Fix basename, but make sure nothing downstream breaks
-        </span>Choice::strings(
-            abstio::list_all_objects(abstio::path_all_ltn_proposals(app.per_map.map.get_name()))
-                .into_iter()
-                .map(abstutil::basename)
-                .collect(),
-        ),
-        Box::new(<span class="kw">move </span>|name, ctx, app| {
-            <span class="kw">match </span>Proposal::load_from_path(
-                ctx,
-                app,
-                abstio::path_ltn_proposals(app.per_map.map.get_name(), <span class="kw-2">&amp;</span>name),
-            ) {
-                <span class="prelude-val">Some</span>(err_state) =&gt; Transition::Replace(err_state),
-                <span class="prelude-val">None </span>=&gt; preserve_state.switch_to_state(ctx, app),
-            }
-        }),
-    )
-}
-
-<span class="kw">pub struct </span>Proposals {
-    <span class="comment">// All entries are filled out, except for the current proposal being worked on
-    </span>list: Vec&lt;<span class="prelude-ty">Option</span>&lt;Proposal&gt;&gt;,
-    current: usize,
-
-    <span class="kw">pub </span>current_proposal: Proposal,
-}
-
 <span class="kw">impl </span>Proposals {
-    <span class="kw">pub fn </span>new(map: <span class="kw-2">&amp;</span>Map, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="self">Self </span>{
+    <span class="comment">// This calculates partitioning, which is expensive
+    </span><span class="kw">pub fn </span>new(map: <span class="kw-2">&amp;</span>Map, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            list: <span class="macro">vec!</span>[<span class="prelude-val">None</span>],
-            current: <span class="number">0</span>,
-
-            current_proposal: Proposal {
-                map: map.get_name().clone(),
-                name: <span class="string">&quot;existing LTNs&quot;</span>.to_string(),
-                abst_version: map_gui::tools::version().to_string(),
+            list: <span class="macro">vec!</span>[Proposal {
                 partitioning: Partitioning::seed_using_heuristics(map, timer),
-                edits: Edits::default(),
-                unsaved_parent: <span class="prelude-val">None</span>,
-            },
+                edits: map.get_edits().clone(),
+            }],
+            current: <span class="number">0</span>,
         }
+    }
+
+    <span class="kw">pub fn </span>get_current(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Proposal {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.list[<span class="self">self</span>.current]
     }
 
     <span class="comment">// Special case for locking into a consultation mode
-    </span><span class="kw">pub fn </span>clear_all_but_current(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.list = <span class="macro">vec!</span>[<span class="prelude-val">None</span>];
+    </span><span class="kw">pub fn </span>force_current_to_basemap(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>current = <span class="self">self</span>.list.remove(<span class="self">self</span>.current);
+        <span class="self">self</span>.list = <span class="macro">vec!</span>[current];
         <span class="self">self</span>.current = <span class="number">0</span>;
     }
 
-    <span class="doccomment">/// Call before making any changes to fork a copy of the proposal and to preserve edit history
-    </span><span class="kw">pub fn </span>before_edit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="comment">// Fork the proposal or not?
-        </span><span class="kw">if </span><span class="self">self</span>.current_proposal.unsaved_parent.is_none() {
-            <span class="comment">// Fork a new proposal if we&#39;re starting from the immutable baseline
-            </span><span class="kw">let </span>from_immutable = <span class="self">self</span>.current == <span class="number">0</span>;
-            <span class="kw">if </span>from_immutable {
-                <span class="self">self</span>.list
-                    .insert(<span class="self">self</span>.current, <span class="prelude-val">Some</span>(<span class="self">self</span>.current_proposal.clone()));
-                <span class="self">self</span>.current += <span class="number">1</span>;
-                <span class="macro">assert!</span>(<span class="self">self</span>.list[<span class="self">self</span>.current].is_none());
-            }
-            <span class="comment">// Otherwise, just replace the current proposal with something that&#39;s clearly edited
-            </span><span class="self">self</span>.current_proposal.unsaved_parent = <span class="prelude-val">Some</span>(<span class="self">self</span>.current_proposal.name.clone());
-            <span class="kw">if </span>from_immutable {
-                <span class="comment">// There&#39;ll be name collision if people start multiple unsaved files, but it
-                // shouldn&#39;t cause problems
-                </span><span class="self">self</span>.current_proposal.name = <span class="string">&quot;new proposal*&quot;</span>.to_string();
-            } <span class="kw">else </span>{
-                <span class="self">self</span>.current_proposal.name = <span class="macro">format!</span>(<span class="string">&quot;{}*&quot;</span>, <span class="self">self</span>.current_proposal.name);
-            }
+    <span class="doccomment">/// Call before making any changes
+    </span><span class="kw">pub fn </span>before_edit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, edits: MapEdits) {
+        <span class="kw">if </span><span class="self">self</span>.current == <span class="number">0 </span>{
+            <span class="comment">// TODO Regenerate a better edits_name?
+            </span><span class="self">self</span>.list.insert(<span class="number">1</span>, <span class="self">self</span>.list[<span class="number">0</span>].clone());
+            <span class="self">self</span>.current = <span class="number">1</span>;
         }
-
-        <span class="comment">// Handle undo history
-        </span><span class="kw">let </span>copy = <span class="self">self</span>.current_proposal.edits.clone();
-        <span class="self">self</span>.current_proposal.edits.previous_version = Box::new(<span class="prelude-val">Some</span>(copy));
-    }
-
-    <span class="doccomment">/// If it&#39;s possible no edits were made, undo the previous call to `before_edit` and collapse
-    /// the redundant piece of history. Returns true if the edit was indeed empty.
-    </span><span class="kw">pub fn </span>cancel_empty_edit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(prev) = <span class="self">self</span>.current_proposal.edits.previous_version.take() {
-            <span class="kw">if </span><span class="self">self</span>.current_proposal.edits.roads == prev.roads
-                &amp;&amp; <span class="self">self</span>.current_proposal.edits.intersections == prev.intersections
-                &amp;&amp; <span class="self">self</span>.current_proposal.edits.one_ways == prev.one_ways
-            {
-                <span class="self">self</span>.current_proposal.edits.previous_version = prev.previous_version;
-
-                <span class="comment">// TODO Maybe &quot;unfork&quot; the proposal -- remove the unsaved marker. But that depends
-                // on if the previous proposal was already modified or not.
-
-                </span><span class="kw">return </span><span class="bool-val">true</span>;
-            } <span class="kw">else </span>{
-                <span class="comment">// There was a real difference, keep
-                </span><span class="self">self</span>.current_proposal.edits.previous_version = Box::new(<span class="prelude-val">Some</span>(prev));
-            }
-        }
-        <span class="bool-val">false
-    </span>}
-
-    <span class="kw">pub fn </span>to_widget_expanded(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
-        <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
-        <span class="kw">for </span>(action, icon, hotkey) <span class="kw">in </span>[
-            (<span class="string">&quot;New&quot;</span>, <span class="string">&quot;pencil&quot;</span>, <span class="prelude-val">None</span>),
-            (<span class="string">&quot;Load&quot;</span>, <span class="string">&quot;folder&quot;</span>, <span class="prelude-val">None</span>),
-            (<span class="string">&quot;Save&quot;</span>, <span class="string">&quot;save&quot;</span>, <span class="prelude-val">Some</span>(MultiKey::from(lctrl(Key::S)))),
-            (<span class="string">&quot;Share&quot;</span>, <span class="string">&quot;share&quot;</span>, <span class="prelude-val">None</span>),
-            (<span class="string">&quot;Export GeoJSON&quot;</span>, <span class="string">&quot;export&quot;</span>, <span class="prelude-val">None</span>),
-        ] {
-            col.push(
-                ctx.style()
-                    .btn_plain
-                    .icon_text(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;system/assets/tools/{icon}.svg&quot;</span>), action)
-                    .hotkey(hotkey)
-                    .build_def(ctx),
-            );
-        }
-
-        <span class="kw">for </span>(idx, proposal) <span class="kw">in </span><span class="self">self</span>.list.iter().enumerate() {
-            <span class="kw">let </span>button = <span class="kw">if let </span><span class="prelude-val">Some</span>(proposal) = proposal {
-                ctx.style()
-                    .btn_solid_primary
-                    .text(<span class="macro">format!</span>(<span class="string">&quot;{} - {}&quot;</span>, idx + <span class="number">1</span>, proposal.name))
-                    .hotkey(Key::NUM_KEYS[idx])
-                    .build_widget(ctx, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;switch to proposal {}&quot;</span>, idx))
-            } <span class="kw">else </span>{
-                ctx.style()
-                    .btn_solid_primary
-                    .text(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} - {}&quot;</span>,
-                        idx + <span class="number">1</span>,
-                        app.per_map.proposals.current_proposal.name
-                    ))
-                    .disabled(<span class="bool-val">true</span>)
-                    .build_def(ctx)
-            };
-            col.push(Widget::row(<span class="macro">vec!</span>[
-                button,
-                <span class="comment">// The first proposal (usually &quot;existing LTNs&quot;, unless we&#39;re in a special consultation
-                // mode) is special and can&#39;t ever be removed
-                </span><span class="kw">if </span>idx != <span class="number">0 </span>{
-                    ctx.style()
-                        .btn_close()
-                        .disabled(<span class="self">self</span>.list.len() == <span class="number">1</span>)
-                        .build_widget(ctx, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;hide proposal {}&quot;</span>, idx))
-                } <span class="kw">else </span>{
-                    Widget::nothing()
-                },
-            ]));
-            <span class="comment">// If somebody tries to load too many proposals, just stop
-            </span><span class="kw">if </span>idx == <span class="number">9 </span>{
-                <span class="kw">break</span>;
-            }
-        }
-        Widget::col(col)
-    }
-
-    <span class="kw">pub fn </span>to_widget_collapsed(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
-        <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
-        <span class="kw">for </span>(action, icon) <span class="kw">in </span>[
-            (<span class="string">&quot;New&quot;</span>, <span class="string">&quot;pencil&quot;</span>),
-            (<span class="string">&quot;Load&quot;</span>, <span class="string">&quot;folder&quot;</span>),
-            (<span class="string">&quot;Save&quot;</span>, <span class="string">&quot;save&quot;</span>),
-            (<span class="string">&quot;Share&quot;</span>, <span class="string">&quot;share&quot;</span>),
-            (<span class="string">&quot;Export GeoJSON&quot;</span>, <span class="string">&quot;export&quot;</span>),
-        ] {
-            col.push(
-                ctx.style()
-                    .btn_plain
-                    .icon(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;system/assets/tools/{icon}.svg&quot;</span>))
-                    .build_widget(ctx, action),
-            );
-        }
-        Widget::col(col)
-    }
-
-    <span class="kw">pub fn </span>handle_action(
-        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
-        app: <span class="kw-2">&amp;mut </span>App,
-        preserve_state: <span class="kw-2">&amp;</span>PreserveState,
-        action: <span class="kw-2">&amp;</span>str,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
-        <span class="kw">match </span>action {
-            <span class="string">&quot;New&quot; </span>=&gt; {
-                <span class="comment">// Fork a new proposal from the first one
-                </span><span class="kw">if </span>app.per_map.proposals.current != <span class="number">0 </span>{
-                    switch_to_existing_proposal(ctx, app, <span class="number">0</span>);
-                }
-
-                app.per_map.proposals.before_edit();
-            }
-            <span class="string">&quot;Load&quot; </span>=&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(load_picker_ui(
-                    ctx,
-                    app,
-                    preserve_state.clone(),
-                )));
-            }
-            <span class="string">&quot;Save&quot; </span>=&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(SaveDialog::new_state(
-                    ctx,
-                    app,
-                    preserve_state.clone(),
-                )));
-            }
-            <span class="string">&quot;Share&quot; </span>=&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(share::ShareProposal::new_state(ctx, app)));
-            }
-            <span class="string">&quot;Export GeoJSON&quot; </span>=&gt; {
-                <span class="kw">let </span>result = <span class="kw">crate</span>::export::write_geojson_file(app);
-                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(<span class="kw">match </span>result {
-                    <span class="prelude-val">Ok</span>(path) =&gt; PopupMsg::new_state(
-                        ctx,
-                        <span class="string">&quot;LTNs exported&quot;</span>,
-                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {}&quot;</span>, path)],
-                    ),
-                    <span class="prelude-val">Err</span>(err) =&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[err.to_string()]),
-                }));
-            }
-            <span class="kw">_ </span>=&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = action.strip_prefix(<span class="string">&quot;switch to proposal &quot;</span>) {
-                    <span class="kw">let </span>idx = x.parse::&lt;usize&gt;().unwrap();
-                    switch_to_existing_proposal(ctx, app, idx);
-                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = action.strip_prefix(<span class="string">&quot;hide proposal &quot;</span>) {
-                    <span class="kw">let </span>idx = x.parse::&lt;usize&gt;().unwrap();
-                    <span class="kw">if </span>idx == app.per_map.proposals.current {
-                        <span class="comment">// First make sure we&#39;re not hiding the current proposal
-                        </span>switch_to_existing_proposal(ctx, app, <span class="kw">if </span>idx == <span class="number">0 </span>{ <span class="number">1 </span>} <span class="kw">else </span>{ idx - <span class="number">1 </span>});
-                    }
-
-                    <span class="comment">// Remove it
-                    </span>app.per_map.proposals.list.remove(idx);
-
-                    <span class="comment">// Fix up indices
-                    </span><span class="kw">if </span>idx &lt; app.per_map.proposals.current {
-                        app.per_map.proposals.current -= <span class="number">1</span>;
-                    }
-                } <span class="kw">else </span>{
-                    <span class="kw">return </span><span class="prelude-val">None</span>;
-                }
-            }
-        }
-
-        <span class="prelude-val">Some</span>(preserve_state.clone().switch_to_state(ctx, app))
+        <span class="comment">// TODO Maybe we could mark this as unsaved, depending how we decide to do autosave
+        </span><span class="self">self</span>.list[<span class="self">self</span>.current].edits = edits;
     }
 }
 
@@ -1233,25 +352,24 @@
 // To preserve per-neighborhood states, we have to transform neighbourhood IDs, which may change if
 // the partitioning is different. If the boundary is a bit different, match up by all the blocks in
 // the current neighbourhood.
-</span><span class="attribute">#[derive(Clone)]
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub enum </span>PreserveState {
     PickArea,
     Route,
     Crossings,
     <span class="comment">// TODO app.session.edit_mode now has state for Shortcuts...
-    </span>DesignLTN(Vec&lt;BlockID&gt;),
+    </span>DesignLTN(BTreeSet&lt;BlockID&gt;),
+    PerResidentImpact(BTreeSet&lt;BlockID&gt;, <span class="prelude-ty">Option</span>&lt;BuildingID&gt;),
+    CycleNetwork,
+    Census,
 }
 
 <span class="kw">impl </span>PreserveState {
     <span class="kw">fn </span>switch_to_state(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self </span>{
-            PreserveState::PickArea =&gt; Transition::Replace(PickArea::new_state(ctx, app)),
-            PreserveState::Route =&gt; {
-                Transition::Replace(<span class="kw">crate</span>::route_planner::RoutePlanner::new_state(ctx, app))
-            }
-            PreserveState::Crossings =&gt; {
-                Transition::Replace(<span class="kw">crate</span>::crossings::Crossings::new_state(ctx, app))
-            }
+            PreserveState::PickArea =&gt; Transition::Replace(pages::PickArea::new_state(ctx, app)),
+            PreserveState::Route =&gt; Transition::Replace(pages::RoutePlanner::new_state(ctx, app)),
+            PreserveState::Crossings =&gt; Transition::Replace(pages::Crossings::new_state(ctx, app)),
             PreserveState::DesignLTN(blocks) =&gt; {
                 <span class="comment">// Count which new neighbourhoods have the blocks from the original. Pick the one
                 // with the most matches
@@ -1260,23 +378,44 @@
                     count.inc(app.partitioning().block_to_neighbourhood(<span class="kw-2">*</span>block));
                 }
 
-                <span class="kw">if let </span>EditMode::Shortcuts(<span class="kw-2">ref mut </span>maybe_focus) = app.session.edit_mode {
+                <span class="kw">if let </span>pages::EditMode::Shortcuts(<span class="kw-2">ref mut </span>maybe_focus) = app.session.edit_mode {
                     <span class="comment">// TODO We should try to preserve the focused road at least, or the specific
                     // shortcut maybe.
                     </span><span class="kw-2">*</span>maybe_focus = <span class="prelude-val">None</span>;
                 }
-                <span class="kw">if let </span>EditMode::FreehandFilters(<span class="kw">_</span>) = app.session.edit_mode {
-                    app.session.edit_mode = EditMode::Filters;
+                <span class="kw">if let </span>pages::EditMode::FreehandFilters(<span class="kw">_</span>) = app.session.edit_mode {
+                    app.session.edit_mode = pages::EditMode::Filters;
                 }
 
-                Transition::Replace(<span class="kw">crate</span>::design_ltn::DesignLTN::new_state(
+                Transition::Replace(pages::DesignLTN::new_state(ctx, app, count.max_key()))
+            }
+            PreserveState::PerResidentImpact(blocks, current_target) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>count = Counter::new();
+                <span class="kw">for </span>block <span class="kw">in </span>blocks {
+                    count.inc(app.partitioning().block_to_neighbourhood(<span class="kw-2">*</span>block));
+                }
+                Transition::Replace(pages::PerResidentImpact::new_state(
                     ctx,
                     app,
                     count.max_key(),
+                    <span class="kw-2">*</span>current_target,
                 ))
             }
+            PreserveState::CycleNetwork =&gt; {
+                Transition::Replace(pages::CycleNetwork::new_state(ctx, app))
+            }
+            PreserveState::Census =&gt; Transition::Replace(pages::Census::new_state(ctx, app)),
         }
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+
+<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+</span><span class="kw">fn </span>start_dir() -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    home::home_dir().map(|x| x.display().to_string())
+}
+
+<span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+</span><span class="kw">fn </span>start_dir() -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="prelude-val">None
+</span>}
+</code></pre></div></section></main></body></html>

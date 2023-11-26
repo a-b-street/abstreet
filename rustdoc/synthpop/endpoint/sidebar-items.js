@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["TripEndpoint","Specifies where a trip begins or ends."]]};
+window.SIDEBAR_ITEMS = {"enum":["TripEndpoint"]};

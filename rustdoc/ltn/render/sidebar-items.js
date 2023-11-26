@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["draw_turn_restriction_icon","filter_hide_color","filter_svg_path","render_bus_routes","render_poi_icons","render_turn_restrictions"],"mod":["cells","colors","filters"],"struct":["Toggle3Zoomed"]};

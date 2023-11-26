@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["DRAG_THRESHOLD",""],["INSET",""],["PANNING_THRESHOLD",""],["PAN_SPEED",""]],"enum":[["HorizontalAlignment",""],["VerticalAlignment",""]],"struct":[["Canvas",""],["CanvasSettings",""]]};
+window.SIDEBAR_ITEMS = {"constant":["DRAG_THRESHOLD","INSET","PANNING_THRESHOLD","PAN_SPEED"],"enum":["HorizontalAlignment","VerticalAlignment"],"struct":["Canvas","CanvasSettings"]};

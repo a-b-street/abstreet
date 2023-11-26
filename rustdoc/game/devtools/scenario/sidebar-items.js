@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ScenarioManager",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ScenarioManager"]};

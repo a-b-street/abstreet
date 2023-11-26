@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Distance","A distance, in meters. Can be negative."]]};
+window.SIDEBAR_ITEMS = {"struct":["Distance"]};

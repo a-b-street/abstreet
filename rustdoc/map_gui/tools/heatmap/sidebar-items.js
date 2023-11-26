@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["NEIGHBORS",""]],"fn":[["draw_isochrone","Thresholds are Durations, in units of seconds"],["make_heatmap",""]],"struct":[["Grid","A 2D grid containing some arbitrary data."],["HeatmapOptions",""]]};
+window.SIDEBAR_ITEMS = {"constant":["NEIGHBORS"],"fn":["draw_isochrone","make_heatmap"],"struct":["Grid","HeatmapOptions"]};

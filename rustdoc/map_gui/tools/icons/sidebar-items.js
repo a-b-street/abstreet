@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["goal_marker","Draw a goal marker pointing at something."],["start_marker","Draw a start marker pointing at something."]]};
+window.SIDEBAR_ITEMS = {"fn":["goal_marker","start_marker"]};

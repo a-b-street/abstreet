@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["SimpleApp","Simple app state that just renders a static map, without any dynamic agents on the map."],["SimpleAppArgs",""],["SimpleWarper",""]]};
+window.SIDEBAR_ITEMS = {"struct":["SimpleApp","SimpleAppArgs","SimpleWarper"]};

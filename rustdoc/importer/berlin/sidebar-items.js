@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["correlate_population",""],["distribute_residents",""],["import_extra_data",""]],"struct":[["Record",""]]};
+window.SIDEBAR_ITEMS = {"fn":["correlate_population","distribute_residents","import_extra_data"],"struct":["Record"]};

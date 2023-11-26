@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["cutscene_task",""],["final_score",""],["get_score",""]],"struct":[["OptimizeCommute",""]]};
+window.SIDEBAR_ITEMS = {"fn":["cutscene_task","final_score","get_score"],"struct":["OptimizeCommute"]};

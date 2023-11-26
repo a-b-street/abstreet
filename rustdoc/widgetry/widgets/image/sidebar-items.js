@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ImageSource","The visual"]],"struct":[["Image","A stylable UI component builder which presents vector graphics from an [`ImageSource`]."]]};
+window.SIDEBAR_ITEMS = {"enum":["ImageSource"],"struct":["Image"]};

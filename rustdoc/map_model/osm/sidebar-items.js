@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["HIGHWAY",""]],"enum":[["OsmID",""],["RoadRank",""]],"struct":[["NodeID",""],["RelationID",""],["WayID",""]]};
+window.SIDEBAR_ITEMS = {"constant":["HIGHWAY"],"enum":["OsmID","RoadRank"],"struct":["NodeID","RelationID","WayID"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["MapAlreadyLoaded",""],["MapLoader",""]]};
+window.SIDEBAR_ITEMS = {"struct":["MapAlreadyLoaded","MapLoader"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["make_select_panel",""]],"struct":[["BulkSelect",""]]};
+window.SIDEBAR_ITEMS = {"fn":["make_select_panel"],"struct":["BulkSelect"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["make_people",""],["pick_mode",""]],"struct":[["PersonFactory",""]]};
+window.SIDEBAR_ITEMS = {"fn":["make_people","pick_mode"],"struct":["PersonFactory"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Obj"],"fn":["draw_crossings","draw_nearest_crossing","draw_porosity","help","main_roads","make_bottom_panel","make_world"],"struct":["Crossings"]};

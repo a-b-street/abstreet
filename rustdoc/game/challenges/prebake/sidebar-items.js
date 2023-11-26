@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["prebake_all",""]]};
+window.SIDEBAR_ITEMS = {"fn":["prebake_all"]};

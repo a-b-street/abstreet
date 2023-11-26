@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["hours",""],["minutes",""],["rand_duration",""],["rand_time",""]]};
+window.SIDEBAR_ITEMS = {"fn":["hours","minutes","rand_duration","rand_time"]};

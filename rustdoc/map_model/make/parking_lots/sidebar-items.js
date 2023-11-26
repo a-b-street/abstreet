@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["infer_spots",""],["line_valid",""],["make_all_parking_lots","Take in parking lots from OSM and all parking aisle roads. Match parking lots to the nearest sidewalk + driving lane, then automatically generate individual parking spots perpendicular to the aisles."],["snap_driveway","Returns (driveway_line, driving_pos, sidewalk_line, sidewalk_pos)"]]};
+window.SIDEBAR_ITEMS = {"fn":["infer_spots","line_valid","make_all_parking_lots","snap_driveway"]};

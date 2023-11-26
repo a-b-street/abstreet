@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["SHOW_BORDER_ISOCHRONE"],"fn":["build_panel"],"struct":["FromAmenity"]};

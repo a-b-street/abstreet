@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["TripPurpose","Lifted from Seattle’s Soundcast model, but seems general enough to use anyhere."]],"struct":[["IndividTrip",""],["PersonSpec",""],["Scenario","A Scenario describes all the input to a simulation. Usually a scenario covers one day."]]};
+window.SIDEBAR_ITEMS = {"enum":["TripPurpose"],"struct":["IndividTrip","PersonSpec","Scenario"]};

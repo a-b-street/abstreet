@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_panel","score_houses_by_one_match"],"struct":["Results","ScoreHomes"]};

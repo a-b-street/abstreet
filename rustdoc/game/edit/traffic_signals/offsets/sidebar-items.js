@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ShowAbsolute",""],["ShowRelative",""],["TuneRelative",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ShowAbsolute","ShowRelative","TuneRelative"]};

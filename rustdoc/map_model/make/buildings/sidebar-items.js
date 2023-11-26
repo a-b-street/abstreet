@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["classify_bldg",""],["get_address",""],["make_all_buildings","Finalize importing of buildings, mostly by matching them to the nearest sidewalk."]]};
+window.SIDEBAR_ITEMS = {"fn":["classify_bldg","get_address","make_all_buildings"]};

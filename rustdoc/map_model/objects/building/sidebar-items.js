@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["BuildingType",""],["OffstreetParking","Represent no parking as Private(0, false)."]],"fn":[["sidewalk_to_bike",""]],"struct":[["Building","A building has connections to the road and sidewalk, may contain commercial amenities, and have off-street parking."],["BuildingID",""]]};
+window.SIDEBAR_ITEMS = {"enum":["BuildingType","OffstreetParking"],"fn":["sidewalk_to_bike"],"struct":["Building","BuildingID"]};

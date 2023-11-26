@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["bucketize_isizes",""],["problem_matrix","The caller should handle Outcome::ClickCustom with Vec for clicked cells."]],"struct":[["CLEAR_COLOR_SCALE",""],["Matrix","Aka a 2D histogram. Tracks matching IDs in each cell."],["MatrixOptions",""]],"trait":[["TripProblemFilter",""]]};
+window.SIDEBAR_ITEMS = {"fn":["bucketize_isizes","problem_matrix"],"struct":["CLEAR_COLOR_SCALE","Matrix","MatrixOptions"],"trait":["TripProblemFilter"]};

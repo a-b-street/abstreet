@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Tab",""],["TabController",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Tab","TabController"]};

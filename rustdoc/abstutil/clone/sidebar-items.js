@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["CloneableAny","Trick to make a cloneable Any from https://stackoverflow.com/questions/30353462/how-to-clone-a-struct-storing-a-boxed-trait-object/30353928#30353928."],["CloneableImpl",""]]};
+window.SIDEBAR_ITEMS = {"trait":["CloneableAny","CloneableImpl"]};

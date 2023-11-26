@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["flood",""],["trace_back",""]],"struct":[["IntersectionCluster","This only applies to VehiclePathfinder; walking through these intersections is nothing special. And in fact, even lanes only for buses/bikes are ignored."],["UberTurn",""],["UberTurnV2","A sequence of movements through a cluster of intersections. Like UberTurn, but at the granularity of directed roads, not lanes."]]};
+window.SIDEBAR_ITEMS = {"fn":["flood","trace_back"],"struct":["IntersectionCluster","UberTurn","UberTurnV2"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ColorDiscrete",""],["ColorNetwork",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ColorDiscrete","ColorNetwork"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["prettyprint_usize",""]]};
+window.SIDEBAR_ITEMS = {"fn":["prettyprint_usize"]};

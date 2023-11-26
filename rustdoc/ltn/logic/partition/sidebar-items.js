@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BlockID","CustomBoundary","NeighbourhoodID","NeighbourhoodInfo","Partitioning"]};

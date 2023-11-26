@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["main",""]],"mod":[["mapper",""]]};
+window.SIDEBAR_ITEMS = {"fn":["main"],"mod":["mapper"]};

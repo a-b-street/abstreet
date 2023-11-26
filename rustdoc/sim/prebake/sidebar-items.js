@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["prebake","Simulate a curated list of scenarios to completion, and save the analytics as “prebaked results,” to later compare simulation metrics against the baseline without map edits."]],"struct":[["PrebakeSummary",""]]};
+window.SIDEBAR_ITEMS = {"fn":["prebake"],"struct":["PrebakeSummary"]};

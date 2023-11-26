@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["load_configuration",""]],"struct":[["ImporterConfiguration",""]]};
+window.SIDEBAR_ITEMS = {"struct":["ImporterConfiguration"]};

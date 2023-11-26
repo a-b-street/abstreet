@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["enter_state",""]],"mod":[["proposals",""]],"struct":[["TitleScreen",""]]};
+window.SIDEBAR_ITEMS = {"fn":["enter_state"],"mod":["proposals"],"struct":["TitleScreen"]};

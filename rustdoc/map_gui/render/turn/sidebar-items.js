@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["TURN_ICON_ARROW_LENGTH",""]],"fn":[["make_circle_geom",""]],"struct":[["DrawMovement",""]]};
+window.SIDEBAR_ITEMS = {"constant":["TURN_ICON_ARROW_LENGTH"],"fn":["make_circle_geom"],"struct":["DrawMovement"]};

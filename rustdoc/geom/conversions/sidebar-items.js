@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["pts_to_line_string",""]]};
+window.SIDEBAR_ITEMS = {"fn":["pts_to_line_string"]};

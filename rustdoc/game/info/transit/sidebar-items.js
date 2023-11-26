@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["bus_header",""],["bus_status",""],["bus_status_body",""],["describe_schedule",""],["route",""],["route_body",""],["stop",""],["stop_body",""]]};
+window.SIDEBAR_ITEMS = {"fn":["bus_header","bus_status","bus_status_body","describe_schedule","route","route_body","stop","stop_body"]};

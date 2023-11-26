@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Layer",""],["Obj",""]],"fn":[["calculate_heatmap",""],["calculate_relative_heatmap",""],["make_world",""]],"struct":[["CompareCounts",""]]};
+window.SIDEBAR_ITEMS = {"enum":["Layer","Obj"],"fn":["calculate_heatmap","calculate_relative_heatmap","make_world"],"struct":["CompareCounts"]};

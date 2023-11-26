@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Tab",""]],"mod":[["bike_network",""],["explore",""],["layers",""],["predict",""],["quick_sketch",""],["trip",""]],"trait":[["TakeLayers",""]]};
+window.SIDEBAR_ITEMS = {"enum":["Tab"],"mod":["bike_network","explore","layers","predict","quick_sketch","trip"],"trait":["TakeLayers"]};

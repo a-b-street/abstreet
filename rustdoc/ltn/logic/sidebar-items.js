@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AutoFilterHeuristic"],"fn":["transform_existing"],"mod":["auto_filters","existing","impact","partition","shortcuts","turn_restrictions"],"struct":["BlockID","CustomBoundary","NeighbourhoodID","Partitioning","Shortcuts"]};

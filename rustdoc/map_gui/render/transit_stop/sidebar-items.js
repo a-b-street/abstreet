@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["RADIUS",""]],"struct":[["DrawTransitStop",""]]};
+window.SIDEBAR_ITEMS = {"constant":["RADIUS"],"struct":["DrawTransitStop"]};

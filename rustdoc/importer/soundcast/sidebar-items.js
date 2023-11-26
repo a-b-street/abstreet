@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["popdat",""],["trips",""]]};
+window.SIDEBAR_ITEMS = {"mod":["popdat","trips"]};
