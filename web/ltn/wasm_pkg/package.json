@@ -1,0 +1,17 @@
+{
+  "name": "ltn",
+  "collaborators": [
+    "Dustin Carlino <dabreegster@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "ltn_bg.wasm",
+    "ltn.js",
+    "ltn.d.ts"
+  ],
+  "module": "ltn.js",
+  "types": "ltn.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
