@@ -2,7 +2,7 @@
     turns: &amp;[<a class="struct" href="../../objects/turn/struct.Turn.html" title="struct map_model::objects::turn::Turn">Turn</a>],
     i: &amp;<a class="struct" href="../../objects/intersection/struct.Intersection.html" title="struct map_model::objects::intersection::Intersection">Intersection</a>,
     map: &amp;<a class="struct" href="../../struct.Map.html" title="struct map_model::Map">Map</a>
-) -&gt; <a class="type" href="https://docs.rs/anyhow/1.0.69/anyhow/type.Result.html" title="type anyhow::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.unit.html">()</a>&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Ideally, we want every incoming lane to lead to at least one lane of the same type, and every
+) -&gt; <a class="type" href="https://docs.rs/anyhow/1.0.75/anyhow/type.Result.html" title="type anyhow::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.unit.html">()</a>&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Ideally, we want every incoming lane to lead to at least one lane of the same type, and every
 outgoing lane to be reachable by at least one lane of the same type. But if it’s a bus or bike
 lane, settle for being connected to anything – even just a driving lane. There’s naturally
 places where these dedicated lanes start and end.</p>

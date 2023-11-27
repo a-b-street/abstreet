@@ -18,6 +18,7 @@ var srcIndex = JSON.parse('{\
 "parking_mapper":["",[],["main.rs","mapper.rs"]],\
 "piggyback":["",[],["lib.rs"]],\
 "popdat":["",[],["activities.rs","distribute_people.rs","import_census.rs","lib.rs","make_person.rs","od.rs"]],\
+"popgetter":["",[],["lib.rs"]],\
 "raw_map":["",[],["lib.rs","types.rs"]],\
 "santa":["",[],["after_level.rs","animation.rs","before_level.rs","buildings.rs","controls.rs","game.rs","levels.rs","lib.rs","meters.rs","music.rs","player.rs","session.rs","title.rs","vehicles.rs"]],\
 "sim":["",[["make",[],["load.rs","mod.rs","spawner.rs"]],["mechanics",[],["car.rs","driving.rs","intersection.rs","mod.rs","parking.rs","queue.rs","walking.rs"]],["pandemic",[],["mod.rs","model.rs"]],["sim",[],["mod.rs","queries.rs","scenario.rs"]]],["analytics.rs","events.rs","lib.rs","prebake.rs","recorder.rs","render.rs","router.rs","scheduler.rs","transit.rs","trips.rs"]],\
