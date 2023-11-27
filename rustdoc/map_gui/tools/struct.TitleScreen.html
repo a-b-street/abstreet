@@ -24,7 +24,7 @@ the fallback case can just use <code>unreachable!()</code>.</div></details><deta
     &amp;mut self,
     _ctx: &amp;mut EventCtx&lt;'_&gt;,
     _app: <a class="primitive" href="https://doc.rust-lang.org/1.74.0/std/primitive.reference.html">&amp;mut A</a>,
-    _action: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;dyn CloneableAny, <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/alloc/struct.Global.html" title="struct alloc::alloc::Global">Global</a>&gt;,
+    _action: <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;dyn <a class="trait" href="../../abstutil/clone/trait.CloneableAny.html" title="trait abstutil::clone::CloneableAny">CloneableAny</a>, <a class="struct" href="https://doc.rust-lang.org/1.74.0/alloc/alloc/struct.Global.html" title="struct alloc::alloc::Global">Global</a>&gt;,
     _panel: &amp;mut Panel
 ) -&gt; Transition&lt;A&gt;</h4></section></summary><div class='docblock'>Called when something on the panel has been clicked.</div></details><details class="toggle method-toggle" open><summary><section id="method.panel_changed" class="method trait-impl"><a href="#method.panel_changed" class="anchor">§</a><h4 class="code-header">fn <a class="fn">panel_changed</a>(
     &amp;mut self,

@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"geom":[["impl&lt;T: <a class=\"trait\" href=\"https://doc.rust-lang.org/1.74.0/core/cmp/trait.PartialEq.html\" title=\"trait core::cmp::PartialEq\">PartialEq</a>&gt; SelectionFunction&lt;GeomWithData&lt;Rectangle&lt;[<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.74.0/std/primitive.f64.html\">f64</a>; <a class=\"primitive\" href=\"https://doc.rust-lang.org/1.74.0/std/primitive.array.html\">2</a>]&gt;, T&gt;&gt; for <a class=\"struct\" href=\"geom/bounds/struct.Selector.html\" title=\"struct geom::bounds::Selector\">Selector</a>&lt;T&gt;"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

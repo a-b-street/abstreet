@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["TRIANGLES_PER_CIRCLE"],"struct":["Circle"]};

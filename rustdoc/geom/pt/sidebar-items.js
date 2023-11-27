@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["HashablePt2D","Pt2D"]};
