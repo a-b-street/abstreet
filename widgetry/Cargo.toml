@@ -21,7 +21,7 @@ fs-err = { workspace = true }
 futures = { workspace = true }
 futures-channel = { workspace = true }
 geojson = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 glow = "0.12.1"
 glutin = { git = "https://github.com/rust-windowing/glutin", optional = true, rev = "2bffbf52d6b4f4c32adc463818e10ac8082948e4" }
 htmlescape = "0.3.1"

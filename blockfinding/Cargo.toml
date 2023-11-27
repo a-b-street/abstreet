@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 log = { workspace = true }
 map_model = { path = "../map_model" }
 serde = { workspace = true }

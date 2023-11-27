@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 abstutil = { path = "../abstutil" }
-geom = { path = "../geom" }
+geom = { workspace = true }
 log = { workspace = true }
 map_model = { path = "../map_model" }
 rand = { workspace = true }

@@ -16,7 +16,7 @@ abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 contour = { workspace = true }
 geojson = { workspace = true }
-geom = { path = "../../geom" }
+geom = { workspace = true }
 getrandom = { workspace = true, optional = true }
 log = { workspace = true }
 map_gui = { path = "../../map_gui" }

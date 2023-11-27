@@ -10,7 +10,6 @@ members = [
   "cli",
   "collisions",
   "convert_osm",
-  "geom",
   "headless",
   "importer",
   "kml",
@@ -49,6 +48,7 @@ futures = { version = "0.3.27"}
 futures-channel = { version = "0.3.29"}
 geo = "0.26.0"
 geojson = { version = "0.24.1", features = ["geo-types"] }
+geom = { git = "https://github.com/a-b-street/geom" }
 getrandom = "0.2.11"
 instant = "0.1.7"
 log = "0.4.20"
@@ -65,7 +65,6 @@ web-sys = "0.3.65"
 # due to the 2 core dependency crates listed below. This patch is required to
 # avoid Cargo from getting confused.
 [patch."https://github.com/a-b-street/abstreet/"]
-geom = { path = "geom" }
 abstutil = { path = "abstutil" }
 
 [patch.crates-io]

@@ -11,7 +11,7 @@ convert_osm = { path = "../convert_osm" }
 csv = { workspace = true }
 fs-err = { workspace = true }
 geo = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 importer = { path = "../importer" }
 log = { workspace = true }
 map_model = { path = "../map_model" }

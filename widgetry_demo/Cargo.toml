@@ -14,7 +14,7 @@ wasm = ["getrandom/js", "wasm-bindgen", "widgetry/wasm-backend"]
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-geom = { path = "../geom" }
+geom = { workspace = true }
 getrandom = { workspace = true, optional = true }
 log = { workspace = true }
 rand = { workspace = true }

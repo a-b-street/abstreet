@@ -9,7 +9,7 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 geojson = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 hyper = { version = "0.14.26", features = ["full"] }
 lazy_static = "1.4.0"
 log = { workspace = true }
