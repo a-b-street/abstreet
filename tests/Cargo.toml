@@ -11,7 +11,7 @@ anyhow = { workspace = true }
 blockfinding = { path = "../blockfinding" }
 convert_osm = { path = "../convert_osm" }
 fs-err = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 map_model = { path = "../map_model" }
 rand = { workspace = true }
 sim = { path = "../sim" }

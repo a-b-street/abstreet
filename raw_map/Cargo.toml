@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-geom = { path = "../geom" }
+geom = { workspace = true }
 serde = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 popgetter = { git = "https://github.com/dabreegster/popgetter/" }

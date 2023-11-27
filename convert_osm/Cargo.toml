@@ -10,7 +10,7 @@ abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 csv = { workspace = true }
 fs-err = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 kml = { path = "../kml" }
 log = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }

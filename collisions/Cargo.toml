@@ -5,7 +5,7 @@ authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-geom = { path = "../geom" }
+geom = { workspace = true }
 kml = { path = "../kml" }
 log = { workspace = true }
 serde = { workspace = true }

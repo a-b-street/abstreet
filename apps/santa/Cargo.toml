@@ -15,7 +15,7 @@ wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 anyhow = { workspace = true }
-geom = { path = "../../geom" }
+geom = { workspace = true }
 getrandom = { workspace = true, optional = true }
 kml = { path = "../../kml" }
 log = { workspace = true }

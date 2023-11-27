@@ -29,7 +29,7 @@ fs-err = { workspace = true }
 futures-channel = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
-geom = { path = "../../geom" }
+geom = { workspace = true }
 getrandom = { workspace = true, optional = true }
 instant = { workspace = true }
 kml = { path = "../../kml" }

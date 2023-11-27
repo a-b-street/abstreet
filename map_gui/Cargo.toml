@@ -21,7 +21,7 @@ contour = { workspace = true }
 flate2 = { workspace = true }
 futures-channel = { workspace = true }
 geojson = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 instant = { workspace = true }
 log = { workspace = true }
 lyon = "1.0.1"

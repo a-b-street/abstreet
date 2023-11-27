@@ -9,7 +9,7 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 csv = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 log = { workspace = true }
 roxmltree = { version = "0.19.0", features=["std"] }
 serde = { workspace = true }

@@ -1902,9 +1902,9 @@ dependencies = [
 [[package]]
 name = "geom"
 version = "0.1.0"
+source = "git+https://github.com/a-b-street/geom#34194e73db3fd6343ad223e8a4b1075201094f1a"
 dependencies = [
  "anyhow",
- "bincode",
  "earcutr",
  "fs-err",
  "geo",
@@ -1913,8 +1913,6 @@ dependencies = [
  "instant",
  "ordered-float",
  "polylabel",
- "rand",
- "rand_xorshift",
  "rstar",
  "serde",
  "serde_json",
@@ -3363,9 +3361,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
 
 [[package]]
+name = "osm2lanes"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/osm2streets#086a347e6cad7c556d7f7d5bf57d4b270c8a030f"
+dependencies = [
+ "abstutil",
+ "anyhow",
+ "enumset",
+ "geom",
+ "serde",
+]
+
+[[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#c098792f790ce9cefce074f9e4a9c8b1f27900bc"
+source = "git+https://github.com/a-b-street/osm2streets#086a347e6cad7c556d7f7d5bf57d4b270c8a030f"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -3373,8 +3383,9 @@ dependencies = [
  "geo",
  "geojson",
  "geom",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
+ "osm2lanes",
  "petgraph",
  "serde",
  "serde_json",
@@ -4555,7 +4566,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#c098792f790ce9cefce074f9e4a9c8b1f27900bc"
+source = "git+https://github.com/a-b-street/osm2streets#086a347e6cad7c556d7f7d5bf57d4b270c8a030f"
 dependencies = [
  "abstutil",
  "anyhow",

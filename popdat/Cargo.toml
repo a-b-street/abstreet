@@ -12,7 +12,7 @@ flatgeobuf = { version = "3.25.0" }
 futures = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
-geom = { path = "../geom" }
+geom = { workspace = true }
 geozero = "0.9.9"
 log = { workspace = true }
 map_model = { path = "../map_model" }

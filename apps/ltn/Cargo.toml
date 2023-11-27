@@ -22,7 +22,7 @@ flate2 = { workspace = true }
 futures-channel = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
-geom = { path = "../../geom" }
+geom = { workspace = true }
 getrandom = { workspace = true, optional = true }
 home = { version = "0.5.5", optional = true }
 lazy_static = "1.4.0"

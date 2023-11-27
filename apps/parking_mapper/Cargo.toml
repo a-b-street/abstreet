@@ -12,7 +12,7 @@ abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 anyhow = { workspace = true }
 fs-err = { workspace = true }
-geom = { path = "../../geom" }
+geom = { workspace = true }
 log = { workspace = true }
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
