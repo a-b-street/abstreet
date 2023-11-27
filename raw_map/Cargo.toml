@@ -10,6 +10,6 @@ abstutil = { path = "../abstutil" }
 geom = { workspace = true }
 serde = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
-popgetter = { git = "https://github.com/dabreegster/popgetter/" }
+popgetter = { path = "../popgetter" }
 strum = "0.24.1"
 strum_macros = "0.24.3"

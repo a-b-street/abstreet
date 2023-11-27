@@ -14,7 +14,7 @@ geom = { workspace = true }
 kml = { path = "../kml" }
 log = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
-popgetter = { git = "https://github.com/dabreegster/popgetter/" }
+popgetter = { path = "../popgetter" }
 raw_map = { path = "../raw_map" }
 serde = { workspace = true }
 streets_reader = { git = "https://github.com/a-b-street/osm2streets" }

@@ -17,6 +17,7 @@ members = [
   "map_model",
   "piggyback",
   "popdat",
+  "popgetter",
   "raw_map",
   "sim",
   "synthpop",
@@ -37,7 +38,7 @@ opt-level = 3
 # Specify the versions for common dependencies just once here, instead of
 # repeating in a bunch of crates
 [workspace.dependencies]
-anyhow = "1.0.69"
+anyhow = "1.0.75"
 bincode = "1.3.1"
 colorous = "1.0.9"
 contour = "0.7.0"
@@ -46,7 +47,7 @@ flate2 = "1.0.26"
 fs-err = "2.9.0"
 futures = { version = "0.3.27"}
 futures-channel = { version = "0.3.29"}
-geo = "0.26.0"
+geo = "0.27.0"
 geojson = { version = "0.24.1", features = ["geo-types"] }
 geom = { git = "https://github.com/a-b-street/geom" }
 getrandom = "0.2.11"

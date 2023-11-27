@@ -1,0 +1,13 @@
+[package]
+name = "popgetter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+fs-err = { workspace = true }
+geo = { workspace = true }
+geo-types = "0.7.12"
+geojson = { workspace = true }
+serde = { workspace = true }
+topojson = { git = "https://github.com/georust/topojson" }
