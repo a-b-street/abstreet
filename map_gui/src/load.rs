@@ -31,10 +31,10 @@ impl MapLoader {
     ) -> Box<dyn State<A>> {
         // TODO Generalize this more, maybe with some kind of country code -> font config
         if let Some(extra_font) = match name.city.country.as_ref() {
+            "hk" | "jp" | "tw" => Some("NotoSerifCJKtc-Regular.otf"),
             "il" => Some("NotoSansHebrew-Regular.ttf"),
             "ir" | "ly" => Some("NotoSansArabic-Regular.ttf"),
-            "jp" => Some("NotoSerifCJKtc-Regular.otf"),
-            "tw" => Some("NotoSerifCJKtc-Regular.otf"),
+            "kr" => Some("NotoSansKR-Regular.ttf"),
             _ => None,
         } {
             if !ctx.is_font_loaded(extra_font) {

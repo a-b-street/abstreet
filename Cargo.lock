@@ -1919,7 +1919,7 @@ dependencies = [
 [[package]]
 name = "geom"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/geom#97d271a536fc5877e778189512b2f65212b8c8ed"
+source = "git+https://github.com/a-b-street/geom#9bb49fce2be2c527405a821ffd22c63869416976"
 dependencies = [
  "anyhow",
  "earcutr",
@@ -3390,7 +3390,7 @@ checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
 [[package]]
 name = "osm2lanes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#ee4d022879169687ca8d97a9553f1c17251324f8"
+source = "git+https://github.com/a-b-street/osm2streets#bb4d1cdafd2138b1b50698ac64798cda01115e3b"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -3402,7 +3402,7 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#ee4d022879169687ca8d97a9553f1c17251324f8"
+source = "git+https://github.com/a-b-street/osm2streets#bb4d1cdafd2138b1b50698ac64798cda01115e3b"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -3637,8 +3637,9 @@ dependencies = [
 
 [[package]]
 name = "polylabel"
-version = "3.0.0"
-source = "git+https://github.com/dabreegster/polylabel-rs?branch=update_geo#f01b75acbc5ef9c8b1f61af8f74e3403c1ee9d0b"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93b10c25671a60bbd95b230005a8fa1964d34ee4dbcd7306c36fac979b660fab"
 dependencies = [
  "geo",
  "num-traits",
@@ -4606,7 +4607,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#ee4d022879169687ca8d97a9553f1c17251324f8"
+source = "git+https://github.com/a-b-street/osm2streets#bb4d1cdafd2138b1b50698ac64798cda01115e3b"
 dependencies = [
  "abstutil",
  "anyhow",

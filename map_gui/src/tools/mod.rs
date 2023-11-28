@@ -245,6 +245,10 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("wynyard", "center") => "Wynyard",
             _ => &name.map,
         },
+        "hk" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("kowloon", "tsim_sha_tsui") => "Tsim Sha Tsui",
+            _ => &name.map,
+        },
         "il" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("tel_aviv", "center") => "Tel Aviv (city center)",
             _ => &name.map,
@@ -259,6 +263,11 @@ pub fn nice_map_name(name: &MapName) -> &str {
         },
         "jp" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("hiroshima", "uni") => "Hiroshima University",
+            ("tokyo", "shibuya") => "Shibuya",
+            _ => &name.map,
+        },
+        "kr" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("seoul", "itaewon_dong") => "Itaewon Dong",
             _ => &name.map,
         },
         "ly" => match (name.city.city.as_ref(), name.map.as_ref()) {
@@ -350,7 +359,9 @@ pub fn nice_country_name(code: &str) -> &str {
         "il" => "Israel",
         "in" => "India",
         "ir" => "Iran",
+        "hk" => "Hong Kong",
         "jp" => "Japan",
+        "kr" => "South Korea",
         "ly" => "Libya",
         "nl" => "Netherlands",
         "nz" => "New Zealand",

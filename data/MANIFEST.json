@@ -935,6 +935,11 @@
       "uncompressed_size_bytes": 14290313,
       "compressed_size_bytes": 4214415
     },
+    "data/input/hk/kowloon/raw_maps/tsim_sha_tsui.bin": {
+      "checksum": "778bfaaf350430767948e122c175e7af",
+      "uncompressed_size_bytes": 6977891,
+      "compressed_size_bytes": 1505560
+    },
     "data/input/il/tel_aviv/raw_maps/center.bin": {
       "checksum": "0fc91bd403e2365979ddd15ab9435fe6",
       "uncompressed_size_bytes": 14161044,
@@ -999,6 +1004,16 @@
       "checksum": "0d6106d01c9f56b2878a4ff47234e8bd",
       "uncompressed_size_bytes": 474959,
       "compressed_size_bytes": 149015
+    },
+    "data/input/jp/tokyo/raw_maps/shibuya.bin": {
+      "checksum": "2907137155eab7d879c6b272c822374f",
+      "uncompressed_size_bytes": 8929612,
+      "compressed_size_bytes": 2370982
+    },
+    "data/input/kr/seoul/raw_maps/itaewon_dong.bin": {
+      "checksum": "4a94e70dbcfd256bea89d2b55c4f9ecc",
+      "uncompressed_size_bytes": 4175249,
+      "compressed_size_bytes": 1153822
     },
     "data/input/ly/tripoli/raw_maps/center.bin": {
       "checksum": "b80ee6dbfb41d2ce756026d1d827b055",
@@ -1075,6 +1090,11 @@
       "uncompressed_size_bytes": 54217485,
       "compressed_size_bytes": 54057897
     },
+    "data/input/shared/geofabrik/asia/china-latest.osm.pbf": {
+      "checksum": "83cfb5719ae73a7031c258d39fc5b191",
+      "uncompressed_size_bytes": 1081785095,
+      "compressed_size_bytes": 1080480391
+    },
     "data/input/shared/geofabrik/asia/india-latest.osm.pbf": {
       "checksum": "2bda0ae30306f73510846dff089b5edd",
       "uncompressed_size_bytes": 1314526047,
@@ -1095,10 +1115,20 @@
       "uncompressed_size_bytes": 159384670,
       "compressed_size_bytes": 159153169
     },
+    "data/input/shared/geofabrik/asia/japan/kanto-latest.osm.pbf": {
+      "checksum": "2b9c360f0f88f3299eda193995e8fc10",
+      "uncompressed_size_bytes": 379779692,
+      "compressed_size_bytes": 379226079
+    },
     "data/input/shared/geofabrik/asia/malaysia-singapore-brunei-latest.osm.pbf": {
       "checksum": "f7bc92125a62fb908c917b2f65ac3ff1",
       "uncompressed_size_bytes": 198960533,
       "compressed_size_bytes": 198716613
+    },
+    "data/input/shared/geofabrik/asia/south-korea-latest.osm.pbf": {
+      "checksum": "8ed10217d1c486e1c94198ad0dc64f43",
+      "uncompressed_size_bytes": 197399811,
+      "compressed_size_bytes": 197213123
     },
     "data/input/shared/geofabrik/asia/taiwan-latest.osm.pbf": {
       "checksum": "59c9e9c99006b3434259cb64d76fbb70",
@@ -1959,6 +1989,11 @@
       "checksum": "5199b3892ba596a6bf8d0f930729157f",
       "uncompressed_size_bytes": 42704,
       "compressed_size_bytes": 24130
+    },
+    "data/system/extra_fonts/NotoSansKR-Regular.ttf": {
+      "checksum": "e910afbd441c5247227fb4a731d65799",
+      "uncompressed_size_bytes": 6192764,
+      "compressed_size_bytes": 3003864
     },
     "data/system/extra_fonts/NotoSerifCJKtc-Regular.otf": {
       "checksum": "338584d1454293b6dfd84a9137153b3c",
@@ -3905,6 +3940,11 @@
       "uncompressed_size_bytes": 7181152,
       "compressed_size_bytes": 1775644
     },
+    "data/system/hk/kowloon/maps/tsim_sha_tsui.bin": {
+      "checksum": "51ee01d6f6327f706556da4eb7d096c7",
+      "uncompressed_size_bytes": 11367848,
+      "compressed_size_bytes": 3628467
+    },
     "data/system/il/tel_aviv/maps/center.bin": {
       "checksum": "d2ef8968a81cee19cd786d9f3942a6c9",
       "uncompressed_size_bytes": 49042121,
@@ -3974,6 +4014,16 @@
       "checksum": "f10b26db68c0e1ef55c73e202e63b14b",
       "uncompressed_size_bytes": 1672245,
       "compressed_size_bytes": 636628
+    },
+    "data/system/jp/tokyo/maps/shibuya.bin": {
+      "checksum": "209546f662e2318d3045cabe6e011adb",
+      "uncompressed_size_bytes": 21351607,
+      "compressed_size_bytes": 8128210
+    },
+    "data/system/kr/seoul/maps/itaewon_dong.bin": {
+      "checksum": "5916da8ea3ccb10fed8d62ab62a8b2e8",
+      "uncompressed_size_bytes": 17321534,
+      "compressed_size_bytes": 6792700
     },
     "data/system/ly/tripoli/maps/center.bin": {
       "checksum": "0e50a58f25e9ed4617d15b461ed76452",
