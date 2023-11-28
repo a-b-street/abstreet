@@ -468,6 +468,17 @@
 <a href="#468" id="468">468</a>
 <a href="#469" id="469">469</a>
 <a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.
 
 </span><span class="kw">use </span>std::collections::BTreeSet;
@@ -715,6 +726,10 @@
             (<span class="string">&quot;wynyard&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Wynyard&quot;</span>,
             <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
+        <span class="string">&quot;hk&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+            (<span class="string">&quot;kowloon&quot;</span>, <span class="string">&quot;tsim_sha_tsui&quot;</span>) =&gt; <span class="string">&quot;Tsim Sha Tsui&quot;</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+        },
         <span class="string">&quot;il&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;tel_aviv&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Tel Aviv (city center)&quot;</span>,
             <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
@@ -729,6 +744,11 @@
         },
         <span class="string">&quot;jp&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;hiroshima&quot;</span>, <span class="string">&quot;uni&quot;</span>) =&gt; <span class="string">&quot;Hiroshima University&quot;</span>,
+            (<span class="string">&quot;tokyo&quot;</span>, <span class="string">&quot;shibuya&quot;</span>) =&gt; <span class="string">&quot;Shibuya&quot;</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+        },
+        <span class="string">&quot;kr&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+            (<span class="string">&quot;seoul&quot;</span>, <span class="string">&quot;itaewon_dong&quot;</span>) =&gt; <span class="string">&quot;Itaewon Dong&quot;</span>,
             <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
         <span class="string">&quot;ly&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
@@ -820,7 +840,9 @@
         <span class="string">&quot;il&quot; </span>=&gt; <span class="string">&quot;Israel&quot;</span>,
         <span class="string">&quot;in&quot; </span>=&gt; <span class="string">&quot;India&quot;</span>,
         <span class="string">&quot;ir&quot; </span>=&gt; <span class="string">&quot;Iran&quot;</span>,
+        <span class="string">&quot;hk&quot; </span>=&gt; <span class="string">&quot;Hong Kong&quot;</span>,
         <span class="string">&quot;jp&quot; </span>=&gt; <span class="string">&quot;Japan&quot;</span>,
+        <span class="string">&quot;kr&quot; </span>=&gt; <span class="string">&quot;South Korea&quot;</span>,
         <span class="string">&quot;ly&quot; </span>=&gt; <span class="string">&quot;Libya&quot;</span>,
         <span class="string">&quot;nl&quot; </span>=&gt; <span class="string">&quot;Netherlands&quot;</span>,
         <span class="string">&quot;nz&quot; </span>=&gt; <span class="string">&quot;New Zealand&quot;</span>,

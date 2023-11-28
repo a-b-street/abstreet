@@ -125,10 +125,10 @@
     ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
         <span class="comment">// TODO Generalize this more, maybe with some kind of country code -&gt; font config
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(extra_font) = <span class="kw">match </span>name.city.country.as_ref() {
+            <span class="string">&quot;hk&quot; </span>| <span class="string">&quot;jp&quot; </span>| <span class="string">&quot;tw&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSerifCJKtc-Regular.otf&quot;</span>),
             <span class="string">&quot;il&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSansHebrew-Regular.ttf&quot;</span>),
             <span class="string">&quot;ir&quot; </span>| <span class="string">&quot;ly&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSansArabic-Regular.ttf&quot;</span>),
-            <span class="string">&quot;jp&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSerifCJKtc-Regular.otf&quot;</span>),
-            <span class="string">&quot;tw&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSerifCJKtc-Regular.otf&quot;</span>),
+            <span class="string">&quot;kr&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;NotoSansKR-Regular.ttf&quot;</span>),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         } {
             <span class="kw">if </span>!ctx.is_font_loaded(extra_font) {
