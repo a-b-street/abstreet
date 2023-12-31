@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"widgetry":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.74.0/core/ops/arith/trait.SubAssign.html\" title=\"trait core::ops::arith::SubAssign\">SubAssign</a>&lt;<a class=\"struct\" href=\"widgetry/widgets/spinner/struct.RoundedF64.html\" title=\"struct widgetry::widgets::spinner::RoundedF64\">RoundedF64</a>&gt; for <a class=\"struct\" href=\"widgetry/widgets/spinner/struct.RoundedF64.html\" title=\"struct widgetry::widgets::spinner::RoundedF64\">RoundedF64</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
