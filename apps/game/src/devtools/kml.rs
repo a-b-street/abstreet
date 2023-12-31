@@ -262,7 +262,7 @@ fn load_objects(
     let bldg_lookup: HashMap<String, BuildingID> = map
         .all_buildings()
         .iter()
-        .map(|b| (b.orig_id.inner().to_string(), b.id))
+        .map(|b| (b.orig_id.inner_id().to_string(), b.id))
         .collect();
     let cs = &app.cs;
 

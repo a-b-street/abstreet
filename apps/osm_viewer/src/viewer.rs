@@ -138,7 +138,7 @@ impl Viewer {
                 col.push(
                     ctx.style()
                         .btn_outline
-                        .text(format!("Open OSM ID {}", b.orig_id.inner()))
+                        .text(format!("Open OSM ID {}", b.orig_id.inner_id()))
                         .build_widget(ctx, format!("open {}", b.orig_id)),
                 );
 
@@ -187,7 +187,7 @@ impl Viewer {
                 col.push(
                     ctx.style()
                         .btn_outline
-                        .text(format!("Open OSM ID {}", pl.osm_id.inner()))
+                        .text(format!("Open OSM ID {}", pl.osm_id.inner_id()))
                         .build_widget(ctx, format!("open {}", pl.osm_id)),
                 );
 
