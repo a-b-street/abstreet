@@ -27,7 +27,7 @@ fn info_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingI
         kv.push(("Name", names.get(app.opts.language.as_ref()).to_string()));
     }
     if app.opts.dev {
-        kv.push(("OSM ID", format!("{}", b.orig_id.inner())));
+        kv.push(("OSM ID", format!("{}", b.orig_id.inner_id())));
     }
 
     let num_spots = b.num_parking_spots();
