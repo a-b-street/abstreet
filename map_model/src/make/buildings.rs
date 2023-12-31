@@ -62,7 +62,7 @@ pub fn make_all_buildings(
 
             let id = BuildingID(results.len());
 
-            let mut rng = XorShiftRng::seed_from_u64(orig_id.inner() as u64);
+            let mut rng = XorShiftRng::seed_from_u64(orig_id.inner_id() as u64);
             // TODO is it worth using height or building:height as an alternative if not tagged?
             let levels = b
                 .osm_tags

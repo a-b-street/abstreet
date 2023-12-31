@@ -45,7 +45,7 @@ pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
     }
 }
 
-/// Transforms a .osm file to a map in one step.
+/// Transforms a .osm.xml or .pbf file to a map in one step.
 pub async fn oneshot(
     osm_path: String,
     clip: Option<String>,

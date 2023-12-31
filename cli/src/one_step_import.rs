@@ -43,7 +43,7 @@ pub async fn run(
     } else {
         println!("Figuring out what Geofabrik file contains your boundary");
         let (url, pbf) = importer::pick_geofabrik(geojson_path.clone()).await?;
-        osm = city.input_path(format!("osm/{}.osm", name));
+        osm = city.input_path(format!("osm/{}.osm.pbf", name));
         fs_err::create_dir_all(std::path::Path::new(&pbf).parent().unwrap())
             .expect("Creating parent dir failed");
         fs_err::create_dir_all(std::path::Path::new(&osm).parent().unwrap())

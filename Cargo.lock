@@ -935,6 +935,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "crossbeam-deque"
+version = "0.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce6fd6f855243022dcecf8702fef0c297d4338e226845fe067f6341ad9fa0cef"
+dependencies = [
+ "cfg-if",
+ "crossbeam-epoch",
+ "crossbeam-utils",
+]
+
+[[package]]
+name = "crossbeam-epoch"
+version = "0.9.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae211234986c545741a7dc064309f67ee1e5ad243d0e48335adc0484d960bcc7"
+dependencies = [
+ "autocfg",
+ "cfg-if",
+ "crossbeam-utils",
+ "memoffset 0.9.0",
+ "scopeguard",
+]
+
+[[package]]
 name = "crossbeam-utils"
 version = "0.8.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3034,6 +3058,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "memoffset"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a634b1c61a95585bd15607c6ab0c4e5b226e695ff2800ba0cdccddf208c406c"
+dependencies = [
+ "autocfg",
+]
+
+[[package]]
 name = "mime"
 version = "0.3.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3158,7 +3191,7 @@ dependencies = [
  "cc",
  "cfg-if",
  "libc",
- "memoffset",
+ "memoffset 0.6.5",
 ]
 
 [[package]]
@@ -3170,7 +3203,7 @@ dependencies = [
  "bitflags 1.3.2",
  "cfg-if",
  "libc",
- "memoffset",
+ "memoffset 0.6.5",
 ]
 
 [[package]]
@@ -3388,21 +3421,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b7820b9daea5457c9f21c69448905d723fbd21136ccf521748f23fd49e723ee"
 
 [[package]]
+name = "osm-reader"
+version = "0.1.0"
+source = "git+https://github.com/a-b-street/osm-reader#ae39050497fff871bba37559ee67918781dc6838"
+dependencies = [
+ "anyhow",
+ "osmpbf",
+ "roxmltree 0.19.0",
+ "serde",
+]
+
+[[package]]
 name = "osm2lanes"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#bb4d1cdafd2138b1b50698ac64798cda01115e3b"
+source = "git+https://github.com/a-b-street/osm2streets#6303322c6846aece1e9f6a0b1e2cf23cfb84a67e"
 dependencies = [
  "abstutil",
  "anyhow",
  "enumset",
  "geom",
+ "osm-reader",
  "serde",
 ]
 
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#bb4d1cdafd2138b1b50698ac64798cda01115e3b"
+source = "git+https://github.com/a-b-street/osm2streets#6303322c6846aece1e9f6a0b1e2cf23cfb84a67e"
 dependencies = [
  "abstutil",
  "anyhow",
@@ -3455,13 +3500,27 @@ dependencies = [
  "derive_builder",
  "flate2",
  "iter-progress",
- "protobuf",
+ "protobuf 2.8.2",
  "quick-xml",
  "rusqlite",
  "separator",
  "serde",
  "serde_json",
  "xml-rs",
+]
+
+[[package]]
+name = "osmpbf"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "131587696d8b76086a68158d70c873a0ab23970f46ea1df7c279fc3410a71d81"
+dependencies = [
+ "byteorder",
+ "flate2",
+ "memmap2",
+ "protobuf 3.3.0",
+ "protobuf-codegen",
+ "rayon",
 ]
 
 [[package]]
@@ -3790,6 +3849,57 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "70731852eec72c56d11226c8a5f96ad5058a3dab73647ca5f7ee351e464f2571"
 
 [[package]]
+name = "protobuf"
+version = "3.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b65f4a8ec18723a734e5dc09c173e0abf9690432da5340285d536edcb4dac190"
+dependencies = [
+ "once_cell",
+ "protobuf-support",
+ "thiserror",
+]
+
+[[package]]
+name = "protobuf-codegen"
+version = "3.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e85514a216b1c73111d9032e26cc7a5ecb1bb3d4d9539e91fb72a4395060f78"
+dependencies = [
+ "anyhow",
+ "once_cell",
+ "protobuf 3.3.0",
+ "protobuf-parse",
+ "regex",
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
+name = "protobuf-parse"
+version = "3.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77d6fbd6697c9e531873e81cec565a85e226b99a0f10e1acc079be057fe2fcba"
+dependencies = [
+ "anyhow",
+ "indexmap 1.9.2",
+ "log",
+ "protobuf 3.3.0",
+ "protobuf-support",
+ "tempfile",
+ "thiserror",
+ "which",
+]
+
+[[package]]
+name = "protobuf-support"
+version = "3.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6872f4d4f4b98303239a2b5838f5bbbb77b01ffc892d627957f37a22d7cfe69c"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "quick-xml"
 version = "0.30.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3879,6 +3989,26 @@ dependencies = [
  "serde",
  "strum",
  "strum_macros",
+]
+
+[[package]]
+name = "rayon"
+version = "1.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c27db03db7734835b3f53954b534c91069375ce6ccaa2e065441e07d9b6cdb1"
+dependencies = [
+ "either",
+ "rayon-core",
+]
+
+[[package]]
+name = "rayon-core"
+version = "1.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5ce3fb6ad83f861aac485e76e1985cd109d9a3713802152be56c3b1f0e0658ed"
+dependencies = [
+ "crossbeam-deque",
+ "crossbeam-utils",
 ]
 
 [[package]]
@@ -4607,15 +4737,15 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#bb4d1cdafd2138b1b50698ac64798cda01115e3b"
+source = "git+https://github.com/a-b-street/osm2streets#6303322c6846aece1e9f6a0b1e2cf23cfb84a67e"
 dependencies = [
  "abstutil",
  "anyhow",
  "country-geocoder",
  "geom",
  "log",
+ "osm-reader",
  "osm2streets",
- "xmlparser",
 ]
 
 [[package]]
