@@ -209,7 +209,7 @@ fn import_parcels(
                 attributes.insert("parking".to_string(), offstreet_parking_spaces.to_string());
             }
             if let Some(b) = osm_building {
-                attributes.insert("osm_bldg".to_string(), b.inner().to_string());
+                attributes.insert("osm_bldg".to_string(), b.inner_id().to_string());
             }
             shapes.insert(
                 id,

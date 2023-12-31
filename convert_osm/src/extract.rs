@@ -31,9 +31,9 @@ pub fn extract_osm(
     opts: &Options,
     timer: &mut Timer,
 ) -> Extract {
-    let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
+    let osm_input_bytes = fs_err::read(osm_input_path).unwrap();
     let mut doc = streets_reader::osm_reader::Document::read(
-        &osm_xml,
+        &osm_input_bytes,
         clip_pts.as_ref().map(|pts| GPSBounds::from(pts.clone())),
         timer,
     )
