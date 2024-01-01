@@ -62,260 +62,42 @@
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::io::{BufRead, BufReader, BufWriter, Write};
-<span class="kw">use </span>std::process::Command;
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::io::BufReader;
 
 <span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>elevation::GeoTiffElevation;
 <span class="kw">use </span>fs_err::File;
-<span class="kw">use </span>osm2streets::IntersectionID;
-
 <span class="kw">use </span>geom::Distance;
+
+<span class="kw">use </span>abstutil::Timer;
 <span class="kw">use </span>raw_map::RawMap;
 
-<span class="kw">pub fn </span>add_data(map: <span class="kw-2">&amp;mut </span>RawMap) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>input = <span class="macro">format!</span>(<span class="string">&quot;elevation_input_{}&quot;</span>, map.name.as_filename());
-    <span class="kw">let </span>output = <span class="macro">format!</span>(<span class="string">&quot;elevation_output_{}&quot;</span>, map.name.as_filename());
-
-    <span class="comment">// TODO It&#39;d be nice to include more timing breakdown here, but if we bail out early,
-    // it&#39;s tedious to call timer.stop().
-    </span><span class="kw">let </span>ids = generate_input(<span class="kw-2">&amp;</span>input, map)<span class="question-mark">?</span>;
-
-    fs_err::create_dir_all(<span class="kw-2">&amp;</span>output)<span class="question-mark">?</span>;
-    fs_err::create_dir_all(abstio::path_shared_input(<span class="string">&quot;elevation&quot;</span>))<span class="question-mark">?</span>;
-    <span class="kw">let </span>pwd = std::env::current_dir()<span class="question-mark">?</span>.display().to_string();
-    <span class="comment">// Because elevation_lookups has so many dependencies, just depend on Docker.
-    // TODO This is only going to run on Linux, unless we can also build images for other OSes.
-    // TODO On Linux, data/input/shared/elevation files wind up being owned by root, due to how
-    // docker runs. For the moment, one workaround is to manually fix the owner afterwards:
-    // find data/ -user root -exec sudo chown $USER:$USER &#39;{}&#39; \;
-    </span><span class="kw">let </span>status = Command::new(<span class="string">&quot;docker&quot;</span>)
-        .arg(<span class="string">&quot;run&quot;</span>)
-        <span class="comment">// Bind the input directory to the temporary place we just created
-        </span>.arg(<span class="string">&quot;--mount&quot;</span>)
-        .arg(<span class="macro">format!</span>(
-            <span class="string">&quot;type=bind,source={pwd}/{input},target=/elevation/input,readonly&quot;
-        </span>))
-        <span class="comment">// We want to cache the elevation data sources in A/B Street&#39;s S3 bucket, so bind to
-        // our data/input/shared directory.
-        </span>.arg(<span class="string">&quot;--mount&quot;</span>)
-        .arg(<span class="macro">format!</span>(
-            <span class="string">&quot;type=bind,source={},target=/elevation/data&quot;</span>,
-            <span class="comment">// Docker requires absolute paths
-            </span><span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, pwd, abstio::path_shared_input(<span class="string">&quot;elevation&quot;</span>))
-        ))
-        .arg(<span class="string">&quot;--mount&quot;</span>)
-        .arg(<span class="macro">format!</span>(
-            <span class="string">&quot;type=bind,source={pwd}/{output},target=/elevation/output&quot;</span>,
-        ))
-        .arg(<span class="string">&quot;-t&quot;</span>)
-        <span class="comment">// https://hub.docker.com/r/abstreet/elevation_lookups
-        </span>.arg(<span class="string">&quot;abstreet/elevation_lookups&quot;</span>)
-        .arg(<span class="string">&quot;python3&quot;</span>)
-        .arg(<span class="string">&quot;main.py&quot;</span>)
-        .arg(<span class="string">&quot;query&quot;</span>)
-        <span class="comment">// TODO How to tune this? Pretty machine dependant, and using ALL available cores may
-        // melt memory.
-        </span>.arg(<span class="string">&quot;--n_threads=1&quot;</span>)
-        .status()<span class="question-mark">?</span>;
-    <span class="kw">if </span>!status.success() {
-        <span class="macro">bail!</span>(<span class="string">&quot;Command failed: {}&quot;</span>, status);
-    }
-
-    scrape_output(<span class="kw-2">&amp;</span>output, map, ids)<span class="question-mark">?</span>;
-
-    <span class="comment">// Clean up temporary files
-    </span>fs_err::remove_file(<span class="macro">format!</span>(<span class="string">&quot;{input}/query&quot;</span>))<span class="question-mark">?</span>;
-    fs_err::remove_dir(input)<span class="question-mark">?</span>;
-    fs_err::remove_file(<span class="macro">format!</span>(<span class="string">&quot;{output}/query&quot;</span>))<span class="question-mark">?</span>;
-    fs_err::remove_dir(output)<span class="question-mark">?</span>;
-
-    <span class="prelude-val">Ok</span>(())
-}
-
-<span class="kw">fn </span>generate_input(input: <span class="kw-2">&amp;</span>str, map: <span class="kw-2">&amp;</span>RawMap) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(IntersectionID, IntersectionID)&gt;&gt; {
-    fs_err::create_dir_all(input)<span class="question-mark">?</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>f = BufWriter::new(File::create(<span class="macro">format!</span>(<span class="string">&quot;{input}/query&quot;</span>))<span class="question-mark">?</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>ids = Vec::new();
+<span class="kw">pub fn </span>add_data(map: <span class="kw-2">&amp;mut </span>RawMap, path: <span class="kw-2">&amp;</span>str, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="comment">// Get intersection points from road endpoints, to reduce the number of elevation lookups
+    </span><span class="kw">let </span><span class="kw-2">mut </span>intersection_points = HashMap::new();
     <span class="kw">for </span>r <span class="kw">in </span>map.streets.roads.values() {
-        ids.push((r.src_i, r.dst_i));
-        <span class="comment">// Sample points along the road. Smaller step size gives more detail, but is slower.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
-        <span class="kw">for </span>(pt, <span class="kw">_</span>) <span class="kw">in </span>r
-            .reference_line
-            .step_along(Distance::meters(<span class="number">5.0</span>), Distance::ZERO)
-        {
-            pts.push(pt);
+        <span class="kw">for </span>(i, pt) <span class="kw">in </span>[
+            (r.src_i, r.reference_line.first_pt()),
+            (r.dst_i, r.reference_line.last_pt()),
+        ] {
+            intersection_points.insert(i, pt.to_gps(<span class="kw-2">&amp;</span>map.streets.gps_bounds));
         }
-        <span class="comment">// Always ask for the intersection
-        </span><span class="kw">if </span><span class="kw-2">*</span>pts.last().unwrap() != r.reference_line.last_pt() {
-            pts.push(r.reference_line.last_pt());
-        }
-        <span class="kw">for </span>(idx, gps) <span class="kw">in </span>map
-            .streets
-            .gps_bounds
-            .convert_back(<span class="kw-2">&amp;</span>pts)
-            .into_iter()
-            .enumerate()
-        {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{},{}&quot;</span>, gps.x(), gps.y())<span class="question-mark">?</span>;
-            <span class="kw">if </span>idx != pts.len() - <span class="number">1 </span>{
-                <span class="macro">write!</span>(f, <span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
-            }
-        }
-        <span class="macro">writeln!</span>(f)<span class="question-mark">?</span>;
     }
-    <span class="prelude-val">Ok</span>(ids)
-}
 
-<span class="kw">fn </span>scrape_output(
-    output: <span class="kw-2">&amp;</span>str,
-    map: <span class="kw-2">&amp;mut </span>RawMap,
-    ids: Vec&lt;(IntersectionID, IntersectionID)&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>num_ids = ids.len();
-    <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
-    <span class="kw">for </span>(line, (src_i, dst_i)) <span class="kw">in </span>BufReader::new(File::open(<span class="macro">format!</span>(<span class="string">&quot;{output}/query&quot;</span>))<span class="question-mark">?</span>)
-        .lines()
-        .zip(ids)
-    {
-        cnt += <span class="number">1</span>;
-        <span class="kw">let </span>line = line<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>values = Vec::new();
-        <span class="kw">for </span>x <span class="kw">in </span>line.split(<span class="string">&#39;\t&#39;</span>) {
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(x) = x.parse::&lt;f64&gt;() {
-                <span class="kw">if </span>!x.is_finite() {
-                    <span class="comment">// TODO Warn
-                    </span><span class="kw">continue</span>;
-                }
-                <span class="kw">if </span>x &lt; <span class="number">0.0 </span>{
-                    <span class="comment">// TODO Temporary
-                    </span><span class="kw">continue</span>;
-                }
-                values.push(Distance::meters(x));
-            } <span class="kw">else </span>{
-                <span class="comment">// Blank lines mean the tool failed to figure out what happened
-                </span><span class="kw">continue</span>;
+    <span class="comment">// TODO Download the file if needed?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>elevation = GeoTiffElevation::new(BufReader::new(File::open(path)<span class="question-mark">?</span>));
+
+    timer.start_iter(<span class="string">&quot;lookup elevation&quot;</span>, intersection_points.len());
+    <span class="kw">for </span>(i, gps) <span class="kw">in </span>intersection_points {
+        timer.next();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(height) = elevation.get_height_for_lon_lat(gps.x() <span class="kw">as </span>f32, gps.y() <span class="kw">as </span>f32) {
+            <span class="kw">if </span>height &lt; <span class="number">0.0 </span>{
+                <span class="kw">continue</span>;
             }
+            map.elevation_per_intersection
+                .insert(i, Distance::meters(height.into()));
         }
-        <span class="kw">if </span>values.len() != <span class="number">4 </span>{
-            <span class="macro">error!</span>(<span class="string">&quot;Elevation output line \&quot;{}\&quot; doesn&#39;t have 4 numbers&quot;</span>, line);
-            <span class="kw">continue</span>;
-        }
-        <span class="comment">// TODO Also put total_climb and total_descent on the roads
-        </span>map.elevation_per_intersection.insert(src_i, values[<span class="number">0</span>]);
-        map.elevation_per_intersection.insert(dst_i, values[<span class="number">1</span>]);
-    }
-    <span class="kw">if </span>cnt != num_ids {
-        <span class="macro">bail!</span>(<span class="string">&quot;Output had {} lines, but we made {} queries&quot;</span>, cnt, num_ids);
     }
 
     <span class="comment">// Calculate the incline for each road here, before the road gets trimmed for intersection

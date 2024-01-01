@@ -79,6 +79,12 @@
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>abstio::{CityName, MapName};
 <span class="kw">use </span>geom::Distance;
 <span class="kw">use </span>map_model::DrivingSide;
@@ -157,7 +163,13 @@
             <span class="prelude-val">None
         </span>},
         <span class="comment">// We only have a few elevation sources working
-        </span>elevation: name.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>) || name.city.country == <span class="string">&quot;gb&quot;</span>,
+        </span>elevation_geotiff: <span class="kw">if </span>name.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;data/input/shared/elevation/king_county_2016_lidar.tif&quot;</span>.to_string())
+        } <span class="kw">else if </span>name.city.country == <span class="string">&quot;gb&quot; </span>{
+            <span class="prelude-val">Some</span>(<span class="string">&quot;data/input/shared/elevation/UK-dem-50m-4326.tif&quot;</span>.to_string())
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>},
     }
 }
 </code></pre></div></section></main></body></html>
