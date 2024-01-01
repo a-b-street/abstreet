@@ -775,6 +775,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "csv",
+ "elevation",
  "fs-err",
  "geom",
  "kml",
@@ -1320,6 +1321,14 @@ name = "either"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
+
+[[package]]
+name = "elevation"
+version = "0.1.0"
+source = "git+https://github.com/dabreegster/elevation#e8d0fd4e11774b6204474be2ecb5ad7d05636f2e"
+dependencies = [
+ "georaster",
+]
 
 [[package]]
 name = "embedded-hal"
@@ -1957,6 +1966,14 @@ dependencies = [
  "rstar",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "georaster"
+version = "0.1.0"
+source = "git+https://github.com/pka/georaster#dca2d8b7c4e40c6d3b83f29352af5c04083a366b"
+dependencies = [
+ "tiff",
 ]
 
 [[package]]
@@ -2669,6 +2686,12 @@ checksum = "972f5ae5d1cb9c6ae417789196c803205313edde988685da5e3aae0827b9e7fd"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "jpeg-decoder"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc0000e42512c92e31c2252315bda326620a4e034105e900c98ec492fa077b3e"
 
 [[package]]
 name = "js-sys"
@@ -5029,6 +5052,16 @@ checksum = "3fdd6f064ccff2d6567adcb3873ca630700f00b5ad3f060c25b5dcfd9a4ce152"
 dependencies = [
  "cfg-if",
  "once_cell",
+]
+
+[[package]]
+name = "tiff"
+version = "0.9.0"
+source = "git+https://github.com/image-rs/image-tiff#4a2e76858b976ae1e9838f4b20772543e3940944"
+dependencies = [
+ "flate2",
+ "jpeg-decoder",
+ "weezl",
 ]
 
 [[package]]

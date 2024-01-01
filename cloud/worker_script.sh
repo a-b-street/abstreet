@@ -32,22 +32,13 @@ mv abstreet-importer/dev/data/input data/input
 rm -rf abstreet-importer
 find data/input -name '*.gz' -print -exec gunzip '{}' ';'
 
-# Set up Docker, for the elevation data
-sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo \
-	  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-	    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Install GDAL
 sudo apt-get update
-# Also sneak GDAL in there
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io libgdal-dev
+sudo apt-get install -y libgdal-dev
 
 # Now do the big import!
 rm -fv data/input/us/seattle/raw_maps/huge_seattle.bin data/input/us/seattle/popdat.bin
-# Run this as root so Docker works. We could add the current user to the group,
-# but then we have to fiddle with the shell a weird way to pick up the change
-# immediately.
-sudo ./target/release/cli regenerate-everything --shard-num=$WORKER_NUM --num-shards=$NUM_WORKERS
+./target/release/cli regenerate-everything --shard-num=$WORKER_NUM --num-shards=$NUM_WORKERS
 
 # Upload the results
 ./target/release/updater incremental-upload --version=$EXPERIMENT_TAG

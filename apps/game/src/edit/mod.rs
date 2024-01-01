@@ -18,7 +18,7 @@ pub use self::roads::RoadEditor;
 pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
-pub use self::validate::{check_sidewalk_connectivity};
+pub use self::validate::check_sidewalk_connectivity;
 use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;

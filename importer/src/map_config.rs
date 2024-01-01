@@ -76,6 +76,12 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             None
         },
         // We only have a few elevation sources working
-        elevation: name.city == CityName::new("us", "seattle") || name.city.country == "gb",
+        elevation_geotiff: if name.city == CityName::new("us", "seattle") {
+            Some("data/input/shared/elevation/king_county_2016_lidar.tif".to_string())
+        } else if name.city.country == "gb" {
+            Some("data/input/shared/elevation/UK-dem-50m-4326.tif".to_string())
+        } else {
+            None
+        },
     }
 }

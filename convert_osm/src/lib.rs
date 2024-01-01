@@ -1,6 +1,4 @@
 #[macro_use]
-extern crate anyhow;
-#[macro_use]
 extern crate log;
 
 use std::collections::{HashMap, HashSet};
@@ -29,7 +27,8 @@ pub struct Options {
     pub extra_buildings: Option<String>,
     /// Configure public transit using this URL to a static GTFS feed in .zip format.
     pub gtfs_url: Option<String>,
-    pub elevation: bool,
+    /// Path to a GeoTIFF file in EPSG:4326 to use for elevation data
+    pub elevation_geotiff: Option<String>,
     /// Only include crosswalks that match a `highway=crossing` OSM node.
     pub filter_crosswalks: bool,
 }
@@ -43,7 +42,7 @@ impl Options {
             private_offstreet_parking: PrivateOffstreetParking::FixedPerBldg(1),
             extra_buildings: None,
             gtfs_url: None,
-            elevation: false,
+            elevation_geotiff: None,
             filter_crosswalks: false,
         }
     }
@@ -138,9 +137,9 @@ pub fn convert(
         filter_crosswalks(&mut map, extract.crossing_nodes, pt_to_road, timer);
     }
 
-    if opts.elevation {
+    if let Some(ref path) = opts.elevation_geotiff {
         timer.start("add elevation data");
-        if let Err(err) = elevation::add_data(&mut map) {
+        if let Err(err) = elevation::add_data(&mut map, path, timer) {
             error!("No elevation data: {}", err);
         }
         timer.stop("add elevation data");

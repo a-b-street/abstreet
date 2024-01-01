@@ -9,6 +9,7 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 csv = { workspace = true }
+elevation = { git = "https://github.com/dabreegster/elevation" }
 fs-err = { workspace = true }
 geom = { workspace = true }
 kml = { path = "../kml" }
