@@ -5,7 +5,7 @@ use std::marker::PhantomData;
 use anyhow::Result;
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde_derive::{Deserialize, Serialize};
 
 // TODO Ideally derive Serialize and Deserialize, but I can't seem to express the lifetimes
 // correctly.

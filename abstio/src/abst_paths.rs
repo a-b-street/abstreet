@@ -7,7 +7,7 @@
 use std::sync::OnceLock;
 
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
+use serde_derive::{Deserialize, Serialize};
 
 use abstutil::basename;
 
