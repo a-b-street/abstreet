@@ -5,7 +5,7 @@
     open_trip: &amp;mut <a class="struct" href="struct.OpenTrip.html" title="struct game::info::trip::OpenTrip">OpenTrip</a>,
     details: &amp;mut <a class="struct" href="../struct.Details.html" title="struct game::info::Details">Details</a>,
     phases: <a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="../../../sim/analytics/struct.TripPhase.html" title="struct sim::analytics::TripPhase">TripPhase</a>&gt;,
-    map_for_pathfinding: &amp;Map,
+    map_for_pathfinding: &amp;<a class="struct" href="../../../map_model/struct.Map.html" title="struct map_model::Map">Map</a>,
     progress_along_path: <a class="enum" href="https://doc.rust-lang.org/1.75.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.75.0/std/primitive.f64.html">f64</a>&gt;
 ) -&gt; Widget</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates the timeline, location warp, and time warp buttons for one trip, and draws the route on
 the map.</p>
