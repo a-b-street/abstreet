@@ -2,6 +2,6 @@
     app: &amp;SimpleApp&lt;<a class="struct" href="../isochrone/struct.Options.html" title="struct fifteen_min::isochrone::Options">Options</a>&gt;,
     amenities: <a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;AmenityType&gt;,
     timer: &amp;mut Timer&lt;'_&gt;
-) -&gt; (Counter&lt;<a class="struct" href="../../map_model/objects/building/struct.BuildingID.html" title="struct map_model::objects::building::BuildingID">BuildingID</a>&gt;, MultiMap&lt;AmenityType, <a class="struct" href="../../map_model/objects/building/struct.BuildingID.html" title="struct map_model::objects::building::BuildingID">BuildingID</a>&gt;)</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>For every house in the map, return the number of amenity types located within a 15min walkshed.
+) -&gt; (Counter&lt;BuildingID&gt;, MultiMap&lt;AmenityType, BuildingID&gt;)</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>For every house in the map, return the number of amenity types located within a 15min walkshed.
 A single matching business per category is enough to count as satisfied.</p>
 </div></details></section></div></main></body></html>
