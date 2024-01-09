@@ -28,7 +28,7 @@ lyon = "1.0.1"
 map_model = { path = "../map_model" }
 regex = "1.10.2"
 rfd = "0.11.3"
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
 subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }

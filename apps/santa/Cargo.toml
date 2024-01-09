@@ -24,6 +24,6 @@ map_model = { path = "../../map_model" }
 rand = { workspace = true }
 rand_xorshift = { workspace = true }
 rodio = { version = "0.17.3", default-features = false, features = ["vorbis"] }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 wasm-bindgen = { workspace = true, optional = true }
 widgetry = { path = "../../widgetry" }

@@ -27,7 +27,7 @@ popdat = { path = "../popdat" }
 rand  = "0.8.3"
 rand_xorshift = { workspace = true }
 raw_map = { path = "../raw_map" }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 serde_json = { workspace = true }
 sim = { path = "../sim" }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }

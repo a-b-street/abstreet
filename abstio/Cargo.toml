@@ -13,7 +13,7 @@ fs-err = { workspace = true }
 instant = { workspace = true }
 log = { workspace = true }
 reqwest = { version = "0.11.22", default-features=false, features=["rustls-tls"] }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 serde_json = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

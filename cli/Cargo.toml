@@ -19,7 +19,7 @@ osmio = "0.8.1"
 rand  = "0.8.3"
 rand_xorshift = { workspace = true }
 raw_map = { path = "../raw_map" }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }

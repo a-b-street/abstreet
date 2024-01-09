@@ -17,5 +17,5 @@ log = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 popgetter = { path = "../popgetter" }
 raw_map = { path = "../raw_map" }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 streets_reader = { git = "https://github.com/a-b-street/osm2streets" }

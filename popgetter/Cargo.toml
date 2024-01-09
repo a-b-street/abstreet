@@ -9,5 +9,5 @@ fs-err = { workspace = true }
 geo = { workspace = true }
 geo-types = "0.7.12"
 geojson = { workspace = true }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 topojson = { git = "https://github.com/georust/topojson" }

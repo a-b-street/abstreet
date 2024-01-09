@@ -31,7 +31,7 @@ js-sys = { version = "0.3.47", optional = true }
 log = { workspace = true }
 lru = "0.10.0"
 lyon = "1.0.0"
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 serde_json = { workspace = true }
 taffy = "0.2.2"
 tokio = { workspace = true, optional = true }

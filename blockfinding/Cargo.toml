@@ -9,4 +9,4 @@ anyhow = { workspace = true }
 geom = { workspace = true }
 log = { workspace = true }
 map_model = { path = "../map_model" }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }

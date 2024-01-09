@@ -21,7 +21,7 @@ popgetter = { path = "../popgetter" }
 rand = { workspace = true }
 rand_xorshift = { workspace = true }
 raw_map = { path = "../raw_map" }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 serde_json = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 structopt = { workspace = true }

@@ -34,7 +34,7 @@ md5 = "0.7.0"
 rand = { workspace = true }
 rand_xorshift = { workspace = true }
 regex = "1.8.1"
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 serde_json = { workspace = true }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 synthpop = { path = "../../synthpop" }

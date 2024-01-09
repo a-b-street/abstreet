@@ -8,4 +8,4 @@ edition = "2021"
 geom = { workspace = true }
 kml = { path = "../kml" }
 log = { workspace = true }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }

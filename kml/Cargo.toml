@@ -12,4 +12,4 @@ csv = { workspace = true }
 geom = { workspace = true }
 log = { workspace = true }
 roxmltree = { version = "0.19.0", features=["std"] }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }

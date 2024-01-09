@@ -19,7 +19,7 @@ map_model = { path = "../map_model" }
 rand = { workspace = true }
 rand_distr = "0.4.3"
 rand_xorshift = { workspace = true }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 serde_json = { workspace = true }
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }

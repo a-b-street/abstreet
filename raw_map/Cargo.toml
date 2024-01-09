@@ -8,7 +8,7 @@ edition = "2021"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { workspace = true }
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 popgetter = { path = "../popgetter" }
 strum = "0.24.1"

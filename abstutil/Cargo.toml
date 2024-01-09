@@ -14,7 +14,7 @@ itertools = "0.12.0"
 log = { workspace = true }
 num_cpus = "1.16.0"
 scoped_threadpool = "0.1.9"
-serde = { workspace = true }
+serde = { workspace = true, features=["derive"] }
 serde_json = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
