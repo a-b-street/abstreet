@@ -15,7 +15,7 @@ hit problems.
 If the size of text and panels
 [seems very strange](https://github.com/a-b-street/abstreet/issues/381), you
 can try editing `play_abstreet.sh` or `play_abstreet.bat` and passing
-`--scale_factor=1` on the command line. This value is detected from your monitor
+`--scale-factor=1` on the command line. This value is detected from your monitor
 settings, so if you have a Retina or other HiDPI display, things may be too big
 or small.
 
