@@ -55,7 +55,18 @@ impl Demo {
             tabs,
         }
     }
-
+    fn create_series<F>(&self, label: &str, color: Color, func: F) -> Series
+    where
+        F: Fn(usize) -> usize,
+    {
+        Series {
+            label: label.to_string(),
+            color,
+            pts: (0..(self.elapsed.inner_seconds() as usize))
+                .map(|s: usize| (Time::START_OF_DAY + Duration::seconds(s as f64), func(s)))
+                .collect(),
+        }
+    }
     fn make_timeseries_panel(&self, ctx: &mut EventCtx) -> Panel {
         // Make a table with 3 columns.
         let mut col1 = vec![Line("Time").into_widget(ctx)];
@@ -91,21 +102,8 @@ impl Demo {
                 ctx,
                 "timeseries",
                 vec![
-                    Series {
-                        label: "Linear".to_string(),
-                        color: Color::GREEN,
-                        // These points are (x axis = Time, y axis = usize)
-                        pts: (0..(self.elapsed.inner_seconds() as usize))
-                            .map(|s| (Time::START_OF_DAY + Duration::seconds(s as f64), s))
-                            .collect(),
-                    },
-                    Series {
-                        label: "Quadratic".to_string(),
-                        color: Color::BLUE,
-                        pts: (0..(self.elapsed.inner_seconds() as usize))
-                            .map(|s| (Time::START_OF_DAY + Duration::seconds(s as f64), s.pow(2)))
-                            .collect(),
-                    },
+                    self.create_series("Linear", Color::GREEN, |s| s),
+                    self.create_series("Quadratic", Color::BLUE, |s| s.pow(2)),
                 ],
                 PlotOptions {
                     // Without this, the plot doesn't stretch to cover times in between whole
