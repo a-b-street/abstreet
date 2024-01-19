@@ -14,6 +14,7 @@ pub fn main() {
     run(settings);
 }
 
+
 fn run(mut settings: Settings) {
     abstutil::logger::setup();
     settings = settings.read_svg(Box::new(abstio::slurp_bytes));
@@ -55,11 +56,11 @@ impl Demo {
             tabs,
         }
     }
-    fn create_series<F>(&self, label: &str, color: Color, func: F) -> Series
+    fn create_series<F>(&self, label: &str, color: Color, func: F) -> Series<Time, usize>
     where
         F: Fn(usize) -> usize,
     {
-        Series {
+        Series{
             label: label.to_string(),
             color,
             pts: (0..(self.elapsed.inner_seconds() as usize))
