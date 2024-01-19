@@ -641,7 +641,6 @@
 <a href="#641" id="641">641</a>
 <a href="#642" id="642">642</a>
 <a href="#643" id="643">643</a>
-<a href="#644" id="644">644</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>rand::SeedableRng;
 <span class="kw">use </span>rand_xorshift::XorShiftRng;
 
@@ -657,6 +656,7 @@
     <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;widgetry demo&quot;</span>);
     run(settings);
 }
+
 
 <span class="kw">fn </span>run(<span class="kw-2">mut </span>settings: Settings) {
     abstutil::logger::setup();
@@ -699,7 +699,18 @@
             tabs,
         }
     }
-
+    <span class="kw">fn </span>create_series&lt;F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>str, color: Color, func: F) -&gt; Series&lt;Time, usize&gt;
+    <span class="kw">where
+        </span>F: Fn(usize) -&gt; usize,
+    {
+        Series{
+            label: label.to_string(),
+            color,
+            pts: (<span class="number">0</span>..(<span class="self">self</span>.elapsed.inner_seconds() <span class="kw">as </span>usize))
+                .map(|s: usize| (Time::START_OF_DAY + Duration::seconds(s <span class="kw">as </span>f64), func(s)))
+                .collect(),
+        }
+    }
     <span class="kw">fn </span>make_timeseries_panel(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Panel {
         <span class="comment">// Make a table with 3 columns.
         </span><span class="kw">let </span><span class="kw-2">mut </span>col1 = <span class="macro">vec!</span>[Line(<span class="string">&quot;Time&quot;</span>).into_widget(ctx)];
@@ -735,21 +746,8 @@
                 ctx,
                 <span class="string">&quot;timeseries&quot;</span>,
                 <span class="macro">vec!</span>[
-                    Series {
-                        label: <span class="string">&quot;Linear&quot;</span>.to_string(),
-                        color: Color::GREEN,
-                        <span class="comment">// These points are (x axis = Time, y axis = usize)
-                        </span>pts: (<span class="number">0</span>..(<span class="self">self</span>.elapsed.inner_seconds() <span class="kw">as </span>usize))
-                            .map(|s| (Time::START_OF_DAY + Duration::seconds(s <span class="kw">as </span>f64), s))
-                            .collect(),
-                    },
-                    Series {
-                        label: <span class="string">&quot;Quadratic&quot;</span>.to_string(),
-                        color: Color::BLUE,
-                        pts: (<span class="number">0</span>..(<span class="self">self</span>.elapsed.inner_seconds() <span class="kw">as </span>usize))
-                            .map(|s| (Time::START_OF_DAY + Duration::seconds(s <span class="kw">as </span>f64), s.pow(<span class="number">2</span>)))
-                            .collect(),
-                    },
+                    <span class="self">self</span>.create_series(<span class="string">&quot;Linear&quot;</span>, Color::GREEN, |s| s),
+                    <span class="self">self</span>.create_series(<span class="string">&quot;Quadratic&quot;</span>, Color::BLUE, |s| s.pow(<span class="number">2</span>)),
                 ],
                 PlotOptions {
                     <span class="comment">// Without this, the plot doesn&#39;t stretch to cover times in between whole

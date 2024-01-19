@@ -69,7 +69,7 @@
     },
     RegenerateEverythingExternally,
     Import {
-        job: Job,
+        job: <a class="struct" href="../importer/struct.Job.html" title="struct importer::Job">Job</a>,
     },
     PrebakeScenario {
         scenario_path: <a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
@@ -145,7 +145,7 @@ shard this invocation should run.</p>
 total shards there are.</p>
 </div></div></div><div class="docblock"><p>Regenerate all maps and scenarios from scratch.</p>
 </div><section id="variant.RegenerateEverythingExternally" class="variant"><a href="#variant.RegenerateEverythingExternally" class="anchor">§</a><h3 class="code-header">RegenerateEverythingExternally</h3></section><div class="docblock"><p>Generate a shell script to regenerate all cities that uses an external task runner.</p>
-</div><section id="variant.Import" class="variant"><a href="#variant.Import" class="anchor">§</a><h3 class="code-header">Import</h3></section><div class="sub-variant" id="variant.Import.fields"><h4>Fields</h4><div class="sub-variant-field"><span id="variant.Import.field.job" class="small-section-header"><a href="#variant.Import.field.job" class="anchor field">§</a><code>job: Job</code></span></div></div><div class="docblock"><p>Import RawMaps, maps, scenarios, and city overviews for a single city.</p>
+</div><section id="variant.Import" class="variant"><a href="#variant.Import" class="anchor">§</a><h3 class="code-header">Import</h3></section><div class="sub-variant" id="variant.Import.fields"><h4>Fields</h4><div class="sub-variant-field"><span id="variant.Import.field.job" class="small-section-header"><a href="#variant.Import.field.job" class="anchor field">§</a><code>job: <a class="struct" href="../importer/struct.Job.html" title="struct importer::Job">Job</a></code></span></div></div><div class="docblock"><p>Import RawMaps, maps, scenarios, and city overviews for a single city.</p>
 </div><section id="variant.PrebakeScenario" class="variant"><a href="#variant.PrebakeScenario" class="anchor">§</a><h3 class="code-header">PrebakeScenario</h3></section><div class="sub-variant" id="variant.PrebakeScenario.fields"><h4>Fields</h4><div class="sub-variant-field"><span id="variant.PrebakeScenario.field.scenario_path" class="small-section-header"><a href="#variant.PrebakeScenario.field.scenario_path" class="anchor field">§</a><code>scenario_path: <a class="struct" href="https://doc.rust-lang.org/1.75.0/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span><div class="docblock"><p>The path to a scenario file</p>
 </div></div></div><div class="docblock"><p>Simulate a full day of a scenario, and write the “prebaked results,” so the UI can later be
 used for A/B testing.</p>
