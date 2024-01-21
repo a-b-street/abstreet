@@ -559,8 +559,18 @@
 <a href="#559" id="559">559</a>
 <a href="#560" id="560">560</a>
 <a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This runs a simulation without any graphics and serves a very basic API to control things. See
-//! https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:
+//! https://a-b-street.github.io/docs/tech/dev/api.html for documentation and
+//! https://github.com/mhabedank/abstreet-docker/ for an example of using with Docker. To run this:
 //!
 //! &gt; cd headless; cargo run -- --port=1234
 //! &gt; curl http://localhost:1234/sim/get-time
@@ -618,11 +628,16 @@
     about = <span class="string">&quot;Simulate traffic with a JSON API, not a GUI&quot;
 </span>)]
 </span><span class="kw">struct </span>Args {
-    <span class="attr">#[structopt(long, default_value = <span class="string">&quot;127.0.0.1&quot;</span>)]
+    <span class="doccomment">/// What IP to run the JSON API on.
+    </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;127.0.0.1&quot;</span>)]
     </span>ip: IpAddr,
     <span class="doccomment">/// What port to run the JSON API on.
     </span><span class="attr">#[structopt(long)]
     </span>port: u16,
+    <span class="doccomment">/// If specified, start with this scenario loaded instead of the Montlake weekday default. Use
+    /// `/sim/load` to change this after startup or control more options.
+    </span><span class="attr">#[structopt(long)]
+    </span>scenario: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="doccomment">/// An arbitrary number to seed the random number generator. This is input to the deterministic
     /// simulation, so different values affect results.
     </span><span class="comment">// TODO default_value can only handle strings, so copying SimFlags::RNG_SEED
@@ -641,6 +656,9 @@
         <span class="kw">let </span><span class="kw-2">mut </span>load = LOAD.write().unwrap();
         load.rng_seed = args.rng_seed;
         load.opts = args.opts;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = args.scenario {
+            load.scenario = path;
+        }
 
         <span class="kw">let </span>(map, sim) = load.setup(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">&quot;setup headless&quot;</span>));
         <span class="kw-2">*</span>MAP.write().unwrap() = map;
