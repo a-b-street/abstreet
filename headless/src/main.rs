@@ -15,6 +15,7 @@ extern crate anyhow;
 extern crate log;
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::net::IpAddr;
 use std::sync::RwLock;
 
 use anyhow::Result;
@@ -56,6 +57,8 @@ lazy_static::lazy_static! {
     about = "Simulate traffic with a JSON API, not a GUI"
 )]
 struct Args {
+    #[structopt(long, default_value = "127.0.0.1")]
+    ip: IpAddr,
     /// What port to run the JSON API on.
     #[structopt(long)]
     port: u16,
@@ -83,7 +86,7 @@ async fn main() {
         *SIM.write().unwrap() = sim;
     }
 
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], args.port));
+    let addr = std::net::SocketAddr::from((args.ip, args.port));
     info!("Listening on http://{}", addr);
     let serve_future = Server::bind(&addr).serve(hyper::service::make_service_fn(|_| async {
         Ok::<_, hyper::Error>(hyper::service::service_fn(serve_req))
