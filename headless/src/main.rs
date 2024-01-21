@@ -1,5 +1,6 @@
 //! This runs a simulation without any graphics and serves a very basic API to control things. See
-//! https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:
+//! https://a-b-street.github.io/docs/tech/dev/api.html for documentation and
+//! https://github.com/mhabedank/abstreet-docker/ for an example of using with Docker. To run this:
 //!
 //! > cd headless; cargo run -- --port=1234
 //! > curl http://localhost:1234/sim/get-time
@@ -57,11 +58,16 @@ lazy_static::lazy_static! {
     about = "Simulate traffic with a JSON API, not a GUI"
 )]
 struct Args {
+    /// What IP to run the JSON API on.
     #[structopt(long, default_value = "127.0.0.1")]
     ip: IpAddr,
     /// What port to run the JSON API on.
     #[structopt(long)]
     port: u16,
+    /// If specified, start with this scenario loaded instead of the Montlake weekday default. Use
+    /// `/sim/load` to change this after startup or control more options.
+    #[structopt(long)]
+    scenario: Option<String>,
     /// An arbitrary number to seed the random number generator. This is input to the deterministic
     /// simulation, so different values affect results.
     // TODO default_value can only handle strings, so copying SimFlags::RNG_SEED
@@ -80,6 +86,9 @@ async fn main() {
         let mut load = LOAD.write().unwrap();
         load.rng_seed = args.rng_seed;
         load.opts = args.opts;
+        if let Some(path) = args.scenario {
+            load.scenario = path;
+        }
 
         let (map, sim) = load.setup(&mut Timer::new("setup headless"));
         *MAP.write().unwrap() = map;
