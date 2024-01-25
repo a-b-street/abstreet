@@ -36,6 +36,7 @@ impl ExploreAmenitiesDetails {
         let mut batch = draw_isochrone(
             &app.map,
             &isochrone.time_to_reach_building,
+            &isochrone.time_to_reach_empty_road,
             &isochrone.thresholds,
             &isochrone.colors,
         );
