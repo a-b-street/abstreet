@@ -24,6 +24,14 @@ The project works anywhere in the world, thanks to
   [read all instructions](https://a-b-street.github.io/docs/user/index.html)
 - [build from source](https://a-b-street.github.io/docs/tech/dev/index.html)
 
+As of January 2024, development of the tools above has slowed down, because
+newer tools are being developed in other repositories. Please also check out:
+
+- [Severance Snape](https://dabreegster.github.io/severance_snape) to explore
+  how far walking routes detour to cross big roads
+- [od2net](https://github.com/Urban-Analytics-Technology-Platform/od2net) to
+  calculate the most important roads to prioritize for cycling
+
 ## Videos
 
 - [Alpha release trailer](https://www.youtube.com/watch?v=LxPD4n_1-LU)
