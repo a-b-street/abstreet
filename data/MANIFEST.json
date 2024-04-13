@@ -2595,70 +2595,15 @@
       "uncompressed_size_bytes": 6352554,
       "compressed_size_bytes": 1943355
     },
-    "data/input/us/san_francisco/gtfs/SFMTA_Transit_Data_License_Agreement.txt": {
-      "checksum": "96f920e0467e75006ed3d7a7b2dddbea",
-      "uncompressed_size_bytes": 7512,
-      "compressed_size_bytes": 2667
-    },
-    "data/input/us/san_francisco/gtfs/agency.txt": {
-      "checksum": "1ad8c654dacce4892888b0f3e2b85b17",
-      "uncompressed_size_bytes": 156,
-      "compressed_size_bytes": 136
-    },
-    "data/input/us/san_francisco/gtfs/calendar.txt": {
-      "checksum": "473cabb87e9977b95a4968f9174c52ee",
-      "uncompressed_size_bytes": 192,
-      "compressed_size_bytes": 116
-    },
-    "data/input/us/san_francisco/gtfs/calendar_dates.txt": {
-      "checksum": "8409de4a6218f2643e51822f12aac244",
-      "uncompressed_size_bytes": 142,
-      "compressed_size_bytes": 99
-    },
-    "data/input/us/san_francisco/gtfs/fare_attributes.txt": {
-      "checksum": "ebca9f3336c000ee2f46a61c3c7c83a6",
-      "uncompressed_size_bytes": 109,
-      "compressed_size_bytes": 108
-    },
-    "data/input/us/san_francisco/gtfs/fare_rules.txt": {
-      "checksum": "84afd7cbd69e2d271533a7aeea7a46fc",
-      "uncompressed_size_bytes": 938,
-      "compressed_size_bytes": 214
-    },
-    "data/input/us/san_francisco/gtfs/routes.txt": {
-      "checksum": "ee98d2628665630c723ea3be9612f700",
-      "uncompressed_size_bytes": 4265,
-      "compressed_size_bytes": 1044
-    },
-    "data/input/us/san_francisco/gtfs/shapes.txt": {
-      "checksum": "be10c470083290b84b7a4b9f1cec1400",
-      "uncompressed_size_bytes": 4279220,
-      "compressed_size_bytes": 824173
-    },
-    "data/input/us/san_francisco/gtfs/stop_times.txt": {
-      "checksum": "f575e7b5c5cde706cf634b5bcc5d5338",
-      "uncompressed_size_bytes": 42075453,
-      "compressed_size_bytes": 6395005
-    },
-    "data/input/us/san_francisco/gtfs/stops.txt": {
-      "checksum": "fb5c8465a9507f11028cd5e22a6e0f24",
-      "uncompressed_size_bytes": 203817,
-      "compressed_size_bytes": 53318
-    },
-    "data/input/us/san_francisco/gtfs/trips.txt": {
-      "checksum": "ddac619d5f8a89e75a43171a9252d2a0",
-      "uncompressed_size_bytes": 1182100,
-      "compressed_size_bytes": 94716
-    },
     "data/input/us/san_francisco/osm/downtown.osm.pbf": {
       "checksum": "7f3fb1d29f3bd2971b24d6ab522828c3",
       "uncompressed_size_bytes": 5118186,
       "compressed_size_bytes": 5118353
     },
     "data/input/us/san_francisco/raw_maps/downtown.bin": {
-      "checksum": "adfe4c3246fc1b80310bfe22d06825f9",
-      "uncompressed_size_bytes": 26610269,
-      "compressed_size_bytes": 7872415
+      "checksum": "310f1744dc6c000b1c7e0daa76c3cb8f",
+      "uncompressed_size_bytes": 26526742,
+      "compressed_size_bytes": 7832623
     },
     "data/input/us/seattle/blockface.bin": {
       "checksum": "c5402f77d7cb81a1a7bfb60e90b699c8",
@@ -5291,9 +5236,9 @@
       "compressed_size_bytes": 6560385
     },
     "data/system/us/san_francisco/maps/downtown.bin": {
-      "checksum": "def8cc453ebbf7966824d42881bce931",
-      "uncompressed_size_bytes": 53737176,
-      "compressed_size_bytes": 21539891
+      "checksum": "fbc826c5585c3654834ce7ccbc121ad7",
+      "uncompressed_size_bytes": 53624562,
+      "compressed_size_bytes": 21500285
     },
     "data/system/us/seattle/city.bin": {
       "checksum": "fe8e850acc8d789cc3a1954832d4d9d8",

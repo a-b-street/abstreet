@@ -67,7 +67,9 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         gtfs_url: if name == &MapName::new("us", "seattle", "arboretum") {
             Some("http://metro.kingcounty.gov/GTFS/google_transit.zip".to_string())
         } else if name.city == CityName::new("us", "san_francisco") {
-            Some("https://gtfs.sfmta.com/transitdata/google_transit.zip".to_string())
+            None
+            // Crashing the traffic sim, so disabled
+            //Some("https://gtfs.sfmta.com/transitdata/google_transit.zip".to_string())
         } else if name == &MapName::new("br", "sao_paulo", "aricanduva") {
             Some("https://github.com/transitland/gtfs-archives-not-hosted-elsewhere/blob/master/sao-paulo-sptrans.zip?raw=true".to_string())
         } else if name.city == CityName::new("fr", "brest") {
