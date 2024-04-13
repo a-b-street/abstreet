@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/fix_traffic_signals.rs`."><title>fix_traffic_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/fix_traffic_signals.rs`."><title>fix_traffic_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -435,46 +437,46 @@
     }
 
     <span class="kw">pub fn </span>cutscene_pt1(ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App, <span class="kw">_</span>: <span class="kw-2">&amp;</span>GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
-        CutsceneBuilder::new(<span class="string">&quot;Traffic signal survivor&quot;</span>)
-            .boss(<span class="string">&quot;I hope you&#39;ve had your coffee. There&#39;s a huge mess downtown.&quot;</span>)
-            .player(<span class="string">&quot;Did two buses get tangled together again?&quot;</span>)
-            .boss(<span class="string">&quot;Worse. SCOOT along Mercer is going haywire.&quot;</span>)
-            .player(<span class="string">&quot;SCOOT?&quot;</span>)
+        CutsceneBuilder::new(<span class="string">"Traffic signal survivor"</span>)
+            .boss(<span class="string">"I hope you've had your coffee. There's a huge mess downtown."</span>)
+            .player(<span class="string">"Did two buses get tangled together again?"</span>)
+            .boss(<span class="string">"Worse. SCOOT along Mercer is going haywire."</span>)
+            .player(<span class="string">"SCOOT?"</span>)
             .boss(
-                <span class="string">&quot;You know, Split Cycle Offset Optimization Technique, the traffic signal \
-                 coordination system? Did you sleep through college or what?&quot;</span>,
+                <span class="string">"You know, Split Cycle Offset Optimization Technique, the traffic signal \
+                 coordination system? Did you sleep through college or what?"</span>,
             )
             .boss(
-                <span class="string">&quot;It&#39;s offline. All the traffic signals look like they&#39;ve been reset to industry \
-                 defaults.&quot;</span>,
+                <span class="string">"It's offline. All the traffic signals look like they've been reset to industry \
+                 defaults."</span>,
             )
-            .player(<span class="string">&quot;Uh oh. Too much scooter traffic overwhelm it? Eh? EHH?&quot;</span>)
-            .boss(<span class="string">&quot;...&quot;</span>)
-            .boss(<span class="string">&quot;You know, not every problem you will face in life is caused by a pun.&quot;</span>)
+            .player(<span class="string">"Uh oh. Too much scooter traffic overwhelm it? Eh? EHH?"</span>)
+            .boss(<span class="string">"..."</span>)
+            .boss(<span class="string">"You know, not every problem you will face in life is caused by a pun."</span>)
             .boss(
-                <span class="string">&quot;Most, in fact, will be caused by me ruining your life because you won&#39;t take \
-                 your job seriously.&quot;</span>,
+                <span class="string">"Most, in fact, will be caused by me ruining your life because you won't take \
+                 your job seriously."</span>,
             )
-            .player(<span class="string">&quot;Sorry, boss.&quot;</span>)
+            .player(<span class="string">"Sorry, boss."</span>)
             .extra(
-                <span class="string">&quot;parents.svg.gz&quot;</span>,
+                <span class="string">"parents.svg.gz"</span>,
                 <span class="number">0.6</span>,
-                <span class="string">&quot;Hi, er, we&#39;re calling from Lower Queen Anne. What&#39;s going on?!&quot;</span>,
+                <span class="string">"Hi, er, we're calling from Lower Queen Anne. What's going on?!"</span>,
             )
             .extra(
-                <span class="string">&quot;parents.svg.gz&quot;</span>,
+                <span class="string">"parents.svg.gz"</span>,
                 <span class="number">0.6</span>,
-                <span class="string">&quot;We just missed a VERY important appointment. Nobody&#39;s moving an inch!&quot;</span>,
+                <span class="string">"We just missed a VERY important appointment. Nobody's moving an inch!"</span>,
             )
             .boss(
-                <span class="string">&quot;Oh no... reports are coming in, ALL of the traffic signals downtown are screwed \
-                 up!&quot;</span>,
+                <span class="string">"Oh no... reports are coming in, ALL of the traffic signals downtown are screwed \
+                 up!"</span>,
             )
             .boss(
-                <span class="string">&quot;You need to go fix all of them. But listen, you haven&#39;t got much time. Focus on \
-                 the worst problems first.&quot;</span>,
+                <span class="string">"You need to go fix all of them. But listen, you haven't got much time. Focus on \
+                 the worst problems first."</span>,
             )
-            .player(<span class="string">&quot;Sigh... it&#39;s going to be a long day.&quot;</span>)
+            .player(<span class="string">"Sigh... it's going to be a long day."</span>)
             .build(ctx, Box::new(cutscene_pt1_task))
     }
 }
@@ -488,7 +490,7 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Actions,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
         <span class="comment">// Normally we just do this once at the beginning, but because there are other paths to
-        // resetting (like jump-to-time), it&#39;s safest just to do this.
+        // resetting (like jump-to-time), it's safest just to do this.
         </span><span class="kw">if </span>app.primary.sim_cb.is_none() {
             app.primary.sim_cb = <span class="prelude-val">Some</span>(Box::new(FindDelayedIntersections {
                 halt_limit: THRESHOLD,
@@ -554,14 +556,14 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_right.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;edit map&quot; </span>=&gt; {
+                <span class="string">"edit map" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(EditMode::new_state(
                         ctx,
                         app,
                         <span class="self">self</span>.mode.clone(),
                     )));
                 }
-                <span class="string">&quot;instructions&quot; </span>=&gt; {
+                <span class="string">"instructions" </span>=&gt; {
                     <span class="kw">let </span>contents = cutscene_pt1_task(ctx);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
                         ctx,
@@ -569,18 +571,18 @@
                         Color::WHITE,
                     )));
                 }
-                <span class="string">&quot;hint&quot; </span>=&gt; {
+                <span class="string">"hint" </span>=&gt; {
                     <span class="comment">// TODO Multiple hints. Point to layers.
-                    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;Hint&quot;</span>);
-                    txt.add_line(<span class="string">&quot;&quot;</span>);
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">"Hint"</span>);
+                    txt.add_line(<span class="string">""</span>);
                     txt.add_appended(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Press &quot;</span>),
+                        Line(<span class="string">"Press "</span>),
                         Key::L.txt(ctx),
-                        Line(<span class="string">&quot; to open layers. Try &quot;</span>),
+                        Line(<span class="string">" to open layers. Try "</span>),
                         Key::D.txt(ctx),
-                        Line(<span class="string">&quot;elay or worst traffic &quot;</span>),
+                        Line(<span class="string">"elay or worst traffic "</span>),
                         Key::J.txt(ctx),
-                        Line(<span class="string">&quot;ams&quot;</span>),
+                        Line(<span class="string">"ams"</span>),
                     ]);
                     <span class="kw">let </span>contents = txt.into_widget(ctx);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
@@ -589,13 +591,13 @@
                         app.cs.panel_bg,
                     )));
                 }
-                <span class="string">&quot;try again&quot; </span>=&gt; {
+                <span class="string">"try again" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Replace(SandboxMode::simple_new(
                         app,
                         <span class="self">self</span>.mode.clone(),
                     )));
                 }
-                <span class="string">&quot;go to slowest intersection&quot; </span>=&gt; {
+                <span class="string">"go to slowest intersection" </span>=&gt; {
                     <span class="kw">let </span>i = app
                         .primary
                         .sim_cb
@@ -613,17 +615,17 @@
                         <span class="kw-2">&amp;mut </span>app.primary,
                     )));
                 }
-                <span class="string">&quot;explain score&quot; </span>=&gt; {
+                <span class="string">"explain score" </span>=&gt; {
                     <span class="comment">// TODO Adjust wording
                     </span><span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
                         ctx,
                         Text::from_multiline(<span class="macro">vec!</span>[
-                            Line(<span class="string">&quot;You changed some traffic signals in the middle of the day.&quot;</span>),
+                            Line(<span class="string">"You changed some traffic signals in the middle of the day."</span>),
                             Line(
-                                <span class="string">&quot;First see if you can survive for a full day, making changes \
-                                along the way.&quot;</span>,
+                                <span class="string">"First see if you can survive for a full day, making changes \
+                                along the way."</span>,
                             ),
-                            Line(<span class="string">&quot;Then you should check if your changes work from midnight.&quot;</span>),
+                            Line(<span class="string">"Then you should check if your changes work from midnight."</span>),
                         ])
                         .into_widget(ctx),
                         app.cs.panel_bg,
@@ -643,13 +645,13 @@
     <span class="kw">fn </span>recreate_panels(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(time) = <span class="self">self</span>.done_at {
             <span class="self">self</span>.top_right = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                challenge_header(ctx, <span class="string">&quot;Traffic signal survivor&quot;</span>),
+                challenge_header(ctx, <span class="string">"Traffic signal survivor"</span>),
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="macro">format!</span>(<span class="string">&quot;Delay exceeded {} at {}&quot;</span>, THRESHOLD, time))
+                    Line(<span class="macro">format!</span>(<span class="string">"Delay exceeded {} at {}"</span>, THRESHOLD, time))
                         .fg(Color::RED)
                         .into_widget(ctx)
                         .centered_vert(),
-                    ctx.style().btn_outline.text(<span class="string">&quot;try again&quot;</span>).build_def(ctx),
+                    ctx.style().btn_outline.text(<span class="string">"try again"</span>).build_def(ctx),
                 ]),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -658,21 +660,21 @@
             <span class="kw">let </span>meter = Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/location.svg"</span>)
                     .disabled(<span class="self">self</span>.worst.is_none())
-                    .build_widget(ctx, <span class="string">&quot;go to slowest intersection&quot;</span>),
+                    .build_widget(ctx, <span class="string">"go to slowest intersection"</span>),
                 Text::from_all(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Worst delay: &quot;</span>),
+                    Line(<span class="string">"Worst delay: "</span>),
                     <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, delay)) = <span class="self">self</span>.worst {
                         Line(delay.to_string(<span class="kw-2">&amp;</span>app.opts.units)).fg(<span class="kw">if </span>delay &lt; Duration::minutes(<span class="number">5</span>) {
-                            Color::hex(<span class="string">&quot;#F9EC51&quot;</span>)
+                            Color::hex(<span class="string">"#F9EC51"</span>)
                         } <span class="kw">else if </span>delay &lt; Duration::minutes(<span class="number">15</span>) {
-                            Color::hex(<span class="string">&quot;#EE702E&quot;</span>)
+                            Color::hex(<span class="string">"#EE702E"</span>)
                         } <span class="kw">else </span>{
                             app.cs.signal_banned_turn
                         })
                     } <span class="kw">else </span>{
-                        Line(<span class="string">&quot;none!&quot;</span>).secondary()
+                        Line(<span class="string">"none!"</span>).secondary()
                     },
                 ])
                 .into_widget(ctx)
@@ -680,8 +682,8 @@
                 <span class="kw">if </span>app.primary.dirty_from_edits {
                     ctx.style()
                         .btn_plain
-                        .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                        .build_widget(ctx, <span class="string">&quot;explain score&quot;</span>)
+                        .icon(<span class="string">"system/assets/tools/info.svg"</span>)
+                        .build_widget(ctx, <span class="string">"explain score"</span>)
                         .align_right()
                 } <span class="kw">else </span>{
                     Widget::nothing()
@@ -689,17 +691,17 @@
             ]);
 
             <span class="self">self</span>.top_right = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                challenge_header(ctx, <span class="string">&quot;Traffic signal survivor&quot;</span>),
+                challenge_header(ctx, <span class="string">"Traffic signal survivor"</span>),
                 Widget::row(<span class="macro">vec!</span>[
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;Keep delay at all intersections under {}&quot;</span>,
+                        <span class="string">"Keep delay at all intersections under {}"</span>,
                         THRESHOLD
                     ))
                     .into_widget(ctx),
                     ctx.style()
                         .btn_plain
-                        .icon_text(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
-                        .build_widget(ctx, <span class="string">&quot;hint&quot;</span>)
+                        .icon_text(<span class="string">"system/assets/tools/lightbulb.svg"</span>, <span class="string">"Hint"</span>)
+                        .build_widget(ctx, <span class="string">"hint"</span>)
                         .align_right(),
                 ]),
                 meter,
@@ -725,7 +727,7 @@
     <span class="kw">let </span>score = app.primary.sim.time() - Time::START_OF_DAY;
     HighScore {
         goal: <span class="macro">format!</span>(
-            <span class="string">&quot;make it {} without delay exceeding {}&quot;</span>,
+            <span class="string">"make it {} without delay exceeding {}"</span>,
             app.primary.sim.get_end_of_day() - Time::START_OF_DAY,
             THRESHOLD
         ),
@@ -736,11 +738,11 @@
 
     <span class="kw">let </span>msg = <span class="kw">if </span>failed {
         <span class="macro">format!</span>(
-            <span class="string">&quot;You only made it {} before the traffic signals caused a jam. Lame!&quot;</span>,
+            <span class="string">"You only made it {} before the traffic signals caused a jam. Lame!"</span>,
             score
         )
     } <span class="kw">else </span>{
-        <span class="string">&quot;Wow, you managed to fix the signals. Great job!&quot;</span>.to_string()
+        <span class="string">"Wow, you managed to fix the signals. Great job!"</span>.to_string()
     };
     FinalScore::new_state(ctx, msg, mode, <span class="prelude-val">None</span>)
 }
@@ -751,42 +753,42 @@
     Widget::custom_col(<span class="macro">vec!</span>[
         Text::from_multiline(<span class="macro">vec!</span>[
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;Don&#39;t let anyone be delayed by one traffic signal more than {}!&quot;</span>,
+                <span class="string">"Don't let anyone be delayed by one traffic signal more than {}!"</span>,
                 THRESHOLD
             ))
             .fg(Color::BLACK),
-            Line(<span class="string">&quot;Survive as long as possible through 24 hours of a busy weekday.&quot;</span>)
+            Line(<span class="string">"Survive as long as possible through 24 hours of a busy weekday."</span>)
                 .fg(Color::BLACK),
         ])
         .into_widget(ctx)
         .margin_below(<span class="number">30</span>),
         Widget::custom_row(<span class="macro">vec!</span>[
             Widget::col(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Time&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                Line(<span class="string">"Time"</span>).fg(Color::BLACK).into_widget(ctx),
                 icon_builder
                     .clone()
-                    .source_path(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
+                    .source_path(<span class="string">"system/assets/tools/time.svg"</span>)
                     .into_widget(ctx),
-                Line(<span class="string">&quot;24 hours&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                Line(<span class="string">"24 hours"</span>).fg(Color::BLACK).into_widget(ctx),
             ]),
             Widget::col(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Goal&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                Line(<span class="string">"Goal"</span>).fg(Color::BLACK).into_widget(ctx),
                 icon_builder
                     .clone()
-                    .source_path(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .source_path(<span class="string">"system/assets/tools/location.svg"</span>)
                     .into_widget(ctx),
                 Text::from_multiline(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Keep delay at all intersections&quot;</span>).fg(Color::BLACK),
-                    Line(<span class="macro">format!</span>(<span class="string">&quot;under {}&quot;</span>, THRESHOLD)).fg(Color::BLACK),
+                    Line(<span class="string">"Keep delay at all intersections"</span>).fg(Color::BLACK),
+                    Line(<span class="macro">format!</span>(<span class="string">"under {}"</span>, THRESHOLD)).fg(Color::BLACK),
                 ])
                 .into_widget(ctx),
             ]),
             Widget::col(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Score&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                Line(<span class="string">"Score"</span>).fg(Color::BLACK).into_widget(ctx),
                 icon_builder
-                    .source_path(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+                    .source_path(<span class="string">"system/assets/tools/star.svg"</span>)
                     .into_widget(ctx),
-                Line(<span class="string">&quot;How long you survive&quot;</span>)
+                Line(<span class="string">"How long you survive"</span>)
                     .fg(Color::BLACK)
                     .into_widget(ctx),
             ]),

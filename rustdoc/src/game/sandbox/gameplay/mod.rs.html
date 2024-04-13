@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -409,7 +411,7 @@
 
 <span class="attr">#[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 </span><span class="kw">pub enum </span>GameplayMode {
-    <span class="comment">// TODO Maybe this should be &quot;sandbox&quot;
+    <span class="comment">// TODO Maybe this should be "sandbox"
     </span>Freeform(MapName),
     <span class="comment">// Map name, scenario name
     </span>PlayScenario(MapName, String, Vec&lt;ScenarioModifier&gt;),
@@ -459,11 +461,11 @@
     Nothing,
     Path(String),
     Scenario(Scenario),
-    <span class="comment">// wasm futures are not `Send`, since they all ultimately run on the browser&#39;s single threaded
+    <span class="comment">// wasm futures are not `Send`, since they all ultimately run on the browser's single threaded
     // runloop
-    </span><span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    </span><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
     </span>Future(Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Send + FnOnce(<span class="kw-2">&amp;</span>App) -&gt; Scenario&gt;&gt;&gt;&gt;&gt;),
-    <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
     </span>Future(Pin&lt;Box&lt;<span class="kw">dyn </span>Send + Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Send + FnOnce(<span class="kw-2">&amp;</span>App) -&gt; Scenario&gt;&gt;&gt;&gt;&gt;),
 }
 
@@ -472,9 +474,9 @@
         <span class="kw">match </span><span class="self">self </span>{
             GameplayMode::Freeform(<span class="kw-2">ref </span>name) =&gt; name.clone(),
             GameplayMode::PlayScenario(<span class="kw-2">ref </span>name, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; name.clone(),
-            GameplayMode::FixTrafficSignals =&gt; MapName::seattle(<span class="string">&quot;downtown&quot;</span>),
-            GameplayMode::OptimizeCommute(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; MapName::seattle(<span class="string">&quot;montlake&quot;</span>),
-            GameplayMode::Tutorial(<span class="kw">_</span>) =&gt; MapName::seattle(<span class="string">&quot;montlake&quot;</span>),
+            GameplayMode::FixTrafficSignals =&gt; MapName::seattle(<span class="string">"downtown"</span>),
+            GameplayMode::OptimizeCommute(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; MapName::seattle(<span class="string">"montlake"</span>),
+            GameplayMode::Tutorial(<span class="kw">_</span>) =&gt; MapName::seattle(<span class="string">"montlake"</span>),
             GameplayMode::Actdev(<span class="kw-2">ref </span>name, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; name.clone(),
         }
     }
@@ -483,7 +485,7 @@
         <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
         <span class="kw">let </span>name = <span class="kw">match </span><span class="self">self </span>{
             GameplayMode::Freeform(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(map, <span class="string">&quot;empty&quot;</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(map, <span class="string">"empty"</span>);
                 s.only_seed_buses = <span class="prelude-val">None</span>;
                 <span class="kw">return </span>LoadScenario::Scenario(s);
             }
@@ -498,20 +500,20 @@
             }
             GameplayMode::Actdev(<span class="kw">_</span>, <span class="kw-2">ref </span>scenario, bg_traffic) =&gt; {
                 <span class="kw">if </span><span class="kw-2">*</span>bg_traffic {
-                    <span class="macro">format!</span>(<span class="string">&quot;{}_with_bg&quot;</span>, scenario)
+                    <span class="macro">format!</span>(<span class="string">"{}_with_bg"</span>, scenario)
                 } <span class="kw">else </span>{
                     scenario.to_string()
                 }
             }
             GameplayMode::FixTrafficSignals | GameplayMode::OptimizeCommute(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="string">&quot;weekday&quot;</span>.to_string()
+                <span class="string">"weekday"</span>.to_string()
             }
         };
-        <span class="kw">if </span>name == <span class="string">&quot;random&quot; </span>{
+        <span class="kw">if </span>name == <span class="string">"random" </span>{
             LoadScenario::Scenario(ScenarioGenerator::small_run(map).generate(map, <span class="kw-2">&amp;mut </span>rng, timer))
-        } <span class="kw">else if </span>name == <span class="string">&quot;home_to_work&quot; </span>{
+        } <span class="kw">else if </span>name == <span class="string">"home_to_work" </span>{
             LoadScenario::Scenario(ScenarioGenerator::proletariat_robot(map, <span class="kw-2">&amp;mut </span>rng, timer))
-        } <span class="kw">else if </span>name == <span class="string">&quot;census&quot; </span>{
+        } <span class="kw">else if </span>name == <span class="string">"census" </span>{
             <span class="kw">let </span>map_area = map.get_boundary_polygon().clone();
             <span class="kw">let </span>map_bounds = map.get_gps_bounds().clone();
             <span class="kw">let </span><span class="kw-2">mut </span>rng = sim::fork_rng(<span class="kw-2">&amp;mut </span>rng);
@@ -523,7 +525,7 @@
                     Box::new(<span class="kw">move </span>|app: <span class="kw-2">&amp;</span>App| {
                         <span class="kw">let </span>config = popdat::Config::default();
                         popdat::generate_scenario(
-                            <span class="string">&quot;typical monday&quot;</span>,
+                            <span class="string">"typical monday"</span>,
                             areas,
                             config,
                             <span class="kw-2">&amp;</span>app.primary.map,
@@ -582,7 +584,7 @@
     </span>}
 
     <span class="doccomment">/// Must be called after the scenario has been setup. The caller will call recreate_panels
-    /// after this, so each constructor doesn&#39;t need to.
+    /// after this, so each constructor doesn't need to.
     </span><span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>GameplayState&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             GameplayMode::Freeform(<span class="kw">_</span>) =&gt; freeform::Freeform::new_state(ctx, app),
@@ -608,15 +610,15 @@
         Line(title).small_heading().into_widget(ctx).centered_vert(),
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-            .build_widget(ctx, <span class="string">&quot;instructions&quot;</span>)
+            .icon(<span class="string">"system/assets/tools/info.svg"</span>)
+            .build_widget(ctx, <span class="string">"instructions"</span>)
             .centered_vert(),
         Widget::vert_separator(ctx, <span class="number">50.0</span>),
         ctx.style()
             .btn_outline
-            .icon_text(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+            .icon_text(<span class="string">"system/assets/tools/pencil.svg"</span>, <span class="string">"Edit map"</span>)
             .hotkey(lctrl(Key::E))
-            .build_widget(ctx, <span class="string">&quot;edit map&quot;</span>)
+            .build_widget(ctx, <span class="string">"edit map"</span>)
             .centered_vert(),
     ])
     .padding(<span class="number">5</span>)
@@ -640,7 +642,7 @@
     ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         Box::new(FinalScore {
             panel: Panel::new_builder(Widget::row(<span class="macro">vec!</span>[
-                GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
+                GeomBatch::load_svg(ctx, <span class="string">"system/assets/characters/boss.svg.gz"</span>)
                     .scale(<span class="number">0.75</span>)
                     .autocrop()
                     .into_widget(ctx)
@@ -651,20 +653,20 @@
                     <span class="comment">// TODO Adjust wording
                     </span>ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;Keep simulating&quot;</span>)
+                        .text(<span class="string">"Keep simulating"</span>)
                         .build_def(ctx),
-                    ctx.style().btn_outline.text(<span class="string">&quot;Try again&quot;</span>).build_def(ctx),
+                    ctx.style().btn_outline.text(<span class="string">"Try again"</span>).build_def(ctx),
                     <span class="kw">if </span>next_mode.is_some() {
                         ctx.style()
                             .btn_solid_primary
-                            .text(<span class="string">&quot;Next challenge&quot;</span>)
+                            .text(<span class="string">"Next challenge"</span>)
                             .build_def(ctx)
                     } <span class="kw">else </span>{
                         Widget::nothing()
                     },
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;Back to challenges&quot;</span>)
+                        .text(<span class="string">"Back to challenges"</span>)
                         .build_def(ctx),
                 ])
                 .section(ctx),
@@ -682,35 +684,35 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Keep simulating&quot; </span>=&gt; {
+                <span class="string">"Keep simulating" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Try again&quot; </span>=&gt; {
+                <span class="string">"Try again" </span>=&gt; {
                     <span class="kw">return </span>Transition::Multi(<span class="macro">vec!</span>[
                         Transition::Pop,
                         Transition::Replace(SandboxMode::simple_new(app, <span class="self">self</span>.retry.clone())),
                     ]);
                 }
-                <span class="string">&quot;Next challenge&quot; </span>=&gt; {
+                <span class="string">"Next challenge" </span>=&gt; {
                     <span class="self">self</span>.chose_next = <span class="bool-val">true</span>;
                     <span class="kw">if </span>app.primary.map.unsaved_edits() {
                         <span class="kw">return </span>Transition::Push(SaveEdits::new_state(
                             ctx,
                             app,
-                            <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
+                            <span class="string">"Do you want to save your proposal first?"</span>,
                             <span class="bool-val">true</span>,
                             <span class="prelude-val">None</span>,
                             Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
                         ));
                     }
                 }
-                <span class="string">&quot;Back to challenges&quot; </span>=&gt; {
+                <span class="string">"Back to challenges" </span>=&gt; {
                     <span class="self">self</span>.chose_back_to_challenges = <span class="bool-val">true</span>;
                     <span class="kw">if </span>app.primary.map.unsaved_edits() {
                         <span class="kw">return </span>Transition::Push(SaveEdits::new_state(
                             ctx,
                             app,
-                            <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
+                            <span class="string">"Do you want to save your proposal first?"</span>,
                             <span class="bool-val">true</span>,
                             <span class="prelude-val">None</span>,
                             Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
@@ -728,7 +730,7 @@
         <span class="kw">if </span><span class="self">self</span>.chose_next {
             <span class="kw">return </span>Transition::Clear(<span class="macro">vec!</span>[
                 TitleScreen::new_state(ctx, app),
-                <span class="comment">// Constructing the cutscene doesn&#39;t require the map/scenario to be loaded.
+                <span class="comment">// Constructing the cutscene doesn't require the map/scenario to be loaded.
                 </span>SandboxMode::simple_new(app, <span class="self">self</span>.next_mode.clone().unwrap()),
                 (Challenge::find(<span class="self">self</span>.next_mode.as_ref().unwrap())
                     .<span class="number">0

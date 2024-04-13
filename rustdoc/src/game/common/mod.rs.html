@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/common/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/common/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -477,7 +479,7 @@
             <span class="kw">return </span><span class="prelude-val">Some</span>(t);
         }
 
-        <span class="comment">// Layers can be launched from many places, many of which don&#39;t have a way of getting at
+        <span class="comment">// Layers can be launched from many places, many of which don't have a way of getting at
         // CommonState, which is only in sandbox and debug mode. It suffices to detect here if a
         // layer is open and close the info panel, luckily.
         </span><span class="kw">if </span>app.primary.layer.is_some() {
@@ -486,7 +488,7 @@
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = app.primary.current_selection.clone() {
             <span class="comment">// TODO Also have a hotkey binding for this?
-            </span><span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">&quot;show info&quot;</span>) {
+            </span><span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">"show info"</span>) {
                 app.primary.layer = <span class="prelude-val">None</span>;
                 <span class="self">self</span>.info_panel =
                     <span class="prelude-val">Some</span>(InfoPanel::new(ctx, app, Tab::from_id(app, id), ctx_actions));
@@ -531,18 +533,18 @@
             CommonState::osd_for(app, id.clone())
         } <span class="kw">else if </span>app.opts.dev {
             Text::from_all(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Nothing selected. Hint: &quot;</span>),
-                Line(<span class="string">&quot;Ctrl+J&quot;</span>).fg(g.style().text_hotkey_color),
-                Line(<span class="string">&quot; to warp&quot;</span>),
+                Line(<span class="string">"Nothing selected. Hint: "</span>),
+                Line(<span class="string">"Ctrl+J"</span>).fg(g.style().text_hotkey_color),
+                Line(<span class="string">" to warp"</span>),
             ])
         } <span class="kw">else </span>{
             Text::new()
         };
         <span class="kw">if </span>!keys.is_empty() {
-            osd.append(Line(<span class="string">&quot;   Hotkeys: &quot;</span>));
+            osd.append(Line(<span class="string">"   Hotkeys: "</span>));
             <span class="kw">for </span>(idx, key) <span class="kw">in </span>keys.iter().enumerate() {
                 <span class="kw">if </span>idx != <span class="number">0 </span>{
-                    osd.append(Line(<span class="string">&quot;, &quot;</span>));
+                    osd.append(Line(<span class="string">", "</span>));
                 }
                 osd.append(Line(key.describe()).fg(g.style().text_hotkey_color));
             }
@@ -558,23 +560,23 @@
             ID::Lane(l) =&gt; {
                 <span class="kw">if </span>app.opts.dev {
                     osd.append(Line(l.to_string()).bold_body());
-                    osd.append(Line(<span class="string">&quot; is &quot;</span>));
+                    osd.append(Line(<span class="string">" is "</span>));
                 }
                 <span class="kw">let </span>r = map.get_parent(l);
                 osd.append_all(<span class="macro">vec!</span>[
-                    Line(<span class="macro">format!</span>(<span class="string">&quot;{} of &quot;</span>, map.get_l(l).lane_type.describe())),
+                    Line(<span class="macro">format!</span>(<span class="string">"{} of "</span>, map.get_l(l).lane_type.describe())),
                     Line(r.get_name(app.opts.language.as_ref())).underlined(),
                 ]);
                 <span class="kw">if </span>app.opts.dev {
-                    osd.append(Line(<span class="string">&quot; (&quot;</span>));
+                    osd.append(Line(<span class="string">" ("</span>));
                     osd.append(Line(r.id.to_string()).bold_body());
-                    osd.append(Line(<span class="string">&quot;)&quot;</span>));
+                    osd.append(Line(<span class="string">")"</span>));
                 }
             }
             ID::Building(b) =&gt; {
                 <span class="kw">if </span>app.opts.dev {
                     osd.append(Line(b.to_string()).bold_body());
-                    osd.append(Line(<span class="string">&quot; is &quot;</span>));
+                    osd.append(Line(<span class="string">" is "</span>));
                 }
                 <span class="kw">let </span>bldg = map.get_b(b);
                 osd.append(Line(<span class="kw-2">&amp;</span>bldg.address).underlined())
@@ -584,15 +586,15 @@
             }
             ID::Intersection(i) =&gt; {
                 <span class="kw">if </span>map.get_i(i).is_border() {
-                    osd.append(Line(<span class="string">&quot;Border &quot;</span>));
+                    osd.append(Line(<span class="string">"Border "</span>));
                 }
 
                 <span class="kw">if </span>app.opts.dev {
                     osd.append(Line(i.to_string()).bold_body());
                 } <span class="kw">else </span>{
-                    osd.append(Line(<span class="string">&quot;Intersection&quot;</span>));
+                    osd.append(Line(<span class="string">"Intersection"</span>));
                 }
-                osd.append(Line(<span class="string">&quot; of &quot;</span>));
+                osd.append(Line(<span class="string">" of "</span>));
 
                 <span class="kw">let </span><span class="kw-2">mut </span>road_names = BTreeSet::new();
                 <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_i(i).roads {
@@ -604,11 +606,11 @@
                 <span class="kw">if </span>app.opts.dev {
                     osd.append(Line(c.to_string()).bold_body());
                 } <span class="kw">else </span>{
-                    osd.append(Line(<span class="macro">format!</span>(<span class="string">&quot;a {}&quot;</span>, c.vehicle_type)));
+                    osd.append(Line(<span class="macro">format!</span>(<span class="string">"a {}"</span>, c.vehicle_type)));
                 }
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = app.primary.sim.bus_route_id(c) {
                     osd.append_all(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot; serving &quot;</span>),
+                        Line(<span class="string">" serving "</span>),
                         Line(<span class="kw-2">&amp;</span>map.get_tr(r).long_name).underlined(),
                     ]);
                 }
@@ -617,20 +619,20 @@
                 <span class="kw">if </span>app.opts.dev {
                     osd.append(Line(p.to_string()).bold_body());
                 } <span class="kw">else </span>{
-                    osd.append(Line(<span class="string">&quot;a pedestrian&quot;</span>));
+                    osd.append(Line(<span class="string">"a pedestrian"</span>));
                 }
             }
             ID::PedCrowd(list) =&gt; {
-                osd.append(Line(<span class="macro">format!</span>(<span class="string">&quot;a crowd of {} pedestrians&quot;</span>, list.len())));
+                osd.append(Line(<span class="macro">format!</span>(<span class="string">"a crowd of {} pedestrians"</span>, list.len())));
             }
             ID::TransitStop(bs) =&gt; {
                 <span class="kw">if </span>app.opts.dev {
                     osd.append(Line(bs.to_string()).bold_body());
                 } <span class="kw">else </span>{
-                    osd.append(Line(<span class="string">&quot;transit stop &quot;</span>));
+                    osd.append(Line(<span class="string">"transit stop "</span>));
                     osd.append(Line(<span class="kw-2">&amp;</span>map.get_ts(bs).name).underlined());
                 }
-                osd.append(Line(<span class="string">&quot; served by &quot;</span>));
+                osd.append(Line(<span class="string">" served by "</span>));
 
                 <span class="kw">let </span>routes: BTreeSet&lt;String&gt; = map
                     .get_routes_serving_stop(bs)
@@ -646,7 +648,7 @@
             ID::Road(r) =&gt; {
                 <span class="kw">if </span>app.opts.dev {
                     osd.append(Line(r.to_string()).bold_body());
-                    osd.append(Line(<span class="string">&quot; is &quot;</span>));
+                    osd.append(Line(<span class="string">" is "</span>));
                 }
                 osd.append(Line(map.get_r(r).get_name(app.opts.language.as_ref())).underlined());
             }
@@ -659,9 +661,9 @@
             CommonState::osd_for(app, id.clone())
         } <span class="kw">else if </span>app.opts.dev {
             Text::from_all(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Nothing selected. Hint: &quot;</span>),
-                Line(<span class="string">&quot;Ctrl+J&quot;</span>).fg(g.style().text_hotkey_color),
-                Line(<span class="string">&quot; to warp&quot;</span>),
+                Line(<span class="string">"Nothing selected. Hint: "</span>),
+                Line(<span class="string">"Ctrl+J"</span>).fg(g.style().text_hotkey_color),
+                Line(<span class="string">" to warp"</span>),
             ])
         } <span class="kw">else </span>{
             Text::new()
@@ -672,9 +674,9 @@
     <span class="kw">pub fn </span>draw_custom_osd(g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App, <span class="kw-2">mut </span>osd: Text) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>action) = app.per_obj.click_action {
             osd.append_all(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;; &quot;</span>),
-                Line(<span class="string">&quot;click&quot;</span>).fg(g.style().text_hotkey_color),
-                Line(<span class="macro">format!</span>(<span class="string">&quot; to {}&quot;</span>, action)),
+                Line(<span class="string">"; "</span>),
+                Line(<span class="string">"click"</span>).fg(g.style().text_hotkey_color),
+                Line(<span class="macro">format!</span>(<span class="string">" to {}"</span>, action)),
             ]);
         }
 
@@ -695,7 +697,7 @@
         );
 
         <span class="kw">if </span>app.opts.dev &amp;&amp; !g.is_screencap() {
-            <span class="kw">let </span>dev_batch = Text::from(<span class="string">&quot;DEV&quot;</span>).bg(Color::RED).render(g);
+            <span class="kw">let </span>dev_batch = Text::from(<span class="string">"DEV"</span>).bg(Color::RED).render(g);
             <span class="kw">let </span>dims = dev_batch.get_dims();
             batch.append(dev_batch.translate(
                 g.canvas.window_width - dims.width - <span class="number">10.0</span>,
@@ -748,13 +750,13 @@
     Panel::new_builder(Widget::row(<span class="macro">vec!</span>[
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/tools/home.svg"</span>)
             .hotkey(Key::Escape)
-            .build_widget(ctx, <span class="string">&quot;back&quot;</span>),
+            .build_widget(ctx, <span class="string">"back"</span>),
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>)
-            .build_widget(ctx, <span class="string">&quot;settings&quot;</span>),
+            .icon(<span class="string">"system/assets/tools/settings.svg"</span>)
+            .build_widget(ctx, <span class="string">"settings"</span>),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::BottomAboveOSD)
     .build(ctx)
@@ -766,12 +768,12 @@
         <span class="kw">if </span>idx != <span class="number">0 </span>{
             <span class="kw">if </span>idx == len - <span class="number">1 </span>{
                 <span class="kw">if </span>len == <span class="number">2 </span>{
-                    txt.append(Line(<span class="string">&quot; and &quot;</span>));
+                    txt.append(Line(<span class="string">" and "</span>));
                 } <span class="kw">else </span>{
-                    txt.append(Line(<span class="string">&quot;, and &quot;</span>));
+                    txt.append(Line(<span class="string">", and "</span>));
                 }
             } <span class="kw">else </span>{
-                txt.append(Line(<span class="string">&quot;, &quot;</span>));
+                txt.append(Line(<span class="string">", "</span>));
             }
         }
         txt.append(styler(Line(n)));
@@ -781,16 +783,16 @@
 <span class="comment">// Shorter is better
 </span><span class="kw">pub fn </span>cmp_duration_shorter(app: <span class="kw-2">&amp;</span>App, after: Duration, before: Duration) -&gt; Vec&lt;TextSpan&gt; {
     <span class="kw">if </span>after.epsilon_eq(before) {
-        <span class="macro">vec!</span>[Line(<span class="string">&quot;same&quot;</span>)]
+        <span class="macro">vec!</span>[Line(<span class="string">"same"</span>)]
     } <span class="kw">else if </span>after &lt; before {
         <span class="macro">vec!</span>[
             Line((before - after).to_string(<span class="kw-2">&amp;</span>app.opts.units)).fg(Color::GREEN),
-            Line(<span class="string">&quot; faster&quot;</span>),
+            Line(<span class="string">" faster"</span>),
         ]
     } <span class="kw">else if </span>after &gt; before {
         <span class="macro">vec!</span>[
             Line((after - before).to_string(<span class="kw-2">&amp;</span>app.opts.units)).fg(Color::RED),
-            Line(<span class="string">&quot; slower&quot;</span>),
+            Line(<span class="string">" slower"</span>),
         ]
     } <span class="kw">else </span>{
         <span class="macro">unreachable!</span>()
@@ -821,14 +823,14 @@
 }
 
 <span class="doccomment">/// If you want a simulation to start after midnight, pass the result of this to
-/// `SandboxMode::async_new`. It&#39;s less visually overwhelming and more performant to continue with a
+/// `SandboxMode::async_new`. It's less visually overwhelming and more performant to continue with a
 /// loading screen than launching the jump-to-time UI. After a deadline of 0.5s, we will switch
 /// over to the jump-to-time UI so the user can cancel.
 </span><span class="kw">pub fn </span>jump_to_time_upon_startup(
     dt: Duration,
 ) -&gt; Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>App) -&gt; Vec&lt;Transition&gt;&gt; {
     Box::new(<span class="kw">move </span>|ctx, app| {
-        ctx.loading_screen(<span class="macro">format!</span>(<span class="string">&quot;jump forward {}&quot;</span>, dt), |ctx, <span class="kw">_</span>| {
+        ctx.loading_screen(<span class="macro">format!</span>(<span class="string">"jump forward {}"</span>, dt), |ctx, <span class="kw">_</span>| {
             <span class="kw">let </span>deadline = Duration::seconds(<span class="number">0.5</span>);
             app.primary
                 .sim
@@ -852,7 +854,7 @@
     <span class="kw">if </span>our_time &gt;= other_time {
         <span class="kw">return</span>;
     }
-    ctx.loading_screen(<span class="string">&quot;catch up&quot;</span>, |<span class="kw">_</span>, timer| {
+    ctx.loading_screen(<span class="string">"catch up"</span>, |<span class="kw">_</span>, timer| {
         app.primary
             .sim
             .timed_step(<span class="kw-2">&amp;</span>app.primary.map, other_time - our_time, <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>, timer);

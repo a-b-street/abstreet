@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/intersection.rs`."><title>intersection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/intersection.rs`."><title>intersection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1195,7 +1197,7 @@
 
 <span class="doccomment">/// Manages conflicts at intersections. When an agent has reached the end of a lane, they call
 /// maybe_start_turn to make a Request. Based on the intersection type (stop sign, traffic signal,
-/// or a &quot;freeform policy&quot;), the Request gets queued or immediately accepted. When agents finish
+/// or a "freeform policy"), the Request gets queued or immediately accepted. When agents finish
 /// turns or when some time passes (for traffic signals), the intersection also gets a chance to
 /// react, maybe granting one of the pending requests.
 ///
@@ -1209,7 +1211,7 @@
     break_turn_conflict_cycles: bool,
     handle_uber_turns: bool,
     disable_turn_conflicts: bool,
-    <span class="comment">// (x, y) means x is blocked by y. It&#39;s a many-to-many relationship. TODO Better data
+    <span class="comment">// (x, y) means x is blocked by y. It's a many-to-many relationship. TODO Better data
     // structure.
     </span>blocked_by: BTreeSet&lt;(CarID, CarID)&gt;,
     events: Vec&lt;Event&gt;,
@@ -1227,14 +1229,14 @@
     id: IntersectionID,
     <span class="comment">// The in-progress turns which any potential new turns must not conflict with
     </span>accepted: BTreeSet&lt;Request&gt;,
-    <span class="comment">// Track when a request is first made and if it&#39;s &quot;urgent&quot; (because the agent is overflowing a
+    <span class="comment">// Track when a request is first made and if it's "urgent" (because the agent is overflowing a
     // short queue)
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>waiting: BTreeMap&lt;Request, (Time, bool)&gt;,
-    <span class="comment">// When a vehicle begins an uber-turn, reserve the future turns to ensure they&#39;re able to
+    <span class="comment">// When a vehicle begins an uber-turn, reserve the future turns to ensure they're able to
     // complete the entire sequence. This is especially necessary since groups of traffic signals
     // are not yet configured as one.
     </span>reserved: BTreeSet&lt;Request&gt;,
@@ -1248,8 +1250,8 @@
     // 2) If another agent pulls out on a driveway before this agent, they become the leader and
     //    overwrite this one
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>leader_eta: BTreeMap&lt;LaneID, (Request, Time)&gt;,
 
@@ -1338,7 +1340,7 @@
         }
 
         <span class="comment">// If this intersection has uber-turns going through it, then we may need to wake up agents
-        // with a reserved uber-turn that&#39;re waiting at nearby intersections. They may have
+        // with a reserved uber-turn that're waiting at nearby intersections. They may have
         // reserved their sequence of turns but then gotten stuck by somebody filling up a queue a
         // few steps away.
         </span><span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.state[<span class="kw-2">&amp;</span>turn.parent].uber_turn_neighbors {
@@ -1367,7 +1369,7 @@
         <span class="self">self</span>.wakeup_waiting(now, i, scheduler, map);
     }
 
-    <span class="doccomment">/// Vanished at border, stopped biking, etc -- a vehicle disappeared, and didn&#39;t have one last
+    <span class="doccomment">/// Vanished at border, stopped biking, etc -- a vehicle disappeared, and didn't have one last
     /// turn.
     </span><span class="kw">pub fn </span>vehicle_gone(<span class="kw-2">&amp;mut </span><span class="self">self</span>, car: CarID) {
         <span class="self">self</span>.blocked_by.retain(|(c1, c2)| <span class="kw-2">*</span>c1 != car &amp;&amp; <span class="kw-2">*</span>c2 != car);
@@ -1377,8 +1379,8 @@
         <span class="kw">let </span>state = <span class="self">self</span>.state.get_mut(<span class="kw-2">&amp;</span>turn.parent).unwrap();
         <span class="macro">assert!</span>(state.accepted.remove(<span class="kw-2">&amp;</span>Request { agent, turn }));
 
-        <span class="comment">// This agent might have a few more nearby turns reserved, because they&#39;re part of an
-        // uber-turn. It&#39;s a blunt response to just clear them all out, but it should be correct.
+        <span class="comment">// This agent might have a few more nearby turns reserved, because they're part of an
+        // uber-turn. It's a blunt response to just clear them all out, but it should be correct.
         </span><span class="kw">for </span>state <span class="kw">in </span><span class="self">self</span>.state.values_mut() {
             state.reserved.retain(|req| req.agent != agent);
         }
@@ -1391,11 +1393,11 @@
             .map(|(r, (t, urgent))| (r.clone(), <span class="kw-2">*</span>t, <span class="kw-2">*</span>urgent))
             .collect();
         <span class="comment">// Sort by waiting time, so things like stop signs actually are first-come, first-served.
-        // But with an override: if somebody is currently on a queue that&#39;s overflowing, they&#39;re
+        // But with an override: if somebody is currently on a queue that's overflowing, they're
         // very likely to be part of a cycle causing gridlock. Let them go first.
         </span>all.sort_by_key(|(<span class="kw">_</span>, t, urgent)| (!<span class="kw-2">*</span>urgent, <span class="kw-2">*</span>t));
 
-        <span class="comment">// Wake up Priority turns before Yield turns. Don&#39;t wake up Banned turns at all. This makes
+        <span class="comment">// Wake up Priority turns before Yield turns. Don't wake up Banned turns at all. This makes
         // sure priority vehicles should get the head-start, without blocking yield vehicles
         // unnecessarily.
         </span><span class="kw">let </span><span class="kw-2">mut </span>protected = Vec::new();
@@ -1440,7 +1442,7 @@
             }
         } <span class="kw">else </span>{
             <span class="comment">// This could either be a border intersection or an intersection that was just closed
-            // in the middle of simulation. In either case, there shouldn&#39;t be any other turns at
+            // in the middle of simulation. In either case, there shouldn't be any other turns at
             // it.
             </span><span class="macro">assert!</span>(protected.is_empty());
             <span class="macro">assert!</span>(yielding.is_empty());
@@ -1481,7 +1483,7 @@
             <span class="comment">// only skip for variable all-walk crosswalk
             </span><span class="kw">if let </span>StageType::Variable(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) = stage.stage_type {
                 <span class="kw">if </span>allow_crosswalk_skip &amp;&amp; stage.max_crosswalk_time(i).is_some() {
-                    <span class="comment">// we can skip this stage, as its all walk and we&#39;re allowed to skip (no
+                    <span class="comment">// we can skip this stage, as its all walk and we're allowed to skip (no
                     // pedestrian waiting).
                     </span>signal_state.current_stage =
                         (signal_state.current_stage + <span class="number">1</span>) % signal.stages.len();
@@ -1510,7 +1512,7 @@
             }
             StageType::Variable(min, delay, additional) =&gt; {
                 <span class="comment">// test if anyone is waiting in current stage, and if so, extend the signal cycle.
-                // Filter out pedestrians, as they&#39;ve had their chance and the delay
+                // Filter out pedestrians, as they've had their chance and the delay
                 // could be short enough to keep them on the curb.
                 </span><span class="kw">let </span>delay = std::cmp::max(Duration::const_seconds(<span class="number">1.0</span>), delay);
                 <span class="comment">// Only extend for the fixed additional time
@@ -1520,7 +1522,7 @@
                     <span class="self">self</span>.events.push(Event::Alert(
                         AlertLocation::Intersection(id),
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;exhausted a variable stage {},{},{},{}&quot;</span>,
+                            <span class="string">"exhausted a variable stage {},{},{},{}"</span>,
                             min, delay, additional, signal_state.extensions_count
                         ),
                     ));
@@ -1542,7 +1544,7 @@
                     <span class="self">self</span>.events.push(Event::Alert(
                         AlertLocation::Intersection(id),
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;Extending a variable stage {},{},{},{}&quot;</span>,
+                            <span class="string">"Extending a variable stage {},{},{},{}"</span>,
                             min, delay, additional, signal_state.extensions_count
                         ),
                     ));
@@ -1555,7 +1557,7 @@
         <span class="self">self</span>.wakeup_waiting(now, id, scheduler, map);
     }
 
-    <span class="doccomment">/// For cars: The head car calls this when they&#39;re at the end of the lane WaitingToAdvance. If
+    <span class="doccomment">/// For cars: The head car calls this when they're at the end of the lane WaitingToAdvance. If
     /// this returns true, then the head car MUST actually start this turn.
     /// For peds: Likewise -- only called when the ped is at the start of the turn. They must
     /// actually do the turn if this returns true.
@@ -1586,9 +1588,9 @@
             .leader_eta
             .remove(<span class="kw-2">&amp;</span>req.turn.src)
         {
-            <span class="comment">// When they&#39;re late, it&#39;s because of a slow laggy head. Conflicting turns would&#39;ve
+            <span class="comment">// When they're late, it's because of a slow laggy head. Conflicting turns would've
             // been blocked anyway. Uncomment to debug
-            //info!(&quot;{} predicted ETA {}, actually {}&quot;, req.agent, eta, now);
+            //info!("{} predicted ETA {}, actually {}", req.agent, eta, now);
         </span>}
 
         <span class="kw">let </span>entry = <span class="self">self
@@ -1621,32 +1623,32 @@
         };
         <span class="attr">#[allow(clippy::if_same_then_else)]
         </span><span class="kw">let </span>allowed = <span class="kw">if </span>shared_sidewalk_corner {
-            <span class="comment">// SharedSidewalkCorner doesn&#39;t conflict with anything -- fastpath!
+            <span class="comment">// SharedSidewalkCorner doesn't conflict with anything -- fastpath!
             </span><span class="bool-val">true
         </span>} <span class="kw">else if </span>!<span class="self">self</span>.handle_accepted_conflicts(<span class="kw-2">&amp;</span>req, map, readonly_pair, <span class="prelude-val">Some</span>((now, scheduler)))
         {
-            <span class="comment">// It&#39;s never OK to perform a conflicting turn
+            <span class="comment">// It's never OK to perform a conflicting turn
             </span><span class="bool-val">false
         </span>} <span class="kw">else if </span>maybe_cars_and_queues
             .as_ref()
             .map(|(car, <span class="kw">_</span>, <span class="kw">_</span>)| started_uber_turn(<span class="self">self</span>, <span class="kw-2">*</span>car))
             .unwrap_or(<span class="bool-val">false</span>)
         {
-            <span class="comment">// If we started an uber-turn, then finish it! But alert if we&#39;re running a red light.
+            <span class="comment">// If we started an uber-turn, then finish it! But alert if we're running a red light.
             // TODO: Consider reenabling alert
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(signal) = map.maybe_get_traffic_signal(turn.parent) {
-                <span class="comment">// Don&#39;t pass in the scheduler, aka, don&#39;t pause before yielding.
+                <span class="comment">// Don't pass in the scheduler, aka, don't pause before yielding.
                 </span><span class="kw">if </span>!<span class="self">self</span>.traffic_signal_policy(<span class="kw-2">&amp;</span>req, map, signal, speed, now, <span class="prelude-val">None</span>) &amp;&amp; <span class="bool-val">false </span>{
                     <span class="self">self</span>.events.push(Event::Alert(
                         AlertLocation::Intersection(req.turn.parent),
-                        <span class="macro">format!</span>(<span class="string">&quot;Running a red light inside an uber-turn: {:?}&quot;</span>, req),
+                        <span class="macro">format!</span>(<span class="string">"Running a red light inside an uber-turn: {:?}"</span>, req),
                     ));
                 }
             }
 
             <span class="bool-val">true
         </span>} <span class="kw">else if </span><span class="self">self</span>.use_freeform_policy_everywhere {
-            <span class="comment">// If we made it this far, we don&#39;t conflict with an accepted turn
+            <span class="comment">// If we made it this far, we don't conflict with an accepted turn
             </span><span class="bool-val">true
         </span>} <span class="kw">else if let </span><span class="prelude-val">Some</span>(signal) = map.maybe_get_traffic_signal(turn.parent) {
             <span class="self">self</span>.traffic_signal_policy(<span class="kw-2">&amp;</span>req, map, signal, speed, now, <span class="prelude-val">Some</span>(scheduler))
@@ -1659,7 +1661,7 @@
             <span class="kw">if </span>repeat_request {
                 <span class="self">self</span>.not_allowed_requests += <span class="number">1</span>;
             }
-            <span class="comment">// remove the reservation if we&#39;re about to start a UT and can&#39;t move
+            <span class="comment">// remove the reservation if we're about to start a UT and can't move
             </span><span class="kw">if </span><span class="self">self</span>.handle_uber_turns {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(ut) = maybe_cars_and_queues
                     .as_ref()
@@ -1683,7 +1685,7 @@
                 .as_ref()
                 .and_then(|(car, <span class="kw">_</span>, <span class="kw">_</span>)| car.router.get_path().about_to_start_ut())
             {
-                <span class="comment">// If there&#39;s a problem up ahead, don&#39;t start.
+                <span class="comment">// If there's a problem up ahead, don't start.
                 </span><span class="kw">for </span>t <span class="kw">in </span><span class="kw-2">&amp;</span>ut.path {
                     <span class="kw">let </span>req = Request { agent, turn: <span class="kw-2">*</span>t };
                     <span class="kw">if </span>!<span class="self">self</span>.handle_accepted_conflicts(<span class="kw-2">&amp;</span>req, map, readonly_pair, <span class="prelude-val">None</span>) {
@@ -1704,7 +1706,7 @@
             }
         }
 
-        <span class="comment">// Don&#39;t block the box.
+        <span class="comment">// Don't block the box.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((car, cars, queues)) = maybe_cars_and_queues {
             <span class="macro">assert_eq!</span>(agent, AgentID::Car(car.vehicle.id));
             <span class="kw">let </span>inside_ut = <span class="self">self</span>.handle_uber_turns
@@ -1736,7 +1738,7 @@
                             .insert((car.vehicle.id, blocking_req.agent.as_car()));
                     }
 
-                    <span class="comment">// Allow blocking the box if we&#39;re part of a cycle.
+                    <span class="comment">// Allow blocking the box if we're part of a cycle.
                     </span><span class="kw">if </span><span class="self">self
                         </span>.detect_conflict_cycle(car.vehicle.id, (cars, queues))
                         .is_some()
@@ -1756,7 +1758,7 @@
             }
         }
 
-        <span class="comment">// TODO For now, we&#39;re only interested in signals, and there&#39;s too much raw data to store
+        <span class="comment">// TODO For now, we're only interested in signals, and there's too much raw data to store
         // for stop signs too.
         </span><span class="kw">let </span>state = <span class="self">self</span>.state.get_mut(<span class="kw-2">&amp;</span>turn.parent).unwrap();
         state.waiting.remove(<span class="kw-2">&amp;</span>req).unwrap();
@@ -1789,8 +1791,8 @@
                         <span class="comment">// Just jump back to the first one. Shrug.
                         </span>signal_state.current_stage = <span class="number">0</span>;
                         <span class="macro">println!</span>(
-                            <span class="string">&quot;WARNING: Traffic signal {} was live-edited in the middle of a stage, \
-                             so jumping back to the first stage&quot;</span>,
+                            <span class="string">"WARNING: Traffic signal {} was live-edited in the middle of a stage, \
+                             so jumping back to the first stage"</span>,
                             state.id
                         );
                     }
@@ -1805,7 +1807,7 @@
                 (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {}
             }
 
-            <span class="comment">// It&#39;s unlikely, but the player might create/destroy traffic signals close together and
+            <span class="comment">// It's unlikely, but the player might create/destroy traffic signals close together and
             // change the uber-turns that exist. To be safe, recalculate everywhere.
             </span>state.uber_turn_neighbors.clear();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>set) = map_model::IntersectionCluster::autodetect(state.id, map) {
@@ -1816,37 +1818,37 @@
     }
 
     <span class="kw">pub fn </span>handle_live_edits(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) {
-        <span class="comment">// Just sanity check that we don&#39;t have any references to deleted turns
+        <span class="comment">// Just sanity check that we don't have any references to deleted turns
         </span><span class="kw">let </span><span class="kw-2">mut </span>errors = Vec::new();
         <span class="kw">for </span>state <span class="kw">in </span><span class="self">self</span>.state.values() {
             <span class="kw">for </span>req <span class="kw">in </span><span class="kw-2">&amp;</span>state.accepted {
                 <span class="kw">if </span>map.maybe_get_t(req.turn).is_none() {
-                    errors.push(<span class="macro">format!</span>(<span class="string">&quot;{} accepted for {}&quot;</span>, req.agent, req.turn));
+                    errors.push(<span class="macro">format!</span>(<span class="string">"{} accepted for {}"</span>, req.agent, req.turn));
                 }
             }
             <span class="kw">for </span>req <span class="kw">in </span>state.waiting.keys() {
                 <span class="kw">if </span>map.maybe_get_t(req.turn).is_none() {
-                    errors.push(<span class="macro">format!</span>(<span class="string">&quot;{} waiting for {}&quot;</span>, req.agent, req.turn));
+                    errors.push(<span class="macro">format!</span>(<span class="string">"{} waiting for {}"</span>, req.agent, req.turn));
                 }
             }
             <span class="kw">for </span>req <span class="kw">in </span><span class="kw-2">&amp;</span>state.reserved {
                 <span class="kw">if </span>map.maybe_get_t(req.turn).is_none() {
-                    errors.push(<span class="macro">format!</span>(<span class="string">&quot;{} has reserved {}&quot;</span>, req.agent, req.turn));
+                    errors.push(<span class="macro">format!</span>(<span class="string">"{} has reserved {}"</span>, req.agent, req.turn));
                 }
             }
         }
         <span class="kw">if </span>!errors.is_empty() {
             <span class="kw">for </span>x <span class="kw">in </span>errors {
-                <span class="macro">error!</span>(<span class="string">&quot;{}&quot;</span>, x);
+                <span class="macro">error!</span>(<span class="string">"{}"</span>, x);
             }
-            <span class="macro">panic!</span>(<span class="string">&quot;After live map edits, intersection state refers to deleted turns!&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"After live map edits, intersection state refers to deleted turns!"</span>);
         }
     }
 
     <span class="comment">// Not calling this for pedestrians right now.
-    // This is &quot;best effort&quot;. If we get something wrong, somebody might start a turn and cut off an
+    // This is "best effort". If we get something wrong, somebody might start a turn and cut off an
     // approaching vehicle.
-    // And it&#39;s idempotent -- can call to update an ETA.
+    // And it's idempotent -- can call to update an ETA.
     </span><span class="kw">pub fn </span>approaching_leader(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent: AgentID, turn: TurnID, eta: Time) {
         <span class="kw">let </span>state = <span class="self">self</span>.state.get_mut(<span class="kw-2">&amp;</span>turn.parent).unwrap();
         <span class="comment">// If there was a previous entry here for turn.src, then this leader is spawning in front
@@ -1875,9 +1877,9 @@
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>signal) = map.maybe_get_traffic_signal(id) {
             abstutil::to_json(signal)
         } <span class="kw">else </span>{
-            <span class="string">&quot;\&quot;Border\&quot;&quot;</span>.to_string()
+            <span class="string">"\"Border\""</span>.to_string()
         };
-        <span class="macro">format!</span>(<span class="string">&quot;[{json1}, {json2}]&quot;</span>)
+        <span class="macro">format!</span>(<span class="string">"[{json1}, {json2}]"</span>)
     }
 
     <span class="kw">pub fn </span>get_accepted_agents(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; Vec&lt;(AgentID, TurnID)&gt; {
@@ -1923,7 +1925,7 @@
         <span class="kw">let </span>state = <span class="kw-2">&amp;</span><span class="self">self</span>.state[<span class="kw-2">&amp;</span>i].signal.as_ref().unwrap();
         <span class="kw">if </span>now &gt; state.stage_ends_at {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;At {}, but {} should have advanced its stage at {}&quot;</span>,
+                <span class="string">"At {}, but {} should have advanced its stage at {}"</span>,
                 now, i, state.stage_ends_at
             );
         }
@@ -1932,19 +1934,19 @@
 
     <span class="kw">pub fn </span>describe_stats(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;String&gt; {
         <span class="macro">vec!</span>[
-            <span class="string">&quot;intersection stats&quot;</span>.to_string(),
+            <span class="string">"intersection stats"</span>.to_string(),
             <span class="macro">format!</span>(
-                <span class="string">&quot;{} total turn requests repeated after the initial attempt&quot;</span>,
+                <span class="string">"{} total turn requests repeated after the initial attempt"</span>,
                 prettyprint_usize(<span class="self">self</span>.total_repeat_requests)
             ),
             <span class="macro">format!</span>(
-                <span class="string">&quot;{} not allowed by intersection ({}%)&quot;</span>,
+                <span class="string">"{} not allowed by intersection ({}%)"</span>,
                 prettyprint_usize(<span class="self">self</span>.not_allowed_requests),
                 (<span class="number">100.0 </span>* (<span class="self">self</span>.not_allowed_requests <span class="kw">as </span>f64) / (<span class="self">self</span>.total_repeat_requests <span class="kw">as </span>f64))
                     .round()
             ),
             <span class="macro">format!</span>(
-                <span class="string">&quot;{} blocked by someone in the way ({}%)&quot;</span>,
+                <span class="string">"{} blocked by someone in the way ({}%)"</span>,
                 prettyprint_usize(<span class="self">self</span>.blocked_by_someone_requests),
                 (<span class="number">100.0 </span>* (<span class="self">self</span>.blocked_by_someone_requests <span class="kw">as </span>f64)
                     / (<span class="self">self</span>.total_repeat_requests <span class="kw">as </span>f64))
@@ -1961,7 +1963,7 @@
         cars: <span class="kw-2">&amp;</span>FixedMap&lt;CarID, Car&gt;,
         queues: <span class="kw-2">&amp;</span>HashMap&lt;Traversable, Queue&gt;,
     ) {
-        <span class="comment">// Don&#39;t use self.blocked_by -- that gets complicated with uber-turns and such.
+        <span class="comment">// Don't use self.blocked_by -- that gets complicated with uber-turns and such.
         //
         // This also assumes default values for handle_uber_turns, disable_turn_conflicts, etc!
         </span><span class="kw">for </span>state <span class="kw">in </span><span class="self">self</span>.state.values() {
@@ -1969,7 +1971,7 @@
                 <span class="kw">let </span>turn = map.get_t(req.turn);
                 <span class="comment">// In the absence of other explanations, the agent must be pausing at a stop sign
                 // or before making an unprotected movement, aka, in the middle of
-                // WAIT_AT_STOP_SIGN or WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL. Or they&#39;re waiting for
+                // WAIT_AT_STOP_SIGN or WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL. Or they're waiting for
                 // a signal to change.
                 </span><span class="kw">let </span><span class="kw-2">mut </span>cause = DelayCause::Intersection(state.id);
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(other) = state.accepted.iter().find(|other| {
@@ -1980,7 +1982,7 @@
                     <span class="kw">let </span>queue = <span class="kw-2">&amp;</span>queues[<span class="kw-2">&amp;</span>Traversable::Lane(req.turn.dst)];
                     <span class="kw">let </span>car = cars.get(<span class="kw-2">&amp;</span>car).unwrap();
                     <span class="kw">if </span>!queue.room_for_car(car) {
-                        <span class="comment">// TODO Or it&#39;s reserved due to an uber turn or something
+                        <span class="comment">// TODO Or it's reserved due to an uber turn or something
                         </span><span class="kw">let </span>blocker = queue
                             .get_active_cars()
                             .last()
@@ -1999,7 +2001,7 @@
         }
     }
 
-    <span class="doccomment">/// See if any agent is currently performing a turn that conflicts with an uber-turn. Doesn&#39;t
+    <span class="doccomment">/// See if any agent is currently performing a turn that conflicts with an uber-turn. Doesn't
     /// check for room on the queues.
     </span><span class="kw">fn </span>check_for_conflicts_before_uber_turn(<span class="kw-2">&amp;</span><span class="self">self</span>, ut: <span class="kw-2">&amp;</span>UberTurn, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;AgentID&gt; {
         <span class="kw">for </span>t <span class="kw">in </span><span class="kw-2">&amp;</span>ut.path {
@@ -2031,7 +2033,7 @@
         <span class="kw">let </span>(our_time, <span class="kw">_</span>) = <span class="self">self</span>.state[<span class="kw-2">&amp;</span>req.turn.parent].waiting[req];
 
         <span class="kw">if </span>our_priority == TurnPriority::Yield &amp;&amp; now &lt; our_time + WAIT_AT_STOP_SIGN {
-            <span class="comment">// Since we have &quot;ownership&quot; of scheduling for req.agent, don&#39;t need to use
+            <span class="comment">// Since we have "ownership" of scheduling for req.agent, don't need to use
             // scheduler.update.
             </span>scheduler.push(
                 our_time + WAIT_AT_STOP_SIGN,
@@ -2040,17 +2042,17 @@
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="comment">// Once upon a time, we&#39;d make sure that this request doesn&#39;t conflict with another in
+        <span class="comment">// Once upon a time, we'd make sure that this request doesn't conflict with another in
         // self.waiting:
         // 1) Higher-ranking turns get to go first.
         // 2) Equal-ranking turns that started waiting before us get to go first.
-        // But the exceptions started stacking -- if the other agent is blocked or the turns don&#39;t
+        // But the exceptions started stacking -- if the other agent is blocked or the turns don't
         // even conflict, then allow it. Except determining if the other agent is blocked or not is
         // tough and kind of recursive.
         //
-        // So instead, don&#39;t do any of that! The WAIT_AT_STOP_SIGN scheduling above and the fact
+        // So instead, don't do any of that! The WAIT_AT_STOP_SIGN scheduling above and the fact
         // that events are processed in time order mean that case #2 is magically handled anyway.
-        // If a case #1 could&#39;ve started by now, then they would have. Since they didn&#39;t, they must
+        // If a case #1 could've started by now, then they would have. Since they didn't, they must
         // be blocked.
 
         // TODO Make sure we can optimistically finish this turn before an approaching
@@ -2058,7 +2060,7 @@
 
         // If a pedestrian is going to cut off a car, check how long the car has been waiting and
         // maybe yield (regardless of stop sign priority). This is a very rough start to more
-        // realistic &quot;batching&quot; of pedestrians to cross a street. Without this, if there&#39;s one
+        // realistic "batching" of pedestrians to cross a street. Without this, if there's one
         // pedestrian almost clear of a crosswalk, cars are totally stopped for them, and so a new
         // pedestrian arriving will win.
         </span><span class="kw">if </span>req.agent.is_pedestrian() {
@@ -2069,16 +2071,16 @@
                     <span class="kw">if </span>our_turn.conflicts_with(map.get_t(other_req.turn)) {
                         <span class="kw">let </span>our_waiting = now - our_time;
                         <span class="kw">let </span>other_waiting = now - <span class="kw-2">*</span>other_time;
-                        <span class="comment">// We can&#39;t tell if a car has been waiting for a while due to pedestrians
+                        <span class="comment">// We can't tell if a car has been waiting for a while due to pedestrians
                         // crossing, or due to a blockage in their destination queue. Always let
                         // pedestrians muscle their way in eventually.
                         </span><span class="kw">if </span>our_waiting &gt; other_waiting {
                             <span class="kw">continue</span>;
                         }
                         <span class="comment">// Intuition: another pedestrian trying to enter a crosswalk has a 3s
-                        // buffer to &quot;join&quot; the first pedestrian who started crossing and caused
-                        // cars to stop. We&#39;re using the time for _this_ pedestrian to cross _this_
-                        // turn, so it&#39;s a very rough definition.
+                        // buffer to "join" the first pedestrian who started crossing and caused
+                        // cars to stop. We're using the time for _this_ pedestrian to cross _this_
+                        // turn, so it's a very rough definition.
                         </span><span class="kw">if </span>other_waiting &gt; time_to_cross + Duration::seconds(<span class="number">3.0</span>) {
                             <span class="kw">return </span><span class="bool-val">false</span>;
                         }
@@ -2108,7 +2110,7 @@
         <span class="kw">let </span>remaining_stage_time = signal_state.stage_ends_at - now;
         <span class="kw">let </span>(our_time, <span class="kw">_</span>) = state.waiting[req];
 
-        <span class="comment">// Can&#39;t go at all this stage.
+        <span class="comment">// Can't go at all this stage.
         </span><span class="kw">let </span>our_priority = stage.get_priority_of_turn(req.turn, map.get_i(state.id));
         <span class="kw">if </span>our_priority == TurnPriority::Banned {
             <span class="kw">return </span><span class="bool-val">false</span>;
@@ -2117,7 +2119,7 @@
         <span class="kw">if </span>our_priority == TurnPriority::Yield
             &amp;&amp; now &lt; our_time + WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL
         {
-            <span class="comment">// Since we have &quot;ownership&quot; of scheduling for req.agent, don&#39;t need to use
+            <span class="comment">// Since we have "ownership" of scheduling for req.agent, don't need to use
             // scheduler.update.
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = scheduler {
                 s.push(
@@ -2136,9 +2138,9 @@
         // TODO Make sure we can optimistically finish this turn before an approaching
         // higher-priority vehicle wants to begin.
 
-        // Optimistically if nobody else is in the way, this is how long it&#39;ll take to finish the
-        // turn. Don&#39;t start the turn if we won&#39;t finish by the time the light changes. If we get
-        // it wrong, that&#39;s fine -- block the box a bit.
+        // Optimistically if nobody else is in the way, this is how long it'll take to finish the
+        // turn. Don't start the turn if we won't finish by the time the light changes. If we get
+        // it wrong, that's fine -- block the box a bit.
         </span><span class="kw">let </span>time_to_cross = turn.geom.length() / speed;
         <span class="kw">if </span>time_to_cross &gt; remaining_stage_time {
             <span class="comment">// Signals enforce a minimum crosswalk time, but some pedestrians are configured to
@@ -2184,7 +2186,7 @@
                                 </span><span class="self">self</span>.events.push(Event::Alert(
                                     AlertLocation::Intersection(req.turn.parent),
                                     <span class="macro">format!</span>(
-                                        <span class="string">&quot;{} found turn conflict cycle involving {:?}&quot;</span>,
+                                        <span class="string">"{} found turn conflict cycle involving {:?}"</span>,
                                         req.agent, cycle
                                     ),
                                 ));
@@ -2198,8 +2200,8 @@
                     ok = <span class="bool-val">false</span>;
                 }
 
-                <span class="comment">// It&#39;s never safe for two vehicles to go for the same lane.
-                // TODO I&#39;m questioning this now. If the source is the same, then queueing will
+                <span class="comment">// It's never safe for two vehicles to go for the same lane.
+                // TODO I'm questioning this now. If the source is the same, then queueing will
                 // work normally. If not, then... maybe we need to allow concurrent turns from
                 // different lanes into the same lane, and somehow make the queueing work out.
                 </span><span class="kw">if </span>turn.id.dst == other.turn.dst {
@@ -2209,14 +2211,14 @@
                         maybe_cars_and_queues.as_ref(),
                     ) {
                         <span class="comment">// Sometimes the vehicle blocking us is actually queued in the turn;
-                        // don&#39;t wake them up in that case.
+                        // don't wake them up in that case.
                         </span><span class="kw">if </span>cycle_detected
                             &amp;&amp; <span class="macro">matches!</span>(cars[<span class="kw-2">&amp;</span>blocker].state, CarState::WaitingToAdvance { .. })
                         {
                             <span class="self">self</span>.events.push(Event::Alert(
                                 AlertLocation::Intersection(req.turn.parent),
                                 <span class="macro">format!</span>(
-                                    <span class="string">&quot;{} waking up {}, who&#39;s blocking it as part of a cycle&quot;</span>,
+                                    <span class="string">"{} waking up {}, who's blocking it as part of a cycle"</span>,
                                     req.agent, other.agent
                                 ),
                             ));
@@ -2258,7 +2260,7 @@
                     }
                 }
 
-                <span class="comment">// If this car isn&#39;t the head of its queue, add that dependency. (Except for
+                <span class="comment">// If this car isn't the head of its queue, add that dependency. (Except for
                 // the original car, which we already know is the head of its queue)
                 // TODO Maybe store this in blocked_by?
                 </span><span class="kw">if </span>current != car {
@@ -2312,7 +2314,7 @@
 <span class="kw">fn </span>allow_block_the_box(i: <span class="kw-2">&amp;</span>Intersection) -&gt; bool {
     <span class="comment">// Degenerate intersections are often just artifacts of how roads are split up in OSM. Allow
     // vehicles to get stuck in them, since the only possible thing they could block is pedestrians
-    // from using the crosswalk. Those crosswalks usually don&#39;t exist in reality, so this behavior
+    // from using the crosswalk. Those crosswalks usually don't exist in reality, so this behavior
     // is more realistic.
     </span><span class="kw">if </span>i.roads.len() == <span class="number">2 </span>{
         <span class="kw">return </span><span class="bool-val">true</span>;

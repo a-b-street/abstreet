@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `headless/src/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `headless/src/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="headless" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../headless/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -576,7 +578,7 @@
 //! &gt; curl http://localhost:1234/sim/get-time
 //! 00:00:00.0
 //! &gt; curl http://localhost:1234/sim/goto-time?t=01:01:00
-//! it&#39;s now 01:01:00.0
+//! it's now 01:01:00.0
 //! &gt; curl http://localhost:1234/data/get-road-thruput
 //! ... huge JSON blob
 
@@ -610,10 +612,10 @@
 
 <span class="macro">lazy_static::lazy_static! </span>{
     <span class="kw">static </span><span class="kw-2">ref </span>MAP: RwLock&lt;Map&gt; = RwLock::new(Map::blank());
-    <span class="kw">static </span><span class="kw-2">ref </span>SIM: RwLock&lt;Sim&gt; = RwLock::new(Sim::new(<span class="kw-2">&amp;</span>Map::blank(), SimOptions::new(<span class="string">&quot;tmp&quot;</span>)));
+    <span class="kw">static </span><span class="kw-2">ref </span>SIM: RwLock&lt;Sim&gt; = RwLock::new(Sim::new(<span class="kw-2">&amp;</span>Map::blank(), SimOptions::new(<span class="string">"tmp"</span>)));
     <span class="kw">static </span><span class="kw-2">ref </span>LOAD: RwLock&lt;LoadSim&gt; = RwLock::new({
         LoadSim {
-            scenario: abstio::path_scenario(<span class="kw-2">&amp;</span>MapName::seattle(<span class="string">&quot;montlake&quot;</span>), <span class="string">&quot;weekday&quot;</span>),
+            scenario: abstio::path_scenario(<span class="kw-2">&amp;</span>MapName::seattle(<span class="string">"montlake"</span>), <span class="string">"weekday"</span>),
             modifiers: Vec::new(),
             edits: <span class="prelude-val">None</span>,
             rng_seed: SimFlags::RNG_SEED,
@@ -624,12 +626,12 @@
 
 <span class="attr">#[derive(StructOpt)]
 #[structopt(
-    name = <span class="string">&quot;headless&quot;</span>,
-    about = <span class="string">&quot;Simulate traffic with a JSON API, not a GUI&quot;
+    name = <span class="string">"headless"</span>,
+    about = <span class="string">"Simulate traffic with a JSON API, not a GUI"
 </span>)]
 </span><span class="kw">struct </span>Args {
     <span class="doccomment">/// What IP to run the JSON API on.
-    </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;127.0.0.1&quot;</span>)]
+    </span><span class="attr">#[structopt(long, default_value = <span class="string">"127.0.0.1"</span>)]
     </span>ip: IpAddr,
     <span class="doccomment">/// What port to run the JSON API on.
     </span><span class="attr">#[structopt(long)]
@@ -641,7 +643,7 @@
     <span class="doccomment">/// An arbitrary number to seed the random number generator. This is input to the deterministic
     /// simulation, so different values affect results.
     </span><span class="comment">// TODO default_value can only handle strings, so copying SimFlags::RNG_SEED
-    </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;42&quot;</span>)]
+    </span><span class="attr">#[structopt(long, default_value = <span class="string">"42"</span>)]
     </span>rng_seed: u64,
     <span class="attr">#[structopt(flatten)]
     </span>opts: SimOptions,
@@ -660,18 +662,18 @@
             load.scenario = path;
         }
 
-        <span class="kw">let </span>(map, sim) = load.setup(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">&quot;setup headless&quot;</span>));
+        <span class="kw">let </span>(map, sim) = load.setup(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">"setup headless"</span>));
         <span class="kw-2">*</span>MAP.write().unwrap() = map;
         <span class="kw-2">*</span>SIM.write().unwrap() = sim;
     }
 
     <span class="kw">let </span>addr = std::net::SocketAddr::from((args.ip, args.port));
-    <span class="macro">info!</span>(<span class="string">&quot;Listening on http://{}&quot;</span>, addr);
+    <span class="macro">info!</span>(<span class="string">"Listening on http://{}"</span>, addr);
     <span class="kw">let </span>serve_future = Server::bind(<span class="kw-2">&amp;</span>addr).serve(hyper::service::make_service_fn(|<span class="kw">_</span>| <span class="kw">async </span>{
         <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, hyper::Error&gt;(hyper::service::service_fn(serve_req))
     }));
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = serve_future.<span class="kw">await </span>{
-        <span class="macro">panic!</span>(<span class="string">&quot;Server error: {}&quot;</span>, err);
+        <span class="macro">panic!</span>(<span class="string">"Server error: {}"</span>, err);
     }
 }
 
@@ -679,13 +681,13 @@
     <span class="kw">let </span>path = req.uri().path().to_string();
     <span class="comment">// Url::parse needs an absolute URL
     </span><span class="kw">let </span>params: HashMap&lt;String, String&gt; =
-        url::Url::parse(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;http://localhost{}&quot;</span>, req.uri()))
+        url::Url::parse(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"http://localhost{}"</span>, req.uri()))
             .unwrap()
             .query_pairs()
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect();
     <span class="kw">let </span>body = hyper::body::to_bytes(req).<span class="kw">await</span><span class="question-mark">?</span>.to_vec();
-    <span class="macro">info!</span>(<span class="string">&quot;Handling {}&quot;</span>, path);
+    <span class="macro">info!</span>(<span class="string">"Handling {}"</span>, path);
     <span class="prelude-val">Ok</span>(
         <span class="kw">match </span>handle_command(
             <span class="kw-2">&amp;</span>path,
@@ -697,10 +699,10 @@
         ) {
             <span class="prelude-val">Ok</span>(resp) =&gt; Response::new(Body::from(resp)),
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;{}: {}&quot;</span>, path, err);
+                <span class="macro">error!</span>(<span class="string">"{}: {}"</span>, path, err);
                 Response::builder()
                     .status(StatusCode::BAD_REQUEST)
-                    .body(Body::from(<span class="macro">format!</span>(<span class="string">&quot;Bad command {}: {}&quot;</span>, path, err)))
+                    .body(Body::from(<span class="macro">format!</span>(<span class="string">"Bad command {}: {}"</span>, path, err)))
                     .unwrap()
             }
         },
@@ -718,18 +720,18 @@
     <span class="kw">let </span>get = |key: <span class="kw-2">&amp;</span>str| {
         params
             .get(key)
-            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;missing GET parameter {}&quot;</span>, key))
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"missing GET parameter {}"</span>, key))
     };
 
     <span class="kw">match </span>path {
         <span class="comment">// Controlling the simulation
-        </span><span class="string">&quot;/sim/reset&quot; </span>=&gt; {
-            <span class="kw">let </span>(new_map, new_sim) = load.setup(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">&quot;reset sim&quot;</span>));
+        </span><span class="string">"/sim/reset" </span>=&gt; {
+            <span class="kw">let </span>(new_map, new_sim) = load.setup(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">"reset sim"</span>));
             <span class="kw-2">*</span>map = new_map;
             <span class="kw-2">*</span>sim = new_sim;
-            <span class="prelude-val">Ok</span>(<span class="string">&quot;sim reloaded&quot;</span>.to_string())
+            <span class="prelude-val">Ok</span>(<span class="string">"sim reloaded"</span>.to_string())
         }
-        <span class="string">&quot;/sim/load&quot; </span>=&gt; {
+        <span class="string">"/sim/load" </span>=&gt; {
             <span class="kw">let </span>args: LoadSim = abstutil::from_json(body)<span class="question-mark">?</span>;
 
             load.scenario = args.scenario;
@@ -737,60 +739,60 @@
             load.edits = args.edits;
 
             <span class="comment">// Also reset
-            </span><span class="kw">let </span>(new_map, new_sim) = load.setup(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">&quot;reset sim&quot;</span>));
+            </span><span class="kw">let </span>(new_map, new_sim) = load.setup(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">"reset sim"</span>));
             <span class="kw-2">*</span>map = new_map;
             <span class="kw-2">*</span>sim = new_sim;
 
-            <span class="prelude-val">Ok</span>(<span class="string">&quot;flags changed and sim reloaded&quot;</span>.to_string())
+            <span class="prelude-val">Ok</span>(<span class="string">"flags changed and sim reloaded"</span>.to_string())
         }
-        <span class="string">&quot;/sim/load-blank&quot; </span>=&gt; {
+        <span class="string">"/sim/load-blank" </span>=&gt; {
             <span class="kw-2">*</span>map =
-                Map::load_synchronously(get(<span class="string">&quot;map&quot;</span>)<span class="question-mark">?</span>.to_string(), <span class="kw-2">&amp;mut </span>Timer::new(<span class="string">&quot;load new map&quot;</span>));
+                Map::load_synchronously(get(<span class="string">"map"</span>)<span class="question-mark">?</span>.to_string(), <span class="kw-2">&amp;mut </span>Timer::new(<span class="string">"load new map"</span>));
             <span class="kw-2">*</span>sim = Sim::new(<span class="kw-2">&amp;</span>map, SimOptions::default());
-            <span class="prelude-val">Ok</span>(<span class="string">&quot;map changed, blank simulation&quot;</span>.to_string())
+            <span class="prelude-val">Ok</span>(<span class="string">"map changed, blank simulation"</span>.to_string())
         }
-        <span class="string">&quot;/sim/get-time&quot; </span>=&gt; <span class="prelude-val">Ok</span>(sim.time().to_string()),
-        <span class="string">&quot;/sim/goto-time&quot; </span>=&gt; {
-            <span class="kw">let </span>t = Time::parse(get(<span class="string">&quot;t&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+        <span class="string">"/sim/get-time" </span>=&gt; <span class="prelude-val">Ok</span>(sim.time().to_string()),
+        <span class="string">"/sim/goto-time" </span>=&gt; {
+            <span class="kw">let </span>t = Time::parse(get(<span class="string">"t"</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
             <span class="kw">if </span>t &lt;= sim.time() {
-                <span class="macro">bail!</span>(<span class="string">&quot;{} is in the past. call /sim/reset first?&quot;</span>, t)
+                <span class="macro">bail!</span>(<span class="string">"{} is in the past. call /sim/reset first?"</span>, t)
             } <span class="kw">else </span>{
                 <span class="kw">let </span>dt = t - sim.time();
-                sim.timed_step(map, dt, <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>Timer::new(<span class="string">&quot;goto-time&quot;</span>));
-                <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">&quot;it&#39;s now {}&quot;</span>, t))
+                sim.timed_step(map, dt, <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>Timer::new(<span class="string">"goto-time"</span>));
+                <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">"it's now {}"</span>, t))
             }
         }
-        <span class="string">&quot;/sim/new-person&quot; </span>=&gt; {
+        <span class="string">"/sim/new-person" </span>=&gt; {
             <span class="kw">let </span>input: ExternalPerson = abstutil::from_json(body)<span class="question-mark">?</span>;
             <span class="kw">for </span>trip <span class="kw">in </span><span class="kw-2">&amp;</span>input.trips {
                 <span class="kw">if </span>trip.departure &lt; sim.time() {
                     <span class="macro">bail!</span>(
-                        <span class="string">&quot;It&#39;s {} now, so you can&#39;t start a trip at {}&quot;</span>,
+                        <span class="string">"It's {} now, so you can't start a trip at {}"</span>,
                         sim.time(),
                         trip.departure
                     )
                 }
             }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>scenario = Scenario::empty(map, <span class="string">&quot;one-shot&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>scenario = Scenario::empty(map, <span class="string">"one-shot"</span>);
             scenario.people = ExternalPerson::import(map, <span class="macro">vec!</span>[input], <span class="bool-val">false</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(load.rng_seed);
             sim.instantiate(<span class="kw-2">&amp;</span>scenario, map, <span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;mut </span>Timer::throwaway());
             <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(
-                <span class="string">&quot;{} created&quot;</span>,
+                <span class="string">"{} created"</span>,
                 sim.get_all_people().last().unwrap().id
             ))
         }
         <span class="comment">// Traffic signals
-        </span><span class="string">&quot;/traffic-signals/get&quot; </span>=&gt; {
-            <span class="kw">let </span>i = IntersectionID(get(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>);
+        </span><span class="string">"/traffic-signals/get" </span>=&gt; {
+            <span class="kw">let </span>i = IntersectionID(get(<span class="string">"id"</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>);
             <span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = map.maybe_get_traffic_signal(i) {
                 <span class="prelude-val">Ok</span>(abstutil::to_json(ts))
             } <span class="kw">else </span>{
-                <span class="macro">bail!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, i)
+                <span class="macro">bail!</span>(<span class="string">"{} isn't a traffic signal"</span>, i)
             }
         }
-        <span class="string">&quot;/traffic-signals/set&quot; </span>=&gt; {
+        <span class="string">"/traffic-signals/set" </span>=&gt; {
             <span class="kw">let </span>ts: ControlTrafficSignal = abstutil::from_json(body)<span class="question-mark">?</span>;
             <span class="kw">let </span>id = ts.id;
 
@@ -803,14 +805,14 @@
             map.must_apply_edits(edits, <span class="kw-2">&amp;mut </span>Timer::throwaway());
             map.recalculate_pathfinding_after_edits(<span class="kw-2">&amp;mut </span>Timer::throwaway());
 
-            <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">&quot;{} has been updated&quot;</span>, id))
+            <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">"{} has been updated"</span>, id))
         }
-        <span class="string">&quot;/traffic-signals/get-delays&quot; </span>=&gt; {
-            <span class="kw">let </span>i = map.get_i(IntersectionID(get(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>));
-            <span class="kw">let </span>t1 = Time::parse(get(<span class="string">&quot;t1&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-            <span class="kw">let </span>t2 = Time::parse(get(<span class="string">&quot;t2&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+        <span class="string">"/traffic-signals/get-delays" </span>=&gt; {
+            <span class="kw">let </span>i = map.get_i(IntersectionID(get(<span class="string">"id"</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>));
+            <span class="kw">let </span>t1 = Time::parse(get(<span class="string">"t1"</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>t2 = Time::parse(get(<span class="string">"t2"</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
             <span class="kw">if </span>!i.is_traffic_signal() {
-                <span class="macro">bail!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, i.id);
+                <span class="macro">bail!</span>(<span class="string">"{} isn't a traffic signal"</span>, i.id);
             }
             <span class="kw">let </span>movements: Vec&lt;<span class="kw-2">&amp;</span>MovementID&gt; = i.movements.keys().collect();
 
@@ -833,10 +835,10 @@
             }
             <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>delays))
         }
-        <span class="string">&quot;/traffic-signals/get-cumulative-thruput&quot; </span>=&gt; {
-            <span class="kw">let </span>i = map.get_i(IntersectionID(get(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>));
+        <span class="string">"/traffic-signals/get-cumulative-thruput" </span>=&gt; {
+            <span class="kw">let </span>i = map.get_i(IntersectionID(get(<span class="string">"id"</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>));
             <span class="kw">if </span>!i.is_traffic_signal() {
-                <span class="macro">bail!</span>(<span class="string">&quot;{} isn&#39;t a traffic signal&quot;</span>, i.id);
+                <span class="macro">bail!</span>(<span class="string">"{} isn't a traffic signal"</span>, i.id);
             }
 
             <span class="kw">let </span><span class="kw-2">mut </span>thruput = Throughput {
@@ -855,7 +857,7 @@
             }
             <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>thruput))
         }
-        <span class="string">&quot;/traffic-signals/get-all-current-state&quot; </span>=&gt; {
+        <span class="string">"/traffic-signals/get-all-current-state" </span>=&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>all_state = BTreeMap::new();
             <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
                 <span class="kw">if </span>!i.is_traffic_signal() {
@@ -880,7 +882,7 @@
             <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>all_state))
         }
         <span class="comment">// Querying data
-        </span><span class="string">&quot;/data/get-finished-trips&quot; </span>=&gt; {
+        </span><span class="string">"/data/get-finished-trips" </span>=&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>trips = Vec::new();
             <span class="kw">for </span>(<span class="kw">_</span>, id, mode, maybe_duration) <span class="kw">in </span><span class="kw-2">&amp;</span>sim.get_analytics().finished_trips {
                 <span class="kw">let </span>distance_crossed = <span class="kw">if </span>maybe_duration.is_some() {
@@ -898,7 +900,7 @@
             }
             <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>trips))
         }
-        <span class="string">&quot;/data/get-agent-positions&quot; </span>=&gt; <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>AgentPositions {
+        <span class="string">"/data/get-agent-positions" </span>=&gt; <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>AgentPositions {
             agents: sim
                 .get_unzoomed_agents(map)
                 .into_iter()
@@ -913,7 +915,7 @@
                 })
                 .collect(),
         })),
-        <span class="string">&quot;/data/get-road-thruput&quot; </span>=&gt; <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>RoadThroughput {
+        <span class="string">"/data/get-road-thruput" </span>=&gt; <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>RoadThroughput {
             counts: sim
                 .get_analytics()
                 .road_thruput
@@ -922,7 +924,7 @@
                 .map(|((r, a, hr), cnt)| (<span class="kw-2">*</span>r, <span class="kw-2">*</span>a, <span class="kw-2">*</span>hr, <span class="kw-2">*</span>cnt))
                 .collect(),
         })),
-        <span class="string">&quot;/data/get-blocked-by-graph&quot; </span>=&gt; <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>BlockedByGraph {
+        <span class="string">"/data/get-blocked-by-graph" </span>=&gt; <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>BlockedByGraph {
             blocked_by: sim
                 .get_blocked_by_graph(map)
                 .into_iter()
@@ -934,15 +936,15 @@
                 })
                 .collect(),
         })),
-        <span class="string">&quot;/data/trip-time-lower-bound&quot; </span>=&gt; {
-            <span class="kw">let </span>id = TripID(get(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>);
+        <span class="string">"/data/trip-time-lower-bound" </span>=&gt; {
+            <span class="kw">let </span>id = TripID(get(<span class="string">"id"</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>);
             <span class="kw">let </span>duration = sim.get_trip_time_lower_bound(map, id)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(duration.inner_seconds().to_string())
         }
-        <span class="string">&quot;/data/all-trip-time-lower-bounds&quot; </span>=&gt; {
+        <span class="string">"/data/all-trip-time-lower-bounds" </span>=&gt; {
             <span class="kw">let </span>results: BTreeMap&lt;TripID, Duration&gt; = Timer::throwaway()
                 .parallelize(
-                    <span class="string">&quot;calculate all trip time lower bounds&quot;</span>,
+                    <span class="string">"calculate all trip time lower bounds"</span>,
                     sim.all_trip_info(),
                     |(id, <span class="kw">_</span>)| {
                         sim.get_trip_time_lower_bound(map, id)
@@ -956,36 +958,36 @@
             <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>results))
         }
         <span class="comment">// Controlling the map
-        </span><span class="string">&quot;/map/get-edits&quot; </span>=&gt; {
+        </span><span class="string">"/map/get-edits" </span>=&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>edits = map.get_edits().clone();
             edits.commands.clear();
             edits.compress(map);
             <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>edits.to_permanent(map)))
         }
-        <span class="string">&quot;/map/get-edit-road-command&quot; </span>=&gt; {
-            <span class="kw">let </span>r = RoadID(get(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>);
+        <span class="string">"/map/get-edit-road-command" </span>=&gt; {
+            <span class="kw">let </span>r = RoadID(get(<span class="string">"id"</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(abstutil::to_json(
                 <span class="kw-2">&amp;</span>map.edit_road_cmd(r, |<span class="kw">_</span>| {}).to_perma(map),
             ))
         }
-        <span class="string">&quot;/map/get-intersection-geometry&quot; </span>=&gt; {
-            <span class="kw">let </span>i = IntersectionID(get(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>);
+        <span class="string">"/map/get-intersection-geometry" </span>=&gt; {
+            <span class="kw">let </span>i = IntersectionID(get(<span class="string">"id"</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>export_geometry(map, i)))
         }
-        <span class="string">&quot;/map/get-all-geometry&quot; </span>=&gt; <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>map.export_geometry())),
-        <span class="string">&quot;/map/get-nearest-road&quot; </span>=&gt; {
-            <span class="kw">let </span>pt = LonLat::new(get(<span class="string">&quot;lon&quot;</span>)<span class="question-mark">?</span>.parse::&lt;f64&gt;()<span class="question-mark">?</span>, get(<span class="string">&quot;lat&quot;</span>)<span class="question-mark">?</span>.parse::&lt;f64&gt;()<span class="question-mark">?</span>);
+        <span class="string">"/map/get-all-geometry" </span>=&gt; <span class="prelude-val">Ok</span>(abstutil::to_json(<span class="kw-2">&amp;</span>map.export_geometry())),
+        <span class="string">"/map/get-nearest-road" </span>=&gt; {
+            <span class="kw">let </span>pt = LonLat::new(get(<span class="string">"lon"</span>)<span class="question-mark">?</span>.parse::&lt;f64&gt;()<span class="question-mark">?</span>, get(<span class="string">"lat"</span>)<span class="question-mark">?</span>.parse::&lt;f64&gt;()<span class="question-mark">?</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>closest = FindClosest::new();
             <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
                 closest.add(r.id, r.center_pts.points());
             }
-            <span class="kw">let </span>threshold = Distance::meters(get(<span class="string">&quot;threshold_meters&quot;</span>)<span class="question-mark">?</span>.parse::&lt;f64&gt;()<span class="question-mark">?</span>);
+            <span class="kw">let </span>threshold = Distance::meters(get(<span class="string">"threshold_meters"</span>)<span class="question-mark">?</span>.parse::&lt;f64&gt;()<span class="question-mark">?</span>);
             <span class="kw">match </span>closest.closest_pt(pt.to_pt(map.get_gps_bounds()), threshold) {
                 <span class="prelude-val">Some</span>((r, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(r.<span class="number">0</span>.to_string()),
-                <span class="prelude-val">None </span>=&gt; <span class="macro">bail!</span>(<span class="string">&quot;No road within {} of {}&quot;</span>, threshold, pt),
+                <span class="prelude-val">None </span>=&gt; <span class="macro">bail!</span>(<span class="string">"No road within {} of {}"</span>, threshold, pt),
             }
         }
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Unknown command&quot;</span>)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"Unknown command"</span>)),
     }
 }
 
@@ -1002,13 +1004,13 @@
 
 <span class="attr">#[derive(Serialize)]
 </span><span class="kw">struct </span>Delays {
-    <span class="attr">#[serde(serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>)]
+    <span class="attr">#[serde(serialize_with = <span class="string">"serialize_btreemap"</span>)]
     </span>per_direction: BTreeMap&lt;MovementID, Vec&lt;Duration&gt;&gt;,
 }
 
 <span class="attr">#[derive(Serialize)]
 </span><span class="kw">struct </span>Throughput {
-    <span class="attr">#[serde(serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>)]
+    <span class="attr">#[serde(serialize_with = <span class="string">"serialize_btreemap"</span>)]
     </span>per_direction: BTreeMap&lt;MovementID, usize&gt;,
 }
 
@@ -1019,7 +1021,7 @@
 
 <span class="attr">#[derive(Serialize)]
 </span><span class="kw">struct </span>AgentPosition {
-    <span class="doccomment">/// The agent&#39;s ID
+    <span class="doccomment">/// The agent's ID
     </span>id: AgentID,
     <span class="doccomment">/// None for buses
     </span>trip: <span class="prelude-ty">Option</span>&lt;TripID&gt;,
@@ -1027,11 +1029,11 @@
     </span>person: <span class="prelude-ty">Option</span>&lt;PersonID&gt;,
     <span class="doccomment">/// None for pedestrians
     </span>vehicle_type: <span class="prelude-ty">Option</span>&lt;VehicleType&gt;,
-    <span class="doccomment">/// The agent&#39;s current position. For pedestrians, this is their center. For vehicles, this
+    <span class="doccomment">/// The agent's current position. For pedestrians, this is their center. For vehicles, this
     /// represents the front of the vehicle.
     </span>pos: LonLat,
     <span class="doccomment">/// The distance crossed so far by the agent, in meters. There are some caveats to this value:
-    /// - The distance along driveways between buildings/parking lots and the road doesn&#39;t count
+    /// - The distance along driveways between buildings/parking lots and the road doesn't count
     ///   here.
     /// - The distance only represents the current leg of the trip. If somebody walks to a car, the
     ///   distance will reset when they begin driving, and also vehicle_type will change.
@@ -1061,9 +1063,9 @@
 <span class="attr">#[derive(Serialize)]
 </span><span class="kw">struct </span>BlockedByGraph {
     <span class="doccomment">/// Each entry indicates that some agent has been stuck in one place for some amount of time,
-    /// due to being blocked by another agent or because they&#39;re waiting at an intersection. Unless
+    /// due to being blocked by another agent or because they're waiting at an intersection. Unless
     /// the agent is a bus, then the TripID and PersonID will also be filled out.
-    </span><span class="attr">#[serde(serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>)]
+    </span><span class="attr">#[serde(serialize_with = <span class="string">"serialize_btreemap"</span>)]
     </span>blocked_by: BTreeMap&lt;AgentID, (Duration, DelayCause, <span class="prelude-ty">Option</span>&lt;TripID&gt;, <span class="prelude-ty">Option</span>&lt;PersonID&gt;)&gt;,
 }
 
@@ -1111,8 +1113,8 @@
 
     <span class="comment">// The intersection itself
     </span><span class="kw">let </span><span class="kw-2">mut </span>props = serde_json::Map::new();
-    props.insert(<span class="string">&quot;type&quot;</span>.to_string(), <span class="string">&quot;intersection&quot;</span>.into());
-    props.insert(<span class="string">&quot;id&quot;</span>.to_string(), i.orig_id.to_string().into());
+    props.insert(<span class="string">"type"</span>.to_string(), <span class="string">"intersection"</span>.into());
+    props.insert(<span class="string">"id"</span>.to_string(), i.orig_id.to_string().into());
     pairs.push((
         i.polygon
             .translate(-center.x(), -center.y())
@@ -1125,8 +1127,8 @@
     </span><span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>i.roads {
         <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>r);
         <span class="kw">let </span><span class="kw-2">mut </span>props = serde_json::Map::new();
-        props.insert(<span class="string">&quot;type&quot;</span>.to_string(), <span class="string">&quot;road&quot;</span>.into());
-        props.insert(<span class="string">&quot;id&quot;</span>.to_string(), r.orig_id.osm_way_id.to_string().into());
+        props.insert(<span class="string">"type"</span>.to_string(), <span class="string">"road"</span>.into());
+        props.insert(<span class="string">"id"</span>.to_string(), r.orig_id.osm_way_id.to_string().into());
         pairs.push((
             r.center_pts
                 .to_thick_ring(r.get_width())

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/devtools/kml.rs`."><title>kml.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/devtools/kml.rs`."><title>kml.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -487,61 +489,61 @@
         app: <span class="kw-2">&amp;</span>App,
         file: <span class="prelude-ty">Option</span>&lt;(String, Vec&lt;u8&gt;)&gt;,
     ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
-        ctx.loading_screen(<span class="string">&quot;load kml&quot;</span>, |ctx, timer| {
+        ctx.loading_screen(<span class="string">"load kml"</span>, |ctx, timer| {
             <span class="comment">// Enable to write a smaller .bin only with the shapes matching the bounds.
             </span><span class="kw">let </span>dump_clipped_shapes = <span class="bool-val">false</span>;
             <span class="kw">let </span>(dataset_name, objects) = load_objects(app, file, dump_clipped_shapes, timer);
 
             <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
             <span class="kw">let </span><span class="kw-2">mut </span>quadtree = QuadTree::builder();
-            timer.start_iter(<span class="string">&quot;render shapes&quot;</span>, objects.len());
+            timer.start_iter(<span class="string">"render shapes"</span>, objects.len());
             <span class="kw">for </span>(idx, obj) <span class="kw">in </span>objects.iter().enumerate() {
                 timer.next();
                 quadtree.add_with_box(idx, obj.polygon.get_bounds());
                 batch.push(obj.color, obj.polygon.clone());
             }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::string(<span class="string">&quot;None&quot;</span>)];
-            <span class="kw">if </span>dataset_name == <span class="string">&quot;parcels&quot; </span>{
-                choices.push(Choice::string(<span class="string">&quot;parcels without buildings&quot;</span>));
+            <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::string(<span class="string">"None"</span>)];
+            <span class="kw">if </span>dataset_name == <span class="string">"parcels" </span>{
+                choices.push(Choice::string(<span class="string">"parcels without buildings"</span>));
                 choices.push(Choice::string(
-                    <span class="string">&quot;parcels without buildings and trips or parking&quot;</span>,
+                    <span class="string">"parcels without buildings and trips or parking"</span>,
                 ));
-                choices.push(Choice::string(<span class="string">&quot;parcels with multiple buildings&quot;</span>));
-                choices.push(Choice::string(<span class="string">&quot;parcels with &gt;1 households&quot;</span>));
-                choices.push(Choice::string(<span class="string">&quot;parcels with parking&quot;</span>));
+                choices.push(Choice::string(<span class="string">"parcels with multiple buildings"</span>));
+                choices.push(Choice::string(<span class="string">"parcels with &gt;1 households"</span>));
+                choices.push(Choice::string(<span class="string">"parcels with parking"</span>));
             }
 
             Box::new(ViewKML {
                 draw: ctx.upload(batch),
                 panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                     Widget::row(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;KML viewer&quot;</span>).small_heading().into_widget(ctx),
+                        Line(<span class="string">"KML viewer"</span>).small_heading().into_widget(ctx),
                         ctx.style().btn_close_widget(ctx),
                     ]),
                     <span class="macro">format!</span>(
-                        <span class="string">&quot;{}: {} objects&quot;</span>,
+                        <span class="string">"{}: {} objects"</span>,
                         dataset_name,
                         prettyprint_usize(objects.len())
                     )
                     .text_widget(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;load KML file&quot;</span>)
+                        .text(<span class="string">"load KML file"</span>)
                         .hotkey(lctrl(Key::L))
                         .build_def(ctx),
                     Widget::row(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Query:&quot;</span>.text_widget(ctx),
-                        Widget::dropdown(ctx, <span class="string">&quot;query&quot;</span>, <span class="string">&quot;None&quot;</span>.to_string(), choices),
+                        <span class="string">"Query:"</span>.text_widget(ctx),
+                        Widget::dropdown(ctx, <span class="string">"query"</span>, <span class="string">"None"</span>.to_string(), choices),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Key=value filter:&quot;</span>.text_widget(ctx),
-                        TextBox::widget(ctx, <span class="string">&quot;filter&quot;</span>, String::new(), <span class="bool-val">false</span>, <span class="number">10</span>),
+                        <span class="string">"Key=value filter:"</span>.text_widget(ctx),
+                        TextBox::widget(ctx, <span class="string">"filter"</span>, String::new(), <span class="bool-val">false</span>, <span class="number">10</span>),
                     ]),
-                    <span class="string">&quot;Query matches 0 objects&quot;</span>.text_widget(ctx).named(<span class="string">&quot;matches&quot;</span>),
-                    <span class="string">&quot;Mouseover an object to examine it&quot;
+                    <span class="string">"Query matches 0 objects"</span>.text_widget(ctx).named(<span class="string">"matches"</span>),
+                    <span class="string">"Mouseover an object to examine it"
                         </span>.text_widget(ctx)
-                        .named(<span class="string">&quot;mouseover&quot;</span>),
+                        .named(<span class="string">"mouseover"</span>),
                 ]))
                 .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
                 .build(ctx),
@@ -572,34 +574,34 @@
             <span class="kw">if </span>new_selected != <span class="self">self</span>.selected {
                 <span class="self">self</span>.selected = new_selected;
                 <span class="kw">if </span><span class="self">self</span>.selected.is_empty() {
-                    <span class="kw">let </span>details = <span class="string">&quot;Mouseover an object to examine it&quot;</span>.text_widget(ctx);
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;mouseover&quot;</span>, details);
+                    <span class="kw">let </span>details = <span class="string">"Mouseover an object to examine it"</span>.text_widget(ctx);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"mouseover"</span>, details);
                 } <span class="kw">else </span>{
                     <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                     <span class="kw">if </span><span class="self">self</span>.selected.len() &gt; <span class="number">1 </span>{
-                        txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Selecting {} objects&quot;</span>, <span class="self">self</span>.selected.len()));
+                        txt.add_line(<span class="macro">format!</span>(<span class="string">"Selecting {} objects"</span>, <span class="self">self</span>.selected.len()));
                     }
                     <span class="kw">for </span>idx <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.selected {
                         <span class="kw">if </span><span class="self">self</span>.selected.len() &gt; <span class="number">1 </span>{
-                            txt.add_line(Line(<span class="string">&quot;Object&quot;</span>).small_heading());
+                            txt.add_line(Line(<span class="string">"Object"</span>).small_heading());
                         }
                         <span class="kw">for </span>(k, v) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.objects[<span class="kw-2">*</span>idx].attribs {
-                            txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v));
+                            txt.add_line(<span class="macro">format!</span>(<span class="string">"{} = {}"</span>, k, v));
                         }
                     }
                     <span class="kw">let </span>details = txt.into_widget(ctx);
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;mouseover&quot;</span>, details);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"mouseover"</span>, details);
                 }
             }
         }
         <span class="kw">if </span>!<span class="self">self</span>.selected.is_empty() &amp;&amp; ctx.normal_left_click() {
             <span class="kw">let </span><span class="kw-2">mut </span>lines = Vec::new();
-            <span class="kw">let </span>title = <span class="macro">format!</span>(<span class="string">&quot;{} objects&quot;</span>, <span class="self">self</span>.selected.len());
+            <span class="kw">let </span>title = <span class="macro">format!</span>(<span class="string">"{} objects"</span>, <span class="self">self</span>.selected.len());
             <span class="kw">for </span>idx <span class="kw">in </span><span class="self">self</span>.selected.drain(..) {
-                lines.push(<span class="string">&quot;Object&quot;</span>.to_string());
+                lines.push(<span class="string">"Object"</span>.to_string());
                 lines.push(String::new());
                 <span class="kw">for </span>(k, v) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.objects[idx].attribs {
-                    lines.push(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v));
+                    lines.push(<span class="macro">format!</span>(<span class="string">"{} = {}"</span>, k, v));
                 }
                 lines.push(String::new());
             }
@@ -609,26 +611,26 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;load KML file&quot; </span>=&gt; {
+                <span class="string">"load KML file" </span>=&gt; {
                     <span class="kw">return </span>pick_file(ctx, app);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
             Outcome::Changed(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>query: String = <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;query&quot;</span>);
-                <span class="kw">let </span>filter = <span class="self">self</span>.panel.text_box(<span class="string">&quot;filter&quot;</span>);
-                <span class="kw">if </span>query == <span class="string">&quot;None&quot; </span>&amp;&amp; !filter.is_empty() {
+                <span class="kw">let </span><span class="kw-2">mut </span>query: String = <span class="self">self</span>.panel.dropdown_value(<span class="string">"query"</span>);
+                <span class="kw">let </span>filter = <span class="self">self</span>.panel.text_box(<span class="string">"filter"</span>);
+                <span class="kw">if </span>query == <span class="string">"None" </span>&amp;&amp; !filter.is_empty() {
                     query = filter;
                 }
                 <span class="kw">let </span>(batch, cnt) = make_query(app, <span class="kw-2">&amp;</span><span class="self">self</span>.objects, <span class="kw-2">&amp;</span>query);
                 <span class="self">self</span>.draw_query = ctx.upload(batch);
                 <span class="self">self</span>.panel.replace(
                     ctx,
-                    <span class="string">&quot;matches&quot;</span>,
-                    <span class="macro">format!</span>(<span class="string">&quot;Query matches {} objects&quot;</span>, cnt).text_widget(ctx),
+                    <span class="string">"matches"</span>,
+                    <span class="macro">format!</span>(<span class="string">"Query matches {} objects"</span>, cnt).text_widget(ctx),
                 );
             }
             <span class="kw">_ </span>=&gt; {}
@@ -662,35 +664,35 @@
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
     <span class="kw">let </span>bounds = map.get_gps_bounds();
 
-    <span class="comment">// TODO Use the bytes; don&#39;t re-read here. This is necessary to work on web.
+    <span class="comment">// TODO Use the bytes; don't re-read here. This is necessary to work on web.
     </span><span class="kw">let </span>path = file.map(|x| x.<span class="number">0</span>);
     <span class="kw">let </span>raw_shapes = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) = path {
-        <span class="kw">if </span>path.ends_with(<span class="string">&quot;.kml&quot;</span>) {
+        <span class="kw">if </span>path.ends_with(<span class="string">".kml"</span>) {
             <span class="kw">let </span>shapes = kml::load(path.clone(), bounds, <span class="bool-val">true</span>, timer).unwrap();
             <span class="comment">// Assuming this is some huge file, conveniently convert the extract to .bin.
-            // The new file will show up as untracked in git, so it&#39;ll be obvious this
+            // The new file will show up as untracked in git, so it'll be obvious this
             // happened.
-            // Except don&#39;t do this for Seattle collisions; that&#39;s separately transformed into a
+            // Except don't do this for Seattle collisions; that's separately transformed into a
             // different binary format!
-            </span><span class="kw">if </span>!path.ends_with(<span class="string">&quot;input/us/seattle/collisions.kml&quot;</span>) {
-                abstio::write_binary(path.replace(<span class="string">&quot;.kml&quot;</span>, <span class="string">&quot;.bin&quot;</span>), <span class="kw-2">&amp;</span>shapes);
+            </span><span class="kw">if </span>!path.ends_with(<span class="string">"input/us/seattle/collisions.kml"</span>) {
+                abstio::write_binary(path.replace(<span class="string">".kml"</span>, <span class="string">".bin"</span>), <span class="kw-2">&amp;</span>shapes);
             }
             shapes
-        } <span class="kw">else if </span>path.ends_with(<span class="string">&quot;.csv&quot;</span>) {
+        } <span class="kw">else if </span>path.ends_with(<span class="string">".csv"</span>) {
             <span class="kw">let </span>shapes = ExtraShapes::load_csv(path.clone(), bounds, timer).unwrap();
-            abstio::write_binary(path.replace(<span class="string">&quot;.csv&quot;</span>, <span class="string">&quot;.bin&quot;</span>), <span class="kw-2">&amp;</span>shapes);
+            abstio::write_binary(path.replace(<span class="string">".csv"</span>, <span class="string">".bin"</span>), <span class="kw-2">&amp;</span>shapes);
             shapes
-        } <span class="kw">else if </span>path.ends_with(<span class="string">&quot;.geojson&quot;</span>) || path.ends_with(<span class="string">&quot;.json&quot;</span>) {
+        } <span class="kw">else if </span>path.ends_with(<span class="string">".geojson"</span>) || path.ends_with(<span class="string">".json"</span>) {
             <span class="kw">let </span>require_in_bounds = <span class="bool-val">false</span>;
             <span class="kw">let </span>shapes =
                 ExtraShapes::load_geojson_no_clipping(path.clone(), bounds, require_in_bounds)
                     .unwrap();
             abstio::write_binary(
-                path.replace(<span class="string">&quot;.geojson&quot;</span>, <span class="string">&quot;.bin&quot;</span>).replace(<span class="string">&quot;.json&quot;</span>, <span class="string">&quot;.bin&quot;</span>),
+                path.replace(<span class="string">".geojson"</span>, <span class="string">".bin"</span>).replace(<span class="string">".json"</span>, <span class="string">".bin"</span>),
                 <span class="kw-2">&amp;</span>shapes,
             );
             shapes
-        } <span class="kw">else if </span>path.ends_with(<span class="string">&quot;.bin&quot;</span>) {
+        } <span class="kw">else if </span>path.ends_with(<span class="string">".bin"</span>) {
             abstio::read_binary::&lt;ExtraShapes&gt;(path.to_string(), timer)
         } <span class="kw">else </span>{
             ExtraShapes { shapes: Vec::new() }
@@ -702,7 +704,7 @@
     <span class="kw">let </span>dataset_name = path
         .as_ref()
         .map(abstutil::basename)
-        .unwrap_or_else(|| <span class="string">&quot;no file&quot;</span>.to_string());
+        .unwrap_or_else(|| <span class="string">"no file"</span>.to_string());
     <span class="kw">let </span>bldg_lookup: HashMap&lt;String, BuildingID&gt; = map
         .all_buildings()
         .iter()
@@ -712,7 +714,7 @@
 
     <span class="kw">let </span>pairs: Vec&lt;(Object, ExtraShape)&gt; = timer
         .parallelize(
-            <span class="string">&quot;convert shapes&quot;</span>,
+            <span class="string">"convert shapes"</span>,
             raw_shapes.shapes.into_iter().enumerate().collect(),
             |(idx, shape)| {
                 <span class="kw">let </span>pts = bounds.convert(<span class="kw-2">&amp;</span>shape.points);
@@ -744,7 +746,7 @@
     }
     <span class="kw">if </span>path.is_some() &amp;&amp; dump_clipped_shapes {
         abstio::write_binary(
-            <span class="macro">format!</span>(<span class="string">&quot;{}_clipped_for_{}.bin&quot;</span>, dataset_name, map.get_name().map),
+            <span class="macro">format!</span>(<span class="string">"{}_clipped_for_{}.bin"</span>, dataset_name, map.get_name().map),
             <span class="kw-2">&amp;</span>clipped_shapes,
         );
     }
@@ -764,9 +766,9 @@
     <span class="kw">let </span>polygon = <span class="kw">if </span>pts.len() == <span class="number">1 </span>{
         Circle::new(pts[<span class="number">0</span>], RADIUS).to_polygon()
     } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(ring) = Ring::new(pts.clone()) {
-        <span class="comment">// TODO If the below isn&#39;t true, show it as an outline instead? Can&#39;t make that a Polygon,
+        <span class="comment">// TODO If the below isn't true, show it as an outline instead? Can't make that a Polygon,
         // though
-        // if attribs.get(&quot;spatial_type&quot;) == Some(&amp;&quot;Polygon&quot;.to_string()) {
+        // if attribs.get("spatial_type") == Some(&amp;"Polygon".to_string()) {
         </span>color = cs.rotating_color_plot(obj_idx).alpha(<span class="number">0.8</span>);
         ring.into_polygon()
     } <span class="kw">else </span>{
@@ -775,7 +777,7 @@
             <span class="prelude-val">Ok</span>(pl) =&gt; pl.make_arrow(THICKNESS, ArrowCap::Triangle),
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;Object with attribs {:?} has messed up geometry: {}&quot;</span>,
+                    <span class="string">"Object with attribs {:?} has messed up geometry: {}"</span>,
                     attribs, err
                 );
                 Circle::new(backup, RADIUS).to_polygon()
@@ -784,8 +786,8 @@
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>osm_bldg = <span class="prelude-val">None</span>;
-    <span class="kw">if </span>dataset_name == <span class="string">&quot;parcels&quot; </span>{
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(bldg) = attribs.get(<span class="string">&quot;osm_bldg&quot;</span>) {
+    <span class="kw">if </span>dataset_name == <span class="string">"parcels" </span>{
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bldg) = attribs.get(<span class="string">"osm_bldg"</span>) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = bldg_lookup.get(bldg) {
                 osm_bldg = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>id);
             }
@@ -805,8 +807,8 @@
     <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
     <span class="kw">let </span>color = Color::BLUE.alpha(<span class="number">0.8</span>);
     <span class="kw">match </span>query {
-        <span class="string">&quot;None&quot; </span>=&gt; {}
-        <span class="string">&quot;parcels without buildings&quot; </span>=&gt; {
+        <span class="string">"None" </span>=&gt; {}
+        <span class="string">"parcels without buildings" </span>=&gt; {
             <span class="kw">for </span>obj <span class="kw">in </span>objects {
                 <span class="kw">if </span>obj.osm_bldg.is_none() {
                     cnt += <span class="number">1</span>;
@@ -814,18 +816,18 @@
                 }
             }
         }
-        <span class="string">&quot;parcels without buildings and trips or parking&quot; </span>=&gt; {
+        <span class="string">"parcels without buildings and trips or parking" </span>=&gt; {
             <span class="kw">for </span>obj <span class="kw">in </span>objects {
                 <span class="kw">if </span>obj.osm_bldg.is_none()
-                    &amp;&amp; (obj.attribs.contains_key(<span class="string">&quot;households&quot;</span>)
-                        || obj.attribs.contains_key(<span class="string">&quot;parking&quot;</span>))
+                    &amp;&amp; (obj.attribs.contains_key(<span class="string">"households"</span>)
+                        || obj.attribs.contains_key(<span class="string">"parking"</span>))
                 {
                     cnt += <span class="number">1</span>;
                     batch.push(color, obj.polygon.clone());
                 }
             }
         }
-        <span class="string">&quot;parcels with multiple buildings&quot; </span>=&gt; {
+        <span class="string">"parcels with multiple buildings" </span>=&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>seen = HashSet::new();
             <span class="kw">for </span>obj <span class="kw">in </span>objects {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(b) = obj.osm_bldg {
@@ -838,19 +840,19 @@
                 }
             }
         }
-        <span class="string">&quot;parcels with &gt;1 households&quot; </span>=&gt; {
+        <span class="string">"parcels with &gt;1 households" </span>=&gt; {
             <span class="kw">for </span>obj <span class="kw">in </span>objects {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(hh) = obj.attribs.get(<span class="string">&quot;households&quot;</span>) {
-                    <span class="kw">if </span>hh != <span class="string">&quot;1&quot; </span>{
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(hh) = obj.attribs.get(<span class="string">"households"</span>) {
+                    <span class="kw">if </span>hh != <span class="string">"1" </span>{
                         cnt += <span class="number">1</span>;
                         batch.push(color, obj.polygon.clone());
                     }
                 }
             }
         }
-        <span class="string">&quot;parcels with parking&quot; </span>=&gt; {
+        <span class="string">"parcels with parking" </span>=&gt; {
             <span class="kw">for </span>obj <span class="kw">in </span>objects {
-                <span class="kw">if </span>obj.attribs.contains_key(<span class="string">&quot;parking&quot;</span>) {
+                <span class="kw">if </span>obj.attribs.contains_key(<span class="string">"parking"</span>) {
                     cnt += <span class="number">1</span>;
                     batch.push(color, obj.polygon.clone());
                 }
@@ -859,7 +861,7 @@
         x =&gt; {
             <span class="kw">for </span>obj <span class="kw">in </span>objects {
                 <span class="kw">for </span>(k, v) <span class="kw">in </span><span class="kw-2">&amp;</span>obj.attribs {
-                    <span class="kw">if </span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, k, v).contains(x) {
+                    <span class="kw">if </span><span class="macro">format!</span>(<span class="string">"{}={}"</span>, k, v).contains(x) {
                         batch.push(color, obj.polygon.clone());
                         <span class="kw">break</span>;
                     }
@@ -873,7 +875,7 @@
 <span class="kw">fn </span>pick_file(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Transition {
     Transition::Push(FilePicker::new_state(
         ctx,
-        <span class="prelude-val">Some</span>(app.primary.map.get_city_name().input_path(<span class="string">&quot;&quot;</span>)),
+        <span class="prelude-val">Some</span>(app.primary.map.get_city_name().input_path(<span class="string">""</span>)),
         Box::new(|ctx, app, maybe_file| {
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(file)) = maybe_file {
                 Transition::Multi(<span class="macro">vec!</span>[

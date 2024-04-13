@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/intersection.rs`."><title>intersection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/intersection.rs`."><title>intersection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -724,7 +726,7 @@
         <span class="kw">let </span>rank = i.get_rank(map);
         default_geom.push(
             <span class="kw">if </span>i.is_footway(map) {
-                <span class="comment">// TODO Or maybe shared-use, once there&#39;s some visual distinction there
+                <span class="comment">// TODO Or maybe shared-use, once there's some visual distinction there
                 </span>app.cs().zoomed_road_surface(LaneType::Footway, rank)
             } <span class="kw">else if </span>i.is_cycleway(map) {
                 app.cs().zoomed_road_surface(LaneType::Biking, rank)
@@ -790,11 +792,11 @@
                                 default_geom.push(app.cs().stop_sign_pole, pole);
 
                                 <span class="comment">// Trial and error to make the scale and angle work. We could also make
-                                // a fixed SVG asset and just rotate it, but we&#39;d still need to
+                                // a fixed SVG asset and just rotate it, but we'd still need to
                                 // calculate the octagon hitbox for the stop sign editor.
                                 </span>default_geom.append(
                                     Text::from(
-                                        widgetry::Line(<span class="string">&quot;STOP&quot;</span>).small_heading().fg(Color::WHITE),
+                                        widgetry::Line(<span class="string">"STOP"</span>).small_heading().fg(Color::WHITE),
                                     )
                                     .render_autocropped(prerender.as_ref())
                                     .scale(<span class="number">0.02</span>)
@@ -808,7 +810,7 @@
                 IntersectionControl::Construction =&gt; {
                     <span class="comment">// TODO Centering seems weird
                     </span>default_geom.append(
-                        GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/under_construction.svg&quot;</span>)
+                        GeomBatch::load_svg(prerender, <span class="string">"system/assets/map/under_construction.svg"</span>)
                             .scale(<span class="number">0.08</span>)
                             .centered_on(i.polygon.center()),
                     );
@@ -825,11 +827,11 @@
         default_geom
     }
 
-    <span class="comment">// Returns the (octagon, pole, angle of the angle) if there&#39;s room to draw it.
+    <span class="comment">// Returns the (octagon, pole, angle of the angle) if there's room to draw it.
     </span><span class="kw">pub fn </span>stop_sign_geom(ss: <span class="kw-2">&amp;</span>RoadWithStopSign, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;(Polygon, Polygon, Angle)&gt; {
         <span class="kw">let </span>trim_back = Distance::meters(<span class="number">0.1</span>);
         <span class="kw">let </span>edge_lane = map.get_l(ss.lane_closest_to_edge);
-        <span class="comment">// TODO The dream of trimming f64&#39;s was to isolate epsilon checks like this...
+        <span class="comment">// TODO The dream of trimming f64's was to isolate epsilon checks like this...
         </span><span class="kw">if </span>edge_lane.length() - trim_back &lt;= EPSILON_DIST {
             <span class="comment">// TODO warn
             </span><span class="kw">return </span><span class="prelude-val">None</span>;
@@ -862,11 +864,11 @@
         <span class="kw-2">*</span><span class="self">self</span>.draw_default.borrow_mut() = <span class="prelude-val">None</span>;
     }
 
-    <span class="doccomment">/// Find sections along the intersection polygon that aren&#39;t connected to a road. These should
+    <span class="doccomment">/// Find sections along the intersection polygon that aren't connected to a road. These should
     /// contribute an outline.
     </span><span class="kw">pub fn </span>get_unzoomed_outline(i: <span class="kw-2">&amp;</span>Intersection, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;PolyLine&gt; {
         <span class="comment">// Turn each road into the left and right point that should be on the ring, so we can
-        // &quot;subtract&quot; them out.
+        // "subtract" them out.
         </span><span class="kw">let </span>road_pairs = i
             .roads
             .iter()
@@ -883,7 +885,7 @@
             })
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="comment">// Walk along each line segment on the ring. If it&#39;s not one of our road pairs, add it as a
+        <span class="comment">// Walk along each line segment on the ring. If it's not one of our road pairs, add it as a
         // potential segment.
         </span>i.polygon
             .get_outer_ring()
@@ -901,7 +903,7 @@
     </span>}
 
     <span class="kw">fn </span>redraw_default(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
-        <span class="comment">// Lazily calculate, because these are expensive to all do up-front, and most players won&#39;t
+        <span class="comment">// Lazily calculate, because these are expensive to all do up-front, and most players won't
         // exhaustively see every intersection during a single session
         </span><span class="kw">let </span><span class="kw-2">mut </span>draw = <span class="self">self</span>.draw_default.borrow_mut();
         <span class="kw">if </span>draw.is_none() {
@@ -923,10 +925,10 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>maybe_redraw = <span class="self">self</span>.draw_traffic_signal.borrow_mut();
         <span class="kw">if </span>app.opts().show_traffic_signal_icon {
-            <span class="comment">// The icon doesn&#39;t change over time
+            <span class="comment">// The icon doesn't change over time
             </span><span class="kw">let </span>recalc = maybe_redraw.is_none();
             <span class="kw">if </span>recalc {
-                <span class="kw">let </span>batch = GeomBatch::load_svg(g, <span class="string">&quot;system/assets/map/traffic_signal.svg&quot;</span>)
+                <span class="kw">let </span>batch = GeomBatch::load_svg(g, <span class="string">"system/assets/map/traffic_signal.svg"</span>)
                     .scale(<span class="number">0.3</span>)
                     .centered_on(app.map().get_i(<span class="self">self</span>.id).polygon.polylabel());
                 <span class="kw-2">*</span>maybe_redraw = <span class="prelude-val">Some</span>((Time::START_OF_DAY, g.prerender.upload(batch)));
@@ -995,7 +997,7 @@
 
 <span class="comment">// Public for debugging
 </span><span class="kw">pub fn </span>calculate_corners(i: <span class="kw-2">&amp;</span>Intersection, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;Polygon&gt; {
-    <span class="comment">// Don&#39;t attempt corners for footways or where normal roads and footways meet
+    <span class="comment">// Don't attempt corners for footways or where normal roads and footways meet
     </span><span class="kw">if </span>i.roads.iter().any(|r| map.get_r(<span class="kw-2">*</span>r).is_footway()) {
         <span class="kw">return </span>Vec::new();
     }
@@ -1076,7 +1078,7 @@
 }
 
 <span class="kw">fn </span>calculate_corner_curbs(i: <span class="kw-2">&amp;</span>Intersection, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;Polygon&gt; {
-    <span class="comment">// Don&#39;t attempt corners for footways or where normal roads and footways meet
+    <span class="comment">// Don't attempt corners for footways or where normal roads and footways meet
     </span><span class="kw">if </span>i.roads.iter().any(|r| map.get_r(<span class="kw-2">*</span>r).is_footway()) {
         <span class="kw">return </span>Vec::new();
     }
@@ -1100,7 +1102,7 @@
                 <span class="number">1.0
             </span>} <span class="kw">else </span>{
                 -<span class="number">1.0
-                </span><span class="comment">// At a dead end we&#39;re going the long way around
+                </span><span class="comment">// At a dead end we're going the long way around
             </span>} * <span class="kw">if </span>i.is_deadend_for_everyone() {
                 -<span class="number">1.0
             </span>} <span class="kw">else </span>{
@@ -1118,8 +1120,8 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>pts = turn.geom.shift_either_direction(width).ok()<span class="question-mark">?</span>.into_points();
                     <span class="comment">// TODO Connecting the SharedSidewalkCorner geometry to the curb usually
                     // requires adding a few points from the sidewalk on each end. But sometimes
-                    // this causes &quot;zig-zaggy&quot; artifacts. The approx_eq check helps some (but not
-                    // all) of those cases, but sometimes introduces visual &quot;gaps&quot;. This still
+                    // this causes "zig-zaggy" artifacts. The approx_eq check helps some (but not
+                    // all) of those cases, but sometimes introduces visual "gaps". This still
                     // needs more work.
                     </span><span class="kw">let </span>first_line = l2.end_line(i.id).shift_either_direction(-width);
                     <span class="kw">if </span>!pts.last().unwrap().approx_eq(first_line.pt2(), thickness) {
@@ -1260,7 +1262,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>dist_along =
             boundary + (available_length - tile_every * (num_markings <span class="kw">as </span>f64)) / <span class="number">2.0</span>;
         <span class="comment">// TODO Seems to be an off-by-one sometimes. Not enough of these.
-        </span><span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">&quot;make_crosswalk for {} broke&quot;</span>, turn.id);
+        </span><span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">"make_crosswalk for {} broke"</span>, turn.id);
         <span class="kw">for _ in </span><span class="number">0</span>..=num_markings {
             <span class="kw">let </span>pt1 = line.dist_along(dist_along).expect(<span class="kw-2">&amp;</span>err);
             <span class="comment">// Reuse perp_line. Project away an arbitrary amount
@@ -1286,7 +1288,7 @@
 }
 
 <span class="kw">fn </span>make_rainbow_crosswalk(batch: <span class="kw-2">&amp;mut </span>GeomBatch, turn: <span class="kw-2">&amp;</span>Turn, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
-    <span class="comment">// TODO The crosswalks aren&#39;t tagged in OSM yet. Manually hardcoding some now.
+    <span class="comment">// TODO The crosswalks aren't tagged in OSM yet. Manually hardcoding some now.
     </span><span class="kw">let </span>node = map.get_i(turn.id.parent).orig_id.<span class="number">0</span>;
     <span class="kw">let </span>way = map.get_parent(turn.id.src).orig_id.osm_way_id.<span class="number">0</span>;
     <span class="kw">match </span>(node, way) {
@@ -1316,7 +1318,7 @@
         Color::YELLOW,
         Color::GREEN,
         Color::BLUE,
-        Color::hex(<span class="string">&quot;#8B00FF&quot;</span>),
+        Color::hex(<span class="string">"#8B00FF"</span>),
         Color::WHITE,
     ];
     <span class="kw">let </span>band_width = total_width / (colors.len() <span class="kw">as </span>f64);

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/map_config.rs`."><title>map_config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/map_config.rs`."><title>map_config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../importer/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -85,6 +87,8 @@
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>abstio::{CityName, MapName};
 <span class="kw">use </span>geom::Distance;
 <span class="kw">use </span>map_model::DrivingSide;
@@ -98,21 +102,21 @@
 </span><span class="kw">pub fn </span>config_for_map(name: <span class="kw-2">&amp;</span>MapName) -&gt; convert_osm::Options {
     convert_osm::Options {
         map_config: osm2streets::MapConfig {
-            <span class="comment">// osm2streets will set this anyway, it doesn&#39;t matter here
+            <span class="comment">// osm2streets will set this anyway, it doesn't matter here
             </span>driving_side: DrivingSide::Right,
             country_code: String::new(),
-            bikes_can_use_bus_lanes: name.city.country != <span class="string">&quot;pl&quot;</span>,
-            inferred_sidewalks: name.city.country != <span class="string">&quot;pl&quot;</span>,
-            street_parking_spot_length: <span class="kw">if </span>name.city == CityName::new(<span class="string">&quot;ca&quot;</span>, <span class="string">&quot;montreal&quot;</span>) {
+            bikes_can_use_bus_lanes: name.city.country != <span class="string">"pl"</span>,
+            inferred_sidewalks: name.city.country != <span class="string">"pl"</span>,
+            street_parking_spot_length: <span class="kw">if </span>name.city == CityName::new(<span class="string">"ca"</span>, <span class="string">"montreal"</span>) {
                 Distance::meters(<span class="number">6.5</span>)
             } <span class="kw">else </span>{
                 Distance::meters(<span class="number">8.0</span>)
             },
-            turn_on_red: name.city.country == <span class="string">&quot;us&quot; </span>&amp;&amp; name.city.city != <span class="string">&quot;nyc&quot;</span>,
+            turn_on_red: name.city.country == <span class="string">"us" </span>&amp;&amp; name.city.city != <span class="string">"nyc"</span>,
             include_railroads: <span class="kw">match </span>name.city.city.as_ref() {
-                <span class="string">&quot;phoenix&quot; </span>| <span class="string">&quot;seattle&quot; </span>| <span class="string">&quot;tucson&quot; </span>=&gt; <span class="bool-val">false</span>,
+                <span class="string">"phoenix" </span>| <span class="string">"seattle" </span>| <span class="string">"tucson" </span>=&gt; <span class="bool-val">false</span>,
                 <span class="kw">_ </span>=&gt; {
-                    <span class="kw">if </span>name.map == <span class="string">&quot;hammersmith_and_fulham&quot; </span>{
+                    <span class="kw">if </span>name.map == <span class="string">"hammersmith_and_fulham" </span>{
                         <span class="comment">// TODO Some movement geometry bug here
                         </span><span class="bool-val">false
                     </span>} <span class="kw">else </span>{
@@ -123,13 +127,13 @@
         },
         filter_crosswalks: <span class="bool-val">false</span>,
         onstreet_parking: <span class="kw">match </span>name.city.city.as_ref() {
-            <span class="string">&quot;seattle&quot; </span>=&gt; {
-                convert_osm::OnstreetParking::Blockface(name.city.input_path(<span class="string">&quot;blockface.bin&quot;</span>))
+            <span class="string">"seattle" </span>=&gt; {
+                convert_osm::OnstreetParking::Blockface(name.city.input_path(<span class="string">"blockface.bin"</span>))
             }
             <span class="kw">_ </span>=&gt; convert_osm::OnstreetParking::JustOSM,
         },
         public_offstreet_parking: <span class="kw">if </span>name.city == CityName::seattle() {
-            convert_osm::PublicOffstreetParking::Gis(name.city.input_path(<span class="string">&quot;offstreet_parking.bin&quot;</span>))
+            convert_osm::PublicOffstreetParking::Gis(name.city.input_path(<span class="string">"offstreet_parking.bin"</span>))
         } <span class="kw">else </span>{
             convert_osm::PublicOffstreetParking::None
         },
@@ -137,11 +141,11 @@
             convert_osm::PrivateOffstreetParking::FixedPerBldg(
                 <span class="comment">// TODO Utter guesses or in response to gridlock
                 </span><span class="kw">match </span>name.map.as_ref() {
-                    <span class="string">&quot;downtown&quot; </span>=&gt; <span class="number">5</span>,
-                    <span class="string">&quot;lakeslice&quot; </span>=&gt; <span class="number">5</span>,
-                    <span class="string">&quot;qa&quot; </span>=&gt; <span class="number">5</span>,
-                    <span class="string">&quot;south_seattle&quot; </span>=&gt; <span class="number">5</span>,
-                    <span class="string">&quot;wallingford&quot; </span>=&gt; <span class="number">5</span>,
+                    <span class="string">"downtown" </span>=&gt; <span class="number">5</span>,
+                    <span class="string">"lakeslice" </span>=&gt; <span class="number">5</span>,
+                    <span class="string">"qa" </span>=&gt; <span class="number">5</span>,
+                    <span class="string">"south_seattle" </span>=&gt; <span class="number">5</span>,
+                    <span class="string">"wallingford" </span>=&gt; <span class="number">5</span>,
                     <span class="kw">_ </span>=&gt; <span class="number">1</span>,
                 },
             )
@@ -151,22 +155,24 @@
         <span class="comment">// Unused currently
         </span>extra_buildings: <span class="prelude-val">None</span>,
         <span class="comment">// https://www.transit.land is a great place to find the static GTFS URLs
-        </span>gtfs_url: <span class="kw">if </span>name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;arboretum&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;http://metro.kingcounty.gov/GTFS/google_transit.zip&quot;</span>.to_string())
-        } <span class="kw">else if </span>name.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;san_francisco&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;https://gtfs.sfmta.com/transitdata/google_transit.zip&quot;</span>.to_string())
-        } <span class="kw">else if </span>name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;aricanduva&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;https://github.com/transitland/gtfs-archives-not-hosted-elsewhere/blob/master/sao-paulo-sptrans.zip?raw=true&quot;</span>.to_string())
-        } <span class="kw">else if </span>name.city == CityName::new(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;brest&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;https://ratpdev-mosaic-prod-bucket-raw.s3-eu-west-1.amazonaws.com/11/exports/1/gtfs.zip&quot;</span>.to_string())
+        </span>gtfs_url: <span class="kw">if </span>name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">"us"</span>, <span class="string">"seattle"</span>, <span class="string">"arboretum"</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">"http://metro.kingcounty.gov/GTFS/google_transit.zip"</span>.to_string())
+        } <span class="kw">else if </span>name.city == CityName::new(<span class="string">"us"</span>, <span class="string">"san_francisco"</span>) {
+            <span class="prelude-val">None
+            </span><span class="comment">// Crashing the traffic sim, so disabled
+            //Some("https://gtfs.sfmta.com/transitdata/google_transit.zip".to_string())
+        </span>} <span class="kw">else if </span>name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">"br"</span>, <span class="string">"sao_paulo"</span>, <span class="string">"aricanduva"</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">"https://github.com/transitland/gtfs-archives-not-hosted-elsewhere/blob/master/sao-paulo-sptrans.zip?raw=true"</span>.to_string())
+        } <span class="kw">else if </span>name.city == CityName::new(<span class="string">"fr"</span>, <span class="string">"brest"</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">"https://ratpdev-mosaic-prod-bucket-raw.s3-eu-west-1.amazonaws.com/11/exports/1/gtfs.zip"</span>.to_string())
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>},
         <span class="comment">// We only have a few elevation sources working
-        </span>elevation_geotiff: <span class="kw">if </span>name.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;data/input/shared/elevation/king_county_2016_lidar.tif&quot;</span>.to_string())
-        } <span class="kw">else if </span>name.city.country == <span class="string">&quot;gb&quot; </span>{
-            <span class="prelude-val">Some</span>(<span class="string">&quot;data/input/shared/elevation/UK-dem-50m-4326.tif&quot;</span>.to_string())
+        </span>elevation_geotiff: <span class="kw">if </span>name.city == CityName::new(<span class="string">"us"</span>, <span class="string">"seattle"</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">"data/input/shared/elevation/king_county_2016_lidar.tif"</span>.to_string())
+        } <span class="kw">else if </span>name.city.country == <span class="string">"gb" </span>{
+            <span class="prelude-val">Some</span>(<span class="string">"data/input/shared/elevation/UK-dem-50m-4326.tif"</span>.to_string())
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>},

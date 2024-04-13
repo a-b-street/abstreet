@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/scenario.rs`."><title>scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="synthpop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/scenario.rs`."><title>scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="synthpop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../synthpop/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -237,7 +239,7 @@
     </span><span class="kw">pub </span>orig_id: <span class="prelude-ty">Option</span>&lt;OrigPersonID&gt;,
     <span class="doccomment">/// There must be continuity between trips: each trip starts at the destination of the previous
     /// trip. In the case of borders, the outbound and inbound border may be different. This means
-    /// that there was some sort of &quot;remote&quot; trip happening outside the map that we don&#39;t simulate.
+    /// that there was some sort of "remote" trip happening outside the map that we don't simulate.
     </span><span class="kw">pub </span>trips: Vec&lt;IndividTrip&gt;,
 }
 
@@ -273,7 +275,7 @@
     }
 }
 
-<span class="doccomment">/// Lifted from Seattle&#39;s Soundcast model, but seems general enough to use anyhere.
+<span class="doccomment">/// Lifted from Seattle's Soundcast model, but seems general enough to use anyhere.
 </span><span class="attr">#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 </span><span class="kw">pub enum </span>TripPurpose {
     Home,
@@ -293,20 +295,20 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;{}&quot;</span>,
+            <span class="string">"{}"</span>,
             <span class="kw">match </span><span class="self">self </span>{
-                TripPurpose::Home =&gt; <span class="string">&quot;home&quot;</span>,
-                TripPurpose::Work =&gt; <span class="string">&quot;work&quot;</span>,
-                TripPurpose::School =&gt; <span class="string">&quot;school&quot;</span>,
+                TripPurpose::Home =&gt; <span class="string">"home"</span>,
+                TripPurpose::Work =&gt; <span class="string">"work"</span>,
+                TripPurpose::School =&gt; <span class="string">"school"</span>,
                 <span class="comment">// Is this like a parent escorting a child to school?
-                </span>TripPurpose::Escort =&gt; <span class="string">&quot;escort&quot;</span>,
-                TripPurpose::PersonalBusiness =&gt; <span class="string">&quot;personal business&quot;</span>,
-                TripPurpose::Shopping =&gt; <span class="string">&quot;shopping&quot;</span>,
-                TripPurpose::Meal =&gt; <span class="string">&quot;eating&quot;</span>,
-                TripPurpose::Social =&gt; <span class="string">&quot;social&quot;</span>,
-                TripPurpose::Recreation =&gt; <span class="string">&quot;recreation&quot;</span>,
-                TripPurpose::Medical =&gt; <span class="string">&quot;medical&quot;</span>,
-                TripPurpose::ParkAndRideTransfer =&gt; <span class="string">&quot;park-and-ride transfer&quot;</span>,
+                </span>TripPurpose::Escort =&gt; <span class="string">"escort"</span>,
+                TripPurpose::PersonalBusiness =&gt; <span class="string">"personal business"</span>,
+                TripPurpose::Shopping =&gt; <span class="string">"shopping"</span>,
+                TripPurpose::Meal =&gt; <span class="string">"eating"</span>,
+                TripPurpose::Social =&gt; <span class="string">"social"</span>,
+                TripPurpose::Recreation =&gt; <span class="string">"recreation"</span>,
+                TripPurpose::Medical =&gt; <span class="string">"medical"</span>,
+                TripPurpose::ParkAndRideTransfer =&gt; <span class="string">"park-and-ride transfer"</span>,
             }
         )
     }
@@ -335,13 +337,13 @@
             <span class="prelude-val">Ok</span>(()) =&gt; <span class="bool-val">true</span>,
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="kw">if </span>verbose {
-                    <span class="macro">warn!</span>(<span class="string">&quot;{}&quot;</span>, err);
+                    <span class="macro">warn!</span>(<span class="string">"{}"</span>, err);
                 }
                 <span class="bool-val">false
             </span>}
         });
         <span class="macro">warn!</span>(
-            <span class="string">&quot;{} of {} people have nonsense schedules&quot;</span>,
+            <span class="string">"{} of {} people have nonsense schedules"</span>,
             prettyprint_usize(orig - <span class="self">self</span>.people.len()),
             prettyprint_usize(orig)
         );
@@ -354,33 +356,33 @@
 
     <span class="kw">pub fn </span>default_scenario_for_map(name: <span class="kw-2">&amp;</span>MapName) -&gt; String {
         <span class="kw">if </span>name.city == CityName::seattle()
-            &amp;&amp; abstio::file_exists(abstio::path_scenario(name, <span class="string">&quot;weekday&quot;</span>))
+            &amp;&amp; abstio::file_exists(abstio::path_scenario(name, <span class="string">"weekday"</span>))
         {
-            <span class="kw">return </span><span class="string">&quot;weekday&quot;</span>.to_string();
+            <span class="kw">return </span><span class="string">"weekday"</span>.to_string();
         }
-        <span class="kw">if </span>name.city.country == <span class="string">&quot;gb&quot; </span>{
-            <span class="kw">for </span>x <span class="kw">in </span>[<span class="string">&quot;background&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>] {
+        <span class="kw">if </span>name.city.country == <span class="string">"gb" </span>{
+            <span class="kw">for </span>x <span class="kw">in </span>[<span class="string">"background"</span>, <span class="string">"base_with_bg"</span>] {
                 <span class="kw">if </span>abstio::file_exists(abstio::path_scenario(name, x)) {
                     <span class="kw">return </span>x.to_string();
                 }
             }
         }
         <span class="comment">// Dynamically generated -- arguably this is an absence of a default scenario
-        </span><span class="string">&quot;home_to_work&quot;</span>.to_string()
+        </span><span class="string">"home_to_work"</span>.to_string()
     }
 }
 
 <span class="kw">impl </span>PersonSpec {
-    <span class="doccomment">/// Verify that a person&#39;s trips make sense
+    <span class="doccomment">/// Verify that a person's trips make sense
     </span><span class="kw">pub fn </span>check_schedule(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.trips.is_empty() {
-            <span class="macro">bail!</span>(<span class="string">&quot;Person ({:?}) has no trips at all&quot;</span>, <span class="self">self</span>.orig_id);
+            <span class="macro">bail!</span>(<span class="string">"Person ({:?}) has no trips at all"</span>, <span class="self">self</span>.orig_id);
         }
 
         <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.trips.windows(<span class="number">2</span>) {
             <span class="kw">if </span>pair[<span class="number">0</span>].depart &gt;= pair[<span class="number">1</span>].depart {
                 <span class="macro">bail!</span>(
-                    <span class="string">&quot;Person ({:?}) starts two trips in the wrong order: {} then {}&quot;</span>,
+                    <span class="string">"Person ({:?}) starts two trips in the wrong order: {} then {}"</span>,
                     <span class="self">self</span>.orig_id,
                     pair[<span class="number">0</span>].depart,
                     pair[<span class="number">1</span>].depart
@@ -395,7 +397,7 @@
                     <span class="kw">continue</span>;
                 }
                 <span class="macro">bail!</span>(
-                    <span class="string">&quot;Person ({:?}) warps from {:?} to {:?} during adjacent trips&quot;</span>,
+                    <span class="string">"Person ({:?}) warps from {:?} to {:?} during adjacent trips"</span>,
                     <span class="self">self</span>.orig_id,
                     pair[<span class="number">0</span>].destination,
                     pair[<span class="number">1</span>].origin
@@ -406,7 +408,7 @@
         <span class="kw">for </span>trip <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.trips {
             <span class="kw">if </span>trip.origin == trip.destination {
                 <span class="macro">bail!</span>(
-                    <span class="string">&quot;Person ({:?}) has a trip from/to the same place: {:?}&quot;</span>,
+                    <span class="string">"Person ({:?}) has a trip from/to the same place: {:?}"</span>,
                     <span class="self">self</span>.orig_id,
                     trip.origin
                 );

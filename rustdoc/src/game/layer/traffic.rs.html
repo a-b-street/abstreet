@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/traffic.rs`."><title>traffic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/traffic.rs`."><title>traffic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -806,8 +808,8 @@
 }
 
 <span class="kw">impl </span>Layer <span class="kw">for </span>Backpressure {
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;backpressure&quot;</span>)
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">"backpressure"</span>)
     }
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
         <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
@@ -843,9 +845,9 @@
         }
 
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            header(ctx, <span class="string">&quot;Backpressure&quot;</span>),
+            header(ctx, <span class="string">"Backpressure"</span>),
             Text::from(
-                Line(<span class="string">&quot;This counts all active trips passing through a road in the future&quot;</span>)
+                Line(<span class="string">"This counts all active trips passing through a road in the future"</span>)
                     .secondary(),
             )
             .wrap_to_pct(ctx, <span class="number">15</span>)
@@ -853,7 +855,7 @@
             ColorLegend::gradient(
                 ctx,
                 <span class="kw-2">&amp;</span>app.cs.good_to_bad_red,
-                <span class="macro">vec!</span>[<span class="string">&quot;lowest count&quot;</span>, <span class="string">&quot;highest&quot;</span>],
+                <span class="macro">vec!</span>[<span class="string">"lowest count"</span>, <span class="string">"highest"</span>],
             ),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
@@ -880,8 +882,8 @@
 }
 
 <span class="kw">impl </span>Layer <span class="kw">for </span>Throughput {
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;throughput&quot;</span>)
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">"throughput"</span>)
     }
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>recalc_tooltip = <span class="bool-val">false</span>;
@@ -926,19 +928,19 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
-                <span class="string">&quot;Export to CSV&quot; </span>=&gt; {
+                <span class="string">"Export to CSV" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Transition(Transition::Push(
                         <span class="kw">match </span>export_throughput(app) {
                             <span class="prelude-val">Ok</span>((path1, path2)) =&gt; PopupMsg::new_state(
                                 ctx,
-                                <span class="string">&quot;Data exported&quot;</span>,
-                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {} and {}&quot;</span>, path1, path2)],
+                                <span class="string">"Data exported"</span>,
+                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Data exported to {} and {}"</span>, path1, path2)],
                             ),
                             <span class="prelude-val">Err</span>(err) =&gt; {
-                                PopupMsg::new_state(ctx, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[err.to_string()])
+                                PopupMsg::new_state(ctx, <span class="string">"Export failed"</span>, <span class="macro">vec!</span>[err.to_string()])
                             }
                         },
                     )));
@@ -948,7 +950,7 @@
             Outcome::Changed(<span class="kw">_</span>) =&gt; {
                 <span class="kw">if </span><span class="self">self
                     </span>.panel
-                    .maybe_is_checked(<span class="string">&quot;Compare before proposal&quot;</span>)
+                    .maybe_is_checked(<span class="string">"Compare before proposal"</span>)
                     .unwrap_or(<span class="bool-val">false</span>)
                 {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Replace(Box::new(CompareThroughput::new(
@@ -991,12 +993,12 @@
         <span class="kw">let </span>road_counter = stats.road_thruput.all_total_counts(<span class="kw-2">&amp;</span>agent_types);
         <span class="kw">let </span>intersection_counter = stats.intersection_thruput.all_total_counts(<span class="kw-2">&amp;</span>agent_types);
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            header(ctx, <span class="string">&quot;Throughput&quot;</span>),
-            Text::from(Line(<span class="string">&quot;This counts all people crossing since midnight&quot;</span>).secondary())
+            header(ctx, <span class="string">"Throughput"</span>),
+            Text::from(Line(<span class="string">"This counts all people crossing since midnight"</span>).secondary())
                 .wrap_to_pct(ctx, <span class="number">15</span>)
                 .into_widget(ctx),
             <span class="kw">if </span>app.has_prebaked().is_some() {
-                Toggle::switch(ctx, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>)
+                Toggle::switch(ctx, <span class="string">"Compare before proposal"</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>)
             } <span class="kw">else </span>{
                 Widget::nothing()
             },
@@ -1014,8 +1016,8 @@
                     .collect(),
             )
             .flex_wrap(ctx, Percent::int(<span class="number">20</span>)),
-            ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;highest&quot;</span>]),
-            ctx.style().btn_plain.text(<span class="string">&quot;Export to CSV&quot;</span>).build_def(ctx),
+            ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">"0"</span>, <span class="string">"highest"</span>]),
+            ctx.style().btn_plain.text(<span class="string">"Export to CSV"</span>).build_def(ctx),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
@@ -1042,8 +1044,8 @@
 }
 
 <span class="kw">impl </span>Layer <span class="kw">for </span>CompareThroughput {
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;throughput&quot;</span>)
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">"throughput"</span>)
     }
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>recalc_tooltip = <span class="bool-val">false</span>;
@@ -1065,7 +1067,7 @@
                             .total_for_by_time(r, app.primary.sim.time());
                         <span class="kw">if </span>before + after &gt; <span class="number">0 </span>{
                             <span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(Text::from(<span class="macro">format!</span>(
-                                <span class="string">&quot;{} before, {} after&quot;</span>,
+                                <span class="string">"{} before, {} after"</span>,
                                 prettyprint_usize(before),
                                 prettyprint_usize(after)
                             )));
@@ -1084,7 +1086,7 @@
                             .total_for_by_time(i, app.primary.sim.time());
                         <span class="kw">if </span>before + after &gt; <span class="number">0 </span>{
                             <span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(Text::from(<span class="macro">format!</span>(
-                                <span class="string">&quot;{} before, {} after&quot;</span>,
+                                <span class="string">"{} before, {} after"</span>,
                                 prettyprint_usize(before),
                                 prettyprint_usize(after)
                             )));
@@ -1099,7 +1101,7 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -1162,7 +1164,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorNetwork::new(app);
 
-        <span class="kw">let </span>scale = DivergingScale::new(Color::hex(<span class="string">&quot;#5D9630&quot;</span>), Color::WHITE, Color::hex(<span class="string">&quot;#A32015&quot;</span>))
+        <span class="kw">let </span>scale = DivergingScale::new(Color::hex(<span class="string">"#5D9630"</span>), Color::WHITE, Color::hex(<span class="string">"#A32015"</span>))
             .range(<span class="number">0.0</span>, <span class="number">2.0</span>)
             .ignore(<span class="number">0.7</span>, <span class="number">1.3</span>);
 
@@ -1178,9 +1180,9 @@
         }
 
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            header(ctx, <span class="string">&quot;Relative Throughput&quot;</span>),
-            Toggle::switch(ctx, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
-            scale.make_legend(ctx, <span class="macro">vec!</span>[<span class="string">&quot;less traffic&quot;</span>, <span class="string">&quot;same&quot;</span>, <span class="string">&quot;more&quot;</span>]),
+            header(ctx, <span class="string">"Relative Throughput"</span>),
+            Toggle::switch(ctx, <span class="string">"Compare before proposal"</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
+            scale.make_legend(ctx, <span class="macro">vec!</span>[<span class="string">"less traffic"</span>, <span class="string">"same"</span>, <span class="string">"more"</span>]),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
@@ -1201,8 +1203,8 @@
 }
 
 <span class="kw">impl </span>Layer <span class="kw">for </span>TrafficJams {
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;traffic jams&quot;</span>)
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">"traffic jams"</span>)
     }
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
         <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
@@ -1248,13 +1250,13 @@
         }
 
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            header(ctx, <span class="string">&quot;Traffic jams&quot;</span>),
+            header(ctx, <span class="string">"Traffic jams"</span>),
             Text::from(
-                Line(<span class="string">&quot;A jam starts when delay exceeds 5 mins, then spreads out&quot;</span>).secondary(),
+                Line(<span class="string">"A jam starts when delay exceeds 5 mins, then spreads out"</span>).secondary(),
             )
             .wrap_to_pct(ctx, <span class="number">15</span>)
             .into_widget(ctx),
-            <span class="macro">format!</span>(<span class="string">&quot;{} jams detected&quot;</span>, cnt).text_widget(ctx),
+            <span class="macro">format!</span>(<span class="string">"{} jams detected"</span>, cnt).text_widget(ctx),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
@@ -1275,7 +1277,7 @@
 <span class="comment">// (Epicenter, entire shape)
 </span><span class="kw">fn </span>cluster_jams(map: <span class="kw-2">&amp;</span>Map, problems: Vec&lt;(IntersectionID, Time)&gt;) -&gt; Vec&lt;(Polygon, Polygon)&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>jams: Vec&lt;Jam&gt; = Vec::new();
-    <span class="comment">// The delay itself doesn&#39;t matter, as long as they&#39;re sorted.
+    <span class="comment">// The delay itself doesn't matter, as long as they're sorted.
     </span><span class="kw">for </span>(i, <span class="kw">_</span>) <span class="kw">in </span>problems {
         <span class="comment">// Is this connected to an existing problem?
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>jam) = jams.iter_mut().find(|j| j.adjacent_to(map, i)) {
@@ -1288,7 +1290,7 @@
         }
     }
 
-    <span class="comment">// TODO This silently hides jams where we can&#39;t calculate the convex hull. The caller just
+    <span class="comment">// TODO This silently hides jams where we can't calculate the convex hull. The caller just
     // needs a Tessellation, so should we have a less strict version of convex_hull?
     </span>jams.into_iter()
         .filter_map(|jam| {
@@ -1328,8 +1330,8 @@
 }
 
 <span class="kw">impl </span>Layer <span class="kw">for </span>Delay {
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;delay&quot;</span>)
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">"delay"</span>)
     }
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
         <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
@@ -1338,7 +1340,7 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -1358,7 +1360,7 @@
 <span class="kw">impl </span>Delay {
     <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Delay {
         <span class="kw">let </span><span class="kw-2">mut </span>delays = app.primary.sim.all_waiting_people();
-        <span class="comment">// Don&#39;t draw anything when zoomed in
+        <span class="comment">// Don't draw anything when zoomed in
         </span><span class="kw">let </span><span class="kw-2">mut </span>draw = ToggleZoomed::builder();
         draw.unzoomed.push(
             app.cs.fade_map_dark,
@@ -1391,8 +1393,8 @@
             time: app.primary.sim.time(),
             draw: draw.build(ctx),
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                header(ctx, <span class="string">&quot;Delay per agent (minutes)&quot;</span>),
-                ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;10&quot;</span>, <span class="string">&quot;15+&quot;</span>]),
+                header(ctx, <span class="string">"Delay per agent (minutes)"</span>),
+                ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">"0"</span>, <span class="string">"5"</span>, <span class="string">"10"</span>, <span class="string">"15+"</span>]),
             ]))
             .aligned_pair(PANEL_PLACEMENT)
             .build(ctx),
@@ -1407,8 +1409,8 @@
 }
 
 <span class="kw">impl </span>Layer <span class="kw">for </span>PedestrianCrowding {
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;pedestrian crowding&quot;</span>)
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">"pedestrian crowding"</span>)
     }
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
         <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
@@ -1417,7 +1419,7 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -1433,7 +1435,7 @@
         <span class="self">self</span>.panel.draw(g);
         <span class="self">self</span>.world.draw(g);
     }
-    <span class="comment">// TODO This doesn&#39;t seem to be showing up
+    <span class="comment">// TODO This doesn't seem to be showing up
     </span><span class="kw">fn </span>draw_minimap(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>GfxCtx) {}
 }
 
@@ -1441,10 +1443,10 @@
     <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
         <span class="kw">let </span>categories = <span class="macro">vec!</span>[
-            (<span class="string">&quot;1 - 1.5&quot;</span>, app.cs.good_to_bad_red.eval(<span class="number">0.2</span>)),
-            (<span class="string">&quot;1.5 - 2&quot;</span>, app.cs.good_to_bad_red.eval(<span class="number">0.4</span>)),
-            (<span class="string">&quot;2 - 5&quot;</span>, app.cs.good_to_bad_red.eval(<span class="number">0.6</span>)),
-            (<span class="string">&quot;&gt; 5&quot;</span>, app.cs.good_to_bad_red.eval(<span class="number">1.0</span>)),
+            (<span class="string">"1 - 1.5"</span>, app.cs.good_to_bad_red.eval(<span class="number">0.2</span>)),
+            (<span class="string">"1.5 - 2"</span>, app.cs.good_to_bad_red.eval(<span class="number">0.4</span>)),
+            (<span class="string">"2 - 5"</span>, app.cs.good_to_bad_red.eval(<span class="number">0.6</span>)),
+            (<span class="string">"&gt; 5"</span>, app.cs.good_to_bad_red.eval(<span class="number">1.0</span>)),
         ];
         <span class="kw">let </span><span class="kw-2">mut </span>world = World::new();
         <span class="kw">let </span><span class="kw-2">mut </span>draw = ToggleZoomed::builder();
@@ -1452,21 +1454,21 @@
             .push(app.cs.fade_map_dark, map.get_boundary_polygon().clone());
         world.draw_master_batch(ctx, draw);
 
-        <span class="kw">fn </span>bucket(x: f64) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">fn </span>bucket(x: f64) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
             <span class="kw">if </span>x &lt; <span class="number">1.0 </span>{
                 <span class="macro">unreachable!</span>()
             } <span class="kw">else if </span>x &lt;= <span class="number">1.5 </span>{
-                <span class="string">&quot;1 - 1.5&quot;
+                <span class="string">"1 - 1.5"
             </span>} <span class="kw">else if </span>x &lt;= <span class="number">2.0 </span>{
-                <span class="string">&quot;1.5 - 2&quot;
+                <span class="string">"1.5 - 2"
             </span>} <span class="kw">else if </span>x &lt;= <span class="number">5.0 </span>{
-                <span class="string">&quot;2 - 5&quot;
+                <span class="string">"2 - 5"
             </span>} <span class="kw">else </span>{
-                <span class="string">&quot;&gt; 5&quot;
+                <span class="string">"&gt; 5"
             </span>}
         }
         <span class="kw">fn </span>round(x: f64) -&gt; f64 {
-            <span class="comment">// Round up, so we don&#39;t show 0 density
+            <span class="comment">// Round up, so we don't show 0 density
             </span>(x * <span class="number">10.0</span>).ceil() / <span class="number">10.0
         </span>}
 
@@ -1487,7 +1489,7 @@
                 .hitbox(map.get_r(r).get_thick_polygon())
                 .draw_color_unzoomed(<span class="kw-2">*</span>color)
                 .invisibly_hoverable()
-                .tooltip(Text::from(<span class="macro">format!</span>(<span class="string">&quot;{density} people / m²&quot;</span>)))
+                .tooltip(Text::from(<span class="macro">format!</span>(<span class="string">"{density} people / m²"</span>)))
                 .build(ctx);
         }
         <span class="kw">for </span>(i, density) <span class="kw">in </span>intersections {
@@ -1504,7 +1506,7 @@
                 .hitbox(map.get_i(i).polygon.clone())
                 .draw_color_unzoomed(<span class="kw-2">*</span>color)
                 .invisibly_hoverable()
-                .tooltip(Text::from(<span class="macro">format!</span>(<span class="string">&quot;{density} people / m²&quot;</span>)))
+                .tooltip(Text::from(<span class="macro">format!</span>(<span class="string">"{density} people / m²"</span>)))
                 .build(ctx);
         }
         world.initialize_hover(ctx);
@@ -1513,9 +1515,9 @@
             time: app.primary.sim.time(),
             world,
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                header(ctx, <span class="string">&quot;Pedestrian crowding&quot;</span>),
-                <span class="string">&quot;(people / m²)&quot;</span>.text_widget(ctx),
-                <span class="macro">format!</span>(<span class="string">&quot;Max density: {max_density} m²&quot;</span>).text_widget(ctx),
+                header(ctx, <span class="string">"Pedestrian crowding"</span>),
+                <span class="string">"(people / m²)"</span>.text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"Max density: {max_density} m²"</span>).text_widget(ctx),
                 Widget::col(
                     categories
                         .into_iter()
@@ -1531,7 +1533,7 @@
 
 <span class="kw">fn </span>export_throughput(app: <span class="kw-2">&amp;</span>App) -&gt; <span class="prelude-ty">Result</span>&lt;(String, String)&gt; {
     <span class="kw">let </span>path1 = <span class="macro">format!</span>(
-        <span class="string">&quot;road_throughput_{}_{}.csv&quot;</span>,
+        <span class="string">"road_throughput_{}_{}.csv"</span>,
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
@@ -1545,7 +1547,7 @@
     )<span class="question-mark">?</span>;
 
     <span class="kw">let </span>path2 = <span class="macro">format!</span>(
-        <span class="string">&quot;intersection_throughput_{}_{}.csv&quot;</span>,
+        <span class="string">"intersection_throughput_{}_{}.csv"</span>,
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );

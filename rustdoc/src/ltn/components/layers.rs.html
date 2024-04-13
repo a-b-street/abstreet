@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/components/layers.rs`."><title>layers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/components/layers.rs`."><title>layers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -503,7 +505,7 @@
 }
 
 <span class="kw">impl </span>Layers {
-    <span class="doccomment">/// Panel won&#39;t be initialized, must call `event` first
+    <span class="doccomment">/// Panel won't be initialized, must call `event` first
     </span><span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Layers {
         <span class="self">Self </span>{
             panel: Panel::empty(ctx),
@@ -528,16 +530,16 @@
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; {
                 <span class="kw">match </span>x.as_ref() {
-                    <span class="string">&quot;zoom map out&quot; </span>=&gt; {
+                    <span class="string">"zoom map out" </span>=&gt; {
                         ctx.canvas.center_zoom(-<span class="number">8.0</span>);
                     }
-                    <span class="string">&quot;zoom map in&quot; </span>=&gt; {
+                    <span class="string">"zoom map in" </span>=&gt; {
                         ctx.canvas.center_zoom(<span class="number">8.0</span>);
                     }
-                    <span class="string">&quot;hide layers&quot; </span>=&gt; {
+                    <span class="string">"hide layers" </span>=&gt; {
                         <span class="self">self</span>.minimized = <span class="bool-val">true</span>;
                     }
-                    <span class="string">&quot;show layers&quot; </span>=&gt; {
+                    <span class="string">"show layers" </span>=&gt; {
                         <span class="self">self</span>.minimized = <span class="bool-val">false</span>;
                     }
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -546,30 +548,30 @@
                 <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
             }
             Outcome::Changed(x) =&gt; {
-                <span class="kw">if </span>x == <span class="string">&quot;show bus routes&quot; </span>{
+                <span class="kw">if </span>x == <span class="string">"show bus routes" </span>{
                     <span class="self">self</span>.show_bus_routes = <span class="self">self</span>.panel.is_checked(<span class="kw-2">&amp;</span>x);
                     <span class="self">self</span>.update_panel(ctx, cs, bottom_panel);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
-                } <span class="kw">else if </span>x == <span class="string">&quot;show turn restrictions&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"show turn restrictions" </span>{
                     <span class="self">self</span>.show_turn_restrictions = <span class="self">self</span>.panel.is_checked(<span class="kw-2">&amp;</span>x);
                     <span class="self">self</span>.update_panel(ctx, cs, bottom_panel);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
-                } <span class="kw">else if </span>x == <span class="string">&quot;show time to nearest crossing&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"show time to nearest crossing" </span>{
                     <span class="self">self</span>.show_crossing_time = <span class="self">self</span>.panel.is_checked(<span class="kw-2">&amp;</span>x);
                     <span class="self">self</span>.update_panel(ctx, cs, bottom_panel);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
-                } <span class="kw">else if </span>x == <span class="string">&quot;Use bus gates when needed&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"Use bus gates when needed" </span>{
                     <span class="self">self</span>.autofix_bus_gates = <span class="self">self</span>.panel.is_checked(<span class="kw-2">&amp;</span>x);
                     <span class="self">self</span>.update_panel(ctx, cs, bottom_panel);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
-                } <span class="kw">else if </span>x == <span class="string">&quot;Fix one-way streets when needed&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"Fix one-way streets when needed" </span>{
                     <span class="self">self</span>.autofix_one_ways = <span class="self">self</span>.panel.is_checked(<span class="kw-2">&amp;</span>x);
                     <span class="self">self</span>.update_panel(ctx, cs, bottom_panel);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                 }
 
-                ctx.set_scale_factor(<span class="self">self</span>.panel.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;scale_factor&quot;</span>).<span class="number">0</span>);
-                <span class="comment">// TODO This doesn&#39;t seem to do mark_covered_area correctly, so using the scroll
+                ctx.set_scale_factor(<span class="self">self</span>.panel.spinner::&lt;RoundedF64&gt;(<span class="string">"scale_factor"</span>).<span class="number">0</span>);
+                <span class="comment">// TODO This doesn't seem to do mark_covered_area correctly, so using the scroll
                 // wheel on the spinner just scrolls the canvas
                 </span><span class="self">self</span>.update_panel(ctx, cs, bottom_panel);
                 <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Recreate);
@@ -647,29 +649,29 @@
             <span class="kw">return </span>ctx
                 .style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/layers.svg"</span>)
                 .hotkey(Key::L)
-                .build_widget(ctx, <span class="string">&quot;show layers&quot;</span>)
+                .build_widget(ctx, <span class="string">"show layers"</span>)
                 .centered_horiz();
         }
 
         Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Image::from_path(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
+                Image::from_path(<span class="string">"system/assets/tools/layers.svg"</span>)
                     .dims(<span class="number">30.0</span>)
                     .into_widget(ctx)
                     .centered_vert()
-                    .named(<span class="string">&quot;layer icon&quot;</span>),
+                    .named(<span class="string">"layer icon"</span>),
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/minimize.svg&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/minimize.svg"</span>)
                     .hotkey(Key::L)
-                    .build_widget(ctx, <span class="string">&quot;hide layers&quot;</span>)
+                    .build_widget(ctx, <span class="string">"hide layers"</span>)
                     .align_right(),
             ]),
             <span class="self">self</span>.panel_cache_key.<span class="number">0</span>.legend(ctx, cs, <span class="self">self</span>),
             {
-                <span class="kw">let </span>checkbox = Toggle::checkbox(ctx, <span class="string">&quot;show bus routes&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.show_bus_routes);
+                <span class="kw">let </span>checkbox = Toggle::checkbox(ctx, <span class="string">"show bus routes"</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.show_bus_routes);
                 <span class="kw">if </span><span class="self">self</span>.show_bus_routes {
                     checkbox.outline((<span class="number">1.0</span>, <span class="kw-2">*</span>colors::BUS_ROUTE))
                 } <span class="kw">else </span>{
@@ -678,7 +680,7 @@
             },
             Toggle::checkbox(
                 ctx,
-                <span class="string">&quot;show turn restrictions&quot;</span>,
+                <span class="string">"show turn restrictions"</span>,
                 <span class="prelude-val">None</span>,
                 <span class="self">self</span>.show_turn_restrictions,
             ),
@@ -686,17 +688,17 @@
                 Widget::col(<span class="macro">vec!</span>[
                     Toggle::checkbox(
                         ctx,
-                        <span class="string">&quot;show time to nearest crossing&quot;</span>,
+                        <span class="string">"show time to nearest crossing"</span>,
                         <span class="prelude-val">None</span>,
                         <span class="self">self</span>.show_crossing_time,
                     ),
                     Widget::row(<span class="macro">vec!</span>[
                         <span class="comment">// TODO White = none
-                        </span><span class="string">&quot;Time:&quot;</span>.text_widget(ctx),
+                        </span><span class="string">"Time:"</span>.text_widget(ctx),
                         ColorLegend::gradient_with_width(
                             ctx,
                             <span class="kw-2">&amp;</span>cs.good_to_bad_red,
-                            <span class="macro">vec!</span>[<span class="string">&quot;&lt; 1 min&quot;</span>, <span class="string">&quot;&gt; 5 mins&quot;</span>],
+                            <span class="macro">vec!</span>[<span class="string">"&lt; 1 min"</span>, <span class="string">"&gt; 5 mins"</span>],
                             <span class="number">150.0</span>,
                         ),
                     ])
@@ -706,10 +708,10 @@
                 Widget::nothing()
             },
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Adjust the size of text:&quot;</span>.text_widget(ctx).centered_vert(),
+                <span class="string">"Adjust the size of text:"</span>.text_widget(ctx).centered_vert(),
                 Spinner::f64_widget(
                     ctx,
-                    <span class="string">&quot;scale_factor&quot;</span>,
+                    <span class="string">"scale_factor"</span>,
                     (<span class="number">0.5</span>, <span class="number">2.5</span>),
                     ctx.prerender.get_scale_factor(),
                     <span class="number">0.1</span>,
@@ -732,7 +734,7 @@
     Widget::custom_col(<span class="macro">vec!</span>[
         builder
             .clone()
-            .image_path(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
+            .image_path(<span class="string">"system/assets/speed/plus.svg"</span>)
             .corner_rounding(geom::CornerRadii {
                 top_left: <span class="number">16.0</span>,
                 top_right: <span class="number">16.0</span>,
@@ -740,9 +742,9 @@
                 bottom_left: <span class="number">0.0</span>,
             })
             .disabled(ctx.canvas.is_max_zoom())
-            .build_widget(ctx, <span class="string">&quot;zoom map in&quot;</span>),
+            .build_widget(ctx, <span class="string">"zoom map in"</span>),
         builder
-            .image_path(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
+            .image_path(<span class="string">"system/assets/speed/minus.svg"</span>)
             .image_dims(<span class="number">30.0</span>)
             .padding(<span class="number">12.0</span>)
             .corner_rounding(geom::CornerRadii {
@@ -752,7 +754,7 @@
                 bottom_left: <span class="number">16.0</span>,
             })
             .disabled(ctx.canvas.is_min_zoom())
-            .build_widget(ctx, <span class="string">&quot;zoom map out&quot;</span>),
+            .build_widget(ctx, <span class="string">"zoom map out"</span>),
     ])
 }
 
@@ -765,30 +767,30 @@
                 entry_tooltip(
                     ctx,
                     Color::BLACK,
-                    <span class="string">&quot;main road&quot;</span>,
-                    <span class="string">&quot;Classified as non-local, designed for through-traffic&quot;</span>,
+                    <span class="string">"main road"</span>,
+                    <span class="string">"Classified as non-local, designed for through-traffic"</span>,
                 ),
                 entry_tooltip(
                     ctx,
                     Color::YELLOW.alpha(<span class="number">0.2</span>),
-                    <span class="string">&quot;neighbourhood&quot;</span>,
-                    <span class="string">&quot;Analyze through-traffic here&quot;</span>,
+                    <span class="string">"neighbourhood"</span>,
+                    <span class="string">"Analyze through-traffic here"</span>,
                 ),
             ],
             Mode::ModifyNeighbourhood =&gt; <span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
                     <span class="comment">// TODO White = none
-                    </span><span class="string">&quot;Shortcuts:&quot;</span>.text_widget(ctx),
+                    </span><span class="string">"Shortcuts:"</span>.text_widget(ctx),
                     ColorLegend::gradient_with_width(
                         ctx,
                         <span class="kw-2">&amp;</span>cs.good_to_bad_red,
-                        <span class="macro">vec!</span>[<span class="string">&quot;low&quot;</span>, <span class="string">&quot;high&quot;</span>],
+                        <span class="macro">vec!</span>[<span class="string">"low"</span>, <span class="string">"high"</span>],
                         <span class="number">150.0</span>,
                     ),
                 ]),
-                Widget::row(<span class="macro">vec!</span>[<span class="string">&quot;Cells:&quot;</span>.text_widget(ctx), color_grid(ctx)]),
+                Widget::row(<span class="macro">vec!</span>[<span class="string">"Cells:"</span>.text_widget(ctx), color_grid(ctx)]),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Modal filters:&quot;</span>.text_widget(ctx),
+                    <span class="string">"Modal filters:"</span>.text_widget(ctx),
                     Image::from_path(filter_svg_path(FilterType::WalkCycleOnly))
                         .untinted()
                         .dims(<span class="number">30.0</span>)
@@ -806,10 +808,10 @@
                         .dims(<span class="number">30.0</span>)
                         .into_widget(ctx),
                 ]),
-                Line(<span class="string">&quot;Faded filters exist already&quot;</span>).small().into_widget(ctx),
+                Line(<span class="string">"Faded filters exist already"</span>).small().into_widget(ctx),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Private road:&quot;</span>.text_widget(ctx),
-                    Image::from_path(<span class="string">&quot;system/assets/map/private_road.svg&quot;</span>)
+                    <span class="string">"Private road:"</span>.text_widget(ctx),
+                    Image::from_path(<span class="string">"system/assets/map/private_road.svg"</span>)
                         .untinted()
                         .dims(<span class="number">30.0</span>)
                         .into_widget(ctx),
@@ -818,13 +820,13 @@
                 // TODO Dashed roads are walk/bike
                 </span>Toggle::checkbox(
                     ctx,
-                    <span class="string">&quot;Use bus gates when needed&quot;</span>,
+                    <span class="string">"Use bus gates when needed"</span>,
                     <span class="prelude-val">None</span>,
                     layers.autofix_bus_gates,
                 ),
                 Toggle::checkbox(
                     ctx,
-                    <span class="string">&quot;Fix one-way streets when needed&quot;</span>,
+                    <span class="string">"Fix one-way streets when needed"</span>,
                     <span class="prelude-val">None</span>,
                     layers.autofix_one_ways,
                 ),
@@ -836,16 +838,16 @@
                 entry(
                     ctx,
                     <span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE,
-                    <span class="string">&quot;driving route before changes&quot;</span>,
+                    <span class="string">"driving route before changes"</span>,
                 ),
                 entry(
                     ctx,
                     <span class="kw-2">*</span>colors::PLAN_ROUTE_AFTER,
-                    <span class="string">&quot;driving route after changes&quot;</span>,
+                    <span class="string">"driving route after changes"</span>,
                 ),
-                entry(ctx, <span class="kw-2">*</span>colors::PLAN_ROUTE_BIKE, <span class="string">&quot;cycling route&quot;</span>),
+                entry(ctx, <span class="kw-2">*</span>colors::PLAN_ROUTE_BIKE, <span class="string">"cycling route"</span>),
                 <span class="comment">// TODO Should we invert text color? This gets hard to read
-                </span>entry(ctx, <span class="kw-2">*</span>colors::PLAN_ROUTE_WALK, <span class="string">&quot;walking route&quot;</span>),
+                </span>entry(ctx, <span class="kw-2">*</span>colors::PLAN_ROUTE_WALK, <span class="string">"walking route"</span>),
             ],
             Mode::Crossings =&gt; <span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
@@ -853,39 +855,39 @@
                         .untinted()
                         .dims(<span class="number">30.0</span>)
                         .into_widget(ctx),
-                    <span class="string">&quot;Unsignalized crossing&quot;</span>.text_widget(ctx),
+                    <span class="string">"Unsignalized crossing"</span>.text_widget(ctx),
                 ]),
                 Widget::row(<span class="macro">vec!</span>[
                     Image::from_path(pages::Crossings::svg_path(CrossingType::Signalized))
                         .untinted()
                         .dims(<span class="number">30.0</span>)
                         .into_widget(ctx),
-                    <span class="string">&quot;Signalized crossing&quot;</span>.text_widget(ctx),
+                    <span class="string">"Signalized crossing"</span>.text_widget(ctx),
                 ]),
-                entry(ctx, <span class="kw-2">*</span>colors::IMPERMEABLE, <span class="string">&quot;impermeable (no crossings)&quot;</span>),
-                entry(ctx, <span class="kw-2">*</span>colors::SEMI_PERMEABLE, <span class="string">&quot;semi-permeable (1 crossing)&quot;</span>),
-                entry(ctx, <span class="kw-2">*</span>colors::POROUS, <span class="string">&quot;porous (≥2 crossings)&quot;</span>),
+                entry(ctx, <span class="kw-2">*</span>colors::IMPERMEABLE, <span class="string">"impermeable (no crossings)"</span>),
+                entry(ctx, <span class="kw-2">*</span>colors::SEMI_PERMEABLE, <span class="string">"semi-permeable (1 crossing)"</span>),
+                entry(ctx, <span class="kw-2">*</span>colors::POROUS, <span class="string">"porous (≥2 crossings)"</span>),
             ],
             Mode::Impact =&gt; <span class="macro">vec!</span>[
                 map_gui::tools::compare_counts::CompareCounts::relative_scale()
-                    .make_legend(ctx, <span class="macro">vec!</span>[<span class="string">&quot;less&quot;</span>, <span class="string">&quot;same&quot;</span>, <span class="string">&quot;more&quot;</span>]),
+                    .make_legend(ctx, <span class="macro">vec!</span>[<span class="string">"less"</span>, <span class="string">"same"</span>, <span class="string">"more"</span>]),
             ],
             Mode::CycleNetwork =&gt; <span class="macro">vec!</span>[
                 entry(
                     ctx,
                     <span class="kw-2">*</span>colors::NETWORK_SEGREGATED_LANE,
-                    <span class="string">&quot;segregated cycle lane&quot;</span>,
+                    <span class="string">"segregated cycle lane"</span>,
                 ),
-                entry(ctx, <span class="kw-2">*</span>colors::NETWORK_QUIET_STREET, <span class="string">&quot;quiet local street&quot;</span>),
+                entry(ctx, <span class="kw-2">*</span>colors::NETWORK_QUIET_STREET, <span class="string">"quiet local street"</span>),
                 entry(
                     ctx,
                     <span class="kw-2">*</span>colors::NETWORK_PAINTED_LANE,
-                    <span class="string">&quot;painted cycle lane or shared bus lane&quot;</span>,
+                    <span class="string">"painted cycle lane or shared bus lane"</span>,
                 ),
                 entry(
                     ctx,
                     <span class="kw-2">*</span>colors::NETWORK_THROUGH_TRAFFIC_STREET,
-                    <span class="string">&quot;local street with cut-through traffic&quot;</span>,
+                    <span class="string">"local street with cut-through traffic"</span>,
                 ),
             ],
             Mode::Census =&gt; <span class="macro">vec!</span>[],
@@ -893,7 +895,7 @@
     }
 }
 
-<span class="kw">fn </span>entry_builder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;(color: Color, label: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+<span class="kw">fn </span>entry_builder&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt;(color: Color, label: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; ButtonBuilder&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>btn = ButtonBuilder::new()
         .label_text(label)
         .bg_color(color, ControlState::Disabled)
@@ -911,19 +913,19 @@
     btn
 }
 
-<span class="kw">fn </span>entry(ctx: <span class="kw-2">&amp;</span>EventCtx, color: Color, label: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; Widget {
+<span class="kw">fn </span>entry(ctx: <span class="kw-2">&amp;</span>EventCtx, color: Color, label: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; Widget {
     entry_builder(color, label).build_def(ctx)
 }
 
-<span class="kw">pub fn </span>legend_entry(ctx: <span class="kw-2">&amp;</span>EventCtx, color: Color, label: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; Widget {
+<span class="kw">pub fn </span>legend_entry(ctx: <span class="kw-2">&amp;</span>EventCtx, color: Color, label: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; Widget {
     entry(ctx, color, label)
 }
 
 <span class="kw">fn </span>entry_tooltip(
     ctx: <span class="kw-2">&amp;mut </span>EventCtx,
     color: Color,
-    label: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
-    tooltip: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    label: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
+    tooltip: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
 ) -&gt; Widget {
     entry_builder(color, label)
         .disabled_tooltip(tooltip)

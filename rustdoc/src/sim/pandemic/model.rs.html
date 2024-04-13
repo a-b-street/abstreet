@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/pandemic/model.rs`."><title>model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/pandemic/model.rs`."><title>model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -442,7 +444,7 @@
 <span class="kw">use crate</span>::{CarID, Event, Person, PersonID, Scheduler, TripPhaseType};
 
 <span class="comment">// TODO This does not model transmission by surfaces; only person-to-person.
-// TODO If two people are in the same shared space indefinitely and neither leaves, we don&#39;t model
+// TODO If two people are in the same shared space indefinitely and neither leaves, we don't model
 // transmission. It only occurs when people leave a space.
 
 </span><span class="attr">#[derive(Clone)]
@@ -469,8 +471,8 @@
 //
 // - replace_future_trips(PersonID, Vec&lt;IndividTrip&gt;)
 //
-// I&#39;m not exactly sure how this should work yet. Any place you want to change the rest of the
-// simulation, just add a comment describing what you want to do exactly, and we&#39;ll figure it out
+// I'm not exactly sure how this should work yet. Any place you want to change the rest of the
+// simulation, just add a comment describing what you want to do exactly, and we'll figure it out
 // from there.
 
 </span><span class="kw">impl </span>PandemicModel {
@@ -488,14 +490,14 @@
         }
     }
 
-    <span class="comment">// Sorry, initialization order of simulations is still a bit messy. This&#39;ll be called at
+    <span class="comment">// Sorry, initialization order of simulations is still a bit messy. This'll be called at
     // Time::START_OF_DAY after all of the people have been created from a Scenario.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, population: <span class="kw-2">&amp;</span>[Person], _scheduler: <span class="kw-2">&amp;mut </span>Scheduler) {
         <span class="macro">assert!</span>(!<span class="self">self</span>.initialized);
         <span class="self">self</span>.initialized = <span class="bool-val">true</span>;
 
         <span class="comment">// Seed initially infected people.
-        // TODO the intial time is not well set. it should start &quot;before&quot;
+        // TODO the intial time is not well set. it should start "before"
         // the beginning of the day. Also
         </span><span class="kw">for </span>p <span class="kw">in </span>population {
             <span class="kw">let </span>state = State::new(<span class="number">0.5</span>, <span class="number">0.5</span>);
@@ -580,7 +582,7 @@
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(others) = <span class="self">self</span>.bldgs.person_leaves_space(now, <span class="kw-2">*</span>person, <span class="kw-2">*</span>bldg) {
                     <span class="self">self</span>.transmission(now, <span class="kw-2">*</span>person, others, scheduler);
                 } <span class="kw">else </span>{
-                    <span class="macro">panic!</span>(<span class="string">&quot;{} left {}, but they weren&#39;t inside&quot;</span>, person, bldg);
+                    <span class="macro">panic!</span>(<span class="string">"{} left {}, but they weren't inside"</span>, person, bldg);
                 }
             }
             Event::TripPhaseStarting(<span class="kw">_</span>, p, <span class="kw">_</span>, tpt) =&gt; {

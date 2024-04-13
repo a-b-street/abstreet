@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1284,10 +1286,10 @@
 };
 
 <span class="kw">impl </span>Map {
-    <span class="doccomment">/// Load a map from a local serialized Map or RawMap. Note this won&#39;t work on web. This should
+    <span class="doccomment">/// Load a map from a local serialized Map or RawMap. Note this won't work on web. This should
     /// only be used by non-UI tools.
     </span><span class="kw">pub fn </span>load_synchronously(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; Map {
-        <span class="kw">if </span>path.contains(<span class="string">&quot;/maps/&quot;</span>) {
+        <span class="kw">if </span>path.contains(<span class="string">"/maps/"</span>) {
             <span class="kw">match </span>abstio::maybe_read_binary(path.clone(), timer) {
                 <span class="prelude-val">Ok</span>(map) =&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>map: Map = map;
@@ -1295,23 +1297,23 @@
                     <span class="kw">return </span>map;
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;\nError loading {}: {}\n&quot;</span>, path, err);
-                    <span class="kw">if </span>err.to_string().contains(<span class="string">&quot;No such file&quot;</span>) {
+                    <span class="macro">error!</span>(<span class="string">"\nError loading {}: {}\n"</span>, path, err);
+                    <span class="kw">if </span>err.to_string().contains(<span class="string">"No such file"</span>) {
                         <span class="macro">error!</span>(
-                            <span class="string">&quot;{} is missing. You may need to do: cargo run --bin updater&quot;</span>,
+                            <span class="string">"{} is missing. You may need to do: cargo run --bin updater"</span>,
                             path
                         );
                     } <span class="kw">else </span>{
                         <span class="macro">error!</span>(
-                            <span class="string">&quot;{} is out-of-date. You may need to update your build (git pull) or \
+                            <span class="string">"{} is out-of-date. You may need to update your build (git pull) or \
                              download new data (cargo run --bin updater). If this is a custom \
-                             map, you need to import it again.&quot;</span>,
+                             map, you need to import it again."</span>,
                             path
                         );
                     }
                     <span class="macro">error!</span>(
-                        <span class="string">&quot;Check https://a-b-street.github.io/docs/tech/dev/index.html and file an issue \
-                         if you have trouble.&quot;
+                        <span class="string">"Check https://a-b-street.github.io/docs/tech/dev/index.html and file an issue \
+                         if you have trouble."
                     </span>);
 
                     std::process::exit(<span class="number">1</span>);
@@ -1334,61 +1336,61 @@
 
         <span class="comment">// Enable to work on shrinking map file sizes. Never run this on the web though --
         // trying to serialize fast_paths in wasm melts the browser, because the usize&lt;-&gt;u32
-        // translation there isn&#39;t meant to run on wasm.
-        </span><span class="kw">if </span><span class="macro">cfg!</span>(not(target_arch = <span class="string">&quot;wasm32&quot;</span>)) &amp;&amp; <span class="bool-val">false </span>{
+        // translation there isn't meant to run on wasm.
+        </span><span class="kw">if </span><span class="macro">cfg!</span>(not(target_arch = <span class="string">"wasm32"</span>)) &amp;&amp; <span class="bool-val">false </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>costs = <span class="macro">vec!</span>[
                 (
-                    <span class="string">&quot;roads&quot;</span>,
+                    <span class="string">"roads"</span>,
                     <span class="self">self</span>.roads.len(),
                     serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.roads),
                 ),
                 (
-                    <span class="string">&quot;intersections&quot;</span>,
+                    <span class="string">"intersections"</span>,
                     <span class="self">self</span>.intersections.len(),
                     serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.intersections),
                 ),
                 (
-                    <span class="string">&quot;buildings&quot;</span>,
+                    <span class="string">"buildings"</span>,
                     <span class="self">self</span>.buildings.len(),
                     serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.buildings),
                 ),
                 (
-                    <span class="string">&quot;areas&quot;</span>,
+                    <span class="string">"areas"</span>,
                     <span class="self">self</span>.areas.len(),
                     serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.areas),
                 ),
                 (
-                    <span class="string">&quot;parking lots&quot;</span>,
+                    <span class="string">"parking lots"</span>,
                     <span class="self">self</span>.parking_lots.len(),
                     serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.parking_lots),
                 ),
                 (
-                    <span class="string">&quot;zones&quot;</span>,
+                    <span class="string">"zones"</span>,
                     <span class="self">self</span>.zones.len(),
                     serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.zones),
                 ),
                 (
-                    <span class="string">&quot;census_zones&quot;</span>,
+                    <span class="string">"census_zones"</span>,
                     <span class="self">self</span>.census_zones.len(),
                     serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.census_zones),
                 ),
                 (
-                    <span class="string">&quot;extra_pois&quot;</span>,
+                    <span class="string">"extra_pois"</span>,
                     <span class="self">self</span>.extra_pois.len(),
                     serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.extra_pois),
                 ),
-                (<span class="string">&quot;pathfinder&quot;</span>, <span class="number">1</span>, serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.pathfinder)),
+                (<span class="string">"pathfinder"</span>, <span class="number">1</span>, serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.pathfinder)),
             ];
             costs.sort_by_key(|(<span class="kw">_</span>, <span class="kw">_</span>, bytes)| <span class="kw-2">*</span>bytes);
             costs.reverse();
 
             <span class="macro">info!</span>(
-                <span class="string">&quot;Total map size: {} bytes&quot;</span>,
+                <span class="string">"Total map size: {} bytes"</span>,
                 prettyprint_usize(serialized_size_bytes(<span class="self">self</span>))
             );
             <span class="kw">for </span>(name, number, bytes) <span class="kw">in </span>costs {
                 <span class="macro">info!</span>(
-                    <span class="string">&quot;- {} {}: {} bytes&quot;</span>,
+                    <span class="string">"- {} {}: {} bytes"</span>,
                     prettyprint_usize(number),
                     name,
                     prettyprint_usize(bytes)
@@ -1434,10 +1436,10 @@
         }
     }
 
-    <span class="doccomment">/// A dummy map that won&#39;t crash UIs, but has almost nothing in it.
+    <span class="doccomment">/// A dummy map that won't crash UIs, but has almost nothing in it.
     </span><span class="kw">pub fn </span>almost_blank() -&gt; <span class="self">Self </span>{
         <span class="comment">// Programatically creating a Map is very verbose. RawMap less so, but .osm could be even
-        // better... but then we&#39;d pull in dependencies for XML parsing everywhere.
+        // better... but then we'd pull in dependencies for XML parsing everywhere.
         </span><span class="kw">let </span><span class="kw-2">mut </span>raw = RawMap::blank(MapName::blank());
 
         raw.streets.boundary_polygon = Polygon::rectangle(<span class="number">100.0</span>, <span class="number">100.0</span>);
@@ -1464,8 +1466,8 @@
         raw.elevation_per_intersection.insert(i2, Distance::ZERO);
 
         <span class="kw">let </span><span class="kw-2">mut </span>tags = Tags::empty();
-        tags.insert(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
-        tags.insert(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
+        tags.insert(<span class="string">"highway"</span>, <span class="string">"residential"</span>);
+        tags.insert(<span class="string">"lanes"</span>, <span class="string">"2"</span>);
         <span class="kw">let </span>road_id = raw.streets.next_road_id();
         raw.streets.insert_road(osm2streets::Road::new(
             road_id,
@@ -1623,7 +1625,7 @@
                 <span class="kw">return </span>turn;
             }
         }
-        <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t find {id}&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">"Couldn't find {id}"</span>);
     }
 
     <span class="kw">pub fn </span>get_i(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; <span class="kw-2">&amp;</span>Intersection {
@@ -1635,7 +1637,7 @@
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(turn) = <span class="self">self</span>.maybe_get_t(id) {
             turn
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t get_t({})&quot;</span>, id);
+            <span class="macro">panic!</span>(<span class="string">"Can't get_t({})"</span>, id);
         }
     }
 
@@ -1677,7 +1679,7 @@
                 <span class="self">self</span>.get_i(lane.src_i)
                     .turns
                     .iter()
-                    <span class="comment">// And then don&#39;t yield them if this isn&#39;t a sidewalk
+                    <span class="comment">// And then don't yield them if this isn't a sidewalk
                     </span>.take_while(|<span class="kw">_</span>| lane.is_walkable()),
             )
             .filter(|t| t.id.src == l || (lane.is_walkable() &amp;&amp; t.id.dst == l))
@@ -1743,7 +1745,7 @@
             .collect()
     }
 
-    <span class="doccomment">/// Find all movements from one road to another that&#39;re usable by someone.
+    <span class="doccomment">/// Find all movements from one road to another that're usable by someone.
     </span><span class="kw">pub fn </span>get_movements_for(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         from: DirectedRoadID,
@@ -1849,15 +1851,15 @@
     }
 
     <span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.edits.edits_name.starts_with(<span class="string">&quot;Untitled Proposal&quot;</span>));
+        <span class="macro">assert!</span>(<span class="self">self</span>.edits.edits_name.starts_with(<span class="string">"Untitled Proposal"</span>));
         <span class="macro">assert!</span>(<span class="self">self</span>.edits.commands.is_empty());
         <span class="macro">assert!</span>(!<span class="self">self</span>.pathfinder_dirty);
         abstio::write_binary(<span class="self">self</span>.name.path(), <span class="self">self</span>);
     }
 
     <span class="doccomment">/// Cars trying to park near this building should head for the driving lane returned here, then
-    /// start their search. Some parking lanes are connected to driving lanes that&#39;re &quot;parking
-    /// blackholes&quot; -- if there are no free spots on that lane, then the roads force cars to a
+    /// start their search. Some parking lanes are connected to driving lanes that're "parking
+    /// blackholes" -- if there are no free spots on that lane, then the roads force cars to a
     /// border.
     </span><span class="comment">// TODO Making driving_connection do this.
     </span><span class="kw">pub fn </span>find_driving_lane_near_building(<span class="kw-2">&amp;</span><span class="self">self</span>, b: BuildingID) -&gt; LaneID {
@@ -1882,7 +1884,7 @@
         <span class="kw">loop </span>{
             <span class="kw">if </span>roads_queue.is_empty() {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Giving up looking for a driving lane near {}, searched {} roads: {:?}&quot;</span>,
+                    <span class="string">"Giving up looking for a driving lane near {}, searched {} roads: {:?}"</span>,
                     b,
                     visited.len(),
                     visited
@@ -1933,7 +1935,7 @@
         <span class="macro">assert!</span>(!<span class="self">self</span>.pathfinder_dirty);
         <span class="self">self</span>.pathfinder
             .pathfind(req.clone(), <span class="self">self</span>)
-            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, req))
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"can't fulfill {}"</span>, req))
     }
     <span class="kw">pub fn </span>pathfind_v2_with_params(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1944,7 +1946,7 @@
         <span class="macro">assert!</span>(!<span class="self">self</span>.pathfinder_dirty);
         <span class="self">self</span>.pathfinder
             .pathfind_with_params(req.clone(), params, cache_custom, <span class="self">self</span>)
-            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, req))
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"can't fulfill {}"</span>, req))
     }
     <span class="kw">pub fn </span>should_use_transit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1957,7 +1959,7 @@
 
     <span class="doccomment">/// Return the cost of a single path, and also a mapping from every directed road to the cost
     /// of getting there from the same start. This can be used to understand why an alternative
-    /// route wasn&#39;t chosen.
+    /// route wasn't chosen.
     </span><span class="kw">pub fn </span>all_costs_from(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         req: PathRequest,
@@ -1984,7 +1986,7 @@
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(r.id);
             }
         }
-        <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, id)
+        <span class="macro">bail!</span>(<span class="string">"Can't find {}"</span>, id)
     }
 
     <span class="kw">pub fn </span>find_i_by_osm_id(<span class="kw-2">&amp;</span><span class="self">self</span>, id: osm::NodeID) -&gt; <span class="prelude-ty">Result</span>&lt;IntersectionID&gt; {
@@ -1993,7 +1995,7 @@
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(i.id);
             }
         }
-        <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, id)
+        <span class="macro">bail!</span>(<span class="string">"Can't find {}"</span>, id)
     }
 
     <span class="kw">fn </span>populate_intersection_quad_tree(<span class="kw-2">&amp;</span><span class="self">self</span>) {
@@ -2024,10 +2026,10 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(tree) = <span class="kw-2">&amp;*</span>quad_tree {
             <span class="kw">let </span>(intersection_id, <span class="kw">_</span>) = tree
                 .closest_pt(pnt, Distance::meters(<span class="number">100.0</span>))
-                .context(<span class="string">&quot;Failed to find intersection within 100m of specified point&quot;</span>)<span class="question-mark">?</span>;
+                .context(<span class="string">"Failed to find intersection within 100m of specified point"</span>)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(intersection_id)
         } <span class="kw">else </span>{
-            <span class="macro">unreachable!</span>(<span class="string">&quot;Intersection Quad tree was somehow blank even after generation&quot;</span>)
+            <span class="macro">unreachable!</span>(<span class="string">"Intersection Quad tree was somehow blank even after generation"</span>)
         }
     }
 
@@ -2094,7 +2096,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>languages = BTreeSet::new();
         <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.all_roads() {
             <span class="kw">for </span>key <span class="kw">in </span>r.osm_tags.inner().keys() {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = key.strip_prefix(<span class="string">&quot;name:&quot;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = key.strip_prefix(<span class="string">"name:"</span>) {
                     languages.insert(x.to_string());
                 }
             }
@@ -2195,7 +2197,7 @@
 
     <span class="doccomment">/// Adjusts the routing params baked into the map by accounting for any modal filters created
     /// since.
-    /// TODO It&#39;s weird that these don&#39;t already take effect!
+    /// TODO It's weird that these don't already take effect!
     </span><span class="kw">pub fn </span>routing_params_respecting_modal_filters(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RoutingParams {
         <span class="kw">let </span><span class="kw-2">mut </span>params = <span class="self">self</span>.routing_params.clone();
         <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.roads {
@@ -2227,7 +2229,7 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>recalculate_all_movements(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>Timer) {
         <span class="kw">let </span>movements = timer.parallelize(
-            <span class="string">&quot;generate movements&quot;</span>,
+            <span class="string">"generate movements"</span>,
             <span class="self">self</span>.intersections.iter().map(|i| i.id).collect(),
             |i| Movement::for_i(i, <span class="self">self</span>),
         );
@@ -2258,7 +2260,7 @@
     }
 
     <span class="doccomment">/// Does a turn at a stop sign go from a smaller to a larger road?
-    /// (Note this doesn&#39;t look at unprotected movements in traffic signals, since we don&#39;t yet
+    /// (Note this doesn't look at unprotected movements in traffic signals, since we don't yet
     /// have good heuristics for when those exist)
     </span><span class="kw">pub fn </span>is_unprotected_turn(<span class="kw-2">&amp;</span><span class="self">self</span>, from: RoadID, to: RoadID, turn_type: TurnType) -&gt; bool {
         <span class="kw">let </span>unprotected_turn_type = <span class="kw">if </span><span class="self">self</span>.get_config().driving_side == DrivingSide::Right {
@@ -2323,14 +2325,14 @@
 
         <span class="kw">for </span>i <span class="kw">in </span><span class="self">self</span>.all_intersections() {
             <span class="kw">let </span><span class="kw-2">mut </span>props = serde_json::Map::new();
-            props.insert(<span class="string">&quot;type&quot;</span>.to_string(), <span class="string">&quot;intersection&quot;</span>.into());
-            props.insert(<span class="string">&quot;id&quot;</span>.to_string(), i.orig_id.to_string().into());
+            props.insert(<span class="string">"type"</span>.to_string(), <span class="string">"intersection"</span>.into());
+            props.insert(<span class="string">"id"</span>.to_string(), i.orig_id.to_string().into());
             pairs.push((i.polygon.get_outer_ring().to_geojson(gps_bounds), props));
         }
         <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.all_roads() {
             <span class="kw">let </span><span class="kw-2">mut </span>props = serde_json::Map::new();
-            props.insert(<span class="string">&quot;type&quot;</span>.to_string(), <span class="string">&quot;road&quot;</span>.into());
-            props.insert(<span class="string">&quot;id&quot;</span>.to_string(), r.orig_id.osm_way_id.to_string().into());
+            props.insert(<span class="string">"type"</span>.to_string(), <span class="string">"road"</span>.into());
+            props.insert(<span class="string">"id"</span>.to_string(), r.orig_id.osm_way_id.to_string().into());
             pairs.push((
                 r.center_pts
                     .to_thick_ring(r.get_width())
@@ -2342,7 +2344,7 @@
         geom::geometries_with_properties_to_geojson(pairs)
     }
 
-    <span class="doccomment">/// What&#39;re the names of bus routes along a road? Note this is best effort, not robust to edits
+    <span class="doccomment">/// What're the names of bus routes along a road? Note this is best effort, not robust to edits
     /// or transformations.
     </span><span class="kw">pub fn </span>get_bus_routes_on_road(<span class="kw-2">&amp;</span><span class="self">self</span>, r: RoadID) -&gt; <span class="kw-2">&amp;</span>BTreeSet&lt;String&gt; {
         <span class="kw">let </span>way = <span class="self">self</span>.get_r(r).orig_id.osm_way_id;
@@ -2377,7 +2379,7 @@
             </span>CommonEndpoint::Both =&gt; r1.src_i,
             CommonEndpoint::None =&gt; {
                 <span class="comment">// This may be that `r1` and `r2` are joined by a complicated_turn_restrictions,
-                // but don&#39;t have a CommonEndpoint.
+                // but don't have a CommonEndpoint.
                 // In this case the end of r1 appears to be the most appropriate location to pick here
                 </span>r1.dst_i
             }
@@ -2387,7 +2389,7 @@
         </span><span class="kw">let </span>sign_count = <span class="kw-2">*</span>icon_counter.get(<span class="kw-2">&amp;</span>i).unwrap_or(<span class="kw-2">&amp;</span><span class="number">1</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>ideal_dist_from_intersection = sign_count <span class="kw">as </span>f64 * <span class="number">1.1 </span>* r1.get_width();
         <span class="kw">if </span><span class="number">2.0 </span>* ideal_dist_from_intersection &gt; r1.center_pts.length() {
-            <span class="comment">// We&#39;ve run out of space on the road to fit all of the icons on. We will just pile them up where we can
+            <span class="comment">// We've run out of space on the road to fit all of the icons on. We will just pile them up where we can
             // Next try near the end of the stack, but just still in the appropriate half of the road
             </span>ideal_dist_from_intersection = <span class="number">0.5 </span>* (r1.center_pts.length() - r1.get_width());
             <span class="kw">if </span>ideal_dist_from_intersection &lt; Distance::ZERO {
@@ -2396,7 +2398,7 @@
             }
         }
 
-        <span class="comment">// Adjust according to which end of the road we&#39;ve measuring from
+        <span class="comment">// Adjust according to which end of the road we've measuring from
         </span><span class="kw">let </span>dist_from_intersection = <span class="kw">if </span>r1.src_i == i {
             ideal_dist_from_intersection
         } <span class="kw">else </span>{
@@ -2460,7 +2462,7 @@
         // turn_type_from_angles. Correct it based on relative ordering.
         </span><span class="kw">if </span>turn_type != <span class="kw-2">*</span>expected_type {
             <span class="macro">warn!</span>(
-                <span class="string">&quot;Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering&quot;</span>,
+                <span class="string">"Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering"</span>,
                 r1.orig_id, r2.orig_id, turn_type, expected_type
             );
             turn_type = <span class="kw-2">*</span>expected_type;

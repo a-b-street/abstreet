@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/components/appwide_panel.rs`."><title>appwide_panel.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/components/appwide_panel.rs`."><title>appwide_panel.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -308,7 +310,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>event&lt;F: Fn() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;&gt;(
+    <span class="kw">pub fn </span>event&lt;F: Fn() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
         app: <span class="kw-2">&amp;mut </span>App,
@@ -317,7 +319,7 @@
     ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_panel.event(ctx) {
             <span class="kw">return match </span>x.as_ref() {
-                <span class="string">&quot;Home&quot; </span>=&gt; {
+                <span class="string">"Home" </span>=&gt; {
                     <span class="kw">if </span>app.per_map.consultation.is_none() {
                         <span class="prelude-val">Some</span>(Transition::Clear(<span class="macro">vec!</span>[
                             map_gui::tools::TitleScreen::new_state(
@@ -331,40 +333,40 @@
                         <span class="prelude-val">Some</span>(Transition::Push(pages::About::new_state(ctx)))
                     }
                 }
-                <span class="string">&quot;change map&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(map_gui::tools::CityPicker::new_state(
+                <span class="string">"change map" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(map_gui::tools::CityPicker::new_state(
                     ctx,
                     app,
                     Box::new(|ctx, app| Transition::Replace(pages::PickArea::new_state(ctx, app))),
                 ))),
-                <span class="string">&quot;search&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(
+                <span class="string">"search" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(
                     map_gui::tools::Navigator::new_state_with_target_zoom(ctx, app, <span class="number">4.0</span>),
                 )),
-                <span class="string">&quot;help&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;Help&quot;</span>, help()))),
-                <span class="string">&quot;about this tool&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(pages::About::new_state(ctx))),
-                <span class="string">&quot;Pick area&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::PickArea::new_state(ctx, app))),
-                <span class="string">&quot;Design LTN&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::DesignLTN::new_state(
+                <span class="string">"help" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(ctx, <span class="string">"Help"</span>, help()))),
+                <span class="string">"about this tool" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(pages::About::new_state(ctx))),
+                <span class="string">"Pick area" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::PickArea::new_state(ctx, app))),
+                <span class="string">"Design LTN" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::DesignLTN::new_state(
                     ctx,
                     app,
                     app.per_map.current_neighbourhood.unwrap(),
                 ))),
-                <span class="string">&quot;Plan route&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::RoutePlanner::new_state(
+                <span class="string">"Plan route" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::RoutePlanner::new_state(
                     ctx, app,
                 ))),
-                <span class="string">&quot;Crossings&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::Crossings::new_state(ctx, app))),
-                <span class="string">&quot;Predict impact&quot; </span>=&gt; <span class="prelude-val">Some</span>(launch_impact(ctx, app)),
-                <span class="string">&quot;Cycle network&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::CycleNetwork::new_state(
+                <span class="string">"Crossings" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::Crossings::new_state(ctx, app))),
+                <span class="string">"Predict impact" </span>=&gt; <span class="prelude-val">Some</span>(launch_impact(ctx, app)),
+                <span class="string">"Cycle network" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::CycleNetwork::new_state(
                     ctx, app,
                 ))),
-                <span class="string">&quot;Census&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::Census::new_state(ctx, app))),
+                <span class="string">"Census" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Replace(pages::Census::new_state(ctx, app))),
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             };
         }
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.left_panel.event(ctx) {
-            <span class="kw">return if </span>x == <span class="string">&quot;show proposals&quot; </span>{
+            <span class="kw">return if </span>x == <span class="string">"show proposals" </span>{
                 app.session.manage_proposals = <span class="bool-val">true</span>;
                 <span class="prelude-val">Some</span>(Transition::Recreate)
-            } <span class="kw">else if </span>x == <span class="string">&quot;hide proposals&quot; </span>{
+            } <span class="kw">else if </span>x == <span class="string">"hide proposals" </span>{
                 app.session.manage_proposals = <span class="bool-val">false</span>;
                 <span class="prelude-val">Some</span>(Transition::Recreate)
             } <span class="kw">else </span>{
@@ -389,10 +391,10 @@
     }
 
     Transition::Push(ChooseSomething::new_state(ctx,
-        <span class="string">&quot;Impact prediction is experimental. You have to interpret the results carefully. The app may also freeze while calculating this.&quot;</span>,
-        Choice::strings(<span class="macro">vec!</span>[<span class="string">&quot;Never mind&quot;</span>, <span class="string">&quot;I understand the warnings. Predict impact!&quot;</span>]),
+        <span class="string">"Impact prediction is experimental. You have to interpret the results carefully. The app may also freeze while calculating this."</span>,
+        Choice::strings(<span class="macro">vec!</span>[<span class="string">"Never mind"</span>, <span class="string">"I understand the warnings. Predict impact!"</span>]),
         Box::new(|choice, ctx, app| {
-            <span class="kw">if </span>choice == <span class="string">&quot;Never mind&quot; </span>{
+            <span class="kw">if </span>choice == <span class="string">"Never mind" </span>{
                 Transition::Pop
             } <span class="kw">else </span>{
                 Transition::Multi(<span class="macro">vec!</span>[
@@ -414,71 +416,71 @@
             .build_def(ctx)
     }
 
-    <span class="comment">// While we&#39;re adjusting a boundary, it&#39;s weird to navigate away without explicitly confirming
+    <span class="comment">// While we're adjusting a boundary, it's weird to navigate away without explicitly confirming
     // or reverting the edits. Just remove the nav bar entirely.
     </span><span class="kw">let </span>navbar = <span class="kw">if </span>mode != Mode::SelectBoundary {
         Widget::row(<span class="macro">vec!</span>[
             <span class="kw">if </span>mode == Mode::PickArea {
-                current_mode(ctx, <span class="string">&quot;Pick area&quot;</span>)
+                current_mode(ctx, <span class="string">"Pick area"</span>)
             } <span class="kw">else </span>{
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Pick area&quot;</span>)
+                    .text(<span class="string">"Pick area"</span>)
                     .disabled(app.per_map.consultation.is_some())
-                    .disabled_tooltip(<span class="string">&quot;This consultation is only about the current area&quot;</span>)
+                    .disabled_tooltip(<span class="string">"This consultation is only about the current area"</span>)
                     .build_def(ctx)
             },
             <span class="kw">if </span>mode == Mode::ModifyNeighbourhood {
-                current_mode(ctx, <span class="string">&quot;Design LTN&quot;</span>)
+                current_mode(ctx, <span class="string">"Design LTN"</span>)
             } <span class="kw">else </span>{
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Design LTN&quot;</span>)
+                    .text(<span class="string">"Design LTN"</span>)
                     .disabled(app.per_map.current_neighbourhood.is_none())
-                    .disabled_tooltip(<span class="string">&quot;Pick an area first&quot;</span>)
+                    .disabled_tooltip(<span class="string">"Pick an area first"</span>)
                     .build_def(ctx)
             },
             <span class="kw">if </span>mode == Mode::RoutePlanner {
-                current_mode(ctx, <span class="string">&quot;Plan route&quot;</span>)
+                current_mode(ctx, <span class="string">"Plan route"</span>)
             } <span class="kw">else </span>{
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Plan route&quot;</span>)
+                    .text(<span class="string">"Plan route"</span>)
                     .hotkey(Key::R)
                     .build_def(ctx)
             },
             <span class="kw">if </span>mode == Mode::Crossings {
-                current_mode(ctx, <span class="string">&quot;Crossings&quot;</span>)
+                current_mode(ctx, <span class="string">"Crossings"</span>)
             } <span class="kw">else </span>{
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Crossings&quot;</span>)
+                    .text(<span class="string">"Crossings"</span>)
                     .hotkey(Key::C)
                     .disabled(app.per_map.consultation.is_some())
-                    .disabled_tooltip(<span class="string">&quot;Not supported here yet&quot;</span>)
+                    .disabled_tooltip(<span class="string">"Not supported here yet"</span>)
                     .build_def(ctx)
             },
             <span class="kw">if </span>mode == Mode::Impact {
-                current_mode(ctx, <span class="string">&quot;Predict impact&quot;</span>)
+                current_mode(ctx, <span class="string">"Predict impact"</span>)
             } <span class="kw">else </span>{
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Predict impact&quot;</span>)
+                    .text(<span class="string">"Predict impact"</span>)
                     .disabled(app.per_map.consultation.is_some())
-                    .disabled_tooltip(<span class="string">&quot;Not supported here yet&quot;</span>)
+                    .disabled_tooltip(<span class="string">"Not supported here yet"</span>)
                     .build_def(ctx)
             },
             <span class="kw">if </span>mode == Mode::CycleNetwork {
-                current_mode(ctx, <span class="string">&quot;Cycle network&quot;</span>)
+                current_mode(ctx, <span class="string">"Cycle network"</span>)
             } <span class="kw">else </span>{
-                ctx.style().btn_outline.text(<span class="string">&quot;Cycle network&quot;</span>).build_def(ctx)
+                ctx.style().btn_outline.text(<span class="string">"Cycle network"</span>).build_def(ctx)
             },
             <span class="kw">if </span>mode == Mode::Census {
-                current_mode(ctx, <span class="string">&quot;Census&quot;</span>)
+                current_mode(ctx, <span class="string">"Census"</span>)
             } <span class="kw">else if </span>app.per_map.map.all_census_zones().is_empty() {
                 Widget::nothing()
             } <span class="kw">else </span>{
-                ctx.style().btn_outline.text(<span class="string">&quot;Census&quot;</span>).build_def(ctx)
+                ctx.style().btn_outline.text(<span class="string">"Census"</span>).build_def(ctx)
             },
         ])
         .centered_vert()
@@ -488,17 +490,17 @@
     <span class="kw">let </span>col = <span class="macro">vec!</span>[Widget::row(<span class="macro">vec!</span>[
         map_gui::tools::home_btn(ctx),
         Line(<span class="kw">if </span>consultation {
-            <span class="string">&quot;East Bristol Liveable Neighbourhood&quot;
+            <span class="string">"East Bristol Liveable Neighbourhood"
         </span>} <span class="kw">else </span>{
-            <span class="string">&quot;Low traffic neighbourhoods&quot;
+            <span class="string">"Low traffic neighbourhoods"
         </span>})
         .small_heading()
         .into_widget(ctx)
         .centered_vert(),
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-            .build_widget(ctx, <span class="string">&quot;about this tool&quot;</span>)
+            .icon(<span class="string">"system/assets/tools/info.svg"</span>)
+            .build_widget(ctx, <span class="string">"about this tool"</span>)
             .centered_vert()
             .hide(consultation),
         map_gui::tools::change_map_btn(ctx, app)
@@ -508,14 +510,14 @@
         Widget::row(<span class="macro">vec!</span>[
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/search.svg"</span>)
                 .hotkey(lctrl(Key::F))
-                .build_widget(ctx, <span class="string">&quot;search&quot;</span>)
+                .build_widget(ctx, <span class="string">"search"</span>)
                 .centered_vert(),
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/help.svg&quot;</span>)
-                .build_widget(ctx, <span class="string">&quot;help&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/help.svg"</span>)
+                .build_widget(ctx, <span class="string">"help"</span>)
                 .centered_vert(),
         ])
         .align_right(),
@@ -530,14 +532,14 @@
 <span class="kw">fn </span>make_left_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, top_panel: <span class="kw-2">&amp;</span>Panel, mode: Mode) -&gt; Panel {
     <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
 
-    <span class="comment">// Switching proposals in some modes is too complex to implement, so don&#39;t allow it
+    <span class="comment">// Switching proposals in some modes is too complex to implement, so don't allow it
     </span><span class="kw">if </span>app.session.manage_proposals &amp;&amp; mode != Mode::Impact &amp;&amp; mode != Mode::SelectBoundary {
         col.push(
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/collapse_panel.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/collapse_panel.svg"</span>)
                 .hotkey(Key::P)
-                .build_widget(ctx, <span class="string">&quot;hide proposals&quot;</span>)
+                .build_widget(ctx, <span class="string">"hide proposals"</span>)
                 .align_right(),
         );
         col.push(app.per_map.proposals.to_widget_expanded(ctx));
@@ -545,9 +547,9 @@
         col.push(
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/expand_panel.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/expand_panel.svg"</span>)
                 .hotkey(Key::P)
-                .build_widget(ctx, <span class="string">&quot;show proposals&quot;</span>)
+                .build_widget(ctx, <span class="string">"show proposals"</span>)
                 .align_right(),
         );
         <span class="kw">if </span>mode != Mode::Impact &amp;&amp; mode != Mode::SelectBoundary {

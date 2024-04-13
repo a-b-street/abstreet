@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/utils.rs`."><title>utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/utils.rs`."><title>utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../importer/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -195,81 +197,81 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::configuration::ImporterConfiguration;
 
-<span class="doccomment">/// If the output file doesn&#39;t already exist, downloads the URL into that location. Automatically
+<span class="doccomment">/// If the output file doesn't already exist, downloads the URL into that location. Automatically
 /// uncompresses .zip and .gz files. Assumes a proper path is passed in (including data/).
 </span><span class="kw">pub async fn </span>download(config: <span class="kw-2">&amp;</span>ImporterConfiguration, output: String, url: <span class="kw-2">&amp;</span>str) {
     <span class="kw">if </span>Path::new(<span class="kw-2">&amp;</span>output).exists() {
-        <span class="macro">println!</span>(<span class="string">&quot;- {} already exists&quot;</span>, output);
+        <span class="macro">println!</span>(<span class="string">"- {} already exists"</span>, output);
         <span class="kw">return</span>;
     }
     <span class="comment">// Create the directory
     </span>fs_err::create_dir_all(Path::new(<span class="kw-2">&amp;</span>output).parent().unwrap())
-        .expect(<span class="string">&quot;Creating parent dir failed&quot;</span>);
+        .expect(<span class="string">"Creating parent dir failed"</span>);
 
-    <span class="kw">let </span>tmp_file = <span class="macro">format!</span>(<span class="string">&quot;{output}_TMP&quot;</span>);
+    <span class="kw">let </span>tmp_file = <span class="macro">format!</span>(<span class="string">"{output}_TMP"</span>);
     <span class="kw">let </span>tmp = <span class="kw-2">&amp;</span>tmp_file;
-    <span class="macro">println!</span>(<span class="string">&quot;- Missing {}, so downloading {}&quot;</span>, output, url);
+    <span class="macro">println!</span>(<span class="string">"- Missing {}, so downloading {}"</span>, output, url);
     abstio::download_to_file(url, <span class="prelude-val">None</span>, tmp).<span class="kw">await</span>.unwrap();
 
-    <span class="kw">if </span>url.contains(<span class="string">&quot;.zip&quot;</span>) {
-        <span class="kw">let </span>unzip_to = <span class="kw">if </span>output.ends_with(<span class="string">&#39;/&#39;</span>) {
+    <span class="kw">if </span>url.contains(<span class="string">".zip"</span>) {
+        <span class="kw">let </span>unzip_to = <span class="kw">if </span>output.ends_with(<span class="string">'/'</span>) {
             output
         } <span class="kw">else </span>{
-            <span class="comment">// TODO In this case, there&#39;s no guarantee there&#39;s only one unzipped file and the name
+            <span class="comment">// TODO In this case, there's no guarantee there's only one unzipped file and the name
             // matches!
             </span>Path::new(<span class="kw-2">&amp;</span>output).parent().unwrap().display().to_string()
         };
-        <span class="macro">println!</span>(<span class="string">&quot;- Unzipping into {}&quot;</span>, unzip_to);
-        must_run_cmd(Command::new(<span class="kw-2">&amp;</span>config.unzip).arg(tmp).arg(<span class="string">&quot;-d&quot;</span>).arg(unzip_to));
+        <span class="macro">println!</span>(<span class="string">"- Unzipping into {}"</span>, unzip_to);
+        must_run_cmd(Command::new(<span class="kw-2">&amp;</span>config.unzip).arg(tmp).arg(<span class="string">"-d"</span>).arg(unzip_to));
         fs_err::remove_file(tmp).unwrap();
-    } <span class="kw">else if </span>url.contains(<span class="string">&quot;.gz&quot;</span>) {
-        <span class="macro">println!</span>(<span class="string">&quot;- Gunzipping&quot;</span>);
-        fs_err::rename(tmp, <span class="macro">format!</span>(<span class="string">&quot;{}.gz&quot;</span>, output)).unwrap();
+    } <span class="kw">else if </span>url.contains(<span class="string">".gz"</span>) {
+        <span class="macro">println!</span>(<span class="string">"- Gunzipping"</span>);
+        fs_err::rename(tmp, <span class="macro">format!</span>(<span class="string">"{}.gz"</span>, output)).unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>gunzip_cmd = Command::new(<span class="kw-2">&amp;</span>config.gunzip);
         <span class="kw">for </span>arg <span class="kw">in </span>config.gunzip_args.split_ascii_whitespace() {
             gunzip_cmd.arg(arg);
         }
-        must_run_cmd(gunzip_cmd.arg(<span class="macro">format!</span>(<span class="string">&quot;{}.gz&quot;</span>, output)));
+        must_run_cmd(gunzip_cmd.arg(<span class="macro">format!</span>(<span class="string">"{}.gz"</span>, output)));
     } <span class="kw">else </span>{
         fs_err::rename(tmp, output).unwrap();
     }
 }
 
-<span class="doccomment">/// If the output file doesn&#39;t already exist, downloads the URL into that location. Clips .kml
+<span class="doccomment">/// If the output file doesn't already exist, downloads the URL into that location. Clips .kml
 /// files and converts to a .bin.
 </span><span class="kw">pub async fn </span>download_kml(
     output: String,
     url: <span class="kw-2">&amp;</span>str,
     bounds: <span class="kw-2">&amp;</span>geom::GPSBounds,
     require_all_pts_in_bounds: bool,
-    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">&#39;_</span>&gt;,
+    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">'_</span>&gt;,
 ) {
-    <span class="macro">assert!</span>(url.ends_with(<span class="string">&quot;.kml&quot;</span>));
+    <span class="macro">assert!</span>(url.ends_with(<span class="string">".kml"</span>));
     <span class="kw">if </span>Path::new(<span class="kw-2">&amp;</span>output).exists() {
-        <span class="macro">println!</span>(<span class="string">&quot;- {} already exists&quot;</span>, output);
+        <span class="macro">println!</span>(<span class="string">"- {} already exists"</span>, output);
         <span class="kw">return</span>;
     }
     <span class="comment">// Create the directory
     </span>fs_err::create_dir_all(Path::new(<span class="kw-2">&amp;</span>output).parent().unwrap())
-        .expect(<span class="string">&quot;Creating parent dir failed&quot;</span>);
+        .expect(<span class="string">"Creating parent dir failed"</span>);
 
-    <span class="kw">let </span>tmp_file = <span class="macro">format!</span>(<span class="string">&quot;{output}_TMP&quot;</span>);
+    <span class="kw">let </span>tmp_file = <span class="macro">format!</span>(<span class="string">"{output}_TMP"</span>);
     <span class="kw">let </span>tmp = <span class="kw-2">&amp;</span>tmp_file;
-    <span class="kw">if </span>Path::new(<span class="kw-2">&amp;</span>output.replace(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>)).exists() {
-        fs_err::copy(output.replace(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>), tmp).unwrap();
+    <span class="kw">if </span>Path::new(<span class="kw-2">&amp;</span>output.replace(<span class="string">".bin"</span>, <span class="string">".kml"</span>)).exists() {
+        fs_err::copy(output.replace(<span class="string">".bin"</span>, <span class="string">".kml"</span>), tmp).unwrap();
     } <span class="kw">else </span>{
-        <span class="macro">println!</span>(<span class="string">&quot;- Missing {}, so downloading {}&quot;</span>, output, url);
+        <span class="macro">println!</span>(<span class="string">"- Missing {}, so downloading {}"</span>, output, url);
         abstio::download_to_file(url, <span class="prelude-val">None</span>, tmp).<span class="kw">await</span>.unwrap();
     }
 
-    <span class="macro">println!</span>(<span class="string">&quot;- Extracting KML data&quot;</span>);
+    <span class="macro">println!</span>(<span class="string">"- Extracting KML data"</span>);
 
     <span class="kw">let </span>shapes = kml::load(tmp.to_string(), bounds, require_all_pts_in_bounds, timer).unwrap();
     abstio::write_binary(output.clone(), <span class="kw-2">&amp;</span>shapes);
     <span class="comment">// Keep the intermediate file; otherwise we inadvertently grab new upstream data when
     // changing some binary formats
-    </span>fs_err::rename(tmp, output.replace(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>)).unwrap();
+    </span>fs_err::rename(tmp, output.replace(<span class="string">".bin"</span>, <span class="string">".kml"</span>)).unwrap();
 }
 
 <span class="doccomment">/// Uses osmium to clip the input .osm.xml or osm.pbf against a polygon and produce some output pbf
@@ -281,34 +283,34 @@
     config: <span class="kw-2">&amp;</span>ImporterConfiguration,
 ) {
     <span class="kw">if </span>Path::new(<span class="kw-2">&amp;</span>output).exists() {
-        <span class="macro">println!</span>(<span class="string">&quot;- {} already exists&quot;</span>, output);
+        <span class="macro">println!</span>(<span class="string">"- {} already exists"</span>, output);
         <span class="kw">return</span>;
     }
     <span class="comment">// Create the output directory if needed
     </span>fs_err::create_dir_all(Path::new(<span class="kw-2">&amp;</span>output).parent().unwrap())
-        .expect(<span class="string">&quot;Creating parent dir failed&quot;</span>);
+        .expect(<span class="string">"Creating parent dir failed"</span>);
 
-    <span class="macro">println!</span>(<span class="string">&quot;- Clipping {} to {}&quot;</span>, input, clipping_polygon);
+    <span class="macro">println!</span>(<span class="string">"- Clipping {} to {}"</span>, input, clipping_polygon);
 
     <span class="comment">// --strategy complete_ways is default
     </span>must_run_cmd(
         Command::new(<span class="kw-2">&amp;</span>config.osmium)
-            .arg(<span class="string">&quot;extract&quot;</span>)
-            .arg(<span class="string">&quot;-p&quot;</span>)
+            .arg(<span class="string">"extract"</span>)
+            .arg(<span class="string">"-p"</span>)
             .arg(clipping_polygon)
             .arg(input)
-            .arg(<span class="string">&quot;-o&quot;</span>)
+            .arg(<span class="string">"-o"</span>)
             .arg(output)
-            .arg(<span class="string">&quot;-f&quot;</span>)
+            .arg(<span class="string">"-f"</span>)
             <span class="comment">// Smaller files without author, timestamp, version
-            </span>.arg(<span class="string">&quot;pbf,add_metadata=false&quot;</span>),
+            </span>.arg(<span class="string">"pbf,add_metadata=false"</span>),
     );
 }
 
 <span class="doccomment">/// Creates a RawMap from OSM and other input data.
 </span><span class="kw">pub async fn </span>osm_to_raw(
     name: MapName,
-    timer: <span class="kw-2">&amp;mut </span>abstutil::Timer&lt;<span class="lifetime">&#39;_</span>&gt;,
+    timer: <span class="kw-2">&amp;mut </span>abstutil::Timer&lt;<span class="lifetime">'_</span>&gt;,
     config: <span class="kw-2">&amp;</span>ImporterConfiguration,
 ) -&gt; RawMap {
     <span class="kw">if </span>name.city == CityName::seattle() {
@@ -316,11 +318,11 @@
     }
     <span class="kw">let </span>opts = <span class="kw">crate</span>::map_config::config_for_map(<span class="kw-2">&amp;</span>name);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>url) = opts.gtfs_url {
-        download(config, name.city.input_path(<span class="string">&quot;gtfs/&quot;</span>), url).<span class="kw">await</span>;
+        download(config, name.city.input_path(<span class="string">"gtfs/"</span>), url).<span class="kw">await</span>;
     }
 
     <span class="kw">let </span>boundary_polygon = <span class="macro">format!</span>(
-        <span class="string">&quot;importer/config/{}/{}/{}.geojson&quot;</span>,
+        <span class="string">"importer/config/{}/{}/{}.geojson"</span>,
         name.city.country, name.city.city, name.map
     );
     <span class="kw">let </span>(osm_url, local_osm_file) = <span class="kw">crate</span>::pick_geofabrik(boundary_polygon.clone())
@@ -331,12 +333,12 @@
     osmium(
         local_osm_file,
         boundary_polygon.clone(),
-        name.city.input_path(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm.pbf&quot;</span>, name.map)),
+        name.city.input_path(<span class="macro">format!</span>(<span class="string">"osm/{}.osm.pbf"</span>, name.map)),
         config,
     );
 
     <span class="kw">let </span>map = convert_osm::convert(
-        name.city.input_path(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm.pbf&quot;</span>, name.map)),
+        name.city.input_path(<span class="macro">format!</span>(<span class="string">"osm/{}.osm.pbf"</span>, name.map)),
         name.clone(),
         <span class="prelude-val">Some</span>(boundary_polygon),
         opts,
@@ -348,26 +350,26 @@
 
 <span class="doccomment">/// Converts a RawMap to a Map.
 </span><span class="kw">pub fn </span>raw_to_map(name: <span class="kw-2">&amp;</span>MapName, opts: RawToMapOptions, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; map_model::Map {
-    timer.start(<span class="macro">format!</span>(<span class="string">&quot;Raw-&gt;Map for {}&quot;</span>, name.describe()));
+    timer.start(<span class="macro">format!</span>(<span class="string">"Raw-&gt;Map for {}"</span>, name.describe()));
     <span class="kw">let </span>raw: RawMap = abstio::read_binary(abstio::path_raw_map(name), timer);
     <span class="kw">let </span>map = map_model::Map::create_from_raw(raw, opts, timer);
-    timer.start(<span class="string">&quot;save map&quot;</span>);
+    timer.start(<span class="string">"save map"</span>);
     map.save();
-    timer.stop(<span class="string">&quot;save map&quot;</span>);
-    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;Raw-&gt;Map for {}&quot;</span>, name.describe()));
+    timer.stop(<span class="string">"save map"</span>);
+    timer.stop(<span class="macro">format!</span>(<span class="string">"Raw-&gt;Map for {}"</span>, name.describe()));
 
     <span class="comment">// TODO Just sticking this here for now
-    </span><span class="kw">if </span>name.map == <span class="string">&quot;huge_seattle&quot; </span>|| name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;leeds&quot;</span>, <span class="string">&quot;huge&quot;</span>) {
-        timer.start(<span class="string">&quot;generating city manifest&quot;</span>);
+    </span><span class="kw">if </span>name.map == <span class="string">"huge_seattle" </span>|| name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">"gb"</span>, <span class="string">"leeds"</span>, <span class="string">"huge"</span>) {
+        timer.start(<span class="string">"generating city manifest"</span>);
         abstio::write_binary(
             abstio::path(<span class="macro">format!</span>(
-                <span class="string">&quot;system/{}/{}/city.bin&quot;</span>,
+                <span class="string">"system/{}/{}/city.bin"</span>,
                 map.get_city_name().country,
                 map.get_city_name().city
             )),
             <span class="kw-2">&amp;</span>map_model::City::from_huge_map(<span class="kw-2">&amp;</span>map),
         );
-        timer.stop(<span class="string">&quot;generating city manifest&quot;</span>);
+        timer.stop(<span class="string">"generating city manifest"</span>);
     }
 
     map

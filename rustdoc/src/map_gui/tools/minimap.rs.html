@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/minimap.rs`."><title>minimap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/minimap.rs`."><title>minimap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -555,9 +557,9 @@
     </span><span class="kw">fn </span>panel_changed(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Panel) {}
 }
 
-<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>, T: MinimapControls&lt;A&gt;&gt; Minimap&lt;A, T&gt; {
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">'static</span>, T: MinimapControls&lt;A&gt;&gt; Minimap&lt;A, T&gt; {
     <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>A, controls: T) -&gt; Minimap&lt;A, T&gt; {
-        <span class="comment">// Initially pick a zoom to fit the smaller of the entire map&#39;s width or height in the
+        <span class="comment">// Initially pick a zoom to fit the smaller of the entire map's width or height in the
         // minimap. Arbitrary and probably pretty weird.
         </span><span class="kw">let </span>bounds = app.map().get_bounds();
         <span class="kw">let </span>base_zoom = <span class="number">0.15 </span>* ctx.canvas.window_width / bounds.width().min(bounds.height());
@@ -595,15 +597,15 @@
             <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[ctx
                 .style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
-                .build_widget(ctx, <span class="string">&quot;zoom in&quot;</span>)
+                .icon(<span class="string">"system/assets/speed/plus.svg"</span>)
+                .build_widget(ctx, <span class="string">"zoom in"</span>)
                 .centered_horiz()
                 .margin_below(<span class="number">10</span>)];
 
             <span class="kw">let </span>level_btn = ctx
                 .style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/speed/zoom_level_rect.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/speed/zoom_level_rect.svg"</span>)
                 .padding_top(<span class="number">0.0</span>)
                 .padding_bottom(<span class="number">0.0</span>);
 
@@ -617,7 +619,7 @@
                 };
                 col.push(
                     level_btn
-                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;zoom to level {}&quot;</span>, i + <span class="number">1</span>))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"zoom to level {}"</span>, i + <span class="number">1</span>))
                         .centered_horiz()
                         .margin_below(<span class="number">10</span>),
                 );
@@ -625,11 +627,11 @@
             col.push(
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;zoom out&quot;</span>)
+                    .icon(<span class="string">"system/assets/speed/minus.svg"</span>)
+                    .build_widget(ctx, <span class="string">"zoom out"</span>)
                     .centered_horiz(),
             );
-            <span class="comment">// The zoom column should start below the &quot;pan up&quot; arrow. But if we put it on the row
+            <span class="comment">// The zoom column should start below the "pan up" arrow. But if we put it on the row
             // with &lt;, minimap, and &gt; then it messes up the horizontal alignment of the
             // pan up arrow. Also, double column to avoid the background color
             // stretching to the bottom of the row.
@@ -639,10 +641,10 @@
                     .bg(app.cs().inner_panel_bg),
                 <span class="kw">if </span><span class="self">self</span>.controls.has_zorder(app) {
                     Widget::col(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Z-order:&quot;</span>).small().into_widget(ctx),
+                        Line(<span class="string">"Z-order:"</span>).small().into_widget(ctx),
                         Spinner::widget(
                             ctx,
-                            <span class="string">&quot;zorder&quot;</span>,
+                            <span class="string">"zorder"</span>,
                             app.draw_map().zorder_range,
                             app.draw_map().show_zorder,
                             <span class="number">1</span>,
@@ -657,33 +659,33 @@
         };
 
         <span class="kw">let </span>minimap_widget =
-            Filler::fixed_dims(ScreenDims::new(MINIMAP_WIDTH, MINIMAP_HEIGHT)).named(<span class="string">&quot;minimap&quot;</span>);
+            Filler::fixed_dims(ScreenDims::new(MINIMAP_WIDTH, MINIMAP_HEIGHT)).named(<span class="string">"minimap"</span>);
 
         <span class="kw">let </span>minimap_controls = {
             <span class="kw">let </span>buttons = ctx.style().btn_plain.btn().padding(<span class="number">4</span>);
             Widget::col(<span class="macro">vec!</span>[
                 buttons
                     .clone()
-                    .image_path(<span class="string">&quot;system/assets/minimap/up.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;pan up&quot;</span>)
+                    .image_path(<span class="string">"system/assets/minimap/up.svg"</span>)
+                    .build_widget(ctx, <span class="string">"pan up"</span>)
                     .centered_horiz(),
                 Widget::row(<span class="macro">vec!</span>[
                     buttons
                         .clone()
-                        .image_path(<span class="string">&quot;system/assets/minimap/left.svg&quot;</span>)
-                        .build_widget(ctx, <span class="string">&quot;pan left&quot;</span>)
+                        .image_path(<span class="string">"system/assets/minimap/left.svg"</span>)
+                        .build_widget(ctx, <span class="string">"pan left"</span>)
                         .centered_vert(),
                     minimap_widget,
                     buttons
                         .clone()
-                        .image_path(<span class="string">&quot;system/assets/minimap/right.svg&quot;</span>)
-                        .build_widget(ctx, <span class="string">&quot;pan right&quot;</span>)
+                        .image_path(<span class="string">"system/assets/minimap/right.svg"</span>)
+                        .build_widget(ctx, <span class="string">"pan right"</span>)
                         .centered_vert(),
                 ]),
                 buttons
                     .clone()
-                    .image_path(<span class="string">&quot;system/assets/minimap/down.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;pan down&quot;</span>)
+                    .image_path(<span class="string">"system/assets/minimap/down.svg"</span>)
+                    .build_widget(ctx, <span class="string">"pan down"</span>)
                     .centered_horiz(),
             ])
         };
@@ -711,7 +713,7 @@
     }
 
     <span class="kw">fn </span>map_to_minimap_pct(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D) -&gt; (f64, f64) {
-        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>);
+        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">"minimap"</span>);
         <span class="kw">let </span>pct_x = (pt.x() * <span class="self">self</span>.zoom - <span class="self">self</span>.offset_x) / inner_rect.width();
         <span class="kw">let </span>pct_y = (pt.y() * <span class="self">self</span>.zoom - <span class="self">self</span>.offset_y) / inner_rect.height();
         (pct_x, pct_y)
@@ -728,7 +730,7 @@
 
         <span class="comment">// Find the new offset
         </span><span class="kw">let </span>map_center = ctx.canvas.center_to_map_pt();
-        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>);
+        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">"minimap"</span>);
         <span class="self">self</span>.offset_x = map_center.x() * <span class="self">self</span>.zoom - pct_x * inner_rect.width();
         <span class="self">self</span>.offset_y = map_center.y() * <span class="self">self</span>.zoom - pct_y * inner_rect.height();
     }
@@ -736,15 +738,15 @@
     <span class="kw">fn </span>recenter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>A) {
         <span class="comment">// Recenter the minimap on the screen bounds
         </span><span class="kw">let </span>map_center = ctx.canvas.center_to_map_pt();
-        <span class="kw">let </span>rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>);
+        <span class="kw">let </span>rect = <span class="self">self</span>.panel.rect_of(<span class="string">"minimap"</span>);
         <span class="kw">let </span>off_x = map_center.x() * <span class="self">self</span>.zoom - rect.width() / <span class="number">2.0</span>;
         <span class="kw">let </span>off_y = map_center.y() * <span class="self">self</span>.zoom - rect.height() / <span class="number">2.0</span>;
 
-        <span class="comment">// Don&#39;t go out of bounds.
+        <span class="comment">// Don't go out of bounds.
         </span><span class="kw">let </span>bounds = app.map().get_bounds();
-        <span class="comment">// TODO For boundaries without rectangular shapes, it&#39;d be even nicer to clamp to the
+        <span class="comment">// TODO For boundaries without rectangular shapes, it'd be even nicer to clamp to the
         // boundary.
-        // clamp crashes if min &gt; max; if that happens, just don&#39;t do anything.
+        // clamp crashes if min &gt; max; if that happens, just don't do anything.
         </span><span class="kw">let </span>max_x = bounds.max_x * <span class="self">self</span>.zoom - rect.width();
         <span class="kw">let </span>max_y = bounds.max_y * <span class="self">self</span>.zoom - rect.height();
         <span class="kw">if </span>max_x &gt;= <span class="number">0.0 </span>&amp;&amp; max_y &gt;= <span class="number">0.0 </span>{
@@ -773,7 +775,7 @@
             }
         } <span class="kw">else if </span><span class="self">self</span>.zoomed &amp;&amp; !<span class="self">self</span>.dragging {
             <span class="comment">// If either corner of the cursor is out of bounds on the minimap, recenter.
-            // TODO This means clicking the pan buttons while along the boundary won&#39;t work.
+            // TODO This means clicking the pan buttons while along the boundary won't work.
             </span><span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
             <span class="kw">for </span>pt <span class="kw">in </span>[
                 ScreenPt::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
@@ -807,44 +809,44 @@
         <span class="kw">let </span>pan_speed = <span class="number">100.0</span>;
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x {
-                x <span class="kw">if </span>x == <span class="string">&quot;pan up&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"pan up" </span>=&gt; {
                     <span class="self">self</span>.offset_y -= pan_speed * <span class="self">self</span>.zoom;
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                 }
-                x <span class="kw">if </span>x == <span class="string">&quot;pan down&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"pan down" </span>=&gt; {
                     <span class="self">self</span>.offset_y += pan_speed * <span class="self">self</span>.zoom;
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                 }
-                x <span class="kw">if </span>x == <span class="string">&quot;pan left&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"pan left" </span>=&gt; {
                     <span class="self">self</span>.offset_x -= pan_speed * <span class="self">self</span>.zoom;
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                 }
-                x <span class="kw">if </span>x == <span class="string">&quot;pan right&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"pan right" </span>=&gt; {
                     <span class="self">self</span>.offset_x += pan_speed * <span class="self">self</span>.zoom;
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                 }
                 <span class="comment">// TODO Make the center of the cursor still point to the same thing. Same math as
                 // Canvas.
-                </span>x <span class="kw">if </span>x == <span class="string">&quot;zoom in&quot; </span>=&gt; {
+                </span>x <span class="kw">if </span>x == <span class="string">"zoom in" </span>=&gt; {
                     <span class="kw">if </span><span class="self">self</span>.zoom_lvl != <span class="number">3 </span>{
                         <span class="self">self</span>.set_zoom(ctx, app, <span class="self">self</span>.zoom_lvl + <span class="number">1</span>);
                     }
                 }
-                x <span class="kw">if </span>x == <span class="string">&quot;zoom out&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"zoom out" </span>=&gt; {
                     <span class="kw">if </span><span class="self">self</span>.zoom_lvl != <span class="number">0 </span>{
                         <span class="self">self</span>.set_zoom(ctx, app, <span class="self">self</span>.zoom_lvl - <span class="number">1</span>);
                     }
                 }
-                x <span class="kw">if </span>x == <span class="string">&quot;zoom to level 1&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"zoom to level 1" </span>=&gt; {
                     <span class="self">self</span>.set_zoom(ctx, app, <span class="number">0</span>);
                 }
-                x <span class="kw">if </span>x == <span class="string">&quot;zoom to level 2&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"zoom to level 2" </span>=&gt; {
                     <span class="self">self</span>.set_zoom(ctx, app, <span class="number">1</span>);
                 }
-                x <span class="kw">if </span>x == <span class="string">&quot;zoom to level 3&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"zoom to level 3" </span>=&gt; {
                     <span class="self">self</span>.set_zoom(ctx, app, <span class="number">2</span>);
                 }
-                x <span class="kw">if </span>x == <span class="string">&quot;zoom to level 4&quot; </span>=&gt; {
+                x <span class="kw">if </span>x == <span class="string">"zoom to level 4" </span>=&gt; {
                     <span class="self">self</span>.set_zoom(ctx, app, <span class="number">3</span>);
                 }
                 x =&gt; {
@@ -855,8 +857,8 @@
             },
             Outcome::Changed(<span class="kw">_</span>) =&gt; {
                 <span class="self">self</span>.controls.panel_changed(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.panel);
-                <span class="kw">if </span><span class="self">self</span>.panel.has_widget(<span class="string">&quot;zorder&quot;</span>) {
-                    app.mut_draw_map().show_zorder = <span class="self">self</span>.panel.spinner(<span class="string">&quot;zorder&quot;</span>);
+                <span class="kw">if </span><span class="self">self</span>.panel.has_widget(<span class="string">"zorder"</span>) {
+                    app.mut_draw_map().show_zorder = <span class="self">self</span>.panel.spinner(<span class="string">"zorder"</span>);
                 }
                 <span class="self">self</span>.recreate_panel(ctx, app);
             }
@@ -864,7 +866,7 @@
         }
 
         <span class="kw">if </span><span class="self">self</span>.zoomed {
-            <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>);
+            <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">"minimap"</span>);
 
             <span class="comment">// TODO Not happy about reaching in like this. The minimap logic should be an widgetry
             // Widget eventually, a generalization of Canvas.
@@ -873,7 +875,7 @@
                 <span class="kw">if </span>ctx.input.left_mouse_button_released() {
                     <span class="self">self</span>.dragging = <span class="bool-val">false</span>;
                 }
-                <span class="comment">// Don&#39;t drag out of inner_rect
+                <span class="comment">// Don't drag out of inner_rect
                 </span>pt.x = pt.x.clamp(inner_rect.x1, inner_rect.x2);
                 pt.y = pt.y.clamp(inner_rect.y1, inner_rect.y2);
             } <span class="kw">else if </span>inner_rect.contains(pt) &amp;&amp; ctx.input.left_mouse_button_pressed() {
@@ -905,7 +907,7 @@
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>).clone();
+        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">"minimap"</span>).clone();
 
         <span class="kw">let </span><span class="kw-2">mut </span>map_bounds = <span class="kw-2">*</span>app.map().get_bounds();
         <span class="comment">// Adjust bounds to account for the current pan and zoom

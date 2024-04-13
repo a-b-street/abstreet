@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/load.rs`."><title>load.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/load.rs`."><title>load.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -160,12 +162,12 @@
     </span><span class="attr">#[structopt(skip)]
     </span><span class="kw">pub </span>load: String,
     <span class="doccomment">/// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.
-    </span><span class="attr">#[structopt(long, parse(try_from_str = parse_modifiers), default_value = <span class="string">&quot;[]&quot;</span>)]
+    </span><span class="attr">#[structopt(long, parse(try_from_str = parse_modifiers), default_value = <span class="string">"[]"</span>)]
     </span><span class="kw">pub </span>scenario_modifiers: ModifierList,
     <span class="doccomment">/// An arbitrary number to seed the random number generator. This is input to the deterministic
     /// simulation, so different values affect results.
     </span><span class="comment">// TODO default_value can only handle strings, so copying SimFlags::RNG_SEED
-    </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;42&quot;</span>)]
+    </span><span class="attr">#[structopt(long, default_value = <span class="string">"42"</span>)]
     </span><span class="kw">pub </span>rng_seed: u64,
     <span class="attr">#[structopt(flatten)]
     </span><span class="kw">pub </span>opts: SimOptions,
@@ -182,18 +184,18 @@
     <span class="kw">pub const </span>RNG_SEED: u64 = <span class="number">42</span>;
 
     <span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="comment">// default_value can&#39;t call functions and this value can&#39;t be hardcoded
+        <span class="comment">// default_value can't call functions and this value can't be hardcoded
         </span><span class="self">self</span>.load = <span class="self">self
             </span>.load_path
             .clone()
-            .unwrap_or_else(|| MapName::seattle(<span class="string">&quot;montlake&quot;</span>).path());
+            .unwrap_or_else(|| MapName::seattle(<span class="string">"montlake"</span>).path());
     }
 
     <span class="comment">// TODO rename seattle_test
     </span><span class="kw">pub fn </span>for_test(run_name: <span class="kw-2">&amp;</span>str) -&gt; SimFlags {
         SimFlags {
             load_path: <span class="prelude-val">None</span>,
-            load: MapName::seattle(<span class="string">&quot;montlake&quot;</span>).path(),
+            load: MapName::seattle(<span class="string">"montlake"</span>).path(),
             scenario_modifiers: Vec::new(),
             rng_seed: SimFlags::RNG_SEED,
             opts: SimOptions::new(run_name),
@@ -207,15 +209,15 @@
     <span class="doccomment">/// Loads a map and simulation. Not appropriate for use in the UI or on web.
     </span><span class="kw">pub fn </span>load_synchronously(<span class="kw-2">&amp;</span><span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>abstutil::Timer) -&gt; (Map, Sim, XorShiftRng) {
         <span class="kw">if </span><span class="self">self</span>.load.is_empty() {
-            <span class="macro">panic!</span>(<span class="string">&quot;You forgot to call initialize on SimFlags after parsing from structopt&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"You forgot to call initialize on SimFlags after parsing from structopt"</span>);
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="self">self</span>.make_rng();
 
         <span class="kw">let </span><span class="kw-2">mut </span>opts = <span class="self">self</span>.opts.clone();
 
-        <span class="kw">if </span><span class="self">self</span>.load.starts_with(<span class="kw-2">&amp;</span>abstio::path_player(<span class="string">&quot;saves/&quot;</span>)) {
-            <span class="macro">info!</span>(<span class="string">&quot;Resuming from {}&quot;</span>, <span class="self">self</span>.load);
+        <span class="kw">if </span><span class="self">self</span>.load.starts_with(<span class="kw-2">&amp;</span>abstio::path_player(<span class="string">"saves/"</span>)) {
+            <span class="macro">info!</span>(<span class="string">"Resuming from {}"</span>, <span class="self">self</span>.load);
 
             <span class="kw">let </span>sim: Sim = abstio::must_read_object(<span class="self">self</span>.load.clone(), timer);
 
@@ -230,13 +232,13 @@
                     map.recalculate_pathfinding_after_edits(timer);
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t load edits \&quot;{}\&quot;: {}&quot;</span>, sim.edits_name, err);
+                    <span class="macro">panic!</span>(<span class="string">"Couldn't load edits \"{}\": {}"</span>, sim.edits_name, err);
                 }
             }
 
             (map, sim, rng)
-        } <span class="kw">else if </span><span class="self">self</span>.load.contains(<span class="string">&quot;/scenarios/&quot;</span>) {
-            <span class="macro">info!</span>(<span class="string">&quot;Seeding the simulation from scenario {}&quot;</span>, <span class="self">self</span>.load);
+        } <span class="kw">else if </span><span class="self">self</span>.load.contains(<span class="string">"/scenarios/"</span>) {
+            <span class="macro">info!</span>(<span class="string">"Seeding the simulation from scenario {}"</span>, <span class="self">self</span>.load);
 
             <span class="kw">let </span><span class="kw-2">mut </span>scenario: Scenario = abstio::must_read_object(<span class="self">self</span>.load.clone(), timer);
 
@@ -246,25 +248,25 @@
                 scenario = m.apply(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>rng);
             }
 
-            <span class="kw">if </span>opts.run_name == <span class="string">&quot;unnamed&quot; </span>{
+            <span class="kw">if </span>opts.run_name == <span class="string">"unnamed" </span>{
                 opts.run_name = scenario.scenario_name.clone();
             }
             <span class="kw">let </span><span class="kw-2">mut </span>sim = Sim::new(<span class="kw-2">&amp;</span>map, opts);
             sim.instantiate(<span class="kw-2">&amp;</span>scenario, <span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;mut </span>rng, timer);
 
             (map, sim, rng)
-        } <span class="kw">else if </span><span class="self">self</span>.load.contains(<span class="string">&quot;/raw_maps/&quot;</span>) || <span class="self">self</span>.load.contains(<span class="string">&quot;/maps/&quot;</span>) {
-            <span class="macro">info!</span>(<span class="string">&quot;Loading map {}&quot;</span>, <span class="self">self</span>.load);
+        } <span class="kw">else if </span><span class="self">self</span>.load.contains(<span class="string">"/raw_maps/"</span>) || <span class="self">self</span>.load.contains(<span class="string">"/maps/"</span>) {
+            <span class="macro">info!</span>(<span class="string">"Loading map {}"</span>, <span class="self">self</span>.load);
 
             <span class="kw">let </span>map = Map::load_synchronously(<span class="self">self</span>.load.clone(), timer);
 
-            timer.start(<span class="string">&quot;create sim&quot;</span>);
+            timer.start(<span class="string">"create sim"</span>);
             <span class="kw">let </span>sim = Sim::new(<span class="kw-2">&amp;</span>map, opts);
-            timer.stop(<span class="string">&quot;create sim&quot;</span>);
+            timer.stop(<span class="string">"create sim"</span>);
 
             (map, sim, rng)
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;Don&#39;t know how to load {}&quot;</span>, <span class="self">self</span>.load);
+            <span class="macro">panic!</span>(<span class="string">"Don't know how to load {}"</span>, <span class="self">self</span>.load);
         }
     }
 }

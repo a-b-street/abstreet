@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/trip/results.rs`."><title>results.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/trip/results.rs`."><title>results.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -546,7 +548,7 @@
     <span class="kw">pub </span>preferences: RoutingPreferences,
     <span class="kw">pub </span>stats: RouteStats,
 
-    <span class="comment">// It&#39;s tempting to glue together all of the paths. But since some waypoints might force the
+    <span class="comment">// It's tempting to glue together all of the paths. But since some waypoints might force the
     // path to double back on itself, rendering the path as a single PolyLine would break.
     </span>paths: Vec&lt;(Path, <span class="prelude-ty">Option</span>&lt;PolyLine&gt;)&gt;,
     <span class="comment">// Match each polyline to the index in paths
@@ -572,7 +574,7 @@
 }
 
 <span class="kw">impl </span>RouteDetails {
-    <span class="doccomment">/// &quot;main&quot; is determined by `app.session.routing_preferences`
+    <span class="doccomment">/// "main" is determined by `app.session.routing_preferences`
     </span><span class="kw">pub fn </span>main_route(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, waypoints: Vec&lt;TripEndpoint&gt;) -&gt; BuiltRoute {
         RouteDetails::new_route(
             ctx,
@@ -657,8 +659,8 @@
                             <span class="kw">if </span>road.high_stress_for_bikes(map, road.lanes[l.offset].dir) {
                                 dist_along_high_stress_roads += this_pl.length();
 
-                                <span class="comment">// TODO It&#39;d be nicer to build up contiguous subsets of the path
-                                // that&#39;re stressful, and use trace
+                                <span class="comment">// TODO It'd be nicer to build up contiguous subsets of the path
+                                // that're stressful, and use trace
                                 </span>draw_high_stress.push(
                                     Color::YELLOW,
                                     this_pl.make_polygons(<span class="number">5.0 </span>* NORMAL_LANE_THICKNESS),
@@ -762,20 +764,20 @@
     ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
         <span class="kw">if let </span>Outcome::Clicked(x) = outcome {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;high-stress roads&quot; </span>=&gt; {
+                <span class="string">"high-stress roads" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;High-stress roads&quot;</span>,
+                        <span class="string">"High-stress roads"</span>,
                         <span class="macro">vec!</span>[
-                            <span class="string">&quot;Roads are defined as high-stress for biking if:&quot;</span>,
-                            <span class="string">&quot;- they&#39;re classified as arterials&quot;</span>,
-                            <span class="string">&quot;- they lack dedicated space for biking&quot;</span>,
+                            <span class="string">"Roads are defined as high-stress for biking if:"</span>,
+                            <span class="string">"- they're classified as arterials"</span>,
+                            <span class="string">"- they lack dedicated space for biking"</span>,
                         ],
                     )));
                 }
                 <span class="comment">// No effect. Maybe these should be toggles, so people can pan the map around and
                 // see these in more detail?
-                </span><span class="string">&quot;traffic signals&quot; </span>| <span class="string">&quot;unprotected turns&quot; </span>=&gt; {
+                </span><span class="string">"traffic signals" </span>| <span class="string">"unprotected turns" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                 }
                 <span class="kw">_ </span>=&gt; {
@@ -784,7 +786,7 @@
             }
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(line_plot) = panel.maybe_find::&lt;LinePlot&lt;Distance, Distance&gt;&gt;(<span class="string">&quot;elevation&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(line_plot) = panel.maybe_find::&lt;LinePlot&lt;Distance, Distance&gt;&gt;(<span class="string">"elevation"</span>) {
             <span class="kw">let </span>current_dist_along = line_plot.get_hovering().get(<span class="number">0</span>).map(|pair| pair.<span class="number">0</span>);
             <span class="kw">if </span><span class="self">self</span>.hover_on_line_plot.as_ref().map(|pair| pair.<span class="number">0</span>) != current_dist_along {
                 <span class="self">self</span>.hover_on_line_plot = current_dist_along.map(|<span class="kw-2">mut </span>dist| {
@@ -825,8 +827,8 @@
                     }
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pl) = <span class="self">self</span>.paths[idx].<span class="number">1 </span>{
                         <span class="kw">if let </span><span class="prelude-val">Some</span>((dist_here, <span class="kw">_</span>)) = pl.dist_along_of_point(pt) {
-                            <span class="comment">// The LinePlot doesn&#39;t hold onto the original Series, so it can&#39;t help
-                            // us figure out elevation here. Let&#39;s match this point to the original
+                            <span class="comment">// The LinePlot doesn't hold onto the original Series, so it can't help
+                            // us figure out elevation here. Let's match this point to the original
                             // path and guess elevation ourselves...
                             </span><span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
                             <span class="kw">let </span>elevation = <span class="kw">match </span><span class="self">self</span>.paths[idx]
@@ -845,10 +847,10 @@
                                 }
                             };
                             panel
-                                .find_mut::&lt;LinePlot&lt;Distance, Distance&gt;&gt;(<span class="string">&quot;elevation&quot;</span>)
-                                .set_hovering(ctx, <span class="string">&quot;Elevation&quot;</span>, dist + dist_here, elevation);
+                                .find_mut::&lt;LinePlot&lt;Distance, Distance&gt;&gt;(<span class="string">"elevation"</span>)
+                                .set_hovering(ctx, <span class="string">"Elevation"</span>, dist + dist_here, elevation);
                             <span class="self">self</span>.hover_on_route_tooltip = <span class="prelude-val">Some</span>(Text::from(Line(<span class="macro">format!</span>(
-                                <span class="string">&quot;Elevation: {}&quot;</span>,
+                                <span class="string">"Elevation: {}"</span>,
                                 elevation.to_string(<span class="kw-2">&amp;</span>app.opts.units)
                             ))));
                         }
@@ -867,13 +869,13 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>txt) = <span class="self">self</span>.hover_on_route_tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
-        <span class="kw">if </span>panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;high-stress roads&quot;</span>.to_string()) {
+        <span class="kw">if </span>panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"high-stress roads"</span>.to_string()) {
             g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_high_stress);
         }
-        <span class="kw">if </span>panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;traffic signals&quot;</span>.to_string()) {
+        <span class="kw">if </span>panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"traffic signals"</span>.to_string()) {
             g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_traffic_signals);
         }
-        <span class="kw">if </span>panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;unprotected turns&quot;</span>.to_string()) {
+        <span class="kw">if </span>panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"unprotected turns"</span>.to_string()) {
             g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_unprotected_turns);
         }
     }
@@ -892,45 +894,45 @@
     };
 
     <span class="kw">let </span>unprotected_turn = <span class="kw">if </span>app.primary.map.get_config().driving_side == DrivingSide::Right {
-        <span class="string">&quot;left&quot;
+        <span class="string">"left"
     </span>} <span class="kw">else </span>{
-        <span class="string">&quot;right&quot;
+        <span class="string">"right"
     </span>};
 
     Widget::col(<span class="macro">vec!</span>[
-        Line(<span class="string">&quot;Route details&quot;</span>).small_heading().into_widget(ctx),
+        Line(<span class="string">"Route details"</span>).small_heading().into_widget(ctx),
         before_after_button(ctx, app),
         Text::from_all(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Distance: &quot;</span>).secondary(),
+            Line(<span class="string">"Distance: "</span>).secondary(),
             Line(stats.total_distance.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
         ])
         .into_widget(ctx),
         Widget::row(<span class="macro">vec!</span>[
             Text::from_all(<span class="macro">vec!</span>[
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;  {} or {}%&quot;</span>,
+                    <span class="string">"  {} or {}%"</span>,
                     stats
                         .dist_along_high_stress_roads
                         .to_string(<span class="kw-2">&amp;</span>app.opts.units),
                     pct_stressful
                 )),
-                Line(<span class="string">&quot; along &quot;</span>).secondary(),
+                Line(<span class="string">" along "</span>).secondary(),
             ])
             .into_widget(ctx)
             .centered_vert(),
             ctx.style()
                 .btn_plain
                 .btn()
-                .label_underlined_text(<span class="string">&quot;high-stress roads&quot;</span>)
+                .label_underlined_text(<span class="string">"high-stress roads"</span>)
                 .build_def(ctx),
         ]),
         Text::from_all(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Estimated time: &quot;</span>).secondary(),
+            Line(<span class="string">"Estimated time: "</span>).secondary(),
             Line(stats.total_time.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
         ])
         .into_widget(ctx),
         Widget::row(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Traffic signals crossed: &quot;</span>)
+            Line(<span class="string">"Traffic signals crossed: "</span>)
                 .secondary()
                 .into_widget(ctx)
                 .centered_vert(),
@@ -938,11 +940,11 @@
                 .btn_plain
                 .btn()
                 .label_underlined_text(stats.num_traffic_signals.to_string())
-                .build_widget(ctx, <span class="string">&quot;traffic signals&quot;</span>),
+                .build_widget(ctx, <span class="string">"traffic signals"</span>),
         ]),
         Widget::row(<span class="macro">vec!</span>[
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;Unprotected {} turns onto busy roads: &quot;</span>,
+                <span class="string">"Unprotected {} turns onto busy roads: "</span>,
                 unprotected_turn
             ))
             .secondary()
@@ -952,12 +954,12 @@
                 .btn_plain
                 .btn()
                 .label_underlined_text(stats.num_unprotected_turns.to_string())
-                .build_widget(ctx, <span class="string">&quot;unprotected turns&quot;</span>),
+                .build_widget(ctx, <span class="string">"unprotected turns"</span>),
         ]),
         Text::from_all(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Elevation change: &quot;</span>).secondary(),
+            Line(<span class="string">"Elevation change: "</span>).secondary(),
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;{}↑, {}↓&quot;</span>,
+                <span class="string">"{}↑, {}↓"</span>,
                 stats.total_up.to_string(<span class="kw-2">&amp;</span>app.opts.units),
                 stats.total_down.to_string(<span class="kw-2">&amp;</span>app.opts.units)
             )),
@@ -965,9 +967,9 @@
         .into_widget(ctx),
         LinePlot::new_widget(
             ctx,
-            <span class="string">&quot;elevation&quot;</span>,
+            <span class="string">"elevation"</span>,
             <span class="macro">vec!</span>[Series {
-                label: <span class="string">&quot;Elevation&quot;</span>.to_string(),
+                label: <span class="string">"Elevation"</span>.to_string(),
                 color: Color::RED,
                 pts: elevation_pts,
             }],
@@ -992,42 +994,42 @@
     preferences: RoutingPreferences,
 ) -&gt; Text {
     <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
-    txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;Click to use {} trip&quot;</span>, preferences.name())));
+    txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"Click to use {} trip"</span>, preferences.name())));
 
     cmp_dist(
         <span class="kw-2">&amp;mut </span>txt,
         app,
         alt.total_distance - main.total_distance,
-        <span class="string">&quot;shorter&quot;</span>,
-        <span class="string">&quot;longer&quot;</span>,
+        <span class="string">"shorter"</span>,
+        <span class="string">"longer"</span>,
     );
     cmp_duration(
         <span class="kw-2">&amp;mut </span>txt,
         app,
         alt.total_time - main.total_time,
-        <span class="string">&quot;shorter&quot;</span>,
-        <span class="string">&quot;longer&quot;</span>,
+        <span class="string">"shorter"</span>,
+        <span class="string">"longer"</span>,
     );
     cmp_dist(
         <span class="kw-2">&amp;mut </span>txt,
         app,
         alt.dist_along_high_stress_roads - main.dist_along_high_stress_roads,
-        <span class="string">&quot;less on high-stress roads&quot;</span>,
-        <span class="string">&quot;more on high-stress roads&quot;</span>,
+        <span class="string">"less on high-stress roads"</span>,
+        <span class="string">"more on high-stress roads"</span>,
     );
 
     <span class="kw">if </span>alt.total_up != main.total_up || alt.total_down != main.total_down {
-        txt.add_line(Line(<span class="string">&quot;Elevation change: &quot;</span>));
+        txt.add_line(Line(<span class="string">"Elevation change: "</span>));
         <span class="kw">let </span>up = alt.total_up - main.total_up;
         <span class="kw">match </span>up.cmp(<span class="kw-2">&amp;</span>Distance::ZERO) {
             Ordering::Less =&gt; {
                 txt.append(
-                    Line(<span class="macro">format!</span>(<span class="string">&quot;{} less ↑&quot;</span>, (-up).to_string(<span class="kw-2">&amp;</span>app.opts.units))).fg(Color::GREEN),
+                    Line(<span class="macro">format!</span>(<span class="string">"{} less ↑"</span>, (-up).to_string(<span class="kw-2">&amp;</span>app.opts.units))).fg(Color::GREEN),
                 );
             }
             Ordering::Greater =&gt; {
                 txt.append(
-                    Line(<span class="macro">format!</span>(<span class="string">&quot;{} more ↑&quot;</span>, up.to_string(<span class="kw-2">&amp;</span>app.opts.units))).fg(Color::RED),
+                    Line(<span class="macro">format!</span>(<span class="string">"{} more ↑"</span>, up.to_string(<span class="kw-2">&amp;</span>app.opts.units))).fg(Color::RED),
                 );
             }
             Ordering::Equal =&gt; {}

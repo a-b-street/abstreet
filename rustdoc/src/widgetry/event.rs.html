@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/event.rs`."><title>event.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/event.rs`."><title>event.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -479,9 +481,9 @@
 <span class="kw">use crate</span>::{EventCtx, Line, ScreenDims, ScreenPt, TextSpan};
 
 <span class="comment">// Mouse-up events longer than this will be considered single clicks
-// Ideally the delay would be a little more tolerant - e.g. 500ms, but because we don&#39;t actually
-// have a way to indicate that a single click was handled (and thus *shouldn&#39;t* be counted as part of a double click)
-// it&#39;s too easy to have false positives.
+// Ideally the delay would be a little more tolerant - e.g. 500ms, but because we don't actually
+// have a way to indicate that a single click was handled (and thus *shouldn't* be counted as part of a double click)
+// it's too easy to have false positives.
 </span><span class="kw">const </span>MAX_DOUBLE_CLICK_DURATION: instant::Duration = instant::Duration::from_millis(<span class="number">300</span>);
 
 <span class="attr">#[derive(Debug, Clone, Copy, PartialEq)]
@@ -499,7 +501,7 @@
     /// handle single clicks one way while handling double clicks a different way.
     ///
     /// e.g. a typical file browser highlights a file with a single click and opens the file with a
-    /// double click, the way we&#39;ve implemented double clicks here wouldn&#39;t work well for that
+    /// double click, the way we've implemented double clicks here wouldn't work well for that
     /// case.
     </span>LeftMouseButtonUp {
         is_double_click: bool,
@@ -551,28 +553,28 @@
                 position.to_logical(scale_factor).into(),
             )),
             WindowEvent::MouseWheel { delta, .. } =&gt; <span class="kw">match </span>delta {
-                <span class="comment">// &quot;In the beginning&quot; a spinnable mouse wheel was the only input hardware for
-                // scrolling. Each &quot;increment&quot; of the mouse wheel indicated that the application
+                <span class="comment">// "In the beginning" a spinnable mouse wheel was the only input hardware for
+                // scrolling. Each "increment" of the mouse wheel indicated that the application
                 // should scroll one line of text.
                 //
                 // Since the advent of touchpads and tablets, much finer grained scrolling is used,
                 // and consequently some input systems started expressing scroll distances from such
-                // input devices in &quot;pixels&quot; rather than &quot;lines&quot;.
+                // input devices in "pixels" rather than "lines".
                 //
                 // However some backends (e.g. x11) will express all scrolling as `LineDelta` — on
                 // those systems, touchpad drags will simply be scaled to some presumed equivalent
                 // number of lines.
                 //
                 // Widgetry expresses all scrolling in terms of MouseWheelScroll, which uses
-                // &quot;Lines&quot;.
+                // "Lines".
                 //
-                // Anymore &quot;a line&quot; usually doesn&#39;t correspond to &quot;a literal line of text&quot; in the
+                // Anymore "a line" usually doesn't correspond to "a literal line of text" in the
                 // application, and must usually just be considered an abstract unit of
                 // measurement, because of things like configurable scroll sensitivity, variable
                 // text size, and the aforementioned advent of touchpads.
                 //
-                // With &quot;Reverse&quot; scrolling, positive values indicate upward or rightward scrolling.
-                // With &quot;Natural&quot; scrolling, it&#39;s the opposite.
+                // With "Reverse" scrolling, positive values indicate upward or rightward scrolling.
+                // With "Natural" scrolling, it's the opposite.
                 </span>MouseScrollDelta::LineDelta(dx, dy) =&gt; {
                     <span class="kw">if </span>dx == <span class="number">0.0 </span>&amp;&amp; dy == <span class="number">0.0 </span>{
                         <span class="prelude-val">None
@@ -581,7 +583,7 @@
                     }
                 }
                 MouseScrollDelta::PixelDelta(pos) =&gt; {
-                    <span class="comment">// Widgetry expresses all scroll activity in units of &quot;lines&quot;, so convert from
+                    <span class="comment">// Widgetry expresses all scroll activity in units of "lines", so convert from
                     // a PixelDelta to a LineDelta.
 
                     // This scale factor is just a guess - but feels about right.
@@ -703,53 +705,53 @@
 
     <span class="kw">pub fn </span>to_char(<span class="self">self</span>, shift_pressed: bool) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            Key::A =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;A&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;a&#39; </span>}),
-            Key::B =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;B&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;b&#39; </span>}),
-            Key::C =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;C&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;c&#39; </span>}),
-            Key::D =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;D&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;d&#39; </span>}),
-            Key::E =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;E&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;e&#39; </span>}),
-            Key::F =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;F&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;f&#39; </span>}),
-            Key::G =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;G&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;g&#39; </span>}),
-            Key::H =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;H&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;h&#39; </span>}),
-            Key::I =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;I&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;i&#39; </span>}),
-            Key::J =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;J&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;j&#39; </span>}),
-            Key::K =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;K&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;k&#39; </span>}),
-            Key::L =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;L&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;l&#39; </span>}),
-            Key::M =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;M&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;m&#39; </span>}),
-            Key::N =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;N&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;n&#39; </span>}),
-            Key::O =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;O&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;o&#39; </span>}),
-            Key::P =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;P&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;p&#39; </span>}),
-            Key::Q =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;Q&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;q&#39; </span>}),
-            Key::R =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;R&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;r&#39; </span>}),
-            Key::S =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;S&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;s&#39; </span>}),
-            Key::T =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;T&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;t&#39; </span>}),
-            Key::U =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;U&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;u&#39; </span>}),
-            Key::V =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;V&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;v&#39; </span>}),
-            Key::W =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;W&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;w&#39; </span>}),
-            Key::X =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;X&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;x&#39; </span>}),
-            Key::Y =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;Y&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;y&#39; </span>}),
-            Key::Z =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;Z&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;z&#39; </span>}),
-            Key::Num1 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;!&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;1&#39; </span>}),
-            Key::Num2 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;@&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;2&#39; </span>}),
-            Key::Num3 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;#&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;3&#39; </span>}),
-            Key::Num4 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;$&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;4&#39; </span>}),
-            Key::Num5 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;%&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;5&#39; </span>}),
-            Key::Num6 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;^&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;6&#39; </span>}),
-            Key::Num7 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;&amp;&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;7&#39; </span>}),
-            Key::Num8 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;*&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;8&#39; </span>}),
-            Key::Num9 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;(&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;9&#39; </span>}),
-            Key::Num0 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;)&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;0&#39; </span>}),
-            Key::LeftBracket =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;{&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;[&#39; </span>}),
-            Key::RightBracket =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;}&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;]&#39; </span>}),
-            Key::Space =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>),
-            Key::Slash =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;?&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;/&#39; </span>}),
-            Key::Dot =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;&gt;&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;.&#39; </span>}),
-            Key::Comma =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;&lt;&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;,&#39; </span>}),
-            Key::Semicolon =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;;&#39;</span>),
-            Key::Colon =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>),
-            Key::Equals =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;+&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;=&#39; </span>}),
-            Key::SingleQuote =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;&quot;&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;\&#39;&#39; </span>}),
-            Key::Minus =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;_&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;-&#39; </span>}),
+            Key::A =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'A' </span>} <span class="kw">else </span>{ <span class="string">'a' </span>}),
+            Key::B =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'B' </span>} <span class="kw">else </span>{ <span class="string">'b' </span>}),
+            Key::C =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'C' </span>} <span class="kw">else </span>{ <span class="string">'c' </span>}),
+            Key::D =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'D' </span>} <span class="kw">else </span>{ <span class="string">'d' </span>}),
+            Key::E =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'E' </span>} <span class="kw">else </span>{ <span class="string">'e' </span>}),
+            Key::F =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'F' </span>} <span class="kw">else </span>{ <span class="string">'f' </span>}),
+            Key::G =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'G' </span>} <span class="kw">else </span>{ <span class="string">'g' </span>}),
+            Key::H =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'H' </span>} <span class="kw">else </span>{ <span class="string">'h' </span>}),
+            Key::I =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'I' </span>} <span class="kw">else </span>{ <span class="string">'i' </span>}),
+            Key::J =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'J' </span>} <span class="kw">else </span>{ <span class="string">'j' </span>}),
+            Key::K =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'K' </span>} <span class="kw">else </span>{ <span class="string">'k' </span>}),
+            Key::L =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'L' </span>} <span class="kw">else </span>{ <span class="string">'l' </span>}),
+            Key::M =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'M' </span>} <span class="kw">else </span>{ <span class="string">'m' </span>}),
+            Key::N =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'N' </span>} <span class="kw">else </span>{ <span class="string">'n' </span>}),
+            Key::O =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'O' </span>} <span class="kw">else </span>{ <span class="string">'o' </span>}),
+            Key::P =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'P' </span>} <span class="kw">else </span>{ <span class="string">'p' </span>}),
+            Key::Q =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'Q' </span>} <span class="kw">else </span>{ <span class="string">'q' </span>}),
+            Key::R =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'R' </span>} <span class="kw">else </span>{ <span class="string">'r' </span>}),
+            Key::S =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'S' </span>} <span class="kw">else </span>{ <span class="string">'s' </span>}),
+            Key::T =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'T' </span>} <span class="kw">else </span>{ <span class="string">'t' </span>}),
+            Key::U =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'U' </span>} <span class="kw">else </span>{ <span class="string">'u' </span>}),
+            Key::V =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'V' </span>} <span class="kw">else </span>{ <span class="string">'v' </span>}),
+            Key::W =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'W' </span>} <span class="kw">else </span>{ <span class="string">'w' </span>}),
+            Key::X =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'X' </span>} <span class="kw">else </span>{ <span class="string">'x' </span>}),
+            Key::Y =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'Y' </span>} <span class="kw">else </span>{ <span class="string">'y' </span>}),
+            Key::Z =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'Z' </span>} <span class="kw">else </span>{ <span class="string">'z' </span>}),
+            Key::Num1 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'!' </span>} <span class="kw">else </span>{ <span class="string">'1' </span>}),
+            Key::Num2 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'@' </span>} <span class="kw">else </span>{ <span class="string">'2' </span>}),
+            Key::Num3 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'#' </span>} <span class="kw">else </span>{ <span class="string">'3' </span>}),
+            Key::Num4 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'$' </span>} <span class="kw">else </span>{ <span class="string">'4' </span>}),
+            Key::Num5 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'%' </span>} <span class="kw">else </span>{ <span class="string">'5' </span>}),
+            Key::Num6 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'^' </span>} <span class="kw">else </span>{ <span class="string">'6' </span>}),
+            Key::Num7 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'&amp;' </span>} <span class="kw">else </span>{ <span class="string">'7' </span>}),
+            Key::Num8 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'*' </span>} <span class="kw">else </span>{ <span class="string">'8' </span>}),
+            Key::Num9 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'(' </span>} <span class="kw">else </span>{ <span class="string">'9' </span>}),
+            Key::Num0 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">')' </span>} <span class="kw">else </span>{ <span class="string">'0' </span>}),
+            Key::LeftBracket =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'{' </span>} <span class="kw">else </span>{ <span class="string">'[' </span>}),
+            Key::RightBracket =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'}' </span>} <span class="kw">else </span>{ <span class="string">']' </span>}),
+            Key::Space =&gt; <span class="prelude-val">Some</span>(<span class="string">' '</span>),
+            Key::Slash =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'?' </span>} <span class="kw">else </span>{ <span class="string">'/' </span>}),
+            Key::Dot =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'&gt;' </span>} <span class="kw">else </span>{ <span class="string">'.' </span>}),
+            Key::Comma =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'&lt;' </span>} <span class="kw">else </span>{ <span class="string">',' </span>}),
+            Key::Semicolon =&gt; <span class="prelude-val">Some</span>(<span class="string">';'</span>),
+            Key::Colon =&gt; <span class="prelude-val">Some</span>(<span class="string">':'</span>),
+            Key::Equals =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'+' </span>} <span class="kw">else </span>{ <span class="string">'=' </span>}),
+            Key::SingleQuote =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'"' </span>} <span class="kw">else </span>{ <span class="string">'\'' </span>}),
+            Key::Minus =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">'_' </span>} <span class="kw">else </span>{ <span class="string">'-' </span>}),
             Key::Escape
             | Key::Enter
             | Key::Tab
@@ -779,32 +781,32 @@
 
     <span class="kw">pub fn </span>describe(<span class="self">self</span>) -&gt; String {
         <span class="kw">match </span><span class="self">self </span>{
-            Key::Escape =&gt; <span class="string">&quot;Escape&quot;</span>.to_string(),
-            Key::Enter =&gt; <span class="string">&quot;Enter&quot;</span>.to_string(),
-            Key::Tab =&gt; <span class="string">&quot;Tab&quot;</span>.to_string(),
-            Key::Backspace =&gt; <span class="string">&quot;Backspace&quot;</span>.to_string(),
-            Key::LeftShift =&gt; <span class="string">&quot;Shift&quot;</span>.to_string(),
-            Key::LeftControl =&gt; <span class="string">&quot;left Control&quot;</span>.to_string(),
-            Key::LeftAlt =&gt; <span class="string">&quot;left Alt&quot;</span>.to_string(),
-            Key::RightAlt =&gt; <span class="string">&quot;right Alt&quot;</span>.to_string(),
-            Key::LeftArrow =&gt; <span class="string">&quot;← arrow&quot;</span>.to_string(),
-            Key::RightArrow =&gt; <span class="string">&quot;→ arrow&quot;</span>.to_string(),
-            Key::UpArrow =&gt; <span class="string">&quot;↑&quot;</span>.to_string(),
-            Key::DownArrow =&gt; <span class="string">&quot;↓&quot;</span>.to_string(),
-            Key::F1 =&gt; <span class="string">&quot;F1&quot;</span>.to_string(),
-            Key::F2 =&gt; <span class="string">&quot;F2&quot;</span>.to_string(),
-            Key::F3 =&gt; <span class="string">&quot;F3&quot;</span>.to_string(),
-            Key::F4 =&gt; <span class="string">&quot;F4&quot;</span>.to_string(),
-            Key::F5 =&gt; <span class="string">&quot;F5&quot;</span>.to_string(),
-            Key::F6 =&gt; <span class="string">&quot;F6&quot;</span>.to_string(),
-            Key::F7 =&gt; <span class="string">&quot;F7&quot;</span>.to_string(),
-            Key::F8 =&gt; <span class="string">&quot;F8&quot;</span>.to_string(),
-            Key::F9 =&gt; <span class="string">&quot;F9&quot;</span>.to_string(),
-            Key::F10 =&gt; <span class="string">&quot;F10&quot;</span>.to_string(),
-            Key::F11 =&gt; <span class="string">&quot;F11&quot;</span>.to_string(),
-            Key::F12 =&gt; <span class="string">&quot;F12&quot;</span>.to_string(),
+            Key::Escape =&gt; <span class="string">"Escape"</span>.to_string(),
+            Key::Enter =&gt; <span class="string">"Enter"</span>.to_string(),
+            Key::Tab =&gt; <span class="string">"Tab"</span>.to_string(),
+            Key::Backspace =&gt; <span class="string">"Backspace"</span>.to_string(),
+            Key::LeftShift =&gt; <span class="string">"Shift"</span>.to_string(),
+            Key::LeftControl =&gt; <span class="string">"left Control"</span>.to_string(),
+            Key::LeftAlt =&gt; <span class="string">"left Alt"</span>.to_string(),
+            Key::RightAlt =&gt; <span class="string">"right Alt"</span>.to_string(),
+            Key::LeftArrow =&gt; <span class="string">"← arrow"</span>.to_string(),
+            Key::RightArrow =&gt; <span class="string">"→ arrow"</span>.to_string(),
+            Key::UpArrow =&gt; <span class="string">"↑"</span>.to_string(),
+            Key::DownArrow =&gt; <span class="string">"↓"</span>.to_string(),
+            Key::F1 =&gt; <span class="string">"F1"</span>.to_string(),
+            Key::F2 =&gt; <span class="string">"F2"</span>.to_string(),
+            Key::F3 =&gt; <span class="string">"F3"</span>.to_string(),
+            Key::F4 =&gt; <span class="string">"F4"</span>.to_string(),
+            Key::F5 =&gt; <span class="string">"F5"</span>.to_string(),
+            Key::F6 =&gt; <span class="string">"F6"</span>.to_string(),
+            Key::F7 =&gt; <span class="string">"F7"</span>.to_string(),
+            Key::F8 =&gt; <span class="string">"F8"</span>.to_string(),
+            Key::F9 =&gt; <span class="string">"F9"</span>.to_string(),
+            Key::F10 =&gt; <span class="string">"F10"</span>.to_string(),
+            Key::F11 =&gt; <span class="string">"F11"</span>.to_string(),
+            Key::F12 =&gt; <span class="string">"F12"</span>.to_string(),
             <span class="comment">// These have to_char, but override here
-            </span>Key::Space =&gt; <span class="string">&quot;Space&quot;</span>.to_string(),
+            </span>Key::Space =&gt; <span class="string">"Space"</span>.to_string(),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.to_char(<span class="bool-val">false</span>).unwrap().to_string(),
         }
     }
@@ -884,7 +886,7 @@
             VirtualKeyCode::F11 =&gt; Key::F11,
             VirtualKeyCode::F12 =&gt; Key::F12,
             <span class="kw">_ </span>=&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;Unknown winit key {:?}&quot;</span>, key);
+                <span class="macro">println!</span>(<span class="string">"Unknown winit key {:?}"</span>, key);
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
         })
@@ -907,12 +909,12 @@
     <span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">match </span><span class="self">self </span>{
             MultiKey::Normal(key) =&gt; key.describe(),
-            MultiKey::LCtrl(key) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Ctrl+{}&quot;</span>, key.describe()),
+            MultiKey::LCtrl(key) =&gt; <span class="macro">format!</span>(<span class="string">"Ctrl+{}"</span>, key.describe()),
             MultiKey::Any(<span class="kw-2">ref </span>keys) =&gt; keys
                 .iter()
                 .map(|k| k.describe())
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-                .join(<span class="string">&quot;, &quot;</span>),
+                .join(<span class="string">", "</span>),
         }
     }
 

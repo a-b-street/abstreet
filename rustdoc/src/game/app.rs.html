@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/app.rs`."><title>app.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/app.rs`."><title>app.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -979,7 +981,7 @@
 
 <span class="doccomment">/// The top-level data that lasts through the entire game, no matter what state the game is in.
 </span><span class="kw">pub struct </span>App {
-    <span class="doccomment">/// State (like the simulation and drawing stuff) associated with the &quot;primary&quot; map.
+    <span class="doccomment">/// State (like the simulation and drawing stuff) associated with the "primary" map.
     </span><span class="kw">pub </span>primary: PerMap,
     <span class="doccomment">/// Represents state for a different version of the `primary` map. `swap_map` can be used to
     /// switch the primary and secondary state. This is currently used to compare an edited and
@@ -1012,55 +1014,55 @@
             <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref </span>a)) = <span class="self">self</span>.primary.prebaked {
                 <span class="kw">use </span>abstutil::{prettyprint_usize, serialized_size_bytes};
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- road_thruput: {} bytes&quot;</span>,
+                    <span class="string">"- road_thruput: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.road_thruput))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- intersection_thruput: {} bytes&quot;</span>,
+                    <span class="string">"- intersection_thruput: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.intersection_thruput))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- traffic_signal_thruput: {} bytes&quot;</span>,
+                    <span class="string">"- traffic_signal_thruput: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.traffic_signal_thruput))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- demand : {} bytes&quot;</span>,
+                    <span class="string">"- demand : {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.demand))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- bus_arrivals : {} bytes&quot;</span>,
+                    <span class="string">"- bus_arrivals : {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.bus_arrivals))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- passengers_boarding: {} bytes&quot;</span>,
+                    <span class="string">"- passengers_boarding: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.passengers_boarding))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- passengers_alighting: {} bytes&quot;</span>,
+                    <span class="string">"- passengers_alighting: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.passengers_alighting))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- started_trips: {} bytes&quot;</span>,
+                    <span class="string">"- started_trips: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.started_trips))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- finished_trips: {} bytes&quot;</span>,
+                    <span class="string">"- finished_trips: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.finished_trips))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- trip_log: {} bytes&quot;</span>,
+                    <span class="string">"- trip_log: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.trip_log))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- intersection_delays: {} bytes&quot;</span>,
+                    <span class="string">"- intersection_delays: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.intersection_delays))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- parking_lane_changes: {} bytes&quot;</span>,
+                    <span class="string">"- parking_lane_changes: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.parking_lane_changes))
                 );
                 <span class="macro">println!</span>(
-                    <span class="string">&quot;- parking_lot_changes: {} bytes&quot;</span>,
+                    <span class="string">"- parking_lot_changes: {} bytes"</span>,
                     prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.parking_lot_changes))
                 );
             }
@@ -1104,7 +1106,7 @@
             } <span class="kw">else if let </span><span class="prelude-val">Some</span>(ID::Road(id)) = <span class="self">self</span>.primary.current_selection {
                 g.draw_polygon(<span class="self">self</span>.cs.selected, draw_map.get_r(id).get_outline(map));
             } <span class="kw">else if let </span><span class="prelude-val">Some</span>(ID::Intersection(id)) = <span class="self">self</span>.primary.current_selection {
-                <span class="comment">// Actually, don&#39;t use get_outline here! Full polygon is easier to see.
+                <span class="comment">// Actually, don't use get_outline here! Full polygon is easier to see.
                 </span>g.draw_polygon(<span class="self">self</span>.cs.selected, map.get_i(id).polygon.clone());
             } <span class="kw">else if let </span><span class="prelude-val">Some</span>(ID::Building(id)) = <span class="self">self</span>.primary.current_selection {
                 g.draw_polygon(<span class="self">self</span>.cs.selected, map.get_b(id).polygon.clone());
@@ -1172,7 +1174,7 @@
 
                 <span class="kw">if </span>g.is_screencap() &amp;&amp; sample_intersection.is_none() {
                     <span class="kw">if let </span>ID::Intersection(id) = obj.get_id() {
-                        sample_intersection = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;_i{}&quot;</span>, id.<span class="number">0</span>));
+                        sample_intersection = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"_i{}"</span>, id.<span class="number">0</span>));
                     }
                 }
             }
@@ -1269,8 +1271,8 @@
             }
             <span class="kw">if </span>obj.contains_pt(pt, <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map) {
                 <span class="kw">if </span>unzoomed {
-                    <span class="comment">// If we&#39;re selecting agents unzoomed, they&#39;re all tiny circles, and we really
-                    // don&#39;t care about picking the one closest to the cursor.
+                    <span class="comment">// If we're selecting agents unzoomed, they're all tiny circles, and we really
+                    // don't care about picking the one closest to the cursor.
                     </span><span class="kw">return </span><span class="prelude-val">Some</span>(id);
                 }
 
@@ -1303,15 +1305,15 @@
         <span class="prelude-val">Some</span>(id)
     }
 
-    <span class="comment">// TODO This could probably belong to DrawMap again, but it&#39;s annoying to plumb things that
+    <span class="comment">// TODO This could probably belong to DrawMap again, but it's annoying to plumb things that
     // State does, like show_icons_for() and show().
-    </span><span class="kw">fn </span>get_renderables_back_to_front&lt;<span class="lifetime">&#39;a</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+    </span><span class="kw">fn </span>get_renderables_back_to_front&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         bounds: Bounds,
         prerender: <span class="kw-2">&amp;</span>Prerender,
-        agents: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>AgentCache,
+        agents: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>AgentCache,
         show_objs: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ShowObject,
-    ) -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>(<span class="kw">dyn </span>GameRenderable + <span class="lifetime">&#39;a</span>)&gt; {
+    ) -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>(<span class="kw">dyn </span>GameRenderable + <span class="lifetime">'a</span>)&gt; {
         <span class="kw">let </span>map = <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map;
         <span class="kw">let </span>draw_map = <span class="kw-2">&amp;</span><span class="self">self</span>.primary.draw_map;
 
@@ -1365,7 +1367,7 @@
                 | ID::Car(<span class="kw">_</span>)
                 | ID::Pedestrian(<span class="kw">_</span>)
                 | ID::PedCrowd(<span class="kw">_</span>) =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, id)
+                    <span class="macro">panic!</span>(<span class="string">"{:?} shouldn't be in the quadtree"</span>, id)
                 }
             }
         }
@@ -1401,7 +1403,7 @@
 
     <span class="doccomment">/// Ensure the map edits are blank, reset the simulation, and blank out prebaked results.
     </span><span class="kw">pub fn </span>clear_everything(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
-        ctx.loading_screen(<span class="string">&quot;reset map and sim&quot;</span>, |ctx, timer| {
+        ctx.loading_screen(<span class="string">"reset map and sim"</span>, |ctx, timer| {
             apply_map_edits(ctx, <span class="self">self</span>, <span class="self">self</span>.primary.map.new_edits());
             <span class="self">self</span>.primary.map.recalculate_pathfinding_after_edits(timer);
 
@@ -1413,7 +1415,7 @@
     <span class="doccomment">/// This swaps the primary and secondary PerMaps. Depending on what state the rest of the app
     /// is in, things like IDs might totally change!
     </span><span class="kw">pub fn </span>swap_map(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let </span>secondary = <span class="self">self</span>.secondary.take().expect(<span class="string">&quot;no secondary map set&quot;</span>);
+        <span class="kw">let </span>secondary = <span class="self">self</span>.secondary.take().expect(<span class="string">"no secondary map set"</span>);
         <span class="kw">let </span>primary = std::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.primary, secondary);
         <span class="self">self</span>.secondary = <span class="prelude-val">Some</span>(primary);
     }
@@ -1435,7 +1437,7 @@
     </span>}
 }
 
-<span class="comment">// I haven&#39;t measured build or runtime impact of inlining vs not, but I assume for these simple
+<span class="comment">// I haven't measured build or runtime impact of inlining vs not, but I assume for these simple
 // accessors it makes sense.
 </span><span class="kw">impl </span>map_gui::AppLike <span class="kw">for </span>App {
     <span class="attr">#[inline]
@@ -1579,7 +1581,7 @@
     </span><span class="kw">pub </span>study_area: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="doccomment">/// All of the state that&#39;s bound to a specific map.
+<span class="doccomment">/// All of the state that's bound to a specific map.
 </span><span class="kw">pub struct </span>PerMap {
     <span class="kw">pub </span>map: Map,
     <span class="kw">pub </span>draw_map: DrawMap,
@@ -1606,14 +1608,14 @@
     /// scenario name too.
     </span><span class="comment">// TODO Embed that in Analytics directly instead.
     </span>prebaked: <span class="prelude-ty">Option</span>&lt;(MapName, String, Analytics)&gt;,
-    <span class="doccomment">/// The most recent Scenario loaded from a file. Don&#39;t depend on it always matching the current
-    /// gameplay mode; always verify the name matches what&#39;s needed.
+    <span class="doccomment">/// The most recent Scenario loaded from a file. Don't depend on it always matching the current
+    /// gameplay mode; always verify the name matches what's needed.
     ///
     /// Storing this may cost some memory, but otherwise resetting to midnight would require
     /// loading it again from a file. This is particularly painful on the web!
     </span><span class="kw">pub </span>scenario: <span class="prelude-ty">Option</span>&lt;Scenario&gt;,
 
-    <span class="doccomment">/// Is this the original &quot;secondary&quot; state, loaded via --diff?
+    <span class="doccomment">/// Is this the original "secondary" state, loaded via --diff?
     </span><span class="kw">pub </span>is_secondary: bool,
 }
 
@@ -1629,13 +1631,13 @@
     ) -&gt; PerMap {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>name) = flags.study_area {
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = add_study_area(<span class="kw-2">&amp;mut </span>map, name) {
-                <span class="macro">error!</span>(<span class="string">&quot;Didn&#39;t apply study area {}: {}&quot;</span>, name, err);
+                <span class="macro">error!</span>(<span class="string">"Didn't apply study area {}: {}"</span>, name, err);
             }
         }
 
-        timer.start(<span class="string">&quot;draw_map&quot;</span>);
+        timer.start(<span class="string">"draw_map"</span>);
         <span class="kw">let </span>draw_map = DrawMap::new(ctx, <span class="kw-2">&amp;</span>map, opts, cs, timer);
-        timer.stop(<span class="string">&quot;draw_map&quot;</span>);
+        timer.stop(<span class="string">"draw_map"</span>);
 
         PerMap {
             map,
@@ -1659,8 +1661,8 @@
 
     <span class="kw">pub fn </span>init_camera_for_loaded_map(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
         <span class="kw">if </span>!CameraState::load(ctx, <span class="self">self</span>.map.get_name()) {
-            <span class="comment">// If we didn&#39;t restore a previous camera position, start zoomed out, centered on the
-            // map&#39;s center.
+            <span class="comment">// If we didn't restore a previous camera position, start zoomed out, centered on the
+            // map's center.
             </span>ctx.canvas.cam_zoom = ctx.canvas.min_zoom();
             ctx.canvas
                 .center_on_map_pt(<span class="self">self</span>.map.get_boundary_polygon().center());
@@ -1698,7 +1700,7 @@
         }
     }
 
-    <span class="comment">// TODO This would be just get_obj and return GameRenderable, but I can&#39;t get the type system
+    <span class="comment">// TODO This would be just get_obj and return GameRenderable, but I can't get the type system
     // to understand that Renderable can act like GameRenderable
     </span><span class="kw">pub fn </span>get_obj_outline(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1738,7 +1740,7 @@
 </span><span class="kw">pub struct </span>SessionState {
     <span class="kw">pub </span>tutorial: <span class="prelude-ty">Option</span>&lt;TutorialState&gt;,
     <span class="kw">pub </span>high_scores: BTreeMap&lt;GameplayMode, Vec&lt;HighScore&gt;&gt;,
-    <span class="kw">pub </span>info_panel_tab: BTreeMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    <span class="kw">pub </span>info_panel_tab: BTreeMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt;,
     <span class="kw">pub </span>last_gmns_timing_csv: <span class="prelude-ty">Option</span>&lt;(String, Vec&lt;u8&gt;)&gt;,
     <span class="kw">pub </span>dash_tab: DashTab,
     <span class="kw">pub </span>buffer_lane_type: LaneType,
@@ -1757,11 +1759,11 @@
             tutorial: <span class="prelude-val">None</span>,
             high_scores: BTreeMap::new(),
             info_panel_tab: <span class="macro">btreemap! </span>{
-                <span class="string">&quot;lane&quot; </span>=&gt; <span class="string">&quot;info&quot;</span>,
-                <span class="string">&quot;intersection&quot; </span>=&gt; <span class="string">&quot;info&quot;</span>,
-                <span class="string">&quot;bldg&quot; </span>=&gt; <span class="string">&quot;info&quot;</span>,
-                <span class="string">&quot;person&quot; </span>=&gt; <span class="string">&quot;trips&quot;</span>,
-                <span class="string">&quot;bus&quot; </span>=&gt; <span class="string">&quot;status&quot;</span>,
+                <span class="string">"lane" </span>=&gt; <span class="string">"info"</span>,
+                <span class="string">"intersection" </span>=&gt; <span class="string">"info"</span>,
+                <span class="string">"bldg" </span>=&gt; <span class="string">"info"</span>,
+                <span class="string">"person" </span>=&gt; <span class="string">"trips"</span>,
+                <span class="string">"bus" </span>=&gt; <span class="string">"status"</span>,
             },
             last_gmns_timing_csv: <span class="prelude-val">None</span>,
             dash_tab: DashTab::TripTable,
@@ -1792,7 +1794,7 @@
     <span class="kw">pub fn </span>left_click&lt;S: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, label: S) -&gt; bool {
         <span class="kw">let </span>label = label.into();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>old) = <span class="self">self</span>.click_action {
-            <span class="macro">panic!</span>(<span class="string">&quot;left_click for \&quot;{old}\&quot; already called; can&#39;t also do \&quot;{label}\&quot;&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"left_click for \"{old}\" already called; can't also do \"{label}\""</span>);
         }
         <span class="self">self</span>.click_action = <span class="prelude-val">Some</span>(label);
         ctx.normal_left_click()
@@ -1829,43 +1831,43 @@
     <span class="kw">fn </span>dump_before_abort(<span class="kw-2">&amp;</span><span class="self">self</span>, canvas: <span class="kw-2">&amp;</span>Canvas) {
         <span class="macro">println!</span>();
         <span class="macro">println!</span>(
-            <span class="string">&quot;********************************************************************************&quot;
+            <span class="string">"********************************************************************************"
         </span>);
         CameraState::save(canvas, <span class="self">self</span>.primary.map.get_name());
         <span class="macro">println!</span>(
-            <span class="string">&quot;Crash! Please report to https://github.com/a-b-street/abstreet/issues/ and include \
-             all output.txt; at least everything starting from the stack trace above!&quot;
+            <span class="string">"Crash! Please report to https://github.com/a-b-street/abstreet/issues/ and include \
+             all output.txt; at least everything starting from the stack trace above!"
         </span>);
 
         <span class="macro">println!</span>();
         <span class="self">self</span>.primary.sim.dump_before_abort();
 
         <span class="macro">println!</span>();
-        <span class="macro">println!</span>(<span class="string">&quot;Camera:&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">"Camera:"</span>);
         <span class="macro">println!</span>(
-            <span class="string">r#&quot;{{ &quot;cam_x&quot;: {}, &quot;cam_y&quot;: {}, &quot;cam_zoom&quot;: {} }}&quot;#</span>,
+            <span class="string">r#"{{ "cam_x": {}, "cam_y": {}, "cam_zoom": {} }}"#</span>,
             canvas.cam_x, canvas.cam_y, canvas.cam_zoom
         );
 
         <span class="macro">println!</span>();
         <span class="kw">if </span><span class="self">self</span>.primary.map.get_edits().commands.is_empty() {
-            <span class="macro">println!</span>(<span class="string">&quot;No edits&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">"No edits"</span>);
         } <span class="kw">else </span>{
             abstio::write_json(
-                <span class="string">&quot;edits_during_crash.json&quot;</span>.to_string(),
+                <span class="string">"edits_during_crash.json"</span>.to_string(),
                 <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map.get_edits().to_permanent(<span class="kw-2">&amp;</span><span class="self">self</span>.primary.map),
             );
-            <span class="macro">println!</span>(<span class="string">&quot;Please include edits_during_crash.json in your bug report.&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">"Please include edits_during_crash.json in your bug report."</span>);
         }
 
-        <span class="comment">// Repeat, because it can be hard to see the top of the report if it&#39;s long
+        <span class="comment">// Repeat, because it can be hard to see the top of the report if it's long
         </span><span class="macro">println!</span>();
         <span class="macro">println!</span>(
-            <span class="string">&quot;Crash! Please report to https://github.com/a-b-street/abstreet/issues/ and include \
-             all output.txt; at least everything above here until the start of the report!&quot;
+            <span class="string">"Crash! Please report to https://github.com/a-b-street/abstreet/issues/ and include \
+             all output.txt; at least everything above here until the start of the report!"
         </span>);
         <span class="macro">println!</span>(
-            <span class="string">&quot;********************************************************************************&quot;
+            <span class="string">"********************************************************************************"
         </span>);
     }
 
@@ -1882,7 +1884,7 @@
 </span><span class="kw">fn </span>add_study_area(map: <span class="kw-2">&amp;mut </span>Map, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">let </span>require_in_bounds = <span class="bool-val">true</span>;
     <span class="kw">for </span>(polygon, tags) <span class="kw">in </span>Polygon::from_geojson_bytes(
-        <span class="kw-2">&amp;</span>abstio::slurp_file(abstio::path(<span class="macro">format!</span>(<span class="string">&quot;system/study_areas/{}.geojson&quot;</span>, name)))<span class="question-mark">?</span>,
+        <span class="kw-2">&amp;</span>abstio::slurp_file(abstio::path(<span class="macro">format!</span>(<span class="string">"system/study_areas/{}.geojson"</span>, name)))<span class="question-mark">?</span>,
         map.get_gps_bounds(),
         require_in_bounds,
     )<span class="question-mark">? </span>{

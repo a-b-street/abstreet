@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/route_planner.rs`."><title>route_planner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/route_planner.rs`."><title>route_planner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -526,13 +528,13 @@
     <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         app.calculate_draw_all_local_road_labels(ctx);
 
-        <span class="comment">// Fade all neighbourhood interiors, so it&#39;s very clear when a route cuts through
+        <span class="comment">// Fade all neighbourhood interiors, so it's very clear when a route cuts through
         </span><span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
         <span class="kw">for </span>info <span class="kw">in </span>app.partitioning().all_neighbourhoods().values() {
             batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
         }
 
-        <span class="comment">// Just so there&#39;s some explanation for occasionally odd building&lt;-&gt;road snapping, show
+        <span class="comment">// Just so there's some explanation for occasionally odd building&lt;-&gt;road snapping, show
         // driveways very faintly
         </span><span class="kw">let </span><span class="kw-2">mut </span>driveways = GeomBatch::new();
         <span class="kw">for </span>b <span class="kw">in </span>app.per_map.map.all_buildings() {
@@ -563,7 +565,7 @@
     }
 
     <span class="doccomment">/// Add a new trip while outside of this state and make it current, so that when we switch into
-    /// this state, it&#39;ll appear
+    /// this state, it'll appear
     </span><span class="kw">pub fn </span>add_new_trip(app: <span class="kw-2">&amp;mut </span>App, from: TripEndpoint, to: TripEndpoint) {
         <span class="kw">let </span><span class="kw-2">mut </span>files = TripManagement::&lt;App, RoutePlanner&gt;::new(app);
         files.add_new_trip(app, from, to);
@@ -575,44 +577,44 @@
         <span class="kw">let </span>results_widget = <span class="self">self</span>.recalculate_paths(ctx, app);
 
         <span class="kw">let </span>contents = Widget::col(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Plan a route&quot;</span>).small_heading().into_widget(ctx),
+            Line(<span class="string">"Plan a route"</span>).small_heading().into_widget(ctx),
             Widget::col(<span class="macro">vec!</span>[
                 <span class="self">self</span>.files.get_panel_widget(ctx),
                 Widget::horiz_separator(ctx, <span class="number">1.0</span>),
-                <span class="self">self</span>.waypoints.get_panel_widget(ctx).named(<span class="string">&quot;waypoints&quot;</span>),
+                <span class="self">self</span>.waypoints.get_panel_widget(ctx).named(<span class="string">"waypoints"</span>),
             ]),
             <span class="kw">if </span><span class="self">self</span>.waypoints.get_waypoints().len() &lt; <span class="number">2 </span>{
                 Widget::nothing()
             } <span class="kw">else </span>{
                 Widget::col(<span class="macro">vec!</span>[
                     Widget::row(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Slow-down factor for main roads:&quot;</span>)
+                        Line(<span class="string">"Slow-down factor for main roads:"</span>)
                             .into_widget(ctx)
                             .centered_vert(),
                         Spinner::f64_widget(
                             ctx,
-                            <span class="string">&quot;main road penalty&quot;</span>,
+                            <span class="string">"main road penalty"</span>,
                             (<span class="number">1.0</span>, <span class="number">10.0</span>),
                             app.session.main_road_penalty,
                             <span class="number">0.5</span>,
                         ),
                         ctx.style()
                             .btn_plain
-                            .icon(<span class="string">&quot;system/assets/tools/help.svg&quot;</span>)
+                            .icon(<span class="string">"system/assets/tools/help.svg"</span>)
                             .tooltip(
-                                <span class="string">&quot;Increase to see how drivers may try to detour in heavy traffic&quot;</span>,
+                                <span class="string">"Increase to see how drivers may try to detour in heavy traffic"</span>,
                             )
-                            .build_widget(ctx, <span class="string">&quot;penalty instructions&quot;</span>)
+                            .build_widget(ctx, <span class="string">"penalty instructions"</span>)
                             .align_right(),
                     ]),
-                    Line(<span class="string">&quot;1 means free-flow traffic conditions&quot;</span>)
+                    Line(<span class="string">"1 means free-flow traffic conditions"</span>)
                         .secondary()
                         .into_widget(ctx),
                 ])
             },
             <span class="comment">// Invisible separator
             </span>GeomBatch::from(<span class="macro">vec!</span>[(Color::CLEAR, Polygon::rectangle(<span class="number">0.1</span>, <span class="number">30.0</span>))]).into_widget(ctx),
-            results_widget.named(<span class="string">&quot;results&quot;</span>),
+            results_widget.named(<span class="string">"results"</span>),
         ]);
         <span class="kw">let </span><span class="kw-2">mut </span>panel =
             <span class="kw">crate</span>::components::LeftPanel::right_of_proposals(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel, contents)
@@ -641,12 +643,12 @@
         world.rebuilt_during_drag(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.world);
         <span class="self">self</span>.world = world;
 
-        <span class="self">self</span>.left_panel.replace(ctx, <span class="string">&quot;results&quot;</span>, results_widget);
+        <span class="self">self</span>.left_panel.replace(ctx, <span class="string">"results"</span>, results_widget);
 
-        <span class="comment">// TODO This is the most expensive part. While we&#39;re dragging, can we just fade out the
+        <span class="comment">// TODO This is the most expensive part. While we're dragging, can we just fade out the
         // cards or de-emphasize them somehow, and only do the recalculation when done?
         </span><span class="kw">let </span>waypoints_widget = <span class="self">self</span>.waypoints.get_panel_widget(ctx);
-        <span class="self">self</span>.left_panel.replace(ctx, <span class="string">&quot;waypoints&quot;</span>, waypoints_widget);
+        <span class="self">self</span>.left_panel.replace(ctx, <span class="string">"waypoints"</span>, waypoints_widget);
     }
 
     <span class="comment">// Returns a widget to display
@@ -711,7 +713,7 @@
                     ok = <span class="bool-val">false</span>;
                 }
             }
-            <span class="comment">// To simplify colors, don&#39;t draw this path when it&#39;s the same as the baseline
+            <span class="comment">// To simplify colors, don't draw this path when it's the same as the baseline
             // TODO Actually compare the paths! This could be dangerous.
             </span><span class="kw">if </span><span class="prelude-val">Some</span>(total_time) != driving_before_changes_time {
                 paths.append(<span class="kw-2">&amp;mut </span>paths_after);
@@ -725,8 +727,8 @@
         };
 
         <span class="kw">let </span>biking_time = <span class="kw">if </span>app.session.show_walking_cycling_routes {
-            <span class="comment">// No custom params, but don&#39;t use the map&#39;s built-in bike CH. Changes to one-way
-            // streets haven&#39;t been reflected, and it&#39;s cheap enough to use Dijkstra&#39;s for
+            <span class="comment">// No custom params, but don't use the map's built-in bike CH. Changes to one-way
+            // streets haven't been reflected, and it's cheap enough to use Dijkstra's for
             // calculating one path at a time anyway.
             </span><span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
             <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
@@ -757,7 +759,7 @@
         </span>};
 
         <span class="kw">let </span>walking_time = <span class="kw">if </span>app.session.show_walking_cycling_routes {
-            <span class="comment">// Same as above -- don&#39;t use the built-in CH.
+            <span class="comment">// Same as above -- don't use the built-in CH.
             </span><span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
             <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
             <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.waypoints.get_waypoints().windows(<span class="number">2</span>) {
@@ -794,35 +796,35 @@
             <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = d {
                 Line(d.to_rounded_string(<span class="number">0</span>))
             } <span class="kw">else </span>{
-                Line(<span class="string">&quot;Error&quot;</span>)
+                Line(<span class="string">"Error"</span>)
             }
         }
 
         Widget::col(<span class="macro">vec!</span>[
             <span class="comment">// TODO Circle icons
             </span>Widget::row(<span class="macro">vec!</span>[
-                Image::from_path(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
+                Image::from_path(<span class="string">"system/assets/meters/car.svg"</span>)
                     .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE)
                     .into_widget(ctx),
-                <span class="string">&quot;Driving before any changes&quot;</span>.text_widget(ctx),
+                <span class="string">"Driving before any changes"</span>.text_widget(ctx),
                 render_time(driving_before_changes_time)
                     .into_widget(ctx)
                     .align_right(),
             ]),
             <span class="kw">if </span>driving_before_changes_time == driving_after_changes_time {
                 Widget::row(<span class="macro">vec!</span>[
-                    Image::from_path(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
+                    Image::from_path(<span class="string">"system/assets/meters/car.svg"</span>)
                         .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE)
                         .into_widget(ctx),
-                    <span class="string">&quot;Driving after changes&quot;</span>.text_widget(ctx),
-                    <span class="string">&quot;Same&quot;</span>.text_widget(ctx).align_right(),
+                    <span class="string">"Driving after changes"</span>.text_widget(ctx),
+                    <span class="string">"Same"</span>.text_widget(ctx).align_right(),
                 ])
             } <span class="kw">else </span>{
                 Widget::row(<span class="macro">vec!</span>[
-                    Image::from_path(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
+                    Image::from_path(<span class="string">"system/assets/meters/car.svg"</span>)
                         .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_AFTER)
                         .into_widget(ctx),
-                    <span class="string">&quot;Driving after changes&quot;</span>.text_widget(ctx),
+                    <span class="string">"Driving after changes"</span>.text_widget(ctx),
                     render_time(driving_after_changes_time)
                         .into_widget(ctx)
                         .align_right(),
@@ -830,20 +832,20 @@
             },
             <span class="kw">if </span>app.session.show_walking_cycling_routes {
                 Widget::col(<span class="macro">vec!</span>[
-                    <span class="comment">// TODO Is the tooltip that important? &quot;This cycling route doesn&#39;t avoid
-                    // high-stress roads or hills, and assumes an average 10mph pace&quot;
+                    <span class="comment">// TODO Is the tooltip that important? "This cycling route doesn't avoid
+                    // high-stress roads or hills, and assumes an average 10mph pace"
                     </span>Widget::row(<span class="macro">vec!</span>[
-                        Image::from_path(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
+                        Image::from_path(<span class="string">"system/assets/meters/bike.svg"</span>)
                             .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_BIKE)
                             .into_widget(ctx),
-                        <span class="string">&quot;Cycling&quot;</span>.text_widget(ctx),
+                        <span class="string">"Cycling"</span>.text_widget(ctx),
                         render_time(biking_time).into_widget(ctx).align_right(),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        Image::from_path(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>)
+                        Image::from_path(<span class="string">"system/assets/meters/pedestrian.svg"</span>)
                             .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_WALK)
                             .into_widget(ctx),
-                        <span class="string">&quot;Walking&quot;</span>.text_widget(ctx),
+                        <span class="string">"Walking"</span>.text_widget(ctx),
                         render_time(walking_time).into_widget(ctx).align_right(),
                     ]),
                 ])
@@ -853,7 +855,7 @@
             <span class="comment">// TODO Tooltip to explain how these routes remain direct?
             </span>Toggle::checkbox(
                 ctx,
-                <span class="string">&quot;Show walking &amp; cycling route&quot;</span>,
+                <span class="string">"Show walking &amp; cycling route"</span>,
                 <span class="prelude-val">None</span>,
                 app.session.show_walking_cycling_routes,
             ),
@@ -886,20 +888,20 @@
                 }
                 <span class="kw">return </span>t;
             }
-            <span class="kw">if </span>x == <span class="string">&quot;penalty instructions&quot; </span>{
+            <span class="kw">if </span>x == <span class="string">"penalty instructions" </span>{
                 <span class="kw">return </span>Transition::Keep;
             }
             <span class="comment">// Might be for waypoints
         </span>}
 
         <span class="kw">if let </span>Outcome::Changed(<span class="kw-2">ref </span>x) = panel_outcome {
-            <span class="kw">if </span>x == <span class="string">&quot;main road penalty&quot; </span>{
+            <span class="kw">if </span>x == <span class="string">"main road penalty" </span>{
                 app.session.main_road_penalty =
-                    <span class="self">self</span>.left_panel.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
+                    <span class="self">self</span>.left_panel.spinner::&lt;RoundedF64&gt;(<span class="string">"main road penalty"</span>).<span class="number">0</span>;
                 <span class="self">self</span>.update_everything(ctx, app);
-            } <span class="kw">else if </span>x == <span class="string">&quot;Show walking &amp; cycling route&quot; </span>{
+            } <span class="kw">else if </span>x == <span class="string">"Show walking &amp; cycling route" </span>{
                 app.session.show_walking_cycling_routes =
-                    <span class="self">self</span>.left_panel.is_checked(<span class="string">&quot;Show walking &amp; cycling route&quot;</span>);
+                    <span class="self">self</span>.left_panel.is_checked(<span class="string">"Show walking &amp; cycling route"</span>);
                 <span class="self">self</span>.update_everything(ctx, app);
             }
         }
@@ -952,12 +954,12 @@
     }
 }
 
-<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="macro">vec!</span>[
-        <span class="string">&quot;You can test how different driving routes are affected by proposed LTNs.&quot;</span>,
-        <span class="string">&quot;&quot;</span>,
-        <span class="string">&quot;The fastest route may not cut through neighbourhoods normally,&quot;</span>,
-        <span class="string">&quot;but you can adjust the slow-down factor to mimic rush hour conditions&quot;</span>,
+        <span class="string">"You can test how different driving routes are affected by proposed LTNs."</span>,
+        <span class="string">""</span>,
+        <span class="string">"The fastest route may not cut through neighbourhoods normally,"</span>,
+        <span class="string">"but you can adjust the slow-down factor to mimic rush hour conditions"</span>,
     ]
 }
 </code></pre></div></section></main></body></html>

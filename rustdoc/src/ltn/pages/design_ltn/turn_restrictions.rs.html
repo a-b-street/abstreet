@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/design_ltn/turn_restrictions.rs`."><title>turn_restrictions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/design_ltn/turn_restrictions.rs`."><title>turn_restrictions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -385,10 +387,10 @@
             <span class="kw">let </span>restricted = focus.restricted_t.len();
             <span class="kw">let </span>permitted = focus.possible_t.len() - restricted;
             Widget::col(<span class="macro">vec!</span>[
-                <span class="macro">format!</span>(<span class="string">&quot;{} permitted and {} restricted&quot;</span>, permitted, restricted,).text_widget(ctx),
-                <span class="macro">format!</span>(<span class="string">&quot;turns from {} &quot;</span>, road.get_name(app.opts.language.as_ref()))
+                <span class="macro">format!</span>(<span class="string">"{} permitted and {} restricted"</span>, permitted, restricted,).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"turns from {} "</span>, road.get_name(app.opts.language.as_ref()))
                     .text_widget(ctx),
-                <span class="macro">format!</span>(<span class="string">&quot;at selected intersection&quot;</span>).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"at selected intersection"</span>).text_widget(ctx),
             ])
         }
         <span class="prelude-val">None </span>=&gt; Widget::nothing(),
@@ -437,7 +439,7 @@
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
     <span class="kw">let </span>road = map.get_r(r);
 
-    <span class="comment">// Because we have &quot;possible&quot; destinations (rather than just &quot;permitted&quot;) we must draw possible_destinations
+    <span class="comment">// Because we have "possible" destinations (rather than just "permitted") we must draw possible_destinations
     // first so that the distinct rendering of restricted_destinations shows on top of possible_destinations.
     </span><span class="kw">let </span>restricted_destinations = restricted_destination_roads(map, r, <span class="prelude-val">None</span>);
     <span class="kw">let </span>possible_destinations = possible_destination_roads(map, road.id, <span class="prelude-val">None</span>);
@@ -473,7 +475,7 @@
         .drawn_in_master_batch()
         .draw_hovered(hover_batch)
         .tooltip(Text::from(<span class="macro">format!</span>(
-            <span class="string">&quot;Click to edit turn restrictions from {}&quot;</span>,
+            <span class="string">"Click to edit turn restrictions from {}"</span>,
             road_name(app, road)
         )))
         .clickable()
@@ -519,7 +521,7 @@
         .draw_hovered(batch)
         .zorder(<span class="number">1</span>)
         .tooltip(Text::from(<span class="macro">format!</span>(
-            <span class="string">&quot;Edit restricted turn from {}&quot;</span>,
+            <span class="string">"Edit restricted turn from {}"</span>,
             road_name(app, from_road)
         )))
         .build(ctx);
@@ -553,14 +555,14 @@
         .draw_hovered(batch)
         .zorder(<span class="number">2</span>)
         .tooltip(Text::from(<span class="macro">format!</span>(
-            <span class="string">&quot;Edit restricted turn from {}&quot;</span>,
+            <span class="string">"Edit restricted turn from {}"</span>,
             road_name(app, from_road)
         )))
         .clickable()
         .build(ctx);
 
-    <span class="comment">// Highlight permitted destinations (Because we have &quot;possible&quot; but only what to show &quot;permitted&quot;
-    // we need to draw these first, and then &quot;restricted&quot; on top - with a higher z-order.)
+    <span class="comment">// Highlight permitted destinations (Because we have "possible" but only what to show "permitted"
+    // we need to draw these first, and then "restricted" on top - with a higher z-order.)
     </span><span class="kw">for </span>target_r <span class="kw">in </span><span class="kw-2">&amp;</span>focused_t.possible_t {
         <span class="kw">if </span>!<span class="kw-2">&amp;</span>focused_t.restricted_t.contains(target_r) &amp;&amp; target_r != <span class="kw-2">&amp;</span>focused_t.from_r {
             build_individual_target_road_geom(
@@ -569,7 +571,7 @@
                 colors::TURN_RESTRICTED_DESTINATION.alpha(<span class="number">1.0</span>),
                 <span class="number">3</span>,
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;Add new turn restriction from &#39;{}&#39; to &#39;{}&#39;&quot;</span>,
+                    <span class="string">"Add new turn restriction from '{}' to '{}'"</span>,
                     from_road_name,
                     road_name(app, map.get_r(<span class="kw-2">*</span>target_r))
                 ),
@@ -589,7 +591,7 @@
             colors::TURN_PERMITTED_DESTINATION.alpha(<span class="number">1.0</span>),
             <span class="number">4</span>,
             <span class="macro">format!</span>(
-                <span class="string">&quot;Remove turn restriction from &#39;{}&#39; to &#39;{}&#39;&quot;</span>,
+                <span class="string">"Remove turn restriction from '{}' to '{}'"</span>,
                 from_road_name,
                 road_name(app, map.get_r(<span class="kw-2">*</span>target_r))
             ),
@@ -613,7 +615,7 @@
     map: <span class="kw-2">&amp;</span>Map,
 ) {
     <span class="comment">// Highlight restricted destinations
-    // Don&#39;t show U-Turns
+    // Don't show U-Turns
     </span><span class="kw">if </span>target_r == focused_t.from_r {
         <span class="kw">return</span>;
     }
@@ -655,20 +657,20 @@
             // If not and is one of the permitted destination roads,
             //      then we should add that restricted turn
             </span><span class="kw">let </span>cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
-            <span class="macro">debug!</span>(<span class="string">&quot;click point {:?}&quot;</span>, cursor_pt);
+            <span class="macro">debug!</span>(<span class="string">"click point {:?}"</span>, cursor_pt);
 
             <span class="kw">if let </span>EditMode::TurnRestrictions(<span class="kw-2">ref </span>prev_selection) = app.session.edit_mode {
                 <span class="kw">if </span>prev_selection.is_some() {
                     <span class="kw">let </span>prev = prev_selection.as_ref().unwrap();
                     <span class="kw">if </span>r == prev.from_r {
-                        <span class="macro">debug!</span>(<span class="string">&quot;The same road has been clicked on twice {:?}&quot;</span>, r);
+                        <span class="macro">debug!</span>(<span class="string">"The same road has been clicked on twice {:?}"</span>, r);
                     } <span class="kw">else if </span>prev.restricted_t.contains(<span class="kw-2">&amp;</span>r) || prev.possible_t.contains(<span class="kw-2">&amp;</span>r) {
                         <span class="kw">let </span><span class="kw-2">mut </span>edits = app.per_map.map.get_edits().clone();
                         <span class="comment">// We are editing the previous road, not the most recently clicked road
                         </span><span class="kw">let </span>erc = app.per_map.map.edit_road_cmd(prev.from_r, |new| {
                             handle_edited_turn_restrictions(new, prev, r)
                         });
-                        <span class="macro">debug!</span>(<span class="string">&quot;erc={:?}&quot;</span>, erc);
+                        <span class="macro">debug!</span>(<span class="string">"erc={:?}"</span>, erc);
                         edits.commands.push(erc);
                         app.apply_edits(edits);
 
@@ -681,26 +683,26 @@
                     } <span class="kw">else </span>{
                         <span class="comment">// Unreachable if the FocusTurns is is the only clickable objects in the world
                         </span><span class="macro">debug!</span>(
-                            <span class="string">&quot;Two difference roads have been clicked on prev={:?}, new {:?}&quot;</span>,
+                            <span class="string">"Two difference roads have been clicked on prev={:?}, new {:?}"</span>,
                             prev.from_r, r
                         );
                     }
                 } <span class="kw">else </span>{
-                    <span class="macro">debug!</span>(<span class="string">&quot;No previous road selected. New selection {:?}&quot;</span>, r);
+                    <span class="macro">debug!</span>(<span class="string">"No previous road selected. New selection {:?}"</span>, r);
                 }
             }
 
             app.session.edit_mode =
                 EditMode::TurnRestrictions(<span class="prelude-val">Some</span>(FocusedTurns::new(r, cursor_pt, <span class="kw-2">&amp;</span>app.per_map.map)));
             <span class="macro">debug!</span>(
-                <span class="string">&quot;TURN RESTRICTIONS: handle_world_outcome - Clicked on Road {:?}&quot;</span>,
+                <span class="string">"TURN RESTRICTIONS: handle_world_outcome - Clicked on Road {:?}"</span>,
                 r
             );
             EditOutcome::UpdatePanelAndWorld
         }
         WorldOutcome::ClickedFreeSpace(<span class="kw">_</span>) =&gt; {
             app.session.edit_mode = EditMode::TurnRestrictions(<span class="prelude-val">None</span>);
-            <span class="macro">debug!</span>(<span class="string">&quot;TURN RESTRICTIONS: handle_world_outcome - Clicked on FreeSpace&quot;</span>);
+            <span class="macro">debug!</span>(<span class="string">"TURN RESTRICTIONS: handle_world_outcome - Clicked on FreeSpace"</span>);
             EditOutcome::UpdatePanelAndWorld
         }
         <span class="kw">_ </span>=&gt; EditOutcome::Nothing,
@@ -710,7 +712,7 @@
 <span class="kw">pub fn </span>handle_edited_turn_restrictions(new: <span class="kw-2">&amp;mut </span>EditRoad, ft: <span class="kw-2">&amp;</span>FocusedTurns, target_r: RoadID) {
     <span class="kw">if </span>ft.restricted_t.contains(<span class="kw-2">&amp;</span>target_r) {
         <span class="macro">debug!</span>(
-            <span class="string">&quot;Remove existing banned turn from src={:?}, to dst {:?}&quot;</span>,
+            <span class="string">"Remove existing banned turn from src={:?}, to dst {:?}"</span>,
             ft.from_r, target_r
         );
         new.turn_restrictions.retain(|(<span class="kw">_</span>, r)| <span class="kw-2">*</span>r != target_r);
@@ -718,14 +720,14 @@
             .retain(|(<span class="kw">_</span>, r)| <span class="kw-2">*</span>r != target_r);
     } <span class="kw">else if </span>ft.possible_t.contains(<span class="kw-2">&amp;</span>target_r) {
         <span class="macro">debug!</span>(
-            <span class="string">&quot;Create new banned turn from src={:?}, to dst {:?}&quot;</span>,
+            <span class="string">"Create new banned turn from src={:?}, to dst {:?}"</span>,
             ft.from_r, target_r
         );
         new.turn_restrictions
             .push((RestrictionType::BanTurns, target_r));
     } <span class="kw">else </span>{
         <span class="macro">debug!</span>(
-            <span class="string">&quot;Nothing to change src={:?}, to dst {:?}&quot;</span>,
+            <span class="string">"Nothing to change src={:?}, to dst {:?}"</span>,
             ft.from_r, target_r
         );
     }

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/roads.rs`."><title>roads.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/roads.rs`."><title>roads.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1094,7 +1096,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::edit::zones::ZoneEditor;
 <span class="kw">use </span><span class="kw">crate</span>::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
 
-<span class="comment">// TODO Future bug alert: osm_tags.get(osm::HIGHWAY) is brittle, because it&#39;ll break for railways.
+<span class="comment">// TODO Future bug alert: osm_tags.get(osm::HIGHWAY) is brittle, because it'll break for railways.
 // Plumb through road.highway instead.
 
 </span><span class="kw">pub struct </span>RoadEditor {
@@ -1185,8 +1187,8 @@
             <span class="kw">if </span>parking &gt; <span class="number">0 </span>&amp;&amp; driving == <span class="number">0 </span>{
                 <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                     ctx,
-                    <span class="string">&quot;Error&quot;</span>,
-                    <span class="macro">vec!</span>[<span class="string">&quot;Parking can&#39;t exist without a driving lane to access it.&quot;</span>],
+                    <span class="string">"Error"</span>,
+                    <span class="macro">vec!</span>[<span class="string">"Parking can't exist without a driving lane to access it."</span>],
                 ));
             }
         }
@@ -1229,7 +1231,7 @@
     }
 
     <span class="kw">fn </span>recalc_lane_highlights(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
-        <span class="kw">let </span>drag_drop = <span class="self">self</span>.main_panel.find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">&quot;lane cards&quot;</span>);
+        <span class="kw">let </span>drag_drop = <span class="self">self</span>.main_panel.find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">"lane cards"</span>);
         <span class="kw">let </span>selected = drag_drop.selected_value().or(<span class="self">self</span>.selected_lane);
         <span class="kw">let </span>hovering = drag_drop.hovering_value().or(<span class="self">self</span>.hovering_on_lane);
         <span class="kw">if </span>(selected, hovering) != <span class="self">self</span>.lane_highlights.<span class="number">0 </span>{
@@ -1275,13 +1277,13 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Finish&quot; </span>=&gt; {
+                <span class="string">"Finish" </span>=&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(edits) = <span class="self">self</span>.compress_edits(app) {
                         apply_map_edits(ctx, app, edits);
                     }
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Cancel&quot; </span>=&gt; {
+                <span class="string">"Cancel" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
                     <span class="kw">if </span>edits.commands.len() != <span class="self">self</span>.num_edit_cmds_originally {
                         edits.commands.truncate(<span class="self">self</span>.num_edit_cmds_originally);
@@ -1289,7 +1291,7 @@
                     }
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Revert&quot; </span>=&gt; {
+                <span class="string">"Revert" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
                     edits.commands.push(EditCmd::ChangeRoad {
                         r: <span class="self">self</span>.r,
@@ -1306,7 +1308,7 @@
                     <span class="self">self</span>.recalc_hovering(ctx, app);
                     panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;undo&quot; </span>=&gt; {
+                <span class="string">"undo" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
                     <span class="self">self</span>.redo_stack.push(edits.commands.pop().unwrap());
                     apply_map_edits(ctx, app, edits);
@@ -1315,7 +1317,7 @@
                     <span class="self">self</span>.recalc_hovering(ctx, app);
                     panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;redo&quot; </span>=&gt; {
+                <span class="string">"redo" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
                     edits.commands.push(<span class="self">self</span>.redo_stack.pop().unwrap());
                     apply_map_edits(ctx, app, edits);
@@ -1324,7 +1326,7 @@
                     <span class="self">self</span>.recalc_hovering(ctx, app);
                     panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;jump to road&quot; </span>=&gt; {
+                <span class="string">"jump to road" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(Warping::new_state(
                         ctx,
                         app.primary.canonical_point(ID::Road(<span class="self">self</span>.r)).unwrap(),
@@ -1333,7 +1335,7 @@
                         <span class="kw-2">&amp;mut </span>app.primary,
                     ));
                 }
-                <span class="string">&quot;Apply to multiple road segments&quot; </span>=&gt; {
+                <span class="string">"Apply to multiple road segments" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(
                         <span class="kw">crate</span>::edit::multiple_roads::SelectSegments::new_state(
                             ctx,
@@ -1352,20 +1354,20 @@
 
         <span class="kw">match </span><span class="self">self</span>.main_panel.event(ctx) {
             Outcome::Clicked(x) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = x.strip_prefix(<span class="string">&quot;modify Lane #&quot;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = x.strip_prefix(<span class="string">"modify Lane #"</span>) {
                     <span class="self">self</span>.selected_lane = <span class="prelude-val">Some</span>(LaneID::decode_u32(idx.parse().unwrap()));
                     panels_need_recalc = <span class="bool-val">true</span>;
-                } <span class="kw">else if </span>x == <span class="string">&quot;delete lane&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"delete lane" </span>{
                     <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">None</span>, |new, idx| {
                         new.lanes_ltr.remove(idx);
                     });
-                } <span class="kw">else if </span>x == <span class="string">&quot;flip direction&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"flip direction" </span>{
                     <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
                         new.lanes_ltr[idx].dir = new.lanes_ltr[idx].dir.opposite();
                     });
-                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(lt) = x.strip_prefix(<span class="string">&quot;change to &quot;</span>) {
-                    <span class="kw">let </span>lt = <span class="kw">if </span>lt == <span class="string">&quot;buffer&quot; </span>{
-                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;change to buffer&quot;</span>)
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(lt) = x.strip_prefix(<span class="string">"change to "</span>) {
+                    <span class="kw">let </span>lt = <span class="kw">if </span>lt == <span class="string">"buffer" </span>{
+                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">"change to buffer"</span>)
                     } <span class="kw">else </span>{
                         LaneType::from_short_name(lt).unwrap()
                     };
@@ -1383,9 +1385,9 @@
                         new.lanes_ltr[idx].lt = lt;
                         new.lanes_ltr[idx].width = width;
                     });
-                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(lt) = x.strip_prefix(<span class="string">&quot;add &quot;</span>) {
-                    <span class="kw">let </span>lt = <span class="kw">if </span>lt == <span class="string">&quot;buffer&quot; </span>{
-                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;add buffer&quot;</span>)
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(lt) = x.strip_prefix(<span class="string">"add "</span>) {
+                    <span class="kw">let </span>lt = <span class="kw">if </span>lt == <span class="string">"buffer" </span>{
+                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">"add buffer"</span>)
                     } <span class="kw">else </span>{
                         LaneType::from_short_name(lt).unwrap()
                     };
@@ -1400,7 +1402,7 @@
                             .iter()
                             .all(|l| l.lane_type != LaneType::Driving)
                     {
-                        <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Add a driving lane first. Parking can&#39;t exist without a way to access it.&quot;</span>]));
+                        <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">"Error"</span>, <span class="macro">vec!</span>[<span class="string">"Add a driving lane first. Parking can't exist without a way to access it."</span>]));
                     }
 
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
@@ -1428,7 +1430,7 @@
                     <span class="self">self</span>.selected_lane = <span class="prelude-val">Some</span>(<span class="self">self</span>.lane_for_idx(app, idx));
                     <span class="self">self</span>.recalc_hovering(ctx, app);
                     panels_need_recalc = <span class="bool-val">true</span>;
-                } <span class="kw">else if </span>x == <span class="string">&quot;Access restrictions&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"Access restrictions" </span>{
                     <span class="comment">// The RoadEditor maintains an undo/redo stack for a single road, but the
                     // ZoneEditor usually operates on multiple roads. So before we switch over to
                     // it, compress and save the current edits.
@@ -1441,8 +1443,8 @@
                 }
             }
             Outcome::Changed(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;speed limit&quot; </span>=&gt; {
-                    <span class="kw">let </span>speed_limit = <span class="self">self</span>.main_panel.dropdown_value(<span class="string">&quot;speed limit&quot;</span>);
+                <span class="string">"speed limit" </span>=&gt; {
+                    <span class="kw">let </span>speed_limit = <span class="self">self</span>.main_panel.dropdown_value(<span class="string">"speed limit"</span>);
 
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
                     <span class="kw">let </span>old = app.primary.map.get_r_edit(<span class="self">self</span>.r);
@@ -1463,32 +1465,32 @@
                     <span class="self">self</span>.recalc_hovering(ctx, app);
                     panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;width preset&quot; </span>=&gt; {
-                    <span class="kw">let </span>width = <span class="self">self</span>.main_panel.dropdown_value(<span class="string">&quot;width preset&quot;</span>);
+                <span class="string">"width preset" </span>=&gt; {
+                    <span class="kw">let </span>width = <span class="self">self</span>.main_panel.dropdown_value(<span class="string">"width preset"</span>);
                     <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
                         new.lanes_ltr[idx].width = width;
                     });
                 }
-                <span class="string">&quot;width custom&quot; </span>=&gt; {
-                    <span class="kw">let </span>width = <span class="self">self</span>.main_panel.spinner(<span class="string">&quot;width custom&quot;</span>);
+                <span class="string">"width custom" </span>=&gt; {
+                    <span class="kw">let </span>width = <span class="self">self</span>.main_panel.spinner(<span class="string">"width custom"</span>);
                     <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
                         new.lanes_ltr[idx].width = width;
                     });
                 }
-                <span class="string">&quot;lane cards&quot; </span>=&gt; {
+                <span class="string">"lane cards" </span>=&gt; {
                     <span class="comment">// hovering index changed
                     </span>panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;dragging lane cards&quot; </span>=&gt; {
+                <span class="string">"dragging lane cards" </span>=&gt; {
                     <span class="kw">let </span>(from, to) = <span class="self">self
                         </span>.main_panel
-                        .find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">&quot;lane cards&quot;</span>)
+                        .find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">"lane cards"</span>)
                         .get_dragging_state()
                         .unwrap();
                     <span class="self">self</span>.draw_drop_position = draw_drop_position(app, <span class="self">self</span>.r, from, to).upload(ctx);
                 }
-                <span class="string">&quot;change to buffer&quot; </span>=&gt; {
-                    <span class="kw">let </span>lt = <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;change to buffer&quot;</span>);
+                <span class="string">"change to buffer" </span>=&gt; {
+                    <span class="kw">let </span>lt = <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">"change to buffer"</span>);
                     app.session.buffer_lane_type = lt;
                     <span class="kw">let </span>width = LaneSpec::typical_lane_widths(
                         lt,
@@ -1505,9 +1507,9 @@
                         new.lanes_ltr[idx].width = width;
                     });
                 }
-                <span class="string">&quot;add buffer&quot; </span>=&gt; {
+                <span class="string">"add buffer" </span>=&gt; {
                     app.session.buffer_lane_type =
-                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;add buffer&quot;</span>);
+                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">"add buffer"</span>);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
@@ -1531,18 +1533,18 @@
                 panels_need_recalc = <span class="bool-val">true</span>;
             }
             Outcome::Nothing =&gt; {}
-            <span class="kw">_ </span>=&gt; <span class="macro">debug!</span>(<span class="string">&quot;main_panel had unhandled outcome&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">debug!</span>(<span class="string">"main_panel had unhandled outcome"</span>),
         }
 
         <span class="kw">if </span><span class="self">self
             </span>.main_panel
-            .find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">&quot;lane cards&quot;</span>)
+            .find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">"lane cards"</span>)
             .get_dragging_state()
             .is_some()
         {
-            <span class="comment">// Even if we drag the lane card into map-space, don&#39;t hover on anything in the map.
+            <span class="comment">// Even if we drag the lane card into map-space, don't hover on anything in the map.
             </span><span class="self">self</span>.hovering_on_lane = <span class="prelude-val">None</span>;
-            <span class="comment">// Don&#39;t rebuild the panel -- that&#39;ll destroy the DragDrop we just started! But do
+            <span class="comment">// Don't rebuild the panel -- that'll destroy the DragDrop we just started! But do
             // update the outlines
             </span><span class="self">self</span>.recalc_lane_highlights(ctx, app);
         } <span class="kw">else if </span>ctx.redo_mouseover() {
@@ -1605,47 +1607,47 @@
 
     Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
         Widget::row(<span class="macro">vec!</span>[
-            Line(<span class="macro">format!</span>(<span class="string">&quot;Edit {}&quot;</span>, r)).small_heading().into_widget(ctx),
+            Line(<span class="macro">format!</span>(<span class="string">"Edit {}"</span>, r)).small_heading().into_widget(ctx),
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                .build_widget(ctx, <span class="string">&quot;jump to road&quot;</span>),
+                .icon(<span class="string">"system/assets/tools/location.svg"</span>)
+                .build_widget(ctx, <span class="string">"jump to road"</span>),
             ctx.style()
                 .btn_plain
-                .text(<span class="string">&quot;+ Apply to multiple&quot;</span>)
-                .label_color(Color::hex(<span class="string">&quot;#4CA7E9&quot;</span>), ControlState::Default)
+                .text(<span class="string">"+ Apply to multiple"</span>)
+                .label_color(Color::hex(<span class="string">"#4CA7E9"</span>), ControlState::Default)
                 .hotkey(Key::M)
                 .disabled(current_state == orig_road_state)
-                .disabled_tooltip(<span class="string">&quot;You have to edit one road segment first, then you can apply the changes to more segments.&quot;</span>)
-                .build_widget(ctx, <span class="string">&quot;Apply to multiple road segments&quot;</span>),
+                .disabled_tooltip(<span class="string">"You have to edit one road segment first, then you can apply the changes to more segments."</span>)
+                .build_widget(ctx, <span class="string">"Apply to multiple road segments"</span>),
         ]),
         Widget::row(<span class="macro">vec!</span>[
             ctx.style()
                 .btn_solid_primary
-                .text(<span class="string">&quot;Finish&quot;</span>)
+                .text(<span class="string">"Finish"</span>)
                 .hotkey(Key::Enter)
                 .build_def(ctx),
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/undo.svg"</span>)
                 .disabled(map.get_edits().commands.len() == num_edit_cmds_originally)
                 .hotkey(lctrl(Key::Z))
-                .build_widget(ctx, <span class="string">&quot;undo&quot;</span>),
+                .build_widget(ctx, <span class="string">"undo"</span>),
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/redo.svg"</span>)
                 .disabled(no_redo_cmds)
                 <span class="comment">// TODO ctrl+shift+Z!
                 </span>.hotkey(lctrl(Key::Y))
-                .build_widget(ctx, <span class="string">&quot;redo&quot;</span>),
+                .build_widget(ctx, <span class="string">"redo"</span>),
             ctx.style()
                 .btn_plain_destructive
-                .text(<span class="string">&quot;Revert&quot;</span>)
+                .text(<span class="string">"Revert"</span>)
                 .disabled(current_state == EditRoad::get_orig_from_osm(map.get_r(r), map.get_config()))
                 .build_def(ctx),
             ctx.style()
                 .btn_plain
-                .text(<span class="string">&quot;Cancel&quot;</span>)
+                .text(<span class="string">"Cancel"</span>)
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ]),
@@ -1691,7 +1693,7 @@
     <span class="kw">let </span>make_buffer_picker = |ctx, prefix, initial_type| {
         PersistentSplit::widget(
             ctx,
-            <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} buffer&quot;</span>, prefix),
+            <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{} buffer"</span>, prefix),
             initial_type,
             <span class="prelude-val">None</span>,
             <span class="macro">vec!</span>[
@@ -1709,7 +1711,7 @@
                     LaneSpec::typical_lane_widths(lt, road.osm_tags.get(osm::HIGHWAY).unwrap())[<span class="number">0</span>]
                         .<span class="number">0</span>;
                 Choice::new(
-                    <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, lt.short_name(), width.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
+                    <span class="macro">format!</span>(<span class="string">"{} ({})"</span>, lt.short_name(), width.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
                     lt,
                 )
             })
@@ -1718,32 +1720,32 @@
     };
 
     <span class="kw">let </span>add_lane_row = Widget::row(<span class="macro">vec!</span>[
-        <span class="string">&quot;add new&quot;</span>.text_widget(ctx).centered_vert(),
+        <span class="string">"add new"</span>.text_widget(ctx).centered_vert(),
         Widget::row({
             <span class="kw">let </span><span class="kw-2">mut </span>row: Vec&lt;Widget&gt; = lane_types
                 .iter()
                 .map(|(lt, key)| {
                     lane_type_buttons
                         .get(lt)
-                        .expect(<span class="string">&quot;lane_type button should have been cached&quot;</span>)
+                        .expect(<span class="string">"lane_type button should have been cached"</span>)
                         .clone()
-                        <span class="comment">// When we&#39;re modifying an existing lane, hotkeys change the lane, not add
+                        <span class="comment">// When we're modifying an existing lane, hotkeys change the lane, not add
                         // new lanes.
                         </span>.hotkey(<span class="kw">if </span>selected_lane.is_none() {
                             key.map(|k| k.into())
                         } <span class="kw">else </span>{
                             <span class="prelude-val">None
                         </span>})
-                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;add {}&quot;</span>, lt.short_name()))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"add {}"</span>, lt.short_name()))
                         .centered_vert()
                 })
                 .collect();
-            row.push(make_buffer_picker(ctx, <span class="string">&quot;add&quot;</span>, app.session.buffer_lane_type));
+            row.push(make_buffer_picker(ctx, <span class="string">"add"</span>, app.session.buffer_lane_type));
             row.insert(moving_lane_idx, Widget::vert_separator(ctx, <span class="number">40.0</span>));
             row
         }),
     ]);
-    <span class="kw">let </span><span class="kw-2">mut </span>drag_drop = DragDrop::new(ctx, <span class="string">&quot;lane cards&quot;</span>, StackAxis::Horizontal);
+    <span class="kw">let </span><span class="kw-2">mut </span>drag_drop = DragDrop::new(ctx, <span class="string">"lane cards"</span>, StackAxis::Horizontal);
 
     <span class="kw">let </span>road_width = road.get_width();
 
@@ -1765,9 +1767,9 @@
         <span class="kw">if </span>can_reverse(lt) {
             icon_stack.push(
                 Image::from_path(<span class="kw">if </span>dir == Direction::Fwd {
-                    <span class="string">&quot;system/assets/edit/forwards.svg&quot;
+                    <span class="string">"system/assets/edit/forwards.svg"
                 </span>} <span class="kw">else </span>{
-                    <span class="string">&quot;system/assets/edit/backwards.svg&quot;
+                    <span class="string">"system/assets/edit/backwards.svg"
                 </span>})
                 .dims((<span class="number">30.0</span>, <span class="number">30.0</span>))
                 .build_batch(ctx)
@@ -1797,7 +1799,7 @@
                 <span class="kw">let </span>h_padding = ((road_width_px * lane_ratio_of_road - icon_width) / <span class="number">2.0</span>).max(<span class="number">2.0</span>);
 
                 Image::from_batch(icon_batch, icon_bounds)
-                    <span class="comment">// TODO: For selected/hover, rather than change the entire card&#39;s background, let&#39;s
+                    <span class="comment">// TODO: For selected/hover, rather than change the entire card's background, let's
                     // just add an outline to match the styling of the corresponding lane in the map
                     </span>.bg_color(<span class="kw">if </span>is_selected {
                         selected_lane_bg(ctx)
@@ -1845,7 +1847,7 @@
         <span class="kw">let </span>lane = map.get_l(l);
         Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;change to&quot;</span>.text_widget(ctx).centered_vert(),
+                <span class="string">"change to"</span>.text_widget(ctx).centered_vert(),
                 Widget::row({
                     <span class="kw">let </span><span class="kw-2">mut </span>row: Vec&lt;Widget&gt; = lane_types
                         .iter()
@@ -1853,12 +1855,12 @@
                             <span class="kw">let </span>lt = <span class="kw-2">*</span>lt;
                             <span class="kw">let </span><span class="kw-2">mut </span>btn = lane_type_buttons
                                 .get(<span class="kw-2">&amp;</span>lt)
-                                .expect(<span class="string">&quot;lane_type button should have been cached&quot;</span>)
+                                .expect(<span class="string">"lane_type button should have been cached"</span>)
                                 .clone()
                                 .hotkey(key.map(|k| k.into()));
 
                             <span class="kw">if </span>current_lt == <span class="prelude-val">Some</span>(lt) {
-                                <span class="comment">// If the selected lane is already this type, we can&#39;t change it. Hopefully no need to
+                                <span class="comment">// If the selected lane is already this type, we can't change it. Hopefully no need to
                                 // explain this.
                                 </span>btn = btn.disabled(<span class="bool-val">true</span>);
                             } <span class="kw">else if </span>lt == LaneType::Parking
@@ -1870,12 +1872,12 @@
                             </span>{
                                 <span class="comment">// Max 2 parking lanes per road.
                                 //
-                                // (I&#39;ve seen cases in Ballard with angled parking in a median and also parking on both
+                                // (I've seen cases in Ballard with angled parking in a median and also parking on both
                                 // shoulders. If this happens to be mapped as two adjacent one-way roads, it could
-                                // work. But the simulation layer doesn&#39;t understand 3 lanes on one road.)
+                                // work. But the simulation layer doesn't understand 3 lanes on one road.)
                                 </span>btn = btn
                                     .disabled(<span class="bool-val">true</span>)
-                                    .disabled_tooltip(<span class="string">&quot;This road already has two parking lanes&quot;</span>);
+                                    .disabled_tooltip(<span class="string">"This road already has two parking lanes"</span>);
                             } <span class="kw">else if </span>lt == LaneType::Sidewalk
                                 &amp;&amp; current_lts.iter().filter(|x| x.is_walkable()).count() == <span class="number">2
                             </span>{
@@ -1885,15 +1887,15 @@
                                 // deeply baked into the map model and everything on top of it.)
                                 </span>btn = btn
                                     .disabled(<span class="bool-val">true</span>)
-                                    .disabled_tooltip(<span class="string">&quot;This road already has two sidewalks&quot;</span>);
+                                    .disabled_tooltip(<span class="string">"This road already has two sidewalks"</span>);
                             }
 
-                            btn.build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;change to {}&quot;</span>, lt.short_name()))
+                            btn.build_widget(ctx, <span class="macro">format!</span>(<span class="string">"change to {}"</span>, lt.short_name()))
                         })
                         .collect();
                     row.push(make_buffer_picker(
                         ctx,
-                        <span class="string">&quot;change to&quot;</span>,
+                        <span class="string">"change to"</span>,
                         <span class="kw">match </span>current_lt {
                             <span class="prelude-val">Some</span>(lt @ LaneType::Buffer(<span class="kw">_</span>)) =&gt; lt,
                             <span class="kw">_ </span>=&gt; app.session.buffer_lane_type,
@@ -1906,28 +1908,28 @@
             Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_solid_destructive
-                    .icon(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/trash.svg"</span>)
                     .disabled(road.lanes.len() == <span class="number">1</span>)
                     .hotkey(Key::Backspace)
-                    .build_widget(ctx, <span class="string">&quot;delete lane&quot;</span>)
+                    .build_widget(ctx, <span class="string">"delete lane"</span>)
                     .centered_vert(),
                 ctx.style()
                     .btn_plain
-                    .text(<span class="string">&quot;flip direction&quot;</span>)
+                    .text(<span class="string">"flip direction"</span>)
                     .disabled(!can_reverse(lane.lane_type))
                     .hotkey(Key::F)
                     .build_def(ctx)
                     .centered_vert(),
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Width&quot;</span>).secondary().into_widget(ctx).centered_vert(),
-                    Widget::dropdown(ctx, <span class="string">&quot;width preset&quot;</span>, lane.width, width_choices(app, l)),
+                    Line(<span class="string">"Width"</span>).secondary().into_widget(ctx).centered_vert(),
+                    Widget::dropdown(ctx, <span class="string">"width preset"</span>, lane.width, width_choices(app, l)),
                     Spinner::widget_with_custom_rendering(
                         ctx,
-                        <span class="string">&quot;width custom&quot;</span>,
+                        <span class="string">"width custom"</span>,
                         (Distance::meters(<span class="number">0.3</span>), Distance::meters(<span class="number">7.0</span>)),
                         lane.width,
                         Distance::meters(<span class="number">0.1</span>),
-                        <span class="comment">// Even if the user&#39;s settings are set to feet, our step size is in meters, so
+                        <span class="comment">// Even if the user's settings are set to feet, our step size is in meters, so
                         // just render in meters.
                         </span>Box::new(|x| x.to_string(<span class="kw-2">&amp;</span>UnitFmt::metric())),
                     ),
@@ -1941,7 +1943,7 @@
 
     <span class="kw">let </span>total_width = {
         <span class="kw">let </span>line1 = Text::from_all(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Total width &quot;</span>).secondary(),
+            Line(<span class="string">"Total width "</span>).secondary(),
             Line(road_width.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
         ])
         .into_widget(ctx);
@@ -1956,14 +1958,14 @@
             .btn()
             .label_styled_text(
                 Text::from(<span class="kw">match </span>road_width.cmp(<span class="kw-2">&amp;</span>orig_width) {
-                    std::cmp::Ordering::Equal =&gt; Line(<span class="string">&quot;No change&quot;</span>).secondary(),
+                    std::cmp::Ordering::Equal =&gt; Line(<span class="string">"No change"</span>).secondary(),
                     std::cmp::Ordering::Less =&gt; Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;- {}&quot;</span>,
+                        <span class="string">"- {}"</span>,
                         (orig_width - road_width).to_string(<span class="kw-2">&amp;</span>app.opts.units)
                     ))
                     .fg(Color::GREEN),
                     std::cmp::Ordering::Greater =&gt; Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;+ {}&quot;</span>,
+                        <span class="string">"+ {}"</span>,
                         (road_width - orig_width).to_string(<span class="kw-2">&amp;</span>app.opts.units)
                     ))
                     .fg(Color::RED),
@@ -1971,28 +1973,28 @@
                 ControlState::Default,
             )
             .disabled(<span class="bool-val">true</span>)
-            .disabled_tooltip(<span class="string">&quot;The original road width is an estimate, so any changes might not require major construction.&quot;</span>)
-            .build_widget(ctx, <span class="string">&quot;changes to total width&quot;</span>)
+            .disabled_tooltip(<span class="string">"The original road width is an estimate, so any changes might not require major construction."</span>)
+            .build_widget(ctx, <span class="string">"changes to total width"</span>)
             .align_right();
         Widget::col(<span class="macro">vec!</span>[line1, line2])
     };
 
     <span class="kw">let </span>road_settings = Widget::row(<span class="macro">vec!</span>[
         total_width,
-        Line(<span class="string">&quot;Speed limit&quot;</span>)
+        Line(<span class="string">"Speed limit"</span>)
             .secondary()
             .into_widget(ctx)
             .centered_vert(),
         Widget::dropdown(
             ctx,
-            <span class="string">&quot;speed limit&quot;</span>,
+            <span class="string">"speed limit"</span>,
             road.speed_limit,
             speed_limit_choices(app, <span class="prelude-val">Some</span>(road.speed_limit)),
         )
         .centered_vert(),
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Access restrictions&quot;</span>)
+            .text(<span class="string">"Access restrictions"</span>)
             .build_def(ctx)
             .centered_vert(),
     ]);
@@ -2010,14 +2012,14 @@
                 .into_widget(ctx)
                 .bg(ctx.style().text_primary_color.tint(<span class="number">0.3</span>))
                 .margin_left(<span class="number">16</span>),
-            <span class="comment">// We use a sort of &quot;tab&quot; metaphor for the selected lane above and this &quot;edit&quot; section
+            <span class="comment">// We use a sort of "tab" metaphor for the selected lane above and this "edit" section
             </span>modify_lane.padding(<span class="number">16.0</span>).bg(selected_lane_bg(ctx)),
         ])
         .padding_left(<span class="number">16</span>),
     )
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
-    <span class="comment">// If we&#39;re hovering on a lane card, we&#39;ll immediately produce Outcome::Changed. Since this
-    // usually happens in recalc_all_panels, that&#39;s fine -- we&#39;ll look up the current lane card
+    <span class="comment">// If we're hovering on a lane card, we'll immediately produce Outcome::Changed. Since this
+    // usually happens in recalc_all_panels, that's fine -- we'll look up the current lane card
     // there anyway.
     </span>.ignore_initial_events()
     .build_custom(ctx)
@@ -2056,25 +2058,25 @@
     ((selected_lane, hovered_lane), ctx.upload(batch))
 }
 
-<span class="kw">fn </span>lane_type_to_icon(lt: LaneType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">fn </span>lane_type_to_icon(lt: LaneType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="kw">match </span>lt {
-        LaneType::Driving =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/driving.svg&quot;</span>),
-        LaneType::Parking =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/parking.svg&quot;</span>),
-        LaneType::Sidewalk | LaneType::Shoulder =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/sidewalk.svg&quot;</span>),
-        LaneType::Biking =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bike.svg&quot;</span>),
-        LaneType::Bus =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bus.svg&quot;</span>),
-        LaneType::SharedLeftTurn =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>),
-        LaneType::Construction =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/construction.svg&quot;</span>),
+        LaneType::Driving =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/driving.svg"</span>),
+        LaneType::Parking =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/parking.svg"</span>),
+        LaneType::Sidewalk | LaneType::Shoulder =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/sidewalk.svg"</span>),
+        LaneType::Biking =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/bike.svg"</span>),
+        LaneType::Bus =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/bus.svg"</span>),
+        LaneType::SharedLeftTurn =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/map/shared_left_turn.svg"</span>),
+        LaneType::Construction =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/construction.svg"</span>),
         LaneType::Buffer(BufferType::Stripes | BufferType::Verge) =&gt; {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/stripes.svg&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/buffer/stripes.svg"</span>)
         }
-        LaneType::Buffer(BufferType::FlexPosts) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/flex_posts.svg&quot;</span>),
-        LaneType::Buffer(BufferType::Planters) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/planters.svg&quot;</span>),
+        LaneType::Buffer(BufferType::FlexPosts) =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/buffer/flex_posts.svg"</span>),
+        LaneType::Buffer(BufferType::Planters) =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/buffer/planters.svg"</span>),
         LaneType::Buffer(BufferType::JerseyBarrier) =&gt; {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/jersey_barrier.svg&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/buffer/jersey_barrier.svg"</span>)
         }
-        LaneType::Buffer(BufferType::Curb) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/curb.svg&quot;</span>),
-        <span class="comment">// Don&#39;t allow creating these yet
+        LaneType::Buffer(BufferType::Curb) =&gt; <span class="prelude-val">Some</span>(<span class="string">"system/assets/edit/buffer/curb.svg"</span>),
+        <span class="comment">// Don't allow creating these yet
         </span>LaneType::LightRail | LaneType::Footway | LaneType::SharedUse =&gt; <span class="prelude-val">None</span>,
     }
 }
@@ -2091,12 +2093,12 @@
             .unwrap(),
     );
     <span class="kw">if </span>!choices.iter().any(|(x, <span class="kw">_</span>)| <span class="kw-2">*</span>x == lane.width) {
-        choices.push((lane.width, <span class="string">&quot;custom&quot;</span>));
+        choices.push((lane.width, <span class="string">"custom"</span>));
     }
     choices.sort();
     choices
         .into_iter()
-        .map(|(x, label)| Choice::new(<span class="macro">format!</span>(<span class="string">&quot;{} - {}&quot;</span>, x.to_string(<span class="kw-2">&amp;</span>app.opts.units), label), x))
+        .map(|(x, label)| Choice::new(<span class="macro">format!</span>(<span class="string">"{} - {}"</span>, x.to_string(<span class="kw-2">&amp;</span>app.opts.units), label), x))
         .collect()
 }
 
@@ -2128,7 +2130,7 @@
             GeomBatch::from(<span class="macro">vec!</span>[(app.cs.fade_map_dark, fade_area)])
         }
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-            <span class="comment">// Just give up and don&#39;t fade anything
+            <span class="comment">// Just give up and don't fade anything
             </span>GeomBatch::new()
         }
     }

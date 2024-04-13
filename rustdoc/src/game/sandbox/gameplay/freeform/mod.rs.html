@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/freeform/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/freeform/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../../" data-static-root-path="../../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../../src-files.js"></script><script defer src="../../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -433,7 +435,7 @@
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
 </pre></div><pre class="rust"><code><span class="kw">mod </span>area_spawner;
-<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
 </span><span class="kw">mod </span>importers;
 <span class="kw">mod </span>spawner;
 
@@ -483,7 +485,7 @@
     ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
         <span class="kw">match </span><span class="self">self</span>.top_right.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;change map&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(CityPicker::new_state(
+                <span class="string">"change map" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(CityPicker::new_state(
                     ctx,
                     app,
                     Box::new(|<span class="kw">_</span>, app| {
@@ -502,23 +504,23 @@
                         Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Replace(sandbox)])
                     }),
                 ))),
-                <span class="string">&quot;change scenario&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(ChangeScenario::new_state(
-                    ctx, app, <span class="string">&quot;none&quot;</span>,
+                <span class="string">"change scenario" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(ChangeScenario::new_state(
+                    ctx, app, <span class="string">"none"</span>,
                 ))),
-                <span class="string">&quot;edit map&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(EditMode::new_state(
+                <span class="string">"edit map" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(EditMode::new_state(
                     ctx,
                     app,
                     GameplayMode::Freeform(app.primary.map.get_name().clone()),
                 ))),
-                <span class="string">&quot;Start a new trip&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(spawner::AgentSpawner::new_state(
+                <span class="string">"Start a new trip" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(spawner::AgentSpawner::new_state(
                     ctx, app, <span class="prelude-val">None</span>,
                 ))),
-                <span class="string">&quot;Spawn area traffic&quot; </span>=&gt; {
+                <span class="string">"Spawn area traffic" </span>=&gt; {
                     <span class="prelude-val">Some</span>(Transition::Push(area_spawner::AreaSpawner::new_state(ctx)))
                 }
-                <span class="string">&quot;Record trips as a scenario&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(PromptInput::new_state(
+                <span class="string">"Record trips as a scenario" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(PromptInput::new_state(
                     ctx,
-                    <span class="string">&quot;Name this scenario&quot;</span>,
+                    <span class="string">"Name this scenario"</span>,
                     String::new(),
                     Box::new(|name, ctx, app| {
                         <span class="kw">if </span>abstio::file_exists(abstio::path_scenario(
@@ -527,10 +529,10 @@
                         )) {
                             Transition::Push(PopupMsg::new_state(
                                 ctx,
-                                <span class="string">&quot;Error&quot;</span>,
+                                <span class="string">"Error"</span>,
                                 <span class="macro">vec!</span>[<span class="macro">format!</span>(
-                                    <span class="string">&quot;A scenario called \&quot;{}\&quot; already exists, please pick another \
-                                     name&quot;</span>,
+                                    <span class="string">"A scenario called \"{}\" already exists, please pick another \
+                                     name"</span>,
                                     name
                                 )],
                             ))
@@ -556,44 +558,44 @@
     <span class="kw">fn </span>recreate_panels(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
         <span class="kw">let </span>rows = <span class="macro">vec!</span>[
             Widget::custom_row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Sandbox&quot;</span>)
+                Line(<span class="string">"Sandbox"</span>)
                     .small_heading()
                     .into_widget(ctx)
                     .margin_right(<span class="number">18</span>),
                 map_gui::tools::change_map_btn(ctx, app).margin_right(<span class="number">8</span>),
                 ctx.style()
-                    .btn_popup_icon_text(<span class="string">&quot;system/assets/tools/calendar.svg&quot;</span>, <span class="string">&quot;none&quot;</span>)
+                    .btn_popup_icon_text(<span class="string">"system/assets/tools/calendar.svg"</span>, <span class="string">"none"</span>)
                     .hotkey(Key::S)
-                    .build_widget(ctx, <span class="string">&quot;change scenario&quot;</span>)
+                    .build_widget(ctx, <span class="string">"change scenario"</span>)
                     .margin_right(<span class="number">8</span>),
                 ctx.style()
                     .btn_outline
-                    .icon_text(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+                    .icon_text(<span class="string">"system/assets/tools/pencil.svg"</span>, <span class="string">"Edit map"</span>)
                     .hotkey(lctrl(Key::E))
-                    .build_widget(ctx, <span class="string">&quot;edit map&quot;</span>)
+                    .build_widget(ctx, <span class="string">"edit map"</span>)
                     .margin_right(<span class="number">8</span>),
             ])
             .centered(),
             Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Start a new trip&quot;</span>)
+                    .text(<span class="string">"Start a new trip"</span>)
                     .build_def(ctx),
                 <span class="comment">/*ctx.style()
                 .btn_outline
-                .text(&quot;Spawn area traffic&quot;)
+                .text("Spawn area traffic")
                 .hotkey(Key::A)
                 .build_def(ctx),*/
                 </span>ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Record trips as a scenario&quot;</span>)
+                    .text(<span class="string">"Record trips as a scenario"</span>)
                     .build_def(ctx),
             ])
             .centered(),
             Text::from_all(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Select an intersection and press &quot;</span>),
+                Line(<span class="string">"Select an intersection and press "</span>),
                 Key::Z.txt(ctx),
-                Line(<span class="string">&quot; to start traffic nearby&quot;</span>),
+                Line(<span class="string">" to start traffic nearby"</span>),
             ])
             .into_widget(ctx),
         ];
@@ -612,77 +614,77 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>choices = Vec::new();
         <span class="kw">for </span>name <span class="kw">in </span>abstio::list_all_objects(abstio::path_all_scenarios(app.primary.map.get_name()))
         {
-            <span class="kw">if </span>name == <span class="string">&quot;weekday&quot; </span>{
+            <span class="kw">if </span>name == <span class="string">"weekday" </span>{
                 choices.push((
                     name,
-                    <span class="string">&quot;typical weekday traffic&quot;</span>.to_string(),
-                    <span class="string">&quot;Trips will begin throughout the entire day. Midnight is usually quiet, so \
+                    <span class="string">"typical weekday traffic"</span>.to_string(),
+                    <span class="string">"Trips will begin throughout the entire day. Midnight is usually quiet, so \
                      you may need to fast-forward to morning rush hour. Data comes from Puget \
-                     Sound Regional Council&#39;s Soundcast model from 2014.&quot;</span>,
+                     Sound Regional Council's Soundcast model from 2014."</span>,
                 ));
-            } <span class="kw">else if </span>name == <span class="string">&quot;background&quot; </span>|| name == <span class="string">&quot;base_with_bg&quot; </span>{
+            } <span class="kw">else if </span>name == <span class="string">"background" </span>|| name == <span class="string">"base_with_bg" </span>{
                 choices.push((
                     name,
-                    <span class="string">&quot;typical weekday traffic&quot;</span>.to_string(),
-                    <span class="string">&quot;Home-to-work trips from 2011 UK census data are simulated. Traffic usually \
-                     starts around 7am.&quot;</span>,
+                    <span class="string">"typical weekday traffic"</span>.to_string(),
+                    <span class="string">"Home-to-work trips from 2011 UK census data are simulated. Traffic usually \
+                     starts around 7am."</span>,
                 ));
             } <span class="kw">else </span>{
                 choices.push((
                     name.clone(),
                     name,
-                    <span class="string">&quot;This is custom scenario data for this map&quot;</span>,
+                    <span class="string">"This is custom scenario data for this map"</span>,
                 ));
             }
         }
         choices.push((
-            <span class="string">&quot;home_to_work&quot;</span>.to_string(),
-            <span class="string">&quot;trips between home and work&quot;</span>.to_string(),
-            <span class="string">&quot;Randomized people will leave homes in the morning, go to work, then return in the \
-             afternoon. It&#39;ll be very quiet before 7am and between 10am to 5pm. The population \
+            <span class="string">"home_to_work"</span>.to_string(),
+            <span class="string">"trips between home and work"</span>.to_string(),
+            <span class="string">"Randomized people will leave homes in the morning, go to work, then return in the \
+             afternoon. It'll be very quiet before 7am and between 10am to 5pm. The population \
              size and location of homes and workplaces is all guessed just from OpenStreetMap \
-             tags.&quot;</span>,
+             tags."</span>,
         ));
         choices.push((
-            <span class="string">&quot;random&quot;</span>.to_string(),
-            <span class="string">&quot;random unrealistic trips&quot;</span>.to_string(),
-            <span class="string">&quot;A fixed number of trips will start at midnight, but not constantly appear through \
-             the day.&quot;</span>,
+            <span class="string">"random"</span>.to_string(),
+            <span class="string">"random unrealistic trips"</span>.to_string(),
+            <span class="string">"A fixed number of trips will start at midnight, but not constantly appear through \
+             the day."</span>,
         ));
         <span class="kw">let </span>country = <span class="kw-2">&amp;</span>app.primary.map.get_name().city.country;
-        <span class="comment">// Until we add in census data for other countries, offering the option doesn&#39;t make sense.
-        // Include &quot;zz&quot;, used for one-shot imports, since we have no idea where those are located.
-        </span><span class="kw">if </span>country == <span class="string">&quot;us&quot; </span>|| country == <span class="string">&quot;zz&quot; </span>{
+        <span class="comment">// Until we add in census data for other countries, offering the option doesn't make sense.
+        // Include "zz", used for one-shot imports, since we have no idea where those are located.
+        </span><span class="kw">if </span>country == <span class="string">"us" </span>|| country == <span class="string">"zz" </span>{
             choices.push((
-                <span class="string">&quot;census&quot;</span>.to_string(),
-                <span class="string">&quot;generate from US census data&quot;</span>.to_string(),
-                <span class="string">&quot;A population from 2010 US census data will travel between home and workplaces. \
-                 Generating it will take a few moments as some data is downloaded for this map.&quot;</span>,
+                <span class="string">"census"</span>.to_string(),
+                <span class="string">"generate from US census data"</span>.to_string(),
+                <span class="string">"A population from 2010 US census data will travel between home and workplaces. \
+                 Generating it will take a few moments as some data is downloaded for this map."</span>,
             ));
         }
         choices.push((
-            <span class="string">&quot;none&quot;</span>.to_string(),
-            <span class="string">&quot;none, except for buses&quot;</span>.to_string(),
-            <span class="string">&quot;You can manually spawn traffic around a single intersection or by using the tool in \
-             the top panel to start individual trips.&quot;</span>,
+            <span class="string">"none"</span>.to_string(),
+            <span class="string">"none, except for buses"</span>.to_string(),
+            <span class="string">"You can manually spawn traffic around a single intersection or by using the tool in \
+             the top panel to start individual trips."</span>,
         ));
-        <span class="kw">if </span><span class="macro">cfg!</span>(not(target_arch = <span class="string">&quot;wasm32&quot;</span>)) {
+        <span class="kw">if </span><span class="macro">cfg!</span>(not(target_arch = <span class="string">"wasm32"</span>)) {
             choices.push((
-                <span class="string">&quot;import grid2demand&quot;</span>.to_string(),
-                <span class="string">&quot;import Grid2Demand data&quot;</span>.to_string(),
-                <span class="string">&quot;Select an input_agents.csv file from https://github.com/asu-trans-ai-lab/grid2demand&quot;</span>));
+                <span class="string">"import grid2demand"</span>.to_string(),
+                <span class="string">"import Grid2Demand data"</span>.to_string(),
+                <span class="string">"Select an input_agents.csv file from https://github.com/asu-trans-ai-lab/grid2demand"</span>));
             choices.push((
-                <span class="string">&quot;import json&quot;</span>.to_string(),
-                <span class="string">&quot;import JSON scenario&quot;</span>.to_string(),
-                <span class="string">&quot;Select a JSON file specified by https://a-b-street.github.io/docs/tech/dev/formats/scenarios.html&quot;</span>));
+                <span class="string">"import json"</span>.to_string(),
+                <span class="string">"import JSON scenario"</span>.to_string(),
+                <span class="string">"Select a JSON file specified by https://a-b-street.github.io/docs/tech/dev/formats/scenarios.html"</span>));
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Pick your scenario&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Pick your scenario"</span>).small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            Line(<span class="string">&quot;Each scenario determines what people live and travel around this map&quot;</span>)
+            Line(<span class="string">"Each scenario determines what people live and travel around this map"</span>)
                 .into_widget(ctx),
         ];
         <span class="kw">for </span>(name, label, description) <span class="kw">in </span>choices {
@@ -706,7 +708,7 @@
             ctx.style()
                 .btn_plain
                 .btn()
-                .label_underlined_text(<span class="string">&quot;Learn how to import your own data.&quot;</span>)
+                .label_underlined_text(<span class="string">"Learn how to import your own data."</span>)
                 .build_def(ctx),
         );
 
@@ -725,30 +727,30 @@
         x: <span class="kw-2">&amp;</span>str,
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
-        <span class="kw">if </span>x == <span class="string">&quot;close&quot; </span>{
+        <span class="kw">if </span>x == <span class="string">"close" </span>{
             Transition::Pop
-        } <span class="kw">else if </span>x == <span class="string">&quot;Learn how to import your own data.&quot; </span>{
+        } <span class="kw">else if </span>x == <span class="string">"Learn how to import your own data." </span>{
             open_browser(
-                <span class="string">&quot;https://a-b-street.github.io/docs/tech/trafficsim/travel_demand.html#custom-import&quot;</span>,
+                <span class="string">"https://a-b-street.github.io/docs/tech/trafficsim/travel_demand.html#custom-import"</span>,
             );
             Transition::Keep
-        } <span class="kw">else if </span>x == <span class="string">&quot;import grid2demand&quot; </span>{
-            <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+        } <span class="kw">else if </span>x == <span class="string">"import grid2demand" </span>{
+            <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
             </span>{
                 importers::import_grid2demand(ctx)
             }
-            <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+            <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
             </span>{
                 <span class="comment">// Silence compiler warnings
                 </span><span class="kw">let _ </span>= ctx;
                 <span class="macro">unreachable!</span>()
             }
-        } <span class="kw">else if </span>x == <span class="string">&quot;import json&quot; </span>{
-            <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+        } <span class="kw">else if </span>x == <span class="string">"import json" </span>{
+            <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
             </span>{
                 importers::import_json(ctx)
             }
-            <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+            <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
             </span>{
                 <span class="comment">// Silence compiler warnings
                 </span><span class="kw">let _ </span>= ctx;
@@ -759,7 +761,7 @@
                 Transition::Pop,
                 Transition::Replace(SandboxMode::simple_new(
                     app,
-                    <span class="kw">if </span>x == <span class="string">&quot;none&quot; </span>{
+                    <span class="kw">if </span>x == <span class="string">"none" </span>{
                         GameplayMode::Freeform(app.primary.map.get_name().clone())
                     } <span class="kw">else </span>{
                         GameplayMode::PlayScenario(
@@ -781,15 +783,15 @@
 <span class="kw">pub fn </span>spawn_agents_around(i: IntersectionID, app: <span class="kw-2">&amp;mut </span>App) {
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
     <span class="kw">let </span><span class="kw-2">mut </span>rng = app.primary.current_flags.sim_flags.make_rng();
-    <span class="kw">let </span><span class="kw-2">mut </span>scenario = Scenario::empty(map, <span class="string">&quot;one-shot&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>scenario = Scenario::empty(map, <span class="string">"one-shot"</span>);
 
     <span class="kw">if </span>map.all_buildings().is_empty() {
-        <span class="macro">println!</span>(<span class="string">&quot;No buildings, can&#39;t pick destinations&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">"No buildings, can't pick destinations"</span>);
         <span class="kw">return</span>;
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(
-        <span class="string">&quot;spawning agents around {} (rng seed {:?})&quot;</span>,
+        <span class="string">"spawning agents around {} (rng seed {:?})"</span>,
         i, app.primary.current_flags.sim_flags.rng_seed
     ));
 
@@ -848,18 +850,18 @@
 
 <span class="kw">pub fn </span>actions(<span class="kw">_</span>: <span class="kw-2">&amp;</span>App, id: ID) -&gt; Vec&lt;(Key, String)&gt; {
     <span class="kw">match </span>id {
-        ID::Building(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[(Key::Z, <span class="string">&quot;start a trip here&quot;</span>.to_string())],
-        ID::Intersection(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[(Key::Z, <span class="string">&quot;spawn agents here&quot;</span>.to_string())],
+        ID::Building(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[(Key::Z, <span class="string">"start a trip here"</span>.to_string())],
+        ID::Intersection(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[(Key::Z, <span class="string">"spawn agents here"</span>.to_string())],
         <span class="kw">_ </span>=&gt; Vec::new(),
     }
 }
 
 <span class="kw">pub fn </span>execute(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, id: ID, action: <span class="kw-2">&amp;</span>str) -&gt; Transition {
     <span class="kw">match </span>(id, action) {
-        (ID::Building(b), <span class="string">&quot;start a trip here&quot;</span>) =&gt; {
+        (ID::Building(b), <span class="string">"start a trip here"</span>) =&gt; {
             Transition::Push(spawner::AgentSpawner::new_state(ctx, app, <span class="prelude-val">Some</span>(b)))
         }
-        (ID::Intersection(id), <span class="string">&quot;spawn agents here&quot;</span>) =&gt; {
+        (ID::Intersection(id), <span class="string">"spawn agents here"</span>) =&gt; {
             spawn_agents_around(id, app);
             Transition::Keep
         }

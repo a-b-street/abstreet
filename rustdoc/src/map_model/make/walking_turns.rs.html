@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/walking_turns.rs`."><title>walking_turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/walking_turns.rs`."><title>walking_turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -356,13 +358,13 @@
 
 <span class="doccomment">/// Looks at all sidewalks (or lack thereof) in counter-clockwise order around an intersection.
 /// Based on adjacency, create a SharedSidewalkCorner or a Crosswalk.
-/// UnmarkedCrossings are not generated here; another process later &quot;downgrades&quot; crosswalks to
+/// UnmarkedCrossings are not generated here; another process later "downgrades" crosswalks to
 /// unmarked.
 </span><span class="kw">pub fn </span>make_walking_turns(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; Vec&lt;Turn&gt; {
     <span class="kw">let </span>driving_side = map.config.driving_side;
 
     <span class="comment">// Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather
-    // those in order, remembering what roads don&#39;t have them.
+    // those in order, remembering what roads don't have them.
     </span><span class="kw">let </span><span class="kw-2">mut </span>lanes: Vec&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Lane&gt;&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>sorted_roads = i.roads.clone();
     <span class="comment">// And for left-handed driving, we need to walk around in the opposite order.
@@ -390,7 +392,7 @@
             (fwd, back)
         };
 
-        <span class="comment">// Don&#39;t add None entries for footways even if they only have one lane
+        <span class="comment">// Don't add None entries for footways even if they only have one lane
         </span><span class="kw">if </span>map.get_r(r).is_footway() {
             <span class="kw">if </span>in_lane.is_some() {
                 lanes.push(in_lane);
@@ -487,7 +489,7 @@
 }
 
 <span class="doccomment">/// Filter out crosswalks on really short roads. In reality, these roads are usually located within
-/// an intersection, which isn&#39;t a valid place for a pedestrian crossing.
+/// an intersection, which isn't a valid place for a pedestrian crossing.
 ///
 /// And if the road is marked as having no crosswalks at an end, downgrade them to unmarked
 /// crossings.
@@ -513,9 +515,9 @@
             }
         } <span class="kw">else if </span>turn.turn_type.pedestrian_crossing() {
             <span class="comment">// We have a crosswalk over multiple roads (or sometimes, just one road that only has a
-            // walkable lane on one side of it). We can&#39;t yet detect all the roads crossed. So for
-            // now, it&#39;s more often correct to assume that if any nearby roads don&#39;t have a
-            // crossing snapped to both ends, then there&#39;s probably no crosswalk here.
+            // walkable lane on one side of it). We can't yet detect all the roads crossed. So for
+            // now, it's more often correct to assume that if any nearby roads don't have a
+            // crossing snapped to both ends, then there's probably no crosswalk here.
             </span><span class="kw">for </span>l <span class="kw">in </span>[turn.id.src, turn.id.dst] {
                 <span class="kw">let </span>road = map.get_parent(l);
                 <span class="kw">if </span>!road.crosswalk_forward || !road.crosswalk_backward {
@@ -557,9 +559,9 @@
     .unwrap_or_else(|<span class="kw">_</span>| baseline_geometry(l1.endpoint(i.id), l2.endpoint(i.id)))
 }
 
-<span class="comment">// TODO This doesn&#39;t handle sidewalk/shoulder transitions
+<span class="comment">// TODO This doesn't handle sidewalk/shoulder transitions
 </span><span class="kw">fn </span>make_shared_sidewalk_corner(i: <span class="kw-2">&amp;</span>Intersection, l1: <span class="kw-2">&amp;</span>Lane, l2: <span class="kw-2">&amp;</span>Lane) -&gt; PolyLine {
-    <span class="comment">// We&#39;ll fallback to this if the fancier geometry fails.
+    <span class="comment">// We'll fallback to this if the fancier geometry fails.
     </span><span class="kw">let </span>baseline = baseline_geometry(l1.endpoint(i.id), l2.endpoint(i.id));
 
     <span class="comment">// Is point2 counter-clockwise of point1?
@@ -599,7 +601,7 @@
             .unwrap();
     }
 
-    <span class="comment">// The order of the points here seems backwards, but it&#39;s because we scan from corner2
+    <span class="comment">// The order of the points here seems backwards, but it's because we scan from corner2
     // to corner1 below.
     </span><span class="kw">let </span><span class="kw-2">mut </span>pts_between = <span class="macro">vec!</span>[l2.endpoint(i.id)];
     <span class="comment">// Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
@@ -634,12 +636,12 @@
     <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = PolyLine::new(i_pts)
         .and_then(|pl| pl.shift_either_direction(dir * l1.width.min(l2.width) / <span class="number">2.0</span>))
     {
-        <span class="comment">// The first and last points should be approximately l2&#39;s and l1&#39;s endpoints
+        <span class="comment">// The first and last points should be approximately l2's and l1's endpoints
         </span>pts_between.extend(pl.points().iter().take(pl.points().len() - <span class="number">1</span>).skip(<span class="number">1</span>));
     } <span class="kw">else </span>{
         <span class="macro">warn!</span>(
-            <span class="string">&quot;SharedSidewalkCorner between {} and {} has weird collapsing geometry, so \
-                just doing straight line&quot;</span>,
+            <span class="string">"SharedSidewalkCorner between {} and {} has weird collapsing geometry, so \
+                just doing straight line"</span>,
             l1.id, l2.id
         );
         <span class="kw">return </span>baseline;
@@ -658,8 +660,8 @@
     ) || pts_between.len() &lt; <span class="number">2
     </span>{
         <span class="macro">warn!</span>(
-            <span class="string">&quot;SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
-             straight line&quot;</span>,
+            <span class="string">"SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
+             straight line"</span>,
             l1.id, l2.id
         );
         <span class="kw">return </span>baseline;
@@ -667,8 +669,8 @@
     <span class="kw">if let </span><span class="prelude-val">Ok</span>(result) = PolyLine::new(pts_between) {
         <span class="kw">if </span>result.length() &gt; <span class="number">10.0 </span>* baseline.length() {
             <span class="macro">warn!</span>(
-                <span class="string">&quot;SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
-                 line&quot;</span>,
+                <span class="string">"SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
+                 line"</span>,
                 l1.id,
                 l2.id,
                 result.length()
@@ -682,10 +684,10 @@
 }
 
 <span class="comment">// Never in any circumstance should we produce a polyline with only one point (or two points
-// that&#39;re equal), because it&#39;ll just crash downstream rendering logic and make a mess elsewhere.
+// that're equal), because it'll just crash downstream rendering logic and make a mess elsewhere.
 // Avoid that here. The result is unlikely to look correct (or be easily visible at all).
 //
-// TODO Proper fix is likely to make a turn&#39;s geometry optional.
+// TODO Proper fix is likely to make a turn's geometry optional.
 </span><span class="kw">fn </span>baseline_geometry(pt1: Pt2D, pt2: Pt2D) -&gt; PolyLine {
     PolyLine::new(<span class="macro">vec!</span>[pt1, pt2]).unwrap_or_else(|<span class="kw">_</span>| {
         PolyLine::must_new(<span class="macro">vec!</span>[

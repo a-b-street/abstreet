@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/quick_sketch.rs`."><title>quick_sketch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/quick_sketch.rs`."><title>quick_sketch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -352,32 +354,32 @@
     <span class="kw">fn </span>update_top_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
         <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
         <span class="kw">if </span>!<span class="self">self</span>.route_sketcher.is_route_started() {
-            col.push(<span class="string">&quot;Zoom in and click a road to edit in detail&quot;</span>.text_widget(ctx));
+            col.push(<span class="string">"Zoom in and click a road to edit in detail"</span>.text_widget(ctx));
         }
         col.push(<span class="self">self</span>.route_sketcher.get_widget_to_describe(ctx));
 
         <span class="kw">if </span><span class="self">self</span>.route_sketcher.is_route_valid() {
-            <span class="comment">// We&#39;re usually replacing an existing panel, except the very first time.
-            </span><span class="kw">let </span>default_buffer = <span class="kw">if </span><span class="self">self</span>.top_panel.has_widget(<span class="string">&quot;buffer type&quot;</span>) {
-                <span class="self">self</span>.top_panel.dropdown_value(<span class="string">&quot;buffer type&quot;</span>)
+            <span class="comment">// We're usually replacing an existing panel, except the very first time.
+            </span><span class="kw">let </span>default_buffer = <span class="kw">if </span><span class="self">self</span>.top_panel.has_widget(<span class="string">"buffer type"</span>) {
+                <span class="self">self</span>.top_panel.dropdown_value(<span class="string">"buffer type"</span>)
             } <span class="kw">else </span>{
                 <span class="prelude-val">Some</span>(BufferType::FlexPosts)
             };
             col.push(Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Protect the new bike lanes?&quot;
+                <span class="string">"Protect the new bike lanes?"
                     </span>.text_widget(ctx)
                     .centered_vert(),
                 Widget::dropdown(
                     ctx,
-                    <span class="string">&quot;buffer type&quot;</span>,
+                    <span class="string">"buffer type"</span>,
                     default_buffer,
                     <span class="macro">vec!</span>[
                         <span class="comment">// TODO Width / cost summary?
-                        </span>Choice::new(<span class="string">&quot;diagonal stripes&quot;</span>, <span class="prelude-val">Some</span>(BufferType::Stripes)),
-                        Choice::new(<span class="string">&quot;flex posts&quot;</span>, <span class="prelude-val">Some</span>(BufferType::FlexPosts)),
-                        Choice::new(<span class="string">&quot;planters&quot;</span>, <span class="prelude-val">Some</span>(BufferType::Planters)),
+                        </span>Choice::new(<span class="string">"diagonal stripes"</span>, <span class="prelude-val">Some</span>(BufferType::Stripes)),
+                        Choice::new(<span class="string">"flex posts"</span>, <span class="prelude-val">Some</span>(BufferType::FlexPosts)),
+                        Choice::new(<span class="string">"planters"</span>, <span class="prelude-val">Some</span>(BufferType::Planters)),
                         <span class="comment">// Omit the others for now
-                        </span>Choice::new(<span class="string">&quot;no -- just paint&quot;</span>, <span class="prelude-val">None</span>),
+                        </span>Choice::new(<span class="string">"no -- just paint"</span>, <span class="prelude-val">None</span>),
                     ],
                 ),
             ]));
@@ -385,7 +387,7 @@
                 Widget::custom_row(<span class="macro">vec!</span>[ctx
                     .style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Add bike lanes&quot;</span>)
+                    .text(<span class="string">"Add bike lanes"</span>)
                     .hotkey(Key::Enter)
                     .disabled(!<span class="self">self</span>.route_sketcher.is_route_valid())
                     .build_def(ctx)])
@@ -404,9 +406,9 @@
         </span><span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
         <span class="kw">let </span>checksum = map.get_edits().get_checksum(map);
         <span class="kw">if </span>share::UploadedProposals::load().md5sums.contains(<span class="kw-2">&amp;</span>checksum) {
-            URLManager::update_url_param(<span class="string">&quot;--edits&quot;</span>.to_string(), <span class="macro">format!</span>(<span class="string">&quot;remote/{}&quot;</span>, checksum));
+            URLManager::update_url_param(<span class="string">"--edits"</span>.to_string(), <span class="macro">format!</span>(<span class="string">"remote/{}"</span>, checksum));
         } <span class="kw">else </span>{
-            URLManager::update_url_param(<span class="string">&quot;--edits&quot;</span>.to_string(), map.get_edits().edits_name.clone());
+            URLManager::update_url_param(<span class="string">"--edits"</span>.to_string(), map.get_edits().edits_name.clone());
         }
     }
 }
@@ -437,7 +439,7 @@
                     });
             }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Road(r)) = app.primary.current_selection {
-                <span class="comment">// If it&#39;s light rail, a footway, etc, then the first lane should trigger
+                <span class="comment">// If it's light rail, a footway, etc, then the first lane should trigger
                 // can_edit_lane
                 </span><span class="kw">if </span>ctx.normal_left_click() &amp;&amp; can_edit_lane(app, LaneID { road: r, offset: <span class="number">0 </span>}) {
                     <span class="kw">return </span>Transition::Push(RoadEditor::new_state_without_lane(ctx, app, r));
@@ -449,40 +451,40 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Add bike lanes&quot; </span>=&gt; {
+                <span class="string">"Add bike lanes" </span>=&gt; {
                     <span class="kw">let </span>messages = make_quick_changes(
                         ctx,
                         app,
                         <span class="self">self</span>.route_sketcher.all_roads(app),
-                        <span class="self">self</span>.top_panel.dropdown_value(<span class="string">&quot;buffer type&quot;</span>),
+                        <span class="self">self</span>.top_panel.dropdown_value(<span class="string">"buffer type"</span>),
                     );
                     <span class="self">self</span>.route_sketcher = RouteSketcher::new(app);
                     <span class="self">self</span>.update_top_panel(ctx, app);
-                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;Changes made&quot;</span>, messages));
+                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">"Changes made"</span>, messages));
                 }
-                <span class="string">&quot;Open a proposal&quot; </span>=&gt; {
+                <span class="string">"Open a proposal" </span>=&gt; {
                     <span class="comment">// Dummy mode, just to allow all edits
                     // TODO Actually, should we make one to express that only road edits are
                     // relevant?
                     </span><span class="kw">let </span>mode = GameplayMode::Freeform(app.primary.map.get_name().clone());
 
                     <span class="comment">// TODO Do we want to do SaveEdits first if unsaved_edits()? We have
-                    // auto-saving... and after loading an old &quot;untitled proposal&quot;, it looks
+                    // auto-saving... and after loading an old "untitled proposal", it looks
                     // unsaved.
                     </span><span class="kw">return </span>Transition::Push(LoadEdits::new_state(ctx, app, mode));
                 }
-                <span class="string">&quot;Save this proposal&quot; </span>=&gt; {
+                <span class="string">"Save this proposal" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(SaveEdits::new_state(
                         ctx,
                         app,
-                        <span class="macro">format!</span>(<span class="string">&quot;Save \&quot;{}\&quot; as&quot;</span>, app.primary.map.get_edits().edits_name),
+                        <span class="macro">format!</span>(<span class="string">"Save \"{}\" as"</span>, app.primary.map.get_edits().edits_name),
                         <span class="bool-val">false</span>,
                         <span class="prelude-val">Some</span>(Transition::Pop),
                         Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
                     ));
                 }
-                <span class="string">&quot;Share proposal&quot; </span>=&gt; {
-                    <span class="kw">return </span>Transition::Push(share::ShareProposal::new_state(ctx, app, <span class="string">&quot;--ungap&quot;</span>));
+                <span class="string">"Share proposal" </span>=&gt; {
+                    <span class="kw">return </span>Transition::Push(share::ShareProposal::new_state(ctx, app, <span class="string">"--ungap"</span>));
                 }
                 x =&gt; {
                     <span class="comment">// TODO More brittle routing of outcomes.
@@ -546,10 +548,10 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>messages = Vec::new();
     <span class="kw">if </span>changed &gt; <span class="number">0 </span>{
-        messages.push(<span class="macro">format!</span>(<span class="string">&quot;Added bike lanes to {} segments&quot;</span>, changed));
+        messages.push(<span class="macro">format!</span>(<span class="string">"Added bike lanes to {} segments"</span>, changed));
     }
     <span class="kw">if </span>unchanged &gt; <span class="number">0 </span>{
-        messages.push(<span class="macro">format!</span>(<span class="string">&quot;Didn&#39;t modify {} segments -- the road isn&#39;t wide enough, or there&#39;s already a bike lane&quot;</span>, unchanged));
+        messages.push(<span class="macro">format!</span>(<span class="string">"Didn't modify {} segments -- the road isn't wide enough, or there's already a bike lane"</span>, unchanged));
     }
     messages
 }
@@ -561,7 +563,7 @@
     <span class="kw">let </span>total_mileage = {
         <span class="comment">// Look for the new lanes...
         </span><span class="kw">let </span><span class="kw-2">mut </span>total = Distance::ZERO;
-        <span class="comment">// TODO We&#39;re assuming the edits have been compressed.
+        <span class="comment">// TODO We're assuming the edits have been compressed.
         </span><span class="kw">for </span>cmd <span class="kw">in </span><span class="kw-2">&amp;</span>edits.commands {
             <span class="kw">if let </span>EditCmd::ChangeRoad { r, old, new } = cmd {
                 <span class="kw">let </span>num_before = old
@@ -583,13 +585,13 @@
         total
     };
     <span class="kw">if </span>edits.commands.is_empty() {
-        col.push(<span class="string">&quot;Today&#39;s network&quot;</span>.text_widget(ctx));
+        col.push(<span class="string">"Today's network"</span>.text_widget(ctx));
     } <span class="kw">else </span>{
         col.push(Line(<span class="kw-2">&amp;</span>edits.edits_name).into_widget(ctx));
     }
     col.push(
         Line(<span class="macro">format!</span>(
-            <span class="string">&quot;{:.1} miles of new bike lanes&quot;</span>,
+            <span class="string">"{:.1} miles of new bike lanes"</span>,
             total_mileage.to_miles()
         ))
         .secondary()
@@ -598,12 +600,12 @@
     col.push(Widget::row(<span class="macro">vec!</span>[
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Open a proposal&quot;</span>)
+            .text(<span class="string">"Open a proposal"</span>)
             .hotkey(lctrl(Key::O))
             .build_def(ctx),
         ctx.style()
             .btn_outline
-            .icon_text(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>, <span class="string">&quot;Save this proposal&quot;</span>)
+            .icon_text(<span class="string">"system/assets/tools/save.svg"</span>, <span class="string">"Save this proposal"</span>)
             .hotkey(lctrl(Key::S))
             .disabled(edits.commands.is_empty())
             .build_def(ctx),
@@ -611,7 +613,7 @@
     col.push(
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Share proposal&quot;</span>)
+            .text(<span class="string">"Share proposal"</span>)
             .disabled(edits.commands.is_empty())
             .build_def(ctx),
     );

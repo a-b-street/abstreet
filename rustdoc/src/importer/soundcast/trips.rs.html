@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/soundcast/trips.rs`."><title>trips.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/soundcast/trips.rs`."><title>trips.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../importer/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -319,7 +321,7 @@
 /// will snap to a border intersection.
 ///
 /// When `only_passthrough_trips` is true, only trips beginning and ending off-map are returned.
-/// When it&#39;s false, all other trips are returned.
+/// When it's false, all other trips are returned.
 </span><span class="attr">#[allow(clippy::too_many_arguments)]
 </span><span class="kw">fn </span>endpoints(
     from: <span class="kw-2">&amp;</span>Endpoint,
@@ -351,12 +353,12 @@
         }
     }
 
-    <span class="comment">// If it&#39;s a pass-through trip, check if the straight line between the endpoints even crosses
-    // the map boundary. If not, the trip probably doesn&#39;t even involve this map at all. There are
+    <span class="comment">// If it's a pass-through trip, check if the straight line between the endpoints even crosses
+    // the map boundary. If not, the trip probably doesn't even involve this map at all. There are
     // false positives and negatives with this approach; we could be more accurate by pathfinding
     // on the huge_map, but that would be incredibly slow.
     </span><span class="kw">if </span>from_bldg.is_none() &amp;&amp; to_bldg.is_none() {
-        <span class="comment">// TODO Don&#39;t enable pass-through trips yet in general. The time to generate the scenario, the
+        <span class="comment">// TODO Don't enable pass-through trips yet in general. The time to generate the scenario, the
         // resulting scenario file, and the simulation runtime (and gridlockiness) all skyrocket.
         // Need to harden more things before enabling.
         </span><span class="kw">if </span>!only_passthrough_trips {
@@ -373,7 +375,7 @@
         }
     }
 
-    <span class="comment">// TODO When the trip begins or ends at a border, it&#39;d be nice to fix depart_at, trip_time, and
+    <span class="comment">// TODO When the trip begins or ends at a border, it'd be nice to fix depart_at, trip_time, and
     // trip_dist. Assume constant speed through the trip. But when I last tried this, the distance
     // was way off. :\
 
@@ -400,7 +402,7 @@
         })<span class="question-mark">?</span>;
 
     <span class="kw">if </span>from_endpt == to_endpt {
-        <span class="comment">//warn!(&quot;loop on {:?}. {:?} to {:?}&quot;, from_endpt, from, to);
+        <span class="comment">//warn!("loop on {:?}. {:?} to {:?}", from_endpt, from, to);
     </span>}
 
     <span class="prelude-val">Some</span>((from_endpt, to_endpt))
@@ -473,7 +475,7 @@
     only_passthrough_trips: bool,
     timer: <span class="kw-2">&amp;mut </span>Timer,
 ) -&gt; Vec&lt;Trip&gt; {
-    <span class="kw">let </span>maybe_huge_map = <span class="kw">if </span>map.get_name().map == <span class="string">&quot;huge_seattle&quot; </span>{
+    <span class="kw">let </span>maybe_huge_map = <span class="kw">if </span>map.get_name().map == <span class="string">"huge_seattle" </span>{
         <span class="prelude-val">None
     </span>} <span class="kw">else </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>huge_osm_id_to_bldg = HashMap::new();
@@ -491,7 +493,7 @@
 
     <span class="kw">let </span>total_trips = popdat.trips.len();
     <span class="kw">let </span>maybe_results: Vec&lt;<span class="prelude-ty">Option</span>&lt;Trip&gt;&gt; =
-        timer.parallelize(<span class="string">&quot;clip trips&quot;</span>, popdat.trips.iter().collect(), |orig| {
+        timer.parallelize(<span class="string">"clip trips"</span>, popdat.trips.iter().collect(), |orig| {
             <span class="kw">let </span>(from, to) = endpoints(
                 <span class="kw-2">&amp;</span>orig.from,
                 <span class="kw-2">&amp;</span>orig.to,
@@ -515,7 +517,7 @@
     <span class="kw">let </span>trips: Vec&lt;Trip&gt; = maybe_results.into_iter().flatten().collect();
 
     <span class="macro">info!</span>(
-        <span class="string">&quot;{} trips clipped down to just {}&quot;</span>,
+        <span class="string">"{} trips clipped down to just {}"</span>,
         prettyprint_usize(total_trips),
         prettyprint_usize(trips.len())
     );
@@ -530,7 +532,7 @@
     huge_map: <span class="kw-2">&amp;</span>Map,
     timer: <span class="kw-2">&amp;mut </span>Timer,
 ) -&gt; Scenario {
-    <span class="kw">let </span>only_passthrough_trips = scenario_name == <span class="string">&quot;passthrough&quot;</span>;
+    <span class="kw">let </span>only_passthrough_trips = scenario_name == <span class="string">"passthrough"</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>individ_trips: Vec&lt;<span class="prelude-ty">Option</span>&lt;IndividTrip&gt;&gt; = Vec::new();
     <span class="comment">// person -&gt; (trip seq, index into individ_trips)
@@ -548,7 +550,7 @@
         trips_per_person.insert(trip.orig.person, (trip.orig.seq, idx));
     }
     <span class="macro">info!</span>(
-        <span class="string">&quot;{} clipped trips, over {} people&quot;</span>,
+        <span class="string">"{} clipped trips, over {} people"</span>,
         prettyprint_usize(individ_trips.len()),
         prettyprint_usize(trips_per_person.len())
     );
@@ -559,7 +561,7 @@
         <span class="kw">for </span>(<span class="kw">_</span>, idx) <span class="kw">in </span>seq_trips {
             trips.push(individ_trips[idx].take().unwrap());
         }
-        <span class="comment">// Actually, the sequence in the Soundcast dataset crosses midnight. Don&#39;t do that; sort by
+        <span class="comment">// Actually, the sequence in the Soundcast dataset crosses midnight. Don't do that; sort by
         // departure time starting with midnight.
         </span>trips.sort_by_key(|t| t.depart);
         <span class="comment">// Sanity check that endpoints match up
@@ -568,7 +570,7 @@
             <span class="kw">let </span>origin = <span class="kw-2">&amp;</span>pair[<span class="number">1</span>].origin;
             <span class="kw">if </span>destination != origin {
                 <span class="macro">warn!</span>(
-                    <span class="string">&quot;Skipping {:?}, with adjacent trips that warp from {:?} to {:?}&quot;</span>,
+                    <span class="string">"Skipping {:?}, with adjacent trips that warp from {:?} to {:?}"</span>,
                     orig_id, destination, origin
                 );
                 <span class="kw">continue</span>;
@@ -582,7 +584,7 @@
     }
     <span class="kw">for </span>maybe_t <span class="kw">in </span>individ_trips {
         <span class="kw">if </span>maybe_t.is_some() {
-            <span class="macro">panic!</span>(<span class="string">&quot;Some IndividTrip wasn&#39;t associated with a Person?!&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"Some IndividTrip wasn't associated with a Person?!"</span>);
         }
     }
 

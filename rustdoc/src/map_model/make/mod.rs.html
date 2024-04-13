@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -495,7 +497,7 @@
 <span class="doccomment">/// Options for converting RawMaps to Maps.
 </span><span class="attr">#[derive(Clone, Default, StructOpt)]
 </span><span class="kw">pub struct </span>RawToMapOptions {
-    <span class="doccomment">/// Should contraction hierarchies for pathfinding be built? They&#39;re slow to build, but without
+    <span class="doccomment">/// Should contraction hierarchies for pathfinding be built? They're slow to build, but without
     /// them, pathfinding on the map later will be very slow.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>skip_ch: bool,
@@ -579,7 +581,7 @@
             intersection_id_mapping.insert(i.id, id);
         }
 
-        timer.start_iter(<span class="string">&quot;expand roads to lanes&quot;</span>, raw.streets.roads.len());
+        timer.start_iter(<span class="string">"expand roads to lanes"</span>, raw.streets.roads.len());
         <span class="kw">for </span>r <span class="kw">in </span>raw.streets.roads.values_mut() {
             timer.next();
 
@@ -606,7 +608,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>road = Road {
                 id: road_id,
                 <span class="comment">// Arbitrarily remember OSM tags from one of the ways
-                // TODO If this road was introduced synthetically, we&#39;ll have empty tags, which
+                // TODO If this road was introduced synthetically, we'll have empty tags, which
                 // might break various downstream bits of code
                 </span>osm_tags: <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = r.osm_ids.get(<span class="number">0</span>) {
                     raw.osm_tags[id].clone()
@@ -632,7 +634,7 @@
                             <span class="prelude-val">Some</span>((<span class="kw-2">*</span>via, <span class="kw-2">*</span>to))
                         } <span class="kw">else </span>{
                             <span class="macro">warn!</span>(
-                                <span class="string">&quot;Complicated turn restriction from {} has invalid via {} or dst {}&quot;</span>,
+                                <span class="string">"Complicated turn restriction from {} has invalid via {} or dst {}"</span>,
                                 r.id, via, to
                             );
                             <span class="prelude-val">None
@@ -679,7 +681,7 @@
                     .map(|r| map.roads[r.<span class="number">0</span>].orig_id.osm_way_id.to_string())
                     .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;{} ({}) is a border, but is connected to &gt;1 road: {:?}&quot;</span>,
+                    <span class="string">"{} ({}) is a border, but is connected to &gt;1 road: {:?}"</span>,
                     i.id, i.orig_id, border_roads
                 );
             }
@@ -689,11 +691,11 @@
                     <span class="kw">let </span>road = <span class="kw-2">&amp;</span>map.roads[r.<span class="number">0</span>];
                     <span class="comment">// Skip signals only connected to roads under construction or purely to control
                     // light rail tracks.
-                    </span><span class="kw">if </span>road.osm_tags.is(osm::HIGHWAY, <span class="string">&quot;construction&quot;</span>) || road.is_light_rail() {
+                    </span><span class="kw">if </span>road.osm_tags.is(osm::HIGHWAY, <span class="string">"construction"</span>) || road.is_light_rail() {
                         ok = <span class="bool-val">false</span>;
                         <span class="kw">break</span>;
                     }
-                    <span class="comment">// Skip signals that likely don&#39;t have correct intersection geometry
+                    <span class="comment">// Skip signals that likely don't have correct intersection geometry
                     </span><span class="kw">if </span>road.trim_start == Distance::ZERO || road.trim_end == Distance::ZERO {
                         ok = <span class="bool-val">false</span>;
                         <span class="kw">break</span>;
@@ -712,7 +714,7 @@
                 <span class="kw">continue</span>;
             }
             <span class="kw">if </span>!i.is_footway(<span class="kw-2">&amp;</span>map) &amp;&amp; (i.incoming_lanes.is_empty() || i.outgoing_lanes.is_empty()) {
-                <span class="macro">warn!</span>(<span class="string">&quot;{} is orphaned!&quot;</span>, i.orig_id);
+                <span class="macro">warn!</span>(<span class="string">"{} is orphaned!"</span>, i.orig_id);
                 <span class="kw">continue</span>;
             }
 
@@ -723,25 +725,25 @@
             all_turns.extend(results);
         }
         <span class="macro">error!</span>(
-            <span class="string">&quot;{} total intersections have some connectivity problem&quot;</span>,
+            <span class="string">"{} total intersections have some connectivity problem"</span>,
             connectivity_problems
         );
         <span class="kw">for </span>t <span class="kw">in </span>all_turns {
             <span class="macro">assert!</span>(map.maybe_get_t(t.id).is_none());
             <span class="kw">if </span>t.geom.length() &lt; geom::EPSILON_DIST {
-                <span class="macro">warn!</span>(<span class="string">&quot;{} is a very short turn&quot;</span>, t.id);
+                <span class="macro">warn!</span>(<span class="string">"{} is a very short turn"</span>, t.id);
             }
             map.intersections[t.id.parent.<span class="number">0</span>].turns.push(t);
         }
 
-        timer.start(<span class="string">&quot;find blackholes&quot;</span>);
+        timer.start(<span class="string">"find blackholes"</span>);
         <span class="kw">for </span>l <span class="kw">in </span>connectivity::find_scc(<span class="kw-2">&amp;</span>map, PathConstraints::Car).<span class="number">1 </span>{
             map.mut_lane(l).driving_blackhole = <span class="bool-val">true</span>;
         }
         <span class="kw">for </span>l <span class="kw">in </span>connectivity::find_scc(<span class="kw-2">&amp;</span>map, PathConstraints::Bike).<span class="number">1 </span>{
             map.mut_lane(l).biking_blackhole = <span class="bool-val">true</span>;
         }
-        timer.stop(<span class="string">&quot;find blackholes&quot;</span>);
+        timer.stop(<span class="string">"find blackholes"</span>);
 
         map.buildings =
             buildings::make_all_buildings(<span class="kw-2">&amp;</span>raw.buildings, <span class="kw-2">&amp;</span>map, opts.keep_bldg_tags, timer);
@@ -781,7 +783,7 @@
                 }
                 IntersectionControl::Signalled =&gt; {
                     <span class="kw">if </span>i.movements.is_empty() {
-                        <span class="macro">error!</span>(<span class="string">&quot;Traffic signal at {} downgraded to stop sign, because it has no movements -- probably roads under construction&quot;</span>, i.orig_id);
+                        <span class="macro">error!</span>(<span class="string">"Traffic signal at {} downgraded to stop sign, because it has no movements -- probably roads under construction"</span>, i.orig_id);
                         stop_signs.insert(i.id, ControlStopSign::new(<span class="kw-2">&amp;</span>map, i.id));
                     } <span class="kw">else </span>{
                         traffic_signals.insert(
@@ -804,27 +806,27 @@
 
         traffic_signals::synchronize(<span class="kw-2">&amp;mut </span>map);
 
-        timer.start(<span class="string">&quot;setup pathfinding&quot;</span>);
+        timer.start(<span class="string">"setup pathfinding"</span>);
         <span class="kw">let </span>engine = <span class="kw">if </span>opts.skip_ch {
             CreateEngine::Dijkstra
         } <span class="kw">else </span>{
             CreateEngine::CH
         };
         map.pathfinder = Pathfinder::new(<span class="kw-2">&amp;</span>map, map.routing_params().clone(), <span class="kw-2">&amp;</span>engine, timer);
-        timer.stop(<span class="string">&quot;setup pathfinding&quot;</span>);
+        timer.stop(<span class="string">"setup pathfinding"</span>);
 
         transit::finalize_transit(<span class="kw-2">&amp;mut </span>map, <span class="kw-2">&amp;</span>raw, timer);
-        timer.start(<span class="string">&quot;setup pathfinding for people using transit&quot;</span>);
+        timer.start(<span class="string">"setup pathfinding for people using transit"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>pathfinder = std::mem::replace(<span class="kw-2">&amp;mut </span>map.pathfinder, Pathfinder::empty());
         pathfinder.finalize_transit(<span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;</span>engine);
         map.pathfinder = pathfinder;
-        timer.stop(<span class="string">&quot;setup pathfinding for people using transit&quot;</span>);
+        timer.stop(<span class="string">"setup pathfinding for people using transit"</span>);
 
         map
     }
 }
 
-<span class="doccomment">/// Snap points to an exact Position along the nearest lane. If the result doesn&#39;t contain a
+<span class="doccomment">/// Snap points to an exact Position along the nearest lane. If the result doesn't contain a
 /// requested point, then there was no matching lane close enough.
 </span><span class="kw">pub fn </span>match_points_to_lanes&lt;F: Fn(<span class="kw-2">&amp;</span>Lane) -&gt; bool&gt;(
     map: <span class="kw-2">&amp;</span>Map,
@@ -839,7 +841,7 @@
     }
 
     <span class="kw">let </span><span class="kw-2">mut </span>closest: FindClosest&lt;LaneID&gt; = FindClosest::new();
-    timer.start_iter(<span class="string">&quot;index lanes&quot;</span>, map.all_lanes().count());
+    timer.start_iter(<span class="string">"index lanes"</span>, map.all_lanes().count());
     <span class="kw">for </span>l <span class="kw">in </span>map.all_lanes() {
         timer.next();
         <span class="kw">if </span>filter(l) &amp;&amp; l.length() &gt; (buffer + EPSILON_DIST) * <span class="number">2.0 </span>{
@@ -856,7 +858,7 @@
     // search.
     </span>timer
         .parallelize(
-            <span class="string">&quot;find closest lane point&quot;</span>,
+            <span class="string">"find closest lane point"</span>,
             pts.into_iter().collect(),
             |query_pt| {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {
@@ -864,8 +866,8 @@
                         <span class="prelude-val">Some</span>((query_pt, Position::new(l, dist_along)))
                     } <span class="kw">else </span>{
                         <span class="macro">panic!</span>(
-                            <span class="string">&quot;{} isn&#39;t on {} according to dist_along_of_point, even though \
-                             closest_point thinks it is.\n{}&quot;</span>,
+                            <span class="string">"{} isn't on {} according to dist_along_of_point, even though \
+                             closest_point thinks it is.\n{}"</span>,
                             pt,
                             l,
                             map.get_l(l).lane_center_pts
@@ -881,7 +883,7 @@
         .collect()
 }
 
-<span class="doccomment">/// Adjust the path to start on the polygon&#39;s border, not center.
+<span class="doccomment">/// Adjust the path to start on the polygon's border, not center.
 </span><span class="kw">pub fn </span>trim_path(poly: <span class="kw-2">&amp;</span>Polygon, path: Line) -&gt; Line {
     <span class="kw">for </span>line <span class="kw">in </span>poly.get_outer_ring().points().windows(<span class="number">2</span>) {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(l1) = Line::new(line[<span class="number">0</span>], line[<span class="number">1</span>]) {
@@ -896,13 +898,13 @@
     </span>path
 }
 
-<span class="comment">// TODO Duplicate code with below. One caller needs data, the other doesn&#39;t and adding fake data is
+<span class="comment">// TODO Duplicate code with below. One caller needs data, the other doesn't and adding fake data is
 // annoying
 </span><span class="kw">fn </span>snap_nodes_to_line(pts: <span class="kw-2">&amp;</span>[Pt2D], pl: <span class="kw-2">&amp;</span>PolyLine) -&gt; Vec&lt;Distance&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
     <span class="kw">for </span>pt <span class="kw">in </span>pts {
         <span class="kw">let </span>projected = pl.project_pt(<span class="kw-2">*</span>pt);
-        <span class="comment">// TODO Check distance isn&#39;t too crazy? Not sure why it would be
+        <span class="comment">// TODO Check distance isn't too crazy? Not sure why it would be
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((dist, <span class="kw">_</span>)) = pl.dist_along_of_point(projected) {
             results.push(dist);
         }
@@ -917,7 +919,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
     <span class="kw">for </span>(pt, data) <span class="kw">in </span>input {
         <span class="kw">let </span>projected = pl.project_pt(<span class="kw-2">*</span>pt);
-        <span class="comment">// TODO Check distance isn&#39;t too crazy? Not sure why it would be
+        <span class="comment">// TODO Check distance isn't too crazy? Not sure why it would be
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((dist, <span class="kw">_</span>)) = pl.dist_along_of_point(projected) {
             results.push((dist, data.clone()));
         }

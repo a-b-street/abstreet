@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1098,119 +1100,119 @@
         Box::new(DebugMode {
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Debug Mode&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Debug Mode"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Widget::placeholder(ctx, <span class="string">&quot;current info&quot;</span>),
-                Toggle::switch(ctx, <span class="string">&quot;show buildings&quot;</span>, Key::Num1, <span class="bool-val">true</span>),
-                Toggle::switch(ctx, <span class="string">&quot;show intersections&quot;</span>, Key::Num2, <span class="bool-val">true</span>),
-                Toggle::switch(ctx, <span class="string">&quot;show lanes&quot;</span>, Key::Num3, <span class="bool-val">true</span>),
-                Toggle::switch(ctx, <span class="string">&quot;show areas&quot;</span>, Key::Num4, <span class="bool-val">true</span>),
-                Toggle::switch(ctx, <span class="string">&quot;show labels&quot;</span>, Key::Num5, <span class="bool-val">false</span>),
-                Toggle::switch(ctx, <span class="string">&quot;show route for all agents&quot;</span>, lctrl(Key::R), <span class="bool-val">false</span>),
+                Widget::placeholder(ctx, <span class="string">"current info"</span>),
+                Toggle::switch(ctx, <span class="string">"show buildings"</span>, Key::Num1, <span class="bool-val">true</span>),
+                Toggle::switch(ctx, <span class="string">"show intersections"</span>, Key::Num2, <span class="bool-val">true</span>),
+                Toggle::switch(ctx, <span class="string">"show lanes"</span>, Key::Num3, <span class="bool-val">true</span>),
+                Toggle::switch(ctx, <span class="string">"show areas"</span>, Key::Num4, <span class="bool-val">true</span>),
+                Toggle::switch(ctx, <span class="string">"show labels"</span>, Key::Num5, <span class="bool-val">false</span>),
+                Toggle::switch(ctx, <span class="string">"show route for all agents"</span>, lctrl(Key::R), <span class="bool-val">false</span>),
                 Toggle::switch(
                     ctx,
-                    <span class="string">&quot;screen recording mode&quot;</span>,
+                    <span class="string">"screen recording mode"</span>,
                     lctrl(Key::H),
                     app.opts.minimal_controls,
                 ),
                 Widget::col(<span class="macro">vec!</span>[
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;unhide everything&quot;</span>)
+                        .text(<span class="string">"unhide everything"</span>)
                         .hotkey(lctrl(Key::H))
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;screenshot all of the everything&quot;</span>)
+                        .text(<span class="string">"screenshot all of the everything"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;search OSM metadata&quot;</span>)
+                        .text(<span class="string">"search OSM metadata"</span>)
                         .hotkey(Key::Slash)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;clear OSM search results&quot;</span>)
+                        .text(<span class="string">"clear OSM search results"</span>)
                         .hotkey(Key::Slash)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;save sim state&quot;</span>)
+                        .text(<span class="string">"save sim state"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;load previous sim state&quot;</span>)
+                        .text(<span class="string">"load previous sim state"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;load next sim state&quot;</span>)
+                        .text(<span class="string">"load next sim state"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;pick a savestate to load&quot;</span>)
+                        .text(<span class="string">"pick a savestate to load"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;find bad traffic signals&quot;</span>)
+                        .text(<span class="string">"find bad traffic signals"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;find degenerate roads&quot;</span>)
+                        .text(<span class="string">"find degenerate roads"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;find large intersections&quot;</span>)
+                        .text(<span class="string">"find large intersections"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;sim internal stats&quot;</span>)
+                        .text(<span class="string">"sim internal stats"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;blocked-by graph&quot;</span>)
+                        .text(<span class="string">"blocked-by graph"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;blockfinder&quot;</span>)
+                        .text(<span class="string">"blockfinder"</span>)
                         .hotkey(lctrl(Key::B))
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;render to GeoJSON&quot;</span>)
+                        .text(<span class="string">"render to GeoJSON"</span>)
                         .hotkey(Key::G)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;export geometry to GeoJSON&quot;</span>)
+                        .text(<span class="string">"export geometry to GeoJSON"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;draw banned turns&quot;</span>)
+                        .text(<span class="string">"draw banned turns"</span>)
                         .hotkey(Key::T)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;draw arterial crosswalks&quot;</span>)
+                        .text(<span class="string">"draw arterial crosswalks"</span>)
                         .hotkey(Key::W)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;export color-scheme&quot;</span>)
+                        .text(<span class="string">"export color-scheme"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;import color-scheme&quot;</span>)
+                        .text(<span class="string">"import color-scheme"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;find bad intersection polygons&quot;</span>)
+                        .text(<span class="string">"find bad intersection polygons"</span>)
                         .build_def(ctx),
                 ]),
                 Text::from_all(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Hold &quot;</span>),
+                    Line(<span class="string">"Hold "</span>),
                     Key::LeftControl.txt(ctx),
-                    Line(<span class="string">&quot; to show position&quot;</span>),
+                    Line(<span class="string">" to show position"</span>),
                 ])
                 .into_widget(ctx),
             ]))
@@ -1230,19 +1232,19 @@
     <span class="kw">fn </span>reset_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
         <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
         <span class="kw">if </span>!<span class="self">self</span>.hidden.is_empty() {
-            txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Hiding {} things&quot;</span>, <span class="self">self</span>.hidden.len()));
+            txt.add_line(<span class="macro">format!</span>(<span class="string">"Hiding {} things"</span>, <span class="self">self</span>.hidden.len()));
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>results) = <span class="self">self</span>.search_results {
             txt.add_line(<span class="macro">format!</span>(
-                <span class="string">&quot;Search for {} has {} results&quot;</span>,
+                <span class="string">"Search for {} has {} results"</span>,
                 results.query, results.num_matches
             ));
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>((n, <span class="kw">_</span>)) = <span class="self">self</span>.all_routes {
-            txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Showing {} routes&quot;</span>, abstutil::prettyprint_usize(n)));
+            txt.add_line(<span class="macro">format!</span>(<span class="string">"Showing {} routes"</span>, abstutil::prettyprint_usize(n)));
         }
         <span class="self">self</span>.panel
-            .replace(ctx, <span class="string">&quot;current info&quot;</span>, txt.into_widget(ctx));
+            .replace(ctx, <span class="string">"current info"</span>, txt.into_widget(ctx));
     }
 }
 
@@ -1256,18 +1258,18 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;save sim state&quot; </span>=&gt; {
-                    ctx.loading_screen(<span class="string">&quot;savestate&quot;</span>, |<span class="kw">_</span>, timer| {
-                        timer.start(<span class="string">&quot;save sim state&quot;</span>);
+                <span class="string">"save sim state" </span>=&gt; {
+                    ctx.loading_screen(<span class="string">"savestate"</span>, |<span class="kw">_</span>, timer| {
+                        timer.start(<span class="string">"save sim state"</span>);
                         app.primary.sim.save();
-                        timer.stop(<span class="string">&quot;save sim state&quot;</span>);
+                        timer.stop(<span class="string">"save sim state"</span>);
                     });
                 }
-                <span class="string">&quot;load previous sim state&quot; </span>=&gt; {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = ctx.loading_screen(<span class="string">&quot;load previous savestate&quot;</span>, |ctx, timer| {
+                <span class="string">"load previous sim state" </span>=&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = ctx.loading_screen(<span class="string">"load previous savestate"</span>, |ctx, timer| {
                         <span class="kw">let </span>prev_state = app
                             .primary
                             .sim
@@ -1283,16 +1285,16 @@
                             </span>}
                             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(
                                 ctx,
-                                <span class="string">&quot;Error&quot;</span>,
-                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t load previous savestate {:?}&quot;</span>, prev_state)],
+                                <span class="string">"Error"</span>,
+                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Couldn't load previous savestate {:?}"</span>, prev_state)],
                             ))),
                         }
                     }) {
                         <span class="kw">return </span>t;
                     }
                 }
-                <span class="string">&quot;load next sim state&quot; </span>=&gt; {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = ctx.loading_screen(<span class="string">&quot;load next savestate&quot;</span>, |ctx, timer| {
+                <span class="string">"load next sim state" </span>=&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = ctx.loading_screen(<span class="string">"load next savestate"</span>, |ctx, timer| {
                         <span class="kw">let </span>next_state =
                             app.primary.sim.find_next_savestate(app.primary.sim.time());
                         <span class="kw">match </span>next_state
@@ -1306,90 +1308,90 @@
                             </span>}
                             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(
                                 ctx,
-                                <span class="string">&quot;Error&quot;</span>,
-                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t load next savestate {:?}&quot;</span>, next_state)],
+                                <span class="string">"Error"</span>,
+                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Couldn't load next savestate {:?}"</span>, next_state)],
                             ))),
                         }
                     }) {
                         <span class="kw">return </span>t;
                     }
                 }
-                <span class="string">&quot;pick a savestate to load&quot; </span>=&gt; {
+                <span class="string">"pick a savestate to load" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(ChooseSomething::new_state(
                         ctx,
-                        <span class="string">&quot;Load which savestate?&quot;</span>,
+                        <span class="string">"Load which savestate?"</span>,
                         Choice::strings(abstio::list_all_objects(app.primary.sim.save_dir())),
                         Box::new(|ss, ctx, app| {
                             <span class="comment">// TODO Oh no, we have to do path construction here :(
-                            </span><span class="kw">let </span>ss_path = <span class="macro">format!</span>(<span class="string">&quot;{}/{}.bin&quot;</span>, app.primary.sim.save_dir(), ss);
+                            </span><span class="kw">let </span>ss_path = <span class="macro">format!</span>(<span class="string">"{}/{}.bin"</span>, app.primary.sim.save_dir(), ss);
 
-                            ctx.loading_screen(<span class="string">&quot;load savestate&quot;</span>, |ctx, timer| {
+                            ctx.loading_screen(<span class="string">"load savestate"</span>, |ctx, timer| {
                                 app.primary.sim = Sim::load_savestate(ss_path, timer)
-                                    .expect(<span class="string">&quot;Can&#39;t load savestate&quot;</span>);
+                                    .expect(<span class="string">"Can't load savestate"</span>);
                                 app.recalculate_current_selection(ctx);
                             });
                             Transition::Pop
                         }),
                     ));
                 }
-                <span class="string">&quot;unhide everything&quot; </span>=&gt; {
+                <span class="string">"unhide everything" </span>=&gt; {
                     <span class="self">self</span>.hidden.clear();
                     app.primary.current_selection = app.mouseover_debug_mode(ctx, <span class="self">self</span>);
                     <span class="self">self</span>.reset_info(ctx);
                 }
-                <span class="string">&quot;search OSM metadata&quot; </span>=&gt; {
+                <span class="string">"search OSM metadata" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(PromptInput::new_state(
                         ctx,
-                        <span class="string">&quot;Search for what?&quot;</span>,
+                        <span class="string">"Search for what?"</span>,
                         String::new(),
                         Box::new(search_osm),
                     ));
                 }
-                <span class="string">&quot;clear OSM search results&quot; </span>=&gt; {
+                <span class="string">"clear OSM search results" </span>=&gt; {
                     <span class="self">self</span>.search_results = <span class="prelude-val">None</span>;
                     <span class="self">self</span>.reset_info(ctx);
                 }
-                <span class="string">&quot;screenshot all of the everything&quot; </span>=&gt; {
+                <span class="string">"screenshot all of the everything" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(ScreenshotTest::new_state(
                         ctx,
                         app,
                         <span class="macro">vec!</span>[
-                            MapName::seattle(<span class="string">&quot;downtown&quot;</span>),
-                            MapName::seattle(<span class="string">&quot;montlake&quot;</span>),
-                            MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>, <span class="string">&quot;kennington&quot;</span>),
-                            MapName::new(<span class="string">&quot;pl&quot;</span>, <span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>),
-                            MapName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;phoenix&quot;</span>, <span class="string">&quot;tempe&quot;</span>),
+                            MapName::seattle(<span class="string">"downtown"</span>),
+                            MapName::seattle(<span class="string">"montlake"</span>),
+                            MapName::new(<span class="string">"gb"</span>, <span class="string">"london"</span>, <span class="string">"kennington"</span>),
+                            MapName::new(<span class="string">"pl"</span>, <span class="string">"krakow"</span>, <span class="string">"center"</span>),
+                            MapName::new(<span class="string">"us"</span>, <span class="string">"phoenix"</span>, <span class="string">"tempe"</span>),
                         ],
                     ));
                 }
-                <span class="string">&quot;find bad traffic signals&quot; </span>=&gt; {
+                <span class="string">"find bad traffic signals" </span>=&gt; {
                     find_bad_signals(app);
                 }
-                <span class="string">&quot;find degenerate roads&quot; </span>=&gt; {
+                <span class="string">"find degenerate roads" </span>=&gt; {
                     find_degenerate_roads(app);
                 }
-                <span class="string">&quot;find large intersections&quot; </span>=&gt; {
+                <span class="string">"find large intersections" </span>=&gt; {
                     find_large_intersections(app);
                 }
-                <span class="string">&quot;sim internal stats&quot; </span>=&gt; {
+                <span class="string">"sim internal stats" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;Simulation internal stats&quot;</span>,
+                        <span class="string">"Simulation internal stats"</span>,
                         app.primary.sim.describe_internal_stats(),
                     ));
                 }
-                <span class="string">&quot;blocked-by graph&quot; </span>=&gt; {
+                <span class="string">"blocked-by graph" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(blocked_by::Viewer::new_state(ctx, app));
                 }
-                <span class="string">&quot;blockfinder&quot; </span>=&gt; {
+                <span class="string">"blockfinder" </span>=&gt; {
                     app.primary.current_selection = <span class="prelude-val">None</span>;
                     <span class="kw">return </span>Transition::Push(blockfinder::Blockfinder::new_state(ctx, app));
                 }
-                <span class="string">&quot;render to GeoJSON&quot; </span>=&gt; {
-                    <span class="comment">// TODO Loading screen doesn&#39;t actually display anything because of the rules
+                <span class="string">"render to GeoJSON" </span>=&gt; {
+                    <span class="comment">// TODO Loading screen doesn't actually display anything because of the rules
                     // around hiding the first few draws
-                    </span>ctx.loading_screen(<span class="string">&quot;render to GeoJSON&quot;</span>, |ctx, timer| {
-                        timer.start(<span class="string">&quot;render&quot;</span>);
+                    </span>ctx.loading_screen(<span class="string">"render to GeoJSON"</span>, |ctx, timer| {
+                        timer.start(<span class="string">"render"</span>);
                         <span class="kw">let </span>batch = DrawMap::zoomed_batch(ctx, app);
                         <span class="kw">let </span>features = batch.into_geojson(<span class="prelude-val">Some</span>(app.primary.map.get_gps_bounds()));
                         <span class="kw">let </span>geojson = geojson::GeoJson::from(geojson::FeatureCollection {
@@ -1397,46 +1399,46 @@
                             features,
                             foreign_members: <span class="prelude-val">None</span>,
                         });
-                        abstio::write_json(<span class="string">&quot;rendered_map.json&quot;</span>.to_string(), <span class="kw-2">&amp;</span>geojson);
-                        timer.stop(<span class="string">&quot;render&quot;</span>);
+                        abstio::write_json(<span class="string">"rendered_map.json"</span>.to_string(), <span class="kw-2">&amp;</span>geojson);
+                        timer.stop(<span class="string">"render"</span>);
                     });
                 }
-                <span class="string">&quot;export geometry to GeoJSON&quot; </span>=&gt; {
+                <span class="string">"export geometry to GeoJSON" </span>=&gt; {
                     abstio::write_json(
-                        <span class="string">&quot;map_geometry.json&quot;</span>.to_string(),
+                        <span class="string">"map_geometry.json"</span>.to_string(),
                         <span class="kw-2">&amp;</span>app.primary.map.export_geometry(),
                     );
                 }
-                <span class="string">&quot;draw banned turns&quot; </span>=&gt; {
+                <span class="string">"draw banned turns" </span>=&gt; {
                     <span class="comment">// Abuse this just to draw
                     </span><span class="self">self</span>.search_results = <span class="prelude-val">Some</span>(SearchResults {
-                        query: <span class="string">&quot;banned turns&quot;</span>.to_string(),
+                        query: <span class="string">"banned turns"</span>.to_string(),
                         num_matches: <span class="number">0</span>,
                         draw: draw_banned_turns(ctx, app),
                     });
                     <span class="self">self</span>.reset_info(ctx);
                 }
-                <span class="string">&quot;draw arterial crosswalks&quot; </span>=&gt; {
+                <span class="string">"draw arterial crosswalks" </span>=&gt; {
                     <span class="self">self</span>.search_results = <span class="prelude-val">Some</span>(SearchResults {
-                        query: <span class="string">&quot;wide crosswalks&quot;</span>.to_string(),
+                        query: <span class="string">"wide crosswalks"</span>.to_string(),
                         num_matches: <span class="number">0</span>,
                         draw: draw_arterial_crosswalks(ctx, app),
                     });
                     <span class="self">self</span>.reset_info(ctx);
                 }
-                <span class="string">&quot;export color-scheme&quot; </span>=&gt; {
-                    app.cs.export(<span class="string">&quot;color_scheme&quot;</span>).unwrap();
+                <span class="string">"export color-scheme" </span>=&gt; {
+                    app.cs.export(<span class="string">"color_scheme"</span>).unwrap();
                 }
-                <span class="string">&quot;import color-scheme&quot; </span>=&gt; {
-                    app.cs.import(<span class="string">&quot;color_scheme&quot;</span>).unwrap();
-                    ctx.loading_screen(<span class="string">&quot;rerendering map colors&quot;</span>, |ctx, timer| {
+                <span class="string">"import color-scheme" </span>=&gt; {
+                    app.cs.import(<span class="string">"color_scheme"</span>).unwrap();
+                    ctx.loading_screen(<span class="string">"rerendering map colors"</span>, |ctx, timer| {
                         app.primary.draw_map =
                             DrawMap::new(ctx, <span class="kw-2">&amp;</span>app.primary.map, <span class="kw-2">&amp;</span>app.opts, <span class="kw-2">&amp;</span>app.cs, timer);
                     });
                 }
-                <span class="string">&quot;find bad intersection polygons&quot; </span>=&gt; {
+                <span class="string">"find bad intersection polygons" </span>=&gt; {
                     <span class="self">self</span>.search_results = <span class="prelude-val">Some</span>(SearchResults {
-                        query: <span class="string">&quot;bad intersection polygons&quot;</span>.to_string(),
+                        query: <span class="string">"bad intersection polygons"</span>.to_string(),
                         num_matches: <span class="number">0</span>,
                         draw: draw_bad_intersections(ctx, app),
                     });
@@ -1446,13 +1448,13 @@
             },
             Outcome::Changed(<span class="kw">_</span>) =&gt; {
                 <span class="comment">// TODO We should really recalculate current_selection when these change. Meh.
-                </span><span class="self">self</span>.layers.show_buildings = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;show buildings&quot;</span>);
-                <span class="self">self</span>.layers.show_intersections = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;show intersections&quot;</span>);
-                <span class="self">self</span>.layers.show_lanes = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;show lanes&quot;</span>);
-                <span class="self">self</span>.layers.show_areas = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;show areas&quot;</span>);
-                <span class="self">self</span>.layers.show_labels = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;show labels&quot;</span>);
-                app.opts.minimal_controls = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;screen recording mode&quot;</span>);
-                <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;show route for all agents&quot;</span>) {
+                </span><span class="self">self</span>.layers.show_buildings = <span class="self">self</span>.panel.is_checked(<span class="string">"show buildings"</span>);
+                <span class="self">self</span>.layers.show_intersections = <span class="self">self</span>.panel.is_checked(<span class="string">"show intersections"</span>);
+                <span class="self">self</span>.layers.show_lanes = <span class="self">self</span>.panel.is_checked(<span class="string">"show lanes"</span>);
+                <span class="self">self</span>.layers.show_areas = <span class="self">self</span>.panel.is_checked(<span class="string">"show areas"</span>);
+                <span class="self">self</span>.layers.show_labels = <span class="self">self</span>.panel.is_checked(<span class="string">"show labels"</span>);
+                app.opts.minimal_controls = <span class="self">self</span>.panel.is_checked(<span class="string">"screen recording mode"</span>);
+                <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">"show route for all agents"</span>) {
                     <span class="kw">if </span><span class="self">self</span>.all_routes.is_none() {
                         <span class="self">self</span>.all_routes = <span class="prelude-val">Some</span>(calc_all_routes(ctx, app));
                         <span class="self">self</span>.reset_info(ctx);
@@ -1483,7 +1485,7 @@
                         batch.push(Color::PURPLE, outline);
                     } <span class="kw">else </span>{
                         <span class="macro">warn!</span>(
-                            <span class="string">&quot;{} is accepted at or blocked by by {:?}, but no longer exists&quot;</span>,
+                            <span class="string">"{} is accepted at or blocked by by {:?}, but no longer exists"</span>,
                             a, key
                         );
                     }
@@ -1497,8 +1499,8 @@
         }
         <span class="kw">match </span><span class="self">self</span>.tool_panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;back&quot; </span>=&gt; Transition::Pop,
-                <span class="string">&quot;settings&quot; </span>=&gt; Transition::Push(OptionsPanel::new_state(ctx, app)),
+                <span class="string">"back" </span>=&gt; Transition::Pop,
+                <span class="string">"settings" </span>=&gt; Transition::Push(OptionsPanel::new_state(ctx, app)),
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_ </span>=&gt; Transition::Keep,
@@ -1565,7 +1567,7 @@
         <span class="kw">if </span>r.osm_tags
             .inner()
             .iter()
-            .any(|(k, v)| <span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v).contains(<span class="kw-2">&amp;</span>filter))
+            .any(|(k, v)| <span class="macro">format!</span>(<span class="string">"{} = {}"</span>, k, v).contains(<span class="kw-2">&amp;</span>filter))
         {
             num_matches += <span class="number">1</span>;
             batch.push(color, r.get_thick_polygon());
@@ -1575,7 +1577,7 @@
         <span class="kw">if </span>a.osm_tags
             .inner()
             .iter()
-            .any(|(k, v)| <span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v).contains(<span class="kw-2">&amp;</span>filter))
+            .any(|(k, v)| <span class="macro">format!</span>(<span class="string">"{} = {}"</span>, k, v).contains(<span class="kw-2">&amp;</span>filter))
         {
             num_matches += <span class="number">1</span>;
             batch.push(color, a.polygon.clone());
@@ -1610,8 +1612,8 @@
     <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
     <span class="kw">let </span>sim = <span class="kw-2">&amp;</span>app.primary.sim;
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
-    <span class="kw">for </span>trace <span class="kw">in </span>Timer::new(<span class="string">&quot;calculate all routes&quot;</span>)
-        .parallelize(<span class="string">&quot;route to geometry&quot;</span>, agents, |id| {
+    <span class="kw">for </span>trace <span class="kw">in </span>Timer::new(<span class="string">"calculate all routes"</span>)
+        .parallelize(<span class="string">"route to geometry"</span>, agents, |id| {
             sim.trace_route(id, map)
                 .map(|trace| trace.make_polygons(NORMAL_LANE_THICKNESS))
         })
@@ -1628,49 +1630,49 @@
 <span class="kw">impl </span>ContextualActions <span class="kw">for </span>Actions {
     <span class="kw">fn </span>actions(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App, id: ID) -&gt; Vec&lt;(Key, String)&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>actions = <span class="macro">vec!</span>[
-            (Key::D, <span class="string">&quot;debug&quot;</span>.to_string()),
-            (Key::V, <span class="string">&quot;debug with JSON viewer&quot;</span>.to_string()),
+            (Key::D, <span class="string">"debug"</span>.to_string()),
+            (Key::V, <span class="string">"debug with JSON viewer"</span>.to_string()),
         ];
         <span class="kw">match </span>id {
             ID::Lane(l) =&gt; {
-                actions.push((Key::H, <span class="string">&quot;hide this&quot;</span>.to_string()));
+                actions.push((Key::H, <span class="string">"hide this"</span>.to_string()));
                 <span class="kw">if </span>app.primary.map.get_l(l).lane_type.supports_any_movement() {
-                    actions.push((Key::F, <span class="string">&quot;floodfill from this lane&quot;</span>.to_string()));
-                    actions.push((Key::S, <span class="string">&quot;show strongly-connected components&quot;</span>.to_string()));
+                    actions.push((Key::F, <span class="string">"floodfill from this lane"</span>.to_string()));
+                    actions.push((Key::S, <span class="string">"show strongly-connected components"</span>.to_string()));
                 }
-                actions.push((Key::X, <span class="string">&quot;debug lane geometry&quot;</span>.to_string()));
-                actions.push((Key::F2, <span class="string">&quot;debug lane triangles geometry&quot;</span>.to_string()));
-                actions.push((Key::C, <span class="string">&quot;export roads&quot;</span>.to_string()));
-                actions.push((Key::E, <span class="string">&quot;show equiv_pos&quot;</span>.to_string()));
-                actions.push((Key::B, <span class="string">&quot;trace this block&quot;</span>.to_string()));
+                actions.push((Key::X, <span class="string">"debug lane geometry"</span>.to_string()));
+                actions.push((Key::F2, <span class="string">"debug lane triangles geometry"</span>.to_string()));
+                actions.push((Key::C, <span class="string">"export roads"</span>.to_string()));
+                actions.push((Key::E, <span class="string">"show equiv_pos"</span>.to_string()));
+                actions.push((Key::B, <span class="string">"trace this block"</span>.to_string()));
             }
             ID::Intersection(i) =&gt; {
-                actions.push((Key::H, <span class="string">&quot;hide this&quot;</span>.to_string()));
-                actions.push((Key::X, <span class="string">&quot;debug intersection geometry&quot;</span>.to_string()));
-                actions.push((Key::F2, <span class="string">&quot;debug sidewalk corners&quot;</span>.to_string()));
+                actions.push((Key::H, <span class="string">"hide this"</span>.to_string()));
+                actions.push((Key::X, <span class="string">"debug intersection geometry"</span>.to_string()));
+                actions.push((Key::F2, <span class="string">"debug sidewalk corners"</span>.to_string()));
                 <span class="kw">if </span>app.primary.map.get_i(i).roads.len() == <span class="number">2 </span>{
-                    actions.push((Key::C, <span class="string">&quot;collapse degenerate road?&quot;</span>.to_string()));
+                    actions.push((Key::C, <span class="string">"collapse degenerate road?"</span>.to_string()));
                 }
                 <span class="kw">if </span>app.primary.map.get_i(i).is_border() {
-                    actions.push((Key::R, <span class="string">&quot;route from here&quot;</span>.to_string()));
+                    actions.push((Key::R, <span class="string">"route from here"</span>.to_string()));
                 }
-                actions.push((Key::U, <span class="string">&quot;explore uber-turns&quot;</span>.to_string()));
+                actions.push((Key::U, <span class="string">"explore uber-turns"</span>.to_string()));
             }
             ID::Car(<span class="kw">_</span>) =&gt; {
-                actions.push((Key::Backspace, <span class="string">&quot;forcibly delete this car&quot;</span>.to_string()));
+                actions.push((Key::Backspace, <span class="string">"forcibly delete this car"</span>.to_string()));
             }
             ID::Area(<span class="kw">_</span>) =&gt; {
-                actions.push((Key::X, <span class="string">&quot;debug area geometry&quot;</span>.to_string()));
-                actions.push((Key::F2, <span class="string">&quot;debug area triangles&quot;</span>.to_string()));
+                actions.push((Key::X, <span class="string">"debug area geometry"</span>.to_string()));
+                actions.push((Key::F2, <span class="string">"debug area triangles"</span>.to_string()));
             }
             ID::ParkingLot(<span class="kw">_</span>) =&gt; {
-                actions.push((Key::H, <span class="string">&quot;hide this&quot;</span>.to_string()));
+                actions.push((Key::H, <span class="string">"hide this"</span>.to_string()));
             }
             ID::TransitStop(<span class="kw">_</span>) =&gt; {
-                actions.push((Key::H, <span class="string">&quot;hide this&quot;</span>.to_string()));
+                actions.push((Key::H, <span class="string">"hide this"</span>.to_string()));
             }
             ID::Building(<span class="kw">_</span>) =&gt; {
-                actions.push((Key::R, <span class="string">&quot;route from here&quot;</span>.to_string()));
+                actions.push((Key::R, <span class="string">"route from here"</span>.to_string()));
             }
             <span class="kw">_ </span>=&gt; {}
         }
@@ -1686,24 +1688,24 @@
         close_info: <span class="kw-2">&amp;mut </span>bool,
     ) -&gt; Transition {
         <span class="kw">match </span>(id, action.as_ref()) {
-            (id, <span class="string">&quot;hide this&quot;</span>) =&gt; Transition::ModifyState(Box::new(|state, ctx, app| {
+            (id, <span class="string">"hide this"</span>) =&gt; Transition::ModifyState(Box::new(|state, ctx, app| {
                 <span class="kw">let </span>mode = state.downcast_mut::&lt;DebugMode&gt;().unwrap();
-                <span class="macro">println!</span>(<span class="string">&quot;Hiding {:?}&quot;</span>, id);
+                <span class="macro">println!</span>(<span class="string">"Hiding {:?}"</span>, id);
                 app.primary.current_selection = <span class="prelude-val">None</span>;
                 mode.hidden.insert(id);
                 mode.reset_info(ctx);
             })),
-            (id, <span class="string">&quot;debug&quot;</span>) =&gt; {
+            (id, <span class="string">"debug"</span>) =&gt; {
                 <span class="kw-2">*</span>close_info = <span class="bool-val">false</span>;
                 objects::ObjectDebugger::dump_debug(id, <span class="kw-2">&amp;</span>app.primary.map, <span class="kw-2">&amp;</span>app.primary.sim);
                 Transition::Keep
             }
-            (id, <span class="string">&quot;debug with JSON viewer&quot;</span>) =&gt; {
+            (id, <span class="string">"debug with JSON viewer"</span>) =&gt; {
                 <span class="kw-2">*</span>close_info = <span class="bool-val">false</span>;
                 objects::ObjectDebugger::debug_json(id, <span class="kw-2">&amp;</span>app.primary.map, <span class="kw-2">&amp;</span>app.primary.sim);
                 Transition::Keep
             }
-            (ID::Car(c), <span class="string">&quot;forcibly delete this car&quot;</span>) =&gt; {
+            (ID::Car(c), <span class="string">"forcibly delete this car"</span>) =&gt; {
                 app.primary.sim.delete_car(c, <span class="kw-2">&amp;</span>app.primary.map);
                 app.primary
                     .sim
@@ -1711,13 +1713,13 @@
                 app.primary.current_selection = <span class="prelude-val">None</span>;
                 Transition::Keep
             }
-            (ID::Lane(l), <span class="string">&quot;floodfill from this lane&quot;</span>) =&gt; {
+            (ID::Lane(l), <span class="string">"floodfill from this lane"</span>) =&gt; {
                 Transition::Push(floodfill::Floodfiller::floodfill(ctx, app, l))
             }
-            (ID::Lane(l), <span class="string">&quot;show strongly-connected components&quot;</span>) =&gt; {
+            (ID::Lane(l), <span class="string">"show strongly-connected components"</span>) =&gt; {
                 Transition::Push(floodfill::Floodfiller::scc(ctx, app, l))
             }
-            (ID::Intersection(i), <span class="string">&quot;debug intersection geometry&quot;</span>) =&gt; {
+            (ID::Intersection(i), <span class="string">"debug intersection geometry"</span>) =&gt; {
                 <span class="kw">let </span>pts = app
                     .primary
                     .map
@@ -1730,15 +1732,15 @@
                 pts_without_last.pop();
                 Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;point&quot;</span>,
+                    <span class="string">"point"</span>,
                     pts.iter().map(|pt| polygons::Item::Point(<span class="kw-2">*</span>pt)).collect(),
                     <span class="prelude-val">Some</span>(Pt2D::center(<span class="kw-2">&amp;</span>pts_without_last)),
                 ))
             }
-            (ID::Intersection(i), <span class="string">&quot;debug sidewalk corners&quot;</span>) =&gt; {
+            (ID::Intersection(i), <span class="string">"debug sidewalk corners"</span>) =&gt; {
                 Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;corner&quot;</span>,
+                    <span class="string">"corner"</span>,
                     calculate_corners(app.primary.map.get_i(i), <span class="kw-2">&amp;</span>app.primary.map)
                         .into_iter()
                         .map(polygons::Item::Polygon)
@@ -1746,7 +1748,7 @@
                     <span class="prelude-val">None</span>,
                 ))
             }
-            (ID::Intersection(i), <span class="string">&quot;collapse degenerate road?&quot;</span>) =&gt; {
+            (ID::Intersection(i), <span class="string">"collapse degenerate road?"</span>) =&gt; {
                 <span class="kw">let </span>i = app.primary.map.get_i(i);
                 <span class="kw">let </span>(r1, r2) = {
                     <span class="kw">let </span><span class="kw-2">mut </span>iter = i.roads.iter();
@@ -1758,16 +1760,16 @@
                 );
                 Transition::Keep
             }
-            (ID::Intersection(i), <span class="string">&quot;route from here&quot;</span>) =&gt; Transition::Push(
+            (ID::Intersection(i), <span class="string">"route from here"</span>) =&gt; Transition::Push(
                 routes::RouteExplorer::new_state(ctx, app, TripEndpoint::Border(i)),
             ),
-            (ID::Intersection(i), <span class="string">&quot;explore uber-turns&quot;</span>) =&gt; {
+            (ID::Intersection(i), <span class="string">"explore uber-turns"</span>) =&gt; {
                 Transition::Push(uber_turns::UberTurnPicker::new_state(ctx, app, i))
             }
-            (ID::Lane(l), <span class="string">&quot;debug lane geometry&quot;</span>) =&gt; {
+            (ID::Lane(l), <span class="string">"debug lane geometry"</span>) =&gt; {
                 Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;point&quot;</span>,
+                    <span class="string">"point"</span>,
                     app.primary
                         .map
                         .get_l(l)
@@ -1779,10 +1781,10 @@
                     <span class="prelude-val">None</span>,
                 ))
             }
-            (ID::Lane(l), <span class="string">&quot;debug lane triangles geometry&quot;</span>) =&gt; {
+            (ID::Lane(l), <span class="string">"debug lane triangles geometry"</span>) =&gt; {
                 Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;triangle&quot;</span>,
+                    <span class="string">"triangle"</span>,
                     app.primary
                         .draw_map
                         .get_l(l)
@@ -1794,10 +1796,10 @@
                     <span class="prelude-val">None</span>,
                 ))
             }
-            (ID::Lane(l), <span class="string">&quot;export roads&quot;</span>) =&gt; {
+            (ID::Lane(l), <span class="string">"export roads"</span>) =&gt; {
                 Transition::Push(select_roads::BulkSelect::new_state(ctx, app, l.road))
             }
-            (ID::Lane(l), <span class="string">&quot;show equiv_pos&quot;</span>) =&gt; {
+            (ID::Lane(l), <span class="string">"show equiv_pos"</span>) =&gt; {
                 Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
                         <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
@@ -1815,7 +1817,7 @@
                             <span class="kw">let </span>mode = state.downcast_mut::&lt;DebugMode&gt;().unwrap();
                             <span class="comment">// Just abuse this to display the results
                             </span>mode.search_results = <span class="prelude-val">Some</span>(SearchResults {
-                                query: <span class="macro">format!</span>(<span class="string">&quot;equiv_pos {}&quot;</span>, base_pos),
+                                query: <span class="macro">format!</span>(<span class="string">"equiv_pos {}"</span>, base_pos),
                                 num_matches: <span class="number">0</span>,
                                 draw: ctx.upload(batch),
                             });
@@ -1823,7 +1825,7 @@
                     }
                 }))
             }
-            (ID::Lane(l), <span class="string">&quot;trace this block&quot;</span>) =&gt; {
+            (ID::Lane(l), <span class="string">"trace this block"</span>) =&gt; {
                 app.primary.current_selection = <span class="prelude-val">None</span>;
                 <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
                 <span class="kw">return </span>Transition::Push(
@@ -1837,13 +1839,13 @@
                         <span class="prelude-val">Ok</span>(block) =&gt; blockfinder::OneBlock::new_state(ctx, app, block),
                         <span class="prelude-val">Err</span>(err) =&gt; {
                             <span class="comment">// Rendering the error message is breaking
-                            </span><span class="macro">error!</span>(<span class="string">&quot;Blockfinding failed: {}&quot;</span>, err);
-                            PopupMsg::new_state(ctx, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;See console&quot;</span>])
+                            </span><span class="macro">error!</span>(<span class="string">"Blockfinding failed: {}"</span>, err);
+                            PopupMsg::new_state(ctx, <span class="string">"Error"</span>, <span class="macro">vec!</span>[<span class="string">"See console"</span>])
                         }
                     },
                 );
             }
-            (ID::Area(a), <span class="string">&quot;debug area geometry&quot;</span>) =&gt; {
+            (ID::Area(a), <span class="string">"debug area geometry"</span>) =&gt; {
                 <span class="kw">let </span>pts = app
                     .primary
                     .map
@@ -1854,22 +1856,22 @@
                     .into_points();
                 <span class="kw">let </span>center = <span class="kw">if </span>pts[<span class="number">0</span>] == <span class="kw-2">*</span>pts.last().unwrap() {
                     <span class="comment">// TODO The center looks really wrong for Volunteer Park and others, but I
-                    // think it&#39;s because they have many points along some edges.
+                    // think it's because they have many points along some edges.
                     </span>Pt2D::center(<span class="kw-2">&amp;</span>pts.iter().skip(<span class="number">1</span>).cloned().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;())
                 } <span class="kw">else </span>{
                     Pt2D::center(<span class="kw-2">&amp;</span>pts)
                 };
                 Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;point&quot;</span>,
+                    <span class="string">"point"</span>,
                     pts.iter().map(|pt| polygons::Item::Point(<span class="kw-2">*</span>pt)).collect(),
                     <span class="prelude-val">Some</span>(center),
                 ))
             }
-            (ID::Area(a), <span class="string">&quot;debug area triangles&quot;</span>) =&gt; {
+            (ID::Area(a), <span class="string">"debug area triangles"</span>) =&gt; {
                 Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;triangle&quot;</span>,
+                    <span class="string">"triangle"</span>,
                     app.primary
                         .map
                         .get_a(a)
@@ -1881,7 +1883,7 @@
                     <span class="prelude-val">None</span>,
                 ))
             }
-            (ID::Building(b), <span class="string">&quot;route from here&quot;</span>) =&gt; Transition::Push(
+            (ID::Building(b), <span class="string">"route from here"</span>) =&gt; Transition::Push(
                 routes::RouteExplorer::new_state(ctx, app, TripEndpoint::Building(b)),
             ),
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -1899,12 +1901,12 @@
 }
 
 <span class="kw">fn </span>find_bad_signals(app: <span class="kw-2">&amp;</span>App) {
-    <span class="macro">error!</span>(<span class="string">&quot;Bad traffic signals:&quot;</span>);
+    <span class="macro">error!</span>(<span class="string">"Bad traffic signals:"</span>);
     <span class="kw">for </span>i <span class="kw">in </span>app.primary.map.all_intersections() {
         <span class="kw">if </span>i.is_traffic_signal() {
             <span class="kw">let </span>first = <span class="kw-2">&amp;</span>ControlTrafficSignal::get_possible_policies(<span class="kw-2">&amp;</span>app.primary.map, i.id)[<span class="number">0</span>].<span class="number">0</span>;
-            <span class="kw">if </span>first == <span class="string">&quot;stage per road&quot; </span>|| first == <span class="string">&quot;arbitrary assignment&quot; </span>{
-                <span class="macro">error!</span>(<span class="string">&quot;- {}&quot;</span>, i.id);
+            <span class="kw">if </span>first == <span class="string">"stage per road" </span>|| first == <span class="string">"arbitrary assignment" </span>{
+                <span class="macro">error!</span>(<span class="string">"- {}"</span>, i.id);
             }
         }
     }
@@ -1941,7 +1943,7 @@
             <span class="kw">continue</span>;
         }
 
-        <span class="macro">println!</span>(<span class="string">&quot;Maybe merge {}&quot;</span>, i.id);
+        <span class="macro">println!</span>(<span class="string">"Maybe merge {}"</span>, i.id);
         diff_tags(<span class="kw-2">&amp;</span>r1.osm_tags, <span class="kw-2">&amp;</span>r2.osm_tags);
         <span class="macro">println!</span>();
     }
@@ -1949,7 +1951,7 @@
 
 <span class="kw">fn </span>diff_tags(t1: <span class="kw-2">&amp;</span>Tags, t2: <span class="kw-2">&amp;</span>Tags) {
     <span class="kw">for </span>(k, v1, v2) <span class="kw">in </span>t1.diff(t2) {
-        <span class="macro">println!</span>(<span class="string">&quot;- {} = \&quot;{}\&quot; vs \&quot;{}\&quot;&quot;</span>, k, v1, v2);
+        <span class="macro">println!</span>(<span class="string">"- {} = \"{}\" vs \"{}\""</span>, k, v1, v2);
     }
 }
 
@@ -1957,7 +1959,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>seen = HashSet::new();
     <span class="kw">for </span>t <span class="kw">in </span>app.primary.map.all_turns() {
         <span class="kw">if </span>!seen.contains(<span class="kw-2">&amp;</span>t.id.parent) &amp;&amp; t.geom.length() &gt; Distance::meters(<span class="number">50.0</span>) {
-            <span class="macro">println!</span>(<span class="string">&quot;{} has a long turn&quot;</span>, t.id.parent);
+            <span class="macro">println!</span>(<span class="string">"{} has a long turn"</span>, t.id.parent);
             seen.insert(t.id.parent);
         }
     }
@@ -1976,8 +1978,8 @@
         app: <span class="kw-2">&amp;mut </span>App,
         <span class="kw-2">mut </span>todo_maps: Vec&lt;MapName&gt;,
     ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
-        <span class="comment">// Taking screenshots messes with options and doesn&#39;t restore them after. It&#39;s expected
-        // whoever&#39;s taking screenshots (just Dustin so far) will just quit after taking them.
+        <span class="comment">// Taking screenshots messes with options and doesn't restore them after. It's expected
+        // whoever's taking screenshots (just Dustin so far) will just quit after taking them.
         </span>app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
         ctx.canvas.settings.min_zoom_for_detail = <span class="number">0.0</span>;
         MapLoader::new_state(
@@ -2011,7 +2013,7 @@
             <span class="kw">let </span>name = app.primary.map.get_name();
             ctx.request_update(UpdateType::ScreenCaptureEverything {
                 dir: <span class="macro">format!</span>(
-                    <span class="string">&quot;screenshots/{}/{}/{}&quot;</span>,
+                    <span class="string">"screenshots/{}/{}/{}"</span>,
                     name.city.country, name.city.city, name.map
                 ),
                 zoom: <span class="number">3.0</span>,
@@ -2029,7 +2031,7 @@
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
     <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
         <span class="kw">let </span><span class="kw-2">mut </span>pairs: HashSet&lt;(RoadID, RoadID)&gt; = HashSet::new();
-        <span class="comment">// Don&#39;t call out one-ways, so use incoming/outgoing roads, and just for cars.
+        <span class="comment">// Don't call out one-ways, so use incoming/outgoing roads, and just for cars.
         </span><span class="kw">for </span>l1 <span class="kw">in </span>i.get_incoming_lanes(map, PathConstraints::Car) {
             <span class="kw">for </span>l2 <span class="kw">in </span>i.get_outgoing_lanes(map, PathConstraints::Car) {
                 pairs.insert((l1.road, l2.road));

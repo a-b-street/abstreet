@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/spawner.rs`."><title>spawner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/spawner.rs`."><title>spawner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -346,7 +348,7 @@
 
 <span class="kw">use crate</span>::{CarID, DrivingGoal, SidewalkSpot, TripLeg, VehicleType, SPAWN_DIST};
 
-<span class="doccomment">/// We need to remember a few things from scenario instantiation that&#39;re used for starting the
+<span class="doccomment">/// We need to remember a few things from scenario instantiation that're used for starting the
 /// trip.
 </span><span class="attr">#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>StartTripArgs {
@@ -396,7 +398,7 @@
 
 <span class="kw">impl </span>TripSpec {
     <span class="kw">pub fn </span>into_plan(<span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; (TripSpec, Vec&lt;TripLeg&gt;) {
-        <span class="comment">// TODO We&#39;ll want to repeat this validation when we spawn stuff later for a second leg...
+        <span class="comment">// TODO We'll want to repeat this validation when we spawn stuff later for a second leg...
         </span><span class="kw">let </span><span class="kw-2">mut </span>legs = Vec::new();
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
             TripSpec::VehicleAppearing {
@@ -406,14 +408,14 @@
                 ..
             } =&gt; {
                 <span class="kw">if </span>start_pos.dist_along() &gt;= map.get_l(start_pos.lane()).length() {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t spawn at {}; it isn&#39;t that long&quot;</span>, start_pos);
+                    <span class="macro">panic!</span>(<span class="string">"Can't spawn at {}; it isn't that long"</span>, start_pos);
                 }
                 <span class="kw">if let </span>DrivingGoal::Border(<span class="kw">_</span>, end_lane) = goal {
                     <span class="kw">if </span>start_pos.lane() == <span class="kw-2">*</span>end_lane
                         &amp;&amp; start_pos.dist_along() == map.get_l(<span class="kw-2">*</span>end_lane).length()
                     {
                         <span class="macro">panic!</span>(
-                            <span class="string">&quot;Can&#39;t start at {}; it&#39;s the edge of a border already&quot;</span>,
+                            <span class="string">"Can't start at {}; it's the edge of a border already"</span>,
                             start_pos
                         );
                     }
@@ -433,14 +435,14 @@
                 <span class="kw">if </span>goal.goal_pos(constraints, map).is_none() {
                     <span class="kw">return </span>TripSpec::SpawningFailure {
                         use_vehicle: <span class="prelude-val">Some</span>(<span class="kw-2">*</span>use_vehicle),
-                        error: <span class="macro">format!</span>(<span class="string">&quot;goal_pos to {:?} for a {:?} failed&quot;</span>, goal, constraints),
+                        error: <span class="macro">format!</span>(<span class="string">"goal_pos to {:?} for a {:?} failed"</span>, goal, constraints),
                     }
                     .into_plan(map);
                 }
             }
             TripSpec::SpawningFailure { .. } =&gt; {
-                <span class="comment">// TODO The legs are a lie. Since the trip gets cancelled, this doesn&#39;t matter.
-                // I&#39;m not going to bother doing better because I think TripLeg will get
+                <span class="comment">// TODO The legs are a lie. Since the trip gets cancelled, this doesn't matter.
+                // I'm not going to bother doing better because I think TripLeg will get
                 // revamped soon anyway.
                 </span>legs.push(TripLeg::RideBus(TransitRouteID(<span class="number">0</span>), <span class="prelude-val">None</span>));
             }
@@ -457,14 +459,14 @@
             TripSpec::JustWalking { start, goal, .. } =&gt; {
                 <span class="kw">if </span>start == goal {
                     <span class="macro">panic!</span>(
-                        <span class="string">&quot;A trip just walking from {:?} to {:?} doesn&#39;t make sense&quot;</span>,
+                        <span class="string">"A trip just walking from {:?} to {:?} doesn't make sense"</span>,
                         start, goal
                     );
                 }
                 legs.push(TripLeg::Walk(goal.clone()));
             }
             TripSpec::UsingBike { start, goal, bike } =&gt; {
-                <span class="comment">// TODO Might not be possible to walk to the same border if there&#39;s no sidewalk
+                <span class="comment">// TODO Might not be possible to walk to the same border if there's no sidewalk
                 </span><span class="kw">let </span>backup_plan = <span class="kw">match </span>goal {
                     DrivingGoal::ParkNear(b) =&gt; <span class="prelude-val">Some</span>(TripSpec::JustWalking {
                         start: SidewalkSpot::building(<span class="kw-2">*</span>start, map),
@@ -483,15 +485,15 @@
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(goal_spot) = SidewalkSpot::bike_rack(<span class="kw-2">*</span>b, map) {
                             <span class="kw">if </span>start_spot.sidewalk_pos.lane() == goal_spot.sidewalk_pos.lane() {
                                 <span class="macro">info!</span>(
-                                    <span class="string">&quot;Bike trip from {} to {} will just walk; it&#39;s the same \
-                                     sidewalk!&quot;</span>,
+                                    <span class="string">"Bike trip from {} to {} will just walk; it's the same \
+                                     sidewalk!"</span>,
                                     start, b
                                 );
                                 <span class="kw">return </span>backup_plan.unwrap().into_plan(map);
                             }
                         } <span class="kw">else </span>{
                             <span class="macro">info!</span>(
-                                <span class="string">&quot;Can&#39;t find biking connection for goal {}, walking instead&quot;</span>,
+                                <span class="string">"Can't find biking connection for goal {}, walking instead"</span>,
                                 b
                             );
                             <span class="kw">return </span>backup_plan.unwrap().into_plan(map);
@@ -507,13 +509,13 @@
                         DrivingGoal::Border(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
                     }
                 } <span class="kw">else if let </span><span class="prelude-val">Some</span>(plan) = backup_plan {
-                    <span class="macro">info!</span>(<span class="string">&quot;Can&#39;t start biking from {}. Walking instead&quot;</span>, start);
+                    <span class="macro">info!</span>(<span class="string">"Can't start biking from {}. Walking instead"</span>, start);
                     <span class="kw">return </span>plan.into_plan(map);
                 } <span class="kw">else </span>{
                     <span class="kw">return </span>TripSpec::SpawningFailure {
                         use_vehicle: <span class="prelude-val">Some</span>(<span class="kw-2">*</span>bike),
                         error: <span class="macro">format!</span>(
-                            <span class="string">&quot;Can&#39;t start biking from {} and can&#39;t walk either! Goal is {:?}&quot;</span>,
+                            <span class="string">"Can't start biking from {} and can't walk either! Goal is {:?}"</span>,
                             start, goal
                         ),
                     }
@@ -581,11 +583,11 @@
                         <span class="kw">let </span>start_lane = map
                             .get_i(i)
                             .some_outgoing_road(map)
-                            <span class="comment">// TODO Since we&#39;re now doing this right when the trip is starting,
+                            <span class="comment">// TODO Since we're now doing this right when the trip is starting,
                             // pick the least loaded lane or similar.
                             </span>.and_then(|dr| dr.lanes(constraints, map).pop())
                             .ok_or_else(|| {
-                                <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t start a {} trip from {}&quot;</span>, mode.ongoing_verb(), i)
+                                <span class="macro">anyhow!</span>(<span class="string">"can't start a {} trip from {}"</span>, mode.ongoing_verb(), i)
                             })<span class="question-mark">?</span>;
                         TripSpec::VehicleAppearing {
                             start_pos: Position::new(start_lane, SPAWN_DIST),
@@ -620,8 +622,8 @@
                         maybe_stop2,
                     }
                 } <span class="kw">else </span>{
-                    <span class="comment">//warn!(&quot;{:?} not actually using transit, because pathfinding didn&#39;t find any
-                    // useful route&quot;, trip);
+                    <span class="comment">//warn!("{:?} not actually using transit, because pathfinding didn't find any
+                    // useful route", trip);
                     </span>TripSpec::JustWalking { start, goal }
                 }
             }
@@ -633,7 +635,7 @@
     <span class="kw">match </span>endpt {
         TripEndpoint::Building(b) =&gt; <span class="prelude-val">Ok</span>(SidewalkSpot::building(b, map)),
         TripEndpoint::Border(i) =&gt; SidewalkSpot::start_at_border(i, map)
-            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t start walking from {}&quot;</span>, i)),
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"can't start walking from {}"</span>, i)),
         TripEndpoint::SuddenlyAppear(pos) =&gt; <span class="prelude-val">Ok</span>(SidewalkSpot::suddenly_appear(pos, map)),
     }
 }
@@ -642,7 +644,7 @@
     <span class="kw">match </span>endpt {
         TripEndpoint::Building(b) =&gt; <span class="prelude-val">Ok</span>(SidewalkSpot::building(b, map)),
         TripEndpoint::Border(i) =&gt; {
-            SidewalkSpot::end_at_border(i, map).ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t end walking at {}&quot;</span>, i))
+            SidewalkSpot::end_at_border(i, map).ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"can't end walking at {}"</span>, i))
         }
         TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
     }
@@ -668,7 +670,7 @@
                     </span><span class="prelude-val">Some</span>(DrivingGoal::Border(dr.dst_i(map), lanes[<span class="number">0</span>]))
                 }
             })
-            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t end at {} for {:?}&quot;</span>, i, constraints)),
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"can't end at {} for {:?}"</span>, i, constraints)),
         TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
     }
 }

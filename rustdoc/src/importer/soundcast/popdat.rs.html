@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/soundcast/popdat.rs`."><title>popdat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/soundcast/popdat.rs`."><title>popdat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../importer/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -349,7 +351,7 @@
     <span class="kw">pub </span>trips: Vec&lt;OrigTrip&gt;,
 }
 
-<span class="comment">// Extract trip demand data from PSRC&#39;s Soundcast outputs.
+<span class="comment">// Extract trip demand data from PSRC's Soundcast outputs.
 </span><span class="kw">pub fn </span>import_data(huge_map: <span class="kw-2">&amp;</span>Map, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; PopDat {
     <span class="kw">let </span>trips = import_trips(huge_map, timer);
     <span class="kw">let </span>popdat = PopDat { trips };
@@ -362,7 +364,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>trips = Vec::new();
     <span class="kw">let </span>(reader, done) =
-        FileWithProgress::new(<span class="kw-2">&amp;</span>CityName::seattle().input_path(<span class="string">&quot;trips_2014.csv&quot;</span>)).unwrap();
+        FileWithProgress::new(<span class="kw-2">&amp;</span>CityName::seattle().input_path(<span class="string">"trips_2014.csv"</span>)).unwrap();
     <span class="kw">let </span><span class="kw-2">mut </span>total_records = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>people: HashSet&lt;OrigPersonID&gt; = HashSet::new();
     <span class="kw">let </span><span class="kw-2">mut </span>trips_from_parcel: Counter&lt;usize&gt; = Counter::new();
@@ -377,12 +379,12 @@
         trips_from_parcel.inc(from.parcel_id);
         trips_to_parcel.inc(to.parcel_id);
 
-        <span class="comment">// If both are None, then skip -- the trip doesn&#39;t start or end within huge_seattle.
-        // If both are the same building, also skip -- that&#39;s a redundant trip.
+        <span class="comment">// If both are None, then skip -- the trip doesn't start or end within huge_seattle.
+        // If both are the same building, also skip -- that's a redundant trip.
         </span><span class="kw">if </span>from.osm_building == to.osm_building {
             <span class="kw">if </span>from.osm_building.is_some() {
                 <span class="comment">/*warn!(
-                    &quot;Skipping trip from parcel {} to {}; both match OSM building {:?}&quot;,
+                    "Skipping trip from parcel {} to {}; both match OSM building {:?}",
                     rec.opcl, rec.dpcl, from.osm_building
                 );*/
             </span>}
@@ -417,7 +419,7 @@
     done(timer);
 
     <span class="macro">info!</span>(
-        <span class="string">&quot;{} trips total, over {} people. {} records filtered out&quot;</span>,
+        <span class="string">"{} trips total, over {} people. {} records filtered out"</span>,
         prettyprint_usize(trips.len()),
         prettyprint_usize(people.len()),
         prettyprint_usize(total_records - trips.len())
@@ -429,18 +431,18 @@
     </span><span class="kw">for </span>(id, cnt) <span class="kw">in </span>trips_from_parcel.consume() {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>es) = keyed_shapes.get_mut(<span class="kw-2">&amp;</span>id) {
             es.attributes
-                .insert(<span class="string">&quot;trips_from&quot;</span>.to_string(), cnt.to_string());
+                .insert(<span class="string">"trips_from"</span>.to_string(), cnt.to_string());
         }
     }
     <span class="kw">for </span>(id, cnt) <span class="kw">in </span>trips_to_parcel.consume() {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>es) = keyed_shapes.get_mut(<span class="kw-2">&amp;</span>id) {
             es.attributes
-                .insert(<span class="string">&quot;trips_to&quot;</span>.to_string(), cnt.to_string());
+                .insert(<span class="string">"trips_to"</span>.to_string(), cnt.to_string());
         }
     }
     <span class="kw">let </span>shapes: Vec&lt;ExtraShape&gt; = keyed_shapes.into_iter().map(|(<span class="kw">_</span>, v)| v).collect();
     abstio::write_binary(
-        CityName::seattle().input_path(<span class="string">&quot;parcels.bin&quot;</span>),
+        CityName::seattle().input_path(<span class="string">"parcels.bin"</span>),
         <span class="kw-2">&amp;</span>ExtraShapes { shapes },
     );
 
@@ -449,7 +451,7 @@
 
 <span class="comment">// TODO Do we also need the zone ID, or is parcel ID globally unique?
 // Keyed by parcel ID
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;scenarios&quot;</span>)]
+</span><span class="attr">#[cfg(feature = <span class="string">"scenarios"</span>)]
 </span><span class="kw">fn </span>import_parcels(
     huge_map: <span class="kw-2">&amp;</span>Map,
     timer: <span class="kw-2">&amp;mut </span>Timer,
@@ -457,7 +459,7 @@
     <span class="kw">use </span>geom::FindClosest;
 
     <span class="comment">// TODO I really just want to do polygon containment with a quadtree. FindClosest only does
-    // line-string stuff right now, which&#39;ll be weird for the last-&gt;first pt line and stuff.
+    // line-string stuff right now, which'll be weird for the last-&gt;first pt line and stuff.
     </span><span class="kw">let </span><span class="kw-2">mut </span>closest_bldg: FindClosest&lt;osm::OsmID&gt; = FindClosest::new();
     <span class="kw">for </span>b <span class="kw">in </span>huge_map.all_buildings() {
         closest_bldg.add_polygon(b.orig_id, <span class="kw-2">&amp;</span>b.polygon);
@@ -471,9 +473,9 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>parcel_metadata = Vec::new();
 
     <span class="kw">let </span>(reader, done) =
-        FileWithProgress::new(<span class="kw-2">&amp;</span>CityName::seattle().input_path(<span class="string">&quot;parcels_urbansim.txt&quot;</span>)).unwrap();
+        FileWithProgress::new(<span class="kw-2">&amp;</span>CityName::seattle().input_path(<span class="string">"parcels_urbansim.txt"</span>)).unwrap();
     <span class="kw">for </span>rec <span class="kw">in </span>csv::ReaderBuilder::new()
-        .delimiter(<span class="string">b&#39; &#39;</span>)
+        .delimiter(<span class="string">b' '</span>)
         .from_reader(reader)
         .deserialize()
     {
@@ -486,29 +488,29 @@
     }
     done(timer);
 
-    timer.start(<span class="macro">format!</span>(<span class="string">&quot;transform {} points&quot;</span>, parcel_metadata.len()));
+    timer.start(<span class="macro">format!</span>(<span class="string">"transform {} points"</span>, parcel_metadata.len()));
 
     <span class="comment">// From https://epsg.io/102748 to https://epsg.io/4326
     </span><span class="kw">let </span>transform = gdal::spatial_ref::CoordTransform::new(
         <span class="kw-2">&amp;</span>gdal::spatial_ref::SpatialRef::from_proj4(
-            <span class="string">&quot;+proj=lcc +lat_1=47.5 +lat_2=48.73333333333333 +lat_0=47 +lon_0=-120.8333333333333 \
-             +x_0=500000.0000000002 +y_0=0 +datum=NAD83 +units=us-ft +no_defs&quot;</span>,
+            <span class="string">"+proj=lcc +lat_1=47.5 +lat_2=48.73333333333333 +lat_0=47 +lon_0=-120.8333333333333 \
+             +x_0=500000.0000000002 +y_0=0 +datum=NAD83 +units=us-ft +no_defs"</span>,
         )
-        .expect(<span class="string">&quot;washington state plane&quot;</span>),
+        .expect(<span class="string">"washington state plane"</span>),
         <span class="kw-2">&amp;</span>gdal::spatial_ref::SpatialRef::from_epsg(<span class="number">4326</span>).unwrap(),
     )
-    .expect(<span class="string">&quot;regular GPS&quot;</span>);
+    .expect(<span class="string">"regular GPS"</span>);
     transform
         .transform_coords(<span class="kw-2">&amp;mut </span>x_coords, <span class="kw-2">&amp;mut </span>y_coords, <span class="kw-2">&amp;mut </span>z_coords)
-        .expect(<span class="string">&quot;transform coords&quot;</span>);
+        .expect(<span class="string">"transform coords"</span>);
 
-    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;transform {} points&quot;</span>, parcel_metadata.len()));
+    timer.stop(<span class="macro">format!</span>(<span class="string">"transform {} points"</span>, parcel_metadata.len()));
 
     <span class="kw">let </span>bounds = huge_map.get_gps_bounds();
     <span class="kw">let </span>boundary = huge_map.get_boundary_polygon();
     <span class="kw">let </span><span class="kw-2">mut </span>result = HashMap::new();
     <span class="kw">let </span><span class="kw-2">mut </span>shapes = BTreeMap::new();
-    timer.start_iter(<span class="string">&quot;finalize parcel output&quot;</span>, parcel_metadata.len());
+    timer.start_iter(<span class="string">"finalize parcel output"</span>, parcel_metadata.len());
     <span class="kw">for </span>((x, y), (id, num_households, offstreet_parking_spaces)) <span class="kw">in </span>x_coords
         .into_iter()
         .zip(y_coords.into_iter())
@@ -536,15 +538,15 @@
 
         <span class="kw">if </span>boundary.contains_pt(pt) {
             <span class="kw">let </span><span class="kw-2">mut </span>attributes = BTreeMap::new();
-            attributes.insert(<span class="string">&quot;id&quot;</span>.to_string(), id.to_string());
+            attributes.insert(<span class="string">"id"</span>.to_string(), id.to_string());
             <span class="kw">if </span>num_households &gt; <span class="number">0 </span>{
-                attributes.insert(<span class="string">&quot;households&quot;</span>.to_string(), num_households.to_string());
+                attributes.insert(<span class="string">"households"</span>.to_string(), num_households.to_string());
             }
             <span class="kw">if </span>offstreet_parking_spaces &gt; <span class="number">0 </span>{
-                attributes.insert(<span class="string">&quot;parking&quot;</span>.to_string(), offstreet_parking_spaces.to_string());
+                attributes.insert(<span class="string">"parking"</span>.to_string(), offstreet_parking_spaces.to_string());
             }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(b) = osm_building {
-                attributes.insert(<span class="string">&quot;osm_bldg&quot;</span>.to_string(), b.inner_id().to_string());
+                attributes.insert(<span class="string">"osm_bldg"</span>.to_string(), b.inner_id().to_string());
             }
             shapes.insert(
                 id,
@@ -555,55 +557,55 @@
             );
         }
     }
-    <span class="macro">info!</span>(<span class="string">&quot;{} parcels&quot;</span>, prettyprint_usize(result.len()));
+    <span class="macro">info!</span>(<span class="string">"{} parcels"</span>, prettyprint_usize(result.len()));
 
     (result, shapes)
 }
 
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;scenarios&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">"scenarios"</span>))]
 </span><span class="kw">fn </span>import_parcels(
     <span class="kw">_</span>: <span class="kw-2">&amp;</span>Map,
     <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Timer,
 ) -&gt; (HashMap&lt;usize, Endpoint&gt;, BTreeMap&lt;usize, ExtraShape&gt;) {
-    <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t import_parcels for popdat.bin without the scenarios feature (GDAL dependency)&quot;</span>);
+    <span class="macro">panic!</span>(<span class="string">"Can't import_parcels for popdat.bin without the scenarios feature (GDAL dependency)"</span>);
 }
 
 <span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, dpurp
 </span><span class="kw">fn </span>get_purpose(code: <span class="kw-2">&amp;</span>str) -&gt; TripPurpose {
     <span class="kw">match </span>code {
-        <span class="string">&quot;0.0&quot; </span>=&gt; TripPurpose::Home,
-        <span class="string">&quot;1.0&quot; </span>=&gt; TripPurpose::Work,
-        <span class="string">&quot;2.0&quot; </span>=&gt; TripPurpose::School,
-        <span class="string">&quot;3.0&quot; </span>=&gt; TripPurpose::Escort,
-        <span class="string">&quot;4.0&quot; </span>=&gt; TripPurpose::PersonalBusiness,
-        <span class="string">&quot;5.0&quot; </span>=&gt; TripPurpose::Shopping,
-        <span class="string">&quot;6.0&quot; </span>=&gt; TripPurpose::Meal,
-        <span class="string">&quot;7.0&quot; </span>=&gt; TripPurpose::Social,
-        <span class="string">&quot;8.0&quot; </span>=&gt; TripPurpose::Recreation,
-        <span class="string">&quot;9.0&quot; </span>=&gt; TripPurpose::Medical,
-        <span class="string">&quot;10.0&quot; </span>=&gt; TripPurpose::ParkAndRideTransfer,
-        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown dpurp {}&quot;</span>, code),
+        <span class="string">"0.0" </span>=&gt; TripPurpose::Home,
+        <span class="string">"1.0" </span>=&gt; TripPurpose::Work,
+        <span class="string">"2.0" </span>=&gt; TripPurpose::School,
+        <span class="string">"3.0" </span>=&gt; TripPurpose::Escort,
+        <span class="string">"4.0" </span>=&gt; TripPurpose::PersonalBusiness,
+        <span class="string">"5.0" </span>=&gt; TripPurpose::Shopping,
+        <span class="string">"6.0" </span>=&gt; TripPurpose::Meal,
+        <span class="string">"7.0" </span>=&gt; TripPurpose::Social,
+        <span class="string">"8.0" </span>=&gt; TripPurpose::Recreation,
+        <span class="string">"9.0" </span>=&gt; TripPurpose::Medical,
+        <span class="string">"10.0" </span>=&gt; TripPurpose::ParkAndRideTransfer,
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unknown dpurp {}"</span>, code),
     }
 }
 
 <span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode
 </span><span class="kw">fn </span>get_mode(code: <span class="kw-2">&amp;</span>str) -&gt; TripMode {
     <span class="kw">match </span>code {
-        <span class="string">&quot;1.0&quot; </span>=&gt; TripMode::Walk,
-        <span class="string">&quot;2.0&quot; </span>=&gt; TripMode::Bike,
-        <span class="string">&quot;3.0&quot; </span>| <span class="string">&quot;4.0&quot; </span>| <span class="string">&quot;5.0&quot; </span>=&gt; TripMode::Drive,
+        <span class="string">"1.0" </span>=&gt; TripMode::Walk,
+        <span class="string">"2.0" </span>=&gt; TripMode::Bike,
+        <span class="string">"3.0" </span>| <span class="string">"4.0" </span>| <span class="string">"5.0" </span>=&gt; TripMode::Drive,
         <span class="comment">// TODO Park-and-ride and school bus as walk-to-transit is a little weird.
-        </span><span class="string">&quot;6.0&quot; </span>| <span class="string">&quot;7.0&quot; </span>| <span class="string">&quot;8.0&quot; </span>=&gt; TripMode::Transit,
-        <span class="comment">// TODO Invalid code, what&#39;s this one mean? I only see a few examples, so just default to
+        </span><span class="string">"6.0" </span>| <span class="string">"7.0" </span>| <span class="string">"8.0" </span>=&gt; TripMode::Transit,
+        <span class="comment">// TODO Invalid code, what's this one mean? I only see a few examples, so just default to
         // walking.
-        </span><span class="string">&quot;0.0&quot; </span>=&gt; TripMode::Walk,
-        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown mode {}&quot;</span>, code),
+        </span><span class="string">"0.0" </span>=&gt; TripMode::Walk,
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unknown mode {}"</span>, code),
     }
 }
 
 <span class="comment">// See https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv
 //
-// A/B Street flattens a person&#39;s trips into a simple list, but the Soundcast model is more
+// A/B Street flattens a person's trips into a simple list, but the Soundcast model is more
 // detailed:
 //
 // A person takes 1+ tours a day. Each tour starts and ends at the same place (usually home) and
@@ -634,7 +636,7 @@
 
 <span class="comment">// See https://github.com/psrc/soundcast/wiki/Outputs#buffered-parcel-file-buffered_parcelsdat
 </span><span class="attr">#[derive(Debug, Deserialize)]
-</span><span class="comment">// When the &#39;scenarios&#39; feature is disabled, these fields look unused
+</span><span class="comment">// When the 'scenarios' feature is disabled, these fields look unused
 </span><span class="attr">#[allow(unused)]
 </span><span class="kw">struct </span>RawParcel {
     parcelid: usize,

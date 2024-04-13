@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/trip_table.rs`."><title>trip_table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/trip_table.rs`."><title>trip_table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -729,7 +731,7 @@
 
 <span class="kw">impl </span>TripTable {
     <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>tabs = TabController::new(<span class="string">&quot;trips_tabs&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>tabs = TabController::new(<span class="string">"trips_tabs"</span>);
 
         <span class="kw">let </span>(finished, unfinished) = app.primary.sim.num_trips();
         <span class="kw">let </span><span class="kw-2">mut </span>cancelled = <span class="number">0</span>;
@@ -753,17 +755,17 @@
             .style()
             .btn_tab
             .text(<span class="macro">format!</span>(
-                <span class="string">&quot;Finished Trips: {} ({:.1}%)&quot;</span>,
+                <span class="string">"Finished Trips: {} ({:.1}%)"</span>,
                 prettyprint_usize(finished),
                 percent(finished),
             ))
-            .tooltip(<span class="string">&quot;Finished Trips&quot;</span>);
+            .tooltip(<span class="string">"Finished Trips"</span>);
 
         <span class="kw">let </span>finished_trips_table = make_table_finished_trips(app);
         <span class="kw">let </span>finished_trips_content = Widget::col(<span class="macro">vec!</span>[
             finished_trips_table.render(ctx, app),
             Filler::square_width(ctx, <span class="number">0.15</span>)
-                .named(<span class="string">&quot;preview&quot;</span>)
+                .named(<span class="string">"preview"</span>)
                 .centered_horiz(),
         ]);
         tabs.push_tab(finished_trips_btn, finished_trips_content);
@@ -772,12 +774,12 @@
         <span class="kw">let </span>cancelled_trips_btn = ctx
             .style()
             .btn_tab
-            .text(<span class="macro">format!</span>(<span class="string">&quot;Cancelled Trips: {}&quot;</span>, prettyprint_usize(cancelled)))
-            .tooltip(<span class="string">&quot;Cancelled Trips&quot;</span>);
+            .text(<span class="macro">format!</span>(<span class="string">"Cancelled Trips: {}"</span>, prettyprint_usize(cancelled)))
+            .tooltip(<span class="string">"Cancelled Trips"</span>);
         <span class="kw">let </span>cancelled_trips_content = Widget::col(<span class="macro">vec!</span>[
             cancelled_trips_table.render(ctx, app),
             Filler::square_width(ctx, <span class="number">0.15</span>)
-                .named(<span class="string">&quot;preview&quot;</span>)
+                .named(<span class="string">"preview"</span>)
                 .centered_horiz(),
         ]);
         tabs.push_tab(cancelled_trips_btn, cancelled_trips_content);
@@ -787,15 +789,15 @@
             .style()
             .btn_tab
             .text(<span class="macro">format!</span>(
-                <span class="string">&quot;Unfinished Trips: {} ({:.1}%)&quot;</span>,
+                <span class="string">"Unfinished Trips: {} ({:.1}%)"</span>,
                 prettyprint_usize(unfinished),
                 percent(unfinished)
             ))
-            .tooltip(<span class="string">&quot;Unfinished Trips&quot;</span>);
+            .tooltip(<span class="string">"Unfinished Trips"</span>);
         <span class="kw">let </span>unfinished_trips_content = Widget::col(<span class="macro">vec!</span>[
             unfinished_trips_table.render(ctx, app),
             Filler::square_width(ctx, <span class="number">0.15</span>)
-                .named(<span class="string">&quot;preview&quot;</span>)
+                .named(<span class="string">"preview"</span>)
                 .centered_horiz(),
         ]);
         tabs.push_tab(unfinished_trips_btn, unfinished_trips_content);
@@ -838,26 +840,26 @@
                         .replace_render(ctx, app, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel);
                 } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(idx) = x.parse::&lt;usize&gt;() {
                     <span class="kw">return </span>open_trip_transition(app, idx);
-                } <span class="kw">else if </span>x == <span class="string">&quot;close&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"close" </span>{
                     <span class="kw">return </span>Transition::Pop;
                 } <span class="kw">else if </span><span class="self">self</span>.table_tabs.handle_action(ctx, <span class="kw-2">&amp;</span>x, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel) {
                     <span class="comment">// if true, tabs handled the action
-                </span>} <span class="kw">else if </span>x == <span class="string">&quot;filter starts&quot; </span>{
+                </span>} <span class="kw">else if </span>x == <span class="string">"filter starts" </span>{
                     <span class="comment">// Set the recompute_filters bit, so we re-apply the filters when the selector
                     // state is done.
                     </span><span class="self">self</span>.recompute_filters = <span class="bool-val">true</span>;
                     <span class="kw">return </span>Transition::Push(RectangularSelector::new_state(
                         ctx,
-                        <span class="self">self</span>.panel.stash(<span class="string">&quot;starts_in&quot;</span>),
+                        <span class="self">self</span>.panel.stash(<span class="string">"starts_in"</span>),
                     ));
-                } <span class="kw">else if </span>x == <span class="string">&quot;filter ends&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"filter ends" </span>{
                     <span class="self">self</span>.recompute_filters = <span class="bool-val">true</span>;
                     <span class="kw">return </span>Transition::Push(RectangularSelector::new_state(
                         ctx,
-                        <span class="self">self</span>.panel.stash(<span class="string">&quot;ends_in&quot;</span>),
+                        <span class="self">self</span>.panel.stash(<span class="string">"ends_in"</span>),
                     ));
                 } <span class="kw">else </span>{
-                    <span class="macro">unreachable!</span>(<span class="string">&quot;unhandled action: {}&quot;</span>, x)
+                    <span class="macro">unreachable!</span>(<span class="string">"unhandled action: {}"</span>, x)
                 }
             }
             Outcome::Changed(<span class="kw">_</span>) =&gt; {
@@ -898,11 +900,11 @@
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
         <span class="self">self</span>.panel.draw(g);
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
-        <span class="kw">if </span><span class="self">self</span>.panel.has_widget(<span class="string">&quot;starts_in&quot;</span>) {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = <span class="self">self</span>.panel.clone_stashed::&lt;<span class="prelude-ty">Option</span>&lt;Polygon&gt;&gt;(<span class="string">&quot;starts_in&quot;</span>) {
+        <span class="kw">if </span><span class="self">self</span>.panel.has_widget(<span class="string">"starts_in"</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = <span class="self">self</span>.panel.clone_stashed::&lt;<span class="prelude-ty">Option</span>&lt;Polygon&gt;&gt;(<span class="string">"starts_in"</span>) {
                 batch.push(Color::RED.alpha(<span class="number">0.5</span>), p);
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = <span class="self">self</span>.panel.clone_stashed::&lt;<span class="prelude-ty">Option</span>&lt;Polygon&gt;&gt;(<span class="string">&quot;ends_in&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = <span class="self">self</span>.panel.clone_stashed::&lt;<span class="prelude-ty">Option</span>&lt;Polygon&gt;&gt;(<span class="string">"ends_in"</span>) {
                 batch.push(Color::BLUE.alpha(<span class="number">0.5</span>), p);
             }
         }
@@ -979,7 +981,7 @@
 
         <span class="kw">if </span>maybe_duration_after.is_none() || duration_before.is_none() {
             <span class="kw">let </span>reason = trip.cancellation_reason.clone().unwrap_or_else(|| {
-                <span class="string">&quot;trip succeeded now, but not before the current proposal&quot;</span>.to_string()
+                <span class="string">"trip succeeded now, but not before the current proposal"</span>.to_string()
             });
             cancelled.push(CancelledTrip {
                 id: <span class="kw-2">*</span>id,
@@ -1029,16 +1031,16 @@
             Widget::col(<span class="macro">vec!</span>[
                 checkbox_per_mode(ctx, app, <span class="kw-2">&amp;</span>state.modes),
                 Widget::row(<span class="macro">vec!</span>[
-                    Toggle::switch(ctx, <span class="string">&quot;starting off-map&quot;</span>, <span class="prelude-val">None</span>, state.off_map_starts),
-                    Toggle::switch(ctx, <span class="string">&quot;ending off-map&quot;</span>, <span class="prelude-val">None</span>, state.off_map_ends),
-                    ctx.style().btn_plain.text(<span class="string">&quot;filter starts&quot;</span>).build_def(ctx),
-                    ctx.style().btn_plain.text(<span class="string">&quot;filter ends&quot;</span>).build_def(ctx),
-                    Stash::new_widget(<span class="string">&quot;starts_in&quot;</span>, state.starts_in.clone()),
-                    Stash::new_widget(<span class="string">&quot;ends_in&quot;</span>, state.ends_in.clone()),
+                    Toggle::switch(ctx, <span class="string">"starting off-map"</span>, <span class="prelude-val">None</span>, state.off_map_starts),
+                    Toggle::switch(ctx, <span class="string">"ending off-map"</span>, <span class="prelude-val">None</span>, state.off_map_ends),
+                    ctx.style().btn_plain.text(<span class="string">"filter starts"</span>).build_def(ctx),
+                    ctx.style().btn_plain.text(<span class="string">"filter ends"</span>).build_def(ctx),
+                    Stash::new_widget(<span class="string">"starts_in"</span>, state.starts_in.clone()),
+                    Stash::new_widget(<span class="string">"ends_in"</span>, state.ends_in.clone()),
                     <span class="kw">if </span>app.primary.has_modified_trips {
                         Toggle::switch(
                             ctx,
-                            <span class="string">&quot;trips unmodified by experiment&quot;</span>,
+                            <span class="string">"trips unmodified by experiment"</span>,
                             <span class="prelude-val">None</span>,
                             state.unmodified_trips,
                         )
@@ -1048,7 +1050,7 @@
                     <span class="kw">if </span>app.primary.has_modified_trips {
                         Toggle::switch(
                             ctx,
-                            <span class="string">&quot;trips modified by experiment&quot;</span>,
+                            <span class="string">"trips modified by experiment"</span>,
                             <span class="prelude-val">None</span>,
                             state.modified_trips,
                         )
@@ -1067,15 +1069,15 @@
             }
             Filters {
                 modes,
-                off_map_starts: panel.is_checked(<span class="string">&quot;starting off-map&quot;</span>),
-                off_map_ends: panel.is_checked(<span class="string">&quot;ending off-map&quot;</span>),
-                starts_in: panel.clone_stashed(<span class="string">&quot;starts_in&quot;</span>),
-                ends_in: panel.clone_stashed(<span class="string">&quot;ends_in&quot;</span>),
+                off_map_starts: panel.is_checked(<span class="string">"starting off-map"</span>),
+                off_map_ends: panel.is_checked(<span class="string">"ending off-map"</span>),
+                starts_in: panel.clone_stashed(<span class="string">"starts_in"</span>),
+                ends_in: panel.clone_stashed(<span class="string">"ends_in"</span>),
                 unmodified_trips: panel
-                    .maybe_is_checked(<span class="string">&quot;trips unmodified by experiment&quot;</span>)
+                    .maybe_is_checked(<span class="string">"trips unmodified by experiment"</span>)
                     .unwrap_or(<span class="bool-val">true</span>),
                 modified_trips: panel
-                    .maybe_is_checked(<span class="string">&quot;trips modified by experiment&quot;</span>)
+                    .maybe_is_checked(<span class="string">"trips modified by experiment"</span>)
                     .unwrap_or(<span class="bool-val">true</span>),
             }
         }),
@@ -1110,46 +1112,46 @@
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>table = Table::new(
-        <span class="string">&quot;finished_trips_table&quot;</span>,
+        <span class="string">"finished_trips_table"</span>,
         finished,
         Box::new(|x| x.id.<span class="number">0</span>.to_string()),
-        <span class="string">&quot;Percent waiting&quot;</span>,
+        <span class="string">"Percent waiting"</span>,
         filter,
     );
-    table.static_col(<span class="string">&quot;Trip ID&quot;</span>, Box::new(|x| x.id.<span class="number">0</span>.to_string()));
+    table.static_col(<span class="string">"Trip ID"</span>, Box::new(|x| x.id.<span class="number">0</span>.to_string()));
     <span class="kw">if </span>app.primary.has_modified_trips {
         table.static_col(
-            <span class="string">&quot;Modified&quot;</span>,
+            <span class="string">"Modified"</span>,
             Box::new(|x| {
                 <span class="kw">if </span>x.modified {
-                    <span class="string">&quot;Yes&quot;</span>.to_string()
+                    <span class="string">"Yes"</span>.to_string()
                 } <span class="kw">else </span>{
-                    <span class="string">&quot;No&quot;</span>.to_string()
+                    <span class="string">"No"</span>.to_string()
                 }
             }),
         );
     }
     table.column(
-        <span class="string">&quot;Type&quot;</span>,
+        <span class="string">"Type"</span>,
         Box::new(|ctx, app, x| {
             Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render(ctx)
         }),
         Col::Static,
     );
     table.column(
-        <span class="string">&quot;Departure&quot;</span>,
+        <span class="string">"Departure"</span>,
         Box::new(|ctx, <span class="kw">_</span>, x| Text::from(x.departure.ampm_tostring()).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     table.column(
-        <span class="string">&quot;Duration&quot;</span>,
+        <span class="string">"Duration"</span>,
         Box::new(|ctx, app, x| Text::from(x.duration_after.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_after))),
     );
 
     <span class="kw">if </span>app.has_prebaked().is_some() {
         table.column(
-            <span class="string">&quot;Comparison&quot;</span>,
+            <span class="string">"Comparison"</span>,
             Box::new(|ctx, app, x| {
                 Text::from_all(cmp_duration_shorter(
                     app,
@@ -1163,19 +1165,19 @@
             })),
         );
         table.column(
-            <span class="string">&quot;Normalized&quot;</span>,
+            <span class="string">"Normalized"</span>,
             Box::new(|ctx, <span class="kw">_</span>, x| {
                 Text::from(<span class="kw">match </span>x.duration_after.cmp(<span class="kw-2">&amp;</span>x.duration_before) {
-                    std::cmp::Ordering::Equal =&gt; <span class="string">&quot;same&quot;</span>.to_string(),
+                    std::cmp::Ordering::Equal =&gt; <span class="string">"same"</span>.to_string(),
                     std::cmp::Ordering::Less =&gt; {
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;{}% faster&quot;</span>,
+                            <span class="string">"{}% faster"</span>,
                             (<span class="number">100.0 </span>* (<span class="number">1.0 </span>- (x.duration_after / x.duration_before))) <span class="kw">as </span>usize
                         )
                     }
                     std::cmp::Ordering::Greater =&gt; {
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;{}% slower &quot;</span>,
+                            <span class="string">"{}% slower "</span>,
                             (<span class="number">100.0 </span>* ((x.duration_after / x.duration_before) - <span class="number">1.0</span>)) <span class="kw">as </span>usize
                         )
                     }
@@ -1189,12 +1191,12 @@
     }
 
     table.column(
-        <span class="string">&quot;Time spent waiting&quot;</span>,
+        <span class="string">"Time spent waiting"</span>,
         Box::new(|ctx, app, x| Text::from(x.waiting.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.waiting))),
     );
     table.column(
-        <span class="string">&quot;Percent waiting&quot;</span>,
+        <span class="string">"Percent waiting"</span>,
         Box::new(|ctx, <span class="kw">_</span>, x| Text::from(x.percent_waiting.to_string()).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.percent_waiting))),
     );
@@ -1219,8 +1221,8 @@
             Widget::col(<span class="macro">vec!</span>[
                 checkbox_per_mode(ctx, app, <span class="kw-2">&amp;</span>state.modes),
                 Widget::row(<span class="macro">vec!</span>[
-                    Toggle::switch(ctx, <span class="string">&quot;starting off-map&quot;</span>, <span class="prelude-val">None</span>, state.off_map_starts),
-                    Toggle::switch(ctx, <span class="string">&quot;ending off-map&quot;</span>, <span class="prelude-val">None</span>, state.off_map_ends),
+                    Toggle::switch(ctx, <span class="string">"starting off-map"</span>, <span class="prelude-val">None</span>, state.off_map_starts),
+                    Toggle::switch(ctx, <span class="string">"ending off-map"</span>, <span class="prelude-val">None</span>, state.off_map_ends),
                 ]),
             ])
         }),
@@ -1233,8 +1235,8 @@
             }
             Filters {
                 modes,
-                off_map_starts: panel.is_checked(<span class="string">&quot;starting off-map&quot;</span>),
-                off_map_ends: panel.is_checked(<span class="string">&quot;ending off-map&quot;</span>),
+                off_map_starts: panel.is_checked(<span class="string">"starting off-map"</span>),
+                off_map_ends: panel.is_checked(<span class="string">"ending off-map"</span>),
                 starts_in: <span class="prelude-val">None</span>,
                 ends_in: <span class="prelude-val">None</span>,
                 unmodified_trips: <span class="bool-val">true</span>,
@@ -1266,35 +1268,35 @@
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>table = Table::new(
-        <span class="string">&quot;cancelled_trips_table&quot;</span>,
+        <span class="string">"cancelled_trips_table"</span>,
         cancelled,
         Box::new(|x| x.id.<span class="number">0</span>.to_string()),
-        <span class="string">&quot;Departure&quot;</span>,
+        <span class="string">"Departure"</span>,
         filter,
     );
-    table.static_col(<span class="string">&quot;Trip ID&quot;</span>, Box::new(|x| x.id.<span class="number">0</span>.to_string()));
+    table.static_col(<span class="string">"Trip ID"</span>, Box::new(|x| x.id.<span class="number">0</span>.to_string()));
     table.column(
-        <span class="string">&quot;Type&quot;</span>,
+        <span class="string">"Type"</span>,
         Box::new(|ctx, app, x| {
             Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render(ctx)
         }),
         Col::Static,
     );
     table.column(
-        <span class="string">&quot;Departure&quot;</span>,
+        <span class="string">"Departure"</span>,
         Box::new(|ctx, <span class="kw">_</span>, x| Text::from(x.departure.ampm_tostring()).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     <span class="kw">if </span>app.has_prebaked().is_some() {
         table.column(
-            <span class="string">&quot;Estimated duration&quot;</span>,
+            <span class="string">"Estimated duration"</span>,
             Box::new(|ctx, app, x| {
                 Text::from(x.duration_before.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)
             }),
             Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.duration_before))),
         );
     }
-    table.static_col(<span class="string">&quot;Reason&quot;</span>, Box::new(|x| x.reason.clone()));
+    table.static_col(<span class="string">"Reason"</span>, Box::new(|x| x.reason.clone()));
 
     table
 }
@@ -1367,28 +1369,28 @@
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>table = Table::new(
-        <span class="string">&quot;unfinished_trips_table&quot;</span>,
+        <span class="string">"unfinished_trips_table"</span>,
         unfinished,
         Box::new(|x| x.id.<span class="number">0</span>.to_string()),
-        <span class="string">&quot;Departure&quot;</span>,
+        <span class="string">"Departure"</span>,
         filter,
     );
-    table.static_col(<span class="string">&quot;Trip ID&quot;</span>, Box::new(|x| x.id.<span class="number">0</span>.to_string()));
+    table.static_col(<span class="string">"Trip ID"</span>, Box::new(|x| x.id.<span class="number">0</span>.to_string()));
     table.column(
-        <span class="string">&quot;Type&quot;</span>,
+        <span class="string">"Type"</span>,
         Box::new(|ctx, app, x| {
             Text::from(Line(x.mode.ongoing_verb()).fg(color_for_mode(app, x.mode))).render(ctx)
         }),
         Col::Static,
     );
     table.column(
-        <span class="string">&quot;Departure&quot;</span>,
+        <span class="string">"Departure"</span>,
         Box::new(|ctx, <span class="kw">_</span>, x| Text::from(x.departure.ampm_tostring()).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.departure))),
     );
     <span class="kw">if </span>app.has_prebaked().is_some() {
         table.column(
-            <span class="string">&quot;Estimated duration&quot;</span>,
+            <span class="string">"Estimated duration"</span>,
             Box::new(|ctx, app, x| {
                 Text::from(x.duration_before.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)
             }),

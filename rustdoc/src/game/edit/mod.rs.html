@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1076,13 +1078,13 @@
             app.primary.sim = old_sim;
             app.primary.dirty_from_edits = <span class="self">self</span>.orig_dirty;
             <span class="comment">// Could happen if we load some edits, then load whatever we entered edit mode with.
-            </span>ctx.loading_screen(<span class="string">&quot;apply edits&quot;</span>, |<span class="kw">_</span>, timer| {
+            </span>ctx.loading_screen(<span class="string">"apply edits"</span>, |<span class="kw">_</span>, timer| {
                 app.primary.map.recalculate_pathfinding_after_edits(timer);
             });
             <span class="kw">return </span>Transition::Pop;
         }
 
-        ctx.loading_screen(<span class="string">&quot;apply edits&quot;</span>, <span class="kw">move </span>|ctx, timer| {
+        ctx.loading_screen(<span class="string">"apply edits"</span>, <span class="kw">move </span>|ctx, timer| {
             app.primary.map.recalculate_pathfinding_after_edits(timer);
             <span class="kw">if </span>GameplayMode::FixTrafficSignals == <span class="self">self</span>.mode {
                 app.primary.sim = old_sim;
@@ -1104,15 +1106,15 @@
                 } <span class="kw">else </span>{
                     Transition::Replace(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;Map changes complete&quot;</span>,
+                        <span class="string">"Map changes complete"</span>,
                         <span class="macro">vec!</span>[
                             <span class="macro">format!</span>(
-                                <span class="string">&quot;Your edits interrupted {} trips and displaced {} parked cars&quot;</span>,
+                                <span class="string">"Your edits interrupted {} trips and displaced {} parked cars"</span>,
                                 prettyprint_usize(trips),
                                 prettyprint_usize(parked_cars)
                             ),
-                            <span class="string">&quot;Simulation results won&#39;t be finalized unless you restart from \
-                             midnight with your changes&quot;
+                            <span class="string">"Simulation results won't be finalized unless you restart from \
+                             midnight with your changes"
                                 </span>.to_string(),
                         ],
                     ))
@@ -1179,23 +1181,23 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_center.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;finish editing&quot; </span>=&gt; {
+                <span class="string">"finish editing" </span>=&gt; {
                     <span class="kw">return </span><span class="self">self</span>.quit(ctx, app);
                 }
-                <span class="string">&quot;Fix sidewalk direction errors&quot; </span>=&gt; {
+                <span class="string">"Fix sidewalk direction errors" </span>=&gt; {
                     <span class="kw">let </span>new_fixes = validate::fix_sidewalk_direction(<span class="kw-2">&amp;</span>app.primary.map);
                     <span class="kw">let </span>msg = <span class="kw">if </span>new_fixes.is_empty() {
-                        <span class="macro">format!</span>(<span class="string">&quot;No sidewalk direction errors found&quot;</span>)
+                        <span class="macro">format!</span>(<span class="string">"No sidewalk direction errors found"</span>)
                     } <span class="kw">else </span>{
                         <span class="kw">let </span>count = new_fixes.len();
                         <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
                         edits.commands.extend(new_fixes);
                         apply_map_edits(ctx, app, edits);
-                        <span class="macro">format!</span>(<span class="string">&quot;Fixed {count} sidewalk directions&quot;</span>)
+                        <span class="macro">format!</span>(<span class="string">"Fixed {count} sidewalk directions"</span>)
                     };
                     <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;Fix sidewalk directions&quot;</span>,
+                        <span class="string">"Fix sidewalk directions"</span>,
                         <span class="macro">vec!</span>[msg],
                     ));
                 }
@@ -1204,28 +1206,28 @@
         }
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.changelist.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;manage proposals&quot; </span>=&gt; {
+                <span class="string">"manage proposals" </span>=&gt; {
                     <span class="kw">let </span>mode = <span class="self">self</span>.mode.clone();
                     <span class="kw">return </span>Transition::Push(ChooseSomething::new_state(
                         ctx,
-                        <span class="string">&quot;Manage proposals&quot;</span>,
+                        <span class="string">"Manage proposals"</span>,
                         <span class="macro">vec!</span>[
-                            Choice::string(<span class="string">&quot;rename current proposal&quot;</span>),
-                            Choice::string(<span class="string">&quot;open a saved proposal&quot;</span>).multikey(lctrl(Key::L)),
-                            Choice::string(<span class="string">&quot;create a blank proposal&quot;</span>),
-                            Choice::string(<span class="string">&quot;save this proposal as...&quot;</span>),
+                            Choice::string(<span class="string">"rename current proposal"</span>),
+                            Choice::string(<span class="string">"open a saved proposal"</span>).multikey(lctrl(Key::L)),
+                            Choice::string(<span class="string">"create a blank proposal"</span>),
+                            Choice::string(<span class="string">"save this proposal as..."</span>),
                             <span class="comment">// TODO Disable if empty edits
-                            </span>Choice::string(<span class="string">&quot;share proposal&quot;</span>),
-                            Choice::string(<span class="string">&quot;delete this proposal and remove all edits&quot;</span>)
+                            </span>Choice::string(<span class="string">"share proposal"</span>),
+                            Choice::string(<span class="string">"delete this proposal and remove all edits"</span>)
                                 .fg(ctx.style().text_destructive_color),
                         ],
                         Box::new(<span class="kw">move </span>|choice, ctx, app| <span class="kw">match </span>choice.as_ref() {
-                            <span class="string">&quot;rename current proposal&quot; </span>=&gt; {
+                            <span class="string">"rename current proposal" </span>=&gt; {
                                 <span class="kw">let </span>old_name = app.primary.map.get_edits().edits_name.clone();
                                 Transition::Replace(SaveEdits::new_state(
                                     ctx,
                                     app,
-                                    <span class="macro">format!</span>(<span class="string">&quot;Rename \&quot;{}\&quot;&quot;</span>, old_name),
+                                    <span class="macro">format!</span>(<span class="string">"Rename \"{}\""</span>, old_name),
                                     <span class="bool-val">false</span>,
                                     <span class="prelude-val">Some</span>(Transition::Pop),
                                     Box::new(<span class="kw">move </span>|<span class="kw">_</span>, app| {
@@ -1236,14 +1238,14 @@
                                     }),
                                 ))
                             }
-                            <span class="string">&quot;open a saved proposal&quot; </span>=&gt; {
+                            <span class="string">"open a saved proposal" </span>=&gt; {
                                 <span class="kw">if </span>app.primary.map.unsaved_edits() {
                                     Transition::Multi(<span class="macro">vec!</span>[
                                         Transition::Replace(LoadEdits::new_state(ctx, app, mode)),
                                         Transition::Push(SaveEdits::new_state(
                                             ctx,
                                             app,
-                                            <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
+                                            <span class="string">"Do you want to save your proposal first?"</span>,
                                             <span class="bool-val">true</span>,
                                             <span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
                                                 Transition::Pop,
@@ -1256,12 +1258,12 @@
                                     Transition::Replace(LoadEdits::new_state(ctx, app, mode))
                                 }
                             }
-                            <span class="string">&quot;create a blank proposal&quot; </span>=&gt; {
+                            <span class="string">"create a blank proposal" </span>=&gt; {
                                 <span class="kw">if </span>app.primary.map.unsaved_edits() {
                                     Transition::Replace(SaveEdits::new_state(
                                         ctx,
                                         app,
-                                        <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
+                                        <span class="string">"Do you want to save your proposal first?"</span>,
                                         <span class="bool-val">true</span>,
                                         <span class="prelude-val">Some</span>(Transition::Pop),
                                         Box::new(|ctx, app| {
@@ -1273,12 +1275,12 @@
                                     Transition::Pop
                                 }
                             }
-                            <span class="string">&quot;save this proposal as...&quot; </span>=&gt; {
+                            <span class="string">"save this proposal as..." </span>=&gt; {
                                 Transition::Replace(SaveEdits::new_state(
                                     ctx,
                                     app,
                                     <span class="macro">format!</span>(
-                                        <span class="string">&quot;Save \&quot;{}\&quot; as&quot;</span>,
+                                        <span class="string">"Save \"{}\" as"</span>,
                                         app.primary.map.get_edits().edits_name
                                     ),
                                     <span class="bool-val">false</span>,
@@ -1286,15 +1288,15 @@
                                     Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
                                 ))
                             }
-                            <span class="string">&quot;share proposal&quot; </span>=&gt; {
-                                <span class="comment">// TODO This&#39;ll always set or share a URL with the map, losing any
+                            <span class="string">"share proposal" </span>=&gt; {
+                                <span class="comment">// TODO This'll always set or share a URL with the map, losing any
                                 // info about the current scenario.
                                 // https://github.com/a-b-street/abstreet/issues/766
                                 </span>Transition::Replace(<span class="kw">crate</span>::common::share::ShareProposal::new_state(
-                                    ctx, app, <span class="string">&quot;--dev&quot;</span>,
+                                    ctx, app, <span class="string">"--dev"</span>,
                                 ))
                             }
-                            <span class="string">&quot;delete this proposal and remove all edits&quot; </span>=&gt; {
+                            <span class="string">"delete this proposal and remove all edits" </span>=&gt; {
                                 abstio::delete_file(abstio::path_edits(
                                     app.primary.map.get_name(),
                                     <span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name,
@@ -1306,8 +1308,8 @@
                         }),
                     ));
                 }
-                <span class="string">&quot;load proposal&quot; </span>=&gt; {}
-                <span class="string">&quot;undo&quot; </span>=&gt; {
+                <span class="string">"load proposal" </span>=&gt; {}
+                <span class="string">"undo" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
                     <span class="kw">let </span>maybe_id = cmd_to_id(<span class="kw-2">&amp;</span>edits.commands.pop().unwrap());
                     apply_map_edits(ctx, app, edits);
@@ -1322,7 +1324,7 @@
                     }
                 }
                 x =&gt; {
-                    <span class="kw">let </span>idx = x[<span class="string">&quot;change #&quot;</span>.len()..].parse::&lt;usize&gt;().unwrap();
+                    <span class="kw">let </span>idx = x[<span class="string">"change #"</span>.len()..].parse::&lt;usize&gt;().unwrap();
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = cmd_to_id(<span class="kw-2">&amp;</span>app.primary.map.get_edits().commands[idx - <span class="number">1</span>]) {
                         <span class="kw">return </span>Transition::Push(Warping::new_state(
                             ctx,
@@ -1344,7 +1346,7 @@
                     Transition::Push(SaveEdits::new_state(
                         ctx,
                         app,
-                        <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
+                        <span class="string">"Do you want to save your proposal first?"</span>,
                         <span class="bool-val">true</span>,
                         <span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop])),
                         Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
@@ -1357,7 +1359,7 @@
 
         <span class="kw">if </span>ctx.canvas.is_unzoomed() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = app.primary.current_selection.clone() {
-                <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">&quot;edit this&quot;</span>) {
+                <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">"edit this"</span>) {
                     <span class="kw">return </span>Transition::Push(Warping::new_state(
                         ctx,
                         app.primary.canonical_point(id).unwrap(),
@@ -1374,7 +1376,7 @@
                 }
             }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Lane(l)) = app.primary.current_selection {
-                <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">&quot;edit lane&quot;</span>) {
+                <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">"edit lane"</span>) {
                     <span class="kw">return </span>Transition::Push(RoadEditor::new_state(ctx, app, l));
                 }
             }
@@ -1382,8 +1384,8 @@
 
         <span class="kw">match </span><span class="self">self</span>.tool_panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;back&quot; </span>=&gt; <span class="self">self</span>.quit(ctx, app),
-                <span class="string">&quot;settings&quot; </span>=&gt; Transition::Push(OptionsPanel::new_state(ctx, app)),
+                <span class="string">"back" </span>=&gt; <span class="self">self</span>.quit(ctx, app),
+                <span class="string">"settings" </span>=&gt; Transition::Push(OptionsPanel::new_state(ctx, app)),
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_ </span>=&gt; Transition::Keep,
@@ -1419,24 +1421,24 @@
         <span class="kw">let </span>initial_name = <span class="kw">if </span>app.primary.map.unsaved_edits() {
             String::new()
         } <span class="kw">else </span>{
-            <span class="macro">format!</span>(<span class="string">&quot;copy of {}&quot;</span>, app.primary.map.get_edits().edits_name)
+            <span class="macro">format!</span>(<span class="string">"copy of {}"</span>, app.primary.map.get_edits().edits_name)
         };
         <span class="kw">let </span><span class="kw-2">mut </span>save = SaveEdits {
             current_name: initial_name.clone(),
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Line(title).small_heading().into_widget(ctx),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Name:&quot;</span>.text_widget(ctx).centered_vert(),
-                    TextBox::default_widget(ctx, <span class="string">&quot;filename&quot;</span>, initial_name),
+                    <span class="string">"Name:"</span>.text_widget(ctx).centered_vert(),
+                    TextBox::default_widget(ctx, <span class="string">"filename"</span>, initial_name),
                 ]),
-                <span class="comment">// TODO Want this to always consistently be one line high, but it isn&#39;t for a blank
+                <span class="comment">// TODO Want this to always consistently be one line high, but it isn't for a blank
                 // line
-                </span>Widget::placeholder(ctx, <span class="string">&quot;warning&quot;</span>),
+                </span>Widget::placeholder(ctx, <span class="string">"warning"</span>),
                 Widget::row(<span class="macro">vec!</span>[
                     <span class="kw">if </span>discard {
                         ctx.style()
                             .btn_solid_destructive
-                            .text(<span class="string">&quot;Discard proposal&quot;</span>)
+                            .text(<span class="string">"Discard proposal"</span>)
                             .build_def(ctx)
                     } <span class="kw">else </span>{
                         Widget::nothing()
@@ -1444,7 +1446,7 @@
                     <span class="kw">if </span>cancel.is_some() {
                         ctx.style()
                             .btn_outline
-                            .text(<span class="string">&quot;Cancel&quot;</span>)
+                            .text(<span class="string">"Cancel"</span>)
                             .hotkey(Key::Escape)
                             .build_def(ctx)
                     } <span class="kw">else </span>{
@@ -1452,7 +1454,7 @@
                     },
                     ctx.style()
                         .btn_solid_primary
-                        .text(<span class="string">&quot;Save&quot;</span>)
+                        .text(<span class="string">"Save"</span>)
                         .disabled(<span class="bool-val">true</span>)
                         .build_def(ctx),
                 ])
@@ -1471,47 +1473,47 @@
         <span class="kw">if </span><span class="self">self</span>.current_name.is_empty() {
             <span class="self">self</span>.panel.replace(
                 ctx,
-                <span class="string">&quot;Save&quot;</span>,
+                <span class="string">"Save"</span>,
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Save&quot;</span>)
+                    .text(<span class="string">"Save"</span>)
                     .disabled(<span class="bool-val">true</span>)
                     .build_def(ctx),
             );
             <span class="self">self</span>.panel
-                .replace(ctx, <span class="string">&quot;warning&quot;</span>, Text::new().into_widget(ctx));
+                .replace(ctx, <span class="string">"warning"</span>, Text::new().into_widget(ctx));
         } <span class="kw">else if </span>abstio::file_exists(abstio::path_edits(
             app.primary.map.get_name(),
             <span class="kw-2">&amp;</span><span class="self">self</span>.current_name,
         )) {
             <span class="self">self</span>.panel.replace(
                 ctx,
-                <span class="string">&quot;Save&quot;</span>,
+                <span class="string">"Save"</span>,
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Save&quot;</span>)
+                    .text(<span class="string">"Save"</span>)
                     .disabled(<span class="bool-val">true</span>)
                     .build_def(ctx),
             );
             <span class="self">self</span>.panel.replace(
                 ctx,
-                <span class="string">&quot;warning&quot;</span>,
-                Line(<span class="string">&quot;A proposal with this name already exists&quot;</span>)
-                    .fg(Color::hex(<span class="string">&quot;#FF5E5E&quot;</span>))
+                <span class="string">"warning"</span>,
+                Line(<span class="string">"A proposal with this name already exists"</span>)
+                    .fg(Color::hex(<span class="string">"#FF5E5E"</span>))
                     .into_widget(ctx),
             );
         } <span class="kw">else </span>{
             <span class="self">self</span>.panel.replace(
                 ctx,
-                <span class="string">&quot;Save&quot;</span>,
+                <span class="string">"Save"</span>,
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Save&quot;</span>)
+                    .text(<span class="string">"Save"</span>)
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             );
             <span class="self">self</span>.panel
-                .replace(ctx, <span class="string">&quot;warning&quot;</span>, Text::new().into_widget(ctx));
+                .replace(ctx, <span class="string">"warning"</span>, Text::new().into_widget(ctx));
         }
     }
 }
@@ -1520,7 +1522,7 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Save&quot; </span>=&gt; {
+                <span class="string">"Save" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
                     edits.edits_name = <span class="self">self</span>.current_name.clone();
                     app.primary
@@ -1533,17 +1535,17 @@
                     (<span class="self">self</span>.on_success)(ctx, app);
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Discard proposal&quot; </span>=&gt; {
+                <span class="string">"Discard proposal" </span>=&gt; {
                     apply_map_edits(ctx, app, app.primary.map.new_edits());
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Cancel&quot; </span>=&gt; {
+                <span class="string">"Cancel" </span>=&gt; {
                     <span class="kw">return </span><span class="self">self</span>.cancel.take().unwrap();
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="kw">let </span>name = <span class="self">self</span>.panel.text_box(<span class="string">&quot;filename&quot;</span>);
+        <span class="kw">let </span>name = <span class="self">self</span>.panel.text_box(<span class="string">"filename"</span>);
         <span class="kw">if </span>name != <span class="self">self</span>.current_name {
             <span class="self">self</span>.current_name = name;
             <span class="self">self</span>.recalc_btn(ctx, app);
@@ -1573,20 +1575,20 @@
                 .into_iter()
                 .map(|name| Choice::new(name.clone(), ()).active(<span class="kw-2">&amp;</span>name != current_edits_name))
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="comment">// These&#39;re sorted alphabetically, but the &quot;Untitled Proposal&quot;s wind up before lowercase
+        <span class="comment">// These're sorted alphabetically, but the "Untitled Proposal"s wind up before lowercase
         // names!
-        </span>your_proposals.sort_by_key(|x| (x.label.starts_with(<span class="string">&quot;Untitled Proposal&quot;</span>), x.label.clone()));
+        </span>your_proposals.sort_by_key(|x| (x.label.starts_with(<span class="string">"Untitled Proposal"</span>), x.label.clone()));
 
         <span class="kw">let </span>your_edits = <span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Your proposals&quot;</span>).small_heading().into_widget(ctx),
+            Line(<span class="string">"Your proposals"</span>).small_heading().into_widget(ctx),
             Menu::widget(ctx, your_proposals),
         ];
-        <span class="comment">// widgetry can&#39;t toggle keyboard focus between two menus, so just use buttons for the less
+        <span class="comment">// widgetry can't toggle keyboard focus between two menus, so just use buttons for the less
         // common use case.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>proposals = <span class="macro">vec!</span>[Line(<span class="string">&quot;Community proposals&quot;</span>).small_heading().into_widget(ctx)];
-        <span class="comment">// Up-front filter out proposals that definitely don&#39;t fit the current map
-        </span><span class="kw">for </span>name <span class="kw">in </span>abstio::list_all_objects(abstio::path(<span class="string">&quot;system/proposals&quot;</span>)) {
-            <span class="kw">let </span>path = abstio::path(<span class="macro">format!</span>(<span class="string">&quot;system/proposals/{}.json&quot;</span>, name));
+        </span><span class="kw">let </span><span class="kw-2">mut </span>proposals = <span class="macro">vec!</span>[Line(<span class="string">"Community proposals"</span>).small_heading().into_widget(ctx)];
+        <span class="comment">// Up-front filter out proposals that definitely don't fit the current map
+        </span><span class="kw">for </span>name <span class="kw">in </span>abstio::list_all_objects(abstio::path(<span class="string">"system/proposals"</span>)) {
+            <span class="kw">let </span>path = abstio::path(<span class="macro">format!</span>(<span class="string">"system/proposals/{}.json"</span>, name));
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(edits) =
                 MapEdits::load_from_file(<span class="kw-2">&amp;</span>app.primary.map, path.clone(), <span class="kw-2">&amp;mut </span>Timer::throwaway())
             {
@@ -1603,12 +1605,12 @@
             mode,
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Load proposal&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Load proposal"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Start over with blank proposal&quot;</span>)
+                    .text(<span class="string">"Start over with blank proposal"</span>)
                     .build_def(ctx),
                 Widget::row(<span class="macro">vec!</span>[Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
             ]))
@@ -1623,15 +1625,15 @@
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; {
                 <span class="kw">match </span>x.as_ref() {
-                    <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-                    <span class="string">&quot;Start over with blank proposal&quot; </span>=&gt; {
+                    <span class="string">"close" </span>=&gt; Transition::Pop,
+                    <span class="string">"Start over with blank proposal" </span>=&gt; {
                         apply_map_edits(ctx, app, app.primary.map.new_edits());
                         Transition::Pop
                     }
                     path =&gt; {
-                        <span class="comment">// TODO Kind of a hack. If it ends with .json, it&#39;s already a path.
-                        // Otherwise it&#39;s a result from the menu.
-                        </span><span class="kw">let </span>path = <span class="kw">if </span>path.ends_with(<span class="string">&quot;.json&quot;</span>) {
+                        <span class="comment">// TODO Kind of a hack. If it ends with .json, it's already a path.
+                        // Otherwise it's a result from the menu.
+                        </span><span class="kw">let </span>path = <span class="kw">if </span>path.ends_with(<span class="string">".json"</span>) {
                             path.to_string()
                         } <span class="kw">else </span>{
                             abstio::path_edits(app.primary.map.get_name(), path)
@@ -1647,8 +1649,8 @@
                                 <span class="prelude-val">Ok</span>(edits)
                             } <span class="kw">else </span>{
                                 <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(
-                                    <span class="string">&quot;The current gameplay mode restricts edits. This proposal has \
-                                     a banned command.&quot;
+                                    <span class="string">"The current gameplay mode restricts edits. This proposal has \
+                                     a banned command."
                                 </span>))
                             }
                         }) {
@@ -1662,7 +1664,7 @@
                             <span class="comment">// TODO Hack. Have to replace ourselves, because the Menu might be
                             // invalidated now that something was chosen.
                             </span><span class="prelude-val">Err</span>(err) =&gt; {
-                                <span class="macro">println!</span>(<span class="string">&quot;Can&#39;t load {}: {}&quot;</span>, path, err);
+                                <span class="macro">println!</span>(<span class="string">"Can't load {}: {}"</span>, path, err);
                                 Transition::Multi(<span class="macro">vec!</span>[
                                     Transition::Replace(LoadEdits::new_state(
                                         ctx,
@@ -1674,8 +1676,8 @@
                                     // bleeds through
                                     </span>Transition::Push(PopupMsg::new_state(
                                         ctx,
-                                        <span class="string">&quot;Error&quot;</span>,
-                                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Can&#39;t load {}&quot;</span>, path), err.to_string()],
+                                        <span class="string">"Error"</span>,
+                                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Can't load {}"</span>, path), err.to_string()],
                                     )),
                                 ])
                             }
@@ -1695,14 +1697,14 @@
 
 <span class="kw">fn </span>make_topcenter(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Panel {
     Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-        Line(<span class="string">&quot;Editing map&quot;</span>)
+        Line(<span class="string">"Editing map"</span>)
             .small_heading()
             .into_widget(ctx)
             .centered_horiz(),
         ctx.style()
             .btn_solid_primary
             .text(<span class="macro">format!</span>(
-                <span class="string">&quot;Finish &amp; resume from {}&quot;</span>,
+                <span class="string">"Finish &amp; resume from {}"</span>,
                 app.primary
                     .suspended_sim
                     .as_ref()
@@ -1711,14 +1713,14 @@
                     .ampm_tostring()
             ))
             .hotkey(Key::Escape)
-            .build_widget(ctx, <span class="string">&quot;finish editing&quot;</span>),
+            .build_widget(ctx, <span class="string">"finish editing"</span>),
         <span class="kw">if </span>app.opts.dev {
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Fix sidewalk direction errors&quot;</span>)
+                .text(<span class="string">"Fix sidewalk direction errors"</span>)
                 .tooltip(Text::from_multiline(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Sidewalk directions must match the side of the road in a certain way.&quot;</span>),
-                    Line(<span class="string">&quot;It&#39;s easy to get this wrong; this tool will automatically fix things.&quot;</span>),
+                    Line(<span class="string">"Sidewalk directions must match the side of the road in a certain way."</span>),
+                    Line(<span class="string">"It's easy to get this wrong; this tool will automatically fix things."</span>),
                 ]))
                 .build_def(ctx)
         } <span class="kw">else </span>{
@@ -1730,15 +1732,15 @@
 }
 
 <span class="kw">pub fn </span>apply_map_edits(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, edits: MapEdits) {
-    ctx.loading_screen(<span class="string">&quot;apply map edits&quot;</span>, |ctx, timer| {
+    ctx.loading_screen(<span class="string">"apply map edits"</span>, |ctx, timer| {
         <span class="kw">if </span>!app.store_unedited_map_in_secondary &amp;&amp; app.primary.unedited_map.is_none() {
-            timer.start(<span class="string">&quot;save unedited map&quot;</span>);
+            timer.start(<span class="string">"save unedited map"</span>);
             <span class="macro">assert!</span>(app.primary.map.get_edits().commands.is_empty());
             app.primary.unedited_map = <span class="prelude-val">Some</span>(app.primary.map.clone());
-            timer.stop(<span class="string">&quot;save unedited map&quot;</span>);
+            timer.stop(<span class="string">"save unedited map"</span>);
         }
         <span class="kw">if </span>app.store_unedited_map_in_secondary &amp;&amp; app.secondary.is_none() {
-            timer.start(<span class="string">&quot;save unedited map for toggling&quot;</span>);
+            timer.start(<span class="string">"save unedited map for toggling"</span>);
             <span class="macro">assert!</span>(app.primary.map.get_edits().commands.is_empty());
             <span class="kw">let </span><span class="kw-2">mut </span>per_map = <span class="kw">crate</span>::app::PerMap::map_loaded(
                 app.primary.map.clone(),
@@ -1752,12 +1754,12 @@
             <span class="comment">// is_secondary indicates the unedited map
             </span>per_map.is_secondary = <span class="bool-val">true</span>;
             app.secondary = <span class="prelude-val">Some</span>(per_map);
-            timer.stop(<span class="string">&quot;save unedited map for toggling&quot;</span>);
+            timer.stop(<span class="string">"save unedited map for toggling"</span>);
         }
 
-        timer.start(<span class="string">&quot;edit map&quot;</span>);
+        timer.start(<span class="string">"edit map"</span>);
         <span class="kw">let </span>effects = app.primary.map.must_apply_edits(edits, timer);
-        timer.stop(<span class="string">&quot;edit map&quot;</span>);
+        timer.stop(<span class="string">"edit map"</span>);
 
         <span class="kw">if </span>!effects.changed_roads.is_empty() || !effects.changed_intersections.is_empty() {
             app.primary
@@ -1786,7 +1788,7 @@
             app.primary.draw_map.get_pl(pl).clear_rendering();
         }
 
-        <span class="kw">if </span>app.primary.layer.as_ref().and_then(|l| l.name()) == <span class="prelude-val">Some</span>(<span class="string">&quot;map edits&quot;</span>) {
+        <span class="kw">if </span>app.primary.layer.as_ref().and_then(|l| l.name()) == <span class="prelude-val">Some</span>(<span class="string">"map edits"</span>) {
             app.primary.layer = <span class="prelude-val">Some</span>(Box::new(<span class="kw">crate</span>::layer::map::Static::edits(ctx, app)));
         }
         <span class="comment">// Other parts of the UI poll map.get_edits_change_key() to recalculate things based on
@@ -1813,7 +1815,7 @@
 </span>}
 
 <span class="kw">pub fn </span>speed_limit_choices(app: <span class="kw-2">&amp;</span>App, preset: <span class="prelude-ty">Option</span>&lt;Speed&gt;) -&gt; Vec&lt;Choice&lt;Speed&gt;&gt; {
-    <span class="comment">// Don&#39;t need anything higher than 70mph. Though now I kind of miss 3am drives on TX-71...
+    <span class="comment">// Don't need anything higher than 70mph. Though now I kind of miss 3am drives on TX-71...
     </span><span class="kw">let </span><span class="kw-2">mut </span>speeds = (<span class="number">10</span>..=<span class="number">70</span>)
         .step_by(<span class="number">5</span>)
         .map(|mph| Speed::miles_per_hour(mph <span class="kw">as </span>f64))
@@ -1838,13 +1840,13 @@
 ) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt;&gt; {
     <span class="kw">if </span>app.primary.map.maybe_get_stop_sign(id).is_some()
         &amp;&amp; mode.can_edit_stop_signs()
-        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;edit stop signs&quot;</span>)
+        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">"edit stop signs"</span>)
     {
         <span class="kw">return </span><span class="prelude-val">Some</span>(StopSignEditor::new_state(ctx, app, id, mode.clone()));
     }
 
     <span class="kw">if </span>app.primary.map.maybe_get_traffic_signal(id).is_some()
-        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;edit traffic signal&quot;</span>)
+        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">"edit traffic signal"</span>)
     {
         <span class="kw">return </span><span class="prelude-val">Some</span>(TrafficSignalEditor::new_state(
             ctx,
@@ -1855,9 +1857,9 @@
     }
 
     <span class="kw">if </span>app.primary.map.get_i(id).is_closed()
-        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;re-open closed intersection&quot;</span>)
+        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">"re-open closed intersection"</span>)
     {
-        <span class="comment">// This resets to the original state; it doesn&#39;t undo the closure to the last
+        <span class="comment">// This resets to the original state; it doesn't undo the closure to the last
         // state. Seems reasonable to me.
         </span><span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
         edits
@@ -1881,18 +1883,18 @@
                 .btn_outline
                 .popup(<span class="kw-2">&amp;</span>edits.edits_name)
                 .hotkey(lctrl(Key::P))
-                .build_widget(ctx, <span class="string">&quot;manage proposals&quot;</span>),
-            <span class="string">&quot;autosaved&quot;
+                .build_widget(ctx, <span class="string">"manage proposals"</span>),
+            <span class="string">"autosaved"
                 </span>.text_widget(ctx)
                 .container()
                 .padding(<span class="number">10</span>)
-                .bg(Color::hex(<span class="string">&quot;#5D9630&quot;</span>)),
+                .bg(Color::hex(<span class="string">"#5D9630"</span>)),
         ]),
         ColorLegend::row(
             ctx,
             app.cs.edits_layer,
             <span class="macro">format!</span>(
-                <span class="string">&quot;{} roads, {} intersections changed&quot;</span>,
+                <span class="string">"{} roads, {} intersections changed"</span>,
                 edits.original_roads.len(),
                 edits.original_intersections.len()
             ),
@@ -1900,11 +1902,11 @@
     ];
 
     <span class="kw">if </span>edits.commands.len() &gt; <span class="number">5 </span>{
-        col.push(<span class="macro">format!</span>(<span class="string">&quot;{} more...&quot;</span>, edits.commands.len() - <span class="number">5</span>).text_widget(ctx));
+        col.push(<span class="macro">format!</span>(<span class="string">"{} more..."</span>, edits.commands.len() - <span class="number">5</span>).text_widget(ctx));
     }
     <span class="kw">for </span>idx <span class="kw">in </span>edits.commands.len().max(<span class="number">5</span>) - <span class="number">5</span>..edits.commands.len() {
         <span class="kw">let </span>(summary, details) = edits.commands[idx].describe(<span class="kw-2">&amp;</span>app.primary.map);
-        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, idx + <span class="number">1</span>, summary));
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">"{}) {}"</span>, idx + <span class="number">1</span>, summary));
         <span class="kw">for </span>line <span class="kw">in </span>details {
             txt.add_line(Line(line).secondary());
         }
@@ -1913,7 +1915,7 @@
             .btn_plain
             .btn()
             .label_styled_text(txt, ControlState::Default)
-            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;change #{}&quot;</span>, idx + <span class="number">1</span>));
+            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"change #{}"</span>, idx + <span class="number">1</span>));
         <span class="kw">if </span>idx == edits.commands.len() - <span class="number">1 </span>{
             col.push(
                 Widget::row(<span class="macro">vec!</span>[
@@ -1921,7 +1923,7 @@
                     ctx.style()
                         .btn_close()
                         .hotkey(lctrl(Key::Z))
-                        .build_widget(ctx, <span class="string">&quot;undo&quot;</span>),
+                        .build_widget(ctx, <span class="string">"undo"</span>),
                 ])
                 .padding(<span class="number">16</span>)
                 .outline(ctx.style().btn_outline.outline),
@@ -1956,24 +1958,24 @@
             discard,
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Image::from_path(<span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    Image::from_path(<span class="string">"system/assets/tools/alert.svg"</span>)
                         .untinted()
                         .into_widget(ctx)
                         .container()
                         .padding_top(<span class="number">6</span>),
-                    Line(<span class="string">&quot;Alert&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Alert"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="string">&quot;Are you sure you want to discard changes you made?&quot;</span>.text_widget(ctx),
+                <span class="string">"Are you sure you want to discard changes you made?"</span>.text_widget(ctx),
                 Widget::row(<span class="macro">vec!</span>[
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;Cancel&quot;</span>)
+                        .text(<span class="string">"Cancel"</span>)
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                     ctx.style()
                         .btn_solid_destructive
-                        .text(<span class="string">&quot;Yes, discard&quot;</span>)
+                        .text(<span class="string">"Yes, discard"</span>)
                         .build_def(ctx),
                 ])
                 .align_right(),
@@ -1987,8 +1989,8 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>| <span class="string">&quot;Cancel&quot; </span>=&gt; Transition::Pop,
-                <span class="string">&quot;Yes, discard&quot; </span>=&gt; {
+                <span class="string">"close" </span>| <span class="string">"Cancel" </span>=&gt; Transition::Pop,
+                <span class="string">"Yes, discard" </span>=&gt; {
                     (<span class="self">self</span>.discard)(app);
                     Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop])
                 }

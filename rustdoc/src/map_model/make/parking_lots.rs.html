@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/parking_lots.rs`."><title>parking_lots.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/parking_lots.rs`."><title>parking_lots.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -276,7 +278,7 @@
     map: <span class="kw-2">&amp;</span>Map,
     timer: <span class="kw-2">&amp;mut </span>Timer,
 ) -&gt; Vec&lt;ParkingLot&gt; {
-    timer.start(<span class="string">&quot;convert parking lots&quot;</span>);
+    timer.start(<span class="string">"convert parking lots"</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>center_per_lot: Vec&lt;HashablePt2D&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>query: HashSet&lt;HashablePt2D&gt; = HashSet::new();
     <span class="kw">for </span>lot <span class="kw">in </span>input {
@@ -296,7 +298,7 @@
     );
 
     <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
-    timer.start_iter(<span class="string">&quot;create parking lot driveways&quot;</span>, center_per_lot.len());
+    timer.start_iter(<span class="string">"create parking lot driveways"</span>, center_per_lot.len());
     <span class="kw">for </span>(lot_center, orig) <span class="kw">in </span>center_per_lot.into_iter().zip(input.iter()) {
         timer.next();
         <span class="kw">match </span>snap_driveway(lot_center, <span class="kw-2">&amp;</span>orig.polygon, <span class="kw-2">&amp;</span>sidewalk_pts, map) {
@@ -317,12 +319,12 @@
                 });
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;Skipping parking lot {}: {}&quot;</span>, orig.osm_id, err);
+                <span class="macro">warn!</span>(<span class="string">"Skipping parking lot {}: {}"</span>, orig.osm_id, err);
             }
         }
     }
     <span class="macro">info!</span>(
-        <span class="string">&quot;Discarded {} parking lots that weren&#39;t close enough to a sidewalk&quot;</span>,
+        <span class="string">"Discarded {} parking lots that weren't close enough to a sidewalk"</span>,
         input.len() - results.len()
     );
 
@@ -330,7 +332,7 @@
     <span class="kw">for </span>lot <span class="kw">in </span><span class="kw-2">&amp;</span>results {
         closest.add_polygon(lot.id, <span class="kw-2">&amp;</span>lot.polygon);
     }
-    timer.start_iter(<span class="string">&quot;match parking aisles&quot;</span>, aisles.len());
+    timer.start_iter(<span class="string">"match parking aisles"</span>, aisles.len());
     <span class="kw">for </span>(aisle_id, pts) <span class="kw">in </span>aisles {
         timer.next();
         <span class="comment">// Use the center of all the aisle points to match it to lots
@@ -363,15 +365,15 @@
                 }
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;Parking aisle {} has weird geometry: {}&quot;</span>, aisle_id, err);
+                <span class="macro">warn!</span>(<span class="string">"Parking aisle {} has weird geometry: {}"</span>, aisle_id, err);
             }
         }
     }
 
-    <span class="kw">let </span>results = timer.parallelize(<span class="string">&quot;generate parking lot spots&quot;</span>, results, |<span class="kw-2">mut </span>lot| {
+    <span class="kw">let </span>results = timer.parallelize(<span class="string">"generate parking lot spots"</span>, results, |<span class="kw-2">mut </span>lot| {
         lot.spots = infer_spots(<span class="kw-2">&amp;</span>lot.polygon, <span class="kw-2">&amp;</span>lot.aisles);
 
-        <span class="comment">// Guess how many extra spots are available, that maybe aren&#39;t renderable.
+        <span class="comment">// Guess how many extra spots are available, that maybe aren't renderable.
         </span><span class="kw">if </span>lot.spots.is_empty() {
             <span class="comment">// No parking aisles. Just guess based on the area. One spot per 30m^2 is a quick
             // guess from looking at examples with aisles.
@@ -380,7 +382,7 @@
 
         lot
     });
-    timer.stop(<span class="string">&quot;convert parking lots&quot;</span>);
+    timer.stop(<span class="string">"convert parking lots"</span>);
     results
 }
 
@@ -395,15 +397,15 @@
 
     <span class="kw">let </span>sidewalk_pos = sidewalk_pts
         .get(<span class="kw-2">&amp;</span>center)
-        .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;parking lot center didn&#39;t snap to a sidewalk&quot;</span>))<span class="question-mark">?</span>;
+        .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"parking lot center didn't snap to a sidewalk"</span>))<span class="question-mark">?</span>;
     <span class="kw">let </span>sidewalk_line = <span class="kw">match </span>Line::new(center.to_pt2d(), sidewalk_pos.pt(map)) {
         <span class="prelude-val">Ok</span>(l) =&gt; trim_path(polygon, l),
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-            <span class="macro">bail!</span>(<span class="string">&quot;front path has 0 length&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">"front path has 0 length"</span>);
         }
     };
 
-    <span class="comment">// Can this lot have a driveway? If it&#39;s not next to a driving lane, then no.
+    <span class="comment">// Can this lot have a driveway? If it's not next to a driving lane, then no.
     </span><span class="kw">let </span><span class="kw-2">mut </span>driveway: <span class="prelude-ty">Option</span>&lt;(PolyLine, Position)&gt; = <span class="prelude-val">None</span>;
     <span class="kw">let </span>sidewalk_lane = sidewalk_pos.lane();
     <span class="kw">if let </span><span class="prelude-val">Some</span>(driving_pos) = map
@@ -425,7 +427,7 @@
     }
     <span class="kw">let </span>(driveway_line, driving_pos) = driveway.ok_or_else(|| {
         <span class="macro">anyhow!</span>(
-            <span class="string">&quot;snapped to sidewalk {}, but no driving connection&quot;</span>,
+            <span class="string">"snapped to sidewalk {}, but no driving connection"</span>,
             sidewalk_pos.lane()
         )
     })<span class="question-mark">?</span>;
@@ -486,18 +488,18 @@
     line: <span class="kw-2">&amp;</span>Line,
     finalized_lines: <span class="kw-2">&amp;</span>[Line],
 ) -&gt; bool {
-    <span class="comment">// Don&#39;t leak out of the parking lot
+    <span class="comment">// Don't leak out of the parking lot
     // TODO Entire line
     </span><span class="kw">if </span>!lot_polygon.contains_pt(line.pt1()) || !lot_polygon.contains_pt(line.pt2()) {
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
 
-    <span class="comment">// Don&#39;t let this line hit another line
+    <span class="comment">// Don't let this line hit another line
     </span><span class="kw">if </span>finalized_lines.iter().any(|other| line.crosses(other)) {
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
 
-    <span class="comment">// Don&#39;t hit an aisle
+    <span class="comment">// Don't hit an aisle
     </span><span class="kw">if </span>aisles.iter().any(|pts| {
         PolyLine::unchecked_new(pts.clone())
             .intersection(<span class="kw-2">&amp;</span>line.to_polyline())

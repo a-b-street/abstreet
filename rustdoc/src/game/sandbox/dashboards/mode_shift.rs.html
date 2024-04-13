@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/mode_shift.rs`."><title>mode_shift.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/mode_shift.rs`."><title>mode_shift.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -360,16 +362,16 @@
             DashTab::ModeShift.picker(ctx, app),
             Widget::col(<span class="macro">vec!</span>[
                 Text::from_multiline(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;This looks at transforming driving trips into cycling.&quot;</span>),
-                    Line(<span class="string">&quot;Off-map starts/ends are excluded.&quot;</span>),
+                    Line(<span class="string">"This looks at transforming driving trips into cycling."</span>),
+                    Line(<span class="string">"Off-map starts/ends are excluded."</span>),
                 ])
                 .into_widget(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Show most important gaps in cycling infrastructure&quot;</span>)
+                    .text(<span class="string">"Show most important gaps in cycling infrastructure"</span>)
                     .build_def(ctx),
                 table.render(ctx, app),
-                Filler::square_width(ctx, <span class="number">0.15</span>).named(<span class="string">&quot;preview&quot;</span>),
+                Filler::square_width(ctx, <span class="number">0.15</span>).named(<span class="string">"preview"</span>),
             ])
             .section(ctx),
         ]);
@@ -395,9 +397,9 @@
                     <span class="self">self</span>.table.replace_render(ctx, app, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel);
                 } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(idx) = x.parse::&lt;usize&gt;() {
                     <span class="kw">return </span>open_trip_transition(app, idx);
-                } <span class="kw">else if </span>x == <span class="string">&quot;close&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"close" </span>{
                     <span class="kw">return </span>Transition::Pop;
-                } <span class="kw">else if </span>x == <span class="string">&quot;Show most important gaps in cycling infrastructure&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"Show most important gaps in cycling infrastructure" </span>{
                     <span class="comment">// TODO Automatically recalculate as filters change? Too slow.
                     </span><span class="self">self</span>.show_route_gaps = show_route_gaps(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.table);
                 } <span class="kw">else </span>{
@@ -451,9 +453,9 @@
 
 <span class="kw">fn </span>produce_raw_data(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Vec&lt;Entry&gt; {
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
-    ctx.loading_screen(<span class="string">&quot;shift modes&quot;</span>, |<span class="kw">_</span>, timer| {
+    ctx.loading_screen(<span class="string">"shift modes"</span>, |<span class="kw">_</span>, timer| {
         timer.parallelize(
-            <span class="string">&quot;analyze trips&quot;</span>,
+            <span class="string">"analyze trips"</span>,
             app.primary
                 .sim
                 .all_trip_info()
@@ -485,7 +487,7 @@
                         estimated_biking_time: biking_path
                             .estimate_duration(map, <span class="prelude-val">Some</span>(map_model::MAX_BIKE_SPEED)),
                         <span class="comment">// TODO The distance (and elevation change) might differ between the two
-                        // paths if there&#39;s a highway or a trail. For now, just use the biking
+                        // paths if there's a highway or a trail. For now, just use the biking
                         // distance.
                         </span>distance: biking_path.total_length(),
                         total_elevation_gain,
@@ -514,40 +516,40 @@
         to_controls: Box::new(|ctx, <span class="kw">_</span>, state| {
             Widget::row(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Max driving time&quot;</span>.text_widget(ctx).centered_vert(),
+                    <span class="string">"Max driving time"</span>.text_widget(ctx).centered_vert(),
                     Spinner::widget(
                         ctx,
-                        <span class="string">&quot;max_driving_time&quot;</span>,
+                        <span class="string">"max_driving_time"</span>,
                         (Duration::ZERO, Duration::hours(<span class="number">12</span>)),
                         state.max_driving_time,
                         Duration::minutes(<span class="number">1</span>),
                     ),
                 ]),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Max biking time&quot;</span>.text_widget(ctx).centered_vert(),
+                    <span class="string">"Max biking time"</span>.text_widget(ctx).centered_vert(),
                     Spinner::widget(
                         ctx,
-                        <span class="string">&quot;max_biking_time&quot;</span>,
+                        <span class="string">"max_biking_time"</span>,
                         (Duration::ZERO, Duration::hours(<span class="number">12</span>)),
                         state.max_biking_time,
                         Duration::minutes(<span class="number">1</span>),
                     ),
                 ]),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Max distance&quot;</span>.text_widget(ctx).centered_vert(),
+                    <span class="string">"Max distance"</span>.text_widget(ctx).centered_vert(),
                     Spinner::widget(
                         ctx,
-                        <span class="string">&quot;max_distance&quot;</span>,
+                        <span class="string">"max_distance"</span>,
                         (Distance::ZERO, Distance::miles(<span class="number">20.0</span>)),
                         state.max_distance,
                         Distance::miles(<span class="number">0.1</span>),
                     ),
                 ]),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Max elevation gain&quot;</span>.text_widget(ctx).centered_vert(),
+                    <span class="string">"Max elevation gain"</span>.text_widget(ctx).centered_vert(),
                     Spinner::widget(
                         ctx,
-                        <span class="string">&quot;max_elevation_gain&quot;</span>,
+                        <span class="string">"max_elevation_gain"</span>,
                         (Distance::ZERO, Distance::feet(<span class="number">500.0</span>)),
                         state.max_elevation_gain,
                         Distance::feet(<span class="number">10.0</span>),
@@ -557,10 +559,10 @@
             .evenly_spaced()
         }),
         from_controls: Box::new(|panel| Filters {
-            max_driving_time: panel.spinner(<span class="string">&quot;max_driving_time&quot;</span>),
-            max_biking_time: panel.spinner(<span class="string">&quot;max_biking_time&quot;</span>),
-            max_distance: panel.spinner(<span class="string">&quot;max_distance&quot;</span>),
-            max_elevation_gain: panel.spinner(<span class="string">&quot;max_elevation_gain&quot;</span>),
+            max_driving_time: panel.spinner(<span class="string">"max_driving_time"</span>),
+            max_biking_time: panel.spinner(<span class="string">"max_biking_time"</span>),
+            max_distance: panel.spinner(<span class="string">"max_distance"</span>),
+            max_elevation_gain: panel.spinner(<span class="string">"max_elevation_gain"</span>),
         }),
         apply: Box::new(|state, x, <span class="kw">_</span>| {
             x.estimated_driving_time &lt;= state.max_driving_time
@@ -571,15 +573,15 @@
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>table = Table::new(
-        <span class="string">&quot;mode_shift&quot;</span>,
+        <span class="string">"mode_shift"</span>,
         produce_raw_data(ctx, app),
         Box::new(|x| x.trip.<span class="number">0</span>.to_string()),
-        <span class="string">&quot;Estimated driving time&quot;</span>,
+        <span class="string">"Estimated driving time"</span>,
         filter,
     );
-    table.static_col(<span class="string">&quot;Trip ID&quot;</span>, Box::new(|x| x.trip.<span class="number">0</span>.to_string()));
+    table.static_col(<span class="string">"Trip ID"</span>, Box::new(|x| x.trip.<span class="number">0</span>.to_string()));
     table.column(
-        <span class="string">&quot;Estimated driving time&quot;</span>,
+        <span class="string">"Estimated driving time"</span>,
         Box::new(|ctx, app, x| {
             Text::from(x.estimated_driving_time.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)
         }),
@@ -588,7 +590,7 @@
         })),
     );
     table.column(
-        <span class="string">&quot;Estimated biking time&quot;</span>,
+        <span class="string">"Estimated biking time"</span>,
         Box::new(|ctx, app, x| {
             Text::from(x.estimated_biking_time.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)
         }),
@@ -597,15 +599,15 @@
         })),
     );
     table.column(
-        <span class="string">&quot;Distance&quot;</span>,
+        <span class="string">"Distance"</span>,
         Box::new(|ctx, app, x| Text::from(x.distance.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.distance))),
     );
     table.column(
-        <span class="string">&quot;Elevation gain/loss&quot;</span>,
+        <span class="string">"Elevation gain/loss"</span>,
         Box::new(|ctx, app, x| {
             Text::from(<span class="macro">format!</span>(
-                <span class="string">&quot;Up {}, down {}&quot;</span>,
+                <span class="string">"Up {}, down {}"</span>,
                 x.total_elevation_gain.to_string(<span class="kw-2">&amp;</span>app.opts.units),
                 x.total_elevation_loss.to_string(<span class="kw-2">&amp;</span>app.opts.units)
             ))
@@ -619,11 +621,11 @@
 }
 
 <span class="kw">fn </span>show_route_gaps(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, table: <span class="kw-2">&amp;</span>Table&lt;App, Entry, Filters&gt;) -&gt; Drawable {
-    ctx.loading_screen(<span class="string">&quot;calculate all routes&quot;</span>, |ctx, timer| {
+    ctx.loading_screen(<span class="string">"calculate all routes"</span>, |ctx, timer| {
         <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
         <span class="kw">let </span>sim = <span class="kw-2">&amp;</span>app.primary.sim;
 
-        <span class="comment">// Find all high-stress roads, since we&#39;ll filter by them next
+        <span class="comment">// Find all high-stress roads, since we'll filter by them next
         </span><span class="kw">let </span><span class="kw-2">mut </span>high_stress = HashSet::new();
         <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
             <span class="kw">for </span>dr <span class="kw">in </span>r.id.both_directions() {
@@ -635,7 +637,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>road_counter = Counter::new();
         <span class="kw">for </span>path <span class="kw">in </span>timer
-            .parallelize(<span class="string">&quot;calculate routes&quot;</span>, table.get_filtered_data(app), |entry| {
+            .parallelize(<span class="string">"calculate routes"</span>, table.get_filtered_data(app), |entry| {
                 <span class="kw">let </span>info = sim.trip_info(entry.trip);
                 TripEndpoint::path_req(info.start, info.end, TripMode::Bike, map)
                     .and_then(|req| map.pathfind_v2(req).ok())

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/extract.rs`."><title>extract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="convert_osm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/extract.rs`."><title>extract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="convert_osm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../convert_osm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -453,7 +455,7 @@
     <span class="kw">pub </span>osm: OsmExtract,
     <span class="kw">pub </span>doc: streets_reader::osm_reader::Document,
     <span class="kw">pub </span>bus_routes_on_roads: MultiMap&lt;WayID, String&gt;,
-    <span class="doccomment">/// Crossings located at these points, which should be on a Road&#39;s center line
+    <span class="doccomment">/// Crossings located at these points, which should be on a Road's center line
     </span><span class="kw">pub </span>crossing_nodes: HashSet&lt;(HashablePt2D, CrossingType)&gt;,
     <span class="doccomment">/// Some kind of barrier nodes at these points.
     </span><span class="kw">pub </span>barrier_nodes: Vec&lt;(osm::NodeID, HashablePt2D)&gt;,
@@ -474,10 +476,10 @@
         timer,
     )
     .unwrap();
-    <span class="comment">// If GPSBounds aren&#39;t provided above, they&#39;ll be computed in the Document
+    <span class="comment">// If GPSBounds aren't provided above, they'll be computed in the Document
     </span>map.streets.gps_bounds = doc.gps_bounds.clone().unwrap();
 
-    timer.start(<span class="string">&quot;clip OSM document to boundary&quot;</span>);
+    timer.start(<span class="string">"clip OSM document to boundary"</span>);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(pts) = clip_pts {
         map.streets.boundary_polygon = Ring::deduping_new(map.streets.gps_bounds.convert(<span class="kw-2">&amp;</span>pts))
             .unwrap()
@@ -487,7 +489,7 @@
         map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();
         <span class="comment">// No need to clip the Document in this case.
     </span>}
-    timer.stop(<span class="string">&quot;clip OSM document to boundary&quot;</span>);
+    timer.stop(<span class="string">"clip OSM document to boundary"</span>);
 
     streets_reader::detect_country_code(<span class="kw-2">&amp;mut </span>map.streets);
 
@@ -498,17 +500,17 @@
     <span class="kw">let </span><span class="kw-2">mut </span>barrier_nodes = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>extra_pois = Vec::new();
 
-    timer.start_iter(<span class="string">&quot;processing OSM nodes&quot;</span>, doc.nodes.len());
+    timer.start_iter(<span class="string">"processing OSM nodes"</span>, doc.nodes.len());
     <span class="kw">for </span>(id, node) <span class="kw">in </span><span class="kw-2">&amp;</span>doc.nodes {
         timer.next();
         out.handle_node(<span class="kw-2">*</span>id, node);
         <span class="kw">for </span>amenity <span class="kw">in </span>get_bldg_amenities(<span class="kw-2">&amp;</span>node.tags) {
             amenity_points.push((node.pt, amenity));
         }
-        <span class="kw">if </span>node.tags.is(osm::HIGHWAY, <span class="string">&quot;crossing&quot;</span>) {
+        <span class="kw">if </span>node.tags.is(osm::HIGHWAY, <span class="string">"crossing"</span>) {
             <span class="comment">// TODO Look for crossing:signals:* too.
             // https://wiki.openstreetmap.org/wiki/Tag:crossing=traffic%20signals?uselang=en
-            </span><span class="kw">let </span>kind = <span class="kw">if </span>node.tags.is(<span class="string">&quot;crossing&quot;</span>, <span class="string">&quot;traffic_signals&quot;</span>) {
+            </span><span class="kw">let </span>kind = <span class="kw">if </span>node.tags.is(<span class="string">"crossing"</span>, <span class="string">"traffic_signals"</span>) {
                 CrossingType::Signalized
             } <span class="kw">else </span>{
                 CrossingType::Unsignalized
@@ -516,21 +518,21 @@
             crossing_nodes.insert((node.pt.to_hashable(), kind));
         }
         <span class="comment">// TODO Any kind of barrier?
-        </span><span class="kw">if </span>node.tags.is(<span class="string">&quot;barrier&quot;</span>, <span class="string">&quot;bollard&quot;</span>) {
+        </span><span class="kw">if </span>node.tags.is(<span class="string">"barrier"</span>, <span class="string">"bollard"</span>) {
             barrier_nodes.push((<span class="kw-2">*</span>id, node.pt.to_hashable()));
         }
 
-        <span class="kw">if </span>node.tags.is(<span class="string">&quot;railway&quot;</span>, <span class="string">&quot;station&quot;</span>) {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(network) = node.tags.get(<span class="string">&quot;network&quot;</span>) {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = node.tags.get(<span class="string">&quot;name&quot;</span>) {
+        <span class="kw">if </span>node.tags.is(<span class="string">"railway"</span>, <span class="string">"station"</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(network) = node.tags.get(<span class="string">"network"</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = node.tags.get(<span class="string">"name"</span>) {
                     <span class="comment">// network can be ; separated, like
                     // https://www.openstreetmap.org/node/3663368460
-                    </span><span class="kw">if </span>network.contains(<span class="string">&quot;London Underground&quot;</span>) {
+                    </span><span class="kw">if </span>network.contains(<span class="string">"London Underground"</span>) {
                         extra_pois.push(ExtraPOI {
                             pt: node.pt,
                             kind: ExtraPOIType::LondonUndergroundStation(name.to_string()),
                         });
-                    } <span class="kw">else if </span>network.contains(<span class="string">&quot;National Rail&quot;</span>) {
+                    } <span class="kw">else if </span>network.contains(<span class="string">"National Rail"</span>) {
                         extra_pois.push(ExtraPOI {
                             pt: node.pt,
                             kind: ExtraPOIType::NationalRailStation(name.to_string()),
@@ -544,17 +546,17 @@
     <span class="kw">let </span><span class="kw-2">mut </span>coastline_groups: Vec&lt;(WayID, Vec&lt;Pt2D&gt;)&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>memorial_areas: Vec&lt;Polygon&gt; = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>amenity_areas: Vec&lt;(Polygon, Amenity)&gt; = Vec::new();
-    timer.start_iter(<span class="string">&quot;processing OSM ways&quot;</span>, doc.ways.len());
+    timer.start_iter(<span class="string">"processing OSM ways"</span>, doc.ways.len());
     <span class="kw">for </span>(id, way) <span class="kw">in </span><span class="kw-2">&amp;mut </span>doc.ways {
         timer.next();
         <span class="kw">let </span>id = <span class="kw-2">*</span>id;
 
         <span class="kw">if </span>out.handle_way(id, <span class="kw-2">&amp;</span>way, <span class="kw-2">&amp;</span>opts.map_config) {
             <span class="kw">continue</span>;
-        } <span class="kw">else if </span>way.tags.is(osm::HIGHWAY, <span class="string">&quot;service&quot;</span>) {
-            <span class="comment">// If we got here, is_road didn&#39;t interpret it as a normal road
+        } <span class="kw">else if </span>way.tags.is(osm::HIGHWAY, <span class="string">"service"</span>) {
+            <span class="comment">// If we got here, is_road didn't interpret it as a normal road
             </span>map.parking_aisles.push((id, way.pts.clone()));
-        } <span class="kw">else if </span>way.tags.is(<span class="string">&quot;natural&quot;</span>, <span class="string">&quot;coastline&quot;</span>) &amp;&amp; !way.tags.is(<span class="string">&quot;place&quot;</span>, <span class="string">&quot;island&quot;</span>) {
+        } <span class="kw">else if </span>way.tags.is(<span class="string">"natural"</span>, <span class="string">"coastline"</span>) &amp;&amp; !way.tags.is(<span class="string">"place"</span>, <span class="string">"island"</span>) {
             coastline_groups.push((id, way.pts.clone()));
             <span class="kw">continue</span>;
         }
@@ -586,18 +588,18 @@
                 polygon,
                 osm_tags: way.tags.clone(),
             });
-        } <span class="kw">else if </span>way.tags.is(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
+        } <span class="kw">else if </span>way.tags.is(<span class="string">"amenity"</span>, <span class="string">"parking"</span>) {
             map.parking_lots.push(RawParkingLot {
                 osm_id: OsmID::Way(id),
                 polygon,
                 osm_tags: way.tags.clone(),
             });
-        } <span class="kw">else if </span>way.tags.is(<span class="string">&quot;historic&quot;</span>, <span class="string">&quot;memorial&quot;</span>) {
+        } <span class="kw">else if </span>way.tags.is(<span class="string">"historic"</span>, <span class="string">"memorial"</span>) {
             memorial_areas.push(polygon);
-        } <span class="kw">else if </span>way.tags.contains_key(<span class="string">&quot;amenity&quot;</span>) {
+        } <span class="kw">else if </span>way.tags.contains_key(<span class="string">"amenity"</span>) {
             <span class="kw">let </span>amenity = Amenity {
                 names: NamePerLanguage::new(<span class="kw-2">&amp;</span>way.tags).unwrap_or_else(NamePerLanguage::unnamed),
-                amenity_type: way.tags.get(<span class="string">&quot;amenity&quot;</span>).unwrap().clone(),
+                amenity_type: way.tags.get(<span class="string">"amenity"</span>).unwrap().clone(),
                 osm_tags: way.tags.clone(),
             };
             amenity_areas.push((polygon, amenity));
@@ -606,7 +608,7 @@
 
     <span class="kw">let </span>boundary = map.streets.boundary_polygon.get_outer_ring();
 
-    timer.start_iter(<span class="string">&quot;processing OSM relations&quot;</span>, doc.relations.len());
+    timer.start_iter(<span class="string">"processing OSM relations"</span>, doc.relations.len());
     <span class="kw">for </span>(id, rel) <span class="kw">in </span><span class="kw-2">&amp;</span>doc.relations {
         timer.next();
         <span class="kw">let </span>id = <span class="kw-2">*</span>id;
@@ -614,7 +616,7 @@
         <span class="kw">if </span>out.handle_relation(id, rel) {
             <span class="kw">continue</span>;
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(area_type) = get_area_type(<span class="kw-2">&amp;</span>rel.tags) {
-            <span class="kw">if </span>rel.tags.is(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) {
+            <span class="kw">if </span>rel.tags.is(<span class="string">"type"</span>, <span class="string">"multipolygon"</span>) {
                 <span class="kw">for </span>polygon <span class="kw">in
                     </span>glue_multipolygon(id, doc.get_multipolygon_members(id, rel), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>boundary))
                 {
@@ -642,9 +644,9 @@
                         );
                     }
                 }
-                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">println!</span>(<span class="string">&quot;Skipping building {}: {}&quot;</span>, id, err),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">println!</span>(<span class="string">"Skipping building {}: {}"</span>, id, err),
             }
-        } <span class="kw">else if </span>rel.tags.is(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
+        } <span class="kw">else if </span>rel.tags.is(<span class="string">"amenity"</span>, <span class="string">"parking"</span>) {
             <span class="kw">for </span>polygon <span class="kw">in
                 </span>glue_multipolygon(id, doc.get_multipolygon_members(id, rel), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>boundary))
             {
@@ -654,14 +656,14 @@
                     osm_tags: rel.tags.clone(),
                 });
             }
-        } <span class="kw">else if </span>rel.tags.is(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) &amp;&amp; rel.tags.contains_key(<span class="string">&quot;amenity&quot;</span>) {
+        } <span class="kw">else if </span>rel.tags.is(<span class="string">"type"</span>, <span class="string">"multipolygon"</span>) &amp;&amp; rel.tags.contains_key(<span class="string">"amenity"</span>) {
             <span class="kw">let </span>amenity = Amenity {
                 names: NamePerLanguage::new(<span class="kw-2">&amp;</span>rel.tags).unwrap_or_else(NamePerLanguage::unnamed),
-                amenity_type: rel.tags.get(<span class="string">&quot;amenity&quot;</span>).unwrap().clone(),
+                amenity_type: rel.tags.get(<span class="string">"amenity"</span>).unwrap().clone(),
                 osm_tags: rel.tags.clone(),
             };
             <span class="kw">for </span>(role, member) <span class="kw">in </span><span class="kw-2">&amp;</span>rel.members {
-                <span class="kw">if </span>role != <span class="string">&quot;outer&quot; </span>{
+                <span class="kw">if </span>role != <span class="string">"outer" </span>{
                     <span class="kw">continue</span>;
                 }
                 <span class="kw">if let </span>OsmID::Way(w) = member {
@@ -674,8 +676,8 @@
                     }
                 }
             }
-        } <span class="kw">else if </span>rel.tags.is(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;route&quot;</span>) &amp;&amp; rel.tags.is(<span class="string">&quot;route&quot;</span>, <span class="string">&quot;bus&quot;</span>) {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = rel.tags.get(<span class="string">&quot;name&quot;</span>) {
+        } <span class="kw">else if </span>rel.tags.is(<span class="string">"type"</span>, <span class="string">"route"</span>) &amp;&amp; rel.tags.is(<span class="string">"route"</span>, <span class="string">"bus"</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = rel.tags.get(<span class="string">"name"</span>) {
                 <span class="kw">for </span>(role, member) <span class="kw">in </span><span class="kw-2">&amp;</span>rel.members {
                     <span class="kw">if let </span>OsmID::Way(w) = member {
                         <span class="kw">if </span>role.is_empty() {
@@ -690,8 +692,8 @@
     <span class="comment">// Special case the coastline.
     </span><span class="kw">for </span>polygon <span class="kw">in </span>glue_multipolygon(RelationID(-<span class="number">1</span>), coastline_groups, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>boundary)) {
         <span class="kw">let </span><span class="kw-2">mut </span>osm_tags = Tags::empty();
-        osm_tags.insert(<span class="string">&quot;water&quot;</span>, <span class="string">&quot;ocean&quot;</span>);
-        <span class="comment">// Put it at the beginning, so that it&#39;s naturally beneath island areas
+        osm_tags.insert(<span class="string">"water"</span>, <span class="string">"ocean"</span>);
+        <span class="comment">// Put it at the beginning, so that it's naturally beneath island areas
         </span>map.areas.insert(
             <span class="number">0</span>,
             RawArea {
@@ -703,8 +705,8 @@
         );
     }
 
-    <span class="comment">// Berlin has lots of &quot;buildings&quot; mapped in the Holocaust-Mahnmal. Filter them out.
-    </span>timer.start_iter(<span class="string">&quot;match buildings to memorial areas&quot;</span>, memorial_areas.len());
+    <span class="comment">// Berlin has lots of "buildings" mapped in the Holocaust-Mahnmal. Filter them out.
+    </span>timer.start_iter(<span class="string">"match buildings to memorial areas"</span>, memorial_areas.len());
     <span class="kw">for </span>area <span class="kw">in </span>memorial_areas {
         timer.next();
         map.buildings
@@ -716,7 +718,7 @@
         closest_bldg.add_polygon(<span class="kw-2">*</span>id, <span class="kw-2">&amp;</span>b.polygon);
     }
 
-    timer.start_iter(<span class="string">&quot;match building amenities&quot;</span>, amenity_points.len());
+    timer.start_iter(<span class="string">"match building amenities"</span>, amenity_points.len());
     <span class="kw">for </span>(pt, amenity) <span class="kw">in </span>amenity_points {
         timer.next();
         <span class="kw">if let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = closest_bldg.closest_pt(pt, Distance::meters(<span class="number">50.0</span>)) {
@@ -727,7 +729,7 @@
         }
     }
 
-    timer.start_iter(<span class="string">&quot;match buildings to amenity areas&quot;</span>, amenity_areas.len());
+    timer.start_iter(<span class="string">"match buildings to amenity areas"</span>, amenity_areas.len());
     <span class="kw">for </span>(poly, amenity) <span class="kw">in </span>amenity_areas {
         timer.next();
         <span class="kw">for </span>b <span class="kw">in </span>closest_bldg.all_points_inside(<span class="kw-2">&amp;</span>poly) {
@@ -740,19 +742,19 @@
     }
 
     <span class="comment">// Hack to fix z-ordering for Green Lake (and probably other places). Put water and islands
-    // last. I think the more proper fix is interpreting &quot;inner&quot; roles in relations.
+    // last. I think the more proper fix is interpreting "inner" roles in relations.
     </span>map.areas.sort_by_key(|a| <span class="kw">match </span>a.area_type {
         AreaType::Island =&gt; <span class="number">2</span>,
         AreaType::Water =&gt; <span class="number">1</span>,
         <span class="kw">_ </span>=&gt; <span class="number">0</span>,
     });
 
-    timer.start(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
-    <span class="comment">// TODO Something&#39;s crashing in one map, no time to investigate
-    </span><span class="kw">if </span>map.name != abstio::MapName::new(<span class="string">&quot;au&quot;</span>, <span class="string">&quot;melbourne&quot;</span>, <span class="string">&quot;maribyrnong&quot;</span>) {
+    timer.start(<span class="string">"find service roads crossing parking lots"</span>);
+    <span class="comment">// TODO Something's crashing in one map, no time to investigate
+    </span><span class="kw">if </span>map.name != abstio::MapName::new(<span class="string">"au"</span>, <span class="string">"melbourne"</span>, <span class="string">"maribyrnong"</span>) {
         find_parking_aisles(map, <span class="kw-2">&amp;mut </span>out.roads);
     }
-    timer.stop(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
+    timer.stop(<span class="string">"find service roads crossing parking lots"</span>);
 
     Extract {
         osm: out,
@@ -765,13 +767,13 @@
 }
 
 <span class="kw">fn </span>is_bldg(tags: <span class="kw-2">&amp;</span>Tags) -&gt; bool {
-    <span class="comment">// Sorry, the towers at Gasworks don&#39;t count. :)
-    </span>tags.contains_key(<span class="string">&quot;building&quot;</span>) &amp;&amp; !tags.contains_key(<span class="string">&quot;abandoned:man_made&quot;</span>)
+    <span class="comment">// Sorry, the towers at Gasworks don't count. :)
+    </span>tags.contains_key(<span class="string">"building"</span>) &amp;&amp; !tags.contains_key(<span class="string">"abandoned:man_made"</span>)
 }
 
 <span class="kw">fn </span>get_bldg_amenities(tags: <span class="kw-2">&amp;</span>Tags) -&gt; Vec&lt;Amenity&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>amenities = Vec::new();
-    <span class="kw">for </span>key <span class="kw">in </span>[<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;shop&quot;</span>, <span class="string">&quot;craft&quot;</span>, <span class="string">&quot;office&quot;</span>, <span class="string">&quot;tourism&quot;</span>, <span class="string">&quot;leisure&quot;</span>] {
+    <span class="kw">for </span>key <span class="kw">in </span>[<span class="string">"amenity"</span>, <span class="string">"shop"</span>, <span class="string">"craft"</span>, <span class="string">"office"</span>, <span class="string">"tourism"</span>, <span class="string">"leisure"</span>] {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(amenity) = tags.get(key) {
             amenities.push(Amenity {
                 names: NamePerLanguage::new(tags).unwrap_or_else(NamePerLanguage::unnamed),
@@ -784,33 +786,33 @@
 }
 
 <span class="kw">fn </span>get_area_type(tags: <span class="kw-2">&amp;</span>Tags) -&gt; <span class="prelude-ty">Option</span>&lt;AreaType&gt; {
-    <span class="kw">if </span>tags.is_any(<span class="string">&quot;leisure&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;garden&quot;</span>, <span class="string">&quot;park&quot;</span>, <span class="string">&quot;golf_course&quot;</span>]) {
+    <span class="kw">if </span>tags.is_any(<span class="string">"leisure"</span>, <span class="macro">vec!</span>[<span class="string">"garden"</span>, <span class="string">"park"</span>, <span class="string">"golf_course"</span>]) {
         <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Park);
     }
-    <span class="kw">if </span>tags.is_any(<span class="string">&quot;natural&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;wood&quot;</span>, <span class="string">&quot;scrub&quot;</span>]) {
+    <span class="kw">if </span>tags.is_any(<span class="string">"natural"</span>, <span class="macro">vec!</span>[<span class="string">"wood"</span>, <span class="string">"scrub"</span>]) {
         <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Park);
     }
     <span class="kw">if </span>tags.is_any(
-        <span class="string">&quot;landuse&quot;</span>,
+        <span class="string">"landuse"</span>,
         <span class="macro">vec!</span>[
-            <span class="string">&quot;cemetery&quot;</span>,
-            <span class="string">&quot;flowerbed&quot;</span>,
-            <span class="string">&quot;forest&quot;</span>,
-            <span class="string">&quot;grass&quot;</span>,
-            <span class="string">&quot;meadow&quot;</span>,
-            <span class="string">&quot;recreation_ground&quot;</span>,
-            <span class="string">&quot;village_green&quot;</span>,
+            <span class="string">"cemetery"</span>,
+            <span class="string">"flowerbed"</span>,
+            <span class="string">"forest"</span>,
+            <span class="string">"grass"</span>,
+            <span class="string">"meadow"</span>,
+            <span class="string">"recreation_ground"</span>,
+            <span class="string">"village_green"</span>,
         ],
-    ) || tags.is(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;graveyard&quot;</span>)
+    ) || tags.is(<span class="string">"amenity"</span>, <span class="string">"graveyard"</span>)
     {
         <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Park);
     }
 
-    <span class="kw">if </span>tags.is(<span class="string">&quot;natural&quot;</span>, <span class="string">&quot;water&quot;</span>) || tags.is(<span class="string">&quot;waterway&quot;</span>, <span class="string">&quot;riverbank&quot;</span>) {
+    <span class="kw">if </span>tags.is(<span class="string">"natural"</span>, <span class="string">"water"</span>) || tags.is(<span class="string">"waterway"</span>, <span class="string">"riverbank"</span>) {
         <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Water);
     }
 
-    <span class="kw">if </span>tags.is(<span class="string">&quot;place&quot;</span>, <span class="string">&quot;island&quot;</span>) {
+    <span class="kw">if </span>tags.is(<span class="string">"place"</span>, <span class="string">"island"</span>) {
         <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Island);
     }
 
@@ -827,7 +829,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>keep_roads = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>parking_aisles = Vec::new();
     <span class="kw">for </span>(id, pts, osm_tags) <span class="kw">in </span>roads.drain(..) {
-        <span class="kw">if </span>!osm_tags.is(osm::HIGHWAY, <span class="string">&quot;service&quot;</span>) {
+        <span class="kw">if </span>!osm_tags.is(osm::HIGHWAY, <span class="string">"service"</span>) {
             keep_roads.push((id, pts, osm_tags));
             <span class="kw">continue</span>;
         }

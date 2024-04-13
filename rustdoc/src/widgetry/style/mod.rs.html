@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/style/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/style/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -265,15 +267,15 @@
 
 <span class="kw">pub static </span>DEFAULT_OUTLINE_THICKNESS: f64 = <span class="number">2.0</span>;
 
-<span class="comment">// This is #EE702E, called &quot;ab_orange_1&quot; in Figma
+<span class="comment">// This is #EE702E, called "ab_orange_1" in Figma
 </span><span class="kw">const </span>AB_ORANGE_1: Color = Color::rgb_f(<span class="number">0.933</span>, <span class="number">0.439</span>, <span class="number">0.18</span>);
 
 <span class="comment">// Some ButtonStyles are shared across Styles
 </span><span class="kw">impl </span>ButtonStyle {
     <span class="kw">pub fn </span>solid_dark_fg() -&gt; <span class="self">Self </span>{
         ButtonStyle {
-            fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.3</span>),
+            fg: hex(<span class="string">"#4C4C4C"</span>),
+            fg_disabled: hex(<span class="string">"#4C4C4C"</span>).alpha(<span class="number">0.3</span>),
             bg: Color::WHITE.alpha(<span class="number">0.8</span>),
             bg_hover: Color::WHITE,
             bg_disabled: Color::grey(<span class="number">0.8</span>),
@@ -283,21 +285,21 @@
 
     <span class="kw">pub fn </span>outline_dark_fg() -&gt; <span class="self">Self </span>{
         ButtonStyle {
-            fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.3</span>),
+            fg: hex(<span class="string">"#4C4C4C"</span>),
+            fg_disabled: hex(<span class="string">"#4C4C4C"</span>).alpha(<span class="number">0.3</span>),
             bg: Color::CLEAR,
-            bg_hover: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_hover: hex(<span class="string">"#4C4C4C"</span>).alpha(<span class="number">0.1</span>),
             bg_disabled: Color::CLEAR,
-            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">&quot;#4C4C4C&quot;</span>)),
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">"#4C4C4C"</span>)),
         }
     }
 
     <span class="kw">pub fn </span>plain_dark_fg() -&gt; <span class="self">Self </span>{
         ButtonStyle {
-            fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.3</span>),
+            fg: hex(<span class="string">"#4C4C4C"</span>),
+            fg_disabled: hex(<span class="string">"#4C4C4C"</span>).alpha(<span class="number">0.3</span>),
             bg: Color::CLEAR,
-            bg_hover: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_hover: hex(<span class="string">"#4C4C4C"</span>).alpha(<span class="number">0.1</span>),
             bg_disabled: Color::CLEAR,
             outline: (<span class="number">0.0</span>, Color::CLEAR),
         }
@@ -305,32 +307,32 @@
 
     <span class="kw">pub fn </span>solid_light_fg() -&gt; <span class="self">Self </span>{
         ButtonStyle {
-            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.3</span>),
-            bg: hex(<span class="string">&quot;#003046&quot;</span>).alpha(<span class="number">0.8</span>),
-            bg_hover: hex(<span class="string">&quot;#003046&quot;</span>),
+            fg: hex(<span class="string">"#F2F2F2"</span>),
+            fg_disabled: hex(<span class="string">"#F2F2F2"</span>).alpha(<span class="number">0.3</span>),
+            bg: hex(<span class="string">"#003046"</span>).alpha(<span class="number">0.8</span>),
+            bg_hover: hex(<span class="string">"#003046"</span>),
             bg_disabled: Color::grey(<span class="number">0.1</span>),
-            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">&quot;#003046&quot;</span>).alpha(<span class="number">0.6</span>)),
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">"#003046"</span>).alpha(<span class="number">0.6</span>)),
         }
     }
 
     <span class="kw">pub fn </span>outline_light_fg() -&gt; <span class="self">Self </span>{
         ButtonStyle {
-            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.3</span>),
+            fg: hex(<span class="string">"#F2F2F2"</span>),
+            fg_disabled: hex(<span class="string">"#F2F2F2"</span>).alpha(<span class="number">0.3</span>),
             bg: Color::CLEAR,
-            bg_hover: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_hover: hex(<span class="string">"#F2F2F2"</span>).alpha(<span class="number">0.1</span>),
             bg_disabled: Color::CLEAR,
-            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">&quot;#F2F2F2&quot;</span>)),
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">"#F2F2F2"</span>)),
         }
     }
 
     <span class="kw">pub fn </span>plain_light_fg() -&gt; <span class="self">Self </span>{
         ButtonStyle {
-            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.3</span>),
+            fg: hex(<span class="string">"#F2F2F2"</span>),
+            fg_disabled: hex(<span class="string">"#F2F2F2"</span>).alpha(<span class="number">0.3</span>),
             bg: Color::CLEAR,
-            bg_hover: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_hover: hex(<span class="string">"#F2F2F2"</span>).alpha(<span class="number">0.1</span>),
             bg_disabled: Color::CLEAR,
             outline: (<span class="number">0.0</span>, Color::CLEAR),
         }
@@ -338,8 +340,8 @@
 
     <span class="kw">pub fn </span>solid_primary() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+            fg: hex(<span class="string">"#F2F2F2"</span>),
+            fg_disabled: hex(<span class="string">"#F2F2F2"</span>),
             bg: AB_ORANGE_1.tint(<span class="number">0.1</span>),
             bg_hover: AB_ORANGE_1,
             bg_disabled: AB_ORANGE_1.tint(<span class="number">0.3</span>),
@@ -360,21 +362,21 @@
 
     <span class="kw">fn </span>solid_destructive() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.3</span>),
-            bg: hex(<span class="string">&quot;#FF5E5E&quot;</span>).alpha(<span class="number">0.8</span>),
-            bg_hover: hex(<span class="string">&quot;#FF5E5E&quot;</span>),
+            fg: hex(<span class="string">"#F2F2F2"</span>),
+            fg_disabled: hex(<span class="string">"#F2F2F2"</span>).alpha(<span class="number">0.3</span>),
+            bg: hex(<span class="string">"#FF5E5E"</span>).alpha(<span class="number">0.8</span>),
+            bg_hover: hex(<span class="string">"#FF5E5E"</span>),
             bg_disabled: Color::grey(<span class="number">0.1</span>),
-            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">&quot;#FF5E5E&quot;</span>).alpha(<span class="number">0.6</span>)),
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">"#FF5E5E"</span>).alpha(<span class="number">0.6</span>)),
         }
     }
 
     <span class="kw">fn </span>plain_destructive() -&gt; ButtonStyle {
         <span class="self">Self </span>{
-            fg: hex(<span class="string">&quot;#FF5E5E&quot;</span>),
-            fg_disabled: hex(<span class="string">&quot;#FF5E5E&quot;</span>).alpha(<span class="number">0.3</span>),
+            fg: hex(<span class="string">"#FF5E5E"</span>),
+            fg_disabled: hex(<span class="string">"#FF5E5E"</span>).alpha(<span class="number">0.3</span>),
             bg: Color::CLEAR,
-            bg_hover: hex(<span class="string">&quot;#FF5E5E&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_hover: hex(<span class="string">"#FF5E5E"</span>).alpha(<span class="number">0.1</span>),
             bg_disabled: Color::CLEAR,
             outline: (<span class="number">0.0</span>, Color::CLEAR),
         }
@@ -387,27 +389,27 @@
             <span class="comment">// shade panel_bg a bit to increase contrast vs. the section_bg, otherwise
             // the section (and tabs) can be hard to distinguish
             </span>panel_bg: Color::WHITE.shade(<span class="number">0.03</span>).alpha(<span class="number">0.95</span>),
-            field_bg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
-            dropdown_border: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+            field_bg: hex(<span class="string">"#F2F2F2"</span>),
+            dropdown_border: hex(<span class="string">"#4C4C4C"</span>),
             <span class="comment">// TODO: replace inner_panel_bg with this
             </span>section_bg: Color::WHITE,
             section_outline: (<span class="number">2.0</span>, Color::WHITE.shade(<span class="number">0.1</span>)),
             loading_tips: Text::new(),
-            icon_fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+            icon_fg: hex(<span class="string">"#4C4C4C"</span>),
             primary_fg: AB_ORANGE_1,
-            text_primary_color: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
-            text_secondary_color: hex(<span class="string">&quot;#4C4C4C&quot;</span>).tint(<span class="number">0.2</span>),
+            text_primary_color: hex(<span class="string">"#4C4C4C"</span>),
+            text_secondary_color: hex(<span class="string">"#4C4C4C"</span>).tint(<span class="number">0.2</span>),
             text_hotkey_color: AB_ORANGE_1,
             text_tooltip_color: Color::WHITE,
-            text_destructive_color: hex(<span class="string">&quot;#FF5E5E&quot;</span>),
+            text_destructive_color: hex(<span class="string">"#FF5E5E"</span>),
             btn_outline: ButtonStyle::outline_dark_fg(),
             btn_solid: ButtonStyle::solid_light_fg(),
             btn_plain: ButtonStyle::plain_dark_fg(),
             btn_tab: ButtonStyle {
-                fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>).tint(<span class="number">0.2</span>),
-                fg_disabled: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+                fg: hex(<span class="string">"#4C4C4C"</span>).tint(<span class="number">0.2</span>),
+                fg_disabled: hex(<span class="string">"#4C4C4C"</span>),
                 bg: Color::CLEAR,
-                bg_hover: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.1</span>),
+                bg_hover: hex(<span class="string">"#4C4C4C"</span>).alpha(<span class="number">0.1</span>),
                 bg_disabled: Color::WHITE,
                 outline: (<span class="number">0.0</span>, Color::CLEAR),
             },
@@ -420,7 +422,7 @@
     }
 
     <span class="kw">pub fn </span>dark_bg() -&gt; Style {
-        <span class="kw">let </span>navy = hex(<span class="string">&quot;#003046&quot;</span>);
+        <span class="kw">let </span>navy = hex(<span class="string">"#003046"</span>);
         Style {
             <span class="comment">// tint panel_bg a bit to increase contrast vs. the section_bg, otherwise
             // the section (and tabs) can be hard to distinguish
@@ -437,15 +439,15 @@
             text_secondary_color: Color::WHITE.shade(<span class="number">0.2</span>),
             text_hotkey_color: Color::GREEN,
             text_tooltip_color: Color::WHITE,
-            text_destructive_color: hex(<span class="string">&quot;#FF5E5E&quot;</span>),
+            text_destructive_color: hex(<span class="string">"#FF5E5E"</span>),
             btn_outline: ButtonStyle::outline_light_fg(),
             btn_solid: ButtonStyle::solid_dark_fg(),
             btn_plain: ButtonStyle::plain_light_fg(),
             btn_tab: ButtonStyle {
-                fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>).shade(<span class="number">0.4</span>),
-                fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+                fg: hex(<span class="string">"#F2F2F2"</span>).shade(<span class="number">0.4</span>),
+                fg_disabled: hex(<span class="string">"#F2F2F2"</span>),
                 bg: Color::CLEAR,
-                bg_hover: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.1</span>),
+                bg_hover: hex(<span class="string">"#F2F2F2"</span>).alpha(<span class="number">0.1</span>),
                 bg_disabled: navy,
                 outline: (<span class="number">0.0</span>, Color::CLEAR),
             },

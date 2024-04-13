@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/osm_viewer/src/viewer.rs`."><title>viewer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="osm_viewer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/osm_viewer/src/viewer.rs`."><title>viewer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="osm_viewer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../osm_viewer/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -504,8 +506,8 @@
         Box::new(viewer)
     }
 
-    <span class="comment">// widgetry panels have a bug currently and don&#39;t detect changes to the dimensions of contents,
-    // so we can&#39;t use replace() without messing up scrollbars.
+    <span class="comment">// widgetry panels have a bug currently and don't detect changes to the dimensions of contents,
+    // so we can't use replace() without messing up scrollbars.
     </span><span class="kw">fn </span>recalculate_top_panel(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
@@ -513,28 +515,28 @@
         biz_search_panel: <span class="prelude-ty">Option</span>&lt;Widget&gt;,
     ) {
         <span class="kw">let </span>top_panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            map_gui::tools::app_header(ctx, app, <span class="string">&quot;OpenStreetMap viewer&quot;</span>),
+            map_gui::tools::app_header(ctx, app, <span class="string">"OpenStreetMap viewer"</span>),
             Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;settings&quot;</span>),
+                    .icon(<span class="string">"system/assets/tools/settings.svg"</span>)
+                    .build_widget(ctx, <span class="string">"settings"</span>),
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/search.svg"</span>)
                     .hotkey(lctrl(Key::F))
-                    .build_widget(ctx, <span class="string">&quot;search&quot;</span>),
-                ctx.style().btn_plain.text(<span class="string">&quot;About&quot;</span>).build_def(ctx),
+                    .build_widget(ctx, <span class="string">"search"</span>),
+                ctx.style().btn_plain.text(<span class="string">"About"</span>).build_def(ctx),
             ]),
             Widget::horiz_separator(ctx, <span class="number">1.0</span>),
             <span class="self">self</span>.calculate_tags(ctx, app),
             Widget::horiz_separator(ctx, <span class="number">1.0</span>),
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>b) = <span class="self">self</span>.businesses {
-                biz_search_panel.unwrap_or_else(|| b.render(ctx).named(<span class="string">&quot;Search for businesses&quot;</span>))
+                biz_search_panel.unwrap_or_else(|| b.render(ctx).named(<span class="string">"Search for businesses"</span>))
             } <span class="kw">else </span>{
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Search for businesses&quot;</span>)
+                    .text(<span class="string">"Search for businesses"</span>)
                     .hotkey(Key::Tab)
                     .build_def(ctx)
             },
@@ -547,9 +549,9 @@
     <span class="kw">fn </span>calculate_tags(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
         <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
         <span class="kw">if </span><span class="self">self</span>.fixed_object_outline.is_some() {
-            col.push(<span class="string">&quot;Click something else to examine it&quot;</span>.text_widget(ctx));
+            col.push(<span class="string">"Click something else to examine it"</span>.text_widget(ctx));
         } <span class="kw">else </span>{
-            col.push(<span class="string">&quot;Click to examine&quot;</span>.text_widget(ctx));
+            col.push(<span class="string">"Click to examine"</span>.text_widget(ctx));
         }
 
         <span class="kw">match </span>app.current_selection {
@@ -559,12 +561,12 @@
                     Widget::row(<span class="macro">vec!</span>[
                         ctx.style()
                             .btn_outline
-                            .text(<span class="macro">format!</span>(<span class="string">&quot;Open OSM way {}&quot;</span>, r.orig_id.osm_way_id.<span class="number">0</span>))
-                            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, r.orig_id.osm_way_id)),
-                        ctx.style().btn_outline.text(<span class="string">&quot;Edit OSM way&quot;</span>).build_widget(
+                            .text(<span class="macro">format!</span>(<span class="string">"Open OSM way {}"</span>, r.orig_id.osm_way_id.<span class="number">0</span>))
+                            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"open {}"</span>, r.orig_id.osm_way_id)),
+                        ctx.style().btn_outline.text(<span class="string">"Edit OSM way"</span>).build_widget(
                             ctx,
                             <span class="macro">format!</span>(
-                                <span class="string">&quot;open https://www.openstreetmap.org/edit?way={}&quot;</span>,
+                                <span class="string">"open https://www.openstreetmap.org/edit?way={}"</span>,
                                 r.orig_id.osm_way_id.<span class="number">0
                             </span>),
                         ),
@@ -574,20 +576,20 @@
 
                 <span class="kw">let </span>tags = <span class="kw-2">&amp;</span>r.osm_tags;
                 <span class="kw">for </span>(k, v) <span class="kw">in </span>tags.inner() {
-                    <span class="kw">if </span>k.starts_with(<span class="string">&quot;abst:&quot;</span>) {
+                    <span class="kw">if </span>k.starts_with(<span class="string">"abst:"</span>) {
                         <span class="kw">continue</span>;
                     }
-                    <span class="kw">if </span>tags.contains_key(<span class="string">&quot;abst:parking_source&quot;</span>)
-                        &amp;&amp; (k == <span class="string">&quot;parking:lane:right&quot;
-                            </span>|| k == <span class="string">&quot;parking:lane:left&quot;
-                            </span>|| k == <span class="string">&quot;parking:lane:both&quot;</span>)
+                    <span class="kw">if </span>tags.contains_key(<span class="string">"abst:parking_source"</span>)
+                        &amp;&amp; (k == <span class="string">"parking:lane:right"
+                            </span>|| k == <span class="string">"parking:lane:left"
+                            </span>|| k == <span class="string">"parking:lane:both"</span>)
                     {
                         <span class="kw">continue</span>;
                     }
                     col.push(Widget::row(<span class="macro">vec!</span>[
                         ctx.style().btn_plain.text(k).build_widget(
                             ctx,
-                            <span class="macro">format!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, k),
+                            <span class="macro">format!</span>(<span class="string">"open https://wiki.openstreetmap.org/wiki/Key:{}"</span>, k),
                         ),
                         Line(v).into_widget(ctx).align_right(),
                     ]));
@@ -598,8 +600,8 @@
                 col.push(
                     ctx.style()
                         .btn_outline
-                        .text(<span class="macro">format!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, i.orig_id.<span class="number">0</span>))
-                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, i.orig_id)),
+                        .text(<span class="macro">format!</span>(<span class="string">"Open OSM node {}"</span>, i.orig_id.<span class="number">0</span>))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"open {}"</span>, i.orig_id)),
                 );
             }
             <span class="prelude-val">Some</span>(ID::Building(b)) =&gt; {
@@ -607,28 +609,28 @@
                 col.push(
                     ctx.style()
                         .btn_outline
-                        .text(<span class="macro">format!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, b.orig_id.inner_id()))
-                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, b.orig_id)),
+                        .text(<span class="macro">format!</span>(<span class="string">"Open OSM ID {}"</span>, b.orig_id.inner_id()))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"open {}"</span>, b.orig_id)),
                 );
 
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
-                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Address: {}&quot;</span>, b.address));
+                txt.add_line(<span class="macro">format!</span>(<span class="string">"Address: {}"</span>, b.address));
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>names) = b.name {
                     txt.add_line(<span class="macro">format!</span>(
-                        <span class="string">&quot;Name: {}&quot;</span>,
+                        <span class="string">"Name: {}"</span>,
                         names.get(app.opts.language.as_ref()).to_string()
                     ));
                 }
                 <span class="kw">if </span>!b.amenities.is_empty() {
-                    txt.add_line(<span class="string">&quot;&quot;</span>);
+                    txt.add_line(<span class="string">""</span>);
                     <span class="kw">if </span>b.amenities.len() == <span class="number">1 </span>{
-                        txt.add_line(<span class="string">&quot;1 amenity:&quot;</span>);
+                        txt.add_line(<span class="string">"1 amenity:"</span>);
                     } <span class="kw">else </span>{
-                        txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{} amenities:&quot;</span>, b.amenities.len()));
+                        txt.add_line(<span class="macro">format!</span>(<span class="string">"{} amenities:"</span>, b.amenities.len()));
                     }
                     <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span>b.amenities {
                         txt.add_line(<span class="macro">format!</span>(
-                            <span class="string">&quot;  {} ({})&quot;</span>,
+                            <span class="string">"  {} ({})"</span>,
                             a.names.get(app.opts.language.as_ref()),
                             a.amenity_type
                         ));
@@ -638,13 +640,13 @@
 
                 <span class="kw">if </span>!b.osm_tags.is_empty() {
                     <span class="kw">for </span>(k, v) <span class="kw">in </span>b.osm_tags.inner() {
-                        <span class="kw">if </span>k.starts_with(<span class="string">&quot;abst:&quot;</span>) {
+                        <span class="kw">if </span>k.starts_with(<span class="string">"abst:"</span>) {
                             <span class="kw">continue</span>;
                         }
                         col.push(Widget::row(<span class="macro">vec!</span>[
                             ctx.style().btn_plain.text(k).build_widget(
                                 ctx,
-                                <span class="macro">format!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, k),
+                                <span class="macro">format!</span>(<span class="string">"open https://wiki.openstreetmap.org/wiki/Key:{}"</span>, k),
                             ),
                             Line(v).into_widget(ctx).align_right(),
                         ]));
@@ -656,20 +658,20 @@
                 col.push(
                     ctx.style()
                         .btn_outline
-                        .text(<span class="macro">format!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, pl.osm_id.inner_id()))
-                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, pl.osm_id)),
+                        .text(<span class="macro">format!</span>(<span class="string">"Open OSM ID {}"</span>, pl.osm_id.inner_id()))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"open {}"</span>, pl.osm_id)),
                 );
 
                 col.push(
                     <span class="macro">format!</span>(
-                        <span class="string">&quot;Estimated parking spots: {}&quot;</span>,
+                        <span class="string">"Estimated parking spots: {}"</span>,
                         prettyprint_usize(pl.capacity())
                     )
                     .text_widget(ctx),
                 );
             }
             <span class="kw">_ </span>=&gt; {
-                col = <span class="macro">vec!</span>[<span class="string">&quot;Zoom in and select something to begin&quot;</span>.text_widget(ctx)];
+                col = <span class="macro">vec!</span>[<span class="string">"Zoom in and select something to begin"</span>.text_widget(ctx)];
             }
         }
         Widget::col(col)
@@ -687,7 +689,7 @@
             app.recalculate_current_selection(ctx);
 
             <span class="kw">if </span><span class="self">self</span>.fixed_object_outline.is_none() &amp;&amp; old_id != app.current_selection {
-                <span class="kw">let </span>biz_search = <span class="self">self</span>.top_panel.take(<span class="string">&quot;Search for businesses&quot;</span>);
+                <span class="kw">let </span>biz_search = <span class="self">self</span>.top_panel.take(<span class="string">"Search for businesses"</span>);
                 <span class="self">self</span>.recalculate_top_panel(ctx, app, <span class="prelude-val">Some</span>(biz_search));
             }
 
@@ -720,7 +722,7 @@
             } <span class="kw">else </span>{
                 <span class="self">self</span>.fixed_object_outline = <span class="prelude-val">None</span>;
             }
-            <span class="kw">let </span>biz_search = <span class="self">self</span>.top_panel.take(<span class="string">&quot;Search for businesses&quot;</span>);
+            <span class="kw">let </span>biz_search = <span class="self">self</span>.top_panel.take(<span class="string">"Search for businesses"</span>);
             <span class="self">self</span>.recalculate_top_panel(ctx, app, <span class="prelude-val">Some</span>(biz_search));
         }
 
@@ -730,7 +732,7 @@
 
         <span class="kw">match </span><span class="self">self</span>.top_panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Home&quot; </span>=&gt; {
+                <span class="string">"Home" </span>=&gt; {
                     <span class="kw">return </span>Transition::Clear(<span class="macro">vec!</span>[map_gui::tools::TitleScreen::new_state(
                         ctx,
                         app,
@@ -738,7 +740,7 @@
                         Box::new(|ctx, app, <span class="kw">_</span>| <span class="self">Self</span>::new_state(ctx, app)),
                     )]);
                 }
-                <span class="string">&quot;change map&quot; </span>=&gt; {
+                <span class="string">"change map" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
@@ -750,36 +752,36 @@
                         }),
                     ));
                 }
-                <span class="string">&quot;settings&quot; </span>=&gt; {
+                <span class="string">"settings" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(OptionsPanel::new_state(ctx, app));
                 }
-                <span class="string">&quot;search&quot; </span>=&gt; {
+                <span class="string">"search" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(Navigator::new_state(ctx, app));
                 }
-                <span class="string">&quot;About&quot; </span>=&gt; {
+                <span class="string">"About" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;About this OSM viewer&quot;</span>,
+                        <span class="string">"About this OSM viewer"</span>,
                         <span class="macro">vec!</span>[
-                            <span class="string">&quot;If you have an idea about what this viewer should do, get in touch \
-                             at abstreet.org!&quot;</span>,
-                            <span class="string">&quot;&quot;</span>,
-                            <span class="string">&quot;Note major liberties have been taken with inferring where sidewalks \
-                             and crosswalks exist.&quot;</span>,
-                            <span class="string">&quot;Separate footpaths, tram lines, etc are not imported yet.&quot;</span>,
+                            <span class="string">"If you have an idea about what this viewer should do, get in touch \
+                             at abstreet.org!"</span>,
+                            <span class="string">""</span>,
+                            <span class="string">"Note major liberties have been taken with inferring where sidewalks \
+                             and crosswalks exist."</span>,
+                            <span class="string">"Separate footpaths, tram lines, etc are not imported yet."</span>,
                         ],
                     ));
                 }
-                <span class="string">&quot;Search for businesses&quot; </span>=&gt; {
+                <span class="string">"Search for businesses" </span>=&gt; {
                     <span class="self">self</span>.businesses = <span class="prelude-val">Some</span>(BusinessSearch::new(ctx, app));
                     <span class="self">self</span>.recalculate_top_panel(ctx, app, <span class="prelude-val">None</span>);
                 }
-                <span class="string">&quot;Hide business search&quot; </span>=&gt; {
+                <span class="string">"Hide business search" </span>=&gt; {
                     <span class="self">self</span>.businesses = <span class="prelude-val">None</span>;
                     <span class="self">self</span>.recalculate_top_panel(ctx, app, <span class="prelude-val">None</span>);
                 }
                 x =&gt; {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(url) = x.strip_prefix(<span class="string">&quot;open &quot;</span>) {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(url) = x.strip_prefix(<span class="string">"open "</span>) {
                         open_browser(url);
                     } <span class="kw">else </span>{
                         <span class="macro">unreachable!</span>()
@@ -905,18 +907,18 @@
         col.push(
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Hide business search&quot;</span>)
+                .text(<span class="string">"Hide business search"</span>)
                 .hotkey(Key::Tab)
                 .build_def(ctx),
         );
         col.push(
-            <span class="macro">format!</span>(<span class="string">&quot;{} businesses total&quot;</span>, prettyprint_usize(<span class="self">self</span>.counts.sum())).text_widget(ctx),
+            <span class="macro">format!</span>(<span class="string">"{} businesses total"</span>, prettyprint_usize(<span class="self">self</span>.counts.sum())).text_widget(ctx),
         );
         <span class="kw">for </span>(amenity, cnt) <span class="kw">in </span><span class="self">self</span>.counts.borrow() {
             col.push(Toggle::custom_checkbox(
                 ctx,
                 amenity,
-                <span class="macro">vec!</span>[Line(<span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, amenity, prettyprint_usize(<span class="kw-2">*</span>cnt)))],
+                <span class="macro">vec!</span>[Line(<span class="macro">format!</span>(<span class="string">"{}: {}"</span>, amenity, prettyprint_usize(<span class="kw-2">*</span>cnt)))],
                 <span class="prelude-val">None</span>,
                 <span class="self">self</span>.show.contains(amenity),
             ));

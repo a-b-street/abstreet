@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/player.rs`."><title>player.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/player.rs`."><title>player.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../santa/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -356,11 +358,11 @@
     }
 
     <span class="kw">fn </span>pos_to_on(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App, pos: Pt2D) -&gt; <span class="prelude-ty">Option</span>&lt;On&gt; {
-        <span class="comment">// Make sure we only move between roads/intersections that&#39;re actually connected. Don&#39;t
+        <span class="comment">// Make sure we only move between roads/intersections that're actually connected. Don't
         // warp to bridges/tunnels.
         </span><span class="kw">let </span>(valid_roads, valid_intersections) = <span class="self">self</span>.on.get_connections(app);
 
-        <span class="comment">// Make sure we&#39;re still on the road
+        <span class="comment">// Make sure we're still on the road
         </span><span class="kw">for </span>id <span class="kw">in </span>app
             .draw_map
             .get_matching_objects(Circle::new(pos, Distance::meters(<span class="number">3.0</span>)).get_bounds())
@@ -379,7 +381,7 @@
                     </span><span class="kw">let </span>pt_on_center_line = road.center_pts.project_pt(pos);
                     <span class="kw">if let </span><span class="prelude-val">Some</span>((dist, <span class="kw">_</span>)) = road.center_pts.dist_along_of_point(pt_on_center_line)
                     {
-                        <span class="comment">// We&#39;ll adjust the direction at the call-site if we&#39;re moving along the
+                        <span class="comment">// We'll adjust the direction at the call-site if we're moving along the
                         // same road. This heuristic is reasonable for moving from intersections to
                         // roads.
                         </span><span class="kw">let </span>dir = <span class="kw">if </span>dist &lt; road.length() / <span class="number">2.0 </span>{
@@ -390,7 +392,7 @@
                         <span class="kw">return </span><span class="prelude-val">Some</span>(On::Road(r, dist, dir));
                     } <span class="kw">else </span>{
                         <span class="macro">error!</span>(
-                            <span class="string">&quot;{} snapped to {} on {}, but dist_along_of_point failed&quot;</span>,
+                            <span class="string">"{} snapped to {} on {}, but dist_along_of_point failed"</span>,
                             pos, pt_on_center_line, r
                         );
                         <span class="kw">return </span><span class="prelude-val">None</span>;
@@ -432,7 +434,7 @@
         } <span class="kw">else </span>{
             <span class="comment">// We went out of bounds. Undo this movement.
 
-            // Apply horizontal and vertical movement independently, so we &quot;slide&quot; along boundaries
+            // Apply horizontal and vertical movement independently, so we "slide" along boundaries
             // if possible
             </span><span class="kw">if </span>recurse {
                 <span class="kw">let </span>orig = <span class="self">self</span>.pos;
@@ -460,7 +462,7 @@
                                 road.center_pts.to_thick_ring(road.get_width())
                             }
                         };
-                        <span class="comment">// TODO Brittle order, but should be the first from the PolyLine&#39;s
+                        <span class="comment">// TODO Brittle order, but should be the first from the PolyLine's
                         // perspective
                         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = old_ring
                             .all_intersections(<span class="kw-2">&amp;</span>PolyLine::must_new(<span class="macro">vec!</span>[<span class="self">self</span>.pos, new_pos]))
@@ -563,7 +565,7 @@
 
 <span class="kw">struct </span>BuildingsAlongRoad {
     <span class="comment">// For each road, all of the buildings along it. Ascending distance, with the distance matching
-    // the road&#39;s center points.
+    // the road's center points.
     </span>per_road: HashMap&lt;RoadID, Vec&lt;(Distance, BuildingID)&gt;&gt;,
 }
 

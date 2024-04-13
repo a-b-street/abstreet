@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/traffic_signals.rs`."><title>traffic_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/traffic_signals.rs`."><title>traffic_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -512,7 +514,7 @@
 }
 
 <span class="kw">impl </span>StageType {
-    <span class="comment">// TODO Maybe don&#39;t have this; force callers to acknowledge different policies
+    <span class="comment">// TODO Maybe don't have this; force callers to acknowledge different policies
     </span><span class="kw">pub fn </span>simple_duration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Duration {
         <span class="kw">match </span><span class="self">self </span>{
             StageType::Fixed(d) =&gt; <span class="kw-2">*</span>d,
@@ -525,7 +527,7 @@
     <span class="kw">pub fn </span>new(map: <span class="kw-2">&amp;</span>Map, id: IntersectionID) -&gt; ControlTrafficSignal {
         <span class="kw">let </span><span class="kw-2">mut </span>policies = ControlTrafficSignal::get_possible_policies(map, id);
         <span class="kw">if </span>policies.len() == <span class="number">1 </span>{
-            <span class="macro">warn!</span>(<span class="string">&quot;Falling back to greedy_assignment for {}&quot;</span>, id);
+            <span class="macro">warn!</span>(<span class="string">"Falling back to greedy_assignment for {}"</span>, id);
         }
         policies.remove(<span class="number">0</span>).<span class="number">1
     </span>}
@@ -560,7 +562,7 @@
         }
         <span class="kw">if </span>expected_movements != actual_movements {
             <span class="macro">bail!</span>(
-                <span class="string">&quot;Traffic signal assignment for {} broken. Missing {:?}, contains irrelevant {:?}&quot;</span>,
+                <span class="string">"Traffic signal assignment for {} broken. Missing {:?}, contains irrelevant {:?}"</span>,
                 <span class="self">self</span>.id,
                 expected_movements
                     .difference(<span class="kw-2">&amp;</span>actual_movements)
@@ -578,8 +580,8 @@
                 <span class="kw">for </span>m2 <span class="kw">in </span>stage.protected_movements.iter().map(|m| <span class="kw-2">&amp;</span>i.movements[m]) {
                     <span class="kw">if </span>m1.conflicts_with(m2) {
                         <span class="macro">bail!</span>(
-                            <span class="string">&quot;Traffic signal has conflicting protected movements in one \
-                             stage:\n{:?}\n\n{:?}&quot;</span>,
+                            <span class="string">"Traffic signal has conflicting protected movements in one \
+                             stage:\n{:?}\n\n{:?}"</span>,
                             m1,
                             m2
                         );
@@ -596,8 +598,8 @@
             </span><span class="kw">let </span>min_crossing_time = <span class="self">self</span>.get_min_crossing_time(stage_index, i);
             <span class="kw">if </span>stage.stage_type.simple_duration() &lt; min_crossing_time {
                 <span class="macro">bail!</span>(
-                    <span class="string">&quot;Traffic signal does not allow enough time in stage to complete the \
-                     crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}&quot;</span>,
+                    <span class="string">"Traffic signal does not allow enough time in stage to complete the \
+                     crosswalk\nStage Index{}\nStage : {:?}\nTime Required: {}\nTime Given: {}"</span>,
                     stage_index,
                     stage,
                     min_crossing_time,
@@ -671,7 +673,7 @@
 
     <span class="doccomment">/// Modifies the fixed timing of all stages, applying either a major or minor duration,
     /// depending on the relative rank of the roads involved in the intersection. If this
-    /// transformation couldn&#39;t be applied, returns an error. Even if an error is returned, the
+    /// transformation couldn't be applied, returns an error. Even if an error is returned, the
     /// signal may have been changed -- so only call this on a cloned signal.
     </span><span class="kw">pub fn </span>adjust_major_minor_timing(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -680,10 +682,10 @@
         map: <span class="kw-2">&amp;</span>Map,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.stages.len() != <span class="number">2 </span>{
-            <span class="macro">bail!</span>(<span class="string">&quot;This intersection doesn&#39;t have 2 stages.&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">"This intersection doesn't have 2 stages."</span>);
         }
 
-        <span class="comment">// What&#39;s the rank of each road?
+        <span class="comment">// What's the rank of each road?
         </span><span class="kw">let </span><span class="kw-2">mut </span>rank_per_road: BTreeMap&lt;RoadID, usize&gt; = BTreeMap::new();
         <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_i(<span class="self">self</span>.id).roads {
             rank_per_road.insert(<span class="kw-2">*</span>r, map.get_r(<span class="kw-2">*</span>r).get_detailed_rank());
@@ -692,7 +694,7 @@
         ranks.sort_unstable();
         ranks.dedup();
         <span class="kw">if </span>ranks.len() == <span class="number">1 </span>{
-            <span class="macro">bail!</span>(<span class="string">&quot;This intersection doesn&#39;t have major/minor roads; they&#39;re all the same rank.&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">"This intersection doesn't have major/minor roads; they're all the same rank."</span>);
         }
         <span class="kw">let </span>highest_rank = ranks.pop().unwrap();
 
@@ -701,7 +703,7 @@
         <span class="kw">for </span>stage <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.stages {
             <span class="kw">match </span>stage.stage_type {
                 StageType::Fixed(<span class="kw">_</span>) =&gt; {}
-                <span class="kw">_ </span>=&gt; <span class="macro">bail!</span>(<span class="string">&quot;This intersection doesn&#39;t use fixed timing.&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">bail!</span>(<span class="string">"This intersection doesn't use fixed timing."</span>),
             }
             <span class="comment">// Ignoring crosswalks, do any of the turns come from a major road?
             </span><span class="kw">if </span>stage
@@ -716,11 +718,11 @@
         }
 
         <span class="kw">if </span><span class="self">self</span>.simple_cycle_duration() != major + minor {
-            <span class="macro">bail!</span>(<span class="string">&quot;This intersection didn&#39;t already group major/minor roads together.&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">"This intersection didn't already group major/minor roads together."</span>);
         }
 
         <span class="kw">if </span><span class="self">self </span>== <span class="kw-2">&amp;</span>orig {
-            <span class="macro">bail!</span>(<span class="string">&quot;This change had no effect.&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">"This change had no effect."</span>);
         }
 
         <span class="prelude-val">Ok</span>(())
@@ -922,7 +924,7 @@
                     },
                 });
             } <span class="kw">else </span>{
-                <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, errors.join(<span class="string">&quot;; &quot;</span>));
+                <span class="macro">bail!</span>(<span class="string">"{}"</span>, errors.join(<span class="string">"; "</span>));
             }
         }
         <span class="kw">let </span>ts = ControlTrafficSignal {

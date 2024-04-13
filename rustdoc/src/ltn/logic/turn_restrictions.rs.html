@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/logic/turn_restrictions.rs`."><title>turn_restrictions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/logic/turn_restrictions.rs`."><title>turn_restrictions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -388,26 +390,26 @@
 ///
 /// Details:
 /// -------
-/// When moving (or attempting to move) from &quot;RoadA&quot; to &quot;RoadB&quot; the follow terms should be used:
-/// &quot;from_r&quot;    = RoadA
-/// &quot;target_r&quot;  = RoadB
-/// &quot;connected&quot; = RoadB will be a member of &quot;connected&quot; if RoadB share a common intersection with RoadA, or
+/// When moving (or attempting to move) from "RoadA" to "RoadB" the follow terms should be used:
+/// "from_r"    = RoadA
+/// "target_r"  = RoadB
+/// "connected" = RoadB will be a member of "connected" if RoadB share a common intersection with RoadA, or
 ///               is part of a shared complicated turn with RoadA. The legality of driving from RoadA to RoadB
-///               is not a concern for &quot;connected&quot;. &quot;Connected&quot; is the superset of all the other categories
+///               is not a concern for "connected". "Connected" is the superset of all the other categories
 ///               listed here.
-/// &quot;permitted&quot; = RoadB is a member of &quot;permitted&quot;, if RoadB is a member of &quot;connected&quot; and it is legal to
+/// "permitted" = RoadB is a member of "permitted", if RoadB is a member of "connected" and it is legal to
 ///               drive from RoadA to RoadB. Lane-level restrictions are not considered, so as long as some
 ///               route from one or more driving Lanes in RoadA to one or more Lanes in RoadB then RoadB is
-///               considered &quot;permitted&quot;.
-/// &quot;opposing_oneways&quot; = RoadB is oneway for driving, and driving from RoadA to RoadB would result in driving the
+///               considered "permitted".
+/// "opposing_oneways" = RoadB is oneway for driving, and driving from RoadA to RoadB would result in driving the
 ///                     wrong way along RoadB.
-/// &quot;restricted_turns&quot; = RoadB will be a member of &quot;restricted_turns&quot; if all of these are true:
-///                         a) RoadB is a member of &quot;connected&quot;
+/// "restricted_turns" = RoadB will be a member of "restricted_turns" if all of these are true:
+///                         a) RoadB is a member of "connected"
 ///                         b) There is explicitly tagged turn restriction which prohibits traffic turning from
 ///                            RoadA to RoadB, OR there is an explicitly tagged turn restriction which mandates
 ///                            traffic from RoadA must turn onto a different road to RoadB.
-///                         c) RoadB is not a member of &quot;opposing_oneways&quot;
-/// &quot;possible_turns&quot; = These are turns that would be possible if all turn restrictions where removed.
+///                         c) RoadB is not a member of "opposing_oneways"
+/// "possible_turns" = These are turns that would be possible if all turn restrictions where removed.
 ///
 /// Notes:
 /// -----
@@ -416,16 +418,16 @@
 /// * In reality a road/turn maybe signposted by both turn restrictions and oneway restrictions.
 ///   Following (OSM practise)[https://wiki.openstreetmap.org/wiki/Relation:restriction#When_to_map] it is not
 ///   necessary mark turn restrictions when they are already implied by opposing oneway restrictions. We treat
-///   &quot;banned_turn&quot; and &quot;opposing_oneway&quot; as mutually exclusive.
+///   "banned_turn" and "opposing_oneway" as mutually exclusive.
 ///
 /// Discouraged terms:
 /// -----------------
-/// &quot;prohibited_turn&quot; =&gt; use &quot;restricted_turn&quot; instead.
-/// &quot;banned_turns&quot; =&gt; use &quot;restricted_turn&quot; instead where practical. &quot;Banned&quot; is used elsewhere in A/BStreet,
-///                  (ie `RestrictionType::BanTurns`) but within the LTN tool &quot;restricted&quot; is preferred, as it
+/// "prohibited_turn" =&gt; use "restricted_turn" instead.
+/// "banned_turns" =&gt; use "restricted_turn" instead where practical. "Banned" is used elsewhere in A/BStreet,
+///                  (ie `RestrictionType::BanTurns`) but within the LTN tool "restricted" is preferred, as it
 ///                  is more consistent with the `road.restricted_turns` and `road.complicated_turn_restrictions`
 ///                  as well the general OSM tagging.
-/// &quot;src_r&quot; and &quot;dst_r&quot; =&gt; use &quot;from_r&quot; and &quot;target_r&quot; instead. (&quot;src_r&quot; and &quot;dst_r&quot; are too similar to
+/// "src_r" and "dst_r" =&gt; use "from_r" and "target_r" instead. ("src_r" and "dst_r" are too similar to
 ///                       `road.src_i` and `road.dst_i` which are conceptually very different).
 </span><span class="kw">pub struct </span>FocusedTurns {
     <span class="kw">pub </span>from_r: RoadID,
@@ -487,7 +489,7 @@
     </span>Polygon::concave_hull(all_pt, <span class="number">200</span>).unwrap_or(Polygon::dummy())
 }
 
-<span class="doccomment">/// Returns all roads that are possible destinations from the given &quot;from_road&quot; where the turn is currently
+<span class="doccomment">/// Returns all roads that are possible destinations from the given "from_road" where the turn is currently
 /// prohibited by a turn restriction.
 </span><span class="kw">pub fn </span>restricted_destination_roads(
     map: <span class="kw-2">&amp;</span>Map,
@@ -522,10 +524,10 @@
 <span class="doccomment">/// Returns a HashSet of all roads which are connected by driving from RoadID.
 /// This accounts for oneway restrictions, but not turn restrictions. eg:
 ///
-/// - If a oneway restriction on either the &#39;from_road&#39; or the &#39;target_road&#39; would prevent driving from
-/// source to destination, then &#39;target_road&#39; it will NOT be included in the result.
-/// - If a turn restriction exists and is the only thing that would prevent driving from &#39;from_road&#39; or the
-/// &#39;target_road&#39;, then the &#39;target_road&#39; will still be included in the result.
+/// - If a oneway restriction on either the 'from_road' or the 'target_road' would prevent driving from
+/// source to destination, then 'target_road' it will NOT be included in the result.
+/// - If a turn restriction exists and is the only thing that would prevent driving from 'from_road' or the
+/// 'target_road', then the 'target_road' will still be included in the result.
 ///
 /// `i` is Optional. If `i` is `Some` then, it must be connected to `from_r`. It is used to filter
 /// the results to return only the destination roads that connect to `i`.
@@ -543,7 +545,7 @@
     <span class="kw">if let </span><span class="prelude-val">Some</span>(unverified_i) = i {
         <span class="kw">if </span>!verify_intersection(map, from_r, unverified_i) {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;IntersectionID {:?}, does not connect to RoadID {:?}&quot;</span>,
+                <span class="string">"IntersectionID {:?}, does not connect to RoadID {:?}"</span>,
                 unverified_i, from_r
             );
         }
@@ -594,7 +596,7 @@
         <span class="comment">// Test that the correct intersection is selected when creating a FocusTurns object
 
         // Get example map
-        </span><span class="kw">let </span>file_name = get_test_file_path(String::from(<span class="string">&quot;input/turn_restriction_ltn_boundary.osm&quot;</span>));
+        </span><span class="kw">let </span>file_name = get_test_file_path(String::from(<span class="string">"input/turn_restriction_ltn_boundary.osm"</span>));
         <span class="kw">let </span>map = import_map(file_name.unwrap());
 
         <span class="kw">let </span>r = RoadID(<span class="number">11</span>);
@@ -609,7 +611,7 @@
         <span class="kw">for </span>(click_pt, i_id) <span class="kw">in </span>[(click_pt_1, expected_i_1), (click_pt_2, expects_i_2)] {
             <span class="kw">let </span>ft = FocusedTurns::new(r, click_pt, <span class="kw-2">&amp;</span>map);
 
-            <span class="macro">println!</span>(<span class="string">&quot;ft.i          {:?}&quot;</span>, ft.i);
+            <span class="macro">println!</span>(<span class="string">"ft.i          {:?}"</span>, ft.i);
             <span class="macro">assert_eq!</span>(ft.i, IntersectionID(i_id));
             <span class="macro">assert!</span>([road.src_i, road.dst_i].contains(<span class="kw-2">&amp;</span>ft.i));
         }
@@ -618,10 +620,10 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_destination_roads() {
         <span class="comment">// Get example map
-        </span><span class="kw">let </span>file_name = get_test_file_path(String::from(<span class="string">&quot;input/turn_restriction_ltn_boundary.osm&quot;</span>));
+        </span><span class="kw">let </span>file_name = get_test_file_path(String::from(<span class="string">"input/turn_restriction_ltn_boundary.osm"</span>));
         <span class="kw">let </span>map = import_map(file_name.unwrap());
 
-        <span class="comment">// hard coded values for &quot;turn_restriction_ltn_boundary&quot;
+        <span class="comment">// hard coded values for "turn_restriction_ltn_boundary"
         </span><span class="kw">let </span>from_r = RoadID(<span class="number">11</span>);
         <span class="kw">let </span>from_road = map.get_r(from_r);
         <span class="comment">// Expected possible turns for either intersection
@@ -651,7 +653,7 @@
             actual.extend(actual_vec.iter());
 
             <span class="kw">for </span>target_r <span class="kw">in </span>actual.iter() {
-                <span class="macro">println!</span>(<span class="string">&quot;destination_roads, src_r {}, dst_r = {}&quot;</span>, from_r, target_r);
+                <span class="macro">println!</span>(<span class="string">"destination_roads, src_r {}, dst_r = {}"</span>, from_r, target_r);
             }
             <span class="macro">assert_eq!</span>(actual, expected);
         }
@@ -670,7 +672,7 @@
 
         <span class="kw">let </span>test_cases = [
             TurnRestrictionTestCase {
-                input_file: String::from(<span class="string">&quot;input/false_positive_u_turns.osm&quot;</span>),
+                input_file: String::from(<span class="string">"input/false_positive_u_turns.osm"</span>),
                 <span class="comment">// north end is dst according to JOSM
                 </span>from_r: RoadID(<span class="number">5</span>),
                 <span class="comment">// Can continue on north bound left-hand lane past central barrier
@@ -686,7 +688,7 @@
                 </span>restricted_for_src_i: HashSet::from([RoadID(<span class="number">2</span>)]),
             },
             TurnRestrictionTestCase {
-                input_file: String::from(<span class="string">&quot;input/false_positive_u_turns.osm&quot;</span>),
+                input_file: String::from(<span class="string">"input/false_positive_u_turns.osm"</span>),
                 <span class="comment">// north end is src according to JOSM
                 </span>from_r: RoadID(<span class="number">0</span>),
                 <span class="comment">// Off the edge of the map
@@ -725,10 +727,10 @@
                 <span class="kw">let </span>actual_possible = possible_destination_roads(<span class="kw-2">&amp;</span>map, tc.from_r, i);
                 <span class="kw">let </span>actual_restricted = restricted_destination_roads(<span class="kw-2">&amp;</span>map, tc.from_r, i);
 
-                <span class="macro">println!</span>(<span class="string">&quot;r={:?}, i={:?}, file={:?}&quot;</span>, <span class="kw-2">&amp;</span>tc.from_r, i, <span class="kw-2">&amp;</span>tc.input_file);
+                <span class="macro">println!</span>(<span class="string">"r={:?}, i={:?}, file={:?}"</span>, <span class="kw-2">&amp;</span>tc.from_r, i, <span class="kw-2">&amp;</span>tc.input_file);
                 <span class="kw">for </span>target_r <span class="kw">in </span>actual_possible.iter() {
                     <span class="macro">println!</span>(
-                        <span class="string">&quot;destination_roads, src_r {}, dst_r = {}&quot;</span>,
+                        <span class="string">"destination_roads, src_r {}, dst_r = {}"</span>,
                         tc.from_r, target_r
                     );
                 }

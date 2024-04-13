@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/export.rs`."><title>export.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/export.rs`."><title>export.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -118,7 +120,7 @@
     <span class="comment">// All neighbourhood boundaries
     </span><span class="kw">for </span>(id, info) <span class="kw">in </span>app.partitioning().all_neighbourhoods() {
         <span class="kw">let </span><span class="kw-2">mut </span>feature = Feature::from(info.block.polygon.to_geojson(gps_bounds));
-        feature.set_property(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;neighbourhood&quot;</span>);
+        feature.set_property(<span class="string">"type"</span>, <span class="string">"neighbourhood"</span>);
         features.push(feature);
 
         <span class="comment">// Cells per neighbourhood
@@ -130,8 +132,8 @@
                 (gps.x(), gps.y()).into()
             });
             <span class="kw">let </span><span class="kw-2">mut </span>feature = Feature::from(Value::from(<span class="kw-2">&amp;</span>multipolygon));
-            feature.set_property(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;cell&quot;</span>);
-            feature.set_property(<span class="string">&quot;fill&quot;</span>, render_cells.colors[idx].as_hex());
+            feature.set_property(<span class="string">"type"</span>, <span class="string">"cell"</span>);
+            feature.set_property(<span class="string">"fill"</span>, render_cells.colors[idx].as_hex());
             features.push(feature);
         }
     }
@@ -145,9 +147,9 @@
                 pt.project_away(<span class="number">0.8 </span>* road_width, angle.rotate_degs(-<span class="number">90.0</span>)),
             ]);
             <span class="kw">let </span><span class="kw-2">mut </span>feature = Feature::from(pl.to_geojson(gps_bounds));
-            feature.set_property(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;road filter&quot;</span>);
-            feature.set_property(<span class="string">&quot;filter_type&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, filter.filter_type));
-            feature.set_property(<span class="string">&quot;stroke&quot;</span>, <span class="string">&quot;red&quot;</span>);
+            feature.set_property(<span class="string">"type"</span>, <span class="string">"road filter"</span>);
+            feature.set_property(<span class="string">"filter_type"</span>, <span class="macro">format!</span>(<span class="string">"{:?}"</span>, filter.filter_type));
+            feature.set_property(<span class="string">"stroke"</span>, <span class="string">"red"</span>);
             features.push(feature);
         }
     }
@@ -155,28 +157,28 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>filter) = i.modal_filter {
             <span class="kw">let </span>pl = filter.geometry(map).to_polyline();
             <span class="kw">let </span><span class="kw-2">mut </span>feature = Feature::from(pl.to_geojson(gps_bounds));
-            feature.set_property(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;diagonal filter&quot;</span>);
-            feature.set_property(<span class="string">&quot;filter_type&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, filter.filter_type));
-            feature.set_property(<span class="string">&quot;stroke&quot;</span>, <span class="string">&quot;red&quot;</span>);
+            feature.set_property(<span class="string">"type"</span>, <span class="string">"diagonal filter"</span>);
+            feature.set_property(<span class="string">"filter_type"</span>, <span class="macro">format!</span>(<span class="string">"{:?}"</span>, filter.filter_type));
+            feature.set_property(<span class="string">"stroke"</span>, <span class="string">"red"</span>);
             features.push(feature);
         }
     }
 
-    <span class="comment">// This includes the direction of every driveable road, not just one-ways. Not sure who&#39;s using
-    // this export or how, so doesn&#39;t matter much.
+    <span class="comment">// This includes the direction of every driveable road, not just one-ways. Not sure who's using
+    // this export or how, so doesn't matter much.
     </span><span class="kw">for </span>road <span class="kw">in </span>map.all_roads() {
         <span class="kw">if </span><span class="kw">crate</span>::is_driveable(road, map) {
             <span class="kw">let </span><span class="kw-2">mut </span>feature = Feature::from(road.center_pts.to_geojson(gps_bounds));
-            feature.set_property(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;direction&quot;</span>);
+            feature.set_property(<span class="string">"type"</span>, <span class="string">"direction"</span>);
             feature.set_property(
-                <span class="string">&quot;direction&quot;</span>,
+                <span class="string">"direction"</span>,
                 <span class="kw">match </span>road.oneway_for_driving() {
-                    <span class="prelude-val">Some</span>(Direction::Fwd) =&gt; <span class="string">&quot;one-way forwards&quot;</span>,
-                    <span class="prelude-val">Some</span>(Direction::Back) =&gt; <span class="string">&quot;one-way backwards&quot;</span>,
-                    <span class="prelude-val">None </span>=&gt; <span class="string">&quot;two-ways&quot;</span>,
+                    <span class="prelude-val">Some</span>(Direction::Fwd) =&gt; <span class="string">"one-way forwards"</span>,
+                    <span class="prelude-val">Some</span>(Direction::Back) =&gt; <span class="string">"one-way backwards"</span>,
+                    <span class="prelude-val">None </span>=&gt; <span class="string">"two-ways"</span>,
                 },
             );
-            feature.set_property(<span class="string">&quot;stroke&quot;</span>, <span class="string">&quot;blue&quot;</span>);
+            feature.set_property(<span class="string">"stroke"</span>, <span class="string">"blue"</span>);
             features.push(feature);
         }
     }
@@ -189,8 +191,8 @@
                     .<span class="number">0
                     </span>.to_geojson(gps_bounds),
             );
-            feature.set_property(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;crossing&quot;</span>);
-            feature.set_property(<span class="string">&quot;crossing_type&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, crossing.kind));
+            feature.set_property(<span class="string">"type"</span>, <span class="string">"crossing"</span>);
+            feature.set_property(<span class="string">"crossing_type"</span>, <span class="macro">format!</span>(<span class="string">"{:?}"</span>, crossing.kind));
             features.push(feature);
         }
     }

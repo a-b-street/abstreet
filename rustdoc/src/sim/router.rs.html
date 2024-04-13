@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/router.rs`."><title>router.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/router.rs`."><title>router.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -620,7 +622,7 @@
     }
 
     <span class="kw">pub fn </span>get_end_dist(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Distance {
-        <span class="comment">// Shouldn&#39;t ask earlier!
+        <span class="comment">// Shouldn't ask earlier!
         </span><span class="macro">assert!</span>(<span class="self">self</span>.last_step());
         <span class="kw">match </span><span class="self">self</span>.goal {
             Goal::EndAtBorder { end_dist, .. } =&gt; end_dist,
@@ -660,12 +662,12 @@
             );
         }
 
-        <span class="comment">// Sanity check laws haven&#39;t been broken
+        <span class="comment">// Sanity check laws haven't been broken
         </span><span class="kw">if let </span>Traversable::Lane(l) = <span class="self">self</span>.head() {
             <span class="kw">let </span>lane = map.get_l(l);
             <span class="kw">if </span>!vehicle.vehicle_type.to_constraints().can_use(lane, map) {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;{} just wound up on {}, a {:?} (check the OSM tags)&quot;</span>,
+                    <span class="string">"{} just wound up on {}, a {:?} (check the OSM tags)"</span>,
                     vehicle.id, l, lane.lane_type
                 );
             }
@@ -787,8 +789,8 @@
                                 events.push(Event::Alert(
                                     AlertLocation::Person(p),
                                     <span class="macro">format!</span>(
-                                        <span class="string">&quot;{} can&#39;t find parking on {} or anywhere reachable from \
-                                         it. Possibly we&#39;re just totally out of parking space!&quot;</span>,
+                                        <span class="string">"{} can't find parking on {} or anywhere reachable from \
+                                         it. Possibly we're just totally out of parking space!"</span>,
                                         vehicle.id, current_lane
                                     ),
                                 ));
@@ -828,7 +830,7 @@
         map: <span class="kw-2">&amp;</span>Map,
         handle_uber_turns: bool,
     ) {
-        <span class="comment">// if we&#39;re already in the uber-turn, we&#39;re committed, but if we&#39;re about to enter one, lock
+        <span class="comment">// if we're already in the uber-turn, we're committed, but if we're about to enter one, lock
         // in the best path through it now.
         </span><span class="kw">if </span>handle_uber_turns &amp;&amp; <span class="self">self</span>.path.currently_inside_ut().is_some() {
             <span class="kw">return</span>;
@@ -862,9 +864,9 @@
                 //
                 // 1) Are we headed towards a general purpose lane instead of a dedicated bike/bus
                 //    lane?
-                // 2) Are there any bikes in the target lane? This ONLY matters if we&#39;re a car. If
-                //    we&#39;re another bike, the speed difference won&#39;t matter.
-                // 3) IF we&#39;re a bike, are we headed to something other than the slow (rightmost in
+                // 2) Are there any bikes in the target lane? This ONLY matters if we're a car. If
+                //    we're another bike, the speed difference won't matter.
+                // 3) IF we're a bike, are we headed to something other than the slow (rightmost in
                 //    the US) lane?
                 // 4) Are there lots of vehicles stacked up in one lane?
                 // 5) Are we changing lanes?
@@ -918,22 +920,22 @@
                 .min_by_key(|(cost, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)| <span class="kw-2">*</span>cost);
 
             <span class="kw">if </span>best.is_none() {
-                <span class="macro">error!</span>(<span class="string">&quot;no valid paths found: {:?}&quot;</span>, <span class="self">self</span>.owner);
+                <span class="macro">error!</span>(<span class="string">"no valid paths found: {:?}"</span>, <span class="self">self</span>.owner);
                 <span class="kw">return</span>;
             }
             <span class="kw">let </span>(best_cost, turn1, best_lane, turn2) = best.unwrap();
 
             <span class="kw">if </span>original_cost.is_none() {
-                <span class="macro">error!</span>(<span class="string">&quot;original_cost was unexpectedly None {:?}&quot;</span>, <span class="self">self</span>.owner);
+                <span class="macro">error!</span>(<span class="string">"original_cost was unexpectedly None {:?}"</span>, <span class="self">self</span>.owner);
                 <span class="kw">return</span>;
             }
             <span class="kw">let </span>original_cost = original_cost.unwrap();
 
-            <span class="comment">// Only switch if the target queue is some amount better; don&#39;t oscillate
+            <span class="comment">// Only switch if the target queue is some amount better; don't oscillate
             // unnecessarily.
             </span><span class="kw">if </span>best_cost &lt; original_cost {
                 <span class="macro">debug!</span>(
-                    <span class="string">&quot;changing lanes {:?} -&gt; {:?}, cost: {:?} -&gt; {:?}&quot;</span>,
+                    <span class="string">"changing lanes {:?} -&gt; {:?}, cost: {:?} -&gt; {:?}"</span>,
                     orig_target_lane, best_lane, original_cost, best_cost
                 );
                 <span class="self">self</span>.path

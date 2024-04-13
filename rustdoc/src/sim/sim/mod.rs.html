@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/sim/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/sim/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1082,17 +1084,17 @@
     scheduler: Scheduler,
     time: Time,
 
-    <span class="comment">// These&#39;re needed to load from a savestate.
+    <span class="comment">// These're needed to load from a savestate.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) map_name: MapName,
     <span class="kw">pub</span>(<span class="kw">crate</span>) edits_name: String,
     <span class="comment">// Some tests deliberately set different scenario names for comparisons.
-    // TODO Maybe get rid of this, now that savestates aren&#39;t used
+    // TODO Maybe get rid of this, now that savestates aren't used
     </span>run_name: String,
     step_count: usize,
     highlighted_people: <span class="prelude-ty">Option</span>&lt;BTreeSet&lt;PersonID&gt;&gt;,
 
     analytics: Analytics,
-    <span class="comment">// This is created interactively, and there&#39;s no reason to preserve one for savestates.
+    <span class="comment">// This is created interactively, and there's no reason to preserve one for savestates.
     </span><span class="attr">#[serde(skip_serializing, skip_deserializing)]
     </span>recorder: <span class="prelude-ty">Option</span>&lt;TrafficRecorder&gt;,
 
@@ -1100,11 +1102,11 @@
     </span>alerts: AlertHandler,
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Ctx&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub </span>parking: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>ParkingSimState,
-    <span class="kw">pub </span>intersections: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>IntersectionSimState,
-    <span class="kw">pub </span>scheduler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Scheduler,
-    <span class="kw">pub </span>map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Map,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Ctx&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub </span>parking: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ParkingSimState,
+    <span class="kw">pub </span>intersections: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>IntersectionSimState,
+    <span class="kw">pub </span>scheduler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Scheduler,
+    <span class="kw">pub </span>map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Map,
     <span class="doccomment">/// If present, live map edits are being processed, and the agents specified are in the process
     /// of being deleted. Some regular work should maybe be skipped.
     </span><span class="kw">pub </span>handling_live_edits: <span class="prelude-ty">Option</span>&lt;BTreeSet&lt;AgentID&gt;&gt;,
@@ -1114,27 +1116,27 @@
 </span><span class="attr">#[derive(Clone, StructOpt)]
 </span><span class="kw">pub struct </span>SimOptions {
     <span class="doccomment">/// Used to distinguish savestates for running the same scenario.
-    </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;unnamed&quot;</span>)]
+    </span><span class="attr">#[structopt(long, default_value = <span class="string">"unnamed"</span>)]
     </span><span class="kw">pub </span>run_name: String,
-    <span class="doccomment">/// Ignore all stop signs and traffic signals, instead using a &quot;freeform&quot; policy to control
-    /// access to intersections. If a requested turn doesn&#39;t conflict with an already accepted one,
+    <span class="doccomment">/// Ignore all stop signs and traffic signals, instead using a "freeform" policy to control
+    /// access to intersections. If a requested turn doesn't conflict with an already accepted one,
     /// immediately accept it. FIFO ordering, no balancing between different movements.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>use_freeform_policy_everywhere: bool,
     <span class="doccomment">/// Allow a vehicle to start a turn, even if their target lane is already full. This may mean
-    /// they&#39;ll get stuck blocking the intersection.
+    /// they'll get stuck blocking the intersection.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>allow_block_the_box: bool,
     <span class="doccomment">/// Normally as a vehicle follows a route, it opportunistically make small changes to use a different lane,
-    /// based on some score of &quot;least-loaded&quot; lane. Disable this default behavior.
+    /// based on some score of "least-loaded" lane. Disable this default behavior.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>dont_recalc_lanechanging: bool,
     <span class="doccomment">/// Normally if a cycle of vehicles depending on each other to turn is detected, temporarily allow
-    /// &quot;blocking the box&quot; to try to break gridlock. Disable this default behavior.
+    /// "blocking the box" to try to break gridlock. Disable this default behavior.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>dont_break_turn_conflict_cycles: bool,
-    <span class="doccomment">/// Disable experimental handling for &quot;uber-turns&quot;, sequences of turns through complex
-    /// intersections with short roads. &quot;Locks&quot; the entire movement before starting, and ignores
+    <span class="doccomment">/// Disable experimental handling for "uber-turns", sequences of turns through complex
+    /// intersections with short roads. "Locks" the entire movement before starting, and ignores
     /// red lights after starting.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>dont_handle_uber_turns: bool,
@@ -1143,7 +1145,7 @@
     </span><span class="attr">#[structopt(long, parse(try_from_str = parse_rng))]
     </span><span class="kw">pub </span>enable_pandemic_model: <span class="prelude-ty">Option</span>&lt;XorShiftRng&gt;,
     <span class="doccomment">/// When a warning is encountered during simulation, specifies how to respond.
-    </span><span class="attr">#[structopt(long, parse(try_from_str = parse_alert_handler), default_value = <span class="string">&quot;print&quot;</span>)]
+    </span><span class="attr">#[structopt(long, parse(try_from_str = parse_alert_handler), default_value = <span class="string">"print"</span>)]
     </span><span class="kw">pub </span>alerts: AlertHandler,
     <span class="doccomment">/// Ignore parking data in the map and instead treat every building as if it has unlimited
     /// capacity for vehicles.
@@ -1151,12 +1153,12 @@
     /// Some maps always have this hardcoded on -- see the code for the list.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>infinite_parking: bool,
-    <span class="doccomment">/// Allow all agents to immediately proceed into an intersection, even if they&#39;d hit another
+    <span class="doccomment">/// Allow all agents to immediately proceed into an intersection, even if they'd hit another
     /// agent. Obviously this destroys realism of the simulation, but can be used to debug
     /// gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>disable_turn_conflicts: bool,
-    <span class="doccomment">/// Don&#39;t collect any analytics. Only useful for benchmarking and debugging gridlock more
+    <span class="doccomment">/// Don't collect any analytics. Only useful for benchmarking and debugging gridlock more
     /// quickly.
     </span><span class="attr">#[structopt(long)]
     </span><span class="kw">pub </span>skip_analytics: bool,
@@ -1182,7 +1184,7 @@
 
 <span class="kw">impl </span>Default <span class="kw">for </span>SimOptions {
     <span class="kw">fn </span>default() -&gt; SimOptions {
-        SimOptions::new(<span class="string">&quot;tmp&quot;</span>)
+        SimOptions::new(<span class="string">"tmp"</span>)
     }
 }
 
@@ -1195,9 +1197,9 @@
 </span><span class="kw">pub enum </span>AlertHandler {
     <span class="doccomment">/// Just print the alert to STDOUT
     </span>Print,
-    <span class="doccomment">/// Print the alert to STDOUT and don&#39;t proceed until the UI calls clear_alerts()
+    <span class="doccomment">/// Print the alert to STDOUT and don't proceed until the UI calls clear_alerts()
     </span>Block,
-    <span class="doccomment">/// Don&#39;t do anything
+    <span class="doccomment">/// Don't do anything
     </span>Silence,
 }
 
@@ -1209,33 +1211,33 @@
 
 <span class="kw">fn </span>parse_alert_handler(x: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;AlertHandler&gt; {
     <span class="kw">match </span>x {
-        <span class="string">&quot;print&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AlertHandler::Print),
-        <span class="string">&quot;block&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AlertHandler::Block),
-        <span class="string">&quot;silence&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AlertHandler::Silence),
-        <span class="kw">_ </span>=&gt; <span class="macro">bail!</span>(<span class="string">&quot;Bad --alerts={}. Must be print|block|silence&quot;</span>, x),
+        <span class="string">"print" </span>=&gt; <span class="prelude-val">Ok</span>(AlertHandler::Print),
+        <span class="string">"block" </span>=&gt; <span class="prelude-val">Ok</span>(AlertHandler::Block),
+        <span class="string">"silence" </span>=&gt; <span class="prelude-val">Ok</span>(AlertHandler::Silence),
+        <span class="kw">_ </span>=&gt; <span class="macro">bail!</span>(<span class="string">"Bad --alerts={}. Must be print|block|silence"</span>, x),
     }
 }
 
 <span class="comment">// Setup
 </span><span class="kw">impl </span>Sim {
     <span class="kw">pub fn </span>new(map: <span class="kw-2">&amp;</span>Map, <span class="kw-2">mut </span>opts: SimOptions) -&gt; Sim {
-        <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;create blank sim&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">"create blank sim"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>scheduler = Scheduler::new();
 
         <span class="comment">// Always disable parking for two maps. See
         // https://github.com/a-b-street/abstreet/issues/688 for discussion of how to set this
         // properly.
-        </span><span class="kw">if </span>map.get_name() == <span class="kw-2">&amp;</span>MapName::seattle(<span class="string">&quot;arboretum&quot;</span>)
-            || map.get_name().city == CityName::new(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>)
-            || map.get_name() == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;poundbury&quot;</span>, <span class="string">&quot;center&quot;</span>)
-            || map.get_name() == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;phoenix&quot;</span>, <span class="string">&quot;tempe&quot;</span>)
-            || map.get_name() == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;sao_miguel_paulista&quot;</span>)
+        </span><span class="kw">if </span>map.get_name() == <span class="kw-2">&amp;</span>MapName::seattle(<span class="string">"arboretum"</span>)
+            || map.get_name().city == CityName::new(<span class="string">"ir"</span>, <span class="string">"tehran"</span>)
+            || map.get_name() == <span class="kw-2">&amp;</span>MapName::new(<span class="string">"gb"</span>, <span class="string">"poundbury"</span>, <span class="string">"center"</span>)
+            || map.get_name() == <span class="kw-2">&amp;</span>MapName::new(<span class="string">"us"</span>, <span class="string">"phoenix"</span>, <span class="string">"tempe"</span>)
+            || map.get_name() == <span class="kw-2">&amp;</span>MapName::new(<span class="string">"br"</span>, <span class="string">"sao_paulo"</span>, <span class="string">"sao_miguel_paulista"</span>)
         {
             opts.infinite_parking = <span class="bool-val">true</span>;
         }
 
         <span class="comment">// Hack around simulation bugs to get a Tehran map running.
-        </span><span class="kw">if </span>map.get_name() == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>, <span class="string">&quot;parliament&quot;</span>) {
+        </span><span class="kw">if </span>map.get_name() == <span class="kw-2">&amp;</span>MapName::new(<span class="string">"ir"</span>, <span class="string">"tehran"</span>, <span class="string">"parliament"</span>) {
             opts.allow_block_the_box = <span class="bool-val">true</span>;
         }
 
@@ -1268,7 +1270,7 @@
         map: <span class="kw-2">&amp;</span>Map,
         timer: <span class="kw-2">&amp;mut </span>Timer,
     ) {
-        timer.start_iter(<span class="string">&quot;spawn trips&quot;</span>, input.len());
+        timer.start_iter(<span class="string">"spawn trips"</span>, input.len());
         <span class="kw">for </span>(p, info, args) <span class="kw">in </span>input {
             timer.next();
 
@@ -1482,7 +1484,7 @@
             }
             Command::SpawnCar(create_car, retry_if_no_room) =&gt; {
                 <span class="comment">// If this SpawnCar is being retried and the map was live-edited since the first
-                // attempt, the path might&#39;ve become invalid. TODO Skip this check
+                // attempt, the path might've become invalid. TODO Skip this check
                 // most of the time.
                 </span><span class="kw">let </span>constraints = create_car.vehicle.vehicle_type.to_constraints();
                 <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
@@ -1506,7 +1508,7 @@
                     <span class="self">self</span>.trips.cancel_trip(
                         <span class="self">self</span>.time,
                         create_car.trip_and_person.unwrap().<span class="number">0</span>,
-                        <span class="string">&quot;path is no longer valid after map edits&quot;</span>.to_string(),
+                        <span class="string">"path is no longer valid after map edits"</span>.to_string(),
                         <span class="prelude-val">Some</span>(create_car.vehicle),
                         <span class="kw-2">&amp;mut </span>ctx,
                     );
@@ -1527,7 +1529,7 @@
                     {
                         <span class="comment">// Starting the car failed for some reason.
                         </span><span class="kw">if </span>retry_if_no_room {
-                            <span class="comment">// Although the agent isn&#39;t on the map yet, they&#39;re trying.
+                            <span class="comment">// Although the agent isn't on the map yet, they're trying.
                             </span><span class="kw">if let </span><span class="prelude-val">Some</span>((trip, <span class="kw">_</span>)) = trip_and_person {
                                 <span class="self">self</span>.trips.agent_starting_trip_leg(AgentID::Car(id), trip);
                             }
@@ -1547,7 +1549,7 @@
                                 <span class="self">self</span>.time,
                                 trip,
                                 <span class="macro">format!</span>(
-                                    <span class="string">&quot;no room to spawn car for {} by {}, not retrying&quot;</span>,
+                                    <span class="string">"no room to spawn car for {} by {}, not retrying"</span>,
                                     trip, person
                                 ),
                                 <span class="prelude-val">Some</span>(create_car.vehicle),
@@ -1571,7 +1573,7 @@
                         }
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(parked_car) = maybe_parked_car {
                             <span class="kw">if let </span>ParkingSpot::Offstreet(b, <span class="kw">_</span>) = parked_car.spot {
-                                <span class="comment">// Buses don&#39;t start in parking garages, so trip must exist
+                                <span class="comment">// Buses don't start in parking garages, so trip must exist
                                 </span>events.push(Event::PersonLeavesBuilding(
                                     trip_and_person.unwrap().<span class="number">1</span>,
                                     b,
@@ -1588,8 +1590,8 @@
                 }
             }
             Command::SpawnPed(create_ped) =&gt; {
-                <span class="comment">// Do the order a bit backwards so we don&#39;t have to clone the
-                // CreatePedestrian. spawn_ped can&#39;t fail.
+                <span class="comment">// Do the order a bit backwards so we don't have to clone the
+                // CreatePedestrian. spawn_ped can't fail.
                 </span><span class="self">self</span>.trips
                     .agent_starting_trip_leg(AgentID::Pedestrian(create_ped.id), create_ped.trip);
                 events.push(Event::TripPhaseStarting(
@@ -1600,7 +1602,7 @@
                 ));
                 <span class="self">self</span>.analytics.record_demand(<span class="kw-2">&amp;</span>create_ped.path, map);
 
-                <span class="comment">// Maybe there&#39;s actually no work to do!
+                <span class="comment">// Maybe there's actually no work to do!
                 </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>create_ped.start.connection, <span class="kw-2">&amp;</span>create_ped.goal.connection) {
                     (
                         SidewalkPOI::Building(b1),
@@ -1705,7 +1707,7 @@
         <span class="kw">let </span>start = Instant::now();
         <span class="kw">let </span><span class="kw-2">mut </span>last_update = Instant::now();
 
-        timer.start(<span class="macro">format!</span>(<span class="string">&quot;Advance sim to {}&quot;</span>, end_time));
+        timer.start(<span class="macro">format!</span>(<span class="string">"Advance sim to {}"</span>, end_time));
         <span class="kw">while </span><span class="self">self</span>.time &lt; end_time {
             <span class="kw">if </span><span class="self">self</span>.minimal_step(map, end_time - <span class="self">self</span>.time, maybe_cb) {
                 <span class="kw">break</span>;
@@ -1714,12 +1716,12 @@
                 <span class="kw">match </span><span class="self">self</span>.alerts {
                     AlertHandler::Print =&gt; {
                         <span class="kw">for </span>(t, loc, msg) <span class="kw">in </span><span class="self">self</span>.analytics.alerts.drain(..) {
-                            <span class="macro">println!</span>(<span class="string">&quot;Alert at {} ({:?}): {}&quot;</span>, t, loc, msg);
+                            <span class="macro">println!</span>(<span class="string">"Alert at {} ({:?}): {}"</span>, t, loc, msg);
                         }
                     }
                     AlertHandler::Block =&gt; {
                         <span class="kw">for </span>(t, loc, msg) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.analytics.alerts {
-                            <span class="macro">println!</span>(<span class="string">&quot;Alert at {} ({:?}): {}&quot;</span>, t, loc, msg);
+                            <span class="macro">println!</span>(<span class="string">"Alert at {} ({:?}): {}"</span>, t, loc, msg);
                         }
                         <span class="kw">break</span>;
                     }
@@ -1731,7 +1733,7 @@
             <span class="kw">if </span>Duration::realtime_elapsed(last_update) &gt;= Duration::seconds(<span class="number">1.0</span>) {
                 <span class="comment">// TODO Not timer?
                 </span><span class="macro">println!</span>(
-                    <span class="string">&quot;- After {}, the sim is at {}. {} live agents&quot;</span>,
+                    <span class="string">"- After {}, the sim is at {}. {} live agents"</span>,
                     Duration::realtime_elapsed(start),
                     <span class="self">self</span>.time,
                     prettyprint_usize(<span class="self">self</span>.num_active_agents()),
@@ -1739,7 +1741,7 @@
                 last_update = Instant::now();
             }
         }
-        timer.stop(<span class="macro">format!</span>(<span class="string">&quot;Advance sim to {}&quot;</span>, end_time));
+        timer.stop(<span class="macro">format!</span>(<span class="string">"Advance sim to {}"</span>, end_time));
     }
     <span class="kw">pub fn </span>tiny_step(<span class="kw-2">&amp;mut </span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, maybe_cb: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>SimCallback&gt;&gt;) {
         <span class="self">self</span>.timed_step(
@@ -1768,12 +1770,12 @@
                 <span class="kw">match </span><span class="self">self</span>.alerts {
                     AlertHandler::Print =&gt; {
                         <span class="kw">for </span>(t, loc, msg) <span class="kw">in </span><span class="self">self</span>.analytics.alerts.drain(..) {
-                            <span class="macro">println!</span>(<span class="string">&quot;Alert at {} ({:?}): {}&quot;</span>, t, loc, msg);
+                            <span class="macro">println!</span>(<span class="string">"Alert at {} ({:?}): {}"</span>, t, loc, msg);
                         }
                     }
                     AlertHandler::Block =&gt; {
                         <span class="kw">for </span>(t, loc, msg) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.analytics.alerts {
-                            <span class="macro">println!</span>(<span class="string">&quot;Alert at {} ({:?}): {}&quot;</span>, t, loc, msg);
+                            <span class="macro">println!</span>(<span class="string">"Alert at {} ({:?}): {}"</span>, t, loc, msg);
                         }
                         <span class="kw">break</span>;
                     }
@@ -1786,9 +1788,9 @@
     }
 
     <span class="kw">pub fn </span>dump_before_abort(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">println!</span>(<span class="string">&quot;At {}&quot;</span>, <span class="self">self</span>.time);
+        <span class="macro">println!</span>(<span class="string">"At {}"</span>, <span class="self">self</span>.time);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="self">self</span>.find_previous_savestate(<span class="self">self</span>.time) {
-            <span class="macro">println!</span>(<span class="string">&quot;Debug from {}&quot;</span>, path);
+            <span class="macro">println!</span>(<span class="string">"Debug from {}"</span>, path);
         }
     }
 }
@@ -1800,8 +1802,8 @@
     }
 
     <span class="kw">fn </span>save_path(<span class="kw-2">&amp;</span><span class="self">self</span>, base_time: Time) -&gt; String {
-        <span class="comment">// If we wanted to be even more reproducible, we&#39;d encode RNG seed, version of code, etc,
-        // but that&#39;s overkill right now.
+        <span class="comment">// If we wanted to be even more reproducible, we'd encode RNG seed, version of code, etc,
+        // but that's overkill right now.
         </span>abstio::path_save(
             <span class="kw-2">&amp;</span><span class="self">self</span>.map_name,
             <span class="kw-2">&amp;</span><span class="self">self</span>.edits_name,
@@ -1812,33 +1814,33 @@
 
     <span class="kw">pub fn </span>save(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; String {
         <span class="kw">if </span><span class="bool-val">false </span>{
-            <span class="macro">println!</span>(<span class="string">&quot;sim savestate breakdown:&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">"sim savestate breakdown:"</span>);
             <span class="macro">println!</span>(
-                <span class="string">&quot;- driving: {} bytes&quot;</span>,
+                <span class="string">"- driving: {} bytes"</span>,
                 prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.driving))
             );
             <span class="macro">println!</span>(
-                <span class="string">&quot;- parking: {} bytes&quot;</span>,
+                <span class="string">"- parking: {} bytes"</span>,
                 prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.parking))
             );
             <span class="macro">println!</span>(
-                <span class="string">&quot;- walking: {} bytes&quot;</span>,
+                <span class="string">"- walking: {} bytes"</span>,
                 prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.walking))
             );
             <span class="macro">println!</span>(
-                <span class="string">&quot;- intersections: {} bytes&quot;</span>,
+                <span class="string">"- intersections: {} bytes"</span>,
                 prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.intersections))
             );
             <span class="macro">println!</span>(
-                <span class="string">&quot;- transit: {} bytes&quot;</span>,
+                <span class="string">"- transit: {} bytes"</span>,
                 prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.transit))
             );
             <span class="macro">println!</span>(
-                <span class="string">&quot;- trips: {} bytes&quot;</span>,
+                <span class="string">"- trips: {} bytes"</span>,
                 prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.trips))
             );
             <span class="macro">println!</span>(
-                <span class="string">&quot;- scheduler: {} bytes&quot;</span>,
+                <span class="string">"- scheduler: {} bytes"</span>,
                 prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.scheduler))
             );
         }
@@ -1896,7 +1898,7 @@
                     </span><span class="self">self</span>.trips.cancel_trip(
                         <span class="self">self</span>.time,
                         trip,
-                        <span class="string">&quot;map edited without reset&quot;</span>.to_string(),
+                        <span class="string">"map edited without reset"</span>.to_string(),
                         <span class="prelude-val">Some</span>(vehicle),
                         <span class="kw-2">&amp;mut </span>ctx,
                     );
@@ -1907,7 +1909,7 @@
                     <span class="self">self</span>.trips.cancel_trip(
                         <span class="self">self</span>.time,
                         trip,
-                        <span class="string">&quot;map edited without reset&quot;</span>.to_string(),
+                        <span class="string">"map edited without reset"</span>.to_string(),
                         <span class="prelude-val">None</span>,
                         <span class="kw-2">&amp;mut </span>ctx,
                     );
@@ -2007,12 +2009,12 @@
             <span class="self">self</span>.trips.cancel_trip(
                 <span class="self">self</span>.time,
                 trip,
-                <span class="macro">format!</span>(<span class="string">&quot;{} deleted manually through the UI&quot;</span>, id),
+                <span class="macro">format!</span>(<span class="string">"{} deleted manually through the UI"</span>, id),
                 <span class="prelude-val">Some</span>(vehicle),
                 <span class="kw-2">&amp;mut </span>ctx,
             );
         } <span class="kw">else </span>{
-            <span class="macro">println!</span>(<span class="string">&quot;{} has no trip?!&quot;</span>, id);
+            <span class="macro">println!</span>(<span class="string">"{} has no trip?!"</span>, id);
         }
     }
 
@@ -2036,7 +2038,7 @@
             .push(<span class="self">self</span>.time + frequency, Command::Callback(frequency));
     }
     <span class="kw">pub fn </span>unset_periodic_callback(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="comment">// Frequency doesn&#39;t matter
+        <span class="comment">// Frequency doesn't matter
         </span><span class="self">self</span>.scheduler
             .cancel(Command::Callback(Duration::seconds(<span class="number">1.0</span>)));
     }

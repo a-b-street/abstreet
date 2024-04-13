@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/apply.rs`."><title>apply.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/apply.rs`."><title>apply.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -591,8 +593,8 @@
         <span class="self">self</span>.edits = <span class="self">self</span>.new_edits();
     }
 
-    <span class="comment">// new_edits don&#39;t necessarily have to be valid; this could be used for speculatively testing
-    // edits. Doesn&#39;t update pathfinding yet.
+    <span class="comment">// new_edits don't necessarily have to be valid; this could be used for speculatively testing
+    // edits. Doesn't update pathfinding yet.
     </span><span class="kw">fn </span>apply_edits(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         <span class="kw-2">mut </span>new_edits: MapEdits,
@@ -629,7 +631,7 @@
             }
         }
 
-        timer.start_iter(<span class="string">&quot;undo old edits&quot;</span>, <span class="self">self</span>.edits.commands.len() - start_at_idx);
+        timer.start_iter(<span class="string">"undo old edits"</span>, <span class="self">self</span>.edits.commands.len() - start_at_idx);
         <span class="kw">for _ in </span>start_at_idx..<span class="self">self</span>.edits.commands.len() {
             timer.next();
             <span class="self">self</span>.edits
@@ -640,13 +642,13 @@
                 .apply(<span class="kw-2">&amp;mut </span>effects, <span class="self">self</span>);
         }
 
-        timer.start_iter(<span class="string">&quot;apply new edits&quot;</span>, new_edits.commands.len() - start_at_idx);
+        timer.start_iter(<span class="string">"apply new edits"</span>, new_edits.commands.len() - start_at_idx);
         <span class="kw">for </span>cmd <span class="kw">in </span><span class="kw-2">&amp;</span>new_edits.commands[start_at_idx..] {
             timer.next();
             cmd.apply(<span class="kw-2">&amp;mut </span>effects, <span class="self">self</span>);
         }
 
-        timer.start(<span class="string">&quot;re-snap buildings&quot;</span>);
+        timer.start(<span class="string">"re-snap buildings"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>recalc_buildings = Vec::new();
         <span class="kw">for </span>b <span class="kw">in </span><span class="self">self</span>.all_buildings() {
             <span class="kw">if </span>effects.modified_lanes.contains(<span class="kw-2">&amp;</span>b.sidewalk()) {
@@ -654,9 +656,9 @@
             }
         }
         fix_building_driveways(<span class="self">self</span>, recalc_buildings, <span class="kw-2">&amp;mut </span>effects);
-        timer.stop(<span class="string">&quot;re-snap buildings&quot;</span>);
+        timer.stop(<span class="string">"re-snap buildings"</span>);
 
-        timer.start(<span class="string">&quot;re-snap parking lots&quot;</span>);
+        timer.start(<span class="string">"re-snap parking lots"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>recalc_parking_lots = Vec::new();
         <span class="kw">for </span>pl <span class="kw">in </span><span class="self">self</span>.all_parking_lots() {
             <span class="kw">if </span>effects.modified_lanes.contains(<span class="kw-2">&amp;</span>pl.driving_pos.lane())
@@ -667,7 +669,7 @@
             }
         }
         fix_parking_lot_driveways(<span class="self">self</span>, recalc_parking_lots);
-        timer.stop(<span class="string">&quot;re-snap parking lots&quot;</span>);
+        timer.stop(<span class="string">"re-snap parking lots"</span>);
 
         <span class="comment">// Might need to update bus stops.
         </span><span class="kw">if </span>enforce_valid {
@@ -675,7 +677,7 @@
                 <span class="kw">let </span>stops = <span class="self">self</span>.get_r(<span class="kw-2">*</span>id).transit_stops.clone();
                 <span class="kw">for </span>s <span class="kw">in </span>stops {
                     <span class="kw">let </span>sidewalk_pos = <span class="self">self</span>.get_ts(s).sidewalk_pos;
-                    <span class="comment">// Must exist, because we aren&#39;t allowed to orphan a bus stop.
+                    <span class="comment">// Must exist, because we aren't allowed to orphan a bus stop.
                     </span><span class="kw">let </span>driving_lane = <span class="self">self
                         </span>.get_r(<span class="kw-2">*</span>id)
                         .find_closest_lane(sidewalk_pos.lane(), |l| {
@@ -696,7 +698,7 @@
             <span class="self">self</span>.zones = Zone::make_all(<span class="self">self</span>);
         }
 
-        <span class="comment">// Some of these might&#39;ve been added, then later deleted.
+        <span class="comment">// Some of these might've been added, then later deleted.
         </span>effects
             .added_turns
             .retain(|t| <span class="self">self</span>.maybe_get_t(<span class="kw-2">*</span>t).is_some());
@@ -718,7 +720,7 @@
         effects
     }
 
-    <span class="doccomment">/// This can expensive, so don&#39;t constantly do it while editing in the UI. But this must happen
+    <span class="doccomment">/// This can expensive, so don't constantly do it while editing in the UI. But this must happen
     /// before the simulation resumes.
     </span><span class="kw">pub fn </span>recalculate_pathfinding_after_edits(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>Timer) {
         <span class="kw">if </span>!<span class="self">self</span>.pathfinder_dirty {
@@ -730,7 +732,7 @@
         <span class="self">self</span>.pathfinder = pathfinder;
 
         <span class="comment">// Also recompute blackholes. This is cheap enough to do from scratch.
-        </span>timer.start(<span class="string">&quot;recompute blackholes&quot;</span>);
+        </span>timer.start(<span class="string">"recompute blackholes"</span>);
         <span class="kw">for </span>road <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.roads {
             <span class="kw">for </span>lane <span class="kw">in </span><span class="kw-2">&amp;mut </span>road.lanes {
                 lane.driving_blackhole = <span class="bool-val">false</span>;
@@ -743,7 +745,7 @@
         <span class="kw">for </span>l <span class="kw">in </span>connectivity::find_scc(<span class="self">self</span>, PathConstraints::Bike).<span class="number">1 </span>{
             <span class="self">self</span>.mut_lane(l).biking_blackhole = <span class="bool-val">true</span>;
         }
-        timer.stop(<span class="string">&quot;recompute blackholes&quot;</span>);
+        timer.stop(<span class="string">"recompute blackholes"</span>);
 
         <span class="self">self</span>.pathfinder_dirty = <span class="bool-val">false</span>;
     }
@@ -771,7 +773,7 @@
                 road.complicated_turn_restrictions = new.complicated_turn_restrictions.clone();
 
                 effects.changed_roads.insert(road.id);
-                <span class="comment">// TODO If lanes_ltr didn&#39;t change, can we skip some of this?
+                <span class="comment">// TODO If lanes_ltr didn't change, can we skip some of this?
                 </span><span class="kw">for </span>i <span class="kw">in </span>[road.src_i, road.dst_i] {
                     effects.changed_intersections.insert(i);
                     <span class="kw">let </span>i = <span class="kw-2">&amp;mut </span>map.intersections[i.<span class="number">0</span>];
@@ -896,9 +898,9 @@
 
     <span class="kw">match </span>i.control {
         IntersectionControl::Signed | IntersectionControl::Uncontrolled =&gt; {
-            <span class="comment">// Stop sign policy usually doesn&#39;t depend on incoming lane types, except when changing
+            <span class="comment">// Stop sign policy usually doesn't depend on incoming lane types, except when changing
             // to/from construction. To be safe, always regenerate. Edits to stop signs are rare
-            // anyway. And when we&#39;re smarter about preserving traffic signal changes in the face
+            // anyway. And when we're smarter about preserving traffic signal changes in the face
             // of lane changes, we can do the same here.
             </span>map.stop_signs.insert(id, ControlStopSign::new(map, id));
         }
@@ -941,7 +943,7 @@
         road.recreate_lanes(lanes_ltr);
     }
 
-    <span class="comment">// We might&#39;ve affected the geometry of other nearby roads.
+    <span class="comment">// We might've affected the geometry of other nearby roads.
     </span><span class="kw">for </span>r <span class="kw">in </span>road_geom_changed {
         effects.changed_roads.insert(r);
         <span class="kw">let </span>lane_specs = map.get_r(r).lane_specs();
@@ -983,7 +985,7 @@
             highway_type: r
                 .osm_tags
                 .get(osm::HIGHWAY)
-                .or_else(|| r.osm_tags.get(<span class="string">&quot;railway&quot;</span>))
+                .or_else(|| r.osm_tags.get(<span class="string">"railway"</span>))
                 .unwrap()
                 .to_string(),
         });
@@ -992,13 +994,13 @@
     <span class="kw">let </span>results = <span class="kw">match </span>osm2streets::intersection_polygon(
         osm2streets::IntersectionID(intersection.id.<span class="number">0</span>),
         input_roads,
-        <span class="comment">// For consolidated intersections, it appears we don&#39;t need to pass in
+        <span class="comment">// For consolidated intersections, it appears we don't need to pass in
         // trim_roads_for_merging. May revisit this later if needed.
         </span><span class="kw-2">&amp;</span>BTreeMap::new(),
     ) {
         <span class="prelude-val">Ok</span>(results) =&gt; results,
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">error!</span>(<span class="string">&quot;Couldn&#39;t recalculate {i}&#39;s geometry: {err}&quot;</span>);
+            <span class="macro">error!</span>(<span class="string">"Couldn't recalculate {i}'s geometry: {err}"</span>);
             <span class="kw">return </span>Vec::new();
         }
     };
@@ -1018,8 +1020,8 @@
         ) {
             road.center_pts = pl;
         } <span class="kw">else </span>{
-            <span class="comment">// If the road geometrically vanishes, don&#39;t do anything for now
-            </span><span class="macro">error!</span>(<span class="string">&quot;{} on trim_start broke&quot;</span>, road.id);
+            <span class="comment">// If the road geometrically vanishes, don't do anything for now
+            </span><span class="macro">error!</span>(<span class="string">"{} on trim_start broke"</span>, road.id);
         }
         <span class="kw">if </span>id != changed_road {
             affected.push(id);
@@ -1036,7 +1038,7 @@
         ) {
             road.center_pts = pl;
         } <span class="kw">else </span>{
-            <span class="macro">error!</span>(<span class="string">&quot;{} on trim_end broke&quot;</span>, road.id);
+            <span class="macro">error!</span>(<span class="string">"{} on trim_end broke"</span>, road.id);
         }
         <span class="kw">if </span>id != changed_road {
             affected.push(id);
@@ -1061,7 +1063,7 @@
         map,
         query,
         |l| l.is_walkable(),
-        <span class="comment">// Don&#39;t put connections too close to intersections
+        <span class="comment">// Don't put connections too close to intersections
         </span>sidewalk_buffer,
         <span class="comment">// Try not to skip any buildings, but more than 1km from a sidewalk is a little much
         </span>Distance::meters(<span class="number">1000.0</span>),
@@ -1083,7 +1085,7 @@
             }
             <span class="prelude-val">None </span>=&gt; {
                 <span class="comment">// TODO Not sure what to do here yet.
-                </span><span class="macro">error!</span>(<span class="string">&quot;{} isn&#39;t snapped to a sidewalk now!&quot;</span>, id);
+                </span><span class="macro">error!</span>(<span class="string">"{} isn't snapped to a sidewalk now!"</span>, id);
             }
         }
     }
@@ -1121,7 +1123,7 @@
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="comment">// TODO Not sure what to do here yet.
-                </span><span class="macro">error!</span>(<span class="string">&quot;{} isn&#39;t snapped to a sidewalk now: {}&quot;</span>, id, err);
+                </span><span class="macro">error!</span>(<span class="string">"{} isn't snapped to a sidewalk now: {}"</span>, id, err);
             }
         }
     }

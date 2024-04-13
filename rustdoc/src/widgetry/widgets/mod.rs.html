@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -936,7 +938,7 @@
     <span class="doccomment">/// What width and height does the widget occupy? If this changes, be sure to set
     /// `redo_layout` to true in `event`.
     </span><span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims;
-    <span class="doccomment">/// Your widget&#39;s top left corner should be here. Handle mouse events and draw appropriately.
+    <span class="doccomment">/// Your widget's top left corner should be here. Handle mouse events and draw appropriately.
     </span><span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt);
     <span class="doccomment">/// Your chance to react to an event. Any side effects outside of this widget are communicated
     /// through the output.
@@ -976,12 +978,12 @@
 <span class="kw">impl </span>Outcome {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">match </span><span class="self">self </span>{
-            Outcome::Clicked(x) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::Clicked({x})&quot;</span>),
-            Outcome::ClickCustom(<span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::ClickCustom(???)&quot;</span>),
-            Outcome::Changed(x) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::Changed({x})&quot;</span>),
-            Outcome::DragDropReleased(x, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::DragDropReleased({x}, ...)&quot;</span>),
-            Outcome::Focused(x) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::Focused({x})&quot;</span>),
-            Outcome::Nothing =&gt; <span class="macro">format!</span>(<span class="string">&quot;Outcome::Nothing&quot;</span>),
+            Outcome::Clicked(x) =&gt; <span class="macro">format!</span>(<span class="string">"Outcome::Clicked({x})"</span>),
+            Outcome::ClickCustom(<span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">"Outcome::ClickCustom(???)"</span>),
+            Outcome::Changed(x) =&gt; <span class="macro">format!</span>(<span class="string">"Outcome::Changed({x})"</span>),
+            Outcome::DragDropReleased(x, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">"Outcome::DragDropReleased({x}, ...)"</span>),
+            Outcome::Focused(x) =&gt; <span class="macro">format!</span>(<span class="string">"Outcome::Focused({x})"</span>),
+            Outcome::Nothing =&gt; <span class="macro">format!</span>(<span class="string">"Outcome::Nothing"</span>),
         }
     }
 }
@@ -996,7 +998,7 @@
     <span class="doccomment">/// This widget changed dimensions, so recalculate layout.
     </span><span class="kw">pub </span>redo_layout: bool,
     <span class="doccomment">/// This widget produced an Outcome, and event handling should immediately stop. Most widgets
-    /// shouldn&#39;t set this.
+    /// shouldn't set this.
     </span><span class="kw">pub </span>outcome: Outcome,
 }
 
@@ -1105,7 +1107,7 @@
         <span class="self">self</span>.layout.style.justify_content = JustifyContent::SpaceAround;
         <span class="self">self
     </span>}
-    <span class="doccomment">/// Like flex_wrap, but doesn&#39;t horizontally space out widgets on the same row.
+    <span class="doccomment">/// Like flex_wrap, but doesn't horizontally space out widgets on the same row.
     </span><span class="kw">pub fn </span>flex_wrap_no_inner_spacing(<span class="kw-2">mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, width: Percent) -&gt; Widget {
         <span class="self">self</span>.layout.style.size = Size {
             width: Dimension::Points((ctx.canvas.window_width * width.inner()) <span class="kw">as </span>f32),
@@ -1150,7 +1152,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Things like padding don&#39;t work on many widgets, so just make a convenient way to wrap in a
+    <span class="doccomment">/// Things like padding don't work on many widgets, so just make a convenient way to wrap in a
     /// row/column first
     </span><span class="kw">pub fn </span>container(<span class="self">self</span>) -&gt; Widget {
         Widget::row(<span class="macro">vec!</span>[<span class="self">self</span>])
@@ -1260,7 +1262,7 @@
         };
         <span class="self">self
     </span>}
-    <span class="doccomment">/// This doesn&#39;t count against the entire container
+    <span class="doccomment">/// This doesn't count against the entire container
     </span><span class="kw">pub fn </span>align_vert_center(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; Widget {
         <span class="self">self</span>.layout.style.margin = Rect {
             left: Dimension::Undefined,
@@ -1287,7 +1289,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// If the argument is true, don&#39;t actually create this widget. May be more readable than an
+    <span class="doccomment">/// If the argument is true, don't actually create this widget. May be more readable than an
     /// if/else block.
     </span><span class="kw">pub fn </span>hide(<span class="self">self</span>, x: bool) -&gt; Widget {
         <span class="kw">if </span>x {
@@ -1319,7 +1321,7 @@
     }
 
     <span class="comment">// TODO Change this to Dropdown::widget
-    </span><span class="kw">pub fn </span>dropdown&lt;T: <span class="lifetime">&#39;static </span>+ PartialEq + Clone + std::fmt::Debug, I: AsRef&lt;str&gt;&gt;(
+    </span><span class="kw">pub fn </span>dropdown&lt;T: <span class="lifetime">'static </span>+ PartialEq + Clone + std::fmt::Debug, I: AsRef&lt;str&gt;&gt;(
         ctx: <span class="kw-2">&amp;</span>EventCtx,
         label: I,
         default_value: T,
@@ -1404,7 +1406,7 @@
                 Dimension::Points((w * ctx.canvas.window_width) <span class="kw">as </span>f32 - <span class="number">35.0</span>);
         }
 
-        <span class="comment">// Pretend we&#39;re in a Panel and basically copy recompute_layout
+        <span class="comment">// Pretend we're in a Panel and basically copy recompute_layout
         </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>taffy = Taffy::new();
             <span class="kw">let </span>root = taffy
@@ -1473,9 +1475,9 @@
 <span class="comment">// Internals
 </span><span class="kw">impl </span>Widget {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
-        <span class="comment">// Don&#39;t draw these yet; clipping is still in effect.
-        </span><span class="kw">if </span><span class="self">self</span>.id == <span class="prelude-val">Some</span>(<span class="string">&quot;horiz scrollbar&quot;</span>.to_string())
-            || <span class="self">self</span>.id == <span class="prelude-val">Some</span>(<span class="string">&quot;vert scrollbar&quot;</span>.to_string())
+        <span class="comment">// Don't draw these yet; clipping is still in effect.
+        </span><span class="kw">if </span><span class="self">self</span>.id == <span class="prelude-val">Some</span>(<span class="string">"horiz scrollbar"</span>.to_string())
+            || <span class="self">self</span>.id == <span class="prelude-val">Some</span>(<span class="string">"vert scrollbar"</span>.to_string())
         {
             <span class="kw">return</span>;
         }
@@ -1530,9 +1532,9 @@
         <span class="kw">let </span>y: f64 = result.location.y.into();
         <span class="kw">let </span>width: f64 = result.size.width.into();
         <span class="kw">let </span>height: f64 = result.size.height.into();
-        <span class="comment">// Don&#39;t scroll the scrollbars
-        </span><span class="kw">let </span>top_left = <span class="kw">if </span><span class="self">self</span>.id == <span class="prelude-val">Some</span>(<span class="string">&quot;horiz scrollbar&quot;</span>.to_string())
-            || <span class="self">self</span>.id == <span class="prelude-val">Some</span>(<span class="string">&quot;vert scrollbar&quot;</span>.to_string())
+        <span class="comment">// Don't scroll the scrollbars
+        </span><span class="kw">let </span>top_left = <span class="kw">if </span><span class="self">self</span>.id == <span class="prelude-val">Some</span>(<span class="string">"horiz scrollbar"</span>.to_string())
+            || <span class="self">self</span>.id == <span class="prelude-val">Some</span>(<span class="string">"vert scrollbar"</span>.to_string())
         {
             ScreenPt::new(x, y)
         } <span class="kw">else </span>{
@@ -1540,7 +1542,7 @@
         };
         <span class="self">self</span>.rect = ScreenRectangle::top_left(top_left, ScreenDims::new(width, height));
 
-        <span class="comment">// Assume widgets don&#39;t dynamically change, so we just upload the background once.
+        <span class="comment">// Assume widgets don't dynamically change, so we just upload the background once.
         </span><span class="kw">if </span>(<span class="self">self</span>.bg.is_none() || recompute_layout)
             &amp;&amp; (<span class="self">self</span>.layout.bg_color.is_some() || <span class="self">self</span>.layout.outline.is_some())
         {
@@ -1579,7 +1581,7 @@
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(container) = <span class="self">self</span>.widget.downcast_mut::&lt;Container&gt;() {
-            <span class="comment">// layout() doesn&#39;t return absolute position; it&#39;s relative to the container.
+            <span class="comment">// layout() doesn't return absolute position; it's relative to the container.
             </span><span class="kw">for </span>widget <span class="kw">in </span><span class="kw-2">&amp;mut </span>container.members {
                 widget.apply_flexbox(
                     taffy,
@@ -1601,7 +1603,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(btn) = <span class="self">self</span>.widget.downcast_ref::&lt;Button&gt;() {
             <span class="kw">if </span>btn.is_enabled() {
                 <span class="kw">if </span>actions.contains(<span class="kw-2">&amp;</span>btn.action) {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Two buttons in one Panel both use action {}&quot;</span>, btn.action);
+                    <span class="macro">panic!</span>(<span class="string">"Two buttons in one Panel both use action {}"</span>, btn.action);
                 }
                 actions.insert(btn.action.clone());
             }
@@ -1658,7 +1660,7 @@
         } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(defer) = <span class="self">self</span>.widget.downcast::&lt;DeferDraw&gt;() {
             batch.append(defer.batch.translate(defer.top_left.x, defer.top_left.y));
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;to_geom called on a widget tree that has something interactive&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"to_geom called on a widget tree that has something interactive"</span>);
         }
     }
 
@@ -1695,7 +1697,7 @@
 
     <span class="kw">fn </span>take(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Widget&gt; {
         <span class="kw">if </span><span class="self">self</span>.id == <span class="prelude-val">Some</span>(name.to_string()) {
-            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t take({}), it&#39;s a top-level widget&quot;</span>, name);
+            <span class="macro">panic!</span>(<span class="string">"Can't take({}), it's a top-level widget"</span>, name);
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(container) = <span class="self">self</span>.widget.downcast_mut::&lt;Container&gt;() {

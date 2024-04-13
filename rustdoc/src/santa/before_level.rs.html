@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/before_level.rs`."><title>before_level.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/before_level.rs`."><title>before_level.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../santa/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -437,7 +439,7 @@
                 <span class="kw">let </span>intersection_id = app
                     .map
                     .find_i_by_pt2d(app.map.localise_lon_lat_to_map(level.start))
-                    .expect(<span class="string">&quot;Failed to get level start point&quot;</span>);
+                    .expect(<span class="string">"Failed to get level start point"</span>);
 
                 <span class="kw">let </span>start = app.map.get_i(intersection_id).polygon.center();
                 ctx.canvas.center_on_map_pt(start);
@@ -445,21 +447,21 @@
                 <span class="kw">let </span>bldgs = Buildings::new(ctx, app, HashSet::new());
 
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
-                txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;Ready for {}?&quot;</span>, level.title)).small_heading());
+                txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"Ready for {}?"</span>, level.title)).small_heading());
                 txt.add_line(<span class="macro">format!</span>(
-                    <span class="string">&quot;Goal: deliver {} presents&quot;</span>,
+                    <span class="string">"Goal: deliver {} presents"</span>,
                     prettyprint_usize(level.goal)
                 ));
-                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Time limit: {}&quot;</span>, level.time_limit));
+                txt.add_line(<span class="macro">format!</span>(<span class="string">"Time limit: {}"</span>, level.time_limit));
                 txt.add_appended(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Deliver presents to &quot;</span>),
-                    Line(<span class="string">&quot;single-family homes&quot;</span>).fg(app.cs.residential_building),
-                    Line(<span class="string">&quot; and &quot;</span>),
-                    Line(<span class="string">&quot;apartments&quot;</span>).fg(app.session.colors.apartment),
+                    Line(<span class="string">"Deliver presents to "</span>),
+                    Line(<span class="string">"single-family homes"</span>).fg(app.cs.residential_building),
+                    Line(<span class="string">" and "</span>),
+                    Line(<span class="string">"apartments"</span>).fg(app.session.colors.apartment),
                 ]);
                 txt.add_appended(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Raise your blood sugar by visiting &quot;</span>),
-                    Line(<span class="string">&quot;stores&quot;</span>).fg(app.session.colors.store),
+                    Line(<span class="string">"Raise your blood sugar by visiting "</span>),
+                    Line(<span class="string">"stores"</span>).fg(app.session.colors.store),
                 ]);
 
                 <span class="kw">let </span>instructions_panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
@@ -468,30 +470,30 @@
                         GeomBatch::load_svg_bytes(
                             <span class="kw-2">&amp;</span>ctx.prerender,
                             <span class="macro">widgetry::include_labeled_bytes!</span>(
-                                <span class="string">&quot;../../../widgetry/icons/arrow_keys.svg&quot;
+                                <span class="string">"../../../widgetry/icons/arrow_keys.svg"
                             </span>),
                         )
                         .into_widget(ctx),
                         Text::from_all(<span class="macro">vec!</span>[
-                            Line(<span class="string">&quot;arrow keys&quot;</span>).fg(ctx.style().text_hotkey_color),
-                            Line(<span class="string">&quot; to move (or &quot;</span>),
-                            Line(<span class="string">&quot;WASD&quot;</span>).fg(ctx.style().text_hotkey_color),
-                            Line(<span class="string">&quot;)&quot;</span>),
+                            Line(<span class="string">"arrow keys"</span>).fg(ctx.style().text_hotkey_color),
+                            Line(<span class="string">" to move (or "</span>),
+                            Line(<span class="string">"WASD"</span>).fg(ctx.style().text_hotkey_color),
+                            Line(<span class="string">")"</span>),
                         ])
                         .into_widget(ctx),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        Image::from_path(<span class="string">&quot;system/assets/tools/mouse.svg&quot;</span>).into_widget(ctx),
+                        Image::from_path(<span class="string">"system/assets/tools/mouse.svg"</span>).into_widget(ctx),
                         Text::from_all(<span class="macro">vec!</span>[
-                            Line(<span class="string">&quot;mouse scroll wheel or touchpad&quot;</span>)
+                            Line(<span class="string">"mouse scroll wheel or touchpad"</span>)
                                 .fg(ctx.style().text_hotkey_color),
-                            Line(<span class="string">&quot; to zoom in or out&quot;</span>),
+                            Line(<span class="string">" to zoom in or out"</span>),
                         ])
                         .into_widget(ctx),
                     ]),
                     Text::from_all(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Escape key&quot;</span>).fg(ctx.style().text_hotkey_color),
-                        Line(<span class="string">&quot; to pause&quot;</span>),
+                        Line(<span class="string">"Escape key"</span>).fg(ctx.style().text_hotkey_color),
+                        Line(<span class="string">" to pause"</span>),
                     ])
                     .into_widget(ctx),
                 ]))
@@ -551,7 +553,7 @@
             app.current_selection = app.mouseover_unzoomed_buildings(ctx).filter(|id| {
                 <span class="kw">let </span>b = <span class="kw">match </span>id {
                     ID::Building(b) =&gt; b,
-                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t call as_building on {:?}&quot;</span>, id),
+                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Can't call as_building on {:?}"</span>, id),
                 };
                 <span class="macro">matches!</span>(<span class="self">self</span>.bldgs.buildings[<span class="kw-2">&amp;</span>b], BldgState::Undelivered(<span class="kw">_</span>))
             });
@@ -569,7 +571,7 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.upzone_panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Start game&quot; </span>=&gt; {
+                <span class="string">"Start game" </span>=&gt; {
                     app.current_selection = <span class="prelude-val">None</span>;
                     app.session
                         .upzones_per_level
@@ -584,15 +586,15 @@
                         <span class="self">self</span>.current_picks.clone().into_iter().collect(),
                     ));
                 }
-                <span class="string">&quot;Randomly choose upzones&quot; </span>=&gt; {
+                <span class="string">"Randomly choose upzones" </span>=&gt; {
                     <span class="self">self</span>.randomly_pick_upzones(app);
                     <span class="self">self</span>.upzone_panel = make_upzone_panel(ctx, app, <span class="self">self</span>.current_picks.len());
                 }
-                <span class="string">&quot;Clear upzones&quot; </span>=&gt; {
+                <span class="string">"Clear upzones" </span>=&gt; {
                     <span class="self">self</span>.current_picks.clear();
                     <span class="self">self</span>.upzone_panel = make_upzone_panel(ctx, app, <span class="self">self</span>.current_picks.len());
                 }
-                <span class="string">&quot;help&quot; </span>=&gt; {
+                <span class="string">"help" </span>=&gt; {
                     <span class="kw">return </span>explain_upzoning(ctx);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -659,13 +661,13 @@
     <span class="kw">let </span>(max_speed, max_energy) = Vehicle::max_stats();
 
     Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-        Line(<span class="string">&quot;Pick Santa&#39;s vehicle&quot;</span>)
+        Line(<span class="string">"Pick Santa's vehicle"</span>)
             .small_heading()
             .into_widget(ctx),
         Widget::row(buttons),
         Line(<span class="kw-2">&amp;</span>vehicle.name).small_heading().into_widget(ctx),
         Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Speed:&quot;</span>.text_widget(ctx),
+            <span class="string">"Speed:"</span>.text_widget(ctx),
             custom_bar(
                 ctx,
                 app.session.colors.boost,
@@ -675,7 +677,7 @@
             .align_right(),
         ]),
         Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Energy:&quot;</span>.text_widget(ctx),
+            <span class="string">"Energy:"</span>.text_widget(ctx),
             custom_bar(
                 ctx,
                 app.session.colors.energy,
@@ -690,12 +692,12 @@
 }
 
 <span class="kw">fn </span>make_upzone_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, num_picked: usize) -&gt; Panel {
-    <span class="comment">// Don&#39;t overwhelm players on the very first level.
+    <span class="comment">// Don't overwhelm players on the very first level.
     </span><span class="kw">if </span>app.session.upzones_unlocked == <span class="number">0 </span>{
         <span class="kw">return </span>Panel::new_builder(
             ctx.style()
                 .btn_solid_primary
-                .text(<span class="string">&quot;Start game&quot;</span>)
+                .text(<span class="string">"Start game"</span>)
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .container(),
@@ -709,32 +711,32 @@
 
     Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
         Widget::row(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Upzoning&quot;</span>).small_heading().into_widget(ctx),
+            Line(<span class="string">"Upzoning"</span>).small_heading().into_widget(ctx),
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                .build_widget(ctx, <span class="string">&quot;help&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/info.svg"</span>)
+                .build_widget(ctx, <span class="string">"help"</span>)
                 .align_right(),
         ]),
         Widget::row(<span class="macro">vec!</span>[
-            Image::from_path(<span class="string">&quot;system/assets/tools/mouse.svg&quot;</span>).into_widget(ctx),
-            Line(<span class="string">&quot;Select the houses you want to turn into stores&quot;</span>)
+            Image::from_path(<span class="string">"system/assets/tools/mouse.svg"</span>).into_widget(ctx),
+            Line(<span class="string">"Select the houses you want to turn into stores"</span>)
                 .fg(ctx.style().text_hotkey_color)
                 .into_widget(ctx),
         ]),
         Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Upzones chosen:&quot;</span>.text_widget(ctx),
+            <span class="string">"Upzones chosen:"</span>.text_widget(ctx),
             make_bar(ctx, Color::PINK, num_picked, app.session.upzones_unlocked),
         ]),
         Widget::row(<span class="macro">vec!</span>[
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Randomly choose upzones&quot;</span>)
+                .text(<span class="string">"Randomly choose upzones"</span>)
                 .disabled(num_picked == app.session.upzones_unlocked)
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Clear upzones&quot;</span>)
+                .text(<span class="string">"Clear upzones"</span>)
                 .disabled(num_picked == <span class="number">0</span>)
                 .build_def(ctx)
                 .align_right(),
@@ -742,13 +744,13 @@
         <span class="kw">if </span>num_picked == app.session.upzones_unlocked {
             ctx.style()
                 .btn_solid_primary
-                .text(<span class="string">&quot;Start game&quot;</span>)
+                .text(<span class="string">"Start game"</span>)
                 .hotkey(Key::Enter)
                 .build_def(ctx)
         } <span class="kw">else </span>{
             ctx.style()
                 .btn_solid_primary
-                .text(<span class="string">&quot;Finish upzoning before playing&quot;</span>)
+                .text(<span class="string">"Finish upzoning before playing"</span>)
                 .disabled(<span class="bool-val">true</span>)
                 .build_def(ctx)
         },
@@ -763,14 +765,14 @@
 <span class="kw">fn </span>explain_upzoning(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Transition {
     Transition::Push(PopupMsg::new_state(
         ctx,
-        <span class="string">&quot;Upzoning power unlocked&quot;</span>,
+        <span class="string">"Upzoning power unlocked"</span>,
         <span class="macro">vec!</span>[
-            <span class="string">&quot;It&#39;s hard to deliver to houses far away from shops, isn&#39;t it?&quot;</span>,
-            <span class="string">&quot;You&#39;ve gained the power to change the zoning code for a residential building.&quot;</span>,
-            <span class="string">&quot;You can now transform a single-family house into a multi-use building,&quot;</span>,
-            <span class="string">&quot;with shops on the ground floor, and people living above.&quot;</span>,
-            <span class="string">&quot;&quot;</span>,
-            <span class="string">&quot;Where should you place the new store?&quot;</span>,
+            <span class="string">"It's hard to deliver to houses far away from shops, isn't it?"</span>,
+            <span class="string">"You've gained the power to change the zoning code for a residential building."</span>,
+            <span class="string">"You can now transform a single-family house into a multi-use building,"</span>,
+            <span class="string">"with shops on the ground floor, and people living above."</span>,
+            <span class="string">""</span>,
+            <span class="string">"Where should you place the new store?"</span>,
         ],
     ))
 }

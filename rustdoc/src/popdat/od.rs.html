@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/od.rs`."><title>od.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="popdat" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/od.rs`."><title>od.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="popdat" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../popdat/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -457,7 +459,7 @@
 <span class="doccomment">/// Only desire lines starting and ending in zones matching this policy will be used.
 </span><span class="attr">#[derive(PartialEq)]
 </span><span class="kw">pub enum </span>IncludeZonePolicy {
-    <span class="doccomment">/// Keep zones that at least partially overlap the map&#39;s boundary. Note this doesn&#39;t mean no
+    <span class="doccomment">/// Keep zones that at least partially overlap the map's boundary. Note this doesn't mean no
     /// off-map trips will occur -- if a zone only partly overlaps the map, then some trips will
     /// snap to a border.
     </span>MustOverlap,
@@ -469,10 +471,10 @@
 <span class="doccomment">/// Generates a scenario from aggregated origin/destination data (DesireLines). The input describes
 /// an exact number of people, who live in one zone and work in another (possibly the same) and
 /// commute using some mode. For each of them, we just need to pick a specific home and workplace
-/// from the zones, and use the Options to pick departure times. We&#39;ll wind up creating people who
+/// from the zones, and use the Options to pick departure times. We'll wind up creating people who
 /// just take two trips daily: home -&gt; work -&gt; home.
 ///
-/// The home and workplace may be a specific building, or they&#39;re snapped to a map border,
+/// The home and workplace may be a specific building, or they're snapped to a map border,
 /// resulting in trips that begin and/or end off-map. The amount of the zone that overlaps with the
 /// map boundary determines this. If the zone and map boundary overlap 50% by area, then half of
 /// the people to/from this zone will pick buildings, and half will pick borders.
@@ -494,7 +496,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>works_on_map = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>pass_through = <span class="number">0</span>;
 
-    timer.start_iter(<span class="string">&quot;create people per desire line&quot;</span>, desire_lines.len());
+    timer.start_iter(<span class="string">"create people per desire line"</span>, desire_lines.len());
     <span class="kw">for </span>desire <span class="kw">in </span>desire_lines {
         timer.next();
         <span class="comment">// Skip if we filtered out either zone.
@@ -577,13 +579,13 @@
     }
     <span class="kw">let </span>total = on_map_only + lives_on_map + works_on_map + pass_through;
     <span class="kw">for </span>(x, label) <span class="kw">in </span>[
-        (on_map_only, <span class="string">&quot;live and work on-map&quot;</span>),
-        (lives_on_map, <span class="string">&quot;live on-map, work remote&quot;</span>),
-        (works_on_map, <span class="string">&quot;live remote, work on-map&quot;</span>),
-        (pass_through, <span class="string">&quot;just pass through&quot;</span>),
+        (on_map_only, <span class="string">"live and work on-map"</span>),
+        (lives_on_map, <span class="string">"live on-map, work remote"</span>),
+        (works_on_map, <span class="string">"live remote, work on-map"</span>),
+        (pass_through, <span class="string">"just pass through"</span>),
     ] {
         <span class="macro">info!</span>(
-            <span class="string">&quot;{} people ({}) {}&quot;</span>,
+            <span class="string">"{} people ({}) {}"</span>,
             prettyprint_usize(x),
             Percent::of(x, total),
             label
@@ -598,7 +600,7 @@
     center: Pt2D,
     pct_overlap: f64,
     <span class="comment">// For each building, have a value describing how many people live or work there. The exact
-    // value doesn&#39;t matter; it&#39;s just a relative weighting. This way, we can use a weighted sample
+    // value doesn't matter; it's just a relative weighting. This way, we can use a weighted sample
     // and match more people to larger homes/stores.
     </span>homes: Vec&lt;(BuildingID, usize)&gt;,
     workplaces: Vec&lt;(BuildingID, usize)&gt;,
@@ -623,7 +625,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>remote_zones = HashMap::new();
     <span class="kw">for </span>(name, zone) <span class="kw">in </span>timer
         .parallelize(
-            <span class="string">&quot;create zones&quot;</span>,
+            <span class="string">"create zones"</span>,
             input.into_iter().collect(),
             |(name, polygon)| {
                 <span class="kw">let </span><span class="kw-2">mut </span>overlapping_area = <span class="number">0.0</span>;
@@ -644,7 +646,7 @@
                     </span><span class="kw">let </span>center = polygon.center();
                     <span class="kw">let </span><span class="kw-2">mut </span>borders = all_borders.clone();
                     <span class="comment">// TODO For remote zones, we should at least prune for borders on the correct
-                    // &quot;side&quot; of the map. Or we can let fast_dist later take care of it.
+                    // "side" of the map. Or we can let fast_dist later take care of it.
                     </span><span class="kw">if </span>!is_remote {
                         <span class="kw">for </span>list <span class="kw">in </span><span class="macro">vec!</span>[
                             <span class="kw-2">&amp;mut </span>borders.incoming_walking,
@@ -686,17 +688,17 @@
     }
 
     <span class="macro">info!</span>(
-        <span class="string">&quot;{} zones partly in the map boundary, {} remote zones&quot;</span>,
+        <span class="string">"{} zones partly in the map boundary, {} remote zones"</span>,
         prettyprint_usize(normal_zones.len()),
         prettyprint_usize(remote_zones.len())
     );
 
     <span class="comment">// Match all buildings to a normal zone.
-    </span>timer.start_iter(<span class="string">&quot;assign buildings to zones&quot;</span>, map.all_buildings().len());
+    </span>timer.start_iter(<span class="string">"assign buildings to zones"</span>, map.all_buildings().len());
     <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
         timer.next();
         <span class="kw">let </span>center = b.polygon.center();
-        <span class="comment">// We&#39;re assuming zones don&#39;t overlap each other, so just look for the first match.
+        <span class="comment">// We're assuming zones don't overlap each other, so just look for the first match.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, zone)) = normal_zones
             .iter_mut()
             .find(|(<span class="kw">_</span>, z)| z.polygon.contains_pt(center))
@@ -727,7 +729,7 @@
 }
 
 <span class="kw">impl </span>Zone {
-    <span class="doccomment">/// Returns endpoints to (leave home, goto home). These&#39;re usually the same, except in some
+    <span class="doccomment">/// Returns endpoints to (leave home, goto home). These're usually the same, except in some
     /// cases of border trips using divided one-ways.
     </span><span class="kw">fn </span>pick_home(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -742,7 +744,7 @@
         <span class="self">self</span>.pick_borders(mode, map, rng)
     }
 
-    <span class="doccomment">/// Returns endpoints to (leave work, goto work). These&#39;re usually the same, except in some
+    <span class="doccomment">/// Returns endpoints to (leave work, goto work). These're usually the same, except in some
     /// cases of border trips using divided one-ways.
     </span><span class="kw">fn </span>pick_workplace(
         <span class="kw-2">&amp;</span><span class="self">self</span>,

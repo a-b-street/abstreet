@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/commuter.rs`."><title>commuter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/commuter.rs`."><title>commuter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -796,8 +798,8 @@
     },
 }
 
-<span class="kw">struct </span>PanelState&lt;<span class="lifetime">&#39;a</span>&gt; {
-    building_counts: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, u32)&gt;,
+<span class="kw">struct </span>PanelState&lt;<span class="lifetime">'a</span>&gt; {
+    building_counts: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, u32)&gt;,
     max_count: usize,
     total_trips: usize,
 }
@@ -826,7 +828,7 @@
 
 <span class="kw">impl </span>CommuterPatterns {
     <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
-        <span class="kw">let </span>maybe_groups = ctx.loading_screen(<span class="string">&quot;group buildings into blocks&quot;</span>, |<span class="kw">_</span>, timer| {
+        <span class="kw">let </span>maybe_groups = ctx.loading_screen(<span class="string">"group buildings into blocks"</span>, |<span class="kw">_</span>, timer| {
             group_bldgs(app, timer)
         });
         <span class="kw">let </span>(bldg_to_block, border_to_block, blocks) = <span class="kw">match </span>maybe_groups {
@@ -835,11 +837,11 @@
                 <span class="comment">// TODO If concave hull fails anywhere, give up on this tool entirely. This is
                 // pretty harsh. Revisit this tool anyway and consider 2 bigger changes -- using
                 // the LTN-style blockfinding and using World. Find a way to create simpler
-                // fallback geometry that&#39;s still selectable.
+                // fallback geometry that's still selectable.
                 </span><span class="kw">return </span>PopupMsg::new_state(
                     ctx,
-                    <span class="string">&quot;Error&quot;</span>,
-                    <span class="macro">vec!</span>[<span class="string">&quot;Problem rendering the grouped buildings; this tool won&#39;t work&quot;</span>],
+                    <span class="string">"Error"</span>,
+                    <span class="macro">vec!</span>[<span class="string">"Problem rendering the grouped buildings; this tool won't work"</span>],
                 );
             }
         };
@@ -855,7 +857,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(block) = border_to_block.get(<span class="kw-2">&amp;</span>i) {
                         <span class="kw-2">*</span>block
                     } <span class="kw">else </span>{
-                        <span class="macro">error!</span>(<span class="string">&quot;No block for {i}?&quot;</span>);
+                        <span class="macro">error!</span>(<span class="string">"No block for {i}?"</span>);
                         <span class="kw">continue</span>;
                     }
                 }
@@ -867,7 +869,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(block) = border_to_block.get(<span class="kw-2">&amp;</span>i) {
                         <span class="kw-2">*</span>block
                     } <span class="kw">else </span>{
-                        <span class="macro">error!</span>(<span class="string">&quot;No block for {i}?&quot;</span>);
+                        <span class="macro">error!</span>(<span class="string">"No block for {i}?"</span>);
                         <span class="kw">continue</span>;
                     }
                 }
@@ -960,12 +962,12 @@
             .collect()
     }
 
-    <span class="kw">fn </span>build_block_drawable&lt;<span class="lifetime">&#39;a</span>&gt;(
+    <span class="kw">fn </span>build_block_drawable&lt;<span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         block_selection: BlockSelection,
         ctx: <span class="kw-2">&amp;</span>EventCtx,
         app: <span class="kw-2">&amp;</span>App,
-    ) -&gt; (Drawable, <span class="prelude-ty">Option</span>&lt;PanelState&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) {
+    ) -&gt; (Drawable, <span class="prelude-ty">Option</span>&lt;PanelState&lt;<span class="lifetime">'a</span>&gt;&gt;) {
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
 
         <span class="kw">let </span>base_block_id = <span class="kw">match </span>block_selection {
@@ -980,11 +982,11 @@
                 <span class="kw">let </span>base_block = <span class="kw-2">&amp;</span><span class="self">self</span>.blocks[base_block_id];
 
                 <span class="comment">// Show the members of this block
-                </span><span class="kw">let </span><span class="kw-2">mut </span>building_counts: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, u32)&gt; = <span class="macro">vec!</span>[
-                    (<span class="string">&quot;Residential&quot;</span>, <span class="number">0</span>),
-                    (<span class="string">&quot;Residential/Commercial&quot;</span>, <span class="number">0</span>),
-                    (<span class="string">&quot;Commercial&quot;</span>, <span class="number">0</span>),
-                    (<span class="string">&quot;Empty&quot;</span>, <span class="number">0</span>),
+                </span><span class="kw">let </span><span class="kw-2">mut </span>building_counts: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, u32)&gt; = <span class="macro">vec!</span>[
+                    (<span class="string">"Residential"</span>, <span class="number">0</span>),
+                    (<span class="string">"Residential/Commercial"</span>, <span class="number">0</span>),
+                    (<span class="string">"Commercial"</span>, <span class="number">0</span>),
+                    (<span class="string">"Empty"</span>, <span class="number">0</span>),
                 ];
                 <span class="kw">for </span>b <span class="kw">in </span><span class="kw-2">&amp;</span>base_block.bldgs {
                     <span class="kw">let </span>b = app.primary.map.get_b(<span class="kw-2">*</span>b);
@@ -1013,15 +1015,15 @@
                 {
                     <span class="comment">// Indicate direction over current block
                     </span><span class="kw">let </span>(icon_name, icon_scale) = <span class="kw">if </span><span class="self">self</span>.filter.from_block {
-                        (<span class="string">&quot;outward.svg&quot;</span>, <span class="number">1.2</span>)
+                        (<span class="string">"outward.svg"</span>, <span class="number">1.2</span>)
                     } <span class="kw">else </span>{
-                        (<span class="string">&quot;inward.svg&quot;</span>, <span class="number">1.0</span>)
+                        (<span class="string">"inward.svg"</span>, <span class="number">1.0</span>)
                     };
 
                     <span class="kw">let </span>center = base_block.shape.polylabel();
                     <span class="kw">let </span>icon = GeomBatch::load_svg(
                         ctx.prerender,
-                        <span class="macro">format!</span>(<span class="string">&quot;system/assets/tools/{}&quot;</span>, icon_name),
+                        <span class="macro">format!</span>(<span class="string">"system/assets/tools/{}"</span>, icon_name),
                     )
                     .scale(icon_scale)
                     .centered_on(center)
@@ -1087,30 +1089,30 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = state {
             <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
             txt.add_line(<span class="macro">format!</span>(
-                <span class="string">&quot;Total: {} trips&quot;</span>,
+                <span class="string">"Total: {} trips"</span>,
                 abstutil::prettyprint_usize(state.total_trips)
             ));
 
             <span class="kw">for </span>(name, cnt) <span class="kw">in </span><span class="kw-2">&amp;</span>state.building_counts {
                 <span class="kw">if </span><span class="kw-2">*</span>cnt != <span class="number">0 </span>{
-                    txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, name, cnt));
+                    txt.add_line(<span class="macro">format!</span>(<span class="string">"{}: {}"</span>, name, cnt));
                 }
             }
 
-            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;current&quot;</span>, txt.into_widget(ctx));
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">"current"</span>, txt.into_widget(ctx));
 
             <span class="kw">let </span>new_scale = ColorLegend::gradient(
                 ctx,
                 <span class="kw-2">&amp;</span>app.cs.good_to_bad_red,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;0&quot;</span>.to_string(),
-                    <span class="macro">format!</span>(<span class="string">&quot;{} trips&quot;</span>, prettyprint_usize(state.max_count)),
+                    <span class="string">"0"</span>.to_string(),
+                    <span class="macro">format!</span>(<span class="string">"{} trips"</span>, prettyprint_usize(state.max_count)),
                 ],
             );
-            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;scale&quot;</span>, new_scale);
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">"scale"</span>, new_scale);
         } <span class="kw">else </span>{
             <span class="self">self</span>.panel
-                .replace(ctx, <span class="string">&quot;current&quot;</span>, <span class="string">&quot;None selected&quot;</span>.text_widget(ctx));
+                .replace(ctx, <span class="string">"current"</span>, <span class="string">"None selected"</span>.text_widget(ctx));
         }
     }
 }
@@ -1121,7 +1123,7 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     app.primary.sim = app.primary.suspended_sim.take().unwrap();
                     <span class="kw">return </span>Transition::Pop;
                 }
@@ -1141,7 +1143,7 @@
             .get_cursor_in_map_space()
             .map(|pt| <span class="self">self</span>.blocks.iter().find(|b| b.shape.contains_pt(pt)))
         {
-            <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">&quot;clicked block&quot;</span>) {
+            <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">"clicked block"</span>) {
                 <span class="kw">match </span><span class="self">self</span>.current_block.<span class="number">0 </span>{
                     BlockSelection::Locked { base: old_base, .. } =&gt; {
                         <span class="kw">if </span>old_base == b.id {
@@ -1192,18 +1194,18 @@
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>filter = Filter {
-            from_block: <span class="self">self</span>.panel.is_checked(<span class="string">&quot;from / to this block&quot;</span>),
-            include_borders: <span class="self">self</span>.panel.is_checked(<span class="string">&quot;include borders&quot;</span>),
+            from_block: <span class="self">self</span>.panel.is_checked(<span class="string">"from / to this block"</span>),
+            include_borders: <span class="self">self</span>.panel.is_checked(<span class="string">"include borders"</span>),
             depart_from: app
                 .primary
                 .sim
                 .get_end_of_day()
-                .percent_of(<span class="self">self</span>.panel.slider(<span class="string">&quot;depart from&quot;</span>).get_percent()),
+                .percent_of(<span class="self">self</span>.panel.slider(<span class="string">"depart from"</span>).get_percent()),
             depart_until: app
                 .primary
                 .sim
                 .get_end_of_day()
-                .percent_of(<span class="self">self</span>.panel.slider(<span class="string">&quot;depart until&quot;</span>).get_percent()),
+                .percent_of(<span class="self">self</span>.panel.slider(<span class="string">"depart until"</span>).get_percent()),
             modes: BTreeSet::new(),
         };
         <span class="kw">for </span>m <span class="kw">in </span>TripMode::all() {
@@ -1230,7 +1232,7 @@
     }
 }
 
-<span class="comment">// This tries to group buildings into neighborhood &quot;blocks&quot;. Much of the time, that&#39;s a smallish
+<span class="comment">// This tries to group buildings into neighborhood "blocks". Much of the time, that's a smallish
 // region bounded by 4 roads. But there are plenty of places with stranger shapes, or buildings
 // near the border of the map. The fallback is currently to just group those buildings that share
 // the same sidewalk.
@@ -1247,7 +1249,7 @@
 
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
     <span class="kw">for </span>maybe_block <span class="kw">in </span>timer.parallelize(
-        <span class="string">&quot;draw neighborhoods&quot;</span>,
+        <span class="string">"draw neighborhoods"</span>,
         partition_sidewalk_loops(app)
             .into_iter()
             .enumerate()
@@ -1357,7 +1359,7 @@
 
 <span class="kw">struct </span>Loop {
     bldgs: HashSet&lt;BuildingID&gt;,
-    <span class="comment">// True if it&#39;s a &quot;proper&quot; block, false if it&#39;s a hack.
+    <span class="comment">// True if it's a "proper" block, false if it's a hack.
     </span>proper: bool,
     roads: HashSet&lt;RoadID&gt;,
 }
@@ -1384,7 +1386,7 @@
             sidewalks.insert(current_l);
             <span class="kw">for </span>b <span class="kw">in </span>sidewalk_to_bldgs.get(current_l) {
                 bldgs.insert(<span class="kw-2">*</span>b);
-                <span class="comment">// TODO I wanted to assert that we haven&#39;t assigned this one yet, but...
+                <span class="comment">// TODO I wanted to assert that we haven't assigned this one yet, but...
                 </span>todo_bldgs.remove(b);
             }
 
@@ -1398,7 +1400,7 @@
                 })
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
             <span class="kw">if </span>turns.is_empty() {
-                <span class="comment">// TODO If we&#39;re not a loop, maybe toss this out. It&#39;s arbitrary that we didn&#39;t go
+                <span class="comment">// TODO If we're not a loop, maybe toss this out. It's arbitrary that we didn't go
                 // look the other way.
                 </span><span class="kw">break </span><span class="bool-val">false</span>;
             } <span class="kw">else if </span>turns.len() == <span class="number">1 </span>{
@@ -1413,7 +1415,7 @@
                     </span><span class="kw">break </span><span class="bool-val">true</span>;
                 }
             } <span class="kw">else </span>{
-                <span class="comment">// Around pedestrian-only roads, there&#39;ll be many SharedSidewalkCorners. Just give
+                <span class="comment">// Around pedestrian-only roads, there'll be many SharedSidewalkCorners. Just give
                 // up.
                 </span><span class="kw">break </span><span class="bool-val">false</span>;
             };
@@ -1436,9 +1438,9 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>any = <span class="bool-val">false</span>;
         <span class="kw">for </span><span class="kw-2">mut </span>idx1 <span class="kw">in </span><span class="number">0</span>..groups.len() {
             <span class="kw">for </span><span class="kw-2">mut </span>idx2 <span class="kw">in </span><span class="number">0</span>..groups.len() {
-                <span class="comment">// This is O(n^3) on original groups.len(). In practice, it&#39;s fine, as long as we
-                // don&#39;t start the search over from scratch after making a single merge. Starting
-                // over is really wasteful, because it&#39;s guaranteed that nothing there has changed.
+                <span class="comment">// This is O(n^3) on original groups.len(). In practice, it's fine, as long as we
+                // don't start the search over from scratch after making a single merge. Starting
+                // over is really wasteful, because it's guaranteed that nothing there has changed.
                 </span><span class="kw">if </span>idx1 &gt;= groups.len() || idx2 &gt;= groups.len() {
                     <span class="kw">break</span>;
                 }
@@ -1485,19 +1487,19 @@
 <span class="kw">fn </span>make_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Panel {
     Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
         DashTab::CommuterPatterns.picker(ctx, app),
-        Toggle::choice(ctx, <span class="string">&quot;from / to this block&quot;</span>, <span class="string">&quot;from&quot;</span>, <span class="string">&quot;to&quot;</span>, Key::Space, <span class="bool-val">true</span>),
-        Toggle::switch(ctx, <span class="string">&quot;include borders&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
+        Toggle::choice(ctx, <span class="string">"from / to this block"</span>, <span class="string">"from"</span>, <span class="string">"to"</span>, Key::Space, <span class="bool-val">true</span>),
+        Toggle::switch(ctx, <span class="string">"include borders"</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
         Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Departing from:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
-            Slider::area(ctx, <span class="number">0.15 </span>* ctx.canvas.window_width, <span class="number">0.0</span>, <span class="string">&quot;depart from&quot;</span>),
+            <span class="string">"Departing from:"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+            Slider::area(ctx, <span class="number">0.15 </span>* ctx.canvas.window_width, <span class="number">0.0</span>, <span class="string">"depart from"</span>),
         ]),
         Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Departing until:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
-            Slider::area(ctx, <span class="number">0.15 </span>* ctx.canvas.window_width, <span class="number">1.0</span>, <span class="string">&quot;depart until&quot;</span>),
+            <span class="string">"Departing until:"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+            Slider::area(ctx, <span class="number">0.15 </span>* ctx.canvas.window_width, <span class="number">1.0</span>, <span class="string">"depart until"</span>),
         ]),
         checkbox_per_mode(ctx, app, <span class="kw-2">&amp;</span>TripMode::all().into_iter().collect()),
-        ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;0&quot;</span>]).named(<span class="string">&quot;scale&quot;</span>),
-        <span class="string">&quot;None selected&quot;</span>.text_widget(ctx).named(<span class="string">&quot;current&quot;</span>),
+        ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">"0"</span>, <span class="string">"0"</span>]).named(<span class="string">"scale"</span>),
+        <span class="string">"None selected"</span>.text_widget(ctx).named(<span class="string">"current"</span>),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)

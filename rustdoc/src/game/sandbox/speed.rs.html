@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/speed.rs`."><title>speed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/speed.rs`."><title>speed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -623,15 +625,15 @@
             <span class="kw">let </span>button = ctx
                 .style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/speed/triangle.svg"</span>)
                 .hotkey(Key::Space);
 
             Widget::custom_row(<span class="macro">vec!</span>[<span class="kw">if </span><span class="self">self</span>.paused {
-                button.build_widget(ctx, <span class="string">&quot;play&quot;</span>)
+                button.build_widget(ctx, <span class="string">"play"</span>)
             } <span class="kw">else </span>{
                 button
-                    .image_path(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;pause&quot;</span>)
+                    .image_path(<span class="string">"system/assets/speed/pause.svg"</span>)
+                    .build_widget(ctx, <span class="string">"pause"</span>)
             }])
             .margin_right(<span class="number">16</span>)
         });
@@ -639,22 +641,22 @@
         row.push(
             Widget::custom_row(
                 <span class="macro">vec!</span>[
-                    (SpeedSetting::Realtime, <span class="string">&quot;real-time speed&quot;</span>),
-                    (SpeedSetting::Fast, <span class="string">&quot;5x speed&quot;</span>),
-                    (SpeedSetting::Faster, <span class="string">&quot;30x speed&quot;</span>),
-                    (SpeedSetting::Fastest, <span class="string">&quot;3600x speed&quot;</span>),
+                    (SpeedSetting::Realtime, <span class="string">"real-time speed"</span>),
+                    (SpeedSetting::Fast, <span class="string">"5x speed"</span>),
+                    (SpeedSetting::Faster, <span class="string">"30x speed"</span>),
+                    (SpeedSetting::Fastest, <span class="string">"3600x speed"</span>),
                 ]
                 .into_iter()
                 .map(|(s, label)| {
                     <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(Line(label).small());
-                    txt.extend(Text::tooltip(ctx, Key::LeftArrow, <span class="string">&quot;slow down&quot;</span>));
-                    txt.extend(Text::tooltip(ctx, Key::RightArrow, <span class="string">&quot;speed up&quot;</span>));
+                    txt.extend(Text::tooltip(ctx, Key::LeftArrow, <span class="string">"slow down"</span>));
+                    txt.extend(Text::tooltip(ctx, Key::RightArrow, <span class="string">"speed up"</span>));
 
                     <span class="kw">let </span><span class="kw-2">mut </span>triangle_btn = ctx
                         .style()
                         .btn_plain
                         .btn()
-                        .image_path(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
+                        .image_path(<span class="string">"system/assets/speed/triangle.svg"</span>)
                         .image_dims(ScreenDims::new(<span class="number">16.0</span>, <span class="number">26.0</span>))
                         .tooltip(txt)
                         .padding(EdgeInsets {
@@ -686,14 +688,14 @@
         row.push(
             PersistentSplit::widget(
                 ctx,
-                <span class="string">&quot;step forwards&quot;</span>,
+                <span class="string">"step forwards"</span>,
                 app.opts.time_increment,
                 Key::M,
                 <span class="macro">vec!</span>[
-                    Choice::new(<span class="string">&quot;+1h&quot;</span>, Duration::hours(<span class="number">1</span>)),
-                    Choice::new(<span class="string">&quot;+30m&quot;</span>, Duration::minutes(<span class="number">30</span>)),
-                    Choice::new(<span class="string">&quot;+10m&quot;</span>, Duration::minutes(<span class="number">10</span>)),
-                    Choice::new(<span class="string">&quot;+0.1s&quot;</span>, Duration::seconds(<span class="number">0.1</span>)),
+                    Choice::new(<span class="string">"+1h"</span>, Duration::hours(<span class="number">1</span>)),
+                    Choice::new(<span class="string">"+30m"</span>, Duration::minutes(<span class="number">30</span>)),
+                    Choice::new(<span class="string">"+10m"</span>, Duration::minutes(<span class="number">10</span>)),
+                    Choice::new(<span class="string">"+0.1s"</span>, Duration::seconds(<span class="number">0.1</span>)),
                 ],
             )
             .margin_right(<span class="number">16</span>),
@@ -702,21 +704,21 @@
         row.push(
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/speed/jump_to_time.svg"</span>)
                 .hotkey(Key::B)
-                .build_widget(ctx, <span class="string">&quot;jump to specific time&quot;</span>),
+                .build_widget(ctx, <span class="string">"jump to specific time"</span>),
         );
 
         row.push(
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/speed/reset.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/speed/reset.svg"</span>)
                 .hotkey(Key::X)
-                .build_widget(ctx, <span class="string">&quot;reset to midnight&quot;</span>),
+                .build_widget(ctx, <span class="string">"reset to midnight"</span>),
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            <span class="self">self</span>.create_time_panel(ctx, app).named(<span class="string">&quot;time&quot;</span>),
+            <span class="self">self</span>.create_time_panel(ctx, app).named(<span class="string">"time"</span>),
             Widget::custom_row(row),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
@@ -730,7 +732,7 @@
         <span class="kw">let </span>text_color = Color::WHITE;
         <span class="kw">let </span>bar_fg = ctx.style().primary_fg;
         <span class="kw">let </span>bar_bg = bar_fg.tint(<span class="number">0.6</span>).shade(<span class="number">0.2</span>);
-        <span class="kw">let </span>cursor_fg = Color::hex(<span class="string">&quot;#939393&quot;</span>);
+        <span class="kw">let </span>cursor_fg = Color::hex(<span class="string">"#939393"</span>);
 
         <span class="comment">// This is manually tuned
         </span><span class="kw">let </span>bar_width = <span class="number">400.0</span>;
@@ -777,7 +779,7 @@
         {
             <span class="comment">// TODO Why is the rounding so hard? The white background is always rounded
             // at both ends. The moving bar should always be rounded on the left, flat
-            // on the right, except at the very end (for the last &#39;radius&#39; pixels). And
+            // on the right, except at the very end (for the last 'radius' pixels). And
             // when the width is too small for the radius, this messes up.
             </span>progress_bar.push(bar_bg, Polygon::rectangle(bar_width, bar_height));
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = Polygon::maybe_rectangle(finished_width, bar_height) {
@@ -794,7 +796,7 @@
         }
 
         <span class="kw">let </span>text_geom = Text::from(
-            Line(<span class="macro">format!</span>(<span class="string">&quot;Finished Trips: {}&quot;</span>, prettyprint_usize(finished))).fg(text_color),
+            Line(<span class="macro">format!</span>(<span class="string">"Finished Trips: {}"</span>, prettyprint_usize(finished))).fg(text_color),
         )
         .render(ctx)
         .translate(<span class="number">8.0</span>, <span class="number">0.0</span>);
@@ -821,9 +823,9 @@
             progress_bar.push(cursor_fg, triangle);
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>tooltip_text = Text::from(<span class="string">&quot;Finished Trips&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>tooltip_text = Text::from(<span class="string">"Finished Trips"</span>);
         tooltip_text.add_line(<span class="macro">format!</span>(
-            <span class="string">&quot;{} ({}% of total)&quot;</span>,
+            <span class="string">"{} ({}% of total)"</span>,
             prettyprint_usize(finished),
             (ratio * <span class="number">100.0</span>) <span class="kw">as </span>usize
         ));
@@ -833,7 +835,7 @@
                 std::cmp::Ordering::Greater =&gt; {
                     <span class="kw">let </span>difference = baseline_finished - finished;
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} less than baseline&quot;</span>,
+                        <span class="string">"{} less than baseline"</span>,
                         prettyprint_usize(difference)
                     ))
                     .fg(ctx.style().text_destructive_color)
@@ -841,12 +843,12 @@
                 std::cmp::Ordering::Less =&gt; {
                     <span class="kw">let </span>difference = finished - baseline_finished;
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} more than baseline&quot;</span>,
+                        <span class="string">"{} more than baseline"</span>,
                         prettyprint_usize(difference)
                     ))
                     .fg(Color::GREEN)
                 }
-                std::cmp::Ordering::Equal =&gt; Line(<span class="string">&quot;No change from baseline&quot;</span>),
+                std::cmp::Ordering::Equal =&gt; Line(<span class="string">"No change from baseline"</span>),
             };
             tooltip_text.add_line(line);
         }
@@ -870,10 +872,10 @@
                 )])
                 .into_widget(ctx)
                 .centered_vert(),
-                <span class="macro">format!</span>(<span class="string">&quot;{} trips captured&quot;</span>, prettyprint_usize(n)).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"{} trips captured"</span>, prettyprint_usize(n)).text_widget(ctx),
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Finish Capture&quot;</span>)
+                    .text(<span class="string">"Finish Capture"</span>)
                     .build_def(ctx)
                     .align_right(),
             ])
@@ -887,8 +889,8 @@
             <span class="kw">if </span>app.primary.dirty_from_edits {
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;see why results are tentative&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/warning.svg"</span>)
+                    .build_widget(ctx, <span class="string">"see why results are tentative"</span>)
                     .centered_vert()
                     .align_right()
             } <span class="kw">else </span>{
@@ -907,40 +909,40 @@
         <span class="kw">if </span><span class="self">self</span>.time != app.primary.sim.time() {
             <span class="self">self</span>.time = app.primary.sim.time();
             <span class="kw">let </span>time = <span class="self">self</span>.create_time_panel(ctx, app);
-            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;time&quot;</span>, time);
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">"time"</span>, time);
         }
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;real-time speed&quot; </span>=&gt; {
+                <span class="string">"real-time speed" </span>=&gt; {
                     <span class="self">self</span>.setting = SpeedSetting::Realtime;
                     <span class="self">self</span>.recreate_panel(ctx, app);
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;5x speed&quot; </span>=&gt; {
+                <span class="string">"5x speed" </span>=&gt; {
                     <span class="self">self</span>.setting = SpeedSetting::Fast;
                     <span class="self">self</span>.recreate_panel(ctx, app);
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;30x speed&quot; </span>=&gt; {
+                <span class="string">"30x speed" </span>=&gt; {
                     <span class="self">self</span>.setting = SpeedSetting::Faster;
                     <span class="self">self</span>.recreate_panel(ctx, app);
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;3600x speed&quot; </span>=&gt; {
+                <span class="string">"3600x speed" </span>=&gt; {
                     <span class="self">self</span>.setting = SpeedSetting::Fastest;
                     <span class="self">self</span>.recreate_panel(ctx, app);
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;play&quot; </span>=&gt; {
+                <span class="string">"play" </span>=&gt; {
                     <span class="self">self</span>.paused = <span class="bool-val">false</span>;
                     <span class="self">self</span>.recreate_panel(ctx, app);
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;pause&quot; </span>=&gt; {
+                <span class="string">"pause" </span>=&gt; {
                     <span class="self">self</span>.pause(ctx, app);
                 }
-                <span class="string">&quot;reset to midnight&quot; </span>=&gt; {
+                <span class="string">"reset to midnight" </span>=&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(mode) = maybe_mode {
                         <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Replace(SandboxMode::simple_new(
                             app,
@@ -949,20 +951,20 @@
                     } <span class="kw">else </span>{
                         <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="string">&quot;Sorry, you can&#39;t go rewind time from this mode.&quot;</span>],
+                            <span class="string">"Error"</span>,
+                            <span class="macro">vec!</span>[<span class="string">"Sorry, you can't go rewind time from this mode."</span>],
                         )));
                     }
                 }
-                <span class="string">&quot;jump to specific time&quot; </span>=&gt; {
+                <span class="string">"jump to specific time" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(JumpToTime::new_state(
                         ctx,
                         app,
                         maybe_mode.cloned(),
                     )));
                 }
-                <span class="string">&quot;step forwards&quot; </span>=&gt; {
-                    <span class="kw">let </span>dt = <span class="self">self</span>.panel.persistent_split_value(<span class="string">&quot;step forwards&quot;</span>);
+                <span class="string">"step forwards" </span>=&gt; {
+                    <span class="kw">let </span>dt = <span class="self">self</span>.panel.persistent_split_value(<span class="string">"step forwards"</span>);
                     <span class="kw">if </span>dt == Duration::seconds(<span class="number">0.1</span>) {
                         app.primary
                             .sim
@@ -977,27 +979,27 @@
                         <span class="prelude-val">None</span>,
                     )));
                 }
-                <span class="string">&quot;see why results are tentative&quot; </span>=&gt; {
+                <span class="string">"see why results are tentative" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;Simulation results not finalized&quot;</span>,
+                        <span class="string">"Simulation results not finalized"</span>,
                         <span class="macro">vec!</span>[
-                            <span class="string">&quot;You edited the map in the middle of the day.&quot;</span>,
-                            <span class="string">&quot;Some trips may have been interrupted, and others might have made \
-                            different decisions if they saw the new map from the start.&quot;</span>,
-                            <span class="string">&quot;To get final results, reset to midnight and test your proposal over \
-                            a full day.&quot;</span>,
+                            <span class="string">"You edited the map in the middle of the day."</span>,
+                            <span class="string">"Some trips may have been interrupted, and others might have made \
+                            different decisions if they saw the new map from the start."</span>,
+                            <span class="string">"To get final results, reset to midnight and test your proposal over \
+                            a full day."</span>,
                         ],
                     )));
                 }
-                <span class="string">&quot;Finish Capture&quot; </span>=&gt; {
+                <span class="string">"Finish Capture" </span>=&gt; {
                     app.primary.sim.save_recorded_traffic(<span class="kw-2">&amp;</span>app.primary.map);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
             Outcome::Changed(x) =&gt; {
-                <span class="kw">if </span>x == <span class="string">&quot;step forwards&quot; </span>{
-                    app.opts.time_increment = <span class="self">self</span>.panel.persistent_split_value(<span class="string">&quot;step forwards&quot;</span>);
+                <span class="kw">if </span>x == <span class="string">"step forwards" </span>{
+                    app.opts.time_increment = <span class="self">self</span>.panel.persistent_split_value(<span class="string">"step forwards"</span>);
                 }
             }
             <span class="kw">_ </span>=&gt; {}
@@ -1069,7 +1071,7 @@
         <span class="kw">if </span>!alerts.is_empty() {
             <span class="kw">let </span>popup = PopupMsg::new_state(
                 ctx,
-                <span class="string">&quot;Alerts&quot;</span>,
+                <span class="string">"Alerts"</span>,
                 alerts.iter().map(|(<span class="kw">_</span>, <span class="kw">_</span>, msg)| msg).collect(),
             );
             <span class="kw">let </span>maybe_id = <span class="kw">match </span>alerts[<span class="number">0</span>].<span class="number">1 </span>{
@@ -1080,7 +1082,7 @@
                 AlertLocation::Building(b) =&gt; <span class="prelude-val">Some</span>(ID::Building(b)),
             };
             <span class="comment">// TODO Can filter for particular alerts places like this:
-            /*if !alerts[0].2.contains(&quot;Turn conflict cycle&quot;) {
+            /*if !alerts[0].2.contains("Turn conflict cycle") {
                 return None;
             }*/
             /*if maybe_id != Some(ID::Building(map_model::BuildingID(91))) {

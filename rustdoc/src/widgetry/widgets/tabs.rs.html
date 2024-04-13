@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/tabs.rs`."><title>tabs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/tabs.rs`."><title>tabs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -141,12 +143,12 @@
 
 <span class="kw">struct </span>Tab {
     tab_id: String,
-    bar_item: ButtonBuilder&lt;<span class="lifetime">&#39;static</span>, <span class="lifetime">&#39;static</span>&gt;,
+    bar_item: ButtonBuilder&lt;<span class="lifetime">'static</span>, <span class="lifetime">'static</span>&gt;,
     content: Widget,
 }
 
 <span class="kw">impl </span>Tab {
-    <span class="kw">fn </span>new(tab_id: String, bar_item: ButtonBuilder&lt;<span class="lifetime">&#39;static</span>, <span class="lifetime">&#39;static</span>&gt;, content: Widget) -&gt; <span class="self">Self </span>{
+    <span class="kw">fn </span>new(tab_id: String, bar_item: ButtonBuilder&lt;<span class="lifetime">'static</span>, <span class="lifetime">'static</span>&gt;, content: Widget) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             tab_id,
             bar_item,
@@ -186,8 +188,8 @@
     <span class="doccomment">/// Add a new tab.
     ///
     /// `bar_item`: The button shown in the tab bar
-    /// `content`: The content shown when this tab&#39;s `bar_item` is clicked
-    </span><span class="kw">pub fn </span>push_tab(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bar_item: ButtonBuilder&lt;<span class="lifetime">&#39;static</span>, <span class="lifetime">&#39;static</span>&gt;, content: Widget) {
+    /// `content`: The content shown when this tab's `bar_item` is clicked
+    </span><span class="kw">pub fn </span>push_tab(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bar_item: ButtonBuilder&lt;<span class="lifetime">'static</span>, <span class="lifetime">'static</span>&gt;, content: Widget) {
         <span class="kw">let </span>tab_id = <span class="self">self</span>.tab_id(<span class="self">self</span>.tabs.len() + <span class="number">1</span>);
         <span class="kw">let </span>tab = Tab::new(tab_id, bar_item, content);
         <span class="self">self</span>.tabs.push(tab);
@@ -215,7 +217,7 @@
             .iter()
             .enumerate()
             .find(|(_idx, tab)| tab.tab_id == action)
-            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;invalid tab id: {}&quot;</span>, action))
+            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"invalid tab id: {}"</span>, action))
             .<span class="number">0</span>;
         <span class="self">self</span>.activate_tab(ctx, tab_idx, panel);
         <span class="bool-val">true
@@ -226,22 +228,22 @@
     }
 
     <span class="kw">fn </span>active_content_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="macro">format!</span>(<span class="string">&quot;{}_active_content&quot;</span>, <span class="self">self</span>.id)
+        <span class="macro">format!</span>(<span class="string">"{}_active_content"</span>, <span class="self">self</span>.id)
     }
 
     <span class="kw">fn </span>bar_items_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="macro">format!</span>(<span class="string">&quot;{}_bar_items&quot;</span>, <span class="self">self</span>.id)
+        <span class="macro">format!</span>(<span class="string">"{}_bar_items"</span>, <span class="self">self</span>.id)
     }
 
     <span class="kw">fn </span>tab_id(<span class="kw-2">&amp;</span><span class="self">self</span>, tab_index: usize) -&gt; String {
-        <span class="macro">format!</span>(<span class="string">&quot;{}_tab_{}&quot;</span>, <span class="self">self</span>.id, tab_index)
+        <span class="macro">format!</span>(<span class="string">"{}_tab_{}"</span>, <span class="self">self</span>.id, tab_index)
     }
 
     <span class="kw">fn </span>pop_active_content(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Widget {
         <span class="kw">let </span><span class="kw-2">mut </span>tmp = Widget::nothing();
         <span class="macro">assert!</span>(
             <span class="self">self</span>.tabs.get(<span class="self">self</span>.active_tab_idx).is_some(),
-            <span class="string">&quot;must add at least one tab before rendering&quot;
+            <span class="string">"must add at least one tab before rendering"
         </span>);
         std::mem::swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>.tabs[<span class="self">self</span>.active_tab_idx].content, <span class="kw-2">&amp;mut </span>tmp);
         tmp

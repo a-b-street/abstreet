@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/traversable.rs`."><title>traversable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/traversable.rs`."><title>traversable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -376,14 +378,14 @@
 <span class="doccomment">/// Represents a specific point some distance along a lane.
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>Position {
-    <span class="comment">// Don&#39;t let callers construct a Position directly, so it&#39;s easy to find callers of new().
+    <span class="comment">// Don't let callers construct a Position directly, so it's easy to find callers of new().
     </span>lane: LaneID,
     dist_along: Distance,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Position {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Position({}, {})&quot;</span>, <span class="self">self</span>.lane, <span class="self">self</span>.dist_along)
+        <span class="macro">write!</span>(f, <span class="string">"Position({}, {})"</span>, <span class="self">self</span>.lane, <span class="self">self</span>.dist_along)
     }
 }
 
@@ -421,7 +423,7 @@
             .dist_along(<span class="self">self</span>.dist_along)
         {
             <span class="prelude-val">Ok</span>((pt, <span class="kw">_</span>)) =&gt; pt,
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{} invalid: {}&quot;</span>, <span class="self">self</span>, err),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"{} invalid: {}"</span>, <span class="self">self</span>, err),
         }
     }
 
@@ -432,7 +434,7 @@
             .dist_along(<span class="self">self</span>.dist_along)
         {
             <span class="prelude-val">Ok</span>(pair) =&gt; pair,
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{} invalid: {}&quot;</span>, <span class="self">self</span>, err),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"{} invalid: {}"</span>, <span class="self">self</span>, err),
         }
     }
 
@@ -461,8 +463,8 @@
             }
             <span class="kw">return </span>Position::new(other_lane.id, dist);
         }
-        <span class="comment">// TODO So far I haven&#39;t observed this happening, but fallback if so.
-        </span><span class="macro">warn!</span>(<span class="string">&quot;equiv_pos of {} for {} messes up&quot;</span>, <span class="self">self</span>, other_lane.id);
+        <span class="comment">// TODO So far I haven't observed this happening, but fallback if so.
+        </span><span class="macro">warn!</span>(<span class="string">"equiv_pos of {} for {} messes up"</span>, <span class="self">self</span>, other_lane.id);
 
         <span class="kw">let </span>len = other_lane.length();
         <span class="kw">if </span>other_lane.dir == our_lane.dir {
@@ -507,10 +509,10 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Traversable {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Traversable::Lane(id) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Traversable::Lane({})&quot;</span>, id.encode_u32()),
+            Traversable::Lane(id) =&gt; <span class="macro">write!</span>(f, <span class="string">"Traversable::Lane({})"</span>, id.encode_u32()),
             Traversable::Turn(id) =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;Traversable::Turn({}, {}, {})&quot;</span>,
+                <span class="string">"Traversable::Turn({}, {}, {})"</span>,
                 id.src, id.dst, id.parent
             ),
         }
@@ -521,14 +523,14 @@
     <span class="kw">pub fn </span>as_lane(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LaneID {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Traversable::Lane(id) =&gt; id,
-            Traversable::Turn(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;not a lane&quot;</span>),
+            Traversable::Turn(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"not a lane"</span>),
         }
     }
 
     <span class="kw">pub fn </span>as_turn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TurnID {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Traversable::Turn(id) =&gt; id,
-            Traversable::Lane(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;not a turn&quot;</span>),
+            Traversable::Lane(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"not a turn"</span>),
         }
     }
 
@@ -584,7 +586,7 @@
             </span>walking_speed_on_incline(max_speed_on_flat_ground.unwrap(), percent_incline)
         } <span class="kw">else </span>{
             <span class="macro">debug_assert!</span>(max_speed_on_flat_ground.is_none());
-            <span class="comment">// Incline doesn&#39;t affect cars, buses, or trains
+            <span class="comment">// Incline doesn't affect cars, buses, or trains
             </span>road.speed_limit
         };
 
@@ -623,21 +625,21 @@
 </span><span class="kw">pub const </span>MAX_WALKING_SPEED: Speed = Speed::const_meters_per_second(<span class="number">1.34112</span>);
 
 <span class="kw">fn </span>bike_speed_on_incline(max_speed: Speed, percent_incline: f64) -&gt; Speed {
-    <span class="comment">// There doesn&#39;t seem to be a straightforward way of calculating how an &quot;average&quot; cyclist&#39;s
+    <span class="comment">// There doesn't seem to be a straightforward way of calculating how an "average" cyclist's
     // speed is affected by hills. http://www.kreuzotter.de/english/espeed.htm has lots of detail,
-    // but we&#39;d need to guess values like body size, type of bike, etc.
+    // but we'd need to guess values like body size, type of bike, etc.
     // https://github.com/ibi-group/OpenTripPlanner/blob/65dcf0a4142e31028cf9d1b2c15ad32dd1084252/src/main/java/org/opentripplanner/routing/edgetype/StreetEdge.java#L934-L1082
     // is built from this, but seems to be more appropriate for motorized micromobility devices
     // like e-scooters.
 
-    // So, we&#39;ll adapt the table from Valhalla --
+    // So, we'll adapt the table from Valhalla --
     // https://valhalla.readthedocs.io/en/latest/sif/elevation_costing/ describes how this works.
-    // Their &quot;weighted grade&quot; should be roughly equivalent to how the elevation_lookups package we
+    // Their "weighted grade" should be roughly equivalent to how the elevation_lookups package we
     // use calculates things.  This table comes from
     // https://github.com/valhalla/valhalla/blob/f899a940ccbd0bc986769197dec5bb9383014afb/src/sif/bicyclecost.cc#L139.
     // Valhalla is MIT licensed: https://github.com/valhalla/valhalla/blob/master/COPYING.
 
-    // TODO Could binary search or do something a bit faster here, but doesn&#39;t matter much
+    // TODO Could binary search or do something a bit faster here, but doesn't matter much
     </span><span class="kw">let </span>pct = percent_incline * <span class="number">100.0</span>;
     <span class="kw">for </span>(grade, factor) <span class="kw">in </span><span class="macro">vec!</span>[
         (-<span class="number">10.0</span>, <span class="number">2.2</span>),
@@ -660,7 +662,7 @@
             <span class="kw">return </span>factor * max_speed;
         }
     }
-    <span class="comment">// The last pair is a factor of 0.3 for grades of 15%, but we&#39;ll use it for anything steeper
+    <span class="comment">// The last pair is a factor of 0.3 for grades of 15%, but we'll use it for anything steeper
     // than 15%
     </span><span class="number">0.3 </span>* max_speed
 }
@@ -669,13 +671,13 @@
     <span class="comment">// https://en.wikipedia.org/wiki/Tobler%27s_hiking_function
     </span><span class="kw">let </span>exp = -<span class="number">3.5 </span>* (percent_incline + <span class="number">0.05</span>).abs();
     <span class="kw">let </span>tobler = Speed::km_per_hour(<span class="number">6.0 </span>* std::f64::consts::E.powf(exp));
-    <span class="comment">// Tobler&#39;s hiking function assumes a flat speed of 5km/hr, but that&#39;s different than ours.
+    <span class="comment">// Tobler's hiking function assumes a flat speed of 5km/hr, but that's different than ours.
     // Just scale our max_speed proportionally.
     </span><span class="kw">let </span>result = (tobler / Speed::km_per_hour(<span class="number">5.0</span>)) * max_speed;
-    <span class="comment">// Data quality issues, y&#39;know...
+    <span class="comment">// Data quality issues, y'know...
     </span><span class="kw">if </span>result == Speed::ZERO {
         <span class="macro">error!</span>(
-            <span class="string">&quot;walking_speed_on_incline saw an incline of {}. Not going to reduce the speed to 0!&quot;</span>,
+            <span class="string">"walking_speed_on_incline saw an incline of {}. Not going to reduce the speed to 0!"</span>,
             percent_incline
         );
         <span class="kw">return </span><span class="number">0.1 </span>* max_speed;
@@ -725,7 +727,7 @@
         <span class="kw">if </span>(s1.inner_meters_per_second() - s2.inner_meters_per_second()).abs() &gt; <span class="number">0.1 </span>{
             <span class="comment">// Print in mph without rounding
             </span><span class="macro">panic!</span>(
-                <span class="string">&quot;{} != {}&quot;</span>,
+                <span class="string">"{} != {}"</span>,
                 <span class="number">2.23694 </span>* s1.inner_meters_per_second(),
                 <span class="number">2.23694 </span>* s2.inner_meters_per_second()
             );

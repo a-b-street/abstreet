@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/game.rs`."><title>game.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/game.rs`."><title>game.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../santa/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -751,27 +753,27 @@
         app.session.music.specify_volume(<span class="kw">crate</span>::music::IN_GAME);
 
         <span class="kw">let </span>status_panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            <span class="string">&quot;15-min Santa&quot;</span>.text_widget(ctx).centered_vert(),
+            <span class="string">"15-min Santa"</span>.text_widget(ctx).centered_vert(),
             Widget::row(<span class="macro">vec!</span>[
                 <span class="comment">// TODO The blur is messed up
-                </span>Image::from_path(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>)
+                </span>Image::from_path(<span class="string">"system/assets/tools/map.svg"</span>)
                     .into_widget(ctx)
                     .centered_vert(),
                 Line(<span class="kw-2">&amp;</span>level.title).into_widget(ctx),
             ])
             .padding(<span class="number">10</span>)
-            .bg(Color::hex(<span class="string">&quot;#003046&quot;</span>)),
-            <span class="string">&quot;Complete Deliveries&quot;</span>.text_widget(ctx).named(<span class="string">&quot;score label&quot;</span>),
-            GeomBatch::new().into_widget(ctx).named(<span class="string">&quot;score&quot;</span>),
-            <span class="string">&quot;Blood sugar&quot;</span>.text_widget(ctx).named(<span class="string">&quot;energy label&quot;</span>),
-            GeomBatch::new().into_widget(ctx).named(<span class="string">&quot;energy&quot;</span>),
+            .bg(Color::hex(<span class="string">"#003046"</span>)),
+            <span class="string">"Complete Deliveries"</span>.text_widget(ctx).named(<span class="string">"score label"</span>),
+            GeomBatch::new().into_widget(ctx).named(<span class="string">"score"</span>),
+            <span class="string">"Blood sugar"</span>.text_widget(ctx).named(<span class="string">"energy label"</span>),
+            GeomBatch::new().into_widget(ctx).named(<span class="string">"energy"</span>),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
         <span class="kw">let </span>time_panel = Panel::new_builder(Widget::row(<span class="macro">vec!</span>[
-            GeomBatch::new().into_widget(ctx).named(<span class="string">&quot;time circle&quot;</span>),
-            <span class="string">&quot;Time&quot;</span>.text_widget(ctx).centered_vert().named(<span class="string">&quot;time label&quot;</span>),
+            GeomBatch::new().into_widget(ctx).named(<span class="string">"time circle"</span>),
+            <span class="string">"Time"</span>.text_widget(ctx).centered_vert().named(<span class="string">"time label"</span>),
         ]))
         .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
         .build(ctx);
@@ -779,9 +781,9 @@
         <span class="kw">let </span>pause_panel = Panel::new_builder(
             ctx.style()
                 .btn_plain
-                .icon_text(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>, <span class="string">&quot;Pause&quot;</span>)
+                .icon_text(<span class="string">"system/assets/speed/pause.svg"</span>, <span class="string">"Pause"</span>)
                 .hotkey(Key::Escape)
-                .build_widget(ctx, <span class="string">&quot;pause&quot;</span>)
+                .build_widget(ctx, <span class="string">"pause"</span>)
                 .container(),
         )
         <span class="comment">// TODO Very brittle layout to wind up to the right of the volume panel...
@@ -794,7 +796,7 @@
         <span class="kw">let </span>start = app
             .map
             .find_i_by_pt2d(app.map.localise_lon_lat_to_map(level.start))
-            .expect(<span class="string">&quot;To find starting point&quot;</span>);
+            .expect(<span class="string">"To find starting point"</span>);
 
         <span class="kw">let </span>player = Player::new(ctx, app, start);
 
@@ -826,26 +828,26 @@
 
         <span class="kw">let </span>text_color = <span class="kw">if </span>pct &lt; <span class="number">0.75 </span>{ Color::WHITE } <span class="kw">else </span>{ Color::RED };
         <span class="kw">let </span>label = Line(<span class="macro">format!</span>(
-            <span class="string">&quot;{}&quot;</span>,
+            <span class="string">"{}"</span>,
             <span class="self">self</span>.state.level.time_limit - (app.time - Time::START_OF_DAY)
         ))
         .small_heading()
         .fg(text_color)
         .into_widget(ctx)
         .centered_vert();
-        <span class="self">self</span>.time_panel.replace(ctx, <span class="string">&quot;time label&quot;</span>, label);
+        <span class="self">self</span>.time_panel.replace(ctx, <span class="string">"time label"</span>, label);
 
-        <span class="comment">// TODO I couldn&#39;t quite work out how to get the partial outline from Figma working
+        <span class="comment">// TODO I couldn't quite work out how to get the partial outline from Figma working
         </span><span class="kw">let </span>center = Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>);
         <span class="kw">let </span>outer = Distance::meters(<span class="number">30.0</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
         batch.push(Color::WHITE, Circle::new(center, outer).to_polygon());
         batch.push(
-            Color::hex(<span class="string">&quot;#5D92C2&quot;</span>),
+            Color::hex(<span class="string">"#5D92C2"</span>),
             Circle::new(center, outer).to_partial_tessellation(pct),
         );
         <span class="kw">let </span>draw = batch.autocrop().into_widget(ctx);
-        <span class="self">self</span>.time_panel.replace(ctx, <span class="string">&quot;time circle&quot;</span>, draw);
+        <span class="self">self</span>.time_panel.replace(ctx, <span class="string">"time circle"</span>, draw);
     }
 
     <span class="kw">fn </span>update_status_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
@@ -859,7 +861,7 @@
                 <span class="self">self</span>.state.level.goal
             },
         );
-        <span class="self">self</span>.status_panel.replace(ctx, <span class="string">&quot;score&quot;</span>, score_bar);
+        <span class="self">self</span>.status_panel.replace(ctx, <span class="string">"score"</span>, score_bar);
 
         <span class="kw">let </span>energy_bar = make_bar(
             ctx,
@@ -867,7 +869,7 @@
             <span class="self">self</span>.state.energy,
             <span class="self">self</span>.state.vehicle.max_energy,
         );
-        <span class="self">self</span>.status_panel.replace(ctx, <span class="string">&quot;energy&quot;</span>, energy_bar);
+        <span class="self">self</span>.status_panel.replace(ctx, <span class="string">"energy"</span>, energy_bar);
     }
 
     <span class="kw">fn </span>update_boost_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
@@ -876,12 +878,12 @@
             app.session.colors.boost,
             <span class="self">self</span>.state.boost / MAX_BOOST,
             <span class="kw">if </span><span class="self">self</span>.state.boost == Duration::ZERO {
-                Text::from(<span class="string">&quot;Find a bike or bus lane&quot;</span>)
+                Text::from(<span class="string">"Find a bike or bus lane"</span>)
             } <span class="kw">else </span>{
-                Text::from(<span class="string">&quot;Hold space to boost&quot;</span>)
+                Text::from(<span class="string">"Hold space to boost"</span>)
             },
         );
-        <span class="self">self</span>.minimap.mut_panel().replace(ctx, <span class="string">&quot;boost&quot;</span>, boost_bar);
+        <span class="self">self</span>.minimap.mut_panel().replace(ctx, <span class="string">"boost"</span>, boost_bar);
     }
 
     <span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, dt: Duration) {
@@ -929,7 +931,7 @@
                             Effect::Scale {
                                 lerp_scale: (<span class="number">1.0</span>, <span class="number">4.0</span>),
                                 center: app.map.get_b(b).label_center,
-                                orig: Text::from(<span class="macro">format!</span>(<span class="string">&quot;+{}&quot;</span>, prettyprint_usize(increase)))
+                                orig: Text::from(<span class="macro">format!</span>(<span class="string">"+{}"</span>, prettyprint_usize(increase)))
                                     .bg(app.session.colors.score)
                                     .render_autocropped(ctx)
                                     .scale(<span class="number">0.1</span>),
@@ -958,7 +960,7 @@
                             Effect::Scale {
                                 lerp_scale: (<span class="number">1.0</span>, <span class="number">4.0</span>),
                                 center: app.map.get_b(b).label_center,
-                                orig: Text::from(<span class="macro">format!</span>(<span class="string">&quot;Refilled {}&quot;</span>, prettyprint_usize(refill)))
+                                orig: Text::from(<span class="macro">format!</span>(<span class="string">"Refilled {}"</span>, prettyprint_usize(refill)))
                                     .bg(app.session.colors.energy)
                                     .render_autocropped(ctx)
                                     .scale(<span class="number">0.1</span>),
@@ -972,8 +974,8 @@
         <span class="kw">if </span>!met_goal &amp;&amp; <span class="self">self</span>.state.met_goal() {
             <span class="comment">// TODO What should we say here? Should we add some kind of animation to call this
             // out?
-            </span><span class="kw">let </span>label = <span class="string">&quot;Goal met! Keep going&quot;</span>.text_widget(ctx);
-            <span class="self">self</span>.status_panel.replace(ctx, <span class="string">&quot;score label&quot;</span>, label);
+            </span><span class="kw">let </span>label = <span class="string">"Goal met! Keep going"</span>.text_widget(ctx);
+            <span class="self">self</span>.status_panel.replace(ctx, <span class="string">"score label"</span>, label);
         }
 
         <span class="kw">if </span><span class="self">self</span>.player.on_good_road(app) &amp;&amp; !ctx.is_key_down(Key::Space) {
@@ -986,8 +988,8 @@
         <span class="kw">if </span><span class="self">self</span>.state.has_energy() {
             <span class="kw">if </span><span class="self">self</span>.state.energyless_arrow.is_some() {
                 <span class="self">self</span>.state.energyless_arrow = <span class="prelude-val">None</span>;
-                <span class="kw">let </span>label = <span class="string">&quot;Blood sugar&quot;</span>.text_widget(ctx);
-                <span class="self">self</span>.status_panel.replace(ctx, <span class="string">&quot;energy label&quot;</span>, label);
+                <span class="kw">let </span>label = <span class="string">"Blood sugar"</span>.text_widget(ctx);
+                <span class="self">self</span>.status_panel.replace(ctx, <span class="string">"energy label"</span>, label);
             }
         } <span class="kw">else </span>{
             <span class="kw">if </span><span class="self">self</span>.state.energyless_arrow.is_none() {
@@ -997,10 +999,10 @@
                     <span class="self">self</span>.state.bldgs.all_stores(),
                 ));
                 <span class="kw">let </span>label = Text::from(
-                    Line(<span class="string">&quot;SANTA&#39;S HANGRY - grab some cookies from a store!&quot;</span>).fg(Color::RED),
+                    Line(<span class="string">"SANTA'S HANGRY - grab some cookies from a store!"</span>).fg(Color::RED),
                 )
                 .into_widget(ctx);
-                <span class="self">self</span>.status_panel.replace(ctx, <span class="string">&quot;energy label&quot;</span>, label);
+                <span class="self">self</span>.status_panel.replace(ctx, <span class="string">"energy label"</span>, label);
             }
             <span class="self">self</span>.state
                 .energyless_arrow
@@ -1059,7 +1061,7 @@
             <span class="kw">return </span>Transition::Keep;
         }
 
-        <span class="comment">// Most things depend on time passing and don&#39;t care about other events
+        <span class="comment">// Most things depend on time passing and don't care about other events
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(dt) = ctx.input.nonblocking_is_update_event() {
             <span class="self">self</span>.update(ctx, app, dt);
 
@@ -1071,7 +1073,7 @@
                     Effect::Scale {
                         lerp_scale: (<span class="number">1.0</span>, <span class="number">4.0</span>),
                         center: <span class="self">self</span>.player.get_pos(),
-                        orig: Text::from(<span class="string">&quot;Time&#39;s up!&quot;</span>)
+                        orig: Text::from(<span class="string">"Time's up!"</span>)
                             .bg(Color::RED)
                             .render_autocropped(ctx)
                             .scale(<span class="number">0.1</span>),
@@ -1105,7 +1107,7 @@
                             <span class="kw">let </span>pt = ctx.canvas.center_to_screen_pt();
                             Pt2D::new(pt.x, pt.y / <span class="number">2.0</span>)
                         },
-                        orig: Text::from(<span class="string">&quot;Almost out of time!&quot;</span>)
+                        orig: Text::from(<span class="string">"Almost out of time!"</span>)
                             .bg(Color::RED)
                             .render_autocropped(ctx),
                     },
@@ -1135,7 +1137,7 @@
                             <span class="kw">let </span>pt = ctx.canvas.center_to_screen_pt();
                             Pt2D::new(pt.x, pt.y / <span class="number">2.0</span>)
                         },
-                        orig: Text::from(<span class="string">&quot;Low on blood sugar, refill soon!&quot;</span>)
+                        orig: Text::from(<span class="string">"Low on blood sugar, refill soon!"</span>)
                             .bg(Color::RED)
                             .render_autocropped(ctx),
                     },
@@ -1152,21 +1154,21 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.pause_panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;pause&quot; </span>=&gt; {
+                <span class="string">"pause" </span>=&gt; {
                     app.session.music.specify_volume(<span class="kw">crate</span>::music::OUT_OF_GAME);
                     <span class="kw">return </span>Transition::Push(ChooseSomething::new_state(
                         ctx,
-                        <span class="string">&quot;Game Paused&quot;</span>,
+                        <span class="string">"Game Paused"</span>,
                         <span class="macro">vec!</span>[
-                            Choice::string(<span class="string">&quot;Resume&quot;</span>).key(Key::Escape),
-                            Choice::string(<span class="string">&quot;Quit&quot;</span>),
+                            Choice::string(<span class="string">"Resume"</span>).key(Key::Escape),
+                            Choice::string(<span class="string">"Quit"</span>),
                         ],
                         Box::new(|resp, <span class="kw">_</span>, app| <span class="kw">match </span>resp.as_ref() {
-                            <span class="string">&quot;Resume&quot; </span>=&gt; {
+                            <span class="string">"Resume" </span>=&gt; {
                                 app.session.music.specify_volume(<span class="kw">crate</span>::music::IN_GAME);
                                 Transition::Pop
                             }
-                            <span class="string">&quot;Quit&quot; </span>=&gt; Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop]),
+                            <span class="string">"Quit" </span>=&gt; Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop]),
                             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                         }),
                     ));
@@ -1334,7 +1336,7 @@
         }
         <span class="self">self</span>.last_update = app.time;
         <span class="comment">// Find the closest store as the crow -- or Santa -- flies. Point to the end of the
-        // driveway, since sometimes it&#39;s hard to quickly spot which road a building is connected
+        // driveway, since sometimes it's hard to quickly spot which road a building is connected
         // to.
         // TODO Or pathfind and show them that?
         </span><span class="kw">let </span>store = app.map.get_b(
@@ -1354,7 +1356,7 @@
 
         <span class="kw">let </span>goto = store.driveway_geom.last_pt();
         <span class="kw">let </span>angle = sleigh.angle_to(goto);
-        <span class="comment">// TODO When we&#39;re too close, we get an awkward arrowcap; the intention was for it to
+        <span class="comment">// TODO When we're too close, we get an awkward arrowcap; the intention was for it to
         // disappear...
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(arrow) = PolyLine::new(<span class="macro">vec!</span>[
             sleigh.project_away(Distance::meters(<span class="number">20.0</span>), angle),
@@ -1381,20 +1383,20 @@
     <span class="kw">fn </span>make_legend(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
         Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                ColorLegend::row(ctx, app.session.colors.house, <span class="string">&quot;house&quot;</span>),
-                ColorLegend::row(ctx, app.session.colors.apartment, <span class="string">&quot;apartment&quot;</span>),
-                ColorLegend::row(ctx, app.session.colors.store, <span class="string">&quot;store&quot;</span>),
+                ColorLegend::row(ctx, app.session.colors.house, <span class="string">"house"</span>),
+                ColorLegend::row(ctx, app.session.colors.apartment, <span class="string">"apartment"</span>),
+                ColorLegend::row(ctx, app.session.colors.store, <span class="string">"store"</span>),
             ])
             .evenly_spaced(),
-            <span class="comment">// TODO If the player messes with the minimap, the panel gets recreated, and we&#39;ll
+            <span class="comment">// TODO If the player messes with the minimap, the panel gets recreated, and we'll
             // clobber the boost bar. No easy way to plumb everything we need for
-            // update_boost_panel here. It&#39;s not super common to actually mess with those controls,
+            // update_boost_panel here. It's not super common to actually mess with those controls,
             // so fine with this for now.
             </span>Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Boost&quot;</span>.text_widget(ctx),
+                <span class="string">"Boost"</span>.text_widget(ctx),
                 GeomBatch::new()
                     .into_widget(ctx)
-                    .named(<span class="string">&quot;boost&quot;</span>)
+                    .named(<span class="string">"boost"</span>)
                     .align_right(),
             ]),
         ])

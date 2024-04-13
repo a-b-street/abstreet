@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -549,7 +551,7 @@
 <span class="kw">mod </span>perma;
 <span class="kw">pub mod </span>perma_traffic_signal;
 
-<span class="doccomment">/// Represents changes to a map. Note this isn&#39;t serializable -- that&#39;s what `PermanentMapEdits`
+<span class="doccomment">/// Represents changes to a map. Note this isn't serializable -- that's what `PermanentMapEdits`
 /// does.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq)]
 </span><span class="kw">pub struct </span>MapEdits {
@@ -563,8 +565,8 @@
     <span class="kw">pub </span>original_intersections: BTreeMap&lt;IntersectionID, EditIntersection&gt;,
     <span class="kw">pub </span>changed_routes: BTreeSet&lt;TransitRouteID&gt;,
 
-    <span class="doccomment">/// Some edits are included in the game by default, in data/system/proposals, as &quot;community
-    /// proposals.&quot; They require a description and may have a link to a write-up.
+    <span class="doccomment">/// Some edits are included in the game by default, in data/system/proposals, as "community
+    /// proposals." They require a description and may have a link to a write-up.
     </span><span class="kw">pub </span>proposal_description: Vec&lt;String&gt;,
     <span class="kw">pub </span>proposal_link: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
@@ -622,7 +624,7 @@
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
 </span><span class="kw">pub enum </span>EditIntersectionControl {
     StopSign(ControlStopSign),
-    <span class="comment">// Don&#39;t keep ControlTrafficSignal here, because it contains movements that should be
+    <span class="comment">// Don't keep ControlTrafficSignal here, because it contains movements that should be
     // generated after all lane edits are applied.
     </span>TrafficSignal(perma_traffic_signal::TrafficSignal),
     Closed,
@@ -666,31 +668,31 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>changes = Vec::new();
         <span class="kw">if </span>lt == <span class="number">1 </span>{
-            changes.push(<span class="string">&quot;1 lane type&quot;</span>.to_string());
+            changes.push(<span class="string">"1 lane type"</span>.to_string());
         } <span class="kw">else if </span>lt &gt; <span class="number">1 </span>{
-            changes.push(<span class="macro">format!</span>(<span class="string">&quot;{} lane types&quot;</span>, lt));
+            changes.push(<span class="macro">format!</span>(<span class="string">"{} lane types"</span>, lt));
         }
         <span class="kw">if </span>dir == <span class="number">1 </span>{
-            changes.push(<span class="string">&quot;1 lane reversal&quot;</span>.to_string());
+            changes.push(<span class="string">"1 lane reversal"</span>.to_string());
         } <span class="kw">else if </span>dir &gt; <span class="number">1 </span>{
-            changes.push(<span class="macro">format!</span>(<span class="string">&quot;{} lane reversals&quot;</span>, dir));
+            changes.push(<span class="macro">format!</span>(<span class="string">"{} lane reversals"</span>, dir));
         }
         <span class="kw">if </span>width == <span class="number">1 </span>{
-            changes.push(<span class="string">&quot;1 lane width&quot;</span>.to_string());
+            changes.push(<span class="string">"1 lane width"</span>.to_string());
         } <span class="kw">else </span>{
-            changes.push(<span class="macro">format!</span>(<span class="string">&quot;{} lane widths&quot;</span>, width));
+            changes.push(<span class="macro">format!</span>(<span class="string">"{} lane widths"</span>, width));
         }
         <span class="kw">if </span><span class="self">self</span>.speed_limit != other.speed_limit {
-            changes.push(<span class="string">&quot;speed limit&quot;</span>.to_string());
+            changes.push(<span class="string">"speed limit"</span>.to_string());
         }
         <span class="kw">if </span><span class="self">self</span>.access_restrictions != other.access_restrictions {
-            changes.push(<span class="string">&quot;access restrictions&quot;</span>.to_string());
+            changes.push(<span class="string">"access restrictions"</span>.to_string());
         }
         <span class="kw">if </span><span class="self">self</span>.modal_filter != other.modal_filter {
-            changes.push(<span class="string">&quot;modal filter&quot;</span>.to_string());
+            changes.push(<span class="string">"modal filter"</span>.to_string());
         }
         <span class="kw">if </span><span class="self">self</span>.crossings != other.crossings {
-            changes.push(<span class="string">&quot;crossings&quot;</span>.to_string());
+            changes.push(<span class="string">"crossings"</span>.to_string());
         }
         changes
     }
@@ -701,13 +703,13 @@
         <span class="kw">let </span><span class="kw-2">mut </span>changes = Vec::new();
         <span class="comment">// TODO Could get more specific about changes to stop signs, traffic signals, etc
         </span><span class="kw">if </span><span class="self">self</span>.control != other.control {
-            changes.push(<span class="string">&quot;control type&quot;</span>.to_string());
+            changes.push(<span class="string">"control type"</span>.to_string());
         }
         <span class="kw">if </span><span class="self">self</span>.crosswalks != other.crosswalks {
-            changes.push(<span class="string">&quot;crosswalks&quot;</span>.to_string());
+            changes.push(<span class="string">"crosswalks"</span>.to_string());
         }
         <span class="kw">if </span><span class="self">self</span>.modal_filter != other.modal_filter {
-            changes.push(<span class="string">&quot;modal filter&quot;</span>.to_string());
+            changes.push(<span class="string">"modal filter"</span>.to_string());
         }
         changes
     }
@@ -716,7 +718,7 @@
 <span class="kw">impl </span>MapEdits {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new() -&gt; MapEdits {
         MapEdits {
-            edits_name: <span class="string">&quot;TODO temporary&quot;</span>.to_string(),
+            edits_name: <span class="string">"TODO temporary"</span>.to_string(),
             proposal_description: Vec::new(),
             proposal_link: <span class="prelude-val">None</span>,
             commands: Vec::new(),
@@ -727,9 +729,9 @@
         }
     }
 
-    <span class="doccomment">/// Load map edits from a JSON file. Strip out any commands that&#39;re broken because they don&#39;t
+    <span class="doccomment">/// Load map edits from a JSON file. Strip out any commands that're broken because they don't
     /// match the current map. If the resulting edits are totally empty, consider that a failure --
-    /// the edits likely don&#39;t cover this map at all.
+    /// the edits likely don't cover this map at all.
     </span><span class="kw">pub fn </span>load_from_file(map: <span class="kw-2">&amp;</span>Map, path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;MapEdits&gt; {
         <span class="kw">let </span>perma = <span class="kw">match </span>abstio::maybe_read_json::&lt;PermanentMapEdits&gt;(path.clone(), timer) {
             <span class="prelude-val">Ok</span>(perma) =&gt; perma,
@@ -741,12 +743,12 @@
             </span>}
         };
 
-        <span class="comment">// Don&#39;t compare the full MapName; edits in one part of a city could apply to another. But
+        <span class="comment">// Don't compare the full MapName; edits in one part of a city could apply to another. But
         // make sure at least the city matches. Otherwise, we spend time trying to match up edits,
         // and produce noisy logs along the way.
         </span><span class="kw">if </span>map.get_name().city != perma.map_name.city {
             <span class="macro">bail!</span>(
-                <span class="string">&quot;Edits are for {:?}, but this map is {:?}&quot;</span>,
+                <span class="string">"Edits are for {:?}, but this map is {:?}"</span>,
                 perma.map_name.city,
                 map.get_name().city
             );
@@ -754,14 +756,14 @@
 
         <span class="kw">let </span>edits = perma.into_edits_permissive(map);
         <span class="kw">if </span>edits.commands.is_empty() {
-            <span class="macro">bail!</span>(<span class="string">&quot;None of the edits apply to this map&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">"None of the edits apply to this map"</span>);
         }
         <span class="prelude-val">Ok</span>(edits)
     }
 
-    <span class="doccomment">/// Load map edits from the given JSON bytes. Strip out any commands that&#39;re broken because
-    /// they don&#39;t match the current map. If the resulting edits are totally empty, consider that a
-    /// failure -- the edits likely don&#39;t cover this map at all.
+    <span class="doccomment">/// Load map edits from the given JSON bytes. Strip out any commands that're broken because
+    /// they don't match the current map. If the resulting edits are totally empty, consider that a
+    /// failure -- the edits likely don't cover this map at all.
     </span><span class="kw">pub fn </span>load_from_bytes(map: <span class="kw-2">&amp;</span>Map, bytes: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;MapEdits&gt; {
         <span class="kw">let </span>perma = <span class="kw">match </span>abstutil::from_json::&lt;PermanentMapEdits&gt;(<span class="kw-2">&amp;</span>bytes) {
             <span class="prelude-val">Ok</span>(perma) =&gt; perma,
@@ -774,14 +776,14 @@
         };
         <span class="kw">let </span>edits = perma.into_edits_permissive(map);
         <span class="kw">if </span>edits.commands.is_empty() {
-            <span class="macro">bail!</span>(<span class="string">&quot;None of the edits apply to this map&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">"None of the edits apply to this map"</span>);
         }
         <span class="prelude-val">Ok</span>(edits)
     }
 
     <span class="kw">fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) {
-        <span class="comment">// If untitled and empty, don&#39;t actually save anything.
-        </span><span class="kw">if </span><span class="self">self</span>.edits_name.starts_with(<span class="string">&quot;Untitled Proposal&quot;</span>) &amp;&amp; <span class="self">self</span>.commands.is_empty() {
+        <span class="comment">// If untitled and empty, don't actually save anything.
+        </span><span class="kw">if </span><span class="self">self</span>.edits_name.starts_with(<span class="string">"Untitled Proposal"</span>) &amp;&amp; <span class="self">self</span>.commands.is_empty() {
             <span class="kw">return</span>;
         }
 
@@ -851,7 +853,7 @@
     }
 
     <span class="doccomment">/// Pick apart changed_roads and figure out if an entire road was edited, or just a few lanes.
-    /// Doesn&#39;t return deleted lanes.
+    /// Doesn't return deleted lanes.
     </span><span class="kw">pub fn </span>changed_lanes(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; (BTreeSet&lt;LaneID&gt;, BTreeSet&lt;RoadID&gt;) {
         <span class="kw">let </span><span class="kw-2">mut </span>lanes = BTreeSet::new();
         <span class="kw">let </span><span class="kw-2">mut </span>roads = BTreeSet::new();
@@ -883,7 +885,7 @@
         <span class="kw">let </span>bytes = abstutil::to_json(<span class="kw-2">&amp;</span><span class="self">self</span>.to_permanent(map));
         <span class="kw">let </span><span class="kw-2">mut </span>context = md5::Context::new();
         context.consume(<span class="kw-2">&amp;</span>bytes);
-        <span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, context.compute())
+        <span class="macro">format!</span>(<span class="string">"{:x}"</span>, context.compute())
     }
 
     <span class="doccomment">/// Get the human-friendly of these edits. If they have a description, the first line is the
@@ -900,7 +902,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(orig) = <span class="self">self</span>.original_roads.get(<span class="kw-2">&amp;</span>r) {
             !orig.crossings.contains(crossing)
         } <span class="kw">else </span>{
-            <span class="comment">// If this road isn&#39;t in original_roads at all, then nothing there has been modified
+            <span class="comment">// If this road isn't in original_roads at all, then nothing there has been modified
             </span><span class="bool-val">false
         </span>}
     }
@@ -933,14 +935,14 @@
         <span class="kw">let </span>summary = <span class="kw">match </span><span class="self">self </span>{
             EditCmd::ChangeRoad { r, old, new } =&gt; {
                 details = new.diff(old);
-                <span class="macro">format!</span>(<span class="string">&quot;road #{}&quot;</span>, r.<span class="number">0</span>)
+                <span class="macro">format!</span>(<span class="string">"road #{}"</span>, r.<span class="number">0</span>)
             }
             EditCmd::ChangeIntersection { i, old, new } =&gt; {
                 details = new.diff(old);
-                <span class="macro">format!</span>(<span class="string">&quot;intersection #{}&quot;</span>, i.<span class="number">0</span>)
+                <span class="macro">format!</span>(<span class="string">"intersection #{}"</span>, i.<span class="number">0</span>)
             }
             EditCmd::ChangeRouteSchedule { id, .. } =&gt; {
-                <span class="macro">format!</span>(<span class="string">&quot;reschedule route {}&quot;</span>, map.get_tr(<span class="kw-2">*</span>id).short_name)
+                <span class="macro">format!</span>(<span class="string">"reschedule route {}"</span>, map.get_tr(<span class="kw-2">*</span>id).short_name)
             }
         };
         (summary, details)
@@ -954,7 +956,7 @@
         <span class="comment">// Automatically find a new filename
         </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">1</span>;
         <span class="kw">loop </span>{
-            <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">&quot;Untitled Proposal {}&quot;</span>, i);
+            <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">"Untitled Proposal {}"</span>, i);
             <span class="kw">if </span>!abstio::file_exists(abstio::path_edits(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>name)) {
                 edits.edits_name = name;
                 <span class="kw">return </span>edits;
@@ -968,7 +970,7 @@
     }
 
     <span class="kw">pub fn </span>unsaved_edits(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.edits.edits_name.starts_with(<span class="string">&quot;Untitled Proposal&quot;</span>) &amp;&amp; !<span class="self">self</span>.edits.commands.is_empty()
+        <span class="self">self</span>.edits.edits_name.starts_with(<span class="string">"Untitled Proposal"</span>) &amp;&amp; !<span class="self">self</span>.edits.commands.is_empty()
     }
 
     <span class="kw">pub fn </span>get_r_edit(<span class="kw-2">&amp;</span><span class="self">self</span>, r: RoadID) -&gt; EditRoad {
@@ -1027,7 +1029,7 @@
     }
 
     <span class="kw">pub fn </span>save_edits(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="comment">// Don&#39;t overwrite the current edits with the compressed first. Otherwise, undo/redo order
+        <span class="comment">// Don't overwrite the current edits with the compressed first. Otherwise, undo/redo order
         // in the UI gets messed up.
         </span><span class="kw">let </span><span class="kw-2">mut </span>edits = <span class="self">self</span>.edits.clone();
         edits.commands.clear();
@@ -1035,7 +1037,7 @@
         edits.save(<span class="self">self</span>);
     }
 
-    <span class="doccomment">/// Since the player is in the middle of editing, the signal may not be valid. Don&#39;t go through
+    <span class="doccomment">/// Since the player is in the middle of editing, the signal may not be valid. Don't go through
     /// the entire apply_edits flow.
     </span><span class="kw">pub fn </span>incremental_edit_traffic_signal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, signal: ControlTrafficSignal) {
         <span class="macro">assert_eq!</span>(

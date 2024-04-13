@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/image.rs`."><title>image.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/image.rs`."><title>image.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -353,8 +355,8 @@
 
 <span class="doccomment">/// A stylable UI component builder which presents vector graphics from an [`ImageSource`].
 </span><span class="attr">#[derive(Clone, Debug, Default)]
-</span><span class="kw">pub struct </span>Image&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
-    source: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;c</span>, ImageSource&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
+</span><span class="kw">pub struct </span>Image&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
+    source: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'c</span>, ImageSource&lt;<span class="lifetime">'a</span>&gt;&gt;&gt;,
     tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;,
     color: <span class="prelude-ty">Option</span>&lt;RewriteColor&gt;,
     content_mode: <span class="prelude-ty">Option</span>&lt;ContentMode&gt;,
@@ -366,19 +368,19 @@
 
 <span class="doccomment">/// The visual
 </span><span class="attr">#[derive(Clone, Debug)]
-</span><span class="kw">pub enum </span>ImageSource&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub enum </span>ImageSource&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Path to an SVG file
-    </span>Path(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str),
+    </span>Path(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str),
 
     <span class="doccomment">/// UTF-8 encoded bytes of an SVG
-    </span>Bytes { bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], cache_key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str },
+    </span>Bytes { bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8], cache_key: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str },
 
     <span class="doccomment">/// Previously rendered graphics, in the form of a [`GeomBatch`], can
     /// be packaged as an `Image`.
     </span>GeomBatch(GeomBatch, geom::Bounds),
 }
 
-<span class="kw">impl </span>ImageSource&lt;<span class="lifetime">&#39;_</span>&gt; {
+<span class="kw">impl </span>ImageSource&lt;<span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Process `self` into a [`GeomBatch`].
     ///
     /// The underlying implementation makes use of caching to avoid re-parsing SVGs.
@@ -388,7 +390,7 @@
             ImageSource::Path(image_path) =&gt; svg::load_svg(prerender, image_path),
             ImageSource::Bytes { bytes, cache_key } =&gt; {
                 svg::load_svg_bytes(prerender, cache_key, bytes).unwrap_or_else(|<span class="kw">_</span>| {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Failed to load svg from bytes. cache_key: {}&quot;</span>, cache_key)
+                    <span class="macro">panic!</span>(<span class="string">"Failed to load svg from bytes. cache_key: {}"</span>, cache_key)
                 })
             }
             ImageSource::GeomBatch(geom_batch, bounds) =&gt; (geom_batch.clone(), <span class="kw-2">*</span>bounds),
@@ -396,7 +398,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; Image&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; Image&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
     <span class="doccomment">/// An `Image` with no renderable content. Useful for starting a template for creating
     /// several similar images using a builder pattern.
     </span><span class="kw">pub fn </span>empty() -&gt; <span class="self">Self </span>{
@@ -406,7 +408,7 @@
     }
 
     <span class="doccomment">/// Create an SVG `Image`, read from `filename`, which is colored to match `Style.icon_fg`
-    </span><span class="kw">pub fn </span>from_path(filename: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>from_path(filename: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             source: <span class="prelude-val">Some</span>(Cow::Owned(ImageSource::Path(filename))),
             ..Default::default()
@@ -419,7 +421,7 @@
     ///   [`include_labeled_bytes!`]
     /// * `label`: a label to describe the bytes for debugging purposes
     /// * `bytes`: UTF-8 encoded bytes of the SVG
-    </span><span class="kw">pub fn </span>from_bytes(labeled_bytes: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8])) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>from_bytes(labeled_bytes: (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8])) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             source: <span class="prelude-val">Some</span>(Cow::Owned(ImageSource::Bytes {
                 cache_key: labeled_bytes.<span class="number">0</span>,
@@ -440,10 +442,10 @@
         }
     }
 
-    <span class="doccomment">/// Set a new source for the `Image`&#39;s data.
+    <span class="doccomment">/// Set a new source for the `Image`'s data.
     ///
     /// This will replace any previously set source.
-    </span><span class="kw">pub fn </span>source(<span class="kw-2">mut </span><span class="self">self</span>, source: ImageSource&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>source(<span class="kw-2">mut </span><span class="self">self</span>, source: ImageSource&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.source = <span class="prelude-val">Some</span>(Cow::Owned(source));
         <span class="self">self
     </span>}
@@ -451,7 +453,7 @@
     <span class="doccomment">/// Set the path to an SVG file for the image.
     ///
     /// This will replace any image source previously set.
-    </span><span class="kw">pub fn </span>source_path(<span class="self">self</span>, path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>source_path(<span class="self">self</span>, path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.source(ImageSource::Path(path))
     }
 
@@ -463,7 +465,7 @@
     ///   [`include_labeled_bytes!`]
     /// * `label`: a label to describe the bytes for debugging purposes
     /// * `bytes`: UTF-8 encoded bytes of the SVG
-    </span><span class="kw">pub fn </span>source_bytes(<span class="self">self</span>, labeled_bytes: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8])) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>source_bytes(<span class="self">self</span>, labeled_bytes: (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8])) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>(label, bytes) = labeled_bytes;
         <span class="self">self</span>.source(ImageSource::Bytes {
             bytes,
@@ -488,10 +490,10 @@
     </span>}
 
     <span class="doccomment">/// Create a new `Image` based on `self`, but overriding with any values set on `other`.
-    </span><span class="kw">pub fn </span>merged_image_style(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>source_cow: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Cow&lt;<span class="lifetime">&#39;c</span>, ImageSource&gt;&gt; =
+    </span><span class="kw">pub fn </span>merged_image_style(<span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="lifetime">'c </span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>source_cow: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Cow&lt;<span class="lifetime">'c</span>, ImageSource&gt;&gt; =
             other.source.as_ref().or_else(|| <span class="self">self</span>.source.as_ref());
-        <span class="kw">let </span>source: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;c</span>, ImageSource&gt;&gt; = source_cow.map(|source: <span class="kw-2">&amp;</span>Cow&lt;ImageSource&gt;| {
+        <span class="kw">let </span>source: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'c</span>, ImageSource&gt;&gt; = source_cow.map(|source: <span class="kw-2">&amp;</span>Cow&lt;ImageSource&gt;| {
             <span class="kw">let </span>source: <span class="kw-2">&amp;</span>ImageSource = source;
             Cow::Borrowed(source)
         });
@@ -521,12 +523,12 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// The image&#39;s intrinsic colors will be used, it will not be tinted like `Image::icon`
+    <span class="doccomment">/// The image's intrinsic colors will be used, it will not be tinted like `Image::icon`
     </span><span class="kw">pub fn </span>untinted(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.color(RewriteColor::NoOp)
     }
 
-    <span class="doccomment">/// Scale the bounds containing the image. If `dims` are not specified, the image&#39;s intrinsic
+    <span class="doccomment">/// Scale the bounds containing the image. If `dims` are not specified, the image's intrinsic
     /// size will be used, but padding and background settings will be ignored.
     ///
     /// See [`Self::content_mode`] to control how the image scales to fit its custom bounds.
@@ -547,7 +549,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set independent rounding for each of the image&#39;s corners. Has no effect unless custom
+    <span class="doccomment">/// Set independent rounding for each of the image's corners. Has no effect unless custom
     /// `dims` are explicitly set.
     </span><span class="kw">pub fn </span>corner_rounding&lt;R: Into&lt;CornerRounding&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, value: R) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.corner_rounding = <span class="prelude-val">Some</span>(value.into());

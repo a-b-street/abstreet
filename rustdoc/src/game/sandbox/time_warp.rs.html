@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/time_warp.rs`."><title>time_warp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/time_warp.rs`."><title>time_warp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -502,15 +504,15 @@
         <span class="kw">let </span>jump_to_time_btn = ctx
             .style()
             .btn_tab
-            .text(<span class="string">&quot;Jump to time&quot;</span>)
+            .text(<span class="string">"Jump to time"</span>)
             .hotkey(Key::T)
-            .tooltip(<span class="string">&quot;Jump to time&quot;</span>);
+            .tooltip(<span class="string">"Jump to time"</span>);
         <span class="kw">let </span>jump_to_time_content = {
             <span class="comment">// TODO Auto-fill width?
             </span><span class="kw">let </span>slider_width = <span class="number">500.0</span>;
 
             Widget::col(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Jump to what time?&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Jump to what time?"</span>).small_heading().into_widget(ctx),
                 <span class="kw">if </span>app.has_prebaked().is_some() {
                     <span class="kw">match </span>area_under_curve(
                         app.prebaked().active_agents(end_of_day),
@@ -523,7 +525,7 @@
                         }
 
                         <span class="prelude-val">Err</span>(err) =&gt; {
-                            <span class="macro">warn!</span>(<span class="string">&quot;Not drawing area under curve: {err}&quot;</span>);
+                            <span class="macro">warn!</span>(<span class="string">"Not drawing area under curve: {err}"</span>);
                             Widget::nothing()
                         }
                     }
@@ -534,7 +536,7 @@
                     ctx,
                     slider_width,
                     target.to_percent(end_of_day).min(<span class="number">1.0</span>),
-                    <span class="string">&quot;time slider&quot;</span>,
+                    <span class="string">"time slider"</span>,
                 ),
                 build_jump_to_time_btn(ctx, target),
             ])
@@ -543,29 +545,29 @@
         <span class="kw">let </span>jump_to_delay_btn = ctx
             .style()
             .btn_tab
-            .text(<span class="string">&quot;Jump to delay&quot;</span>)
+            .text(<span class="string">"Jump to delay"</span>)
             .hotkey(Key::D)
-            .tooltip(<span class="string">&quot;Jump to delay&quot;</span>);
+            .tooltip(<span class="string">"Jump to delay"</span>);
         <span class="kw">let </span>jump_to_delay_content = Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Jump to next&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Jump to next"</span>).small_heading().into_widget(ctx),
                 Widget::dropdown(
                     ctx,
-                    <span class="string">&quot;delay&quot;</span>,
+                    <span class="string">"delay"</span>,
                     app.opts.jump_to_delay,
                     <span class="macro">vec!</span>[
-                        Choice::new(<span class="string">&quot;1&quot;</span>, Duration::minutes(<span class="number">1</span>)),
-                        Choice::new(<span class="string">&quot;2&quot;</span>, Duration::minutes(<span class="number">2</span>)),
-                        Choice::new(<span class="string">&quot;5&quot;</span>, Duration::minutes(<span class="number">5</span>)),
-                        Choice::new(<span class="string">&quot;10&quot;</span>, Duration::minutes(<span class="number">10</span>)),
+                        Choice::new(<span class="string">"1"</span>, Duration::minutes(<span class="number">1</span>)),
+                        Choice::new(<span class="string">"2"</span>, Duration::minutes(<span class="number">2</span>)),
+                        Choice::new(<span class="string">"5"</span>, Duration::minutes(<span class="number">5</span>)),
+                        Choice::new(<span class="string">"10"</span>, Duration::minutes(<span class="number">10</span>)),
                     ],
                 ),
-                Line(<span class="string">&quot;minute delay&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"minute delay"</span>).small_heading().into_widget(ctx),
             ]),
             build_jump_to_delay_button(ctx, app.opts.jump_to_delay),
         ]);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>tabs = TabController::new(<span class="string">&quot;jump_to_time_tabs&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>tabs = TabController::new(<span class="string">"jump_to_time_tabs"</span>);
         tabs.push_tab(jump_to_time_btn, jump_to_time_content);
         tabs.push_tab(jump_to_delay_btn, jump_to_delay_content);
 
@@ -588,10 +590,10 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;jump to time&quot; </span>=&gt; {
+                <span class="string">"jump to time" </span>=&gt; {
                     <span class="kw">if </span><span class="self">self</span>.target &lt; app.primary.sim.time() {
                         <span class="kw">if let </span><span class="prelude-val">Some</span>(mode) = <span class="self">self</span>.maybe_mode.take() {
                             <span class="kw">let </span>target_time = <span class="self">self</span>.target;
@@ -610,8 +612,8 @@
                         } <span class="kw">else </span>{
                             <span class="kw">return </span>Transition::Replace(PopupMsg::new_state(
                                 ctx,
-                                <span class="string">&quot;Error&quot;</span>,
-                                <span class="macro">vec!</span>[<span class="string">&quot;Sorry, you can&#39;t go rewind time from this mode.&quot;</span>],
+                                <span class="string">"Error"</span>,
+                                <span class="macro">vec!</span>[<span class="string">"Sorry, you can't go rewind time from this mode."</span>],
                             ));
                         }
                     }
@@ -622,8 +624,8 @@
                         <span class="prelude-val">None</span>,
                     ));
                 }
-                <span class="string">&quot;jump to delay&quot; </span>=&gt; {
-                    <span class="kw">let </span>delay = <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;delay&quot;</span>);
+                <span class="string">"jump to delay" </span>=&gt; {
+                    <span class="kw">let </span>delay = <span class="self">self</span>.panel.dropdown_value(<span class="string">"delay"</span>);
                     app.opts.jump_to_delay = delay;
                     <span class="kw">return </span>Transition::Replace(TimeWarpScreen::new_state(
                         ctx,
@@ -636,7 +638,7 @@
                     <span class="kw">if </span><span class="self">self</span>.tabs.handle_action(ctx, action, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel) {
                         <span class="comment">// if true, tabs has handled the action
                     </span>} <span class="kw">else </span>{
-                        <span class="macro">unreachable!</span>(<span class="string">&quot;unhandled action: {}&quot;</span>, action)
+                        <span class="macro">unreachable!</span>(<span class="string">"unhandled action: {}"</span>, action)
                     }
                 }
             },
@@ -645,8 +647,8 @@
                 <span class="kw">if </span><span class="self">self</span>.tabs.active_tab_idx() == <span class="number">1 </span>{
                     <span class="self">self</span>.panel.replace(
                         ctx,
-                        <span class="string">&quot;jump to delay&quot;</span>,
-                        build_jump_to_delay_button(ctx, <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;delay&quot;</span>)),
+                        <span class="string">"jump to delay"</span>,
+                        build_jump_to_delay_button(ctx, <span class="self">self</span>.panel.dropdown_value(<span class="string">"delay"</span>)),
                     );
                 }
             }
@@ -658,12 +660,12 @@
                 .primary
                 .sim
                 .get_end_of_day()
-                .percent_of(<span class="self">self</span>.panel.slider(<span class="string">&quot;time slider&quot;</span>).get_percent())
+                .percent_of(<span class="self">self</span>.panel.slider(<span class="string">"time slider"</span>).get_percent())
                 .round_seconds(<span class="number">600.0</span>);
             <span class="kw">if </span>target != <span class="self">self</span>.target {
                 <span class="self">self</span>.target = target;
                 <span class="self">self</span>.panel
-                    .replace(ctx, <span class="string">&quot;jump to time&quot;</span>, build_jump_to_time_btn(ctx, target));
+                    .replace(ctx, <span class="string">"jump to time"</span>, build_jump_to_time_btn(ctx, target));
             }
         }
 
@@ -717,17 +719,17 @@
             halt_upon_delay,
             panel: Panel::new_builder(
                 Widget::col(<span class="macro">vec!</span>[
-                    Widget::placeholder(ctx, <span class="string">&quot;text&quot;</span>),
+                    Widget::placeholder(ctx, <span class="string">"text"</span>),
                     Toggle::checkbox(
                         ctx,
-                        <span class="string">&quot;skip drawing (for faster simulations)&quot;</span>,
+                        <span class="string">"skip drawing (for faster simulations)"</span>,
                         Key::Space,
                         app.opts.dont_draw_time_warp,
                     )
-                    .named(<span class="string">&quot;don&#39;t draw&quot;</span>),
+                    .named(<span class="string">"don't draw"</span>),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;stop now&quot;</span>)
+                        .text(<span class="string">"stop now"</span>)
                         .hotkey(Key::Escape)
                         .build_def(ctx)
                         .centered_horiz(),
@@ -755,8 +757,8 @@
                 <span class="comment">// TODO Just the first :(
                 </span><span class="kw">return </span>Transition::Replace(PopupMsg::new_state(
                     ctx,
-                    <span class="string">&quot;Alert&quot;</span>,
-                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;At {}, near {:?}, {}&quot;</span>, t, maybe_i, alert)],
+                    <span class="string">"Alert"</span>,
+                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"At {}, near {:?}, {}"</span>, t, maybe_i, alert)],
                 ));
             }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>cb) = app.primary.sim_cb {
@@ -795,34 +797,34 @@
             <span class="kw">let </span>elapsed_sim_time = now - <span class="self">self</span>.sim_time_started;
             <span class="kw">let </span>elapsed_wall_time = Duration::realtime_elapsed(<span class="self">self</span>.wall_time_started);
             <span class="kw">let </span>txt = Text::from_multiline(<span class="macro">vec!</span>[
-                <span class="comment">// I&#39;m covered in shame for not doing this from the start.
-                </span>Line(<span class="string">&quot;Let&#39;s do the time warp again!&quot;</span>).small_heading(),
+                <span class="comment">// I'm covered in shame for not doing this from the start.
+                </span>Line(<span class="string">"Let's do the time warp again!"</span>).small_heading(),
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;{} / {}&quot;</span>,
+                    <span class="string">"{} / {}"</span>,
                     now.ampm_tostring(),
                     <span class="self">self</span>.target.ampm_tostring()
                 )),
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;Speed: {}x&quot;</span>,
+                    <span class="string">"Speed: {}x"</span>,
                     prettyprint_usize((elapsed_sim_time / elapsed_wall_time) <span class="kw">as </span>usize)
                 )),
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = finished_before {
                     <span class="comment">// TODO Underline
                     </span>Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;Finished trips: {} ({} compared to before \&quot;{}\&quot;)&quot;</span>,
+                        <span class="string">"Finished trips: {} ({} compared to before \"{}\")"</span>,
                         prettyprint_usize(finished_after),
                         compare_count(finished_after, n),
                         app.primary.map.get_edits().edits_name,
                     ))
                 } <span class="kw">else </span>{
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;Finished trips: {}&quot;</span>,
+                        <span class="string">"Finished trips: {}"</span>,
                         prettyprint_usize(finished_after)
                     ))
                 },
             ]);
 
-            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;text&quot;</span>, txt.into_widget(ctx));
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">"text"</span>, txt.into_widget(ctx));
         }
         <span class="comment">// &gt;= because of the case of resetting to midnight. GameplayMode::initialize takes a tiny
         // step past midnight after spawning things, so that agents initially appear on the map.
@@ -832,10 +834,10 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Changed(<span class="kw">_</span>) =&gt; {
-                app.opts.dont_draw_time_warp = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;don&#39;t draw&quot;</span>);
+                app.opts.dont_draw_time_warp = <span class="self">self</span>.panel.is_checked(<span class="string">"don't draw"</span>);
             }
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;stop now&quot; </span>=&gt; {
+                <span class="string">"stop now" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -901,12 +903,12 @@
 <span class="comment">// TODO Maybe color, put in helpers
 </span><span class="kw">fn </span>compare_count(after: usize, before: usize) -&gt; String {
     <span class="kw">match </span>after.cmp(<span class="kw-2">&amp;</span>before) {
-        std::cmp::Ordering::Equal =&gt; <span class="string">&quot;+0&quot;</span>.to_string(),
+        std::cmp::Ordering::Equal =&gt; <span class="string">"+0"</span>.to_string(),
         std::cmp::Ordering::Greater =&gt; {
-            <span class="macro">format!</span>(<span class="string">&quot;+{}&quot;</span>, prettyprint_usize(after - before))
+            <span class="macro">format!</span>(<span class="string">"+{}"</span>, prettyprint_usize(after - before))
         }
         std::cmp::Ordering::Less =&gt; {
-            <span class="macro">format!</span>(<span class="string">&quot;-{}&quot;</span>, prettyprint_usize(before - after))
+            <span class="macro">format!</span>(<span class="string">"-{}"</span>, prettyprint_usize(before - after))
         }
     }
 }
@@ -914,9 +916,9 @@
 <span class="kw">fn </span>build_jump_to_time_btn(ctx: <span class="kw-2">&amp;</span>EventCtx, target: Time) -&gt; Widget {
     ctx.style()
         .btn_solid_primary
-        .text(<span class="macro">format!</span>(<span class="string">&quot;Jump to {}&quot;</span>, target.ampm_tostring()))
+        .text(<span class="macro">format!</span>(<span class="string">"Jump to {}"</span>, target.ampm_tostring()))
         .hotkey(Key::Enter)
-        .build_widget(ctx, <span class="string">&quot;jump to time&quot;</span>)
+        .build_widget(ctx, <span class="string">"jump to time"</span>)
         .centered_horiz()
         .margin_above(<span class="number">16</span>)
 }
@@ -924,9 +926,9 @@
 <span class="kw">fn </span>build_jump_to_delay_button(ctx: <span class="kw-2">&amp;</span>EventCtx, delay: Duration) -&gt; Widget {
     ctx.style()
         .btn_solid_primary
-        .text(<span class="macro">format!</span>(<span class="string">&quot;Jump to next {} delay&quot;</span>, delay))
+        .text(<span class="macro">format!</span>(<span class="string">"Jump to next {} delay"</span>, delay))
         .hotkey(Key::Enter)
-        .build_widget(ctx, <span class="string">&quot;jump to delay&quot;</span>)
+        .build_widget(ctx, <span class="string">"jump to delay"</span>)
         .centered_horiz()
         .margin_above(<span class="number">16</span>)
 }

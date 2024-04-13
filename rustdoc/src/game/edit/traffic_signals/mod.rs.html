@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1152,7 +1154,7 @@
                     <span class="comment">// Still draw the icon, but highlight it
                     </span>batch.append(draw.color(RewriteColor::Change(
                         app.cs.signal_banned_turn.alpha(<span class="number">0.5</span>),
-                        Color::hex(<span class="string">&quot;#72CE36&quot;</span>),
+                        Color::hex(<span class="string">"#72CE36"</span>),
                     )));
                 }
                 movements.push(m);
@@ -1199,8 +1201,8 @@
             <span class="self">self</span>.warn_changed = <span class="bool-val">false</span>;
             <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                 ctx,
-                <span class="string">&quot;Note&quot;</span>,
-                <span class="macro">vec!</span>[<span class="string">&quot;Some signals were modified to match the number and duration of stages&quot;</span>],
+                <span class="string">"Note"</span>,
+                <span class="macro">vec!</span>[<span class="string">"Some signals were modified to match the number and duration of stages"</span>],
             ));
         }
 
@@ -1214,7 +1216,7 @@
 
         <span class="kw">match </span><span class="self">self</span>.side_panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Edit entire signal&quot; </span>=&gt; {
+                <span class="string">"Edit entire signal" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(edits::edit_entire_signal(
                         ctx,
                         app,
@@ -1223,20 +1225,20 @@
                         <span class="self">self</span>.original.clone(),
                     ));
                 }
-                <span class="string">&quot;Tune offsets between signals&quot; </span>=&gt; {
+                <span class="string">"Tune offsets between signals" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(offsets::ShowAbsolute::new_state(
                         ctx,
                         app,
                         <span class="self">self</span>.members.clone(),
                     ));
                 }
-                <span class="string">&quot;Add a new stage&quot; </span>=&gt; {
+                <span class="string">"Add a new stage" </span>=&gt; {
                     <span class="self">self</span>.add_new_edit(ctx, app, num_stages, |ts| {
                         ts.stages.push(Stage::new());
                     });
                     <span class="kw">return </span>Transition::Keep;
                 }
-                <span class="string">&quot;change duration&quot; </span>=&gt; {
+                <span class="string">"change duration" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(edits::ChangeDuration::new_state(
                         ctx,
                         app,
@@ -1244,23 +1246,23 @@
                         <span class="self">self</span>.current_stage,
                     ));
                 }
-                <span class="string">&quot;delete stage&quot; </span>=&gt; {
+                <span class="string">"delete stage" </span>=&gt; {
                     <span class="kw">let </span>idx = <span class="self">self</span>.current_stage;
                     <span class="self">self</span>.add_new_edit(ctx, app, <span class="number">0</span>, |ts| {
                         ts.stages.remove(idx);
                     });
                     <span class="kw">return </span>Transition::Keep;
                 }
-                <span class="string">&quot;previous stage&quot; </span>=&gt; {
+                <span class="string">"previous stage" </span>=&gt; {
                     <span class="self">self</span>.change_stage(ctx, app, <span class="self">self</span>.current_stage - <span class="number">1</span>);
                     <span class="kw">return </span>Transition::Keep;
                 }
-                <span class="string">&quot;next stage&quot; </span>=&gt; {
+                <span class="string">"next stage" </span>=&gt; {
                     <span class="self">self</span>.change_stage(ctx, app, <span class="self">self</span>.current_stage + <span class="number">1</span>);
                     <span class="kw">return </span>Transition::Keep;
                 }
                 x =&gt; {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = x.strip_prefix(<span class="string">&quot;stage &quot;</span>) {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = x.strip_prefix(<span class="string">"stage "</span>) {
                         <span class="kw">let </span>idx = x.parse::&lt;usize&gt;().unwrap() - <span class="number">1</span>;
                         <span class="self">self</span>.change_stage(ctx, app, idx);
                         <span class="kw">return </span>Transition::Keep;
@@ -1279,7 +1281,7 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Finish&quot; </span>=&gt; {
+                <span class="string">"Finish" </span>=&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(bundle) = check_for_missing_turns(app, <span class="kw-2">&amp;</span><span class="self">self</span>.members) {
                         bundle.apply(app);
                         <span class="self">self</span>.command_stack.push(bundle);
@@ -1290,21 +1292,21 @@
 
                         <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Error: missing turns&quot;</span>,
+                            <span class="string">"Error: missing turns"</span>,
                             <span class="macro">vec!</span>[
-                                <span class="string">&quot;Some turns are missing from this traffic signal&quot;</span>,
-                                <span class="string">&quot;They&#39;ve all been added as a new first stage. Please update your \
-                                changes to include them.&quot;</span>,
+                                <span class="string">"Some turns are missing from this traffic signal"</span>,
+                                <span class="string">"They've all been added as a new first stage. Please update your \
+                                changes to include them."</span>,
                             ],
                         ));
                     } <span class="kw">else if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.validate_all_members(app) {
-                        <span class="comment">// TODO There&#39;s some crash between usvg and lyon trying to tesellate the
+                        <span class="comment">// TODO There's some crash between usvg and lyon trying to tesellate the
                         // error text!
-                        </span><span class="macro">error!</span>(<span class="string">&quot;{}&quot;</span>, err);
+                        </span><span class="macro">error!</span>(<span class="string">"{}"</span>, err);
                         <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="string">&quot;This signal configuration is somehow invalid; check the console logs&quot;</span>]
+                            <span class="string">"Error"</span>,
+                            <span class="macro">vec!</span>[<span class="string">"This signal configuration is somehow invalid; check the console logs"</span>]
                         ));
                     } <span class="kw">else </span>{
                         <span class="kw">let </span>changes = BundleEdits::get_current(app, <span class="kw-2">&amp;</span><span class="self">self</span>.members);
@@ -1313,7 +1315,7 @@
                         <span class="kw">return </span>Transition::Pop;
                     }
                 }
-                <span class="string">&quot;Cancel&quot; </span>=&gt; {
+                <span class="string">"Cancel" </span>=&gt; {
                     <span class="kw">if </span>BundleEdits::get_current(app, <span class="kw-2">&amp;</span><span class="self">self</span>.members) == <span class="self">self</span>.original {
                         <span class="self">self</span>.original.apply(app);
                         <span class="kw">return </span>Transition::Pop;
@@ -1326,13 +1328,13 @@
                         }),
                     ));
                 }
-                <span class="string">&quot;Edit multiple signals&quot; </span>=&gt; {
+                <span class="string">"Edit multiple signals" </span>=&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.validate_all_members(app) {
-                        <span class="macro">error!</span>(<span class="string">&quot;{}&quot;</span>, err);
+                        <span class="macro">error!</span>(<span class="string">"{}"</span>, err);
                         <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="string">&quot;This signal configuration is somehow invalid; check the console logs&quot;</span>]
+                            <span class="string">"Error"</span>,
+                            <span class="macro">vec!</span>[<span class="string">"This signal configuration is somehow invalid; check the console logs"</span>]
                         ));
                     }
 
@@ -1348,16 +1350,16 @@
                         <span class="self">self</span>.mode.clone(),
                     ));
                 }
-                <span class="string">&quot;Export&quot; </span>=&gt; {
+                <span class="string">"Export" </span>=&gt; {
                     <span class="kw">for </span>signal <span class="kw">in </span>BundleEdits::get_current(app, <span class="kw-2">&amp;</span><span class="self">self</span>.members).signals {
                         <span class="kw">let </span>ts = signal.export(<span class="kw-2">&amp;</span>app.primary.map);
                         abstio::write_json(
-                            <span class="macro">format!</span>(<span class="string">&quot;traffic_signal_{}.json&quot;</span>, ts.intersection_osm_node_id),
+                            <span class="macro">format!</span>(<span class="string">"traffic_signal_{}.json"</span>, ts.intersection_osm_node_id),
                             <span class="kw-2">&amp;</span>ts,
                         );
                     }
                 }
-                <span class="string">&quot;Change crosswalks&quot; </span>=&gt; {
+                <span class="string">"Change crosswalks" </span>=&gt; {
                     <span class="comment">// TODO Probably need to follow everything Cancel does
                     </span><span class="kw">return </span>Transition::Replace(<span class="kw">super</span>::crosswalks::CrosswalkEditor::new_state(
                         ctx,
@@ -1365,7 +1367,7 @@
                         <span class="kw-2">*</span><span class="self">self</span>.members.iter().next().unwrap(),
                     ));
                 }
-                <span class="string">&quot;Preview&quot; </span>=&gt; {
+                <span class="string">"Preview" </span>=&gt; {
                     <span class="comment">// Might have to do this first!
                     </span>app.primary
                         .map
@@ -1378,7 +1380,7 @@
                         <span class="self">self</span>.current_stage,
                     ));
                 }
-                <span class="string">&quot;undo&quot; </span>=&gt; {
+                <span class="string">"undo" </span>=&gt; {
                     <span class="self">self</span>.redo_stack
                         .push(BundleEdits::get_current(app, <span class="kw-2">&amp;</span><span class="self">self</span>.members));
                     <span class="self">self</span>.command_stack.pop().unwrap().apply(app);
@@ -1386,7 +1388,7 @@
                     <span class="self">self</span>.change_stage(ctx, app, <span class="number">0</span>);
                     <span class="kw">return </span>Transition::Keep;
                 }
-                <span class="string">&quot;redo&quot; </span>=&gt; {
+                <span class="string">"redo" </span>=&gt; {
                     <span class="self">self</span>.command_stack
                         .push(BundleEdits::get_current(app, <span class="kw-2">&amp;</span><span class="self">self</span>.members));
                     <span class="self">self</span>.redo_stack.pop().unwrap().apply(app);
@@ -1452,22 +1454,22 @@
             <span class="kw">let </span>signal = app.primary.map.get_traffic_signal(id.parent);
             <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
             txt.add_line(Line(<span class="macro">format!</span>(
-                <span class="string">&quot;{} {}&quot;</span>,
+                <span class="string">"{} {}"</span>,
                 <span class="kw">match </span>signal.stages[<span class="self">self</span>.current_stage].get_priority_of_movement(id) {
-                    TurnPriority::Protected =&gt; <span class="string">&quot;Protected&quot;</span>,
-                    TurnPriority::Yield =&gt; <span class="string">&quot;Yielding&quot;</span>,
-                    TurnPriority::Banned =&gt; <span class="string">&quot;Forbidden&quot;</span>,
+                    TurnPriority::Protected =&gt; <span class="string">"Protected"</span>,
+                    TurnPriority::Yield =&gt; <span class="string">"Yielding"</span>,
+                    TurnPriority::Banned =&gt; <span class="string">"Forbidden"</span>,
                 },
-                <span class="kw">if </span>id.crosswalk { <span class="string">&quot;crosswalk&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;turn&quot; </span>},
+                <span class="kw">if </span>id.crosswalk { <span class="string">"crosswalk" </span>} <span class="kw">else </span>{ <span class="string">"turn" </span>},
             )));
             txt.add_appended(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color),
+                Line(<span class="string">"Click"</span>).fg(ctx.style().text_hotkey_color),
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot; to {}&quot;</span>,
+                    <span class="string">" to {}"</span>,
                     <span class="kw">match </span>pri {
-                        TurnPriority::Protected =&gt; <span class="string">&quot;add it as protected&quot;</span>,
-                        TurnPriority::Yield =&gt; <span class="string">&quot;allow it after yielding&quot;</span>,
-                        TurnPriority::Banned =&gt; <span class="string">&quot;forbid it&quot;</span>,
+                        TurnPriority::Protected =&gt; <span class="string">"add it as protected"</span>,
+                        TurnPriority::Yield =&gt; <span class="string">"allow it after yielding"</span>,
+                        TurnPriority::Banned =&gt; <span class="string">"forbid it"</span>,
                     }
                 )),
             ]);
@@ -1475,7 +1477,7 @@
             <span class="kw">if </span>app.per_obj.left_click(
                 ctx,
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;toggle from {:?} to {:?}&quot;</span>,
+                    <span class="string">"toggle from {:?} to {:?}"</span>,
                     signal.stages[<span class="self">self</span>.current_stage].get_priority_of_movement(id),
                     pri
                 ),
@@ -1514,7 +1516,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = <span class="self">self</span>.movement_selected {
             <span class="kw">let </span>osd = <span class="kw">if </span>id.crosswalk {
                 Text::from(<span class="macro">format!</span>(
-                    <span class="string">&quot;Crosswalk across {}&quot;</span>,
+                    <span class="string">"Crosswalk across {}"</span>,
                     app.primary
                         .map
                         .get_r(id.from.road)
@@ -1522,7 +1524,7 @@
                 ))
             } <span class="kw">else </span>{
                 Text::from(<span class="macro">format!</span>(
-                    <span class="string">&quot;Turn from {} to {}&quot;</span>,
+                    <span class="string">"Turn from {} to {}"</span>,
                     app.primary
                         .map
                         .get_r(id.from.road)
@@ -1548,22 +1550,22 @@
     <span class="kw">let </span><span class="kw-2">mut </span>second_row = <span class="macro">vec!</span>[ctx
         .style()
         .btn_outline
-        .text(<span class="string">&quot;Change crosswalks&quot;</span>)
+        .text(<span class="string">"Change crosswalks"</span>)
         .hotkey(Key::C)
         .build_def(ctx)];
     <span class="kw">if </span>app.opts.dev {
         second_row.push(
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Export&quot;</span>)
+                .text(<span class="string">"Export"</span>)
                 .tooltip(Text::from_multiline(<span class="macro">vec!</span>[
                     Line(
-                        <span class="string">&quot;This will create a JSON file in the directory where A/B Street is running&quot;</span>,
+                        <span class="string">"This will create a JSON file in the directory where A/B Street is running"</span>,
                     )
                     .small(),
                     Line(
-                        <span class="string">&quot;Contribute this to map how this traffic signal is currently timed in \
-                     real life.&quot;</span>,
+                        <span class="string">"Contribute this to map how this traffic signal is currently timed in \
+                     real life."</span>,
                     )
                     .small(),
                 ]))
@@ -1573,43 +1575,43 @@
 
     Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
         Widget::row(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Traffic signal editor&quot;</span>)
+            Line(<span class="string">"Traffic signal editor"</span>)
                 .small_heading()
                 .into_widget(ctx),
             ctx.style()
                 .btn_plain
-                .text(<span class="string">&quot;+ Edit multiple&quot;</span>)
-                .label_color(Color::hex(<span class="string">&quot;#4CA7E9&quot;</span>), ControlState::Default)
+                .text(<span class="string">"+ Edit multiple"</span>)
+                .label_color(Color::hex(<span class="string">"#4CA7E9"</span>), ControlState::Default)
                 .hotkey(Key::M)
-                .build_widget(ctx, <span class="string">&quot;Edit multiple signals&quot;</span>),
+                .build_widget(ctx, <span class="string">"Edit multiple signals"</span>),
         ]),
         Widget::row(<span class="macro">vec!</span>[
             ctx.style()
                 .btn_solid_primary
-                .text(<span class="string">&quot;Finish&quot;</span>)
+                .text(<span class="string">"Finish"</span>)
                 .hotkey(Key::Enter)
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Preview&quot;</span>)
+                .text(<span class="string">"Preview"</span>)
                 .hotkey(lctrl(Key::P))
                 .build_def(ctx),
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/undo.svg"</span>)
                 .disabled(!can_undo)
                 .hotkey(lctrl(Key::Z))
-                .build_widget(ctx, <span class="string">&quot;undo&quot;</span>),
+                .build_widget(ctx, <span class="string">"undo"</span>),
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/redo.svg"</span>)
                 .disabled(!can_redo)
                 <span class="comment">// TODO ctrl+shift+Z!
                 </span>.hotkey(lctrl(Key::Y))
-                .build_widget(ctx, <span class="string">&quot;redo&quot;</span>),
+                .build_widget(ctx, <span class="string">"redo"</span>),
             ctx.style()
                 .btn_plain_destructive
-                .text(<span class="string">&quot;Cancel&quot;</span>)
+                .text(<span class="string">"Cancel"</span>)
                 .hotkey(Key::Escape)
                 .build_def(ctx)
                 .align_right(),
@@ -1645,17 +1647,17 @@
             );
         }
         <span class="kw">for </span>r <span class="kw">in </span>road_names {
-            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;  {}&quot;</span>, r)).secondary());
+            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"  {}"</span>, r)).secondary());
         }
     } <span class="kw">else </span>{
-        txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;{} intersections&quot;</span>, members.len())).big_heading_plain());
+        txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"{} intersections"</span>, members.len())).big_heading_plain());
         txt.add_line(
             Line(
                 members
                     .iter()
-                    .map(|i| <span class="macro">format!</span>(<span class="string">&quot;#{}&quot;</span>, i.<span class="number">0</span>))
+                    .map(|i| <span class="macro">format!</span>(<span class="string">"#{}"</span>, i.<span class="number">0</span>))
                     .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-                    .join(<span class="string">&quot;, &quot;</span>),
+                    .join(<span class="string">", "</span>),
             )
             .secondary(),
         );
@@ -1668,21 +1670,21 @@
             ctx.style()
                 .btn_plain
                 .icon_bytes(<span class="macro">include_labeled_bytes!</span>(
-                    <span class="string">&quot;../../../../../widgetry/icons/arrow_left.svg&quot;
+                    <span class="string">"../../../../../widgetry/icons/arrow_left.svg"
                 </span>))
                 .disabled(selected == <span class="number">0</span>)
-                .build_widget(ctx, <span class="string">&quot;previous stage&quot;</span>),
+                .build_widget(ctx, <span class="string">"previous stage"</span>),
             ctx.style()
                 .btn_plain
                 .icon_bytes(<span class="macro">include_labeled_bytes!</span>(
-                    <span class="string">&quot;../../../../../widgetry/icons/arrow_right.svg&quot;
+                    <span class="string">"../../../../../widgetry/icons/arrow_right.svg"
                 </span>))
                 .disabled(selected == canonical_signal.stages.len() - <span class="number">1</span>)
-                .build_widget(ctx, <span class="string">&quot;next stage&quot;</span>),
+                .build_widget(ctx, <span class="string">"next stage"</span>),
             <span class="kw">match </span>canonical_signal.stages[selected].stage_type {
-                StageType::Fixed(d) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Stage duration: {}&quot;</span>, d),
+                StageType::Fixed(d) =&gt; <span class="macro">format!</span>(<span class="string">"Stage duration: {}"</span>, d),
                 StageType::Variable(min, delay, additional) =&gt; <span class="macro">format!</span>(
-                    <span class="string">&quot;Stage duration: {}, {}, {} (variable)&quot;</span>,
+                    <span class="string">"Stage duration: {}, {}, {} (variable)"</span>,
                     min, delay, additional
                 ),
             }
@@ -1690,21 +1692,21 @@
             .centered_vert(),
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/pencil.svg"</span>)
                 .hotkey(Key::X)
-                .build_widget(ctx, <span class="string">&quot;change duration&quot;</span>),
+                .build_widget(ctx, <span class="string">"change duration"</span>),
             <span class="kw">if </span>canonical_signal.stages.len() &gt; <span class="number">1 </span>{
                 ctx.style()
                     .btn_solid_destructive
-                    .icon(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;delete stage&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/trash.svg"</span>)
+                    .build_widget(ctx, <span class="string">"delete stage"</span>)
             } <span class="kw">else </span>{
                 Widget::nothing()
             },
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
-                .build_widget(ctx, <span class="string">&quot;Add a new stage&quot;</span>),
+                .icon(<span class="string">"system/assets/speed/plus.svg"</span>)
+                .build_widget(ctx, <span class="string">"Add a new stage"</span>),
         ])
         .padding(<span class="number">10</span>)
         .bg(app.cs.inner_panel_bg),
@@ -1717,15 +1719,15 @@
             .collect(),
     );
 
-    <span class="kw">let </span><span class="kw-2">mut </span>drag_drop = DragDrop::new(ctx, <span class="string">&quot;stage cards&quot;</span>, StackAxis::Horizontal);
+    <span class="kw">let </span><span class="kw-2">mut </span>drag_drop = DragDrop::new(ctx, <span class="string">"stage cards"</span>, StackAxis::Horizontal);
     <span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..canonical_signal.stages.len() {
         <span class="kw">let </span><span class="kw-2">mut </span>stack = GeomBatchStack::vertical(<span class="macro">vec!</span>[
             Text::from(Line(<span class="macro">format!</span>(
-                <span class="string">&quot;Stage {}: {}&quot;</span>,
+                <span class="string">"Stage {}: {}"</span>,
                 idx + <span class="number">1</span>,
                 <span class="kw">match </span>canonical_signal.stages[idx].stage_type {
-                    StageType::Fixed(d) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, d),
-                    StageType::Variable(min, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} (v)&quot;</span>, min),
+                    StageType::Fixed(d) =&gt; <span class="macro">format!</span>(<span class="string">"{}"</span>, d),
+                    StageType::Variable(min, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">"{} (v)"</span>, min),
                 },
             )))
             .render(ctx),
@@ -1762,9 +1764,9 @@
     col.push(drag_drop.into_widget(ctx));
 
     col.push(Widget::row(<span class="macro">vec!</span>[
-        <span class="comment">// TODO Say &quot;normally&quot; to account for variable stages?
+        <span class="comment">// TODO Say "normally" to account for variable stages?
         </span><span class="macro">format!</span>(
-            <span class="string">&quot;One full cycle lasts {}&quot;</span>,
+            <span class="string">"One full cycle lasts {}"</span>,
             canonical_signal.simple_cycle_duration()
         )
         .text_widget(ctx)
@@ -1772,13 +1774,13 @@
         <span class="kw">if </span>members.len() == <span class="number">1 </span>{
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Edit entire signal&quot;</span>)
+                .text(<span class="string">"Edit entire signal"</span>)
                 .hotkey(Key::E)
                 .build_def(ctx)
         } <span class="kw">else </span>{
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Tune offsets between signals&quot;</span>)
+                .text(<span class="string">"Tune offsets between signals"</span>)
                 .hotkey(Key::O)
                 .build_def(ctx)
         },
@@ -1799,7 +1801,7 @@
     }
 
     <span class="kw">fn </span>commit(<span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
-        <span class="comment">// Skip if there&#39;s no change
+        <span class="comment">// Skip if there's no change
         </span><span class="kw">if </span><span class="self">self </span>== BundleEdits::get_current(app, <span class="kw-2">&amp;</span><span class="self">self</span>.signals.iter().map(|s| s.id).collect()) {
             <span class="kw">return</span>;
         }
@@ -1825,7 +1827,7 @@
         BundleEdits { signals }
     }
 
-    <span class="comment">// If the intersections haven&#39;t been edited together before, the number of stages and the
+    <span class="comment">// If the intersections haven't been edited together before, the number of stages and the
     // durations might not match up. Just initially force them to align somehow.
     </span><span class="kw">fn </span>synchronize(app: <span class="kw-2">&amp;</span>App, members: <span class="kw-2">&amp;</span>BTreeSet&lt;IntersectionID&gt;) -&gt; BundleEdits {
         <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
@@ -1929,7 +1931,7 @@
         <span class="kw">return </span><span class="macro">vec!</span>[(<span class="number">0.0</span>, <span class="number">0.0</span>)];
     }
 
-    <span class="comment">// Can&#39;t be too big, or polygons could silently swap places. To be careful, pick something a
+    <span class="comment">// Can't be too big, or polygons could silently swap places. To be careful, pick something a
     // bit smaller than the smallest polygon.
     </span><span class="kw">let </span>step_size = <span class="number">0.8
         </span>* polygons.iter().fold(std::f64::MAX, |x, p| {
@@ -1997,7 +1999,7 @@
             GeomBatch::from(<span class="macro">vec!</span>[(app.cs.fade_map_dark, fade_area)])
         }
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-            <span class="comment">// Just give up and don&#39;t fade anything
+            <span class="comment">// Just give up and don't fade anything
             </span>GeomBatch::new()
         }
     }

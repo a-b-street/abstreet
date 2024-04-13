@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/parking.rs`."><title>parking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="convert_osm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/parking.rs`."><title>parking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="convert_osm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../convert_osm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -250,15 +252,15 @@
 }
 
 <span class="kw">fn </span>unknown_parking(tags: <span class="kw-2">&amp;</span>Tags) -&gt; bool {
-    !tags.contains_key(<span class="string">&quot;parking:lane:left&quot;</span>)
-        &amp;&amp; !tags.contains_key(<span class="string">&quot;parking:lane:right&quot;</span>)
-        &amp;&amp; !tags.contains_key(<span class="string">&quot;parking:lane:both&quot;</span>)
-        &amp;&amp; !tags.is_any(osm::HIGHWAY, <span class="macro">vec!</span>[<span class="string">&quot;motorway&quot;</span>, <span class="string">&quot;motorway_link&quot;</span>, <span class="string">&quot;service&quot;</span>])
-        &amp;&amp; !tags.is(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;roundabout&quot;</span>)
+    !tags.contains_key(<span class="string">"parking:lane:left"</span>)
+        &amp;&amp; !tags.contains_key(<span class="string">"parking:lane:right"</span>)
+        &amp;&amp; !tags.contains_key(<span class="string">"parking:lane:both"</span>)
+        &amp;&amp; !tags.is_any(osm::HIGHWAY, <span class="macro">vec!</span>[<span class="string">"motorway"</span>, <span class="string">"motorway_link"</span>, <span class="string">"service"</span>])
+        &amp;&amp; !tags.is(<span class="string">"junction"</span>, <span class="string">"roundabout"</span>)
 }
 
 <span class="kw">fn </span>use_parking_hints(map: <span class="kw-2">&amp;mut </span>RawMap, path: String, timer: <span class="kw-2">&amp;mut </span>Timer) {
-    timer.start(<span class="string">&quot;apply parking hints&quot;</span>);
+    timer.start(<span class="string">"apply parking hints"</span>);
     <span class="kw">let </span>shapes: ExtraShapes = abstio::read_binary(path, timer);
 
     <span class="comment">// Match shapes with the nearest road + direction (true for forwards)
@@ -304,59 +306,59 @@
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let </span>category = s.attributes.get(<span class="string">&quot;PARKING_CATEGORY&quot;</span>);
-            <span class="kw">let </span>has_parking = category != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;None&quot;</span>.to_string())
-                &amp;&amp; category != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;No Parking Allowed&quot;</span>.to_string());
+            <span class="kw">let </span>category = s.attributes.get(<span class="string">"PARKING_CATEGORY"</span>);
+            <span class="kw">let </span>has_parking = category != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"None"</span>.to_string())
+                &amp;&amp; category != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"No Parking Allowed"</span>.to_string());
 
             <span class="kw">let </span>definitely_no_parking =
-                tags.is_any(osm::HIGHWAY, <span class="macro">vec!</span>[<span class="string">&quot;motorway&quot;</span>, <span class="string">&quot;motorway_link&quot;</span>, <span class="string">&quot;trunk&quot;</span>]);
+                tags.is_any(osm::HIGHWAY, <span class="macro">vec!</span>[<span class="string">"motorway"</span>, <span class="string">"motorway_link"</span>, <span class="string">"trunk"</span>]);
             <span class="kw">if </span>has_parking &amp;&amp; definitely_no_parking {
                 <span class="macro">warn!</span>(
-                    <span class="string">&quot;Blockface says there&#39;s parking along motorway {}, ignoring&quot;</span>,
+                    <span class="string">"Blockface says there's parking along motorway {}, ignoring"</span>,
                     r
                 );
                 <span class="kw">continue</span>;
             }
 
-            <span class="comment">// Let&#39;s assume there isn&#39;t parking on the inner part of a dual carriageway
-            </span><span class="kw">if </span>!fwds &amp;&amp; tags.is(<span class="string">&quot;dual_carriageway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+            <span class="comment">// Let's assume there isn't parking on the inner part of a dual carriageway
+            </span><span class="kw">if </span>!fwds &amp;&amp; tags.is(<span class="string">"dual_carriageway"</span>, <span class="string">"yes"</span>) {
                 <span class="kw">continue</span>;
             }
             <span class="comment">// And definitely no parking in the middle of an intersection
-            </span><span class="kw">if </span>tags.is(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>) {
+            </span><span class="kw">if </span>tags.is(<span class="string">"junction"</span>, <span class="string">"intersection"</span>) {
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(both) = tags.remove(<span class="string">&quot;parking:lane:both&quot;</span>) {
-                tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, both.clone());
-                tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, both);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(both) = tags.remove(<span class="string">"parking:lane:both"</span>) {
+                tags.insert(<span class="string">"parking:lane:left"</span>, both.clone());
+                tags.insert(<span class="string">"parking:lane:right"</span>, both);
             }
 
             tags.insert(
                 <span class="kw">if </span>fwds {
-                    <span class="string">&quot;parking:lane:right&quot;
+                    <span class="string">"parking:lane:right"
                 </span>} <span class="kw">else </span>{
-                    <span class="string">&quot;parking:lane:left&quot;
+                    <span class="string">"parking:lane:left"
                 </span>},
                 <span class="kw">if </span>has_parking {
-                    <span class="string">&quot;parallel&quot;
+                    <span class="string">"parallel"
                 </span>} <span class="kw">else </span>{
-                    <span class="string">&quot;no_parking&quot;
+                    <span class="string">"no_parking"
                 </span>},
             );
 
-            <span class="comment">// Maybe fold back into &quot;both&quot;
-            </span><span class="kw">if </span>tags.contains_key(<span class="string">&quot;parking:lane:left&quot;</span>)
-                &amp;&amp; tags.get(<span class="string">&quot;parking:lane:left&quot;</span>) == tags.get(<span class="string">&quot;parking:lane:right&quot;</span>)
+            <span class="comment">// Maybe fold back into "both"
+            </span><span class="kw">if </span>tags.contains_key(<span class="string">"parking:lane:left"</span>)
+                &amp;&amp; tags.get(<span class="string">"parking:lane:left"</span>) == tags.get(<span class="string">"parking:lane:right"</span>)
             {
-                <span class="kw">let </span>value = tags.remove(<span class="string">&quot;parking:lane:left&quot;</span>).unwrap();
-                tags.remove(<span class="string">&quot;parking:lane:right&quot;</span>).unwrap();
-                tags.insert(<span class="string">&quot;parking:lane:both&quot;</span>, value);
+                <span class="kw">let </span>value = tags.remove(<span class="string">"parking:lane:left"</span>).unwrap();
+                tags.remove(<span class="string">"parking:lane:right"</span>).unwrap();
+                tags.insert(<span class="string">"parking:lane:both"</span>, value);
             }
-            <span class="comment">// Note the change to the tag isn&#39;t saved, so regenerating lanes from tags later would
+            <span class="comment">// Note the change to the tag isn't saved, so regenerating lanes from tags later would
             // lose this
 
-            // TODO It&#39;d be better to do this directly to the LaneSpecs, not using OSM tags
+            // TODO It'd be better to do this directly to the LaneSpecs, not using OSM tags
             </span><span class="kw">let </span>lane_specs_ltr = osm2streets::get_lane_specs_ltr(<span class="kw-2">&amp;</span>tags, <span class="kw-2">&amp;</span>map.streets.config);
             <span class="kw">let </span>road = map.streets.roads.get_mut(<span class="kw-2">&amp;</span>r).unwrap();
             road.lane_specs_ltr = lane_specs_ltr;
@@ -367,11 +369,11 @@
             map.streets.update_i(i2);
         }
     }
-    timer.stop(<span class="string">&quot;apply parking hints&quot;</span>);
+    timer.stop(<span class="string">"apply parking hints"</span>);
 }
 
 <span class="kw">fn </span>use_offstreet_parking(map: <span class="kw-2">&amp;mut </span>RawMap, path: String, timer: <span class="kw-2">&amp;mut </span>Timer) {
-    timer.start(<span class="string">&quot;match offstreet parking points&quot;</span>);
+    timer.start(<span class="string">"match offstreet parking points"</span>);
     <span class="kw">let </span>shapes: ExtraShapes = abstio::read_binary(path, timer);
 
     <span class="kw">let </span><span class="kw-2">mut </span>closest: FindClosest&lt;osm::OsmID&gt; = FindClosest::new();
@@ -388,22 +390,22 @@
         </span><span class="kw">if </span>!map.buildings[<span class="kw-2">&amp;</span>id].polygon.contains_pt(pt) {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">let </span>name = s.attributes.get(<span class="string">&quot;DEA_FACILITY_NAME&quot;</span>)<span class="question-mark">?</span>.to_string();
-        <span class="kw">let </span>num_stalls = s.attributes.get(<span class="string">&quot;DEA_STALLS&quot;</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;().ok()<span class="question-mark">?</span>;
-        <span class="comment">// Well that&#39;s silly. Why&#39;s it listed?
+        <span class="kw">let </span>name = s.attributes.get(<span class="string">"DEA_FACILITY_NAME"</span>)<span class="question-mark">?</span>.to_string();
+        <span class="kw">let </span>num_stalls = s.attributes.get(<span class="string">"DEA_STALLS"</span>)<span class="question-mark">?</span>.parse::&lt;usize&gt;().ok()<span class="question-mark">?</span>;
+        <span class="comment">// Well that's silly. Why's it listed?
         </span><span class="kw">if </span>num_stalls == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
         <span class="kw">let </span>bldg = map.buildings.get_mut(<span class="kw-2">&amp;</span>id).unwrap();
         <span class="kw">if </span>bldg.num_parking_spots &gt; <span class="number">0 </span>{
-            <span class="comment">// TODO Can&#39;t use timer inside this closure
+            <span class="comment">// TODO Can't use timer inside this closure
             </span><span class="kw">let </span>old_name = bldg.public_garage_name.take().unwrap();
             <span class="macro">println!</span>(
-                <span class="string">&quot;Two offstreet parking hints apply to {}: {} @ {}, and {} @ {}&quot;</span>,
+                <span class="string">"Two offstreet parking hints apply to {}: {} @ {}, and {} @ {}"</span>,
                 id, bldg.num_parking_spots, old_name, num_stalls, name
             );
-            bldg.public_garage_name = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{} and {}&quot;</span>, old_name, name));
+            bldg.public_garage_name = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"{} and {}"</span>, old_name, name));
             bldg.num_parking_spots += num_stalls;
         } <span class="kw">else </span>{
             bldg.public_garage_name = <span class="prelude-val">Some</span>(name);
@@ -415,7 +417,7 @@
     <span class="kw">for </span>s <span class="kw">in </span>shapes.shapes.into_iter() {
         handle_shape(s);
     }
-    timer.stop(<span class="string">&quot;match offstreet parking points&quot;</span>);
+    timer.stop(<span class="string">"match offstreet parking points"</span>);
 }
 
 <span class="kw">fn </span>apply_private_offstreet_parking(map: <span class="kw-2">&amp;mut </span>RawMap, policy: <span class="kw-2">&amp;</span>PrivateOffstreetParking) {
@@ -426,18 +428,18 @@
                     <span class="macro">assert_eq!</span>(b.num_parking_spots, <span class="number">0</span>);
 
                     <span class="comment">// Is it a parking garage?
-                    </span><span class="kw">if </span>b.osm_tags.is(<span class="string">&quot;building&quot;</span>, <span class="string">&quot;parking&quot;</span>) || b.osm_tags.is(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
+                    </span><span class="kw">if </span>b.osm_tags.is(<span class="string">"building"</span>, <span class="string">"parking"</span>) || b.osm_tags.is(<span class="string">"amenity"</span>, <span class="string">"parking"</span>) {
                         <span class="kw">let </span>levels = b
                             .osm_tags
-                            .get(<span class="string">&quot;parking:levels&quot;</span>)
-                            .or_else(|| b.osm_tags.get(<span class="string">&quot;building:levels&quot;</span>))
+                            .get(<span class="string">"parking:levels"</span>)
+                            .or_else(|| b.osm_tags.get(<span class="string">"building:levels"</span>))
                             .and_then(|x| x.parse::&lt;usize&gt;().ok())
                             .unwrap_or(<span class="number">1</span>);
                         <span class="comment">// For multi-story garages, assume every floor has the same capacity. Guess
                         // 1 spot per 30m^2.
                         </span>b.num_parking_spots = ((b.polygon.area() / <span class="number">30.0</span>) <span class="kw">as </span>usize) * levels;
                         <span class="comment">// Not useful to list this
-                        </span>b.amenities.retain(|a| a.amenity_type != <span class="string">&quot;parking&quot;</span>);
+                        </span>b.amenities.retain(|a| a.amenity_type != <span class="string">"parking"</span>);
                     } <span class="kw">else </span>{
                         b.num_parking_spots = <span class="kw-2">*</span>n;
                     }

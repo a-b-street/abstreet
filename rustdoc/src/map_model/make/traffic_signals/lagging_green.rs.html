@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/traffic_signals/lagging_green.rs`."><title>lagging_green.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/traffic_signals/lagging_green.rs`."><title>lagging_green.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -419,7 +421,7 @@
 /// unprotected left, unprotected right on red. Followed by a variable stage that has protected
 /// left, unprotected right on red. With a last stage that is all-walk and variable.
 /// In some degenerate cases, usually with one or more one-way, this can reduce to stage per road.
-/// In some rare cases, usually with an alleyway, oncoming lanes can&#39;t both be protected left turns.
+/// In some rare cases, usually with an alleyway, oncoming lanes can't both be protected left turns.
 /// In such cases the stage is split into two stages with each having a protected and yield turn.
 </span><span class="kw">pub fn </span>make_traffic_signal(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;ControlTrafficSignal&gt; {
     <span class="comment">// Try to create the stages, this returns a unoptimized signal, which is then optimized.
@@ -437,7 +439,7 @@
         ts.stages = other.stages;
     }
     ts.convert_to_ped_scramble_without_promotion(i);
-    <span class="comment">// We don&#39;t always get a valid traffic signal from the default 3-way and 4-way. When we don&#39;t
+    <span class="comment">// We don't always get a valid traffic signal from the default 3-way and 4-way. When we don't
     // we need to try assembling stages with a more complex algorithm.
     </span><span class="kw">if </span>ts.validate(i).is_err() {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(other) = multi_way_stages(i) {
@@ -447,7 +449,7 @@
     }
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = ts.validate(i) {
         <span class="comment">// when all else fails, use stage per road and all-walk stage at the end
-        </span><span class="macro">debug!</span>(<span class="string">&quot;multi-way validation_error={} ts={:#?}&quot;</span>, err, ts);
+        </span><span class="macro">debug!</span>(<span class="string">"multi-way validation_error={} ts={:#?}"</span>, err, ts);
         ts = stage_per_road(i);
         ts.convert_to_ped_scramble(i);
     }
@@ -455,7 +457,7 @@
 }
 
 <span class="kw">fn </span>optimize(<span class="kw-2">mut </span>ts: ControlTrafficSignal, i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;ControlTrafficSignal&gt; {
-    <span class="comment">// Remove stages which don&#39;t contain a protected route.
+    <span class="comment">// Remove stages which don't contain a protected route.
     </span>ts.stages.retain(|s| !s.protected_movements.is_empty());
     <span class="comment">// Determine if any stages can be merged. We could merge turns, but if we end up not reducing
     // the stage as a result, its probably not worth doing, or can be easily added by the user.
@@ -513,7 +515,7 @@
     <span class="prelude-val">None
 </span>}
 
-<span class="comment">// Sometimes protected oncoming left turns aren&#39;t possible.
+<span class="comment">// Sometimes protected oncoming left turns aren't possible.
 </span><span class="kw">fn </span>is_conflict(stage: <span class="kw-2">&amp;</span>Stage, i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;(MovementID, MovementID)&gt; {
     <span class="kw">for </span>m1 <span class="kw">in </span>stage.protected_movements.iter().map(|m| <span class="kw-2">&amp;</span>i.movements[m]) {
         <span class="kw">for </span>m2 <span class="kw">in </span>stage.protected_movements.iter().map(|m| <span class="kw-2">&amp;</span>i.movements[m]) {
@@ -536,10 +538,10 @@
 <span class="doccomment">/// Build stages. First find roads that are straight across, they are either one-way or two-way.
 /// For one-way, add any right or left turns, thus completing the stage. For two-way, two
 /// stages will be added. The first stage has protected straight, and right and yield left.
-/// The second stage has protected left. Lastly, sometimes oncomming left turns can&#39;t both
+/// The second stage has protected left. Lastly, sometimes oncomming left turns can't both
 /// be protected, if this occurs the 2nd stage will have one direction protected and the
-/// other yield and a 3rd, inverse, stage will be added which has the other direction&#39;s left
-/// protected and other yield. Finally, any turns which weren&#39;t assigned, because there
+/// other yield and a 3rd, inverse, stage will be added which has the other direction's left
+/// protected and other yield. Finally, any turns which weren't assigned, because there
 /// are no straights or there are more than just pairs of straight intersections, are assigned a
 /// stage. These, too are handled as pairs until one remains, which is handled as a one-way.
 </span><span class="kw">fn </span>multi_way_stages(i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;ControlTrafficSignal&gt; {
@@ -580,7 +582,7 @@
         }
         add_stage(<span class="kw-2">&amp;mut </span>ts, stage1);
         <span class="kw">if let </span><span class="prelude-val">Some</span>((m1, m2)) = is_conflict(<span class="kw-2">&amp;</span>stage2, i) {
-            <span class="comment">// We&#39;ve hit the case where oncoming left turns can&#39;t both be protected.
+            <span class="comment">// We've hit the case where oncoming left turns can't both be protected.
             </span>add_stage(<span class="kw-2">&amp;mut </span>ts, protected_yield_stage(m1, m2));
             add_stage(<span class="kw-2">&amp;mut </span>ts, protected_yield_stage(m2, m1));
         } <span class="kw">else </span>{
@@ -589,10 +591,10 @@
         roads.remove(<span class="kw-2">&amp;</span>m1.from.road);
         roads.remove(<span class="kw-2">&amp;</span>m2.from.road);
     }
-    <span class="comment">// We may be done assigning, or we may have some roads we haven&#39;t dealt with yet.
+    <span class="comment">// We may be done assigning, or we may have some roads we haven't dealt with yet.
     </span><span class="kw">let </span><span class="kw-2">mut </span>vec: Vec&lt;<span class="kw">_</span>&gt; = roads.into_iter().collect();
-    <span class="comment">// We&#39;re going to treat the roads as if thery are straight. Otherwise,
-    // we&#39;d end up with overlapping protected left turns.
+    <span class="comment">// We're going to treat the roads as if thery are straight. Otherwise,
+    // we'd end up with overlapping protected left turns.
     </span><span class="kw">while let </span><span class="prelude-val">Some</span>(r1) = vec.pop() {
         <span class="kw">let </span><span class="kw-2">mut </span>stage1 = Stage::new();
         <span class="kw">let </span><span class="kw-2">mut </span>stage2 = Stage::new();
@@ -642,11 +644,11 @@
 }
 
 <span class="kw">fn </span>add_stage(ts: <span class="kw-2">&amp;mut </span>ControlTrafficSignal, stage: Stage) {
-    <span class="comment">// If there aren&#39;t any protected movements, don&#39;t add it.
+    <span class="comment">// If there aren't any protected movements, don't add it.
     </span><span class="kw">if </span>stage.protected_movements.is_empty() {
         <span class="kw">return</span>;
     }
-    <span class="comment">// Ensure a duplicate isn&#39;t added.
+    <span class="comment">// Ensure a duplicate isn't added.
     </span><span class="kw">if </span>ts.stages.iter().all(|s| <span class="kw-2">*</span>s != stage) {
         ts.stages.push(stage)
     }
@@ -683,7 +685,7 @@
     }
     <span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
 
-    <span class="comment">// Picture a T intersection. Use turn angles to figure out the &quot;main&quot; two roads.
+    <span class="comment">// Picture a T intersection. Use turn angles to figure out the "main" two roads.
     </span><span class="kw">let </span>straight = i
         .movements
         .values()
@@ -811,7 +813,7 @@
     <span class="kw">const </span>MAX_DURATION: Duration = Duration::const_seconds(<span class="number">20.0</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>prev_stage: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Stage&gt; = <span class="prelude-val">None</span>;
     <span class="kw">for </span>stage <span class="kw">in </span>ts.stages.iter_mut() {
-        <span class="comment">// Lagging green: if this stage&#39;s protected movements were yield movements in the
+        <span class="comment">// Lagging green: if this stage's protected movements were yield movements in the
         // previous stage, make this stage optional.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(prev) = prev_stage {
             <span class="kw">if </span>stage

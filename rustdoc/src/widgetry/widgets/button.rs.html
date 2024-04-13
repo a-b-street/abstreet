@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/button.rs`."><title>button.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/button.rs`."><title>button.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -902,7 +904,7 @@
 }
 
 <span class="attr">#[derive(Clone, Debug, Default)]
-</span><span class="kw">pub struct </span>ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+</span><span class="kw">pub struct </span>ButtonBuilder&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
     padding: EdgeInsets,
     stack_spacing: f64,
     hotkey: <span class="prelude-ty">Option</span>&lt;MultiKey&gt;,
@@ -911,23 +913,23 @@
     is_label_before_image: bool,
     corner_rounding: <span class="prelude-ty">Option</span>&lt;CornerRounding&gt;,
     is_disabled: bool,
-    default_style: ButtonStateStyle&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;,
-    hover_style: ButtonStateStyle&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;,
-    disable_style: ButtonStateStyle&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;,
+    default_style: ButtonStateStyle&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt;,
+    hover_style: ButtonStateStyle&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt;,
+    disable_style: ButtonStateStyle&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt;,
     disabled_tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;,
 }
 
 <span class="attr">#[derive(Clone, Debug, Default)]
-</span><span class="kw">struct </span>ButtonStateStyle&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
-    image: <span class="prelude-ty">Option</span>&lt;Image&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;&gt;,
+</span><span class="kw">struct </span>ButtonStateStyle&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
+    image: <span class="prelude-ty">Option</span>&lt;Image&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt;&gt;,
     label: <span class="prelude-ty">Option</span>&lt;Label&gt;,
     outline: <span class="prelude-ty">Option</span>&lt;OutlineStyle&gt;,
     bg_color: <span class="prelude-ty">Option</span>&lt;Color&gt;,
     custom_batch: <span class="prelude-ty">Option</span>&lt;GeomBatch&gt;,
 }
 
-<span class="comment">// can we take &#39;b out? and make the func that uses it generic?
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;b</span>, <span class="lifetime">&#39;c</span>&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+<span class="comment">// can we take 'b out? and make the func that uses it generic?
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, <span class="lifetime">'a</span>: <span class="lifetime">'b</span>, <span class="lifetime">'c</span>&gt; ButtonBuilder&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         ButtonBuilder {
             padding: EdgeInsets {
@@ -941,7 +943,7 @@
         }
     }
 
-    <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).
+    <span class="doccomment">/// Extra spacing around a button's items (label and/or image).
     ///
     /// If not specified, a default will be applied.
     /// ```
@@ -956,31 +958,31 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).
+    <span class="doccomment">/// Extra spacing around a button's items (label and/or image).
     </span><span class="kw">pub fn </span>padding_top(<span class="kw-2">mut </span><span class="self">self</span>, padding: f64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.padding.top = padding;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).
+    <span class="doccomment">/// Extra spacing around a button's items (label and/or image).
     </span><span class="kw">pub fn </span>padding_left(<span class="kw-2">mut </span><span class="self">self</span>, padding: f64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.padding.left = padding;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).
+    <span class="doccomment">/// Extra spacing around a button's items (label and/or image).
     </span><span class="kw">pub fn </span>padding_bottom(<span class="kw-2">mut </span><span class="self">self</span>, padding: f64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.padding.bottom = padding;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Extra spacing around a button&#39;s items (label and/or image).
+    <span class="doccomment">/// Extra spacing around a button's items (label and/or image).
     </span><span class="kw">pub fn </span>padding_right(<span class="kw-2">mut </span><span class="self">self</span>, padding: f64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.padding.right = padding;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set the text of the button&#39;s label.
+    <span class="doccomment">/// Set the text of the button's label.
     ///
     /// If `label_text` is not set, the button will not have a label.
     </span><span class="kw">pub fn </span>label_text&lt;I: Into&lt;String&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, text: I) -&gt; <span class="self">Self </span>{
@@ -990,7 +992,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set the text of the button&#39;s label. The text will be decorated with an underline.
+    <span class="doccomment">/// Set the text of the button's label. The text will be decorated with an underline.
     ///
     /// See `label_styled_text` if you need something more customizable text styling.
     </span><span class="kw">pub fn </span>label_underlined_text&lt;I: Into&lt;String&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, text: I) -&gt; <span class="self">Self </span>{
@@ -1010,13 +1012,13 @@
         label.styled_text = <span class="prelude-val">Some</span>(styled_text);
         <span class="comment">// Unset plain `text` to avoid confusion. Alternatively we could assign the inner text -
         // something like:
-        //      label.text = styled_text.rows.map(|r|r.text).join(&quot; &quot;)
+        //      label.text = styled_text.rows.map(|r|r.text).join(" ")
         </span>label.text = <span class="prelude-val">None</span>;
         state_style.label = <span class="prelude-val">Some</span>(label);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set the color of the button&#39;s label.
+    <span class="doccomment">/// Set the color of the button's label.
     ///
     /// If not specified, a default font color will be used.
     </span><span class="kw">pub fn </span>label_color(<span class="kw-2">mut </span><span class="self">self</span>, color: Color, for_state: ControlState) -&gt; <span class="self">Self </span>{
@@ -1027,7 +1029,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set the font used by the button&#39;s label.
+    <span class="doccomment">/// Set the font used by the button's label.
     ///
     /// If not specified, a default font will be used.
     </span><span class="kw">pub fn </span>font(<span class="kw-2">mut </span><span class="self">self</span>, font: Font) -&gt; <span class="self">Self </span>{
@@ -1037,7 +1039,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set the size of the font of the button&#39;s label.
+    <span class="doccomment">/// Set the size of the font of the button's label.
     ///
     /// If not specified, a default font size will be used.
     </span><span class="kw">pub fn </span>font_size(<span class="kw-2">mut </span><span class="self">self</span>, font_size: usize) -&gt; <span class="self">Self </span>{
@@ -1050,18 +1052,18 @@
     <span class="doccomment">/// Set the image for the button. If not set, the button will have no image.
     ///
     /// This will replace any image previously set.
-    </span><span class="kw">pub fn </span>image_path(<span class="kw-2">mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
-        <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily
-        // could, but the API gets more verbose for a thing we don&#39;t currently need.
+    </span><span class="kw">pub fn </span>image_path(<span class="kw-2">mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; <span class="self">Self </span>{
+        <span class="comment">// Currently we don't support setting image for other states like "hover", we easily
+        // could, but the API gets more verbose for a thing we don't currently need.
         </span><span class="kw">let </span><span class="kw-2">mut </span>image = <span class="self">self</span>.default_style.image.take().unwrap_or_default();
         image = image.source_path(path);
         <span class="self">self</span>.default_style.image = <span class="prelude-val">Some</span>(image);
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>image(<span class="kw-2">mut </span><span class="self">self</span>, image: Image&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;) -&gt; <span class="self">Self </span>{
-        <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily
-        // could, but the API gets more verbose for a thing we don&#39;t currently need.
+    <span class="kw">pub fn </span>image(<span class="kw-2">mut </span><span class="self">self</span>, image: Image&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="comment">// Currently we don't support setting image for other states like "hover", we easily
+        // could, but the API gets more verbose for a thing we don't currently need.
         </span><span class="self">self</span>.default_style.image = <span class="prelude-val">Some</span>(image);
         <span class="self">self
     </span>}
@@ -1074,9 +1076,9 @@
     ///   [`include_labeled_bytes!`]
     /// * `label`: a label to describe the bytes for debugging purposes
     /// * `bytes`: UTF-8 encoded bytes of the SVG
-    </span><span class="kw">pub fn </span>image_bytes(<span class="kw-2">mut </span><span class="self">self</span>, labeled_bytes: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8])) -&gt; <span class="self">Self </span>{
-        <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily
-        // could, but the API gets more verbose for a thing we don&#39;t currently need.
+    </span><span class="kw">pub fn </span>image_bytes(<span class="kw-2">mut </span><span class="self">self</span>, labeled_bytes: (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8])) -&gt; <span class="self">Self </span>{
+        <span class="comment">// Currently we don't support setting image for other states like "hover", we easily
+        // could, but the API gets more verbose for a thing we don't currently need.
         </span><span class="kw">let </span><span class="kw-2">mut </span>image = <span class="self">self</span>.default_style.image.take().unwrap_or_default();
         image = image.source_bytes(labeled_bytes);
         <span class="self">self</span>.default_style.image = <span class="prelude-val">Some</span>(image);
@@ -1096,11 +1098,11 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Rewrite the color of the button&#39;s image.
+    <span class="doccomment">/// Rewrite the color of the button's image.
     ///
     /// This has no effect if the button does not have an image.
     ///
-    /// If the style hasn&#39;t been set for the current ControlState, the style for
+    /// If the style hasn't been set for the current ControlState, the style for
     /// `ControlState::Default` will be used.
     </span><span class="kw">pub fn </span>image_color&lt;C: Into&lt;RewriteColor&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, color: C, for_state: ControlState) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>state_style = <span class="self">self</span>.style_mut(for_state);
@@ -1114,7 +1116,7 @@
     ///
     /// This has no effect if the button does not have an image.
     ///
-    /// If the style hasn&#39;t been set for the current ControlState, the style for
+    /// If the style hasn't been set for the current ControlState, the style for
     /// `ControlState::Default` will be used.
     </span><span class="kw">pub fn </span>image_bg_color(<span class="kw-2">mut </span><span class="self">self</span>, color: Color, for_state: ControlState) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>state_style = <span class="self">self</span>.style_mut(for_state);
@@ -1154,7 +1156,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set independent rounding for each of the button&#39;s image&#39;s corners
+    <span class="doccomment">/// Set independent rounding for each of the button's image's corners
     </span><span class="kw">pub fn </span>image_corner_rounding&lt;R: Into&lt;CornerRounding&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, value: R) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>image = <span class="self">self</span>.default_style.image.take().unwrap_or_default();
         image = image.corner_rounding(value);
@@ -1170,18 +1172,18 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set a background color for the button based on the button&#39;s [`ControlState`].
+    <span class="doccomment">/// Set a background color for the button based on the button's [`ControlState`].
     ///
-    /// If the style hasn&#39;t been set for the current ControlState, the style for
+    /// If the style hasn't been set for the current ControlState, the style for
     /// `ControlState::Default` will be used.
     </span><span class="kw">pub fn </span>bg_color(<span class="kw-2">mut </span><span class="self">self</span>, color: Color, for_state: ControlState) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.style_mut(for_state).bg_color = <span class="prelude-val">Some</span>(color);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set an outline for the button based on the button&#39;s [`ControlState`].
+    <span class="doccomment">/// Set an outline for the button based on the button's [`ControlState`].
     ///
-    /// If the style hasn&#39;t been set for the current ControlState, the style for
+    /// If the style hasn't been set for the current ControlState, the style for
     /// `ControlState::Default` will be used.
     </span><span class="kw">pub fn </span>outline(<span class="kw-2">mut </span><span class="self">self</span>, outline: OutlineStyle, for_state: ControlState) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.style_mut(for_state).outline = <span class="prelude-val">Some</span>(outline);
@@ -1202,7 +1204,7 @@
 
     <span class="doccomment">/// Set a pre-rendered [GeomBatch] to use for the button instead of individual fields.
     ///
-    /// This is useful for applying one-off button designs that can&#39;t be accommodated by the
+    /// This is useful for applying one-off button designs that can't be accommodated by the
     /// the existing ButtonBuilder methods.
     </span><span class="kw">pub fn </span>custom_batch(<span class="kw-2">mut </span><span class="self">self</span>, batch: GeomBatch, for_state: ControlState) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.style_mut(for_state).custom_batch = <span class="prelude-val">Some</span>(batch);
@@ -1254,17 +1256,17 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// The button&#39;s items will be rendered in a vertical column
+    <span class="doccomment">/// The button's items will be rendered in a vertical column
     ///
-    /// If the button doesn&#39;t have both an image and label, this has no effect.
+    /// If the button doesn't have both an image and label, this has no effect.
     </span><span class="kw">pub fn </span>vertical(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.stack_axis = <span class="prelude-val">Some</span>(Axis::Vertical);
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// The button&#39;s items will be rendered in a horizontal row
+    <span class="doccomment">/// The button's items will be rendered in a horizontal row
     ///
-    /// If the button doesn&#39;t have both an image and label, this has no effect.
+    /// If the button doesn't have both an image and label, this has no effect.
     </span><span class="kw">pub fn </span>horizontal(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.stack_axis = <span class="prelude-val">Some</span>(Axis::Horizontal);
         <span class="self">self
@@ -1276,17 +1278,17 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Display the button&#39;s label before the button&#39;s image.
+    <span class="doccomment">/// Display the button's label before the button's image.
     ///
-    /// If the button doesn&#39;t have both an image and label, this has no effect.
+    /// If the button doesn't have both an image and label, this has no effect.
     </span><span class="kw">pub fn </span>label_first(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.is_label_before_image = <span class="bool-val">true</span>;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Display the button&#39;s image before the button&#39;s label.
+    <span class="doccomment">/// Display the button's image before the button's label.
     ///
-    /// If the button doesn&#39;t have both an image and label, this has no effect.
+    /// If the button doesn't have both an image and label, this has no effect.
     </span><span class="kw">pub fn </span>image_first(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.is_label_before_image = <span class="bool-val">false</span>;
         <span class="self">self
@@ -1299,7 +1301,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Set independent rounding for each of the button&#39;s corners
+    <span class="doccomment">/// Set independent rounding for each of the button's corners
     </span><span class="kw">pub fn </span>corner_rounding&lt;R: Into&lt;CornerRounding&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, value: R) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.corner_rounding = <span class="prelude-val">Some</span>(value.into());
         <span class="self">self
@@ -1314,17 +1316,17 @@
     /// # use widgetry::{Color, ButtonBuilder, ControlState, EventCtx};
     ///
     /// fn build_some_buttons(ctx: &amp;EventCtx) {
-    ///     let one_off_builder = ButtonBuilder::new().label_text(&quot;foo&quot;).build(ctx, &quot;foo&quot;);
+    ///     let one_off_builder = ButtonBuilder::new().label_text("foo").build(ctx, "foo");
     ///
-    ///     // If you&#39;d like to build a series of similar buttons, `clone` the builder first.
+    ///     // If you'd like to build a series of similar buttons, `clone` the builder first.
     ///     let red_builder = ButtonBuilder::new()
     ///         .bg_color(Color::RED, ControlState::Default)
     ///         .bg_color(Color::RED.alpha(0.3), ControlState::Disabled)
     ///         .outline((2.0, Color::WHITE), ControlState::Default);
     ///
-    ///     let red_button_1 = red_builder.clone().label_text(&quot;First red button&quot;).build(ctx, &quot;first&quot;);
-    ///     let red_button_2 = red_builder.clone().label_text(&quot;Second red button&quot;).build(ctx, &quot;second&quot;);
-    ///     let red_button_3 = red_builder.label_text(&quot;Last red button&quot;).build(ctx, &quot;third&quot;);
+    ///     let red_button_1 = red_builder.clone().label_text("First red button").build(ctx, "first");
+    ///     let red_button_2 = red_builder.clone().label_text("Second red button").build(ctx, "second");
+    ///     let red_button_3 = red_builder.label_text("Last red button").build(ctx, "third");
     /// }
     /// ```
     </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, action: <span class="kw-2">&amp;</span>str) -&gt; Button {
@@ -1334,7 +1336,7 @@
 
         <span class="macro">assert!</span>(
             normal.get_bounds() != geom::Bounds::zero(),
-            <span class="string">&quot;button was empty&quot;
+            <span class="string">"button was empty"
         </span>);
         <span class="kw">let </span>hitbox = normal.get_bounds().get_rectangle();
         Button::new(
@@ -1359,7 +1361,7 @@
         Widget::new(Box::new(<span class="self">self</span>.build(ctx, action))).named(action)
     }
 
-    <span class="doccomment">/// Get the button&#39;s text label, if defined
+    <span class="doccomment">/// Get the button's text label, if defined
     </span><span class="kw">pub fn </span>get_action(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt; {
         <span class="self">self</span>.default_style
             .label
@@ -1367,17 +1369,17 @@
             .and_then(|label| label.text.as_ref())
     }
 
-    <span class="doccomment">/// Shorthand method to build a default widget whose `action` is derived from the label&#39;s text.
+    <span class="doccomment">/// Shorthand method to build a default widget whose `action` is derived from the label's text.
     </span><span class="kw">pub fn </span>build_def(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
         <span class="kw">let </span>action = <span class="self">self
             </span>.get_action()
-            .expect(<span class="string">&quot;Must set `label_text` before calling build_def&quot;</span>);
+            .expect(<span class="string">"Must set `label_text` before calling build_def"</span>);
         <span class="self">self</span>.build_widget(ctx, action)
     }
 
     <span class="comment">// private  methods
 
-    </span><span class="kw">fn </span>style_mut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span><span class="self">self</span>, state: ControlState) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>ButtonStateStyle&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+    </span><span class="kw">fn </span>style_mut(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span><span class="self">self</span>, state: ControlState) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="kw-2">mut </span>ButtonStateStyle&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
         <span class="kw">match </span>state {
             ControlState::Default =&gt; <span class="kw-2">&amp;mut </span><span class="self">self</span>.default_style,
             ControlState::Hovered =&gt; <span class="kw-2">&amp;mut </span><span class="self">self</span>.hover_style,
@@ -1385,7 +1387,7 @@
         }
     }
 
-    <span class="kw">fn </span>style(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="self">self</span>, state: ControlState) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>ButtonStateStyle&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+    <span class="kw">fn </span>style(<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="self">self</span>, state: ControlState) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'b </span>ButtonStateStyle&lt;<span class="lifetime">'a</span>, <span class="lifetime">'c</span>&gt; {
         <span class="kw">match </span>state {
             ControlState::Default =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.default_style,
             ControlState::Hovered =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.hover_style,
@@ -1413,7 +1415,7 @@
             (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; {
                 <span class="macro">debug_assert!</span>(
                     <span class="bool-val">false</span>,
-                    <span class="string">&quot;unexpectedly found a per-state image with no default image&quot;
+                    <span class="string">"unexpectedly found a per-state image with no default image"
                 </span>);
                 <span class="prelude-val">None
             </span>}
@@ -1461,8 +1463,8 @@
                     Text::from(line)
                         <span class="comment">// Add a clear background to maintain a consistent amount of space for the
                         // label based on the font, rather than the particular text.
-                        // Otherwise a button with text &quot;YYY&quot; will not line up with a button
-                        // with text &quot;aaa&quot;.
+                        // Otherwise a button with text "YYY" will not line up with a button
+                        // with text "aaa".
                         </span>.bg(Color::CLEAR)
                         .render(ctx),
                 )

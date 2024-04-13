@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/runner.rs`."><title>runner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/runner.rs`."><title>runner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -554,7 +556,7 @@
     focus_owned_by: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static </span>+ SharedAppState&gt; State&lt;A&gt; {
+<span class="kw">impl</span>&lt;A: <span class="lifetime">'static </span>+ SharedAppState&gt; State&lt;A&gt; {
     <span class="comment">// The bool indicates if the input was actually used.
     </span><span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>ev: Event, prerender: <span class="kw-2">&amp;</span>Prerender) -&gt; (Vec&lt;UpdateType&gt;, bool) {
         <span class="kw">if let </span>Event::MouseWheelScroll(dx, dy) = ev {
@@ -563,14 +565,14 @@
             }
         }
 
-        <span class="comment">// Always reset the cursor, unless we&#39;re handling an update event. If we&#39;re hovering on a
-        // button, we&#39;ll discover that by plumbing through the event.
+        <span class="comment">// Always reset the cursor, unless we're handling an update event. If we're hovering on a
+        // button, we'll discover that by plumbing through the event.
         </span><span class="kw">if let </span>Event::Update(<span class="kw">_</span>) = ev {
         } <span class="kw">else </span>{
             prerender
                 .inner
                 .set_cursor_icon(<span class="kw">if </span><span class="self">self</span>.canvas.drag_canvas_from.is_some() {
-                    <span class="comment">// We haven&#39;t run canvas_movement() yet, so we don&#39;t know if the button has been
+                    <span class="comment">// We haven't run canvas_movement() yet, so we don't know if the button has been
                     // released. Bit of a hack to check this here, but better behavior.
                     </span><span class="kw">if </span><span class="macro">matches!</span>(ev, Event::LeftMouseButtonUp { .. }) {
                         winit::window::CursorIcon::Default
@@ -582,22 +584,22 @@
                 });
         }
 
-        <span class="comment">// It&#39;s impossible / very unlikely we&#39;ll grab the cursor in map space before the very first
+        <span class="comment">// It's impossible / very unlikely we'll grab the cursor in map space before the very first
         // start_drawing call.
         </span><span class="kw">let </span>input = UserInput::new(ev, <span class="kw-2">&amp;</span><span class="self">self</span>.canvas);
 
-        <span class="comment">// Update some widgetry state that&#39;s stashed in Canvas for sad reasons.
+        <span class="comment">// Update some widgetry state that's stashed in Canvas for sad reasons.
         </span>{
             <span class="kw">if let </span>Event::WindowResized(new_size) = input.event {
                 <span class="comment">// On platforms like Linux, new_size jumps around when the window is first created.
-                // As a result, if an app has loading screens at startup and doesn&#39;t process all of
+                // As a result, if an app has loading screens at startup and doesn't process all of
                 // these events, new_size may be stuck at an incorrect value during the loading.
                 //
                 // Instead, just use inner_size; it appears correct on all platforms tested.
                 </span><span class="kw">let </span>inner_size = prerender.window_size();
                 <span class="macro">trace!</span>(
-                    <span class="string">&quot;winit event says the window was resized from {}, {} to {:?}. But inner size \
-                     is {:?}, so using that&quot;</span>,
+                    <span class="string">"winit event says the window was resized from {}, {} to {:?}. But inner size \
+                     is {:?}, so using that"</span>,
                     <span class="self">self</span>.canvas.window_width,
                     <span class="self">self</span>.canvas.window_height,
                     new_size,
@@ -637,7 +639,7 @@
                 canvas_movement_called: <span class="bool-val">false</span>,
 
                 focus_owned_by: <span class="self">self</span>.focus_owned_by.take(),
-                <span class="comment">// If the widget owning focus doesn&#39;t renew it, then it&#39;ll expire by the end of
+                <span class="comment">// If the widget owning focus doesn't renew it, then it'll expire by the end of
                 // this event.
                 </span>next_focus_owned_by: <span class="prelude-val">None</span>,
             };
@@ -645,21 +647,21 @@
             <span class="self">self</span>.app.event(<span class="kw-2">&amp;mut </span>ctx);
             <span class="self">self</span>.focus_owned_by = ctx.next_focus_owned_by.take();
             <span class="kw">if </span>DEBUG_PERFORMANCE {
-                <span class="macro">println!</span>(<span class="string">&quot;- event() took {}s&quot;</span>, elapsed_seconds(started));
+                <span class="macro">println!</span>(<span class="string">"- event() took {}s"</span>, elapsed_seconds(started));
             }
 
             <span class="comment">// If the user is dragging the canvas, but then another UI state interrupts things
-            // (like a panel popping up that blocks the canvas) and canvas_movement() isn&#39;t called
+            // (like a panel popping up that blocks the canvas) and canvas_movement() isn't called
             // for this event, then cancel the drag.
             </span><span class="kw">if </span>ctx.canvas.drag_canvas_from.is_some() &amp;&amp; !ctx.canvas_movement_called {
                 ctx.canvas.drag_canvas_from = <span class="prelude-val">None</span>;
-                <span class="comment">// TODO When the user releases the mouse button, it&#39;ll count as
+                <span class="comment">// TODO When the user releases the mouse button, it'll count as
                 // normal_left_click(). An example why this is a bug:
                 //
-                // 1) Start dragging the map in A/B Street&#39;s sandbox mode
+                // 1) Start dragging the map in A/B Street's sandbox mode
                 // 2) Press escape, bringing up a menu
                 // 3) Release the mouse while hovering off of the panel
-                // This counts as clicking &quot;off the panel&quot; and closes it immediately.
+                // This counts as clicking "off the panel" and closes it immediately.
             </span>}
 
             <span class="comment">// TODO We should always do has_been_consumed, but various hacks prevent this from being
@@ -696,7 +698,7 @@
 
         <span class="kw">if </span>DEBUG_PERFORMANCE {
             <span class="macro">println!</span>(
-                <span class="string">&quot;----- {} uploads, {} draw calls, {} forks. draw() took {} -----&quot;</span>,
+                <span class="string">"----- {} uploads, {} draw calls, {} forks. draw() took {} -----"</span>,
                 g.get_num_uploads(),
                 g.num_draw_calls,
                 g.num_forks,
@@ -713,10 +715,10 @@
     }
 }
 
-<span class="doccomment">/// Customize how widgetry works. Most of these settings can&#39;t be changed after starting.
+<span class="doccomment">/// Customize how widgetry works. Most of these settings can't be changed after starting.
 </span><span class="kw">pub struct </span>Settings {
     <span class="kw">pub</span>(<span class="kw">crate</span>) window_title: String,
-    <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) root_dom_element_id: String,
     <span class="kw">pub</span>(<span class="kw">crate</span>) assets_base_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) assets_are_gzipped: bool,
@@ -735,8 +737,8 @@
     </span><span class="kw">pub fn </span>new(window_title: <span class="kw-2">&amp;</span>str) -&gt; Settings {
         Settings {
             window_title: window_title.to_string(),
-            <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
-            </span>root_dom_element_id: <span class="string">&quot;widgetry-canvas&quot;</span>.to_string(),
+            <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+            </span>root_dom_element_id: <span class="string">"widgetry-canvas"</span>.to_string(),
             assets_base_url: <span class="prelude-val">None</span>,
             assets_are_gzipped: <span class="bool-val">false</span>,
             dump_raw_events: <span class="bool-val">false</span>,
@@ -749,10 +751,10 @@
                 <span class="kw">use </span>std::io::Read;
 
                 <span class="kw">let </span><span class="kw-2">mut </span>file =
-                    fs_err::File::open(path).unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read {}&quot;</span>, path));
+                    fs_err::File::open(path).unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"Couldn't read {}"</span>, path));
                 <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
                 file.read_to_end(<span class="kw-2">&amp;mut </span>buffer)
-                    .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read all of {}&quot;</span>, path));
+                    .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"Couldn't read all of {}"</span>, path));
                 buffer
             }),
             canvas_settings: CanvasSettings::new(),
@@ -772,17 +774,17 @@
         <span class="self">self
     </span>}
 
-    <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
     </span><span class="kw">pub fn </span>root_dom_element_id(<span class="kw-2">mut </span><span class="self">self</span>, element_id: String) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.root_dom_element_id = element_id;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// If the screen width using the monitor&#39;s detected scale factor is below this value (in units
+    <span class="doccomment">/// If the screen width using the monitor's detected scale factor is below this value (in units
     /// of logical pixels, not physical), then force the scale factor to be 1. If `scale_factor()`
     /// has been called, always use that override. This is helpful for users with HiDPI displays at
     /// low resolutions, for applications designed for screens with some minimum width. Scaling
-    /// down UI elements isn&#39;t ideal (since it doesn&#39;t respect the user&#39;s device settings), but
+    /// down UI elements isn't ideal (since it doesn't respect the user's device settings), but
     /// having panels overlap is worse.
     </span><span class="kw">pub fn </span>require_minimum_width(<span class="kw-2">mut </span><span class="self">self</span>, width: f64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.require_minimum_width = <span class="prelude-val">Some</span>(width);
@@ -795,8 +797,8 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Sets the text that&#39;ll appear during long `ctx.loading_screen` calls. You can use this as a
-    /// way to entertain your users while they&#39;re waiting.
+    <span class="doccomment">/// Sets the text that'll appear during long `ctx.loading_screen` calls. You can use this as a
+    /// way to entertain your users while they're waiting.
     </span><span class="kw">pub fn </span>loading_tips(<span class="kw-2">mut </span><span class="self">self</span>, txt: Text) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.loading_tips = <span class="prelude-val">Some</span>(txt);
         <span class="self">self
@@ -806,7 +808,7 @@
     /// to transform the filename given to the raw bytes of that SVG file. By default, this just
     /// reads the file normally. You may want to override this to more conveniently locate the
     /// file (transforming a short filename to a full path) or to handle reading files in WASM
-    /// (where regular filesystem IO doesn&#39;t work).
+    /// (where regular filesystem IO doesn't work).
     </span><span class="kw">pub fn </span>read_svg(<span class="kw-2">mut </span><span class="self">self</span>, function: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>str) -&gt; Vec&lt;u8&gt;&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.read_svg = function;
         <span class="self">self
@@ -834,17 +836,17 @@
 }
 
 <span class="kw">pub fn </span>run&lt;
-    A: <span class="lifetime">&#39;static </span>+ SharedAppState,
+    A: <span class="lifetime">'static </span>+ SharedAppState,
     F: FnOnce(<span class="kw-2">&amp;mut </span>EventCtx) -&gt; (A, Vec&lt;Box&lt;<span class="kw">dyn </span><span class="kw">crate</span>::app_state::State&lt;A&gt;&gt;&gt;),
 &gt;(
     settings: Settings,
     make_app: F,
 ) -&gt; ! {
-    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;setup widgetry&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">"setup widgetry"</span>);
     <span class="kw">let </span>(prerender_innards, event_loop) = <span class="kw">crate</span>::backend::setup(<span class="kw-2">&amp;</span>settings);
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) = settings.window_icon {
-        <span class="kw">if </span>!<span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
+        <span class="kw">if </span>!<span class="macro">cfg!</span>(target_arch = <span class="string">"wasm32"</span>) {
             <span class="kw">let </span>image = image::open(path).unwrap();
             <span class="kw">let </span>(width, height) = image.dimensions();
             <span class="kw">let </span><span class="kw-2">mut </span>rgba = Vec::with_capacity((width * height) <span class="kw">as </span>usize * <span class="number">4</span>);
@@ -875,8 +877,8 @@
         <span class="kw">let </span>initial_size = prerender.window_size();
         <span class="kw">if </span>initial_size.width &lt; min_width &amp;&amp; settings.scale_factor.is_none() {
             <span class="macro">warn!</span>(
-                <span class="string">&quot;Monitor scale factor is {}, screen window is {}, but the application requires \
-                 {}. Overriding the scale factor to 1.&quot;</span>,
+                <span class="string">"Monitor scale factor is {}, screen window is {}, but the application requires \
+                 {}. Overriding the scale factor to 1."</span>,
                 monitor_scale_factor, initial_size.width, min_width
             );
             prerender.scale_factor.set(<span class="number">1.0</span>);
@@ -887,7 +889,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>canvas = Canvas::new(initial_size, settings.canvas_settings);
     prerender.window_resized(initial_size);
 
-    timer.start(<span class="string">&quot;setup app&quot;</span>);
+    timer.start(<span class="string">"setup app"</span>);
     <span class="kw">let </span>(shared_app_state, states) = {
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = EventCtx {
             fake_mouseover: <span class="bool-val">true</span>,
@@ -901,17 +903,17 @@
             next_focus_owned_by: <span class="prelude-val">None</span>,
         };
         <span class="kw">if </span>settings.load_default_textures {
-            timer.start(<span class="string">&quot;load default texture&quot;</span>);
+            timer.start(<span class="string">"load default texture"</span>);
             ctx.set_texture(
-                <span class="macro">include_bytes!</span>(<span class="string">&quot;../textures/spritesheet.png&quot;</span>).to_vec(),
+                <span class="macro">include_bytes!</span>(<span class="string">"../textures/spritesheet.png"</span>).to_vec(),
                 (<span class="number">64</span>, <span class="number">64</span>),
                 (<span class="number">16.0</span>, <span class="number">16.0</span>),
             );
-            timer.stop(<span class="string">&quot;load default texture&quot;</span>);
+            timer.stop(<span class="string">"load default texture"</span>);
         }
         make_app(<span class="kw-2">&amp;mut </span>ctx)
     };
-    timer.stop(<span class="string">&quot;setup app&quot;</span>);
+    timer.stop(<span class="string">"setup app"</span>);
     <span class="kw">let </span>app = App {
         states,
         shared_app_state,
@@ -936,7 +938,7 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>previous_keycode = <span class="prelude-val">None</span>;
     event_loop.run(<span class="kw">move </span>|event, <span class="kw">_</span>, control_flow| {
         <span class="kw">if </span>dump_raw_events {
-            <span class="macro">debug!</span>(<span class="string">&quot;Event: {:?}&quot;</span>, event);
+            <span class="macro">debug!</span>(<span class="string">"Event: {:?}"</span>, event);
         }
         <span class="kw">let </span>ev = <span class="kw">match </span>event {
             winit::event::Event::WindowEvent {
@@ -954,12 +956,12 @@
 
                 <span class="kw">if let </span>winit::event::WindowEvent::KeyboardInput { input, .. } = event {
                     <span class="comment">// TODO If someone happens to press and release alt, then press tab, we will
-                    // incorrectly suppress the tab. Attempts to add timing haven&#39;t worked so far,
+                    // incorrectly suppress the tab. Attempts to add timing haven't worked so far,
                     // so just accept this.
                     </span><span class="kw">if </span>previous_keycode == <span class="prelude-val">Some</span>(VirtualKeyCode::LAlt)
                         &amp;&amp; input.virtual_keycode == <span class="prelude-val">Some</span>(VirtualKeyCode::Tab)
                     {
-                        <span class="macro">debug!</span>(<span class="string">&quot;Skipping alt+tab event&quot;</span>);
+                        <span class="macro">debug!</span>(<span class="string">"Skipping alt+tab event"</span>);
                         previous_keycode = input.virtual_keycode;
                         <span class="kw">return</span>;
                     }
@@ -972,7 +974,7 @@
                 {
                     ev
                 } <span class="kw">else </span>{
-                    <span class="comment">// Don&#39;t touch control_flow if we got an irrelevant event
+                    <span class="comment">// Don't touch control_flow if we got an irrelevant event
                     </span><span class="kw">return</span>;
                 }
             }
@@ -982,7 +984,7 @@
                 <span class="kw">return</span>;
             }
             winit::event::Event::MainEventsCleared =&gt; {
-                <span class="comment">// We might&#39;ve switched to InputOnly after the WaitUntil was requested.
+                <span class="comment">// We might've switched to InputOnly after the WaitUntil was requested.
                 </span><span class="kw">if </span>running {
                     Event::Update(Duration::realtime_elapsed(last_update))
                 } <span class="kw">else </span>{
@@ -1026,7 +1028,7 @@
                     <span class="kw-2">*</span>control_flow = winit::event_loop::ControlFlow::Wait;
                 }
                 UpdateType::Game =&gt; {
-                    <span class="comment">// If we just unpaused, then don&#39;t act as if lots of time has passed.
+                    <span class="comment">// If we just unpaused, then don't act as if lots of time has passed.
                     </span><span class="kw">if </span>!running {
                         last_update = Instant::now();
                         <span class="kw-2">*</span>control_flow = winit::event_loop::ControlFlow::WaitUntil(
@@ -1041,7 +1043,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
                         screenshot_everything(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;</span>dir, <span class="kw-2">&amp;</span>prerender, zoom, dims)
                     {
-                        <span class="macro">error!</span>(<span class="string">&quot;Couldn&#39;t screenshot everything: {}&quot;</span>, err);
+                        <span class="macro">error!</span>(<span class="string">"Couldn't screenshot everything: {}"</span>, err);
                     }
                 }
             }

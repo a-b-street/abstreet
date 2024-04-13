@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/trips.rs`."><title>trips.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/trips.rs`."><title>trips.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1462,8 +1464,8 @@
     people: Vec&lt;Person&gt;,
     <span class="comment">// For quick lookup of active agents
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>active_trip_mode: BTreeMap&lt;AgentID, TripID&gt;,
     unfinished_trips: usize,
@@ -1550,10 +1552,10 @@
             };
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = person.trips.last() {
-            <span class="comment">// TODO If it&#39;s exactly ==, what?! See the ID.
+            <span class="comment">// TODO If it's exactly ==, what?! See the ID.
             </span><span class="kw">if </span><span class="self">self</span>.trips[t.<span class="number">0</span>].info.departure &gt; trip.info.departure {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;{} has a trip starting at {}, then one at {}&quot;</span>,
+                    <span class="string">"{} has a trip starting at {}, then one at {}"</span>,
                     person.id, <span class="self">self</span>.trips[t.<span class="number">0</span>].info.departure, trip.info.departure
                 );
             }
@@ -1568,12 +1570,12 @@
 
         <span class="kw">let </span>person = <span class="kw-2">&amp;mut </span><span class="self">self</span>.people[<span class="self">self</span>.trips[trip.<span class="number">0</span>].person.<span class="number">0</span>];
         <span class="kw">if let </span>PersonState::Trip(<span class="kw">_</span>) = person.state {
-            <span class="comment">// Previous trip isn&#39;t done. Defer this one!
+            <span class="comment">// Previous trip isn't done. Defer this one!
             </span><span class="kw">if </span><span class="bool-val">false </span>{
                 <span class="self">self</span>.events.push(Event::Alert(
                     AlertLocation::Person(person.id),
                     <span class="macro">format!</span>(
-                        <span class="string">&quot;{} is still doing a trip, so not starting {} yet&quot;</span>,
+                        <span class="string">"{} is still doing a trip, so not starting {} yet"</span>,
                         person.id, trip
                     ),
                 ));
@@ -1704,7 +1706,7 @@
                     </span><span class="self">self</span>.cancel_trip(
                         now,
                         trip,
-                        <span class="macro">format!</span>(<span class="string">&quot;should have {} parked somewhere, but it&#39;s unavailable&quot;</span>, car),
+                        <span class="macro">format!</span>(<span class="string">"should have {} parked somewhere, but it's unavailable"</span>, car),
                         <span class="prelude-val">None</span>,
                         ctx,
                     );
@@ -1725,7 +1727,7 @@
                         }
                         SidewalkPOI::SuddenlyAppear =&gt; {
                             <span class="comment">// Unclear which end of the sidewalk this person should be associated
-                            // with. For interactively spawned people, doesn&#39;t really matter.
+                            // with. For interactively spawned people, doesn't really matter.
                             </span><span class="self">self</span>.events.push(Event::PersonEntersMap(
                                 person.id,
                                 AgentID::Pedestrian(person.ped),
@@ -1804,7 +1806,7 @@
                         now,
                         trip,
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;UsingBike trip couldn&#39;t find a way to start biking from {}&quot;</span>,
+                            <span class="string">"UsingBike trip couldn't find a way to start biking from {}"</span>,
                             start
                         ),
                         <span class="prelude-val">None</span>,
@@ -1827,7 +1829,7 @@
                         }
                         SidewalkPOI::SuddenlyAppear =&gt; {
                             <span class="comment">// Unclear which end of the sidewalk this person should be associated
-                            // with. For interactively spawned people, doesn&#39;t really matter.
+                            // with. For interactively spawned people, doesn't really matter.
                             </span><span class="self">self</span>.events.push(Event::PersonEntersMap(
                                 person.id,
                                 AgentID::Pedestrian(person.ped),
@@ -1876,7 +1878,7 @@
     </span><span class="kw">pub fn </span>agent_starting_trip_leg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, agent: AgentID, t: TripID) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(other) = <span class="self">self</span>.active_trip_mode.get(<span class="kw-2">&amp;</span>agent) {
             <span class="kw">if </span><span class="kw-2">*</span>other != t {
-                <span class="macro">panic!</span>(<span class="string">&quot;{} is doing both {} and {}?&quot;</span>, agent, t, other);
+                <span class="macro">panic!</span>(<span class="string">"{} is doing both {} and {}?"</span>, agent, t, other);
             }
         }
         <span class="self">self</span>.active_trip_mode.insert(agent, t);
@@ -2030,7 +2032,7 @@
             <span class="self">self</span>.cancel_trip(
                 now,
                 trip,
-                <span class="macro">format!</span>(<span class="string">&quot;no bike connection at {:?}&quot;</span>, drive_to),
+                <span class="macro">format!</span>(<span class="string">"no bike connection at {:?}"</span>, drive_to),
                 <span class="prelude-val">None</span>,
                 ctx,
             );
@@ -2041,7 +2043,7 @@
             <span class="comment">// TODO Convert to a walking trip! Ideally, do this earlier and convert the trip to
             // walking, like schedule_trip does
             </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(
-                <span class="string">&quot;biking to a different part of {} is silly, why not walk?&quot;</span>,
+                <span class="string">"biking to a different part of {} is silly, why not walk?"</span>,
                 req.start.lane()
             ))
         } <span class="kw">else </span>{
@@ -2214,7 +2216,7 @@
             .<span class="number">0</span>];
         <span class="kw">let </span>start = <span class="kw">match </span>trip.legs.pop_front().unwrap() {
             TripLeg::RideBus(<span class="kw">_</span>, maybe_stop2) =&gt; SidewalkSpot::bus_stop(
-                maybe_stop2.expect(<span class="string">&quot;someone left a bus, even though they should&#39;ve ridden off-map&quot;</span>),
+                maybe_stop2.expect(<span class="string">"someone left a bus, even though they should've ridden off-map"</span>),
                 ctx.map,
             ),
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -2351,7 +2353,7 @@
             <span class="self">self</span>.events.push(Event::Alert(
                 AlertLocation::Person(person.id),
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;{} just freed up, so starting delayed trip {}&quot;</span>,
+                    <span class="string">"{} just freed up, so starting delayed trip {}"</span>,
                     person.id, trip
                 ),
             ));
@@ -2392,7 +2394,7 @@
 
 <span class="comment">// Cancelling trips
 </span><span class="kw">impl </span>TripManager {
-    <span class="doccomment">/// Cancel a trip before it&#39;s started. The person will stay where they are.
+    <span class="doccomment">/// Cancel a trip before it's started. The person will stay where they are.
     </span><span class="kw">pub fn </span>cancel_unstarted_trip(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: TripID, reason: String) {
         <span class="kw">let </span>trip = <span class="kw-2">&amp;mut </span><span class="self">self</span>.trips[id.<span class="number">0</span>];
         <span class="self">self</span>.unfinished_trips -= <span class="number">1</span>;
@@ -2401,7 +2403,7 @@
             .push(Event::TripCancelled(trip.id, trip.info.mode));
     }
 
-    <span class="doccomment">/// Cancel a trip after it&#39;s started. The person will be magically warped to their destination,
+    <span class="doccomment">/// Cancel a trip after it's started. The person will be magically warped to their destination,
     /// along with their car, as if the trip had completed normally.
     </span><span class="kw">pub fn </span>cancel_trip(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -2432,11 +2434,11 @@
                 <span class="self">self</span>.events.push(Event::PersonLeavesMap(person, <span class="prelude-val">None</span>, i));
                 PersonState::OffMap
             }
-            <span class="comment">// Can&#39;t end trips here yet
+            <span class="comment">// Can't end trips here yet
             </span>TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
 
-        <span class="comment">// Don&#39;t forget the car!
+        <span class="comment">// Don't forget the car!
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(vehicle) = abandoned_vehicle {
             <span class="kw">if </span>vehicle.vehicle_type == VehicleType::Car {
                 <span class="comment">// First remove the parked car, if needed. Maybe the trip was cancelled while the
@@ -2463,7 +2465,7 @@
                         <span class="self">self</span>.events.push(Event::Alert(
                             AlertLocation::Person(person),
                             <span class="macro">format!</span>(
-                                <span class="string">&quot;{} had a trip cancelled, and their car was warped to {:?}&quot;</span>,
+                                <span class="string">"{} had a trip cancelled, and their car was warped to {:?}"</span>,
                                 person, spot
                             ),
                         ));
@@ -2477,7 +2479,7 @@
                         <span class="self">self</span>.events.push(Event::Alert(
                             AlertLocation::Person(person),
                             <span class="macro">format!</span>(
-                                <span class="string">&quot;{} had a trip cancelled, but nowhere to warp their car! Sucks.&quot;</span>,
+                                <span class="string">"{} had a trip cancelled, but nowhere to warp their car! Sucks."</span>,
                                 person
                             ),
                         ));
@@ -2485,7 +2487,7 @@
                 }
             }
         } <span class="kw">else </span>{
-            <span class="comment">// If the trip was cancelled because we&#39;e totally out of parking, don&#39;t forget to clean
+            <span class="comment">// If the trip was cancelled because we'e totally out of parking, don't forget to clean
             // this up.
             </span><span class="kw">if let </span>TripLeg::Drive(c, <span class="kw">_</span>) = <span class="kw-2">&amp;</span>trip.legs[<span class="number">0</span>] {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = <span class="self">self</span>.active_trip_mode.remove(<span class="kw-2">&amp;</span>AgentID::Car(<span class="kw-2">*</span>c)) {
@@ -2539,7 +2541,7 @@
         <span class="kw">if </span><span class="self">self</span>.active_trip_mode.get(<span class="kw-2">&amp;</span>a) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>id) {
             TripResult::Ok(a)
         } <span class="kw">else </span>{
-            <span class="comment">//panic!(&quot;{} should be ongoing, but no agent in active_trip_mode&quot;, id);
+            <span class="comment">//panic!("{} should be ongoing, but no agent in active_trip_mode", id);
             </span>TripResult::ModeChange
         }
     }
@@ -2552,9 +2554,9 @@
     <span class="kw">pub fn </span>debug_trip(<span class="kw-2">&amp;</span><span class="self">self</span>, id: AgentID) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = <span class="self">self</span>.active_trip_mode.get(<span class="kw-2">&amp;</span>id) {
             <span class="kw">let </span>trip = <span class="kw-2">&amp;</span><span class="self">self</span>.trips[t.<span class="number">0</span>];
-            <span class="macro">println!</span>(<span class="string">&quot;{} has goal {:?}&quot;</span>, trip.id, trip.legs.back().unwrap());
+            <span class="macro">println!</span>(<span class="string">"{} has goal {:?}"</span>, trip.id, trip.legs.back().unwrap());
         } <span class="kw">else </span>{
-            <span class="macro">println!</span>(<span class="string">&quot;{} has no trip, must be parked car&quot;</span>, id);
+            <span class="macro">println!</span>(<span class="string">"{} has no trip, must be parked car"</span>, id);
         }
     }
 
@@ -2616,7 +2618,7 @@
                     }
                     VehicleType::Car | VehicleType::Bike =&gt; <span class="macro">unreachable!</span>(),
                 },
-                <span class="comment">// These&#39;re counted separately
+                <span class="comment">// These're counted separately
                 </span>AgentID::Pedestrian(<span class="kw">_</span>) =&gt; {}
             }
         }
@@ -2773,8 +2775,8 @@
     }
 }
 
-<span class="doccomment">/// These don&#39;t specify where the leg starts, since it might be unknown -- like when we drive and
-/// don&#39;t know where we&#39;ll wind up parking.
+<span class="doccomment">/// These don't specify where the leg starts, since it might be unknown -- like when we drive and
+/// don't know where we'll wind up parking.
 </span><span class="attr">#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>TripLeg {
     Walk(SidewalkSpot),
@@ -2803,7 +2805,7 @@
 
     <span class="kw">pub fn </span>propagate_error&lt;X&gt;(<span class="self">self</span>) -&gt; TripResult&lt;X&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            TripResult::Ok(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;TripResult is Ok, can&#39;t propagate_error&quot;</span>),
+            TripResult::Ok(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"TripResult is Ok, can't propagate_error"</span>),
             TripResult::ModeChange =&gt; TripResult::ModeChange,
             TripResult::TripDone =&gt; TripResult::TripDone,
             TripResult::TripDoesntExist =&gt; TripResult::TripDoesntExist,

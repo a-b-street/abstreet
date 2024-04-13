@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/berlin.rs`."><title>berlin.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/berlin.rs`."><title>berlin.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../importer/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -135,12 +137,12 @@
 <span class="kw">pub async fn </span>import_extra_data(
     map: <span class="kw-2">&amp;</span>RawMap,
     config: <span class="kw-2">&amp;</span>ImporterConfiguration,
-    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">&#39;_</span>&gt;,
+    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">'_</span>&gt;,
 ) {
     <span class="comment">// From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
     </span>download_kml(
-        map.get_city_name().input_path(<span class="string">&quot;planning_areas.bin&quot;</span>),
-        <span class="string">&quot;https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume/lor_planungsraeume.kml&quot;</span>,
+        map.get_city_name().input_path(<span class="string">"planning_areas.bin"</span>),
+        <span class="string">"https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume/lor_planungsraeume.kml"</span>,
         <span class="kw-2">&amp;</span>map.streets.gps_bounds,
         <span class="comment">// Keep partly out-of-bounds polygons
         </span><span class="bool-val">false</span>,
@@ -151,15 +153,15 @@
     // https://daten.berlin.de/datensaetze/einwohnerinnen-und-einwohner-berlin-lor-planungsr%C3%A4umen-am-31122018
     </span>download(
         config,
-        map.get_city_name().input_path(<span class="string">&quot;EWR201812E_Matrix.csv&quot;</span>),
-        <span class="string">&quot;https://www.statistik-berlin-brandenburg.de/opendata/EWR201812E_Matrix.csv&quot;</span>,
+        map.get_city_name().input_path(<span class="string">"EWR201812E_Matrix.csv"</span>),
+        <span class="string">"https://www.statistik-berlin-brandenburg.de/opendata/EWR201812E_Matrix.csv"</span>,
     )
     .<span class="kw">await</span>;
 
-    <span class="comment">// Always do this, it&#39;s idempotent and fast
+    <span class="comment">// Always do this, it's idempotent and fast
     </span>correlate_population(
-        map.get_city_name().input_path(<span class="string">&quot;planning_areas.bin&quot;</span>),
-        map.get_city_name().input_path(<span class="string">&quot;EWR201812E_Matrix.csv&quot;</span>),
+        map.get_city_name().input_path(<span class="string">"planning_areas.bin"</span>),
+        map.get_city_name().input_path(<span class="string">"EWR201812E_Matrix.csv"</span>),
         timer,
     );
 }
@@ -168,16 +170,16 @@
 </span><span class="kw">fn </span>correlate_population(kml_path: String, csv_path: String, timer: <span class="kw-2">&amp;mut </span>Timer) {
     <span class="kw">let </span><span class="kw-2">mut </span>shapes = abstio::read_binary::&lt;ExtraShapes&gt;(kml_path.clone(), timer);
     <span class="kw">for </span>rec <span class="kw">in </span>csv::ReaderBuilder::new()
-        .delimiter(<span class="string">b&#39;;&#39;</span>)
+        .delimiter(<span class="string">b';'</span>)
         .from_reader(File::open(csv_path).unwrap())
         .deserialize()
     {
         <span class="kw">let </span>rec: Record = rec.unwrap();
         <span class="kw">for </span>shape <span class="kw">in </span><span class="kw-2">&amp;mut </span>shapes.shapes {
-            <span class="kw">if </span>shape.attributes.get(<span class="string">&quot;spatial_name&quot;</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>rec.raumid) {
+            <span class="kw">if </span>shape.attributes.get(<span class="string">"spatial_name"</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>rec.raumid) {
                 shape
                     .attributes
-                    .insert(<span class="string">&quot;num_residents&quot;</span>.to_string(), rec.e_e);
+                    .insert(<span class="string">"num_residents"</span>.to_string(), rec.e_e);
                 <span class="kw">break</span>;
             }
         }
@@ -188,16 +190,16 @@
 <span class="attr">#[derive(Debug, Deserialize)]
 </span><span class="kw">struct </span>Record {
     <span class="comment">// Corresponds with spatial_name from planning_areas
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;RAUMID&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"RAUMID"</span>)]
     </span>raumid: String,
     <span class="comment">// The total residents in that area
-    </span><span class="attr">#[serde(rename = <span class="string">&quot;E_E&quot;</span>)]
+    </span><span class="attr">#[serde(rename = <span class="string">"E_E"</span>)]
     </span>e_e: String,
 }
 
 <span class="kw">pub fn </span>distribute_residents(map: <span class="kw-2">&amp;mut </span>map_model::Map, timer: <span class="kw-2">&amp;mut </span>Timer) {
     <span class="kw">for </span>shape <span class="kw">in </span>abstio::read_binary::&lt;ExtraShapes&gt;(
-        <span class="string">&quot;data/input/de/berlin/planning_areas.bin&quot;</span>.to_string(),
+        <span class="string">"data/input/de/berlin/planning_areas.bin"</span>.to_string(),
         timer,
     )
     .shapes
@@ -210,13 +212,13 @@
             <span class="kw">continue</span>;
         }
         <span class="kw">let </span>region = Ring::must_new(pts).into_polygon();
-        <span class="comment">// Deterministically seed using the planning area&#39;s ID.
+        <span class="comment">// Deterministically seed using the planning area's ID.
         </span><span class="kw">let </span><span class="kw-2">mut </span>rng =
-            XorShiftRng::seed_from_u64(shape.attributes[<span class="string">&quot;spatial_name&quot;</span>].parse::&lt;u64&gt;().unwrap());
+            XorShiftRng::seed_from_u64(shape.attributes[<span class="string">"spatial_name"</span>].parse::&lt;u64&gt;().unwrap());
 
         <span class="kw">for </span>(home, n) <span class="kw">in </span>popdat::distribute_population_to_homes(
             geo::Polygon::from(region),
-            shape.attributes[<span class="string">&quot;num_residents&quot;</span>].parse::&lt;usize&gt;().unwrap(),
+            shape.attributes[<span class="string">"num_residents"</span>].parse::&lt;usize&gt;().unwrap(),
             map,
             <span class="kw-2">&amp;mut </span>rng,
         ) {

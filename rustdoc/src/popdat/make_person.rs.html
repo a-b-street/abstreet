@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/make_person.rs`."><title>make_person.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="popdat" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/make_person.rs`."><title>make_person.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="popdat" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../popdat/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -312,8 +314,8 @@
 ) -&gt; Vec&lt;PersonSpec&gt; {
     <span class="comment">// Only consider two-way intersections, so the agent can return the same way
     // they came.
-    // TODO: instead, if it&#39;s not a two-way border, we should find an intersection
-    // an incoming border &quot;near&quot; the outgoing border, to allow a broader set of
+    // TODO: instead, if it's not a two-way border, we should find an intersection
+    // an incoming border "near" the outgoing border, to allow a broader set of
     // realistic options.
     // TODO: prefer larger thoroughfares to better reflect reality.
     </span><span class="kw">let </span>commuter_borders: Vec&lt;IntersectionID&gt; = map
@@ -332,7 +334,7 @@
         .map(|person| (person, sim::fork_rng(rng)))
         .collect();
     timer.parallelize(
-        <span class="string">&quot;making people in parallel&quot;</span>,
+        <span class="string">"making people in parallel"</span>,
         make_person_inputs,
         |(person, <span class="kw-2">mut </span>rng)| {
             person_factory.make_person(person, map, <span class="kw-2">&amp;</span>commuter_borders, <span class="kw-2">&amp;mut </span>rng, config)
@@ -355,77 +357,77 @@
     <span class="kw">fn </span>activity_to_buildings(map: <span class="kw-2">&amp;</span>Map) -&gt; HashMap&lt;Activity, Vec&lt;BuildingID&gt;&gt; {
         <span class="comment">// What types of OpenStreetMap amenities will satisfy each activity?
         </span><span class="kw">let </span>categories = <span class="macro">vec!</span>[
-            (Activity::Breakfast, <span class="macro">vec!</span>[<span class="string">&quot;cafe&quot;</span>]),
-            (Activity::Lunch, <span class="macro">vec!</span>[<span class="string">&quot;pub&quot;</span>, <span class="string">&quot;food_court&quot;</span>, <span class="string">&quot;fast_food&quot;</span>]),
+            (Activity::Breakfast, <span class="macro">vec!</span>[<span class="string">"cafe"</span>]),
+            (Activity::Lunch, <span class="macro">vec!</span>[<span class="string">"pub"</span>, <span class="string">"food_court"</span>, <span class="string">"fast_food"</span>]),
             (
                 Activity::Dinner,
-                <span class="macro">vec!</span>[<span class="string">&quot;restaurant&quot;</span>, <span class="string">&quot;theatre&quot;</span>, <span class="string">&quot;biergarten&quot;</span>],
+                <span class="macro">vec!</span>[<span class="string">"restaurant"</span>, <span class="string">"theatre"</span>, <span class="string">"biergarten"</span>],
             ),
             (
                 Activity::School,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;college&quot;</span>,
-                    <span class="string">&quot;kindergarten&quot;</span>,
-                    <span class="string">&quot;language_school&quot;</span>,
-                    <span class="string">&quot;library&quot;</span>,
-                    <span class="string">&quot;music_school&quot;</span>,
-                    <span class="string">&quot;university&quot;</span>,
+                    <span class="string">"college"</span>,
+                    <span class="string">"kindergarten"</span>,
+                    <span class="string">"language_school"</span>,
+                    <span class="string">"library"</span>,
+                    <span class="string">"music_school"</span>,
+                    <span class="string">"university"</span>,
                 ],
             ),
             (
                 Activity::Entertainment,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;arts_centre&quot;</span>,
-                    <span class="string">&quot;casino&quot;</span>,
-                    <span class="string">&quot;cinema&quot;</span>,
-                    <span class="string">&quot;community_centre&quot;</span>,
-                    <span class="string">&quot;fountain&quot;</span>,
-                    <span class="string">&quot;gambling&quot;</span>,
-                    <span class="string">&quot;nightclub&quot;</span>,
-                    <span class="string">&quot;planetarium&quot;</span>,
-                    <span class="string">&quot;public_bookcase&quot;</span>,
-                    <span class="string">&quot;pool&quot;</span>,
-                    <span class="string">&quot;dojo&quot;</span>,
-                    <span class="string">&quot;social_centre&quot;</span>,
-                    <span class="string">&quot;social_centre&quot;</span>,
-                    <span class="string">&quot;studio&quot;</span>,
-                    <span class="string">&quot;theatre&quot;</span>,
-                    <span class="string">&quot;bar&quot;</span>,
-                    <span class="string">&quot;bbq&quot;</span>,
-                    <span class="string">&quot;bicycle_rental&quot;</span>,
-                    <span class="string">&quot;boat_rental&quot;</span>,
-                    <span class="string">&quot;boat_sharing&quot;</span>,
-                    <span class="string">&quot;dive_centre&quot;</span>,
-                    <span class="string">&quot;internet_cafe&quot;</span>,
+                    <span class="string">"arts_centre"</span>,
+                    <span class="string">"casino"</span>,
+                    <span class="string">"cinema"</span>,
+                    <span class="string">"community_centre"</span>,
+                    <span class="string">"fountain"</span>,
+                    <span class="string">"gambling"</span>,
+                    <span class="string">"nightclub"</span>,
+                    <span class="string">"planetarium"</span>,
+                    <span class="string">"public_bookcase"</span>,
+                    <span class="string">"pool"</span>,
+                    <span class="string">"dojo"</span>,
+                    <span class="string">"social_centre"</span>,
+                    <span class="string">"social_centre"</span>,
+                    <span class="string">"studio"</span>,
+                    <span class="string">"theatre"</span>,
+                    <span class="string">"bar"</span>,
+                    <span class="string">"bbq"</span>,
+                    <span class="string">"bicycle_rental"</span>,
+                    <span class="string">"boat_rental"</span>,
+                    <span class="string">"boat_sharing"</span>,
+                    <span class="string">"dive_centre"</span>,
+                    <span class="string">"internet_cafe"</span>,
                 ],
             ),
             (
                 Activity::Errands,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;marketplace&quot;</span>,
-                    <span class="string">&quot;post_box&quot;</span>,
-                    <span class="string">&quot;photo_booth&quot;</span>,
-                    <span class="string">&quot;recycling&quot;</span>,
-                    <span class="string">&quot;townhall&quot;</span>,
+                    <span class="string">"marketplace"</span>,
+                    <span class="string">"post_box"</span>,
+                    <span class="string">"photo_booth"</span>,
+                    <span class="string">"recycling"</span>,
+                    <span class="string">"townhall"</span>,
                 ],
             ),
-            (Activity::Financial, <span class="macro">vec!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;atm&quot;</span>, <span class="string">&quot;bureau_de_change&quot;</span>]),
+            (Activity::Financial, <span class="macro">vec!</span>[<span class="string">"bank"</span>, <span class="string">"atm"</span>, <span class="string">"bureau_de_change"</span>]),
             (
                 Activity::Healthcare,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;baby_hatch&quot;</span>,
-                    <span class="string">&quot;clinic&quot;</span>,
-                    <span class="string">&quot;dentist&quot;</span>,
-                    <span class="string">&quot;doctors&quot;</span>,
-                    <span class="string">&quot;hospital&quot;</span>,
-                    <span class="string">&quot;nursing_home&quot;</span>,
-                    <span class="string">&quot;pharmacy&quot;</span>,
-                    <span class="string">&quot;social_facility&quot;</span>,
-                    <span class="string">&quot;veterinary&quot;</span>,
-                    <span class="string">&quot;childcare&quot;</span>,
+                    <span class="string">"baby_hatch"</span>,
+                    <span class="string">"clinic"</span>,
+                    <span class="string">"dentist"</span>,
+                    <span class="string">"doctors"</span>,
+                    <span class="string">"hospital"</span>,
+                    <span class="string">"nursing_home"</span>,
+                    <span class="string">"pharmacy"</span>,
+                    <span class="string">"social_facility"</span>,
+                    <span class="string">"veterinary"</span>,
+                    <span class="string">"childcare"</span>,
                 ],
             ),
-            (Activity::Work, <span class="macro">vec!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;clinic&quot;</span>]),
+            (Activity::Work, <span class="macro">vec!</span>[<span class="string">"bank"</span>, <span class="string">"clinic"</span>]),
         ];
 
         <span class="comment">// Find all buildings with a matching amenity
@@ -481,7 +483,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>current_location = TripEndpoint::Building(person.home);
         <span class="kw">for </span>(departure_time, activity) <span class="kw">in </span>schedule.activities {
-            <span class="comment">// TODO This field isn&#39;t that important; later we could map Activity to a TripPurpose
+            <span class="comment">// TODO This field isn't that important; later we could map Activity to a TripPurpose
             // better.
             </span><span class="kw">let </span>purpose = TripPurpose::Shopping;
 
@@ -493,7 +495,7 @@
                 <span class="comment">// No buildings satisfy the activity. Just go somewhere off-map.
                 </span>TripEndpoint::Border(<span class="kw-2">*</span>i)
             } <span class="kw">else </span>{
-                <span class="comment">// Broken map without borders. Don&#39;t crash, just skip the person
+                <span class="comment">// Broken map without borders. Don't crash, just skip the person
                 </span><span class="kw">continue</span>;
             };
 
@@ -535,14 +537,14 @@
     {
         path.total_length()
     } <span class="kw">else </span>{
-        <span class="comment">// If the buildings aren&#39;t connected, there was probably a bug importing the map. Just
-        // fallback to driving. If the trip can&#39;t be started in the simulation, it&#39;ll show up as
+        <span class="comment">// If the buildings aren't connected, there was probably a bug importing the map. Just
+        // fallback to driving. If the trip can't be started in the simulation, it'll show up as
         // cancelled with more details about the problem.
         </span><span class="kw">return </span>TripMode::Drive;
     };
 
     <span class="comment">// TODO If either endpoint is in an access-restricted zone (like a living street), then
-    // probably don&#39;t drive there. Actually, it depends on the specific tagging; access=no in the
+    // probably don't drive there. Actually, it depends on the specific tagging; access=no in the
     // US usually means a gated community.
 
     // TODO Make this probabilistic
@@ -562,7 +564,7 @@
 
     <span class="comment">// Sometimes bike or walk for moderate trips
     </span><span class="kw">if </span>distance &lt; config.walk_or_bike_for_distances_shorter_than {
-        <span class="comment">// TODO We could move all of these params to Config, but I&#39;m not sure if the overall flow
+        <span class="comment">// TODO We could move all of these params to Config, but I'm not sure if the overall flow
         // of logic in this function is what we want yet.
         </span><span class="kw">if </span>rng.gen_bool(<span class="number">0.15</span>) {
             <span class="kw">return </span>TripMode::Bike;

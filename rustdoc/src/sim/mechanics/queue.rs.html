@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/queue.rs`."><title>queue.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/queue.rs`."><title>queue.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -642,28 +644,28 @@
 ///
 /// Some helpful pieces of terminology:
 ///
-/// - a &quot;laggy head&quot; is a vehicle whose front is now past the end of this queue, but whose back may
+/// - a "laggy head" is a vehicle whose front is now past the end of this queue, but whose back may
 ///   still be partially in the queue. The position of the first car in the queue is still bounded
-///   by the laggy head&#39;s back.
-/// - a &quot;static blockage&quot; is due to a vehicle exiting a driveway and immediately cutting across a
-///   few lanes. The &quot;static&quot; part means it occupies a fixed interval of distance in the queue. When
+///   by the laggy head's back.
+/// - a "static blockage" is due to a vehicle exiting a driveway and immediately cutting across a
+///   few lanes. The "static" part means it occupies a fixed interval of distance in the queue. When
 ///   the vehicle is finished exiting the driveway, this blockage is removed.
-/// - a &quot;dynamic blockage&quot; is due to a vehicle changing lanes in the middle of the queue. The exact
+/// - a "dynamic blockage" is due to a vehicle changing lanes in the middle of the queue. The exact
 ///   position of the blockage in this queue is unknown (it depends on the target queue). The
-///   blockage just occupies the length of the vehicle and keeps following whatever&#39;s in front of
+///   blockage just occupies the length of the vehicle and keeps following whatever's in front of
 ///   it.
-/// - &quot;active cars&quot; are the main members of the queue -- everything except for laggy heads and
+/// - "active cars" are the main members of the queue -- everything except for laggy heads and
 ///   blockages.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Queue {
     <span class="kw">pub </span>id: Traversable,
     members: VecDeque&lt;Queued&gt;,
-    <span class="doccomment">/// This car&#39;s back is still partly in this queue.
+    <span class="doccomment">/// This car's back is still partly in this queue.
     </span><span class="kw">pub </span>laggy_head: <span class="prelude-ty">Option</span>&lt;CarID&gt;,
 
     <span class="doccomment">/// How long the lane or turn physically is.
     </span><span class="kw">pub </span>geom_len: Distance,
-    <span class="doccomment">/// When a car&#39;s turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
+    <span class="doccomment">/// When a car's turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
     /// target lane. When the car completely leaves (stops being the laggy_head), free up that
     /// space. To prevent blocking the box for possibly scary amounts of time, allocate some of
     /// this length first. This is unused for turns themselves. This value can exceed geom_len
@@ -683,7 +685,7 @@
         front: Distance,
         back: Distance,
     },
-    <span class="doccomment">/// This follows whatever&#39;s in front of it
+    <span class="doccomment">/// This follows whatever's in front of it
     </span>DynamicBlockage {
         <span class="doccomment">/// This vehicle is in the middle of changing lanes
         </span>cause: CarID,
@@ -752,7 +754,7 @@
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="comment">// TODO Consider simplifying this loop&#39;s structure. Calculate the bound here before
+        <span class="comment">// TODO Consider simplifying this loop's structure. Calculate the bound here before
         // starting the loop, handling the laggy head case.
         </span><span class="kw">let </span><span class="kw-2">mut </span>previous: <span class="prelude-ty">Option</span>&lt;QueueEntry&gt; = <span class="prelude-val">None</span>;
         <span class="kw">for </span>queued <span class="kw">in </span><span class="self">self</span>.members.iter().cloned() {
@@ -767,20 +769,20 @@
                         // is on their queue.
                         </span><span class="kw">let </span>leader = <span class="kw-2">&amp;</span>cars[<span class="kw-2">&amp;</span>id];
 
-                        <span class="comment">// But don&#39;t create a cycle!
+                        <span class="comment">// But don't create a cycle!
                         </span><span class="kw">let </span>recurse_to = leader.router.head();
                         <span class="kw">if </span>recursed_queues.contains(<span class="kw-2">&amp;</span>recurse_to) {
                             <span class="comment">// See the picture in
                             // https://github.com/a-b-street/abstreet/issues/30. We have two
                             // extremes to break the cycle.
                             //
-                            // 1) Hope that the last person in this queue isn&#39;t bounded by the
+                            // 1) Hope that the last person in this queue isn't bounded by the
                             //    agent in front of them yet. geom_len
                             // 2) Assume the leader has advanced minimally into the next lane.
-                            //    geom_len - laggy head&#39;s length - FOLLOWING_DISTANCE.
+                            //    geom_len - laggy head's length - FOLLOWING_DISTANCE.
                             //
-                            // For now, optimistically assume 1. If we&#39;re wrong, consequences could
-                            // be queue spillover (we&#39;re too optimistic about the number of
+                            // For now, optimistically assume 1. If we're wrong, consequences could
+                            // be queue spillover (we're too optimistic about the number of
                             // vehicles that can fit on a lane) or cars jumping positions slightly
                             // while the cycle occurs.
                             </span><span class="self">self</span>.geom_len
@@ -805,7 +807,7 @@
                                 }
                                 dist_away_from_this_queue += queues[on].geom_len;
                             }
-                            <span class="comment">// They might actually be out of the way, but laggy_head hasn&#39;t been
+                            <span class="comment">// They might actually be out of the way, but laggy_head hasn't been
                             // updated yet.
                             </span><span class="kw">if </span>dist_away_from_this_queue
                                 &lt; leader.vehicle.length + FOLLOWING_DISTANCE
@@ -822,15 +824,15 @@
                 },
             };
 
-            <span class="comment">// There&#39;s spillover and a car shouldn&#39;t have been able to enter yet.
+            <span class="comment">// There's spillover and a car shouldn't have been able to enter yet.
             </span><span class="kw">if </span>bound &lt; Distance::ZERO {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(intermediate_results) = intermediate_results {
                     dump_cars(intermediate_results, cars, <span class="self">self</span>.id, now);
                 }
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Queue has spillover on {} at {} -- can&#39;t draw {:?}, bound is {}. Laggy head is \
+                    <span class="string">"Queue has spillover on {} at {} -- can't draw {:?}, bound is {}. Laggy head is \
                      {:?}. This is usually a geometry bug; check for duplicate roads going \
-                     between the same intersections.&quot;</span>,
+                     between the same intersections."</span>,
                     <span class="self">self</span>.id, now, queued, bound, <span class="self">self</span>.laggy_head
                 );
             }
@@ -851,7 +853,7 @@
                                 <span class="kw">if let </span><span class="prelude-val">Some</span>(intermediate_results) = intermediate_results {
                                     dump_cars(intermediate_results, cars, <span class="self">self</span>.id, now);
                                 }
-                                <span class="macro">panic!</span>(<span class="string">&quot;{} is waiting to advance on {}, but the current bound is {}, not geom_len {}. How can anything be in front of them?&quot;</span>, id, <span class="self">self</span>.id, bound, <span class="self">self</span>.geom_len);
+                                <span class="macro">panic!</span>(<span class="string">"{} is waiting to advance on {}, but the current bound is {}, not geom_len {}. How can anything be in front of them?"</span>, id, <span class="self">self</span>.id, bound, <span class="self">self</span>.geom_len);
                             }
                             <span class="self">self</span>.geom_len
                         }
@@ -890,7 +892,7 @@
                 Queued::DynamicBlockage { vehicle_len, .. } =&gt; QueueEntry {
                     member: queued,
                     <span class="comment">// This is a reasonable guess, because a vehicle only starts changing lanes if
-                    // there&#39;s something slower in front of it. So we assume that slow vehicle
+                    // there's something slower in front of it. So we assume that slow vehicle
                     // continues to exist for the 1 second that lane-changing takes. If for some
                     // reason that slower leader vanishes, this bound could jump up, which just
                     // causes anything following the lane-changing vehicle to be able to go a
@@ -940,13 +942,13 @@
             <span class="prelude-val">None </span>=&gt; dists.len(),
         };
 
-        <span class="comment">// Nope, there&#39;s not actually room at the front right now.
+        <span class="comment">// Nope, there's not actually room at the front right now.
         // (This is overly conservative; we could figure out exactly where the laggy head is and
         // maybe allow it.)
         </span><span class="kw">if </span>idx == <span class="number">0 </span>{
             <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.laggy_head {
-                <span class="comment">// We don&#39;t know exactly where the laggy head is. So assume the worst case; that
-                // they&#39;ve just barely started the turn, and we have to use the same
+                <span class="comment">// We don't know exactly where the laggy head is. So assume the worst case; that
+                // they've just barely started the turn, and we have to use the same
                 // too-close-to-leader math.
                 //
                 // TODO We can be more precise! We already call get_car_positions, and that
@@ -977,13 +979,13 @@
         <span class="self">self</span>.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
     }
 
-    <span class="doccomment">/// Record that a car has entered a queue at the end. It&#39;s assumed that try_to_reserve_entry
+    <span class="doccomment">/// Record that a car has entered a queue at the end. It's assumed that try_to_reserve_entry
     /// has already happened.
     </span><span class="kw">pub fn </span>push_car_onto_end(<span class="kw-2">&amp;mut </span><span class="self">self</span>, car: CarID) {
         <span class="self">self</span>.members.push_back(Queued::Vehicle(car));
     }
 
-    <span class="doccomment">/// Change the first car in the queue to the laggy head, indicating that it&#39;s front has left
+    <span class="doccomment">/// Change the first car in the queue to the laggy head, indicating that it's front has left
     /// the queue, but its back is still there. Return that car.
     </span><span class="kw">pub fn </span>move_first_car_to_laggy_head(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; CarID {
         <span class="macro">assert!</span>(<span class="self">self</span>.laggy_head.is_none());
@@ -991,7 +993,7 @@
             <span class="prelude-val">Some</span>(Queued::Vehicle(c)) =&gt; c,
             x =&gt; {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;First member of {} is {:?}, not an active vehicle&quot;</span>,
+                    <span class="string">"First member of {} is {:?}, not an active vehicle"</span>,
                     <span class="self">self</span>.id, x
                 );
             }
@@ -1000,17 +1002,17 @@
         car
     }
 
-    <span class="doccomment">/// If true, there&#39;s room and the car must actually start the turn (because the space is
+    <span class="doccomment">/// If true, there's room and the car must actually start the turn (because the space is
     /// reserved).
     </span><span class="kw">pub fn </span>try_to_reserve_entry(<span class="kw-2">&amp;mut </span><span class="self">self</span>, car: <span class="kw-2">&amp;</span>Car, force_entry: bool) -&gt; bool {
         <span class="comment">// If self.reserved_length &gt;= self.geom_len, then the lane is already full. Normally we
-        // won&#39;t allow more cars to start a turn towards it, but if force_entry is true, then we&#39;ll
+        // won't allow more cars to start a turn towards it, but if force_entry is true, then we'll
         // allow it.
 
         // Sometimes a car + FOLLOWING_DISTANCE might be longer than the geom_len entirely. In that
-        // case, it just means the car won&#39;t totally fit on the queue at once, which is fine.
+        // case, it just means the car won't totally fit on the queue at once, which is fine.
         // Reserve the normal amount of space; the next car trying to enter will get rejected.
-        // Also allow this don&#39;t-block-the-box prevention to be disabled.
+        // Also allow this don't-block-the-box prevention to be disabled.
         </span><span class="kw">if </span><span class="self">self</span>.room_for_car(car) || force_entry {
             <span class="self">self</span>.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
             <span class="kw">return </span><span class="bool-val">true</span>;
@@ -1035,7 +1037,7 @@
         <span class="self">self</span>.reserved_length -= car.vehicle.length + FOLLOWING_DISTANCE;
         <span class="macro">assert!</span>(
             <span class="self">self</span>.reserved_length &gt;= Distance::ZERO,
-            <span class="string">&quot;invalid reserved length: {:?}, car: {:?}&quot;</span>,
+            <span class="string">"invalid reserved length: {:?}, car: {:?}"</span>,
             <span class="self">self</span>.reserved_length,
             car
         );
@@ -1066,8 +1068,8 @@
         (num_vehicles, bike_cost)
     }
 
-    <span class="doccomment">/// Find the vehicle in front of the specified input. None if the specified vehicle isn&#39;t
-    /// ACTIVE (not a blockage) in the queue at all, or they&#39;re the front (with or without a laggy
+    <span class="doccomment">/// Find the vehicle in front of the specified input. None if the specified vehicle isn't
+    /// ACTIVE (not a blockage) in the queue at all, or they're the front (with or without a laggy
     /// head).
     </span><span class="kw">pub fn </span>get_leader(<span class="kw-2">&amp;</span><span class="self">self</span>, id: CarID) -&gt; <span class="prelude-ty">Option</span>&lt;CarID&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>leader = <span class="prelude-val">None</span>;
@@ -1127,7 +1129,7 @@
                 vehicle_len: car.vehicle.length,
             },
         );
-        <span class="comment">// We don&#39;t need to touch reserved_length -- it&#39;s still vehicle_len + FOLLOWING_DISTANCE
+        <span class="comment">// We don't need to touch reserved_length -- it's still vehicle_len + FOLLOWING_DISTANCE
     </span>}
 
     <span class="doccomment">/// Record that a car is no longer blocking a dynamic portion of the queue.
@@ -1176,7 +1178,7 @@
         <span class="macro">assert_eq!</span>(<span class="self">self</span>.members.remove(idx), <span class="prelude-val">Some</span>(Queued::Vehicle(car)));
     }
 
-    <span class="doccomment">/// If a car thinks it&#39;s reached the end of the queue, double check. Blockages or laggy heads
+    <span class="doccomment">/// If a car thinks it's reached the end of the queue, double check. Blockages or laggy heads
     /// might be in the way.
     </span><span class="kw">pub fn </span>is_car_at_front(<span class="kw-2">&amp;</span><span class="self">self</span>, car: CarID) -&gt; bool {
         <span class="self">self</span>.laggy_head.is_none() &amp;&amp; <span class="self">self</span>.members.get(<span class="number">0</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>Queued::Vehicle(car))
@@ -1193,7 +1195,7 @@
         <span class="kw">if </span>pair[<span class="number">0</span>].back - FOLLOWING_DISTANCE &lt; pair[<span class="number">1</span>].front {
             dump_cars(dists, cars, id, now);
             <span class="macro">panic!</span>(
-                <span class="string">&quot;get_car_positions wound up with bad positioning: {} then {}\n{:?}&quot;</span>,
+                <span class="string">"get_car_positions wound up with bad positioning: {} then {}\n{:?}"</span>,
                 pair[<span class="number">0</span>].front, pair[<span class="number">1</span>].front, dists
             );
         }
@@ -1201,9 +1203,9 @@
 }
 
 <span class="kw">fn </span>dump_cars(dists: <span class="kw-2">&amp;</span>[QueueEntry], cars: <span class="kw-2">&amp;</span>FixedMap&lt;CarID, Car&gt;, id: Traversable, now: Time) {
-    <span class="macro">println!</span>(<span class="string">&quot;\nOn {} at {}...&quot;</span>, id, now);
+    <span class="macro">println!</span>(<span class="string">"\nOn {} at {}..."</span>, id, now);
     <span class="kw">for </span>entry <span class="kw">in </span>dists {
-        <span class="macro">println!</span>(<span class="string">&quot;- {:?} @ {}..{}&quot;</span>, entry.member, entry.front, entry.back);
+        <span class="macro">println!</span>(<span class="string">"- {:?} @ {}..{}"</span>, entry.member, entry.front, entry.back);
         <span class="kw">match </span>entry.member {
             Queued::Vehicle(id) =&gt; <span class="kw">match </span>cars[<span class="kw-2">&amp;</span>id].state {
                 CarState::Crossing {
@@ -1212,7 +1214,7 @@
                     ..
                 } =&gt; {
                     <span class="macro">println!</span>(
-                        <span class="string">&quot;  Going {} .. {} during {} .. {}&quot;</span>,
+                        <span class="string">"  Going {} .. {} during {} .. {}"</span>,
                         dist_int.start, dist_int.end, time_int.start, time_int.end
                     );
                 }
@@ -1222,31 +1224,31 @@
                     ..
                 } =&gt; {
                     <span class="macro">println!</span>(
-                        <span class="string">&quot;  Going {} .. {} during {} .. {}, also in the middle of lane-changing&quot;</span>,
+                        <span class="string">"  Going {} .. {} during {} .. {}, also in the middle of lane-changing"</span>,
                         new_dist.start, new_dist.end, new_time.start, new_time.end
                     );
                 }
                 CarState::Queued { .. } =&gt; {
-                    <span class="macro">println!</span>(<span class="string">&quot;  Queued currently&quot;</span>);
+                    <span class="macro">println!</span>(<span class="string">"  Queued currently"</span>);
                 }
                 CarState::WaitingToAdvance { .. } =&gt; {
-                    <span class="macro">println!</span>(<span class="string">&quot;  WaitingToAdvance currently&quot;</span>);
+                    <span class="macro">println!</span>(<span class="string">"  WaitingToAdvance currently"</span>);
                 }
                 CarState::Unparking { <span class="kw-2">ref </span>time_int, .. } =&gt; {
-                    <span class="macro">println!</span>(<span class="string">&quot;  Unparking during {} .. {}&quot;</span>, time_int.start, time_int.end);
+                    <span class="macro">println!</span>(<span class="string">"  Unparking during {} .. {}"</span>, time_int.start, time_int.end);
                 }
                 CarState::Parking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; {
-                    <span class="macro">println!</span>(<span class="string">&quot;  Parking during {} .. {}&quot;</span>, time_int.start, time_int.end);
+                    <span class="macro">println!</span>(<span class="string">"  Parking during {} .. {}"</span>, time_int.start, time_int.end);
                 }
                 CarState::IdlingAtStop(<span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; {
-                    <span class="macro">println!</span>(<span class="string">&quot;  Idling during {} .. {}&quot;</span>, time_int.start, time_int.end);
+                    <span class="macro">println!</span>(<span class="string">"  Idling during {} .. {}"</span>, time_int.start, time_int.end);
                 }
             },
             Queued::StaticBlockage { cause, .. } =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;  Static blockage by {}&quot;</span>, cause);
+                <span class="macro">println!</span>(<span class="string">"  Static blockage by {}"</span>, cause);
             }
             Queued::DynamicBlockage { cause, vehicle_len } =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;  Dynamic blockage of length {} by {}&quot;</span>, vehicle_len, cause);
+                <span class="macro">println!</span>(<span class="string">"  Dynamic blockage of length {} by {}"</span>, vehicle_len, cause);
             }
         }
     }

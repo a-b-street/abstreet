@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/io.rs`."><title>io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="abstio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/io.rs`."><title>io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="abstio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../abstio/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -101,35 +103,35 @@
 <span class="kw">use crate</span>::{list_dir, maybe_read_binary, slurp_file};
 
 <span class="kw">pub fn </span>maybe_read_json&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
-    <span class="kw">if </span>!path.ends_with(<span class="string">&quot;.json&quot;</span>) &amp;&amp; !path.ends_with(<span class="string">&quot;.geojson&quot;</span>) {
-        <span class="macro">bail!</span>(<span class="string">&quot;read_json needs {} to end with .json or .geojson&quot;</span>, path);
+    <span class="kw">if </span>!path.ends_with(<span class="string">".json"</span>) &amp;&amp; !path.ends_with(<span class="string">".geojson"</span>) {
+        <span class="macro">bail!</span>(<span class="string">"read_json needs {} to end with .json or .geojson"</span>, path);
     }
 
-    timer.start(<span class="macro">format!</span>(<span class="string">&quot;parse {}&quot;</span>, path));
-    <span class="comment">// TODO timer.read_file isn&#39;t working here. And we need to call stop() if there&#39;s no file.
+    timer.start(<span class="macro">format!</span>(<span class="string">"parse {}"</span>, path));
+    <span class="comment">// TODO timer.read_file isn't working here. And we need to call stop() if there's no file.
     </span><span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;T&gt; =
         slurp_file(<span class="kw-2">&amp;</span>path).and_then(|raw| serde_json::from_slice(<span class="kw-2">&amp;</span>raw).map_err(|err| err.into()));
-    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;parse {}&quot;</span>, path));
+    timer.stop(<span class="macro">format!</span>(<span class="string">"parse {}"</span>, path));
     result
 }
 
 <span class="kw">pub fn </span>read_json&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; T {
     <span class="kw">match </span>maybe_read_json(path.clone(), timer) {
         <span class="prelude-val">Ok</span>(obj) =&gt; obj,
-        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_json({}): {}&quot;</span>, path, err),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"Couldn't read_json({}): {}"</span>, path, err),
     }
 }
 
 <span class="kw">pub fn </span>read_binary&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; T {
     <span class="kw">match </span>maybe_read_binary(path.clone(), timer) {
         <span class="prelude-val">Ok</span>(obj) =&gt; obj,
-        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_binary({}): {}&quot;</span>, path, err),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"Couldn't read_binary({}): {}"</span>, path, err),
     }
 }
 
 <span class="doccomment">/// May be a JSON or binary file
 </span><span class="kw">pub fn </span>read_object&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
-    <span class="kw">if </span>path.ends_with(<span class="string">&quot;.bin&quot;</span>) {
+    <span class="kw">if </span>path.ends_with(<span class="string">".bin"</span>) {
         maybe_read_binary(path, timer)
     } <span class="kw">else </span>{
         maybe_read_json(path, timer)
@@ -140,7 +142,7 @@
 </span><span class="kw">pub fn </span>must_read_object&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; T {
     <span class="kw">match </span>read_object(path.clone(), timer) {
         <span class="prelude-val">Ok</span>(obj) =&gt; obj,
-        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_object({}): {}&quot;</span>, path, err),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"Couldn't read_object({}): {}"</span>, path, err),
     }
 }
 
@@ -159,7 +161,7 @@
 <span class="doccomment">/// Load all serialized things from a directory, return sorted by name, with file extension removed.
 /// Detects JSON or binary. Filters out broken files.
 </span><span class="kw">pub fn </span>load_all_objects&lt;T: DeserializeOwned&gt;(dir: String) -&gt; Vec&lt;(String, T)&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(<span class="string">&quot;load_all_objects from {}&quot;</span>, dir));
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(<span class="string">"load_all_objects from {}"</span>, dir));
     <span class="kw">let </span><span class="kw-2">mut </span>tree: BTreeMap&lt;String, T&gt; = BTreeMap::new();
     <span class="kw">for </span>path <span class="kw">in </span>list_dir(dir) {
         <span class="kw">match </span>read_object(path.clone(), <span class="kw-2">&amp;mut </span>timer) {
@@ -167,7 +169,7 @@
                 tree.insert(basename(path), obj);
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;Couldn&#39;t load {}: {}&quot;</span>, path, err);
+                <span class="macro">error!</span>(<span class="string">"Couldn't load {}: {}"</span>, path, err);
             }
         }
     }
@@ -181,7 +183,7 @@
     list_dir(dir)
         .into_iter()
         .map(basename)
-        .filter(|x| !x.starts_with(<span class="string">&quot;.&quot;</span>))
+        .filter(|x| !x.starts_with(<span class="string">"."</span>))
         .collect()
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/logic/shortcuts.rs`."><title>shortcuts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/logic/shortcuts.rs`."><title>shortcuts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -246,7 +248,7 @@
         //
         // But an entrance and exit to _what_? If we try to route from the entrance to one cell to the
         // exit of another, then the route will make strange U-turns and probably use the perimeter. By
-        // definition, two cells aren&#39;t reachable without using the perimeter. So restrict our search
+        // definition, two cells aren't reachable without using the perimeter. So restrict our search
         // to pairs of entrances/exits in the _same_ cell.
         </span><span class="kw">let </span><span class="kw-2">mut </span>requests = Vec::new();
 
@@ -256,10 +258,10 @@
 
             <span class="kw">for </span>entrance <span class="kw">in </span><span class="kw-2">&amp;</span>entrances {
                 <span class="kw">for </span>exit <span class="kw">in </span><span class="kw-2">&amp;</span>exits {
-                    <span class="comment">// Most of the time, an entrance/exit connects to only &quot;one&quot; major road. But where
-                    // a road name changes, or two major roads meet, we&#39;ll have multiple. If two
+                    <span class="comment">// Most of the time, an entrance/exit connects to only "one" major road. But where
+                    // a road name changes, or two major roads meet, we'll have multiple. If two
                     // corners meet and share one main road, still consider that a shortcut -- it might
-                    // be a &quot;false positive&quot; or there could be some legitimate reason for a driver to
+                    // be a "false positive" or there could be some legitimate reason for a driver to
                     // attempt the shortcut.
                     </span><span class="kw">if </span>entrance.major_road_names != exit.major_road_names {
                         requests.push(PathRequest::vehicle(
@@ -272,7 +274,7 @@
             }
         }
 
-        <span class="comment">// Short-circuit for performance. This happens for &quot;degenerate&quot; neighbourhoods without any
+        <span class="comment">// Short-circuit for performance. This happens for "degenerate" neighbourhoods without any
         // internal roads, usually near the map edge, between dual carriageways, etc.
         </span><span class="kw">if </span>requests.is_empty() {
             <span class="kw">return </span><span class="self">Self</span>::empty();
@@ -280,16 +282,16 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>params = map.routing_params_respecting_modal_filters();
 
-        <span class="comment">// Restrict the pathfinding to the interior of the neighbourhood only. Don&#39;t allow using
+        <span class="comment">// Restrict the pathfinding to the interior of the neighbourhood only. Don't allow using
         // perimeter roads or leaving and re-entering at all.
         //
         // The point of this view is to show possible detours people might try to take in response to
-        // one filter. Note the original &quot;demand model&quot; input is bogus anyway; it&#39;s all possible
+        // one filter. Note the original "demand model" input is bogus anyway; it's all possible
         // entrances and exits to the neighbourhood, without regards for the larger path somebody
         // actually wants to take.
         </span>params.only_use_roads = neighbourhood.interior_roads.clone();
 
-        <span class="comment">// Also can&#39;t use private roads
+        <span class="comment">// Also can't use private roads
         </span><span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>neighbourhood.interior_roads {
             <span class="kw">if </span>!<span class="kw">crate</span>::is_driveable(map.get_r(<span class="kw-2">*</span>r), map) {
                 params.avoid_roads.insert(<span class="kw-2">*</span>r);
@@ -297,11 +299,11 @@
         }
 
         <span class="comment">// TODO Perf: when would it be worth creating a CH? Especially if we could subset just this
-        // part of the graph, it&#39;d probably be helpful.
+        // part of the graph, it'd probably be helpful.
         </span><span class="kw">let </span>pathfinder = Pathfinder::new_dijkstra(map, params, <span class="macro">vec!</span>[PathConstraints::Car], timer);
         <span class="kw">let </span>paths: Vec&lt;PathV2&gt; = timer
             .parallelize(
-                <span class="string">&quot;calculate paths between entrances and exits&quot;</span>,
+                <span class="string">"calculate paths between entrances and exits"</span>,
                 requests,
                 |req| pathfinder.pathfind_v2(req, map),
             )
@@ -311,8 +313,8 @@
 
         <span class="comment">// TODO Rank the likeliness of each shortcut by
         // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
-        //    starting and ending on a specific road that makes sense. (We have to pick the &#39;direction&#39;
-        //    along the perimeter roads that&#39;s sensible.)
+        //    starting and ending on a specific road that makes sense. (We have to pick the 'direction'
+        //    along the perimeter roads that's sensible.)
         // 2) Comparing that time to the time for cutting through
 
         </span>Shortcuts::from_paths(neighbourhood, paths)
@@ -335,7 +337,7 @@
                             count_per_intersection.inc(m.parent);
                         }
                     }
-                    <span class="comment">// Car paths don&#39;t make contraflow movements
+                    <span class="comment">// Car paths don't make contraflow movements
                     </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
             }

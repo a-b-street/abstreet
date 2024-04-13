@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/driving.rs`."><title>driving.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/driving.rs`."><title>driving.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1738,8 +1740,8 @@
     // is random, determinism in the simulation is preserved, because nothing iterates over
     // everything.
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_hashmap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_hashmap&quot;
+        serialize_with = <span class="string">"serialize_hashmap"</span>,
+        deserialize_with = <span class="string">"deserialize_hashmap"
     </span>)]
     </span>queues: HashMap&lt;Traversable, Queue&gt;,
     events: Vec&lt;Event&gt;,
@@ -1802,27 +1804,27 @@
         <span class="kw">let </span>first_lane = params.router.head().as_lane();
         <span class="kw">let </span><span class="kw-2">mut </span>start_dist = params.router.get_path().get_req().start.dist_along();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>p) = params.maybe_parked_car {
-            <span class="comment">// If we&#39;re exiting a driveway, make the front of the vehicle wind up in the correct
+            <span class="comment">// If we're exiting a driveway, make the front of the vehicle wind up in the correct
             // spot after the driveway. We could attempt to do this when we create the PathRequest,
-            // but it&#39;s complicated to adjust the position correctly, and this is the only place
+            // but it's complicated to adjust the position correctly, and this is the only place
             // that needs to know.
             </span><span class="kw">if </span>!<span class="macro">matches!</span>(p.spot, ParkingSpot::Onstreet(<span class="kw">_</span>, <span class="kw">_</span>)) {
                 start_dist += params.vehicle.length;
                 <span class="comment">// TODO Should we also adjust the request?
                 </span><span class="kw">if </span>start_dist &gt; ctx.map.get_l(first_lane).length() {
                     <span class="macro">error!</span>(
-                        <span class="string">&quot;At {}, {} needs to exit a driveway at {} on {}, but they overflow&quot;</span>,
+                        <span class="string">"At {}, {} needs to exit a driveway at {} on {}, but they overflow"</span>,
                         now, params.vehicle.id, start_dist, first_lane
                     );
-                    <span class="comment">// Ideally we&#39;d snap driveways to a point such that all equivalent positions
-                    // don&#39;t overflow, but until then, just have an unrealistic exit!
+                    <span class="comment">// Ideally we'd snap driveways to a point such that all equivalent positions
+                    // don't overflow, but until then, just have an unrealistic exit!
                     </span>start_dist -= params.vehicle.length;
                 }
             }
         }
 
         <span class="comment">// First handle any of the intermediate queues, failing fast. Record the position of the
-        // blockage&#39;s front and the index in that queue.
+        // blockage's front and the index in that queue.
         </span><span class="kw">let </span><span class="kw-2">mut </span>blocked_starts: Vec&lt;(Position, usize)&gt; = Vec::new();
         <span class="kw">for </span>lane <span class="kw">in </span>params.router.get_path().get_blocked_starts() {
             <span class="comment">// This buffer makes sure other vehicles can enter the queue behind a blockage very
@@ -1842,7 +1844,7 @@
                     // lanes...
                     // Also this is super spammy
                     </span><span class="kw">if </span><span class="bool-val">false </span>{
-                        <span class="macro">warn!</span>(<span class="string">&quot;Not inserting a static blockage on {} at {} for {} to spawn, because the lane is too short&quot;</span>, lane, now, params.vehicle.id);
+                        <span class="macro">warn!</span>(<span class="string">"Not inserting a static blockage on {} at {} for {} to spawn, because the lane is too short"</span>, lane, now, params.vehicle.id);
                     }
                     <span class="kw">continue</span>;
                 }
@@ -1864,7 +1866,7 @@
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Some</span>(params);
             }
-            <span class="comment">// TODO What&#39;s the purpose of nobody_headed_towards again? Do we need to enforce it for
+            <span class="comment">// TODO What's the purpose of nobody_headed_towards again? Do we need to enforce it for
             // intermediate lanes too?
         </span>}
 
@@ -1946,18 +1948,18 @@
                         <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(ActionAtEnd::GotoLaneEnd) =&gt; {}
                         x =&gt; {
                             <span class="macro">panic!</span>(
-                                <span class="string">&quot;Car with one-step route {:?} had unexpected result from \
-                                 maybe_handle_end: {:?}&quot;</span>,
+                                <span class="string">"Car with one-step route {:?} had unexpected result from \
+                                 maybe_handle_end: {:?}"</span>,
                                 car.router, x
                             );
                         }
                     }
-                    <span class="comment">// We might&#39;ve decided to go park somewhere farther, so get_end_dist no longer
+                    <span class="comment">// We might've decided to go park somewhere farther, so get_end_dist no longer
                     // makes sense.
                     </span><span class="kw">if </span>car.router.last_step() &amp;&amp; start_dist &gt; car.router.get_end_dist() {
                         <span class="macro">println!</span>(
-                            <span class="string">&quot;WARNING: {} wants to spawn at {}, which is past their end of {} on a \
-                             one-step path {}&quot;</span>,
+                            <span class="string">"WARNING: {} wants to spawn at {}, which is past their end of {} on a \
+                             one-step path {}"</span>,
                             car.vehicle.id,
                             start_dist,
                             car.router.get_end_dist(),
@@ -1981,7 +1983,7 @@
             <span class="self">self</span>.waiting_to_spawn.remove(<span class="kw-2">&amp;</span>car.vehicle.id);
 
             <span class="kw">if </span>start_crossing {
-                <span class="comment">// Don&#39;t call this earlier where we set crossing_state, because we&#39;re not in the
+                <span class="comment">// Don't call this earlier where we set crossing_state, because we're not in the
                 // queue yet
                 </span><span class="self">self</span>.new_crossing_state(ctx, <span class="kw-2">&amp;</span>car);
             }
@@ -2016,7 +2018,7 @@
     /// Why is it safe to process cars in any order, rather than making sure to follow the order
     /// of queues? Because of the invariant that distances should never suddenly jump when a car
     /// has entered/exiting a queue.
-    /// This car might have reached the router&#39;s end distance, but maybe not -- might
+    /// This car might have reached the router's end distance, but maybe not -- might
     /// actually be stuck behind other cars. We have to calculate the distances right now to
     /// be sure.
     </span><span class="kw">pub fn </span>update_car(
@@ -2073,7 +2075,7 @@
         }
     }
 
-    <span class="comment">// If this returns true, we need to immediately run update_car_with_distances. If we don&#39;t,
+    <span class="comment">// If this returns true, we need to immediately run update_car_with_distances. If we don't,
     // then the car will briefly be Queued and might immediately become something else, which
     // affects how leaders update followers.
     </span><span class="kw">fn </span>update_car_without_distances(
@@ -2143,8 +2145,8 @@
                     // the same queue that the unparking car is in!). Use that to update the
                     // follower.
                     //
-                    // It SHOULD be fine that the current car isn&#39;t currently in self.cars; the
-                    // static blockage doesn&#39;t need it. But calculating positions on one queue may
+                    // It SHOULD be fine that the current car isn't currently in self.cars; the
+                    // static blockage doesn't need it. But calculating positions on one queue may
                     // recurse to the queue where the current car is. So temporarily make the car
                     // visible in this query.
                     </span><span class="self">self</span>.cars.insert(car.vehicle.id, car.clone());
@@ -2168,7 +2170,7 @@
                 }
 
                 <span class="kw">if </span>car.router.last_step() {
-                    <span class="comment">// Actually, we need to do this first. Ignore the answer -- if we&#39;re doing
+                    <span class="comment">// Actually, we need to do this first. Ignore the answer -- if we're doing
                     // something weird like vanishing or re-parking immediately (quite unlikely),
                     // the next loop will pick that up. Just trigger the side effect of choosing an
                     // end_dist.
@@ -2187,7 +2189,7 @@
                 <span class="self">self</span>.new_crossing_state(ctx, car);
             }
             CarState::WaitingToAdvance { blocked_since } =&gt; {
-                <span class="comment">// &#39;car&#39; is the leader.
+                <span class="comment">// 'car' is the leader.
                 </span><span class="kw">let </span>from = car.router.head();
                 <span class="kw">let </span>goto = car.router.next();
                 <span class="macro">assert!</span>(from != goto);
@@ -2206,7 +2208,7 @@
                         ctx.scheduler,
                         <span class="prelude-val">Some</span>((car, <span class="kw-2">&amp;</span><span class="self">self</span>.cars, <span class="kw-2">&amp;mut </span><span class="self">self</span>.queues)),
                     ) {
-                        <span class="comment">// Don&#39;t schedule a retry here.
+                        <span class="comment">// Don't schedule a retry here.
                         </span><span class="kw">return </span><span class="bool-val">false</span>;
                     }
                     <span class="kw">if let </span><span class="prelude-val">Some</span>((trip, <span class="kw">_</span>)) = car.trip_and_person {
@@ -2224,7 +2226,7 @@
                     <span class="macro">assert_eq!</span>(queue.move_first_car_to_laggy_head(), car.vehicle.id);
                 }
 
-                <span class="comment">// We do NOT need to update the follower. If they were Queued, they&#39;ll remain that
+                <span class="comment">// We do NOT need to update the follower. If they were Queued, they'll remain that
                 // way, until laggy_head is None.
 
                 </span><span class="kw">let </span>last_step = car.router.advance(
@@ -2249,11 +2251,11 @@
                     </span>},
                 ));
 
-                <span class="comment">// Don&#39;t mark turn_finished until our back is out of the turn.
+                <span class="comment">// Don't mark turn_finished until our back is out of the turn.
                 </span>car.last_steps.push_front(last_step);
 
-                <span class="comment">// Optimistically assume we&#39;ll be out of the way ASAP.
-                // This is update, not push, because we might&#39;ve scheduled a blind retry too late,
+                <span class="comment">// Optimistically assume we'll be out of the way ASAP.
+                // This is update, not push, because we might've scheduled a blind retry too late,
                 // and the car actually crosses an entire new traversable in the meantime.
                 </span>ctx.scheduler.update(
                     car.crossing_state_with_end_dist(
@@ -2334,8 +2336,8 @@
                 blocked_since,
                 want_to_change_lanes,
             } =&gt; {
-                <span class="comment">// Two totally different reasons we&#39;ll wind up here: we want to lane-change, and
-                // we&#39;re on our last step.
+                <span class="comment">// Two totally different reasons we'll wind up here: we want to lane-change, and
+                // we're on our last step.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(target_lane) = want_to_change_lanes {
                     <span class="self">self</span>.try_start_lc(car, our_dist, idx, target_lane, now, ctx);
                     <span class="kw">return </span><span class="bool-val">true</span>;
@@ -2351,7 +2353,7 @@
                 ) {
                     <span class="prelude-val">Some</span>(ActionAtEnd::VanishAtBorder(i)) =&gt; {
                         car.total_blocked_time += now - blocked_since;
-                        <span class="comment">// Don&#39;t do this for buses
+                        <span class="comment">// Don't do this for buses
                         </span><span class="kw">if </span>car.trip_and_person.is_some() {
                             trips.car_or_bike_reached_border(
                                 now,
@@ -2369,9 +2371,9 @@
                         trips.cancel_trip(
                             now,
                             car.trip_and_person.unwrap().<span class="number">0</span>,
-                            <span class="string">&quot;no available parking anywhere&quot;</span>.to_string(),
-                            <span class="comment">// If we couldn&#39;t find parking normally, doesn&#39;t make sense to warp the
-                            // car to the destination. There&#39;s no parking!
+                            <span class="string">"no available parking anywhere"</span>.to_string(),
+                            <span class="comment">// If we couldn't find parking normally, doesn't make sense to warp the
+                            // car to the destination. There's no parking!
                             </span><span class="prelude-val">None</span>,
                             ctx,
                         );
@@ -2387,7 +2389,7 @@
                         };
                         car.state =
                             CarState::Parking(our_dist, spot, TimeInterval::new(now, now + delay));
-                        <span class="comment">// If we don&#39;t do this, then we might have another car creep up behind, see
+                        <span class="comment">// If we don't do this, then we might have another car creep up behind, see
                         // the spot free, and start parking too. This can happen with multiple
                         // lanes and certain vehicle lengths.
                         </span>ctx.parking.reserve_spot(spot, car.vehicle.id);
@@ -2439,13 +2441,13 @@
                         <span class="comment">// TODO For now, always use BLIND_RETRY_TO_REACH_END_DIST. Measured things
                         // to be slower otherwise. :(
                         /*
-                        // If this car wasn&#39;t blocked at all, when would it reach its goal?
+                        // If this car wasn't blocked at all, when would it reach its goal?
                         let ideal_end_time = match car.crossing_state(our_dist, now, map) {
                             CarState::Crossing { time_int, .. } =&gt; time_int.end,
                             _ =&gt; unreachable!(),
                         };
                         if ideal_end_time == now {
-                            // Haha, no such luck. We&#39;re super super close to the goal, but not
+                            // Haha, no such luck. We're super super close to the goal, but not
                             // quite there yet.
                             scheduler.push(now + BLIND_RETRY_TO_REACH_END_DIST, Command::UpdateCar(car.vehicle.id));
                         } else {
@@ -2507,7 +2509,7 @@
             .unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>car = <span class="self">self</span>.cars.remove(<span class="kw-2">&amp;</span>c).unwrap();
 
-        <span class="comment">// Hacks to delete cars that&#39;re mid-turn
+        <span class="comment">// Hacks to delete cars that're mid-turn
         </span><span class="kw">if let </span>Traversable::Turn(t) = car.router.head() {
             <span class="kw">let </span>queue = <span class="self">self</span>.queues.get_mut(<span class="kw-2">&amp;</span>car.router.head()).unwrap();
             <span class="comment">// delete_car_internal will call free_reserved_space, so this is necessary to balance
@@ -2544,7 +2546,7 @@
         {
             <span class="kw">let </span>queue = <span class="self">self</span>.queues.get_mut(<span class="kw-2">&amp;</span>car.router.head()).unwrap();
             queue.remove_car_from_idx(car.vehicle.id, idx);
-            <span class="comment">// trim_last_steps doesn&#39;t actually include the current queue!
+            <span class="comment">// trim_last_steps doesn't actually include the current queue!
             </span>queue.free_reserved_space(car);
             <span class="kw">let </span>i = <span class="kw">match </span>queue.id {
                 Traversable::Lane(l) =&gt; ctx.map.get_l(l).src_i,
@@ -2561,7 +2563,7 @@
         <span class="comment">// We might be vanishing while partly clipping into other stuff.
         </span><span class="self">self</span>.trim_last_steps(car, now, car.last_steps.len(), ctx);
 
-        <span class="comment">// We might&#39;ve scheduled one of those using BLIND_RETRY_TO_CREEP_FORWARDS.
+        <span class="comment">// We might've scheduled one of those using BLIND_RETRY_TO_CREEP_FORWARDS.
         </span>ctx.scheduler
             .cancel(Command::UpdateLaggyHead(car.vehicle.id));
 
@@ -2569,7 +2571,7 @@
     }
 
     <span class="doccomment">/// After a leader (maybe an active vehicle, maybe a static blockage) gets out of the way,
-    /// update the follower so that they don&#39;t suddenly jump forwards.
+    /// update the follower so that they don't suddenly jump forwards.
     </span><span class="kw">fn </span>update_follower(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         idx_leader: usize,
@@ -2585,7 +2587,7 @@
         <span class="kw">if let </span>Queued::Vehicle(follower_id) = dists[idx_follower].member {
             <span class="kw">let </span>follower_dist = dists[idx_follower].front;
 
-            <span class="comment">// If we&#39;re going to delete the follower soon, don&#39;t bother waking them up.
+            <span class="comment">// If we're going to delete the follower soon, don't bother waking them up.
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>deleting_agents) = ctx.handling_live_edits {
                 <span class="kw">if </span>deleting_agents.contains(<span class="kw-2">&amp;</span>AgentID::Car(follower_id)) {
                     <span class="kw">return</span>;
@@ -2594,11 +2596,11 @@
 
             <span class="kw">let </span>follower = <span class="self">self</span>.cars.get_mut(<span class="kw-2">&amp;</span>follower_id).unwrap();
             <span class="comment">// TODO If the leader vanished at a border node, this still jumps a bit -- the lead
-            // car&#39;s back is still sticking out. Need to still be bound by them, even though they
-            // don&#39;t exist! If the leader just parked, then we&#39;re fine.
+            // car's back is still sticking out. Need to still be bound by them, even though they
+            // don't exist! If the leader just parked, then we're fine.
             </span><span class="kw">match </span>follower.state {
                 CarState::Queued { blocked_since, .. } =&gt; {
-                    <span class="comment">// TODO If they&#39;re on their last step, they might be ending early and not right
+                    <span class="comment">// TODO If they're on their last step, they might be ending early and not right
                     // behind us? !follower.router.last_step()
 
                     // Prevent them from jumping forwards.
@@ -2612,15 +2614,15 @@
                     <span class="self">self</span>.new_crossing_state(ctx, follower);
                 }
                 CarState::Crossing { .. } =&gt; {
-                    <span class="comment">// If the follower was still Crossing, they might not&#39;ve been blocked by the
-                    // leader yet. But recalculating their Crossing state isn&#39;t necessarily a no-op
+                    <span class="comment">// If the follower was still Crossing, they might not've been blocked by the
+                    // leader yet. But recalculating their Crossing state isn't necessarily a no-op
                     // -- this could prevent them from suddenly warping past a blockage.
                     </span>follower.state = follower.crossing_state(follower_dist, now, ctx.map);
                     ctx.scheduler.update(
                         follower.state.get_end_time(),
                         Command::UpdateCar(follower_id),
                     );
-                    <span class="comment">// This&#39;ll possibly update the ETA
+                    <span class="comment">// This'll possibly update the ETA
                     </span><span class="kw">let </span>follower = <span class="kw-2">&amp;</span><span class="self">self</span>.cars[<span class="kw-2">&amp;</span>follower_id];
                     <span class="self">self</span>.new_crossing_state(ctx, follower);
                 }
@@ -2630,8 +2632,8 @@
                     <span class="comment">// This is a fun case -- something stopped blocking somebody that was in the
                     // process of lane-changing! Similar to the Crossing case above, we just have
                     // to update the distance/time intervals, but otherwise leave them in the
-                    // middle of their lane-changing. It&#39;s guaranteed that lc_time will continue to
-                    // finish before the new time interval, because there&#39;s no possible way
+                    // middle of their lane-changing. It's guaranteed that lc_time will continue to
+                    // finish before the new time interval, because there's no possible way
                     // recalculating this crossing state here will speed things up from the
                     // original estimate.
                     </span><span class="kw">let </span>(new_time, new_dist) = <span class="kw">match </span>follower.crossing_state_with_end_dist(
@@ -2653,7 +2655,7 @@
                         lc_time,
                     };
                 }
-                <span class="comment">// They weren&#39;t blocked
+                <span class="comment">// They weren't blocked
                 </span>CarState::Unparking { .. }
                 | CarState::Parking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
                 | CarState::IdlingAtStop(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
@@ -2671,14 +2673,14 @@
                 .unwrap();
             <span class="kw">if </span>id != last_id {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;At {} on {:?}, laggy head {} isn&#39;t the last on the lane; it&#39;s {}&quot;</span>,
+                    <span class="string">"At {} on {:?}, laggy head {} isn't the last on the lane; it's {}"</span>,
                     now, currently_on, id, last_id
                 );
             }
             dist
         };
 
-        <span class="comment">// Trim off as many of the oldest last_steps as we&#39;ve made distance.
+        <span class="comment">// Trim off as many of the oldest last_steps as we've made distance.
         </span><span class="kw">let </span><span class="kw-2">mut </span>dist_left_to_cleanup = <span class="self">self</span>.cars[<span class="kw-2">&amp;</span>id].vehicle.length + FOLLOWING_DISTANCE;
         dist_left_to_cleanup -= dist_along_last;
         <span class="kw">let </span><span class="kw-2">mut </span>num_to_trim = <span class="prelude-val">None</span>;
@@ -2700,7 +2702,7 @@
             <span class="comment">// Might have to retry again later.
             </span><span class="kw">let </span>retry_at = <span class="self">self</span>.cars[<span class="kw-2">&amp;</span>id]
                 .crossing_state_with_end_dist(
-                    <span class="comment">// Update again when we&#39;ve completely cleared all last_steps. We could be more
+                    <span class="comment">// Update again when we've completely cleared all last_steps. We could be more
                     // precise and do it sooner when we clear the last step, but a little delay is
                     // fine for correctness.
                     </span>DistanceInterval::new_driving(
@@ -2769,7 +2771,7 @@
 
                         <span class="kw">match </span>follower.state {
                             CarState::Queued { blocked_since, .. } =&gt; {
-                                <span class="comment">// If they&#39;re on their last step, they might be ending early and not
+                                <span class="comment">// If they're on their last step, they might be ending early and not
                                 // right behind us.
                                 </span><span class="kw">if </span>!follower.router.last_step() {
                                     <span class="comment">// The follower has been smoothly following while the laggy head
@@ -2789,7 +2791,7 @@
                                 }
                             }
                             CarState::WaitingToAdvance { .. } =&gt; <span class="macro">unreachable!</span>(),
-                            <span class="comment">// They weren&#39;t blocked. Note that there&#39;s no way the Crossing state could
+                            <span class="comment">// They weren't blocked. Note that there's no way the Crossing state could
                             // jump forwards here; the leader vanished from the end of the traversable.
                             </span>CarState::Crossing { .. }
                             | CarState::ChangingLanes { .. }
@@ -2808,12 +2810,12 @@
     }
 
     <span class="doccomment">/// If the car wants to over-take somebody, what adjacent lane should they use?
-    /// - The lane must be in the same direction as the current; no support for crossing the road&#39;s
+    /// - The lane must be in the same direction as the current; no support for crossing the road's
     ///   yellow line yet.
     /// - Prefer passing on the left (for DrivingSide::Right)
     /// For now, just pick one candidate lane, even if both might be usable.
     </span><span class="kw">fn </span>pick_overtaking_lane(<span class="kw-2">&amp;</span><span class="self">self</span>, car: <span class="kw-2">&amp;</span>Car, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;LaneID&gt; {
-        <span class="comment">// Don&#39;t overtake in the middle of a turn!
+        <span class="comment">// Don't overtake in the middle of a turn!
         </span><span class="kw">let </span>current_lane = map.get_l(car.router.head().maybe_lane()<span class="question-mark">?</span>);
         <span class="kw">let </span>road = map.get_parent(current_lane.id);
         <span class="kw">let </span>idx = current_lane.id.offset;
@@ -2845,7 +2847,7 @@
             {
                 <span class="kw">continue</span>;
             }
-            <span class="comment">// Is this other lane compatible with the path? We won&#39;t make any attempts to return to the
+            <span class="comment">// Is this other lane compatible with the path? We won't make any attempts to return to the
             // original lane after changing.
             </span><span class="kw">if </span>!car
                 .router
@@ -2869,11 +2871,11 @@
         ctx: <span class="kw-2">&amp;mut </span>Ctx,
     ) {
         <span class="comment">// If we are a laggy head somewhere else (our back is still sticking into another lane or
-        // turn), don&#39;t start lane-changing!
+        // turn), don't start lane-changing!
         </span><span class="kw">if </span>!car.last_steps.is_empty() {
             <span class="kw">return</span>;
         }
-        <span class="comment">// If the lanes are very different lengths and we&#39;re too close to the end at the target,
+        <span class="comment">// If the lanes are very different lengths and we're too close to the end at the target,
         // not going to work.
         </span><span class="kw">if </span>front_current_queue &gt;= ctx.map.get_l(target_lane).length() {
             <span class="kw">return</span>;
@@ -2884,7 +2886,7 @@
             .dist_along();
 
         <span class="comment">// Calculate the crossing state in the target queue. Pass in the DistanceInterval
-        // explicitly, because we haven&#39;t modified the route yet.
+        // explicitly, because we haven't modified the route yet.
         </span><span class="kw">let </span>(new_time, new_dist) = <span class="kw">match </span>car.crossing_state_with_end_dist(
             DistanceInterval::new_driving(front_target_queue, ctx.map.get_l(target_lane).length()),
             now,
@@ -2903,7 +2905,7 @@
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// Is there room for us to sliiiide on over into that lane&#39;s DMs?
+        <span class="comment">// Is there room for us to sliiiide on over into that lane's DMs?
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(idx_in_target_queue) = <span class="self">self</span>.queues[<span class="kw-2">&amp;</span>Traversable::Lane(target_lane)]
             .get_idx_to_insert_car(
                 front_target_queue,
@@ -2916,7 +2918,7 @@
             <span class="comment">// TODO Can downgrade this to an alert or debug once active work has settled down
             </span><span class="kw">if </span><span class="bool-val">false </span>{
                 <span class="macro">info!</span>(
-                    <span class="string">&quot;{} is starting to change lanes from {} to {}&quot;</span>,
+                    <span class="string">"{} is starting to change lanes from {} to {}"</span>,
                     car.vehicle.id,
                     car.router.head(),
                     target_lane
@@ -2975,10 +2977,10 @@
                 <span class="comment">// No changes
                 </span><span class="bool-val">true
             </span>} <span class="kw">else </span>{
-                <span class="comment">// Make sure it&#39;s empty!
+                <span class="comment">// Make sure it's empty!
                 </span><span class="kw">if </span>v.laggy_head.is_some() || !v.get_active_cars().is_empty() {
                     <span class="macro">panic!</span>(
-                        <span class="string">&quot;After live map edits, deleted queue {} still has vehicles! {:?}, {:?}&quot;</span>,
+                        <span class="string">"After live map edits, deleted queue {} still has vehicles! {:?}, {:?}"</span>,
                         k,
                         v.laggy_head,
                         v.get_active_cars()
@@ -3026,7 +3028,7 @@
                         pos: <span class="kw">match </span>queue.id.get_polyline(map).dist_along(entry.front) {
                             <span class="prelude-val">Ok</span>((pt, <span class="kw">_</span>)) =&gt; pt,
                             <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(
-                                <span class="string">&quot;At {}, invalid dist_along of {} for queue {}: {}&quot;</span>,
+                                <span class="string">"At {}, invalid dist_along of {} for queue {}: {}"</span>,
                                 now, entry.front, queue.id, err
                             ),
                         },
@@ -3122,7 +3124,7 @@
                                 intent: <span class="prelude-val">None</span>,
                                 on,
                                 partly_on: Vec::new(),
-                                label: <span class="prelude-val">Some</span>(<span class="string">&quot;block&quot;</span>.to_string()),
+                                label: <span class="prelude-val">Some</span>(<span class="string">"block"</span>.to_string()),
                                 person: <span class="prelude-val">None</span>,
                                 body: on.get_polyline(map).exact_slice(back, front),
                             })
@@ -3139,7 +3141,7 @@
                                 intent: <span class="prelude-val">None</span>,
                                 on,
                                 partly_on: Vec::new(),
-                                label: <span class="prelude-val">Some</span>(<span class="string">&quot;block&quot;</span>.to_string()),
+                                label: <span class="prelude-val">Some</span>(<span class="string">"block"</span>.to_string()),
                                 person: <span class="prelude-val">None</span>,
                                 body: on
                                     .get_polyline(map)
@@ -3159,21 +3161,21 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>car) = <span class="self">self</span>.cars.get(<span class="kw-2">&amp;</span>id) {
             abstutil::to_json(car)
         } <span class="kw">else </span>{
-            <span class="macro">format!</span>(<span class="string">&quot;{} is parked somewhere&quot;</span>, id)
+            <span class="macro">format!</span>(<span class="string">"{} is parked somewhere"</span>, id)
         }
     }
 
     <span class="kw">pub fn </span>debug_car_ui(<span class="kw-2">&amp;</span><span class="self">self</span>, id: CarID) -&gt; String {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(car) = <span class="self">self</span>.cars.get(<span class="kw-2">&amp;</span>id) {
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, car.state)
+            <span class="macro">format!</span>(<span class="string">"{:?}"</span>, car.state)
         } <span class="kw">else </span>{
-            <span class="macro">format!</span>(<span class="string">&quot;{} isn&#39;t in DrivingSimState&quot;</span>, id)
+            <span class="macro">format!</span>(<span class="string">"{} isn't in DrivingSimState"</span>, id)
         }
     }
 
     <span class="kw">pub fn </span>debug_lane(<span class="kw-2">&amp;</span><span class="self">self</span>, id: LaneID) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>queue) = <span class="self">self</span>.queues.get(<span class="kw-2">&amp;</span>Traversable::Lane(id)) {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(queue));
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, abstutil::to_json(queue));
         }
     }
 
@@ -3183,7 +3185,7 @@
             <span class="kw">let </span>time_spent_waiting = car.state.time_spent_waiting(now);
 
             <span class="comment">// In all cases, we can figure out exactly where we are along the current queue, then
-            // assume we&#39;ve travelled from the start of that, unless it&#39;s the very first step.
+            // assume we've travelled from the start of that, unless it's the very first step.
             </span><span class="kw">let </span>front = <span class="self">self</span>.get_car_front(now, car);
             <span class="kw">let </span>current_state_dist =
                 <span class="kw">if </span>car.router.head() == Traversable::Lane(path.get_req().start.lane()) {
@@ -3202,7 +3204,7 @@
         } <span class="kw">else </span>{
             <span class="kw">for </span>car <span class="kw">in </span><span class="self">self</span>.waiting_to_spawn.keys() {
                 <span class="kw">if </span>id == <span class="kw-2">*</span>car {
-                    <span class="comment">// If the vehicle is waiting to spawn, we don&#39;t have any stats on them yet.  We
+                    <span class="comment">// If the vehicle is waiting to spawn, we don't have any stats on them yet.  We
                     // could track when they originally tried to spawn and use for a few of these
                     // fields, but we should also make sure that delay gets recorded later.
                     </span><span class="kw">return </span>AgentProperties {
@@ -3215,7 +3217,7 @@
                 }
             }
             <span class="macro">panic!</span>(
-                <span class="string">&quot;Can&#39;t get agent_properties of {} at {}; they don&#39;t exist&quot;</span>,
+                <span class="string">"Can't get agent_properties of {} at {}; they don't exist"</span>,
                 id, now
             );
         }
@@ -3259,7 +3261,7 @@
         <span class="kw">for </span>car <span class="kw">in </span><span class="self">self</span>.cars.values() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(spot) = car.router.get_parking_spot_goal() {
                 <span class="kw">if </span>!spots.contains(spot) {
-                    <span class="comment">// Buses don&#39;t park
+                    <span class="comment">// Buses don't park
                     </span>affected.push((AgentID::Car(car.vehicle.id), car.trip_and_person.unwrap().<span class="number">0</span>));
                 }
             }
@@ -3267,7 +3269,7 @@
         affected
     }
 
-    <span class="doccomment">/// Finds vehicles that&#39;re laggy heads on affected parts of the map.
+    <span class="doccomment">/// Finds vehicles that're laggy heads on affected parts of the map.
     </span><span class="kw">pub fn </span>find_vehicles_affected_by_live_edits(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         closed_intersections: <span class="kw-2">&amp;</span>HashSet&lt;IntersectionID&gt;,
@@ -3283,7 +3285,7 @@
                         || edited_lanes.contains(<span class="kw-2">&amp;</span>t.dst)
                 }
             }) {
-                <span class="comment">// TODO Buses aren&#39;t handled yet! Mostly not a big deal, because they&#39;re pretty
+                <span class="comment">// TODO Buses aren't handled yet! Mostly not a big deal, because they're pretty
                 // much never created anyway.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>((trip, <span class="kw">_</span>)) = car.trip_and_person {
                     affected.push((AgentID::Car(car.vehicle.id), trip));
@@ -3317,7 +3319,7 @@
     ) -&gt; BTreeMap&lt;AgentID, (Duration, DelayCause)&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>graph = BTreeMap::new();
 
-        <span class="comment">// Just look for every case where somebody is behind someone else, whether or not they&#39;re
+        <span class="comment">// Just look for every case where somebody is behind someone else, whether or not they're
         // blocked by them and waiting.
         </span><span class="kw">for </span>queue <span class="kw">in </span><span class="self">self</span>.queues.values() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(head) = queue.laggy_head {
@@ -3331,8 +3333,8 @@
                     );
                 }
             }
-            <span class="comment">// This doesn&#39;t need to account for blockages. Somebody unparking won&#39;t start doing it
-            // until they&#39;re guaranteed to be able to finish it.
+            <span class="comment">// This doesn't need to account for blockages. Somebody unparking won't start doing it
+            // until they're guaranteed to be able to finish it.
             </span><span class="kw">let </span>cars = queue.get_active_cars();
             <span class="kw">for </span>(head, tail) <span class="kw">in </span>cars.iter().zip(cars.iter().skip(<span class="number">1</span>)) {
                 graph.insert(
@@ -3364,7 +3366,7 @@
         <span class="kw">let </span>leader = <span class="kw-2">&amp;</span><span class="self">self</span>.cars[<span class="kw-2">&amp;</span>queue.get_leader(car.vehicle.id)<span class="question-mark">?</span>];
 
         <span class="comment">// Are we faster than them?
-        // TODO This shouldn&#39;t be a blocking check; we also want to pass parking cars and buses
+        // TODO This shouldn't be a blocking check; we also want to pass parking cars and buses
         // waiting at stops.
         </span><span class="kw">let </span>their_speed = leader.vehicle.max_speed<span class="question-mark">?</span>;
         <span class="kw">if </span>car
@@ -3378,7 +3380,7 @@
 
         <span class="comment">// Are they moving slowly or also stuck behind someone?
         </span><span class="kw">match </span>leader.state {
-            <span class="comment">// TODO Maybe we want to pass someone queued, if they&#39;re too slow to pass their own
+            <span class="comment">// TODO Maybe we want to pass someone queued, if they're too slow to pass their own
             // leader?
             </span>CarState::WaitingToAdvance { .. } | CarState::Queued { .. } =&gt; {
                 <span class="kw">return </span><span class="prelude-val">None</span>;
@@ -3387,10 +3389,10 @@
             </span><span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="comment">// TODO Check if there&#39;s room in front of them to pass. Handle passing two bikes?
+        <span class="comment">// TODO Check if there's room in front of them to pass. Handle passing two bikes?
         // TODO Check remaining distance before next intersection
         // TODO Check relative speed difference, and time to pass them
-        // TODO Eventually, check if there&#39;s room to do the maneuever (lane-changing to
+        // TODO Eventually, check if there's room to do the maneuever (lane-changing to
         // the left only, or popping into an oncoming lane!
 
         </span><span class="prelude-val">Some</span>(leader.vehicle.id)
@@ -3398,7 +3400,7 @@
 }
 
 <span class="comment">// This implementation relies on the fact that car IDs are unique just by their number. Vehicle
-// type is also in there, but during lookup, it&#39;ll be ignored!
+// type is also in there, but during lookup, it'll be ignored!
 </span><span class="kw">impl </span>IndexableKey <span class="kw">for </span>CarID {
     <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.id

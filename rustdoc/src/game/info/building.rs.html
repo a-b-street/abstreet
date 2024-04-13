@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/building.rs`."><title>building.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/building.rs`."><title>building.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -343,20 +345,20 @@
 
     <span class="kw">let </span>b = app.primary.map.get_b(id);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>kv = <span class="macro">vec!</span>[(<span class="string">&quot;Address&quot;</span>, b.address.clone())];
+    <span class="kw">let </span><span class="kw-2">mut </span>kv = <span class="macro">vec!</span>[(<span class="string">"Address"</span>, b.address.clone())];
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>names) = b.name {
-        kv.push((<span class="string">&quot;Name&quot;</span>, names.get(app.opts.language.as_ref()).to_string()));
+        kv.push((<span class="string">"Name"</span>, names.get(app.opts.language.as_ref()).to_string()));
     }
     <span class="kw">if </span>app.opts.dev {
-        kv.push((<span class="string">&quot;OSM ID&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, b.orig_id.inner_id())));
+        kv.push((<span class="string">"OSM ID"</span>, <span class="macro">format!</span>(<span class="string">"{}"</span>, b.orig_id.inner_id())));
     }
 
     <span class="kw">let </span>num_spots = b.num_parking_spots();
     <span class="kw">if </span>app.primary.sim.infinite_parking() {
         kv.push((
-            <span class="string">&quot;Parking&quot;</span>,
+            <span class="string">"Parking"</span>,
             <span class="macro">format!</span>(
-                <span class="string">&quot;Unlimited, currently {} cars inside&quot;</span>,
+                <span class="string">"Unlimited, currently {} cars inside"</span>,
                 app.primary.sim.bldg_to_parked_cars(b.id).len()
             ),
         ));
@@ -364,17 +366,17 @@
         <span class="kw">let </span>free = app.primary.sim.get_free_offstreet_spots(b.id).len();
         <span class="kw">if let </span>OffstreetParking::PublicGarage(<span class="kw-2">ref </span>n, <span class="kw">_</span>) = b.parking {
             kv.push((
-                <span class="string">&quot;Parking&quot;</span>,
-                <span class="macro">format!</span>(<span class="string">&quot;{} / {} public spots available via {}&quot;</span>, free, num_spots, n),
+                <span class="string">"Parking"</span>,
+                <span class="macro">format!</span>(<span class="string">"{} / {} public spots available via {}"</span>, free, num_spots, n),
             ));
         } <span class="kw">else </span>{
             kv.push((
-                <span class="string">&quot;Parking&quot;</span>,
-                <span class="macro">format!</span>(<span class="string">&quot;{} / {} private spots available&quot;</span>, free, num_spots),
+                <span class="string">"Parking"</span>,
+                <span class="macro">format!</span>(<span class="string">"{} / {} private spots available"</span>, free, num_spots),
             ));
         }
     } <span class="kw">else </span>{
-        kv.push((<span class="string">&quot;Parking&quot;</span>, <span class="string">&quot;None&quot;</span>.to_string()));
+        kv.push((<span class="string">"Parking"</span>, <span class="string">"None"</span>.to_string()));
     }
 
     rows.extend(make_table(ctx, kv));
@@ -382,15 +384,15 @@
     <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
 
     <span class="kw">if </span>!b.amenities.is_empty() {
-        txt.add_line(<span class="string">&quot;&quot;</span>);
+        txt.add_line(<span class="string">""</span>);
         <span class="kw">if </span>b.amenities.len() == <span class="number">1 </span>{
-            txt.add_line(<span class="string">&quot;1 amenity:&quot;</span>);
+            txt.add_line(<span class="string">"1 amenity:"</span>);
         } <span class="kw">else </span>{
-            txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{} amenities:&quot;</span>, b.amenities.len()));
+            txt.add_line(<span class="macro">format!</span>(<span class="string">"{} amenities:"</span>, b.amenities.len()));
         }
         <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span>b.amenities {
             txt.add_line(<span class="macro">format!</span>(
-                <span class="string">&quot;  {} ({})&quot;</span>,
+                <span class="string">"  {} ({})"</span>,
                 a.names.get(app.opts.language.as_ref()),
                 a.amenity_type
             ));
@@ -398,7 +400,7 @@
     }
 
     <span class="kw">if </span>!app.primary.sim.infinite_parking() {
-        txt.add_line(<span class="string">&quot;&quot;</span>);
+        txt.add_line(<span class="string">""</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(pl) = app
             .primary
             .sim
@@ -406,10 +408,10 @@
             .and_then(|path| path.trace(<span class="kw-2">&amp;</span>app.primary.map))
         {
             <span class="kw">let </span>color = app.cs.parking_trip;
-            <span class="comment">// TODO But this color doesn&#39;t show up well against the info panel...
-            </span>txt.add_line(Line(<span class="string">&quot;Nearest parking&quot;</span>).fg(color));
+            <span class="comment">// TODO But this color doesn't show up well against the info panel...
+            </span>txt.add_line(Line(<span class="string">"Nearest parking"</span>).fg(color));
             txt.append(Line(<span class="macro">format!</span>(
-                <span class="string">&quot; is ~{} away by foot&quot;</span>,
+                <span class="string">" is ~{} away by foot"</span>,
                 pl.length() / Speed::miles_per_hour(<span class="number">3.0</span>)
             )));
 
@@ -426,7 +428,7 @@
                 ),
             );
         } <span class="kw">else </span>{
-            txt.add_line(<span class="string">&quot;No nearby parking available&quot;</span>)
+            txt.add_line(<span class="string">"No nearby parking available"</span>)
         }
     }
 
@@ -438,12 +440,12 @@
         rows.push(
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Open OSM&quot;</span>)
-                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, b.orig_id)),
+                .text(<span class="string">"Open OSM"</span>)
+                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"open {}"</span>, b.orig_id)),
         );
 
         <span class="kw">if </span>!b.osm_tags.is_empty() {
-            rows.push(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>.text_widget(ctx));
+            rows.push(<span class="string">"Raw OpenStreetMap data"</span>.text_widget(ctx));
             rows.extend(make_table(
                 ctx,
                 b.osm_tags
@@ -470,7 +472,7 @@
 
     <span class="comment">// Two caveats about these counts:
     // 1) A person might use multiple modes through the day, but this just picks a single category.
-    // 2) Only people currently in the building currently are counted, whether or not that&#39;s their
+    // 2) Only people currently in the building currently are counted, whether or not that's their
     //    home.
     </span><span class="kw">let </span><span class="kw-2">mut </span>drivers = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>cyclists = <span class="number">0</span>;
@@ -521,13 +523,13 @@
             ctx.style().btn_outline.text(p.to_string()).build_def(ctx),
             <span class="kw">if let </span><span class="prelude-val">Some</span>((t, mode)) = next_trip {
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;Leaving in {} to {}&quot;</span>,
+                    <span class="string">"Leaving in {} to {}"</span>,
                     t - app.primary.sim.time(),
                     mode.verb()
                 )
                 .text_widget(ctx)
             } <span class="kw">else </span>{
-                <span class="string">&quot;Staying inside&quot;</span>.text_widget(ctx)
+                <span class="string">"Staying inside"</span>.text_widget(ctx)
             },
         ]);
         ppl.push((
@@ -541,11 +543,11 @@
     <span class="comment">// Sort by time to next trip
     </span>ppl.sort_by_key(|(t, <span class="kw">_</span>)| <span class="kw-2">*</span>t);
     <span class="kw">if </span>ppl.is_empty() {
-        rows.push(<span class="string">&quot;Nobody&#39;s inside right now&quot;</span>.text_widget(ctx));
+        rows.push(<span class="string">"Nobody's inside right now"</span>.text_widget(ctx));
     } <span class="kw">else </span>{
         rows.push(
             <span class="macro">format!</span>(
-                <span class="string">&quot;{} drivers, {} cyclists, {} others&quot;</span>,
+                <span class="string">"{} drivers, {} cyclists, {} others"</span>,
                 drivers, cyclists, others
             )
             .text_widget(ctx),
@@ -569,7 +571,7 @@
             ctx,
             <span class="kw-2">&amp;mut </span>details.hyperlinks,
             tab,
-            <span class="macro">vec!</span>[(<span class="string">&quot;Info&quot;</span>, Tab::BldgInfo(id)), (<span class="string">&quot;People&quot;</span>, Tab::BldgPeople(id))],
+            <span class="macro">vec!</span>[(<span class="string">"Info"</span>, Tab::BldgInfo(id)), (<span class="string">"People"</span>, Tab::BldgPeople(id))],
         ),
     ];
 
@@ -581,7 +583,7 @@
 
 <span class="kw">pub fn </span>draw_occupants(details: <span class="kw-2">&amp;mut </span>Details, app: <span class="kw-2">&amp;</span>App, id: BuildingID, focus: <span class="prelude-ty">Option</span>&lt;PersonID&gt;) {
     <span class="comment">// TODO Lots of fun ideas here. Have a deterministic simulation based on building ID and time
-    // to have people &quot;realistically&quot; move around. Draw little floor plans.
+    // to have people "realistically" move around. Draw little floor plans.
 
     </span><span class="kw">let </span><span class="kw-2">mut </span>ppl = app.primary.sim.bldg_to_people(id);
     <span class="kw">let </span>num_rows_cols = (ppl.len() <span class="kw">as </span>f64).sqrt().ceil() <span class="kw">as </span>usize;
@@ -599,12 +601,12 @@
 
     <span class="comment">// TODO Current thing is inefficient and can easily wind up outside the building.
 
-    </span><span class="lifetime">&#39;OUTER</span>: <span class="kw">for </span>x <span class="kw">in </span><span class="number">0</span>..num_rows_cols {
+    </span><span class="lifetime">'OUTER</span>: <span class="kw">for </span>x <span class="kw">in </span><span class="number">0</span>..num_rows_cols {
         <span class="kw">for </span>y <span class="kw">in </span><span class="number">0</span>..num_rows_cols {
             <span class="kw">let </span>person = <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = ppl.pop() {
                 p
             } <span class="kw">else </span>{
-                <span class="kw">break </span><span class="lifetime">&#39;OUTER</span>;
+                <span class="kw">break </span><span class="lifetime">'OUTER</span>;
             };
             <span class="kw">let </span>pos = top_left.offset(
                 (x <span class="kw">as </span>f64) * (ped_len + separation),

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/devtools/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/devtools/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -212,41 +214,41 @@
 
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Advanced tools&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Advanced tools"</span>).small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             map_gui::tools::change_map_btn(ctx, app),
             Widget::custom_row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;edit a polygon&quot;</span>)
+                    .text(<span class="string">"edit a polygon"</span>)
                     .hotkey(Key::E)
                     .build_def(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;draw a polygon&quot;</span>)
+                    .text(<span class="string">"draw a polygon"</span>)
                     .hotkey(Key::P)
                     .build_def(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;load scenario&quot;</span>)
+                    .text(<span class="string">"load scenario"</span>)
                     .hotkey(Key::W)
                     .build_def(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;view KML&quot;</span>)
+                    .text(<span class="string">"view KML"</span>)
                     .hotkey(Key::K)
                     .build_def(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;story maps&quot;</span>)
+                    .text(<span class="string">"story maps"</span>)
                     .hotkey(Key::S)
                     .build_def(ctx),
-                <span class="kw">if </span>abstio::file_exists(app.primary.map.get_city_name().input_path(<span class="string">&quot;collisions.bin&quot;</span>))
+                <span class="kw">if </span>abstio::file_exists(app.primary.map.get_city_name().input_path(<span class="string">"collisions.bin"</span>))
                 {
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;collisions&quot;</span>)
+                        .text(<span class="string">"collisions"</span>)
                         .hotkey(Key::C)
                         .build_def(ctx)
                 } <span class="kw">else </span>{
@@ -257,12 +259,12 @@
             Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;OpenStreetMap viewer&quot;</span>)
+                    .text(<span class="string">"OpenStreetMap viewer"</span>)
                     .build_def(ctx),
-                <span class="kw">if </span><span class="macro">cfg!</span>(not(target_arch = <span class="string">&quot;wasm32&quot;</span>)) {
+                <span class="kw">if </span><span class="macro">cfg!</span>(not(target_arch = <span class="string">"wasm32"</span>)) {
                     ctx.style()
                         .btn_solid_primary
-                        .text(<span class="string">&quot;Parking mapper&quot;</span>)
+                        .text(<span class="string">"Parking mapper"</span>)
                         .build_def(ctx)
                 } <span class="kw">else </span>{
                     Widget::nothing()
@@ -270,7 +272,7 @@
                 <span class="kw">if </span>abstio::file_exists(abstio::path_raw_map(app.primary.map.get_name())) {
                     ctx.style()
                         .btn_solid_primary
-                        .text(<span class="string">&quot;RawMap editor&quot;</span>)
+                        .text(<span class="string">"RawMap editor"</span>)
                         .build_def(ctx)
                 } <span class="kw">else </span>{
                     Widget::nothing()
@@ -291,21 +293,21 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-            <span class="string">&quot;edit a polygon&quot; </span>=&gt; {
+            <span class="string">"close" </span>=&gt; Transition::Pop,
+            <span class="string">"edit a polygon" </span>=&gt; {
                 Transition::Push(ChooseSomething::new_state(
                     ctx,
-                    <span class="string">&quot;Choose a polygon&quot;</span>,
-                    <span class="comment">// This directory won&#39;t exist on the web or for binary releases, only for
+                    <span class="string">"Choose a polygon"</span>,
+                    <span class="comment">// This directory won't exist on the web or for binary releases, only for
                     // people building from source. Also, abstio::path is abused to find the
                     // importer/ directory.
                     </span>abstio::list_dir(abstio::path(<span class="macro">format!</span>(
-                        <span class="string">&quot;../importer/config/{}/{}&quot;</span>,
+                        <span class="string">"../importer/config/{}/{}"</span>,
                         app.primary.map.get_city_name().country,
                         app.primary.map.get_city_name().city
                     )))
                     .into_iter()
-                    .filter(|path| path.ends_with(<span class="string">&quot;.geojson&quot;</span>))
+                    .filter(|path| path.ends_with(<span class="string">".geojson"</span>))
                     .map(|path| Choice::new(abstutil::basename(<span class="kw-2">&amp;</span>path), path))
                     .collect(),
                     Box::new(|path, ctx, app| <span class="kw">match </span>LonLat::read_geojson_polygon(<span class="kw-2">&amp;</span>path) {
@@ -316,21 +318,21 @@
                             pts,
                         )),
                         <span class="prelude-val">Err</span>(err) =&gt; {
-                            <span class="macro">println!</span>(<span class="string">&quot;Bad polygon {}: {}&quot;</span>, path, err);
+                            <span class="macro">println!</span>(<span class="string">"Bad polygon {}: {}"</span>, path, err);
                             Transition::Pop
                         }
                     }),
                 ))
             }
-            <span class="string">&quot;draw a polygon&quot; </span>=&gt; Transition::Push(polygon::PolygonEditor::new_state(
+            <span class="string">"draw a polygon" </span>=&gt; Transition::Push(polygon::PolygonEditor::new_state(
                 ctx,
                 app,
-                <span class="string">&quot;name goes here&quot;</span>.to_string(),
+                <span class="string">"name goes here"</span>.to_string(),
                 Vec::new(),
             )),
-            <span class="string">&quot;load scenario&quot; </span>=&gt; Transition::Push(ChooseSomething::new_state(
+            <span class="string">"load scenario" </span>=&gt; Transition::Push(ChooseSomething::new_state(
                 ctx,
-                <span class="string">&quot;Choose a scenario&quot;</span>,
+                <span class="string">"Choose a scenario"</span>,
                 Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
                     app.primary.map.get_name(),
                 ))),
@@ -342,19 +344,19 @@
                     Transition::Replace(scenario::ScenarioManager::new_state(scenario, ctx, app))
                 }),
             )),
-            <span class="string">&quot;view KML&quot; </span>=&gt; Transition::Push(kml::ViewKML::new_state(ctx, app, <span class="prelude-val">None</span>)),
-            <span class="string">&quot;story maps&quot; </span>=&gt; Transition::Push(story::StoryMapEditor::new_state(ctx)),
-            <span class="string">&quot;collisions&quot; </span>=&gt; Transition::Push(collisions::CollisionsViewer::new_state(ctx, app)),
-            <span class="string">&quot;OpenStreetMap viewer&quot; </span>=&gt; {
+            <span class="string">"view KML" </span>=&gt; Transition::Push(kml::ViewKML::new_state(ctx, app, <span class="prelude-val">None</span>)),
+            <span class="string">"story maps" </span>=&gt; Transition::Push(story::StoryMapEditor::new_state(ctx)),
+            <span class="string">"collisions" </span>=&gt; Transition::Push(collisions::CollisionsViewer::new_state(ctx, app)),
+            <span class="string">"OpenStreetMap viewer" </span>=&gt; {
                 map_gui::tools::Executable::OSMViewer.replace_process(ctx, app, <span class="macro">vec!</span>[])
             }
-            <span class="string">&quot;Parking mapper&quot; </span>=&gt; {
+            <span class="string">"Parking mapper" </span>=&gt; {
                 map_gui::tools::Executable::ParkingMapper.replace_process(ctx, app, <span class="macro">vec!</span>[])
             }
-            <span class="string">&quot;RawMap editor&quot; </span>=&gt; {
+            <span class="string">"RawMap editor" </span>=&gt; {
                 map_gui::tools::Executable::RawMapEditor.replace_process(ctx, app, <span class="macro">vec!</span>[])
             }
-            <span class="string">&quot;change map&quot; </span>=&gt; Transition::Push(CityPicker::new_state(
+            <span class="string">"change map" </span>=&gt; Transition::Push(CityPicker::new_state(
                 ctx,
                 app,
                 Box::new(|ctx, app| {

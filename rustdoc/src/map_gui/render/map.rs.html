@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -582,7 +584,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>roads: Vec&lt;DrawRoad&gt; = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>low_z = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>high_z = <span class="number">0</span>;
-        timer.start_iter(<span class="string">&quot;make DrawRoads&quot;</span>, map.all_roads().len());
+        timer.start_iter(<span class="string">"make DrawRoads"</span>, map.all_roads().len());
         <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
             timer.next();
             roads.push(DrawRoad::new(r));
@@ -591,7 +593,7 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>intersections: Vec&lt;DrawIntersection&gt; = Vec::new();
-        timer.start_iter(<span class="string">&quot;make DrawIntersections&quot;</span>, map.all_intersections().len());
+        timer.start_iter(<span class="string">"make DrawIntersections"</span>, map.all_intersections().len());
         <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
             timer.next();
             intersections.push(DrawIntersection::new(i, map));
@@ -603,12 +605,12 @@
         <span class="kw">let </span>(buildings, draw_all_buildings, draw_all_building_outlines) =
             DrawMap::regenerate_buildings(ctx, map, cs, opts, timer);
 
-        timer.start(<span class="string">&quot;make DrawParkingLot&quot;</span>);
+        timer.start(<span class="string">"make DrawParkingLot"</span>);
         <span class="kw">let </span>(parking_lots, draw_all_unzoomed_parking_lots) =
             DrawMap::regenerate_parking_lots(ctx, map, cs, opts);
-        timer.stop(<span class="string">&quot;make DrawParkingLot&quot;</span>);
+        timer.stop(<span class="string">"make DrawParkingLot"</span>);
 
-        timer.start_iter(<span class="string">&quot;make DrawTransitStop&quot;</span>, map.all_transit_stops().len());
+        timer.start_iter(<span class="string">"make DrawTransitStop"</span>, map.all_transit_stops().len());
         <span class="kw">let </span><span class="kw-2">mut </span>bus_stops: HashMap&lt;TransitStopID, DrawTransitStop&gt; = HashMap::new();
         <span class="kw">for </span>s <span class="kw">in </span>map.all_transit_stops().values() {
             timer.next();
@@ -617,21 +619,21 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>areas: Vec&lt;DrawArea&gt; = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>all_areas = GeomBatch::new();
-        timer.start_iter(<span class="string">&quot;make DrawAreas&quot;</span>, map.all_areas().len());
+        timer.start_iter(<span class="string">"make DrawAreas"</span>, map.all_areas().len());
         <span class="kw">for </span>a <span class="kw">in </span>map.all_areas() {
             timer.next();
             areas.push(DrawArea::new(ctx, a, cs, <span class="kw-2">&amp;mut </span>all_areas));
         }
-        timer.start(<span class="string">&quot;upload all areas&quot;</span>);
+        timer.start(<span class="string">"upload all areas"</span>);
         <span class="kw">let </span>draw_all_areas = all_areas.upload(ctx);
-        timer.stop(<span class="string">&quot;upload all areas&quot;</span>);
+        timer.stop(<span class="string">"upload all areas"</span>);
 
         <span class="kw">let </span>boundary_polygon = ctx.upload(GeomBatch::from(<span class="macro">vec!</span>[(
             cs.map_background.clone(),
             map.get_boundary_polygon().clone(),
         )]));
 
-        timer.start(<span class="string">&quot;create quadtree&quot;</span>);
+        timer.start(<span class="string">"create quadtree"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>quadtree = QuadTree::builder();
         <span class="comment">// TODO use iter chain if everything was boxed as a renderable...
         </span><span class="kw">for </span>obj <span class="kw">in </span><span class="kw-2">&amp;</span>roads {
@@ -646,15 +648,15 @@
         <span class="kw">for </span>obj <span class="kw">in </span><span class="kw-2">&amp;</span>parking_lots {
             quadtree.add_with_box(obj.get_id(), obj.get_bounds(map));
         }
-        <span class="comment">// Don&#39;t put TransitStops in the quadtree
+        <span class="comment">// Don't put TransitStops in the quadtree
         </span><span class="kw">for </span>obj <span class="kw">in </span><span class="kw-2">&amp;</span>areas {
             quadtree.add_with_box(obj.get_id(), obj.get_bounds(map));
         }
         <span class="kw">let </span>quadtree = quadtree.build();
-        timer.stop(<span class="string">&quot;create quadtree&quot;</span>);
+        timer.stop(<span class="string">"create quadtree"</span>);
 
         <span class="macro">info!</span>(
-            <span class="string">&quot;static DrawMap consumes {} MB on the GPU&quot;</span>,
+            <span class="string">"static DrawMap consumes {} MB on the GPU"</span>,
             abstutil::prettyprint_usize(ctx.prerender.get_total_bytes_uploaded() / <span class="number">1024 </span>/ <span class="number">1024</span>)
         );
 
@@ -692,7 +694,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>buildings: Vec&lt;DrawBuilding&gt; = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>all_buildings = GeomBatch::new();
         <span class="kw">let </span><span class="kw-2">mut </span>all_building_outlines = GeomBatch::new();
-        timer.start_iter(<span class="string">&quot;make DrawBuildings&quot;</span>, map.all_buildings().len());
+        timer.start_iter(<span class="string">"make DrawBuildings"</span>, map.all_buildings().len());
         <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
             timer.next();
             buildings.push(DrawBuilding::new(
@@ -705,10 +707,10 @@
                 <span class="kw-2">&amp;mut </span>all_building_outlines,
             ));
         }
-        timer.start(<span class="string">&quot;upload all buildings&quot;</span>);
+        timer.start(<span class="string">"upload all buildings"</span>);
         <span class="kw">let </span>draw_all_buildings = all_buildings.upload(ctx);
         <span class="kw">let </span>draw_all_building_outlines = all_building_outlines.upload(ctx);
-        timer.stop(<span class="string">&quot;upload all buildings&quot;</span>);
+        timer.stop(<span class="string">"upload all buildings"</span>);
         (buildings, draw_all_buildings, draw_all_building_outlines)
     }
 
@@ -739,7 +741,7 @@
         opts: <span class="kw-2">&amp;</span>Options,
         timer: <span class="kw-2">&amp;mut </span>Timer,
     ) -&gt; Drawable {
-        timer.start(<span class="string">&quot;generate unzoomed roads and intersections&quot;</span>);
+        timer.start(<span class="string">"generate unzoomed roads and intersections"</span>);
 
         <span class="comment">// TODO Different in night mode
         </span><span class="kw">let </span>outline_color = Color::BLACK;
@@ -801,7 +803,7 @@
         }
 
         <span class="kw">let </span>traffic_signal_icon = <span class="kw">if </span>opts.show_traffic_signal_icon {
-            GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/map/traffic_signal.svg&quot;</span>).scale(<span class="number">0.8</span>)
+            GeomBatch::load_svg(ctx, <span class="string">"system/assets/map/traffic_signal.svg"</span>).scale(<span class="number">0.8</span>)
         } <span class="kw">else </span>{
             GeomBatch::new()
         };
@@ -812,7 +814,7 @@
                 || i.is_stop_sign()
                 || (i.is_traffic_signal() &amp;&amp; opts.show_traffic_signal_icon)
             {
-                <span class="comment">// Use the color of the road, so the intersection doesn&#39;t stand out
+                <span class="comment">// Use the color of the road, so the intersection doesn't stand out
                 // TODO When cycleways meet footways, we fallback to unzoomed_road_surface. Maybe
                 // we need a ranking for types here too
                 </span><span class="kw">if </span>i.is_light_rail(map) {
@@ -832,7 +834,7 @@
             unzoomed_pieces.push((zorder, intersection_color.into(), i.polygon.clone().into()));
 
             <span class="kw">if </span>cs.road_outlines {
-                <span class="comment">// It&#39;d be nice to dash the outline for footways, but usually the pieces of the
+                <span class="comment">// It'd be nice to dash the outline for footways, but usually the pieces of the
                 // outline in between the roads are too small to dash, and using the entire thing
                 // would look like the intersection is blocked off
                 </span><span class="kw">for </span>pl <span class="kw">in </span>DrawIntersection::get_unzoomed_outline(i, map) {
@@ -864,11 +866,11 @@
         }
 
         <span class="kw">let </span>draw_all_unzoomed_roads_and_intersections = unzoomed_batch.upload(ctx);
-        timer.stop(<span class="string">&quot;generate unzoomed roads and intersections&quot;</span>);
+        timer.stop(<span class="string">"generate unzoomed roads and intersections"</span>);
         draw_all_unzoomed_roads_and_intersections
     }
 
-    <span class="comment">// The alt to these is implementing std::ops::Index, but that&#39;s way more verbose!
+    <span class="comment">// The alt to these is implementing std::ops::Index, but that's way more verbose!
     </span><span class="kw">pub fn </span>get_r(<span class="kw-2">&amp;</span><span class="self">self</span>, id: RoadID) -&gt; <span class="kw-2">&amp;</span>DrawRoad {
         <span class="kw-2">&amp;</span><span class="self">self</span>.roads[id.<span class="number">0</span>]
     }
@@ -897,7 +899,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.areas[id.<span class="number">0</span>]
     }
 
-    <span class="kw">pub fn </span>get_obj&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable {
+    <span class="kw">pub fn </span>get_obj&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID) -&gt; <span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable {
         <span class="kw">match </span>id {
             ID::Road(id) =&gt; <span class="self">self</span>.get_r(id),
             ID::Lane(id) =&gt; <span class="self">self</span>.get_l(id),
@@ -948,7 +950,7 @@
                     parking_lots.push(<span class="self">self</span>.get_pl(id));
                 }
                 ID::Lane(<span class="kw">_</span>) | ID::TransitStop(<span class="kw">_</span>) =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, id)
+                    <span class="macro">panic!</span>(<span class="string">"{:?} shouldn't be in the quadtree"</span>, id)
                 }
             }
         }
@@ -975,7 +977,7 @@
     /// up Z-ordering.
     </span><span class="kw">pub fn </span>zoomed_batch(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; GeomBatch {
         <span class="comment">// TODO This repeats code. There are other approaches, like making EventCtx intercept
-        // &quot;uploads&quot; and instead save the batches.
+        // "uploads" and instead save the batches.
         </span><span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
         <span class="kw">let </span>map = app.map();
         <span class="kw">let </span>cs = app.cs();

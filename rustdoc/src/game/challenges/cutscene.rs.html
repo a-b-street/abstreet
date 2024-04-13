@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/cutscene.rs`."><title>cutscene.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/cutscene.rs`."><title>cutscene.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -314,7 +316,7 @@
 <span class="kw">enum </span>Layout {
     PlayerSpeaking,
     BossSpeaking,
-    Extra(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, f64),
+    Extra(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, f64),
 }
 
 <span class="kw">struct </span>Scene {
@@ -352,7 +354,7 @@
 
     <span class="kw">pub fn </span>extra&lt;I: Into&lt;String&gt;&gt;(
         <span class="kw-2">mut </span><span class="self">self</span>,
-        character: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        character: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         scale: f64,
         msg: I,
     ) -&gt; CutsceneBuilder {
@@ -390,28 +392,28 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;quit&quot; </span>=&gt; {
+                <span class="string">"quit" </span>=&gt; {
                     <span class="comment">// TODO Should SandboxMode use on_destroy for this?
                     </span>app.primary.clear_sim();
                     app.set_prebaked(<span class="prelude-val">None</span>);
                     <span class="kw">return </span>Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop]);
                 }
-                <span class="string">&quot;back&quot; </span>=&gt; {
+                <span class="string">"back" </span>=&gt; {
                     <span class="self">self</span>.idx -= <span class="number">1</span>;
                     <span class="self">self</span>.panel =
                         make_panel(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenes, <span class="kw-2">&amp;</span><span class="self">self</span>.make_task, <span class="self">self</span>.idx);
                 }
-                <span class="string">&quot;next&quot; </span>=&gt; {
+                <span class="string">"next" </span>=&gt; {
                     <span class="self">self</span>.idx += <span class="number">1</span>;
                     <span class="self">self</span>.panel =
                         make_panel(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenes, <span class="kw-2">&amp;</span><span class="self">self</span>.make_task, <span class="self">self</span>.idx);
                 }
-                <span class="string">&quot;Skip cutscene&quot; </span>=&gt; {
+                <span class="string">"Skip cutscene" </span>=&gt; {
                     <span class="self">self</span>.idx = <span class="self">self</span>.scenes.len();
                     <span class="self">self</span>.panel =
                         make_panel(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenes, <span class="kw-2">&amp;</span><span class="self">self</span>.make_task, <span class="self">self</span>.idx);
                 }
-                <span class="string">&quot;Start&quot; </span>=&gt; {
+                <span class="string">"Start" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -438,25 +440,25 @@
     idx: usize,
 ) -&gt; Panel {
     <span class="kw">let </span>prev_builder = ButtonStyle::plain_dark_fg()
-        .icon(<span class="string">&quot;system/assets/tools/circled_prev.svg&quot;</span>)
+        .icon(<span class="string">"system/assets/tools/circled_prev.svg"</span>)
         .image_dims(<span class="number">45.0</span>)
         .hotkey(Key::LeftArrow)
         .bg_color(Color::CLEAR, ControlState::Disabled);
 
     <span class="kw">let </span>next = prev_builder
         .clone()
-        .image_path(<span class="string">&quot;system/assets/tools/circled_next.svg&quot;</span>)
+        .image_path(<span class="string">"system/assets/tools/circled_next.svg"</span>)
         .hotkey(hotkeys(<span class="macro">vec!</span>[Key::RightArrow, Key::Space, Key::Enter]))
-        .build_widget(ctx, <span class="string">&quot;next&quot;</span>);
+        .build_widget(ctx, <span class="string">"next"</span>);
 
-    <span class="kw">let </span>prev = prev_builder.disabled(idx == <span class="number">0</span>).build_widget(ctx, <span class="string">&quot;back&quot;</span>);
+    <span class="kw">let </span>prev = prev_builder.disabled(idx == <span class="number">0</span>).build_widget(ctx, <span class="string">"back"</span>);
 
     <span class="kw">let </span>inner = <span class="kw">if </span>idx == scenes.len() {
         Widget::custom_col(<span class="macro">vec!</span>[
             (make_task)(ctx),
             ctx.style()
                 .btn_solid_primary
-                .text(<span class="string">&quot;Start&quot;</span>)
+                .text(<span class="string">"Start"</span>)
                 .hotkey(Key::Enter)
                 .build_def(ctx)
                 .centered_horiz()
@@ -466,7 +468,7 @@
         Widget::custom_col(<span class="macro">vec!</span>[
             <span class="kw">match </span>scenes[idx].layout {
                 Layout::PlayerSpeaking =&gt; Widget::custom_row(<span class="macro">vec!</span>[
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/characters/boss.svg.gz"</span>)
                         .scale(<span class="number">0.75</span>)
                         .autocrop()
                         .into_widget(ctx),
@@ -476,14 +478,14 @@
                             .clone()
                             .wrap_to_pct(ctx, <span class="number">30</span>)
                             .into_widget(ctx),
-                        Image::from_path(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                        Image::from_path(<span class="string">"system/assets/characters/player.svg"</span>)
                             .untinted()
                             .into_widget(ctx),
                     ])
                     .align_right(),
                 ]),
                 Layout::BossSpeaking =&gt; Widget::custom_row(<span class="macro">vec!</span>[
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/characters/boss.svg.gz"</span>)
                         .scale(<span class="number">0.75</span>)
                         .autocrop()
                         .into_widget(ctx),
@@ -492,20 +494,20 @@
                         .clone()
                         .wrap_to_pct(ctx, <span class="number">30</span>)
                         .into_widget(ctx),
-                    Image::from_path(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                    Image::from_path(<span class="string">"system/assets/characters/player.svg"</span>)
                         .untinted()
                         .into_widget(ctx)
                         .align_right(),
                 ]),
                 Layout::Extra(filename, scale) =&gt; Widget::custom_row(<span class="macro">vec!</span>[
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/characters/boss.svg.gz"</span>)
                         .scale(<span class="number">0.75</span>)
                         .autocrop()
                         .into_widget(ctx),
                     Widget::col(<span class="macro">vec!</span>[
                         GeomBatch::load_svg(
                             ctx.prerender,
-                            <span class="macro">format!</span>(<span class="string">&quot;system/assets/characters/{}&quot;</span>, filename),
+                            <span class="macro">format!</span>(<span class="string">"system/assets/characters/{}"</span>, filename),
                         )
                         .scale(scale)
                         .autocrop()
@@ -516,7 +518,7 @@
                             .wrap_to_pct(ctx, <span class="number">30</span>)
                             .into_widget(ctx),
                     ]),
-                    Image::from_path(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                    Image::from_path(<span class="string">"system/assets/characters/player.svg"</span>)
                         .untinted()
                         .into_widget(ctx),
                 ])
@@ -526,7 +528,7 @@
             Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[prev.margin_right(<span class="number">40</span>), next]).centered_horiz(),
                 ButtonStyle::outline_dark_fg()
-                    .text(<span class="string">&quot;Skip cutscene&quot;</span>)
+                    .text(<span class="string">"Skip cutscene"</span>)
                     .build_def(ctx)
                     .centered_horiz(),
             ])
@@ -538,8 +540,8 @@
         Widget::row(<span class="macro">vec!</span>[
             Line(name).small_heading().into_widget(ctx),
             ctx.style()
-                .btn_back(<span class="string">&quot;Home&quot;</span>)
-                .build_widget(ctx, <span class="string">&quot;quit&quot;</span>)
+                .btn_back(<span class="string">"Home"</span>)
+                .build_widget(ctx, <span class="string">"quit"</span>)
                 .align_right(),
         ])
         .margin_below(<span class="number">40</span>),
@@ -565,7 +567,7 @@
                     contents,
                     ctx.style()
                         .btn_solid_primary
-                        .text(<span class="string">&quot;OK&quot;</span>)
+                        .text(<span class="string">"OK"</span>)
                         .hotkey(hotkeys(<span class="macro">vec!</span>[Key::Escape, Key::Space, Key::Enter]))
                         .build_def(ctx)
                         .centered_horiz()
@@ -584,7 +586,7 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;OK&quot; </span>=&gt; Transition::Pop,
+                <span class="string">"OK" </span>=&gt; Transition::Pop,
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_ </span>=&gt; Transition::Keep,

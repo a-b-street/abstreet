@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/commute.rs`."><title>commute.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/commute.rs`."><title>commute.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -401,45 +403,45 @@
     }
 
     <span class="kw">pub fn </span>cutscene_pt1(ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App, mode: <span class="kw-2">&amp;</span>GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
-        CutsceneBuilder::new(<span class="string">&quot;Optimize one commute: part 1&quot;</span>)
-            .boss(<span class="string">&quot;Listen up, I&#39;ve got a special job for you today.&quot;</span>)
-            .player(<span class="string">&quot;What is it? The scooter coalition back with demands for more valet parking?&quot;</span>)
-            .boss(<span class="string">&quot;No, all the tax-funded valets are still busy with the kayakers.&quot;</span>)
+        CutsceneBuilder::new(<span class="string">"Optimize one commute: part 1"</span>)
+            .boss(<span class="string">"Listen up, I've got a special job for you today."</span>)
+            .player(<span class="string">"What is it? The scooter coalition back with demands for more valet parking?"</span>)
+            .boss(<span class="string">"No, all the tax-funded valets are still busy with the kayakers."</span>)
             .boss(
-                <span class="string">&quot;I&#39;ve got a... friend who&#39;s tired of getting stuck in traffic. You&#39;ve got to make \
-                 their commute as fast as possible.&quot;</span>,
+                <span class="string">"I've got a... friend who's tired of getting stuck in traffic. You've got to make \
+                 their commute as fast as possible."</span>,
             )
-            .player(<span class="string">&quot;Uh, what&#39;s so special about them?&quot;</span>)
+            .player(<span class="string">"Uh, what's so special about them?"</span>)
             .boss(
-                <span class="string">&quot;That&#39;s none of your concern! I&#39;ve anonymized their name, so don&#39;t even bother \
-                 digging into what happened in Ballard --&quot;</span>,
+                <span class="string">"That's none of your concern! I've anonymized their name, so don't even bother \
+                 digging into what happened in Ballard --"</span>,
             )
-            .boss(<span class="string">&quot;JUST GET TO WORK, KID!&quot;</span>)
+            .boss(<span class="string">"JUST GET TO WORK, KID!"</span>)
             .player(
-                <span class="string">&quot;(Somebody&#39;s blackmailing the boss. Guess it&#39;s time to help this Very Impatient \
-                 Person.)&quot;</span>,
+                <span class="string">"(Somebody's blackmailing the boss. Guess it's time to help this Very Impatient \
+                 Person.)"</span>,
             )
             .build(ctx, cutscene_task(mode))
     }
 
     <span class="kw">pub fn </span>cutscene_pt2(ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App, mode: <span class="kw-2">&amp;</span>GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         <span class="comment">// TODO The person chosen for this currently has more of an issue needing PBLs, actually.
-        </span>CutsceneBuilder::new(<span class="string">&quot;Optimize one commute: part 2&quot;</span>)
-            .boss(<span class="string">&quot;I&#39;ve got another, er, friend who&#39;s sick of this parking situation.&quot;</span>)
+        </span>CutsceneBuilder::new(<span class="string">"Optimize one commute: part 2"</span>)
+            .boss(<span class="string">"I've got another, er, friend who's sick of this parking situation."</span>)
             .player(
-                <span class="string">&quot;Yeah, why do we dedicate so much valuable land to storing unused cars? It&#39;s \
-                 ridiculous!&quot;</span>,
+                <span class="string">"Yeah, why do we dedicate so much valuable land to storing unused cars? It's \
+                 ridiculous!"</span>,
             )
             .boss(
-                <span class="string">&quot;No, I mean, they&#39;re tired of having to hunt for parking. You need to make it \
-                 easier.&quot;</span>,
+                <span class="string">"No, I mean, they're tired of having to hunt for parking. You need to make it \
+                 easier."</span>,
             )
             .player(
-                <span class="string">&quot;What? We&#39;re trying to encourage people to be less car-dependent. Why&#39;s this \
-                 \&quot;friend\&quot; more important than the city&#39;s carbon-neutral goals?&quot;</span>,
+                <span class="string">"What? We're trying to encourage people to be less car-dependent. Why's this \
+                 \"friend\" more important than the city's carbon-neutral goals?"</span>,
             )
-            .boss(<span class="string">&quot;Everyone&#39;s calling in favors these days. Just make it happen!&quot;</span>)
-            .player(<span class="string">&quot;(Too many people have dirt on the boss. Guess we have another VIP to help.)&quot;</span>)
+            .boss(<span class="string">"Everyone's calling in favors these days. Just make it happen!"</span>)
+            .player(<span class="string">"(Too many people have dirt on the boss. Guess we have another VIP to help.)"</span>)
             .build(ctx, cutscene_task(mode))
     }
 }
@@ -482,14 +484,14 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_right.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;edit map&quot; </span>=&gt; {
+                <span class="string">"edit map" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(EditMode::new_state(
                         ctx,
                         app,
                         <span class="self">self</span>.mode.clone(),
                     )));
                 }
-                <span class="string">&quot;instructions&quot; </span>=&gt; {
+                <span class="string">"instructions" </span>=&gt; {
                     <span class="kw">let </span>contents = (cutscene_task(<span class="kw-2">&amp;</span><span class="self">self</span>.mode))(ctx);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
                         ctx,
@@ -497,13 +499,13 @@
                         Color::WHITE,
                     )));
                 }
-                <span class="string">&quot;hint&quot; </span>=&gt; {
+                <span class="string">"hint" </span>=&gt; {
                     <span class="comment">// TODO Multiple hints. Point to follow button.
-                    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;Hints&quot;</span>);
-                    txt.add_line(<span class="string">&quot;&quot;</span>);
-                    txt.add_line(<span class="string">&quot;Use the locator at the top right to find the VIP.&quot;</span>);
-                    txt.add_line(<span class="string">&quot;You can wait for one of their trips to begin or end.&quot;</span>);
-                    txt.add_line(<span class="string">&quot;Focus on trips spent mostly waiting&quot;</span>);
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">"Hints"</span>);
+                    txt.add_line(<span class="string">""</span>);
+                    txt.add_line(<span class="string">"Use the locator at the top right to find the VIP."</span>);
+                    txt.add_line(<span class="string">"You can wait for one of their trips to begin or end."</span>);
+                    txt.add_line(<span class="string">"Focus on trips spent mostly waiting"</span>);
                     <span class="kw">let </span>contents = txt.into_widget(ctx);
                     <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
                         ctx,
@@ -511,7 +513,7 @@
                         app.cs.panel_bg,
                     )));
                 }
-                <span class="string">&quot;locate VIP&quot; </span>=&gt; {
+                <span class="string">"locate VIP" </span>=&gt; {
                     controls.common.as_mut().unwrap().launch_info_panel(
                         ctx,
                         app,
@@ -532,28 +534,28 @@
 
     <span class="kw">fn </span>recreate_panels(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
         <span class="kw">let </span>(before, after, done) = get_score(app, <span class="kw-2">&amp;</span><span class="self">self</span>.trips);
-        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;Total time: {} (&quot;</span>, after));
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">"Total time: {} ("</span>, after));
         txt.append_all(cmp_duration_shorter(app, after, before));
-        txt.append(Line(<span class="string">&quot;)&quot;</span>));
+        txt.append(Line(<span class="string">")"</span>));
 
         <span class="self">self</span>.top_right = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            challenge_header(ctx, <span class="string">&quot;Optimize the VIP&#39;s commute&quot;</span>),
+            challenge_header(ctx, <span class="string">"Optimize the VIP's commute"</span>),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="macro">format!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by {}&quot;</span>, <span class="self">self</span>.goal)
+                <span class="macro">format!</span>(<span class="string">"Speed up the VIP's trips by {}"</span>, <span class="self">self</span>.goal)
                     .text_widget(ctx)
                     .centered_vert(),
                 ctx.style()
                     .btn_plain
-                    .icon_text(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;hint&quot;</span>)
+                    .icon_text(<span class="string">"system/assets/tools/lightbulb.svg"</span>, <span class="string">"Hint"</span>)
+                    .build_widget(ctx, <span class="string">"hint"</span>)
                     .align_right(),
             ]),
             Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;locate VIP&quot;</span>),
-                <span class="macro">format!</span>(<span class="string">&quot;{}/{} trips done&quot;</span>, done, <span class="self">self</span>.trips.len()).text_widget(ctx),
+                    .icon(<span class="string">"system/assets/tools/location.svg"</span>)
+                    .build_widget(ctx, <span class="string">"locate VIP"</span>),
+                <span class="macro">format!</span>(<span class="string">"{}/{} trips done"</span>, done, <span class="self">self</span>.trips.len()).text_widget(ctx),
                 txt.into_widget(ctx),
             ])
             .centered(),
@@ -591,21 +593,21 @@
 
     <span class="kw">let </span>msg = <span class="kw">if </span>before == after {
         <span class="macro">format!</span>(
-            <span class="string">&quot;The VIP&#39;s commute still takes a total of {}. Were you asleep on the job? Try \
-             changing something!&quot;</span>,
+            <span class="string">"The VIP's commute still takes a total of {}. Were you asleep on the job? Try \
+             changing something!"</span>,
             before
         )
     } <span class="kw">else if </span>after &gt; before {
         <span class="comment">// TODO mad lib insults
         </span><span class="macro">format!</span>(
-            <span class="string">&quot;The VIP&#39;s commute went from {} total to {}. You utter dunce! Are you trying to screw \
-             me over?!&quot;</span>,
+            <span class="string">"The VIP's commute went from {} total to {}. You utter dunce! Are you trying to screw \
+             me over?!"</span>,
             before, after
         )
     } <span class="kw">else if </span>before - after &lt; goal {
         <span class="macro">format!</span>(
-            <span class="string">&quot;The VIP&#39;s commute went from {} total to {}. Hmm... that&#39;s {} faster. But didn&#39;t I \
-             tell you to speed things up by {} at least?&quot;</span>,
+            <span class="string">"The VIP's commute went from {} total to {}. Hmm... that's {} faster. But didn't I \
+             tell you to speed things up by {} at least?"</span>,
             before,
             after,
             before - after,
@@ -613,7 +615,7 @@
         )
     } <span class="kw">else </span>{
         HighScore {
-            goal: <span class="macro">format!</span>(<span class="string">&quot;make VIP&#39;s commute at least {} faster&quot;</span>, goal),
+            goal: <span class="macro">format!</span>(<span class="string">"make VIP's commute at least {} faster"</span>, goal),
             score: before - after,
             edits_name: app.primary.map.get_edits().edits_name.clone(),
         }
@@ -622,8 +624,8 @@
         next_mode = Challenge::find(<span class="kw-2">&amp;</span>mode).<span class="number">1</span>.map(|c| c.gameplay);
 
         <span class="macro">format!</span>(
-            <span class="string">&quot;Alright, you somehow managed to shave {} down from the VIP&#39;s original commute of {}. \
-             I guess that&#39;ll do. Maybe you&#39;re not totally useless after all.&quot;</span>,
+            <span class="string">"Alright, you somehow managed to shave {} down from the VIP's original commute of {}. \
+             I guess that'll do. Maybe you're not totally useless after all."</span>,
             before - after,
             before
         )
@@ -642,44 +644,44 @@
         <span class="kw">let </span>icon_builder = Image::empty().color(Color::BLACK).dims(<span class="number">50.0</span>);
         Widget::custom_col(<span class="macro">vec!</span>[
             Text::from_multiline(<span class="macro">vec!</span>[
-                Line(<span class="macro">format!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by a total of {}&quot;</span>, goal)).fg(Color::BLACK),
-                Line(<span class="string">&quot;Ignore the damage done to everyone else.&quot;</span>).fg(Color::BLACK),
+                Line(<span class="macro">format!</span>(<span class="string">"Speed up the VIP's trips by a total of {}"</span>, goal)).fg(Color::BLACK),
+                Line(<span class="string">"Ignore the damage done to everyone else."</span>).fg(Color::BLACK),
             ])
             .into_widget(ctx)
             .margin_below(<span class="number">30</span>),
             Widget::row(<span class="macro">vec!</span>[
                 Widget::col(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Time&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                    Line(<span class="string">"Time"</span>).fg(Color::BLACK).into_widget(ctx),
                     icon_builder
                         .clone()
-                        .source_path(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
+                        .source_path(<span class="string">"system/assets/tools/time.svg"</span>)
                         .into_widget(ctx),
                     Text::from_multiline(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Until the VIP&#39;s&quot;</span>).fg(Color::BLACK),
-                        Line(<span class="string">&quot;last trip is done&quot;</span>).fg(Color::BLACK),
+                        Line(<span class="string">"Until the VIP's"</span>).fg(Color::BLACK),
+                        Line(<span class="string">"last trip is done"</span>).fg(Color::BLACK),
                     ])
                     .into_widget(ctx),
                 ]),
                 Widget::col(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Goal&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                    Line(<span class="string">"Goal"</span>).fg(Color::BLACK).into_widget(ctx),
                     icon_builder
                         .clone()
-                        .source_path(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                        .source_path(<span class="string">"system/assets/tools/location.svg"</span>)
                         .into_widget(ctx),
                     Text::from_multiline(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Speed up the VIP&#39;s trips&quot;</span>).fg(Color::BLACK),
-                        Line(<span class="macro">format!</span>(<span class="string">&quot;by at least {}&quot;</span>, goal)).fg(Color::BLACK),
+                        Line(<span class="string">"Speed up the VIP's trips"</span>).fg(Color::BLACK),
+                        Line(<span class="macro">format!</span>(<span class="string">"by at least {}"</span>, goal)).fg(Color::BLACK),
                     ])
                     .into_widget(ctx),
                 ]),
                 Widget::col(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Score&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                    Line(<span class="string">"Score"</span>).fg(Color::BLACK).into_widget(ctx),
                     icon_builder
-                        .source_path(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+                        .source_path(<span class="string">"system/assets/tools/star.svg"</span>)
                         .into_widget(ctx),
                     Text::from_multiline(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;How much time&quot;</span>).fg(Color::BLACK),
-                        Line(<span class="string">&quot;the VIP saves&quot;</span>).fg(Color::BLACK),
+                        Line(<span class="string">"How much time"</span>).fg(Color::BLACK),
+                        Line(<span class="string">"the VIP saves"</span>).fg(Color::BLACK),
                     ])
                     .into_widget(ctx),
                 ]),

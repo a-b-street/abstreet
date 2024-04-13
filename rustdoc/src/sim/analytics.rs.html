@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/analytics.rs`."><title>analytics.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/analytics.rs`."><title>analytics.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -912,8 +914,8 @@
 /// organizing and storing some information from them. The UI queries Analytics to draw time-series
 /// and display statistics.
 ///
-/// For all maps whose weekday scenario fully runs, the game&#39;s release includes some &quot;prebaked
-/// results.&quot; These are just serialized Analytics after running the simulation on a map without any
+/// For all maps whose weekday scenario fully runs, the game's release includes some "prebaked
+/// results." These are just serialized Analytics after running the simulation on a map without any
 /// edits for the full day. This is the basis of A/B testing -- the player can edit the map, start
 /// running the simulation, and compare the live Analytics to the prebaked baseline Analytics.
 </span><span class="attr">#[derive(Clone, Serialize, Deserialize)]
@@ -945,7 +947,7 @@
     <span class="comment">// TODO This subsumes finished_trips
     </span><span class="kw">pub </span>trip_log: Vec&lt;(Time, TripID, <span class="prelude-ty">Option</span>&lt;PathRequest&gt;, TripPhaseType)&gt;,
 
-    <span class="comment">// TODO Transit riders aren&#39;t represented here yet, just the vehicle they&#39;re riding.
+    <span class="comment">// TODO Transit riders aren't represented here yet, just the vehicle they're riding.
     </span><span class="doccomment">/// Only for traffic signals. The u8 is the movement index from a CompressedMovementID.
     </span><span class="kw">pub </span>intersection_delays: BTreeMap&lt;IntersectionID, Vec&lt;(u8, Time, Duration, AgentType)&gt;&gt;,
 
@@ -1031,17 +1033,17 @@
         ]
     }
 
-    <span class="kw">pub fn </span>name(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">pub fn </span>name(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            ProblemType::IntersectionDelay =&gt; <span class="string">&quot;delays&quot;</span>,
+            ProblemType::IntersectionDelay =&gt; <span class="string">"delays"</span>,
             ProblemType::ComplexIntersectionCrossing =&gt; {
-                <span class="string">&quot;where cyclists cross complex intersections&quot;
+                <span class="string">"where cyclists cross complex intersections"
             </span>}
-            ProblemType::OvertakeDesired =&gt; <span class="string">&quot;where cars want to overtake cyclists&quot;</span>,
+            ProblemType::OvertakeDesired =&gt; <span class="string">"where cars want to overtake cyclists"</span>,
             ProblemType::ArterialIntersectionCrossing =&gt; {
-                <span class="string">&quot;where pedestrians cross arterial intersections&quot;
+                <span class="string">"where pedestrians cross arterial intersections"
             </span>}
-            ProblemType::PedestrianOvercrowding =&gt; <span class="string">&quot;where pedestrians are over-crowded&quot;</span>,
+            ProblemType::PedestrianOvercrowding =&gt; <span class="string">"where pedestrians are over-crowded"</span>,
         }
     }
 }
@@ -1166,7 +1168,7 @@
             <span class="kw">let </span>threshold = <span class="kw">match </span>agent {
                 AgentID::Car(<span class="kw">_</span>) =&gt; Duration::seconds(<span class="number">30.0</span>),
                 AgentID::Pedestrian(<span class="kw">_</span>) =&gt; Duration::seconds(<span class="number">15.0</span>),
-                <span class="comment">// Don&#39;t record for riders
+                <span class="comment">// Don't record for riders
                 </span>AgentID::BusPassenger(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Duration::hours(<span class="number">24</span>),
             };
             <span class="kw">if </span>delay &gt; threshold {
@@ -1217,9 +1219,9 @@
         <span class="comment">// Safety metrics
         </span><span class="kw">if let </span>Event::AgentEntersTraversable(a, <span class="prelude-val">Some</span>(trip), Traversable::Turn(t), <span class="kw">_</span>) = ev {
             <span class="kw">if </span>a.to_type() == AgentType::Bike &amp;&amp; map.get_i(t.parent).roads.len() &gt; <span class="number">4 </span>{
-                <span class="comment">// Defining a &quot;large intersection&quot; is tricky. If a road is split into two one-ways,
-                // should we count it as two roads? If we haven&#39;t consolidated some crazy
-                // intersection, we won&#39;t see it.
+                <span class="comment">// Defining a "large intersection" is tricky. If a road is split into two one-ways,
+                // should we count it as two roads? If we haven't consolidated some crazy
+                // intersection, we won't see it.
                 </span><span class="self">self</span>.problems_per_trip
                     .entry(trip)
                     .or_insert_with(Vec::new)
@@ -1363,7 +1365,7 @@
             phases.push(TripPhase {
                 start_time: <span class="kw-2">*</span>t,
                 end_time: <span class="prelude-val">None</span>,
-                <span class="comment">// Don&#39;t compute any paths
+                <span class="comment">// Don't compute any paths
                 </span>path: <span class="prelude-val">None</span>,
                 has_path_req: maybe_req.is_some(),
                 phase_type: <span class="kw-2">*</span>phase_type,
@@ -1393,14 +1395,14 @@
         <span class="kw">let </span><span class="kw-2">mut </span>last_t = Time::START_OF_DAY;
         <span class="kw">for </span>(t, ended) <span class="kw">in </span>starts_stops {
             <span class="kw">if </span>t != last_t {
-                <span class="comment">// Step functions. Don&#39;t interpolate.
+                <span class="comment">// Step functions. Don't interpolate.
                 </span>pts.push((last_t, cnt));
             }
             last_t = t;
             <span class="kw">if </span>ended {
                 <span class="comment">// release mode disables this check, so...
                 </span><span class="kw">if </span>cnt == <span class="number">0 </span>{
-                    <span class="macro">panic!</span>(<span class="string">&quot;active_agents at {} has more ended trips than started&quot;</span>, t);
+                    <span class="macro">panic!</span>(<span class="string">"active_agents at {} has more ended trips than started"</span>, t);
                 }
                 cnt -= <span class="number">1</span>;
             } <span class="kw">else </span>{
@@ -1454,13 +1456,13 @@
                 <span class="kw">break</span>;
             }
             <span class="kw">if </span><span class="kw-2">*</span>t != last_t {
-                <span class="comment">// Step functions. Don&#39;t interpolate.
+                <span class="comment">// Step functions. Don't interpolate.
                 </span>pts.push((last_t, cnt));
             }
             last_t = <span class="kw-2">*</span>t;
             <span class="kw">if </span><span class="kw-2">*</span>filled {
                 <span class="kw">if </span>cnt == <span class="number">0 </span>{
-                    <span class="macro">panic!</span>(<span class="string">&quot;parking_spot_availability at {} went below 0&quot;</span>, t);
+                    <span class="macro">panic!</span>(<span class="string">"parking_spot_availability at {} went below 0"</span>, t);
                 }
                 cnt -= <span class="number">1</span>;
             } <span class="kw">else </span>{
@@ -1605,7 +1607,7 @@
     <span class="doccomment">/// (Road or intersection, type, hour block) -&gt; count for that hour
     </span><span class="kw">pub </span>counts: BTreeMap&lt;(X, AgentType, usize), usize&gt;,
 
-    <span class="doccomment">/// Very expensive to store, so it&#39;s optional. But useful to flag on to experiment with
+    <span class="doccomment">/// Very expensive to store, so it's optional. But useful to flag on to experiment with
     /// representations better than the hour count above.
     </span><span class="kw">pub </span>raw: Vec&lt;(Time, AgentType, X)&gt;,
 }
@@ -1730,11 +1732,11 @@
     <span class="doccomment">/// Returns the contents of a CSV file
     </span><span class="kw">pub fn </span>export_csv&lt;F: Fn(<span class="kw-2">&amp;</span>X) -&gt; usize&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, extract_id: F) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
-        <span class="macro">writeln!</span>(out, <span class="string">&quot;id,agent_type,hour,count&quot;</span>).unwrap();
+        <span class="macro">writeln!</span>(out, <span class="string">"id,agent_type,hour,count"</span>).unwrap();
         <span class="kw">for </span>((id, agent_type, hour), count) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.counts {
             <span class="macro">writeln!</span>(
                 out,
-                <span class="string">&quot;{},{:?},{},{}&quot;</span>,
+                <span class="string">"{},{:?},{},{}"</span>,
                 extract_id(id),
                 agent_type,
                 hour,
@@ -1766,7 +1768,7 @@
         <span class="self">self</span>.count(time)
     }
 
-    <span class="doccomment">/// Grab the count at this time, but don&#39;t add a new time
+    <span class="doccomment">/// Grab the count at this time, but don't add a new time
     </span><span class="kw">pub fn </span>count(<span class="kw-2">&amp;mut </span><span class="self">self</span>, end: Time) -&gt; usize {
         <span class="kw">while </span>!<span class="self">self</span>.times.is_empty() &amp;&amp; end - <span class="kw-2">*</span><span class="self">self</span>.times.front().unwrap() &gt; <span class="self">self</span>.window_size {
             <span class="self">self</span>.times.pop_front();
@@ -1774,7 +1776,7 @@
         <span class="self">self</span>.times.len()
     }
 
-    <span class="doccomment">/// Ensure the points cover up to `end_time`. The last event may occur before then, and it&#39;s
+    <span class="doccomment">/// Ensure the points cover up to `end_time`. The last event may occur before then, and it's
     /// necessary to draw more points to show the count drop off.
     </span><span class="kw">pub fn </span>close_off_pts(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pts: <span class="kw-2">&amp;mut </span>Vec&lt;(Time, usize)&gt;, end_time: Time) {
         <span class="comment">// Add a drop-off after window_size (+ a little epsilon!)

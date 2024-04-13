@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/svg.rs`."><title>svg.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/svg.rs`."><title>svg.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -196,7 +198,7 @@
 // https://github.com/nical/lyon/blob/0d0ee771180fb317b986d9cf30266722e0773e01/examples/wgpu_svg/src/main.rs
 
 </span><span class="kw">pub fn </span>load_svg(prerender: <span class="kw-2">&amp;</span>Prerender, filename: <span class="kw-2">&amp;</span>str) -&gt; (GeomBatch, Bounds) {
-    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">&quot;file://{}&quot;</span>, filename);
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">"file://{}"</span>, filename);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(pair) = prerender.assets.get_cached_svg(<span class="kw-2">&amp;</span>cache_key) {
         <span class="kw">return </span>pair;
     }
@@ -207,7 +209,7 @@
             prerender.assets.cache_svg(cache_key, batch.clone(), bounds);
             (batch, bounds)
         })
-        .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;error loading svg: {}&quot;</span>, filename))
+        .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"error loading svg: {}"</span>, filename))
 }
 
 <span class="kw">pub fn </span>load_svg_bytes(
@@ -215,7 +217,7 @@
     cache_key: <span class="kw-2">&amp;</span>str,
     bytes: <span class="kw-2">&amp;</span>[u8],
 ) -&gt; anyhow::Result&lt;(GeomBatch, Bounds)&gt; {
-    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">&quot;bytes://{}&quot;</span>, cache_key);
+    <span class="kw">let </span>cache_key = <span class="macro">format!</span>(<span class="string">"bytes://{}"</span>, cache_key);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(pair) = prerender.assets.get_cached_svg(<span class="kw-2">&amp;</span>cache_key) {
         <span class="kw">return </span><span class="prelude-val">Ok</span>(pair);
     }
@@ -235,7 +237,7 @@
     }
 }
 
-<span class="comment">// No offset. I&#39;m not exactly sure how the simplification in usvg works, but this doesn&#39;t support
+<span class="comment">// No offset. I'm not exactly sure how the simplification in usvg works, but this doesn't support
 // transforms or strokes or text, just fills. Luckily, all of the files exported from Figma so far
 // work just fine.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_svg_inner(
@@ -260,7 +262,7 @@
                     <span class="kw-2">&amp;</span>tessellation::FillOptions::tolerance(tolerance),
                     <span class="kw-2">&amp;mut </span>simple_builder(geom),
                 ) {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t tessellate something: {err}&quot;</span>));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"Couldn't tessellate something: {err}"</span>));
                 }
             }
 
@@ -355,7 +357,7 @@
         )),
         usvg::Paint::LinearGradient(lg) =&gt; LinearGradient::new_fill(lg),
         <span class="comment">// No patterns or radial gradiants
-        </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported color style {:?}&quot;</span>, paint),
+        </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unsupported color style {:?}"</span>, paint),
     }
 }
 </code></pre></div></section></main></body></html>

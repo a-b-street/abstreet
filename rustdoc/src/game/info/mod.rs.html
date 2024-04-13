@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1089,70 +1091,70 @@
     <span class="kw">pub fn </span>from_id(app: <span class="kw-2">&amp;</span>App, id: ID) -&gt; Tab {
         <span class="kw">match </span>id {
             ID::Road(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-            ID::Lane(l) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;lane&quot;</span>] {
-                <span class="string">&quot;info&quot; </span>=&gt; Tab::LaneInfo(l),
-                <span class="string">&quot;debug&quot; </span>=&gt; Tab::LaneDebug(l),
-                <span class="string">&quot;traffic&quot; </span>=&gt; Tab::LaneTraffic(l, DataOptions::new()),
-                <span class="string">&quot;problems&quot; </span>=&gt; Tab::LaneProblems(l, ProblemOptions::new()),
+            ID::Lane(l) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">"lane"</span>] {
+                <span class="string">"info" </span>=&gt; Tab::LaneInfo(l),
+                <span class="string">"debug" </span>=&gt; Tab::LaneDebug(l),
+                <span class="string">"traffic" </span>=&gt; Tab::LaneTraffic(l, DataOptions::new()),
+                <span class="string">"problems" </span>=&gt; Tab::LaneProblems(l, ProblemOptions::new()),
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            ID::Intersection(i) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;intersection&quot;</span>] {
-                <span class="string">&quot;info&quot; </span>=&gt; Tab::IntersectionInfo(i),
-                <span class="string">&quot;traffic&quot; </span>=&gt; Tab::IntersectionTraffic(i, DataOptions::new()),
-                <span class="string">&quot;delay&quot; </span>=&gt; {
+            ID::Intersection(i) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">"intersection"</span>] {
+                <span class="string">"info" </span>=&gt; Tab::IntersectionInfo(i),
+                <span class="string">"traffic" </span>=&gt; Tab::IntersectionTraffic(i, DataOptions::new()),
+                <span class="string">"delay" </span>=&gt; {
                     <span class="kw">if </span>app.primary.map.get_i(i).is_traffic_signal() {
                         Tab::IntersectionDelay(i, DataOptions::new(), <span class="bool-val">false</span>)
                     } <span class="kw">else </span>{
                         Tab::IntersectionInfo(i)
                     }
                 }
-                <span class="string">&quot;demand&quot; </span>=&gt; {
+                <span class="string">"demand" </span>=&gt; {
                     <span class="kw">if </span>app.primary.map.get_i(i).is_traffic_signal() {
                         Tab::IntersectionDemand(i)
                     } <span class="kw">else </span>{
                         Tab::IntersectionInfo(i)
                     }
                 }
-                <span class="string">&quot;arrivals&quot; </span>=&gt; {
+                <span class="string">"arrivals" </span>=&gt; {
                     <span class="kw">if </span>app.primary.map.get_i(i).is_incoming_border() {
                         Tab::IntersectionArrivals(i, DataOptions::new())
                     } <span class="kw">else </span>{
                         Tab::IntersectionInfo(i)
                     }
                 }
-                <span class="string">&quot;traffic signal&quot; </span>=&gt; {
+                <span class="string">"traffic signal" </span>=&gt; {
                     <span class="kw">if </span>app.primary.map.get_i(i).is_traffic_signal() {
                         Tab::IntersectionTrafficSignal(i)
                     } <span class="kw">else </span>{
                         Tab::IntersectionInfo(i)
                     }
                 }
-                <span class="string">&quot;problems&quot; </span>=&gt; Tab::IntersectionProblems(i, ProblemOptions::new()),
+                <span class="string">"problems" </span>=&gt; Tab::IntersectionProblems(i, ProblemOptions::new()),
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            ID::Building(b) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;bldg&quot;</span>] {
-                <span class="string">&quot;info&quot; </span>=&gt; Tab::BldgInfo(b),
-                <span class="string">&quot;people&quot; </span>=&gt; Tab::BldgPeople(b),
+            ID::Building(b) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">"bldg"</span>] {
+                <span class="string">"info" </span>=&gt; Tab::BldgInfo(b),
+                <span class="string">"people" </span>=&gt; Tab::BldgPeople(b),
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
             ID::ParkingLot(b) =&gt; Tab::ParkingLot(b),
             ID::Car(c) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
-                    <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;person&quot;</span>] {
-                        <span class="string">&quot;trips&quot; </span>=&gt; Tab::PersonTrips(
+                    <span class="kw">match </span>app.session.info_panel_tab[<span class="string">"person"</span>] {
+                        <span class="string">"trips" </span>=&gt; Tab::PersonTrips(
                             p,
                             OpenTrip::single(
                                 app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap(),
                             ),
                         ),
-                        <span class="string">&quot;bio&quot; </span>=&gt; Tab::PersonBio(p),
-                        <span class="string">&quot;schedule&quot; </span>=&gt; Tab::PersonSchedule(p),
+                        <span class="string">"bio" </span>=&gt; Tab::PersonBio(p),
+                        <span class="string">"schedule" </span>=&gt; Tab::PersonSchedule(p),
                         <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                     }
                 } <span class="kw">else if </span>c.vehicle_type == VehicleType::Bus || c.vehicle_type == VehicleType::Train
                 {
-                    <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;bus&quot;</span>] {
-                        <span class="string">&quot;status&quot; </span>=&gt; Tab::TransitVehicleStatus(c),
+                    <span class="kw">match </span>app.session.info_panel_tab[<span class="string">"bus"</span>] {
+                        <span class="string">"status" </span>=&gt; Tab::TransitVehicleStatus(c),
                         <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                     }
                 } <span class="kw">else </span>{
@@ -1165,8 +1167,8 @@
                     .sim
                     .agent_to_person(AgentID::Pedestrian(p))
                     .unwrap();
-                <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;person&quot;</span>] {
-                    <span class="string">&quot;trips&quot; </span>=&gt; Tab::PersonTrips(
+                <span class="kw">match </span>app.session.info_panel_tab[<span class="string">"person"</span>] {
+                    <span class="string">"trips" </span>=&gt; Tab::PersonTrips(
                         person,
                         OpenTrip::single(
                             app.primary
@@ -1175,8 +1177,8 @@
                                 .unwrap(),
                         ),
                     ),
-                    <span class="string">&quot;bio&quot; </span>=&gt; Tab::PersonBio(person),
-                    <span class="string">&quot;schedule&quot; </span>=&gt; Tab::PersonSchedule(person),
+                    <span class="string">"bio" </span>=&gt; Tab::PersonBio(person),
+                    <span class="string">"schedule" </span>=&gt; Tab::PersonSchedule(person),
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
             }
@@ -1252,7 +1254,7 @@
             }
             Tab::IntersectionDelay(<span class="kw">_</span>, <span class="kw-2">ref mut </span>opts, <span class="kw-2">ref mut </span>fan_chart) =&gt; {
                 <span class="kw">let </span>new_opts = DataOptions::from_controls(c);
-                <span class="kw">let </span>new_fan_chart = c.is_checked(<span class="string">&quot;fan chart / scatter plot&quot;</span>);
+                <span class="kw">let </span>new_fan_chart = c.is_checked(<span class="string">"fan chart / scatter plot"</span>);
                 <span class="kw">if </span><span class="kw-2">*</span>opts == new_opts &amp;&amp; <span class="kw-2">*</span>fan_chart == new_fan_chart {
                     <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
@@ -1271,31 +1273,31 @@
         <span class="prelude-val">Some</span>(new_tab)
     }
 
-    <span class="kw">fn </span>variant(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) {
+    <span class="kw">fn </span>variant(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) {
         <span class="kw">match </span><span class="self">self </span>{
-            Tab::PersonTrips(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;trips&quot;</span>),
-            Tab::PersonBio(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;bio&quot;</span>),
-            Tab::PersonSchedule(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;schedule&quot;</span>),
-            Tab::TransitVehicleStatus(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;status&quot;</span>),
-            Tab::TransitStop(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus stop&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::TransitRoute(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus route&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::ParkedCar(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parked car&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::BldgInfo(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::BldgPeople(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;people&quot;</span>),
-            Tab::ParkingLot(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parking lot&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::Crowd(<span class="kw">_</span>) =&gt; (<span class="string">&quot;crowd&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::Area(<span class="kw">_</span>) =&gt; (<span class="string">&quot;area&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::IntersectionInfo(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::IntersectionTraffic(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
-            Tab::IntersectionDelay(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;delay&quot;</span>),
-            Tab::IntersectionDemand(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;demand&quot;</span>),
-            Tab::IntersectionArrivals(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;arrivals&quot;</span>),
-            Tab::IntersectionTrafficSignal(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic signal&quot;</span>),
-            Tab::IntersectionProblems(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;problems&quot;</span>),
-            Tab::LaneInfo(<span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            Tab::LaneDebug(<span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;debug&quot;</span>),
-            Tab::LaneTraffic(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
-            Tab::LaneProblems(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;problems&quot;</span>),
+            Tab::PersonTrips(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">"person"</span>, <span class="string">"trips"</span>),
+            Tab::PersonBio(<span class="kw">_</span>) =&gt; (<span class="string">"person"</span>, <span class="string">"bio"</span>),
+            Tab::PersonSchedule(<span class="kw">_</span>) =&gt; (<span class="string">"person"</span>, <span class="string">"schedule"</span>),
+            Tab::TransitVehicleStatus(<span class="kw">_</span>) =&gt; (<span class="string">"bus"</span>, <span class="string">"status"</span>),
+            Tab::TransitStop(<span class="kw">_</span>) =&gt; (<span class="string">"bus stop"</span>, <span class="string">"info"</span>),
+            Tab::TransitRoute(<span class="kw">_</span>) =&gt; (<span class="string">"bus route"</span>, <span class="string">"info"</span>),
+            Tab::ParkedCar(<span class="kw">_</span>) =&gt; (<span class="string">"parked car"</span>, <span class="string">"info"</span>),
+            Tab::BldgInfo(<span class="kw">_</span>) =&gt; (<span class="string">"bldg"</span>, <span class="string">"info"</span>),
+            Tab::BldgPeople(<span class="kw">_</span>) =&gt; (<span class="string">"bldg"</span>, <span class="string">"people"</span>),
+            Tab::ParkingLot(<span class="kw">_</span>) =&gt; (<span class="string">"parking lot"</span>, <span class="string">"info"</span>),
+            Tab::Crowd(<span class="kw">_</span>) =&gt; (<span class="string">"crowd"</span>, <span class="string">"info"</span>),
+            Tab::Area(<span class="kw">_</span>) =&gt; (<span class="string">"area"</span>, <span class="string">"info"</span>),
+            Tab::IntersectionInfo(<span class="kw">_</span>) =&gt; (<span class="string">"intersection"</span>, <span class="string">"info"</span>),
+            Tab::IntersectionTraffic(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">"intersection"</span>, <span class="string">"traffic"</span>),
+            Tab::IntersectionDelay(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">"intersection"</span>, <span class="string">"delay"</span>),
+            Tab::IntersectionDemand(<span class="kw">_</span>) =&gt; (<span class="string">"intersection"</span>, <span class="string">"demand"</span>),
+            Tab::IntersectionArrivals(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">"intersection"</span>, <span class="string">"arrivals"</span>),
+            Tab::IntersectionTrafficSignal(<span class="kw">_</span>) =&gt; (<span class="string">"intersection"</span>, <span class="string">"traffic signal"</span>),
+            Tab::IntersectionProblems(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">"intersection"</span>, <span class="string">"problems"</span>),
+            Tab::LaneInfo(<span class="kw">_</span>) =&gt; (<span class="string">"lane"</span>, <span class="string">"info"</span>),
+            Tab::LaneDebug(<span class="kw">_</span>) =&gt; (<span class="string">"lane"</span>, <span class="string">"debug"</span>),
+            Tab::LaneTraffic(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">"lane"</span>, <span class="string">"traffic"</span>),
+            Tab::LaneProblems(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">"lane"</span>, <span class="string">"problems"</span>),
         }
     }
 }
@@ -1313,7 +1315,7 @@
     </span><span class="kw">pub </span>warpers: HashMap&lt;String, ID&gt;,
     <span class="doccomment">/// When a button with this label is clicked, time-warp and open the info panel for this trip.
     </span><span class="kw">pub </span>time_warpers: HashMap&lt;String, (TripID, Time)&gt;,
-    <span class="comment">// It&#39;s just convenient to plumb this here
+    <span class="comment">// It's just convenient to plumb this here
     </span><span class="kw">pub </span>can_jump_to_time: bool,
 }
 
@@ -1458,11 +1460,11 @@
                             details.draw_extra.zoomed.push(app.cs.current_object, poly);
                         }
                         <span class="prelude-val">Err</span>(err) =&gt; {
-                            <span class="macro">warn!</span>(<span class="string">&quot;No outline for {:?}: {}&quot;</span>, id, err);
+                            <span class="macro">warn!</span>(<span class="string">"No outline for {:?}: {}"</span>, id, err);
                         }
                     }
 
-                    <span class="comment">// TODO And actually, don&#39;t cover up the agent. The Renderable API isn&#39;t quite
+                    <span class="comment">// TODO And actually, don't cover up the agent. The Renderable API isn't quite
                     // conducive to doing this yet.
                 </span>}
                 <span class="kw">_ </span>=&gt; {
@@ -1506,7 +1508,7 @@
         <span class="comment">// Let the user click on the map to cancel out this info panel, or click on a tooltip to
         // time warp.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
-            <span class="comment">// TODO This&#39;ll fire left_click elsewhere and conflict; we can&#39;t override here
+            <span class="comment">// TODO This'll fire left_click elsewhere and conflict; we can't override here
             </span><span class="kw">if </span>app.primary.current_selection.is_none() {
                 <span class="kw">let </span><span class="kw-2">mut </span>found_tooltip = <span class="bool-val">false</span>;
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, (trip, time))) = <span class="self">self
@@ -1517,12 +1519,12 @@
                     found_tooltip = <span class="bool-val">true</span>;
                     <span class="kw">if </span>app
                         .per_obj
-                        .left_click(ctx, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;warp here at {}&quot;</span>, time))
+                        .left_click(ctx, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"warp here at {}"</span>, time))
                     {
                         <span class="kw">return </span>do_time_warp(ctx_actions, app, <span class="kw-2">*</span>trip, <span class="kw-2">*</span>time);
                     }
                 }
-                <span class="kw">if </span>!found_tooltip &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;stop showing info&quot;</span>) {
+                <span class="kw">if </span>!found_tooltip &amp;&amp; app.per_obj.left_click(ctx, <span class="string">"stop showing info"</span>) {
                     <span class="kw">return </span>(<span class="bool-val">true</span>, <span class="prelude-val">None</span>);
                 }
             }
@@ -1541,8 +1543,8 @@
             Outcome::Clicked(action) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(new_tab) = <span class="self">self</span>.hyperlinks.get(<span class="kw-2">&amp;</span>action).cloned() {
                     <span class="kw">let </span><span class="kw-2">mut </span>new = InfoPanel::new(ctx, app, new_tab, ctx_actions);
-                    <span class="comment">// TODO Most cases use changed_settings, but one doesn&#39;t. Detect that
-                    // &quot;sameness&quot; here.
+                    <span class="comment">// TODO Most cases use changed_settings, but one doesn't. Detect that
+                    // "sameness" here.
                     </span><span class="kw">if let </span>(Tab::PersonTrips(p1, <span class="kw">_</span>), Tab::PersonTrips(p2, <span class="kw">_</span>)) =
                         (<span class="kw-2">&amp;</span><span class="self">self</span>.tab, <span class="kw-2">&amp;</span>new.tab)
                     {
@@ -1552,9 +1554,9 @@
                     }
                     <span class="kw-2">*</span><span class="self">self </span>= new;
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else if </span>action == <span class="string">&quot;close&quot; </span>{
+                } <span class="kw">else if </span>action == <span class="string">"close" </span>{
                     (<span class="bool-val">true</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else if </span>action == <span class="string">&quot;jump to object&quot; </span>{
+                } <span class="kw">else if </span>action == <span class="string">"jump to object" </span>{
                     <span class="comment">// TODO Messy way of doing this
                     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.tab.to_id(app) {
                         (
@@ -1583,10 +1585,10 @@
                     )
                 } <span class="kw">else if let </span><span class="prelude-val">Some</span>((trip, time)) = <span class="self">self</span>.time_warpers.get(<span class="kw-2">&amp;</span>action) {
                     do_time_warp(ctx_actions, app, <span class="kw-2">*</span>trip, <span class="kw-2">*</span>time)
-                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(url) = action.strip_prefix(<span class="string">&quot;open &quot;</span>) {
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(url) = action.strip_prefix(<span class="string">"open "</span>) {
                     open_browser(url);
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = action.strip_prefix(<span class="string">&quot;edit TransitRoute #&quot;</span>) {
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = action.strip_prefix(<span class="string">"edit TransitRoute #"</span>) {
                     (
                         <span class="bool-val">false</span>,
                         <span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
@@ -1602,14 +1604,14 @@
                             )),
                         ])),
                     )
-                } <span class="kw">else if </span>action == <span class="string">&quot;Explore demand across all traffic signals&quot; </span>{
+                } <span class="kw">else if </span>action == <span class="string">"Explore demand across all traffic signals" </span>{
                     (
                         <span class="bool-val">false</span>,
                         <span class="prelude-val">Some</span>(Transition::Push(
                             dashboards::TrafficSignalDemand::new_state(ctx, app),
                         )),
                     )
-                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = action.strip_prefix(<span class="string">&quot;routes across Intersection #&quot;</span>) {
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = action.strip_prefix(<span class="string">"routes across Intersection #"</span>) {
                     (
                         <span class="bool-val">false</span>,
                         <span class="prelude-val">Some</span>(Transition::Push(PathCounter::demand_across_intersection(
@@ -1624,9 +1626,9 @@
                     (close_panel, <span class="prelude-val">Some</span>(t))
                 } <span class="kw">else </span>{
                     <span class="comment">// This happens when clicking the follow/unfollow button on a trip whose
-                    // agent doesn&#39;t exist. Do nothing and just don&#39;t crash.
+                    // agent doesn't exist. Do nothing and just don't crash.
                     </span><span class="macro">error!</span>(
-                        <span class="string">&quot;Can&#39;t do {} on this tab, because it doesn&#39;t map to an ID&quot;</span>,
+                        <span class="string">"Can't do {} on this tab, because it doesn't map to an ID"</span>,
                         action
                     );
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
@@ -1677,7 +1679,7 @@
     time: Time,
 ) -&gt; (bool, <span class="prelude-ty">Option</span>&lt;Transition&gt;) {
     <span class="kw">let </span>person = app.primary.sim.trip_to_person(trip).unwrap();
-    <span class="comment">// When executed, this assumes the SandboxMode is the top of the stack. It&#39;ll
+    <span class="comment">// When executed, this assumes the SandboxMode is the top of the stack. It'll
     // reopen the info panel, then launch the jump-to-time UI.
     </span><span class="kw">let </span>jump_to_time = Transition::ConsumeState(Box::new(<span class="kw">move </span>|state, ctx, app| {
         <span class="kw">let </span><span class="kw-2">mut </span>sandbox = state.downcast::&lt;SandboxMode&gt;().ok().unwrap();
@@ -1735,7 +1737,7 @@
         })
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     <span class="kw">if </span>opts.show_before {
-        <span class="comment">// TODO Ahh these colors don&#39;t show up differently at all.
+        <span class="comment">// TODO Ahh these colors don't show up differently at all.
         </span><span class="kw">for </span>(agent_type, pts) <span class="kw">in </span>get_data(app.prebaked()) {
             series.push(Series {
                 label: agent_type.noun().to_string(),
@@ -1812,7 +1814,7 @@
                     bottom_left: <span class="number">0.0</span>,
                     bottom_right: <span class="number">0.0</span>,
                 })
-                <span class="comment">// We abuse &quot;disabled&quot; to denote &quot;currently selected&quot;
+                <span class="comment">// We abuse "disabled" to denote "currently selected"
                 </span>.disabled(current_tab.variant() == link.variant())
                 .build_def(ctx),
         );
@@ -1826,9 +1828,9 @@
     Widget::row(<span class="macro">vec!</span>[
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/tools/location.svg"</span>)
             .hotkey(Key::J)
-            .build_widget(ctx, <span class="string">&quot;jump to object&quot;</span>),
+            .build_widget(ctx, <span class="string">"jump to object"</span>),
         ctx.style().btn_close_widget(ctx),
     ])
     .align_right()
@@ -1874,16 +1876,16 @@
         Widget::row(<span class="macro">vec!</span>[
             Toggle::custom_checkbox(
                 ctx,
-                <span class="string">&quot;Show before changes&quot;</span>,
+                <span class="string">"Show before changes"</span>,
                 <span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Show before &quot;</span>),
+                    Line(<span class="string">"Show before "</span>),
                     Line(<span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name).underlined(),
                 ],
                 <span class="prelude-val">None</span>,
                 <span class="self">self</span>.show_before,
             ),
             <span class="kw">if </span><span class="self">self</span>.show_before {
-                Toggle::switch(ctx, <span class="string">&quot;Show full day&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.show_end_of_day)
+                Toggle::switch(ctx, <span class="string">"Show full day"</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.show_end_of_day)
             } <span class="kw">else </span>{
                 Widget::nothing()
             },
@@ -1892,7 +1894,7 @@
     }
 
     <span class="kw">pub fn </span>from_controls(c: <span class="kw-2">&amp;</span>Panel) -&gt; DataOptions {
-        <span class="kw">let </span>show_before = c.maybe_is_checked(<span class="string">&quot;Show before changes&quot;</span>).unwrap_or(<span class="bool-val">false</span>);
+        <span class="kw">let </span>show_before = c.maybe_is_checked(<span class="string">"Show before changes"</span>).unwrap_or(<span class="bool-val">false</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>disabled_types = BTreeSet::new();
         <span class="kw">for </span>a <span class="kw">in </span>AgentType::all() {
             <span class="kw">let </span>label = a.noun();
@@ -1902,7 +1904,7 @@
         }
         DataOptions {
             show_before,
-            show_end_of_day: show_before &amp;&amp; c.maybe_is_checked(<span class="string">&quot;Show full day&quot;</span>).unwrap_or(<span class="bool-val">false</span>),
+            show_end_of_day: show_before &amp;&amp; c.maybe_is_checked(<span class="string">"Show full day"</span>).unwrap_or(<span class="bool-val">false</span>),
             disabled_types,
         }
     }
@@ -1938,16 +1940,16 @@
         Widget::row(<span class="macro">vec!</span>[
             Toggle::custom_checkbox(
                 ctx,
-                <span class="string">&quot;Show before changes&quot;</span>,
+                <span class="string">"Show before changes"</span>,
                 <span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Show before &quot;</span>),
+                    Line(<span class="string">"Show before "</span>),
                     Line(<span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name).underlined(),
                 ],
                 <span class="prelude-val">None</span>,
                 <span class="self">self</span>.show_before,
             ),
             <span class="kw">if </span><span class="self">self</span>.show_before {
-                Toggle::switch(ctx, <span class="string">&quot;Show full day&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.show_end_of_day)
+                Toggle::switch(ctx, <span class="string">"Show full day"</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.show_end_of_day)
             } <span class="kw">else </span>{
                 Widget::nothing()
             },
@@ -1956,7 +1958,7 @@
     }
 
     <span class="kw">pub fn </span>from_controls(c: <span class="kw-2">&amp;</span>Panel) -&gt; ProblemOptions {
-        <span class="kw">let </span>show_before = c.maybe_is_checked(<span class="string">&quot;Show before changes&quot;</span>).unwrap_or(<span class="bool-val">false</span>);
+        <span class="kw">let </span>show_before = c.maybe_is_checked(<span class="string">"Show before changes"</span>).unwrap_or(<span class="bool-val">false</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>disabled_types = HashSet::new();
         <span class="kw">for </span>pt <span class="kw">in </span>ProblemType::all() {
             <span class="kw">if </span>!c.maybe_is_checked(pt.name()).unwrap_or(<span class="bool-val">true</span>) {
@@ -1965,7 +1967,7 @@
         }
         ProblemOptions {
             show_before,
-            show_end_of_day: show_before &amp;&amp; c.maybe_is_checked(<span class="string">&quot;Show full day&quot;</span>).unwrap_or(<span class="bool-val">false</span>),
+            show_end_of_day: show_before &amp;&amp; c.maybe_is_checked(<span class="string">"Show full day"</span>).unwrap_or(<span class="bool-val">false</span>),
             disabled_types,
         }
     }
@@ -1978,7 +1980,7 @@
     }
 }
 
-<span class="comment">// TODO Maybe color should be optional, and we&#39;ll default to rotating through some options in the
+<span class="comment">// TODO Maybe color should be optional, and we'll default to rotating through some options in the
 // Series
 </span><span class="kw">fn </span>color_for_problem_type(app: <span class="kw-2">&amp;</span>App, problem_type: ProblemType) -&gt; Color {
     <span class="kw">for </span>(idx, pt) <span class="kw">in </span>ProblemType::all().into_iter().enumerate() {

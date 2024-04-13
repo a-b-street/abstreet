@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/save/save_dialog.rs`."><title>save_dialog.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/save/save_dialog.rs`."><title>save_dialog.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -211,24 +213,24 @@
         <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">Self </span>{
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Save proposal&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Save proposal"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
-                        <span class="string">&quot;Download as file&quot;
+                    .text(<span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">"wasm32"</span>) {
+                        <span class="string">"Download as file"
                     </span>} <span class="kw">else </span>{
-                        <span class="string">&quot;Save as file in other folder&quot;
+                        <span class="string">"Save as file in other folder"
                     </span>})
-                    .build_widget(ctx, <span class="string">&quot;save as file&quot;</span>),
+                    .build_widget(ctx, <span class="string">"save as file"</span>),
                 Widget::horiz_separator(ctx, <span class="number">1.0</span>),
-                <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
-                    Line(<span class="string">&quot;Save in your browser&#39;s local storage&quot;</span>)
+                <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">"wasm32"</span>) {
+                    Line(<span class="string">"Save in your browser's local storage"</span>)
                         .small()
                         .into_widget(ctx)
                 } <span class="kw">else </span>{
-                    Line(<span class="string">&quot;Save as a file in the A/B Street data folder&quot;</span>)
+                    Line(<span class="string">"Save as a file in the A/B Street data folder"</span>)
                         .small()
                         .into_widget(ctx)
                 },
@@ -237,11 +239,11 @@
                         ctx.style()
                             .btn_solid_destructive
                             .text(<span class="macro">format!</span>(
-                                <span class="string">&quot;Overwrite \&quot;{}\&quot;&quot;</span>,
+                                <span class="string">"Overwrite \"{}\""</span>,
                                 app.per_map.proposals.get_current().edits.edits_name
                             ))
-                            .build_widget(ctx, <span class="string">&quot;Overwrite&quot;</span>),
-                        Line(<span class="string">&quot;Or save a new copy below&quot;</span>)
+                            .build_widget(ctx, <span class="string">"Overwrite"</span>),
+                        Line(<span class="string">"Or save a new copy below"</span>)
                             .secondary()
                             .into_widget(ctx)
                             .centered_vert(),
@@ -250,10 +252,10 @@
                     Widget::nothing()
                 },
                 Widget::row(<span class="macro">vec!</span>[
-                    TextBox::default_widget(ctx, <span class="string">&quot;input&quot;</span>, String::new()),
-                    Widget::placeholder(ctx, <span class="string">&quot;Save as&quot;</span>),
+                    TextBox::default_widget(ctx, <span class="string">"input"</span>, String::new()),
+                    Widget::placeholder(ctx, <span class="string">"Save as"</span>),
                 ]),
-                Widget::placeholder(ctx, <span class="string">&quot;warning&quot;</span>),
+                Widget::placeholder(ctx, <span class="string">"warning"</span>),
             ]))
             .build(ctx),
             preserve_state,
@@ -264,12 +266,12 @@
     }
 
     <span class="kw">fn </span>name_updated(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
-        <span class="kw">let </span>name = <span class="self">self</span>.panel.text_box(<span class="string">&quot;input&quot;</span>);
+        <span class="kw">let </span>name = <span class="self">self</span>.panel.text_box(<span class="string">"input"</span>);
 
-        <span class="kw">let </span>warning = <span class="kw">if </span>name == <span class="string">&quot;existing LTNs&quot; </span>{
-            <span class="prelude-val">Some</span>(<span class="string">&quot;You can&#39;t overwrite the name \&quot;existing LTNs\&quot;&quot;</span>)
+        <span class="kw">let </span>warning = <span class="kw">if </span>name == <span class="string">"existing LTNs" </span>{
+            <span class="prelude-val">Some</span>(<span class="string">"You can't overwrite the name \"existing LTNs\""</span>)
         } <span class="kw">else if </span>name.is_empty() {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;You have to name this proposal&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">"You have to name this proposal"</span>)
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>};
@@ -277,7 +279,7 @@
         <span class="kw">let </span>btn = ctx
             .style()
             .btn_solid_primary
-            .text(<span class="string">&quot;Save as&quot;</span>)
+            .text(<span class="string">"Save as"</span>)
             .disabled(warning.is_some())
             .hotkey(<span class="kw">if </span><span class="self">self</span>.can_overwrite {
                 <span class="prelude-val">None
@@ -285,21 +287,21 @@
                 <span class="prelude-val">Some</span>(MultiKey::from(Key::Enter))
             })
             .build_def(ctx);
-        <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;Save as&quot;</span>, btn);
+        <span class="self">self</span>.panel.replace(ctx, <span class="string">"Save as"</span>, btn);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(warning) = warning {
             <span class="self">self</span>.panel
-                .replace(ctx, <span class="string">&quot;warning&quot;</span>, Line(warning).into_widget(ctx));
+                .replace(ctx, <span class="string">"warning"</span>, Line(warning).into_widget(ctx));
         } <span class="kw">else </span>{
             <span class="self">self</span>.panel
-                .replace(ctx, <span class="string">&quot;warning&quot;</span>, Widget::placeholder(ctx, <span class="string">&quot;warning&quot;</span>));
+                .replace(ctx, <span class="string">"warning"</span>, Widget::placeholder(ctx, <span class="string">"warning"</span>));
         }
     }
 
     <span class="kw">fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, err: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; Transition {
         Transition::Multi(<span class="macro">vec!</span>[
             <span class="self">self</span>.preserve_state.switch_to_state(ctx, app),
-            Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[err])),
+            Transition::Push(PopupMsg::new_state(ctx, <span class="string">"Error"</span>, <span class="macro">vec!</span>[err])),
         ])
     }
 }
@@ -308,33 +310,33 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-                <span class="string">&quot;Save as&quot; </span>| <span class="string">&quot;Overwrite&quot; </span>=&gt; {
-                    <span class="comment">// TODO If we&#39;re clobbering something that exists in Proposals especially...
+                <span class="string">"close" </span>=&gt; Transition::Pop,
+                <span class="string">"Save as" </span>| <span class="string">"Overwrite" </span>=&gt; {
+                    <span class="comment">// TODO If we're clobbering something that exists in Proposals especially...
                     // watch out
                     </span><span class="kw">let </span><span class="kw-2">mut </span>edits = app.per_map.map.get_edits().clone();
-                    edits.edits_name = <span class="self">self</span>.panel.text_box(<span class="string">&quot;input&quot;</span>);
+                    edits.edits_name = <span class="self">self</span>.panel.text_box(<span class="string">"input"</span>);
                     app.apply_edits(edits);
-                    <span class="comment">// TODO Maybe &quot;Save as&quot; should copy the proposal
+                    <span class="comment">// TODO Maybe "Save as" should copy the proposal
 
                     </span><span class="kw">match </span>inner_save(app) {
-                        <span class="comment">// If we changed the name, we&#39;ll want to recreate the panel
+                        <span class="comment">// If we changed the name, we'll want to recreate the panel
                         </span><span class="prelude-val">Ok</span>(()) =&gt; <span class="self">self</span>.preserve_state.switch_to_state(ctx, app),
                         <span class="prelude-val">Err</span>(err) =&gt; {
-                            <span class="self">self</span>.error(ctx, app, <span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t save proposal: {}&quot;</span>, err))
+                            <span class="self">self</span>.error(ctx, app, <span class="macro">format!</span>(<span class="string">"Couldn't save proposal: {}"</span>, err))
                         }
                     }
                 }
-                <span class="string">&quot;save as file&quot; </span>=&gt; {
+                <span class="string">"save as file" </span>=&gt; {
                     <span class="kw">let </span>proposal = app.per_map.proposals.get_current();
                     Transition::Replace(<span class="kw">match </span>proposal.to_gzipped_bytes(app) {
                         <span class="prelude-val">Ok</span>(contents) =&gt; FileSaver::with_default_messages(
                             ctx,
-                            <span class="macro">format!</span>(<span class="string">&quot;{}.json.gz&quot;</span>, proposal.edits.edits_name),
+                            <span class="macro">format!</span>(<span class="string">"{}.json.gz"</span>, proposal.edits.edits_name),
                             <span class="kw">super</span>::start_dir(),
                             FileSaverContents::Bytes(contents),
                         ),
-                        <span class="prelude-val">Err</span>(err) =&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Save failed&quot;</span>, <span class="macro">vec!</span>[err.to_string()]),
+                        <span class="prelude-val">Err</span>(err) =&gt; PopupMsg::new_state(ctx, <span class="string">"Save failed"</span>, <span class="macro">vec!</span>[err.to_string()]),
                     })
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),

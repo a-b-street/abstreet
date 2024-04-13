@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/geom/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/geom/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -399,11 +401,11 @@
 }
 
 <span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>GeomBatch {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        f.debug_struct(<span class="string">&quot;GeomBatch&quot;</span>)
-            .field(<span class="string">&quot;bounds&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.get_bounds())
-            .field(<span class="string">&quot;items&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.list.len())
-            .field(<span class="string">&quot;autocrop_dims&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.autocrop_dims)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
+        f.debug_struct(<span class="string">"GeomBatch"</span>)
+            .field(<span class="string">"bounds"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.get_bounds())
+            .field(<span class="string">"items"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.list.len())
+            .field(<span class="string">"autocrop_dims"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.autocrop_dims)
             .finish()
     }
 }
@@ -423,8 +425,8 @@
     }
 
     <span class="doccomment">/// Offset z value to render above/below other polygons.
-    /// z must be in (-1, 0] to ensure we don&#39;t traverse layers of the UI - to make
-    /// sure we don&#39;t inadvertently render something *above* a tooltip, etc.
+    /// z must be in (-1, 0] to ensure we don't traverse layers of the UI - to make
+    /// sure we don't inadvertently render something *above* a tooltip, etc.
     </span><span class="kw">pub fn </span>push_with_z&lt;F: Into&lt;Fill&gt;, T: Into&lt;Tessellation&gt;&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         fill: F,
@@ -537,7 +539,7 @@
         labeled_bytes: (<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>[u8]),
     ) -&gt; GeomBatch {
         svg::load_svg_bytes(prerender.as_ref(), labeled_bytes.<span class="number">0</span>, labeled_bytes.<span class="number">1</span>)
-            .expect(<span class="string">&quot;invalid svg bytes&quot;</span>)
+            .expect(<span class="string">"invalid svg bytes"</span>)
             .<span class="number">0
     </span>}
 
@@ -586,7 +588,7 @@
 
     <span class="doccomment">/// Rotates each polygon in the batch relative to the center of the entire batch.
     </span><span class="kw">pub fn </span>rotate_around_batch_center(<span class="kw-2">mut </span><span class="self">self</span>, angle: Angle) -&gt; GeomBatch {
-        <span class="comment">// Bounds won&#39;t be defined if so
+        <span class="comment">// Bounds won't be defined if so
         </span><span class="kw">if </span><span class="self">self</span>.list.is_empty() {
             <span class="kw">return </span><span class="self">self</span>;
         }
@@ -657,7 +659,7 @@
     /// rendering on top.
     </span><span class="kw">pub fn </span>set_z_offset(<span class="kw-2">mut </span><span class="self">self</span>, offset: f64) -&gt; GeomBatch {
         <span class="kw">if </span>offset &lt;= -<span class="number">1.0 </span>|| offset &gt; <span class="number">0.0 </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;set_z_offset({}) must be in (-1, 0]&quot;</span>, offset);
+            <span class="macro">panic!</span>(<span class="string">"set_z_offset({}) must be in (-1, 0]"</span>, offset);
         }
         <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, z) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
             <span class="kw-2">*</span>z = offset;
@@ -674,7 +676,7 @@
         <span class="kw">for </span>(fill, polygon, <span class="kw">_</span>) <span class="kw">in </span><span class="self">self</span>.list {
             <span class="kw">if let </span>Fill::Color(color) = fill {
                 <span class="kw">let </span><span class="kw-2">mut </span>properties = serde_json::Map::new();
-                properties.insert(<span class="string">&quot;color&quot;</span>.to_string(), color.as_hex().into());
+                properties.insert(<span class="string">"color"</span>.to_string(), color.as_hex().into());
                 <span class="kw">for </span>triangle <span class="kw">in </span>polygon.triangles() {
                     features.push(geojson::Feature {
                         bbox: <span class="prelude-val">None</span>,
@@ -717,11 +719,11 @@
 <span class="doccomment">/// A way to transform all colors in a GeomBatch.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
 </span><span class="kw">pub enum </span>RewriteColor {
-    <span class="doccomment">/// Don&#39;t do anything
+    <span class="doccomment">/// Don't do anything
     </span>NoOp,
     <span class="doccomment">/// Change every instance of the first color to the second
     </span>Change(Color, Color),
-    <span class="doccomment">/// Change all colors to the specified value. For this to be interesting, the batch shouldn&#39;t
+    <span class="doccomment">/// Change all colors to the specified value. For this to be interesting, the batch shouldn't
     /// be a solid block of color. This does not modify Color::CLEAR.
     </span>ChangeAll(Color),
     <span class="doccomment">/// Change the alpha value of all colors to this value.

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/title.rs`."><title>title.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/title.rs`."><title>title.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../santa/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -265,7 +267,7 @@
 
         &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
             Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;15-minute Santa&quot;</span>)
+                Line(<span class="string">"15-minute Santa"</span>)
                     .display_title()
                     .into_widget(ctx)
                     .container()
@@ -274,11 +276,11 @@
                     .centered_horiz(),
                 Text::from(
                     Line(
-                        <span class="string">&quot;Time for Santa to deliver presents in Seattle! But... COVID means no \
+                        <span class="string">"Time for Santa to deliver presents in Seattle! But... COVID means no \
                          stopping in houses to munch on cookies (gluten-free and paleo, \
-                         obviously). When your blood sugar gets low, you&#39;ll have to stop and \
+                         obviously). When your blood sugar gets low, you'll have to stop and \
                          refill your supply from a store. Those are close to where people live... \
-                         right?&quot;</span>,
+                         right?"</span>,
                     )
                     .small_heading(),
                 )
@@ -293,10 +295,10 @@
                     map_gui::tools::home_btn(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;Credits&quot;</span>)
+                        .text(<span class="string">"Credits"</span>)
                         .build_def(ctx)
                         .centered_vert(),
-                    <span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;
+                    <span class="string">"Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk"
                         </span>.text_widget(ctx)
                         .centered_vert(),
                 ])
@@ -319,17 +321,17 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;Home&quot; </span>=&gt; Transition::Clear(<span class="macro">vec!</span>[map_gui::tools::TitleScreen::new_state(
+            <span class="string">"Home" </span>=&gt; Transition::Clear(<span class="macro">vec!</span>[map_gui::tools::TitleScreen::new_state(
                 ctx,
                 app,
                 map_gui::tools::Executable::Santa,
                 Box::new(|ctx, app, <span class="kw">_</span>| <span class="self">Self</span>::new_state(ctx, app)),
             )]),
-            <span class="string">&quot;Credits&quot; </span>=&gt; Transition::Push(Credits::new_state(ctx)),
+            <span class="string">"Credits" </span>=&gt; Transition::Push(Credits::new_state(ctx)),
             x =&gt; {
                 <span class="kw">for </span>level <span class="kw">in </span><span class="kw-2">&amp;</span>app.session.levels {
                     <span class="kw">if </span>x == level.title {
-                        <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+                        <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
                         </span>{
                             <span class="kw">let </span>map_name = level.map.clone();
                             <span class="kw">if </span>!abstio::file_exists(map_name.path()) {
@@ -353,7 +355,7 @@
                         ));
                     }
                 }
-                <span class="macro">panic!</span>(<span class="string">&quot;Unknown action {}&quot;</span>, x);
+                <span class="macro">panic!</span>(<span class="string">"Unknown action {}"</span>, x);
             }
         }
     }
@@ -370,7 +372,7 @@
 
 <span class="kw">fn </span>level_btn(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, level: <span class="kw-2">&amp;</span>Level, idx: usize) -&gt; GeomBatch {
     <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
-    txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;LEVEL {}&quot;</span>, idx + <span class="number">1</span>)).small_heading());
+    txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"LEVEL {}"</span>, idx + <span class="number">1</span>)).small_heading());
     txt.add_line(Line(<span class="kw-2">&amp;</span>level.title).small_heading());
     txt.add_line(<span class="kw-2">&amp;</span>level.description);
     <span class="kw">let </span>batch = txt.wrap_to_pct(ctx, <span class="number">15</span>).render_autocropped(ctx);
@@ -396,7 +398,7 @@
     <span class="kw">let </span>hitbox = batch.get_bounds().get_rectangle();
     <span class="kw">let </span>center = hitbox.center();
     batch.push(app.cs.fade_map_dark, hitbox);
-    batch.append(GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/locked.svg&quot;</span>).centered_on(center));
+    batch.append(GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/locked.svg"</span>).centered_on(center));
     batch.into_widget(ctx)
 }
 
@@ -419,33 +421,33 @@
         &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
             Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;15-minute Santa&quot;</span>).big_heading_plain().into_widget(ctx),
+                    Line(<span class="string">"15-minute Santa"</span>).big_heading_plain().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 link(
                     ctx,
-                    <span class="string">&quot;Created by the A/B Street team&quot;</span>,
-                    <span class="string">&quot;https://abstreet.org&quot;
+                    <span class="string">"Created by the A/B Street team"</span>,
+                    <span class="string">"https://abstreet.org"
                 </span>),
                 Text::from_multiline(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Lead: Dustin Carlino&quot;</span>),
-                    Line(<span class="string">&quot;Programming &amp; game design: Michael Kirk&quot;</span>),
-                    Line(<span class="string">&quot;UI/UX: Yuwen Li&quot;</span>),
+                    Line(<span class="string">"Lead: Dustin Carlino"</span>),
+                    Line(<span class="string">"Programming &amp; game design: Michael Kirk"</span>),
+                    Line(<span class="string">"UI/UX: Yuwen Li"</span>),
                 ]).into_widget(ctx),
                 link(
                     ctx,
-                    <span class="string">&quot;Santa made by @parallaxcreativedesign&quot;</span>,
-                    <span class="string">&quot;https://www.instagram.com/parallaxcreativedesign/&quot;</span>,
+                    <span class="string">"Santa made by @parallaxcreativedesign"</span>,
+                    <span class="string">"https://www.instagram.com/parallaxcreativedesign/"</span>,
                 ),
                 link(
                     ctx,
-                    <span class="string">&quot;Map data thanks to OpenStreetMap contributors&quot;</span>,
-                    <span class="string">&quot;https://www.openstreetmap.org/about&quot;</span>),
-                link(ctx, <span class="string">&quot;Land use data from Seattle GeoData&quot;</span>, <span class="string">&quot;https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail&quot;</span>),
-                link(ctx, <span class="string">&quot;Music from various sources&quot;</span>, <span class="string">&quot;https://github.com/a-b-street/abstreet/tree/master/data/system/assets/music/sources.md&quot;</span>),
-                link(ctx, <span class="string">&quot;Fonts and icons by various sources&quot;</span>, <span class="string">&quot;https://a-b-street.github.io/docs/howto/#data-source-licensing&quot;</span>),
-                <span class="string">&quot;Playtesting by Fridgehaus&quot;</span>.text_widget(ctx),
-                ctx.style().btn_outline.text(<span class="string">&quot;Back&quot;</span>).hotkey(Key::Enter).build_def(ctx).centered_horiz(),
+                    <span class="string">"Map data thanks to OpenStreetMap contributors"</span>,
+                    <span class="string">"https://www.openstreetmap.org/about"</span>),
+                link(ctx, <span class="string">"Land use data from Seattle GeoData"</span>, <span class="string">"https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail"</span>),
+                link(ctx, <span class="string">"Music from various sources"</span>, <span class="string">"https://github.com/a-b-street/abstreet/tree/master/data/system/assets/music/sources.md"</span>),
+                link(ctx, <span class="string">"Fonts and icons by various sources"</span>, <span class="string">"https://a-b-street.github.io/docs/howto/#data-source-licensing"</span>),
+                <span class="string">"Playtesting by Fridgehaus"</span>.text_widget(ctx),
+                ctx.style().btn_outline.text(<span class="string">"Back"</span>).hotkey(Key::Enter).build_def(ctx).centered_horiz(),
             ]))
             .build(ctx), Box::new(Credits))
     }
@@ -455,15 +457,15 @@
     ctx.style()
         .btn_plain
         .text(label)
-        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, url))
+        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"open {}"</span>, url))
 }
 
 <span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>Credits {
     <span class="kw">fn </span>on_click(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App, x: <span class="kw-2">&amp;</span>str, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>| <span class="string">&quot;Back&quot; </span>=&gt; Transition::Pop,
+            <span class="string">"close" </span>| <span class="string">"Back" </span>=&gt; Transition::Pop,
             x =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(url) = x.strip_prefix(<span class="string">&quot;open &quot;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(url) = x.strip_prefix(<span class="string">"open "</span>) {
                     open_browser(url);
                     <span class="kw">return </span>Transition::Keep;
                 }

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="convert_osm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="convert_osm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../convert_osm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -461,7 +463,7 @@
 <span class="doccomment">/// What roads will have on-street parking lanes? Data from
 /// &lt;https://wiki.openstreetmap.org/wiki/Key:parking:lane&gt; is always used if available.
 </span><span class="kw">pub enum </span>OnstreetParking {
-    <span class="doccomment">/// If not tagged, there won&#39;t be parking.
+    <span class="doccomment">/// If not tagged, there won't be parking.
     </span>JustOSM,
     <span class="doccomment">/// If OSM data is missing, then try to match data from
     /// &lt;http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface&gt;. This is Seattle specific.
@@ -477,7 +479,7 @@
     </span>Gis(String),
 }
 
-<span class="doccomment">/// If a building doesn&#39;t have anything from public_offstreet_parking and isn&#39;t tagged as a garage
+<span class="doccomment">/// If a building doesn't have anything from public_offstreet_parking and isn't tagged as a garage
 /// in OSM, how many private spots should it have?
 </span><span class="kw">pub enum </span>PrivateOffstreetParking {
     FixedPerBldg(usize),
@@ -492,21 +494,21 @@
     opts: Options,
     timer: <span class="kw-2">&amp;mut </span>Timer,
 ) -&gt; RawMap {
-    timer.start(<span class="string">&quot;create RawMap from input data&quot;</span>);
+    timer.start(<span class="string">"create RawMap from input data"</span>);
 
     <span class="kw">let </span><span class="kw-2">mut </span>map = RawMap::blank(name);
-    <span class="comment">// Note that DrivingSide is still incorrect. It&#39;ll be set in extract_osm, before Road::new
+    <span class="comment">// Note that DrivingSide is still incorrect. It'll be set in extract_osm, before Road::new
     // happens in split_ways.
     </span>map.streets.config = opts.map_config.clone();
 
     <span class="kw">let </span>clip_pts = clip_path.map(|path| LonLat::read_geojson_polygon(<span class="kw-2">&amp;</span>path).unwrap());
-    timer.start(<span class="string">&quot;extract all from OSM&quot;</span>);
+    timer.start(<span class="string">"extract all from OSM"</span>);
     <span class="kw">let </span>extract = extract::extract_osm(<span class="kw-2">&amp;mut </span>map, <span class="kw-2">&amp;</span>osm_input_path, clip_pts, <span class="kw-2">&amp;</span>opts, timer);
-    timer.stop(<span class="string">&quot;extract all from OSM&quot;</span>);
+    timer.stop(<span class="string">"extract all from OSM"</span>);
     <span class="kw">let </span>pt_to_road =
         streets_reader::split_ways::split_up_roads(<span class="kw-2">&amp;mut </span>map.streets, extract.osm, timer);
 
-    <span class="comment">// Cul-de-sacs aren&#39;t supported yet.
+    <span class="comment">// Cul-de-sacs aren't supported yet.
     </span>map.streets.retain_roads(|r| r.src_i != r.dst_i);
 
     map.bus_routes_on_roads = extract.bus_routes_on_roads;
@@ -522,7 +524,7 @@
     }
 
     <span class="comment">// Remember OSM tags for all roads. Do this before apply_parking, which looks at tags
-    </span>timer.start(<span class="string">&quot;preserve OSM tags&quot;</span>);
+    </span>timer.start(<span class="string">"preserve OSM tags"</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>way_ids = HashSet::new();
     <span class="kw">for </span>r <span class="kw">in </span>map.streets.roads.values() {
         <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span>r.osm_ids {
@@ -534,25 +536,25 @@
             map.osm_tags.insert(id, way.tags);
         }
     }
-    timer.stop(<span class="string">&quot;preserve OSM tags&quot;</span>);
+    timer.stop(<span class="string">"preserve OSM tags"</span>);
 
     parking::apply_parking(<span class="kw-2">&amp;mut </span>map, <span class="kw-2">&amp;</span>opts, timer);
 
-    timer.start(<span class="string">&quot;use barrier and crossing nodes&quot;</span>);
+    timer.start(<span class="string">"use barrier and crossing nodes"</span>);
     use_barrier_nodes(<span class="kw-2">&amp;mut </span>map, extract.barrier_nodes, <span class="kw-2">&amp;</span>pt_to_road);
     use_crossing_nodes(<span class="kw-2">&amp;mut </span>map, <span class="kw-2">&amp;</span>extract.crossing_nodes, <span class="kw-2">&amp;</span>pt_to_road);
-    timer.stop(<span class="string">&quot;use barrier and crossing nodes&quot;</span>);
+    timer.stop(<span class="string">"use barrier and crossing nodes"</span>);
 
     <span class="kw">if </span>opts.filter_crosswalks {
         filter_crosswalks(<span class="kw-2">&amp;mut </span>map, extract.crossing_nodes, pt_to_road, timer);
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) = opts.elevation_geotiff {
-        timer.start(<span class="string">&quot;add elevation data&quot;</span>);
+        timer.start(<span class="string">"add elevation data"</span>);
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = elevation::add_data(<span class="kw-2">&amp;mut </span>map, path, timer) {
-            <span class="macro">error!</span>(<span class="string">&quot;No elevation data: {}&quot;</span>, err);
+            <span class="macro">error!</span>(<span class="string">"No elevation data: {}"</span>, err);
         }
-        timer.stop(<span class="string">&quot;add elevation data&quot;</span>);
+        timer.stop(<span class="string">"add elevation data"</span>);
     }
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) = opts.extra_buildings {
         add_extra_buildings(<span class="kw-2">&amp;mut </span>map, path).unwrap();
@@ -562,17 +564,17 @@
         gtfs::import(<span class="kw-2">&amp;mut </span>map).unwrap();
     }
 
-    timer.start(<span class="string">&quot;Add census data&quot;</span>);
+    timer.start(<span class="string">"Add census data"</span>);
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = add_census(<span class="kw-2">&amp;mut </span>map) {
-        <span class="macro">error!</span>(<span class="string">&quot;Skipping census data: {err}&quot;</span>);
+        <span class="macro">error!</span>(<span class="string">"Skipping census data: {err}"</span>);
     }
-    timer.stop(<span class="string">&quot;Add census data&quot;</span>);
+    timer.stop(<span class="string">"Add census data"</span>);
 
-    <span class="kw">if </span>map.name == MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
+    <span class="kw">if </span>map.name == MapName::new(<span class="string">"gb"</span>, <span class="string">"bristol"</span>, <span class="string">"east"</span>) {
         bristol_hack(<span class="kw-2">&amp;mut </span>map);
     }
 
-    timer.stop(<span class="string">&quot;create RawMap from input data&quot;</span>);
+    timer.stop(<span class="string">"create RawMap from input data"</span>);
 
     map
 }
@@ -596,27 +598,27 @@
                 amenities: Vec::new(),
             },
         );
-        <span class="comment">// We could use new_osm_way_id, but faster to just assume we&#39;re the only place introducing
+        <span class="comment">// We could use new_osm_way_id, but faster to just assume we're the only place introducing
         // new OSM IDs.
         </span>id -= -<span class="number">1</span>;
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="comment">// We&#39;re using Bristol for a project that requires an unusual LTN neighborhood boundary. Insert a
+<span class="comment">// We're using Bristol for a project that requires an unusual LTN neighborhood boundary. Insert a
 // fake road where a bridge crosses another road, to force blockfinding to trace along there.
 </span><span class="kw">fn </span>bristol_hack(map: <span class="kw-2">&amp;mut </span>RawMap) {
     <span class="kw">let </span><span class="kw-2">mut </span>tags = Tags::empty();
-    tags.insert(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;service&quot;</span>);
-    tags.insert(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Fake road&quot;</span>);
-    tags.insert(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>);
-    tags.insert(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;none&quot;</span>);
-    tags.insert(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;1&quot;</span>);
-    <span class="comment">// TODO The LTN pathfinding tool will try to use this road. Discourage that heavily. It&#39;d be
-    // safer to mark this as under construction, but then blockfinding wouldn&#39;t treat it as a
+    tags.insert(<span class="string">"highway"</span>, <span class="string">"service"</span>);
+    tags.insert(<span class="string">"name"</span>, <span class="string">"Fake road"</span>);
+    tags.insert(<span class="string">"oneway"</span>, <span class="string">"yes"</span>);
+    tags.insert(<span class="string">"sidewalk"</span>, <span class="string">"none"</span>);
+    tags.insert(<span class="string">"lanes"</span>, <span class="string">"1"</span>);
+    <span class="comment">// TODO The LTN pathfinding tool will try to use this road. Discourage that heavily. It'd be
+    // safer to mark this as under construction, but then blockfinding wouldn't treat it as a
     // boundary.
-    </span>tags.insert(<span class="string">&quot;maxspeed&quot;</span>, <span class="string">&quot;1 mph&quot;</span>);
-    tags.insert(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>);
+    </span>tags.insert(<span class="string">"maxspeed"</span>, <span class="string">"1 mph"</span>);
+    tags.insert(<span class="string">"bicycle"</span>, <span class="string">"no"</span>);
 
     <span class="kw">let </span>src_i = map
         .streets
@@ -653,7 +655,7 @@
     <span class="kw">let </span>boundary_polygon = map.streets.boundary_polygon.clone();
 
     map.buildings = timer.retain_parallelized(
-        <span class="string">&quot;clip buildings to boundary&quot;</span>,
+        <span class="string">"clip buildings to boundary"</span>,
         std::mem::take(<span class="kw-2">&amp;mut </span>map.buildings),
         |b| {
             b.polygon
@@ -666,7 +668,7 @@
 
     map.areas = timer
         .parallelize(
-            <span class="string">&quot;clip areas to boundary&quot;</span>,
+            <span class="string">"clip areas to boundary"</span>,
             std::mem::take(<span class="kw-2">&amp;mut </span>map.areas),
             |orig_area| {
                 <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
@@ -689,7 +691,7 @@
         .flatten()
         .collect();
 
-    <span class="comment">// TODO Don&#39;t touch parking lots. It&#39;ll be visually obvious if a clip intersects one of these.
+    <span class="comment">// TODO Don't touch parking lots. It'll be visually obvious if a clip intersects one of these.
     // The boundary should be manually adjusted.
 </span>}
 
@@ -707,9 +709,9 @@
     }
 
     <span class="kw">for </span>(node, pt) <span class="kw">in </span>barrier_nodes {
-        <span class="comment">// Many barriers are on footpaths or roads that we don&#39;t retain
+        <span class="comment">// Many barriers are on footpaths or roads that we don't retain
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(road) = pt_to_road.get(<span class="kw-2">&amp;</span>pt).and_then(|r| map.streets.roads.get(r)) {
-            <span class="comment">// Filters on roads that&#39;re already car-free are redundant
+            <span class="comment">// Filters on roads that're already car-free are redundant
             </span><span class="kw">if </span>road.is_driveable() {
                 map.extra_road_data
                     .get_mut(<span class="kw-2">&amp;</span>road.id)
@@ -728,10 +730,10 @@
                     .push(pt.to_pt2d());
             } <span class="kw">else </span>{
                 <span class="comment">// TODO Look for real examples at non-2-way intersections to understand what to do.
-                // If there&#39;s a barrier in the middle of a 4-way, does that disconnect all
+                // If there's a barrier in the middle of a 4-way, does that disconnect all
                 // movements?
                 </span><span class="macro">warn!</span>(
-                    <span class="string">&quot;There&#39;s a barrier at {i}, but there are {} roads connected&quot;</span>,
+                    <span class="string">"There's a barrier at {i}, but there are {} roads connected"</span>,
                     roads.len()
                 );
             }
@@ -745,7 +747,7 @@
     pt_to_road: <span class="kw-2">&amp;</span>HashMap&lt;HashablePt2D, RoadID&gt;,
 ) {
     <span class="kw">for </span>(pt, kind) <span class="kw">in </span>crossing_nodes {
-        <span class="comment">// Some crossings are on footpaths or roads that we don&#39;t retain
+        <span class="comment">// Some crossings are on footpaths or roads that we don't retain
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(road) = pt_to_road
             .get(pt)
             .and_then(|r| map.extra_road_data.get_mut(r))
@@ -762,25 +764,25 @@
     timer: <span class="kw-2">&amp;mut </span>Timer,
 ) {
     <span class="comment">// Normally we assume every road has a crosswalk, but since this map is configured to use OSM
-    // crossing nodes, let&#39;s reverse that assumption.
+    // crossing nodes, let's reverse that assumption.
     </span><span class="kw">for </span>road <span class="kw">in </span>map.extra_road_data.values_mut() {
         road.crosswalk_forward = <span class="bool-val">false</span>;
         road.crosswalk_backward = <span class="bool-val">false</span>;
     }
 
     <span class="comment">// Match each crosswalk node to a road
-    </span>timer.start_iter(<span class="string">&quot;filter crosswalks&quot;</span>, crosswalks.len());
+    </span>timer.start_iter(<span class="string">"filter crosswalks"</span>, crosswalks.len());
     <span class="kw">for </span>(pt, <span class="kw">_</span>) <span class="kw">in </span>crosswalks {
         timer.next();
         <span class="comment">// Some crossing nodes are outside the map boundary or otherwise not on a road that we
         // retained
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(road) = pt_to_road.get(<span class="kw-2">&amp;</span>pt).and_then(|r| map.streets.roads.get(r)) {
-            <span class="comment">// Crossings aren&#39;t right at an intersection. Where is this point along the center
+            <span class="comment">// Crossings aren't right at an intersection. Where is this point along the center
             // line?
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>((dist, <span class="kw">_</span>)) = road.reference_line.dist_along_of_point(pt.to_pt2d()) {
                 <span class="kw">let </span>pct = dist / road.reference_line.length();
-                <span class="comment">// Don&#39;t throw away any crossings. If it occurs in the first half of the road, snap
-                // to the first intersection. If there&#39;s a mid-block crossing mapped, that&#39;ll
+                <span class="comment">// Don't throw away any crossings. If it occurs in the first half of the road, snap
+                // to the first intersection. If there's a mid-block crossing mapped, that'll
                 // likely not be correctly interpreted, unless an intersection is there anyway.
                 </span><span class="kw">let </span>data = map.extra_road_data.get_mut(<span class="kw-2">&amp;</span>road.id).unwrap();
                 <span class="kw">if </span>pct &lt;= <span class="number">0.5 </span>{
@@ -798,10 +800,10 @@
 
 <span class="kw">fn </span>add_census(map: <span class="kw-2">&amp;mut </span>RawMap) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="comment">// TODO Fixed to one area right now. Assumes the file exists.
-    </span><span class="kw">if </span>map.name.city.country != <span class="string">&quot;gb&quot; </span>{
+    </span><span class="kw">if </span>map.name.city.country != <span class="string">"gb" </span>{
         <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
-    <span class="kw">let </span>input_path = <span class="string">&quot;data/input/shared/popgetter/england.topojson&quot;</span>;
+    <span class="kw">let </span>input_path = <span class="string">"data/input/shared/popgetter/england.topojson"</span>;
     <span class="kw">let </span>boundary = map
         .streets
         .boundary_polygon
@@ -812,7 +814,7 @@
                 map.census_zones.push((polygon, census_zone));
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;Skipping census zone {}: {}&quot;</span>, census_zone.id, err);
+                <span class="macro">warn!</span>(<span class="string">"Skipping census zone {}: {}"</span>, census_zone.id, err);
             }
         }
     }

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/import_grid2demand.rs`."><title>import_grid2demand.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/import_grid2demand.rs`."><title>import_grid2demand.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../cli/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -102,13 +104,13 @@
 };
 
 <span class="kw">pub fn </span>run(csv_path: String, map: String) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;import grid2demand&quot;</span>);
-    timer.start(<span class="string">&quot;parse CSV&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">"import grid2demand"</span>);
+    timer.start(<span class="string">"parse CSV"</span>);
     <span class="kw">let </span>people = parse_trips(csv_path)<span class="question-mark">?</span>;
-    timer.stop(<span class="string">&quot;parse CSV&quot;</span>);
+    timer.stop(<span class="string">"parse CSV"</span>);
     <span class="kw">let </span>map = Map::load_synchronously(map, <span class="kw-2">&amp;mut </span>timer);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(<span class="kw-2">&amp;</span>map, <span class="string">&quot;grid2demand&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(<span class="kw-2">&amp;</span>map, <span class="string">"grid2demand"</span>);
     <span class="comment">// Include all buses/trains
     </span>s.only_seed_buses = <span class="prelude-val">None</span>;
     <span class="kw">let </span>orig_num = people.len();
@@ -117,7 +119,7 @@
     <span class="comment">// Always clean up people with no-op trips (going between the same buildings)
     </span>s = s.remove_weird_schedules(<span class="bool-val">true</span>);
     <span class="macro">println!</span>(
-        <span class="string">&quot;Imported {}/{} people&quot;</span>,
+        <span class="string">"Imported {}/{} people"</span>,
         prettyprint_usize(s.people.len()),
         prettyprint_usize(orig_num)
     );
@@ -131,14 +133,14 @@
     <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(fs_err::File::open(csv_path)<span class="question-mark">?</span>).deserialize() {
         <span class="kw">let </span>rec: Record = rec<span class="question-mark">?</span>;
         <span class="kw">let </span>mode = <span class="kw">match </span>rec.agent_type.as_ref() {
-            <span class="string">&quot;v&quot; </span>=&gt; TripMode::Drive,
-            <span class="string">&quot;b&quot; </span>=&gt; TripMode::Bike,
-            <span class="string">&quot;p&quot; </span>=&gt; TripMode::Walk,
-            <span class="string">&quot;t&quot; </span>=&gt; TripMode::Transit,
-            x =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Unknown agent_type {}&quot;</span>, x),
+            <span class="string">"v" </span>=&gt; TripMode::Drive,
+            <span class="string">"b" </span>=&gt; TripMode::Bike,
+            <span class="string">"p" </span>=&gt; TripMode::Walk,
+            <span class="string">"t" </span>=&gt; TripMode::Transit,
+            x =&gt; <span class="macro">bail!</span>(<span class="string">"Unknown agent_type {}"</span>, x),
         };
         <span class="kw">let </span>(origin, destination) = parse_linestring(<span class="kw-2">&amp;</span>rec.geometry)
-            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;didn&#39;t parse geometry {}&quot;</span>, rec.geometry))<span class="question-mark">?</span>;
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"didn't parse geometry {}"</span>, rec.geometry))<span class="question-mark">?</span>;
         <span class="kw">let </span>departure = parse_time(rec.departure_time)<span class="question-mark">?</span>;
         <span class="comment">// For each row in the CSV file, create a person who takes a single trip from the origin to
         // the destination. They do not take a later trip to return home.
@@ -159,9 +161,9 @@
     <span class="comment">// Input is something like LINESTRING(-122.3245062 47.6456213,-122.3142029 47.6675654)
     </span><span class="kw">let </span><span class="kw-2">mut </span>nums = Vec::new();
     <span class="kw">for </span>x <span class="kw">in </span>input
-        .strip_prefix(<span class="string">&quot;LINESTRING(&quot;</span>)<span class="question-mark">?
-        </span>.strip_suffix(<span class="string">&#39;)&#39;</span>)<span class="question-mark">?
-        </span>.split(<span class="kw-2">&amp;</span>[<span class="string">&#39; &#39;</span>, <span class="string">&#39;,&#39;</span>][..])
+        .strip_prefix(<span class="string">"LINESTRING("</span>)<span class="question-mark">?
+        </span>.strip_suffix(<span class="string">')'</span>)<span class="question-mark">?
+        </span>.split(<span class="kw-2">&amp;</span>[<span class="string">' '</span>, <span class="string">','</span>][..])
     {
         nums.push(x.parse::&lt;f64&gt;().ok()<span class="question-mark">?</span>);
     }

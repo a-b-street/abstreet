@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/play_scenario.rs`."><title>play_scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/play_scenario.rs`."><title>play_scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -739,11 +741,11 @@
         modifiers: Vec&lt;ScenarioModifier&gt;,
     ) -&gt; Box&lt;<span class="kw">dyn </span>GameplayState&gt; {
         URLManager::update_url_free_param(
-            <span class="comment">// For dynamically generated scenarios like &quot;random&quot; and &quot;home_to_work&quot;, this winds up
-            // making up a filename that doesn&#39;t actually exist. But if you pass that in, it winds
+            <span class="comment">// For dynamically generated scenarios like "random" and "home_to_work", this winds up
+            // making up a filename that doesn't actually exist. But if you pass that in, it winds
             // up working, because we call abstio::parse_scenario_path() on the other side.
             </span>abstio::path_scenario(app.primary.map.get_name(), name)
-                .strip_prefix(<span class="kw-2">&amp;</span>abstio::path(<span class="string">&quot;&quot;</span>))
+                .strip_prefix(<span class="kw-2">&amp;</span>abstio::path(<span class="string">""</span>))
                 .unwrap()
                 .to_string(),
         );
@@ -764,13 +766,13 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>SandboxControls,
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Actions,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
-        <span class="comment">// This should really happen in the constructor once, but the old PlayScenario&#39;s
+        <span class="comment">// This should really happen in the constructor once, but the old PlayScenario's
         // on_destroy can wipe this out.
         </span>app.primary.has_modified_trips = !<span class="self">self</span>.modifiers.is_empty();
 
         <span class="kw">match </span><span class="self">self</span>.top_right.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;change map&quot; </span>=&gt; {
+                <span class="string">"change map" </span>=&gt; {
                     <span class="kw">let </span>scenario = <span class="self">self</span>.scenario_name.clone();
                     <span class="prelude-val">Some</span>(Transition::Push(CityPicker::new_state(
                         ctx,
@@ -796,12 +798,12 @@
                         }),
                     )))
                 }
-                <span class="string">&quot;change scenario&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(ChangeScenario::new_state(
+                <span class="string">"change scenario" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(ChangeScenario::new_state(
                     ctx,
                     app,
                     <span class="kw-2">&amp;</span><span class="self">self</span>.scenario_name,
                 ))),
-                <span class="string">&quot;edit map&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(EditMode::new_state(
+                <span class="string">"edit map" </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(EditMode::new_state(
                     ctx,
                     app,
                     GameplayMode::PlayScenario(
@@ -810,27 +812,27 @@
                         <span class="self">self</span>.modifiers.clone(),
                     ),
                 ))),
-                <span class="string">&quot;edit traffic patterns&quot; </span>=&gt; {
+                <span class="string">"edit traffic patterns" </span>=&gt; {
                     <span class="prelude-val">Some</span>(Transition::Push(EditScenarioModifiers::new_state(
                         ctx,
                         <span class="self">self</span>.scenario_name.clone(),
                         <span class="self">self</span>.modifiers.clone(),
                     )))
                 }
-                <span class="string">&quot;save scenario&quot; </span>=&gt; {
+                <span class="string">"save scenario" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>s = app.primary.scenario.as_ref().unwrap().clone();
                     <span class="comment">// If the name happens to be random, home_to_work, or census (the 3
-                    // dynamically generated cases), it&#39;ll get covered up. So to be safe, rename
+                    // dynamically generated cases), it'll get covered up. So to be safe, rename
                     // it.
-                    </span>s.scenario_name = <span class="macro">format!</span>(<span class="string">&quot;saved_{}&quot;</span>, s.scenario_name);
+                    </span>s.scenario_name = <span class="macro">format!</span>(<span class="string">"saved_{}"</span>, s.scenario_name);
                     s.save();
                     <span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;Saved&quot;</span>,
-                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Scenario &#39;{}&#39; saved&quot;</span>, s.scenario_name)],
+                        <span class="string">"Saved"</span>,
+                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Scenario '{}' saved"</span>, s.scenario_name)],
                     )))
                 }
-                <span class="string">&quot;When do trips start?&quot; </span>=&gt; {
+                <span class="string">"When do trips start?" </span>=&gt; {
                     <span class="prelude-val">Some</span>(Transition::Push(DepartureSummary::new_state(ctx, app)))
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -849,19 +851,19 @@
 
     <span class="kw">fn </span>recreate_panels(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
         <span class="kw">let </span><span class="kw-2">mut </span>extra = Vec::new();
-        <span class="kw">if </span><span class="self">self</span>.scenario_name != <span class="string">&quot;empty&quot; </span>{
+        <span class="kw">if </span><span class="self">self</span>.scenario_name != <span class="string">"empty" </span>{
             extra.push(Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;When do trips start?&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/info.svg"</span>)
+                    .build_widget(ctx, <span class="string">"When do trips start?"</span>)
                     .centered_vert(),
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;edit traffic patterns&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/pencil.svg"</span>)
+                    .build_widget(ctx, <span class="string">"edit traffic patterns"</span>)
                     .centered_vert(),
-                <span class="macro">format!</span>(<span class="string">&quot;{} modifications to traffic patterns&quot;</span>, <span class="self">self</span>.modifiers.len())
+                <span class="macro">format!</span>(<span class="string">"{} modifications to traffic patterns"</span>, <span class="self">self</span>.modifiers.len())
                     .text_widget(ctx)
                     .centered_vert(),
             ]));
@@ -874,29 +876,29 @@
             extra.push(
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>)
-                    .label_text(<span class="string">&quot;save scenario&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/save.svg"</span>)
+                    .label_text(<span class="string">"save scenario"</span>)
                     .build_def(ctx),
             );
         }
 
         <span class="kw">let </span>rows = <span class="macro">vec!</span>[
             Widget::custom_row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Sandbox&quot;</span>)
+                Line(<span class="string">"Sandbox"</span>)
                     .small_heading()
                     .into_widget(ctx)
                     .margin_right(<span class="number">18</span>),
                 map_gui::tools::change_map_btn(ctx, app).margin_right(<span class="number">8</span>),
                 ctx.style()
-                    .btn_popup_icon_text(<span class="string">&quot;system/assets/tools/calendar.svg&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.scenario_name)
+                    .btn_popup_icon_text(<span class="string">"system/assets/tools/calendar.svg"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.scenario_name)
                     .hotkey(Key::S)
-                    .build_widget(ctx, <span class="string">&quot;change scenario&quot;</span>)
+                    .build_widget(ctx, <span class="string">"change scenario"</span>)
                     .margin_right(<span class="number">8</span>),
                 ctx.style()
                     .btn_outline
-                    .icon_text(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
+                    .icon_text(<span class="string">"system/assets/tools/pencil.svg"</span>, <span class="string">"Edit map"</span>)
                     .hotkey(lctrl(Key::E))
-                    .build_widget(ctx, <span class="string">&quot;edit map&quot;</span>)
+                    .build_widget(ctx, <span class="string">"edit map"</span>)
                     .margin_right(<span class="number">8</span>),
             ])
             .centered(),
@@ -926,13 +928,13 @@
         modifiers: Vec&lt;ScenarioModifier&gt;,
     ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Modify traffic patterns&quot;</span>)
+            Line(<span class="string">"Modify traffic patterns"</span>)
                 .small_heading()
                 .into_widget(ctx),
             Text::from(
-                <span class="string">&quot;This scenario determines the exact trips everybody takes, when they leave, where \
+                <span class="string">"This scenario determines the exact trips everybody takes, when they leave, where \
                  they go, and how they choose to get there. You can modify those patterns here. \
-                 The modifications apply in order.&quot;</span>,
+                 The modifications apply in order."</span>,
             )
             .wrap_to_pct(ctx, <span class="number">50</span>)
             .into_widget(ctx),
@@ -943,8 +945,8 @@
                     m.describe().text_widget(ctx).centered_vert(),
                     ctx.style()
                         .btn_solid_destructive
-                        .icon(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
-                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;delete modifier {}&quot;</span>, idx + <span class="number">1</span>))
+                        .icon(<span class="string">"system/assets/tools/trash.svg"</span>)
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"delete modifier {}"</span>, idx + <span class="number">1</span>))
                         .align_right(),
                 ])
                 .padding(<span class="number">10</span>)
@@ -954,27 +956,27 @@
         rows.push(
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Change trip mode&quot;</span>)
+                .text(<span class="string">"Change trip mode"</span>)
                 .build_def(ctx),
         );
         rows.push(
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Add extra new trips&quot;</span>)
+                .text(<span class="string">"Add extra new trips"</span>)
                 .build_def(ctx),
         );
         rows.push(Widget::row(<span class="macro">vec!</span>[
-            Spinner::widget(ctx, <span class="string">&quot;repeat_days&quot;</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>, <span class="number">1</span>),
+            Spinner::widget(ctx, <span class="string">"repeat_days"</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2</span>, <span class="number">1</span>),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Repeat schedule multiple days&quot;</span>)
+                .text(<span class="string">"Repeat schedule multiple days"</span>)
                 .build_def(ctx),
         ]));
         rows.push(Widget::row(<span class="macro">vec!</span>[
-            Spinner::widget(ctx, <span class="string">&quot;repeat_days_noise&quot;</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2_usize</span>, <span class="number">1</span>),
+            Spinner::widget(ctx, <span class="string">"repeat_days_noise"</span>, (<span class="number">2</span>, <span class="number">14</span>), <span class="number">2_usize</span>, <span class="number">1</span>),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Repeat schedule multiple days with +/- 10 minutes of noise&quot;</span>)
+                .text(<span class="string">"Repeat schedule multiple days with +/- 10 minutes of noise"</span>)
                 .build_def(ctx),
         ]));
         rows.push(Widget::horiz_separator(ctx, <span class="number">1.0</span>));
@@ -982,12 +984,12 @@
             Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Apply&quot;</span>)
+                    .text(<span class="string">"Apply"</span>)
                     .hotkey(Key::Enter)
                     .build_def(ctx),
                 ctx.style()
                     .btn_solid_destructive
-                    .text(<span class="string">&quot;Discard changes&quot;</span>)
+                    .text(<span class="string">"Discard changes"</span>)
                     .hotkey(Key::Escape)
                     .build_def(ctx),
             ])
@@ -1008,13 +1010,13 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Discard changes&quot; </span>=&gt; {
+                <span class="string">"Discard changes" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Apply&quot; </span>=&gt; {
-                    <span class="macro">info!</span>(<span class="string">&quot;To apply these modifiers in the future:&quot;</span>);
+                <span class="string">"Apply" </span>=&gt; {
+                    <span class="macro">info!</span>(<span class="string">"To apply these modifiers in the future:"</span>);
                     <span class="macro">info!</span>(
-                        <span class="string">&quot;--scenario_modifiers=&#39;{}&#39;&quot;</span>,
+                        <span class="string">"--scenario_modifiers='{}'"</span>,
                         abstutil::to_json_terse(<span class="kw-2">&amp;</span><span class="self">self</span>.modifiers)
                     );
 
@@ -1030,7 +1032,7 @@
                         )),
                     ]);
                 }
-                <span class="string">&quot;Change trip mode&quot; </span>=&gt; {
+                <span class="string">"Change trip mode" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(ChangeMode::new_state(
                         ctx,
                         app,
@@ -1038,10 +1040,10 @@
                         <span class="self">self</span>.modifiers.clone(),
                     ));
                 }
-                <span class="string">&quot;Add extra new trips&quot; </span>=&gt; {
+                <span class="string">"Add extra new trips" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(ChooseSomething::new_state(
                         ctx,
-                        <span class="string">&quot;Which trips do you want to add in?&quot;</span>,
+                        <span class="string">"Which trips do you want to add in?"</span>,
                         <span class="comment">// TODO Exclude weekday?
                         </span>Choice::strings(abstio::list_all_objects(abstio::path_all_scenarios(
                             app.primary.map.get_name(),
@@ -1063,9 +1065,9 @@
                         }),
                     ));
                 }
-                <span class="string">&quot;Repeat schedule multiple days&quot; </span>=&gt; {
+                <span class="string">"Repeat schedule multiple days" </span>=&gt; {
                     <span class="self">self</span>.modifiers.push(ScenarioModifier::RepeatDays(
-                        <span class="self">self</span>.panel.spinner(<span class="string">&quot;repeat_days&quot;</span>),
+                        <span class="self">self</span>.panel.spinner(<span class="string">"repeat_days"</span>),
                     ));
                     <span class="kw">return </span>Transition::Replace(EditScenarioModifiers::new_state(
                         ctx,
@@ -1073,9 +1075,9 @@
                         <span class="self">self</span>.modifiers.clone(),
                     ));
                 }
-                <span class="string">&quot;Repeat schedule multiple days with +/- 10 minutes of noise&quot; </span>=&gt; {
+                <span class="string">"Repeat schedule multiple days with +/- 10 minutes of noise" </span>=&gt; {
                     <span class="self">self</span>.modifiers.push(ScenarioModifier::RepeatDaysNoise {
-                        days: <span class="self">self</span>.panel.spinner(<span class="string">&quot;repeat_days_noise&quot;</span>),
+                        days: <span class="self">self</span>.panel.spinner(<span class="string">"repeat_days_noise"</span>),
                         departure_time_noise: Duration::minutes(<span class="number">10</span>),
                     });
                     <span class="kw">return </span>Transition::Replace(EditScenarioModifiers::new_state(
@@ -1085,7 +1087,7 @@
                     ));
                 }
                 x =&gt; {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = x.strip_prefix(<span class="string">&quot;delete modifier &quot;</span>) {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = x.strip_prefix(<span class="string">"delete modifier "</span>) {
                         <span class="self">self</span>.modifiers.remove(x.parse::&lt;usize&gt;().unwrap() - <span class="number">1</span>);
                         <span class="kw">return </span>Transition::Replace(EditScenarioModifiers::new_state(
                             ctx,
@@ -1127,29 +1129,29 @@
             modifiers,
             count_trips: CountTrips::new(app),
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Change trip mode&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Change trip mode"</span>).small_heading().into_widget(ctx),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Percent of people to modify:&quot;
+                    <span class="string">"Percent of people to modify:"
                         </span>.text_widget(ctx)
                         .centered_vert(),
-                    Spinner::widget(ctx, <span class="string">&quot;pct_ppl&quot;</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="number">50_usize</span>, <span class="number">1</span>),
+                    Spinner::widget(ctx, <span class="string">"pct_ppl"</span>, (<span class="number">1</span>, <span class="number">100</span>), <span class="number">50_usize</span>, <span class="number">1</span>),
                 ]),
-                <span class="string">&quot;Types of trips to convert:&quot;</span>.text_widget(ctx),
+                <span class="string">"Types of trips to convert:"</span>.text_widget(ctx),
                 checkbox_per_mode(ctx, app, <span class="kw-2">&amp;</span><span class="macro">btreeset! </span>{ TripMode::Drive }),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Departing from:&quot;</span>.text_widget(ctx),
-                    Slider::area(ctx, <span class="number">0.25 </span>* ctx.canvas.window_width, <span class="number">0.0</span>, <span class="string">&quot;depart from&quot;</span>),
+                    <span class="string">"Departing from:"</span>.text_widget(ctx),
+                    Slider::area(ctx, <span class="number">0.25 </span>* ctx.canvas.window_width, <span class="number">0.0</span>, <span class="string">"depart from"</span>),
                 ]),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Departing until:&quot;</span>.text_widget(ctx),
-                    Slider::area(ctx, <span class="number">0.25 </span>* ctx.canvas.window_width, <span class="number">0.3</span>, <span class="string">&quot;depart to&quot;</span>),
+                    <span class="string">"Departing until:"</span>.text_widget(ctx),
+                    Slider::area(ctx, <span class="number">0.25 </span>* ctx.canvas.window_width, <span class="number">0.3</span>, <span class="string">"depart to"</span>),
                 ]),
-                <span class="string">&quot;Matching trips:&quot;</span>.text_widget(ctx).named(<span class="string">&quot;count&quot;</span>),
+                <span class="string">"Matching trips:"</span>.text_widget(ctx).named(<span class="string">"count"</span>),
                 Widget::horiz_separator(ctx, <span class="number">1.0</span>),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Change to trip type:&quot;</span>.text_widget(ctx),
-                    Widget::dropdown(ctx, <span class="string">&quot;to_mode&quot;</span>, <span class="prelude-val">Some</span>(TripMode::Bike), {
-                        <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::new(<span class="string">&quot;cancel trip&quot;</span>, <span class="prelude-val">None</span>)];
+                    <span class="string">"Change to trip type:"</span>.text_widget(ctx),
+                    Widget::dropdown(ctx, <span class="string">"to_mode"</span>, <span class="prelude-val">Some</span>(TripMode::Bike), {
+                        <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::new(<span class="string">"cancel trip"</span>, <span class="prelude-val">None</span>)];
                         <span class="kw">for </span>m <span class="kw">in </span>TripMode::all() {
                             choices.push(Choice::new(m.ongoing_verb(), <span class="prelude-val">Some</span>(m)));
                         }
@@ -1159,12 +1161,12 @@
                 Widget::row(<span class="macro">vec!</span>[
                     ctx.style()
                         .btn_solid_primary
-                        .text(<span class="string">&quot;Apply&quot;</span>)
+                        .text(<span class="string">"Apply"</span>)
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                     ctx.style()
                         .btn_solid_destructive
-                        .text(<span class="string">&quot;Discard changes&quot;</span>)
+                        .text(<span class="string">"Discard changes"</span>)
                         .hotkey(Key::Escape)
                         .build_def(ctx),
                 ])
@@ -1178,10 +1180,10 @@
     }
 
     <span class="kw">fn </span>get_filters(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; (BTreeSet&lt;TripMode&gt;, (Time, Time)) {
-        <span class="kw">let </span>to_mode = <span class="self">self</span>.panel.dropdown_value::&lt;<span class="prelude-ty">Option</span>&lt;TripMode&gt;, <span class="kw">_</span>&gt;(<span class="string">&quot;to_mode&quot;</span>);
+        <span class="kw">let </span>to_mode = <span class="self">self</span>.panel.dropdown_value::&lt;<span class="prelude-ty">Option</span>&lt;TripMode&gt;, <span class="kw">_</span>&gt;(<span class="string">"to_mode"</span>);
         <span class="kw">let </span>(p1, p2) = (
-            <span class="self">self</span>.panel.slider(<span class="string">&quot;depart from&quot;</span>).get_percent(),
-            <span class="self">self</span>.panel.slider(<span class="string">&quot;depart to&quot;</span>).get_percent(),
+            <span class="self">self</span>.panel.slider(<span class="string">"depart from"</span>).get_percent(),
+            <span class="self">self</span>.panel.slider(<span class="string">"depart to"</span>).get_percent(),
         );
         <span class="kw">let </span>departure_filter = (
             app.primary.sim.get_end_of_day().percent_of(p1),
@@ -1203,19 +1205,19 @@
         <span class="kw">for </span>m <span class="kw">in </span>modes {
             cnt += <span class="self">self</span>.count_trips.count(m, t1, t2);
         }
-        <span class="kw">let </span>pct_ppl: usize = <span class="self">self</span>.panel.spinner(<span class="string">&quot;pct_ppl&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;Matching trips: {}&quot;</span>, prettyprint_usize(cnt)));
+        <span class="kw">let </span>pct_ppl: usize = <span class="self">self</span>.panel.spinner(<span class="string">"pct_ppl"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">"Matching trips: {}"</span>, prettyprint_usize(cnt)));
         <span class="kw">let </span>adjusted_cnt = ((cnt <span class="kw">as </span>f64) * (pct_ppl <span class="kw">as </span>f64) / <span class="number">100.0</span>) <span class="kw">as </span>usize;
         txt.append(
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot; ({}% is {})&quot;</span>,
+                <span class="string">" ({}% is {})"</span>,
                 pct_ppl,
                 prettyprint_usize(adjusted_cnt)
             ))
             .secondary(),
         );
         <span class="kw">let </span>label = txt.into_widget(ctx);
-        <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;count&quot;</span>, label);
+        <span class="self">self</span>.panel.replace(ctx, <span class="string">"count"</span>, label);
     }
 }
 
@@ -1223,23 +1225,23 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Discard changes&quot; </span>=&gt; Transition::Pop,
-                <span class="string">&quot;Apply&quot; </span>=&gt; {
+                <span class="string">"Discard changes" </span>=&gt; Transition::Pop,
+                <span class="string">"Apply" </span>=&gt; {
                     <span class="kw">let </span>(from_modes, departure_filter) = <span class="self">self</span>.get_filters(app);
-                    <span class="kw">let </span>to_mode = <span class="self">self</span>.panel.dropdown_value::&lt;<span class="prelude-ty">Option</span>&lt;TripMode&gt;, <span class="kw">_</span>&gt;(<span class="string">&quot;to_mode&quot;</span>);
-                    <span class="kw">let </span>pct_ppl = <span class="self">self</span>.panel.spinner(<span class="string">&quot;pct_ppl&quot;</span>);
+                    <span class="kw">let </span>to_mode = <span class="self">self</span>.panel.dropdown_value::&lt;<span class="prelude-ty">Option</span>&lt;TripMode&gt;, <span class="kw">_</span>&gt;(<span class="string">"to_mode"</span>);
+                    <span class="kw">let </span>pct_ppl = <span class="self">self</span>.panel.spinner(<span class="string">"pct_ppl"</span>);
                     <span class="kw">if </span>from_modes.is_empty() {
                         <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="string">&quot;You have to select at least one mode to convert from&quot;</span>],
+                            <span class="string">"Error"</span>,
+                            <span class="macro">vec!</span>[<span class="string">"You have to select at least one mode to convert from"</span>],
                         ));
                     }
                     <span class="kw">if </span>departure_filter.<span class="number">0 </span>&gt;= departure_filter.<span class="number">1 </span>{
                         <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="string">&quot;Your time range is backwards&quot;</span>],
+                            <span class="string">"Error"</span>,
+                            <span class="macro">vec!</span>[<span class="string">"Your time range is backwards"</span>],
                         ));
                     }
 
@@ -1307,16 +1309,16 @@
 
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Trip departure times&quot;</span>)
+                Line(<span class="string">"Trip departure times"</span>)
                     .small_heading()
                     .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             LinePlot::new_widget(
                 ctx,
-                <span class="string">&quot;trip starts&quot;</span>,
+                <span class="string">"trip starts"</span>,
                 <span class="macro">vec!</span>[Series {
-                    label: <span class="string">&quot;When do trips start?&quot;</span>.to_string(),
+                    label: <span class="string">"When do trips start?"</span>.to_string(),
                     color: Color::RED,
                     pts,
                 }],
@@ -1328,16 +1330,16 @@
                 ctx.style()
                     .btn_outline
                     .text(<span class="macro">format!</span>(
-                        <span class="string">&quot;Jump to first trip, at {}&quot;</span>,
+                        <span class="string">"Jump to first trip, at {}"</span>,
                         first_trip.ampm_tostring()
                     ))
-                    .build_widget(ctx, <span class="string">&quot;Jump to first trip&quot;</span>)
+                    .build_widget(ctx, <span class="string">"Jump to first trip"</span>)
             } <span class="kw">else </span>{
                 Widget::nothing()
             },
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Commuter patterns&quot;</span>)
+                .text(<span class="string">"Commuter patterns"</span>)
                 .build_def(ctx),
         ]))
         .build(ctx);
@@ -1354,11 +1356,11 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-            <span class="string">&quot;Commuter patterns&quot; </span>=&gt; Transition::Replace(
+            <span class="string">"close" </span>=&gt; Transition::Pop,
+            <span class="string">"Commuter patterns" </span>=&gt; Transition::Replace(
                 <span class="kw">crate</span>::sandbox::dashboards::CommuterPatterns::new_state(ctx, app),
             ),
-            <span class="string">&quot;Jump to first trip&quot; </span>=&gt; {
+            <span class="string">"Jump to first trip" </span>=&gt; {
                 Transition::Replace(TimeWarpScreen::new_state(ctx, app, <span class="self">self</span>.first_trip, <span class="prelude-val">None</span>))
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),

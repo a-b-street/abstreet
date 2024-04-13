@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/text.rs`."><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -660,14 +662,14 @@
 }
 
 <span class="kw">impl </span>Font {
-    <span class="kw">pub fn </span>family(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">pub fn </span>family(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            Font::BungeeInlineRegular =&gt; <span class="string">&quot;Bungee Inline&quot;</span>,
-            Font::BungeeRegular =&gt; <span class="string">&quot;Bungee&quot;</span>,
-            Font::OverpassBold =&gt; <span class="string">&quot;Overpass&quot;</span>,
-            Font::OverpassRegular =&gt; <span class="string">&quot;Overpass&quot;</span>,
-            Font::OverpassSemiBold =&gt; <span class="string">&quot;Overpass&quot;</span>,
-            Font::OverpassMonoBold =&gt; <span class="string">&quot;Overpass Mono&quot;</span>,
+            Font::BungeeInlineRegular =&gt; <span class="string">"Bungee Inline"</span>,
+            Font::BungeeRegular =&gt; <span class="string">"Bungee"</span>,
+            Font::OverpassBold =&gt; <span class="string">"Overpass"</span>,
+            Font::OverpassRegular =&gt; <span class="string">"Overpass"</span>,
+            Font::OverpassSemiBold =&gt; <span class="string">"Overpass"</span>,
+            Font::OverpassMonoBold =&gt; <span class="string">"Overpass Mono"</span>,
         }
     }
 }
@@ -718,7 +720,7 @@
         Text::from(<span class="self">self</span>).batch(ctx)
     }
 
-    <span class="comment">// Yuwen&#39;s new styles, defined in Figma. Should document them in Github better.
+    <span class="comment">// Yuwen's new styles, defined in Figma. Should document them in Github better.
 
     </span><span class="kw">pub fn </span>display_title(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
         <span class="self">self</span>.font = Font::BungeeInlineRegular;
@@ -755,7 +757,7 @@
         <span class="self">self</span>.font = Font::OverpassRegular;
         <span class="self">self</span>.size = <span class="number">21</span>;
         <span class="comment">// TODO This should be per-theme
-        </span><span class="self">self</span>.fg_color = <span class="prelude-val">Some</span>(Color::hex(<span class="string">&quot;#A3A3A3&quot;</span>));
+        </span><span class="self">self</span>.fg_color = <span class="prelude-val">Some</span>(Color::hex(<span class="string">"#A3A3A3"</span>));
         <span class="self">self
     </span>}
     <span class="kw">pub fn </span>small(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
@@ -790,7 +792,7 @@
     </span>}
 }
 
-<span class="comment">// TODO What&#39;s the better way of doing this? Also &quot;Line&quot; is a bit of a misnomer
+<span class="comment">// TODO What's the better way of doing this? Also "Line" is a bit of a misnomer
 </span><span class="attr">#[allow(non_snake_case)]
 </span><span class="kw">pub fn </span>Line&lt;S: Into&lt;String&gt;&gt;(text: S) -&gt; TextSpan {
     TextSpan {
@@ -864,7 +866,7 @@
                 Line(key.describe())
                     .fg(ctx.style().text_hotkey_color)
                     .small(),
-                Line(<span class="macro">format!</span>(<span class="string">&quot; - {}&quot;</span>, action)).small(),
+                Line(<span class="macro">format!</span>(<span class="string">" - {}"</span>, action)).small(),
             ])
         } <span class="kw">else </span>{
             Text::from(Line(action).small())
@@ -970,7 +972,7 @@
         // https://www.oreilly.com/library/view/svg-text-layout/9781491933817/ch04.html
         </span><span class="kw">for </span>(line_color, line) <span class="kw">in </span><span class="self">self</span>.lines {
             <span class="comment">// In case size changes mid-line, take the max of every span.
-            // (f64 isn&#39;t Ord, so no max(), so do this manually.)
+            // (f64 isn't Ord, so no max(), so do this manually.)
             </span><span class="kw">let </span><span class="kw-2">mut </span>line_height = <span class="number">0.0_f64</span>;
             <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>line {
                 line_height = line_height.max(assets.line_height(span.font, span.size));
@@ -1021,8 +1023,8 @@
 
     <span class="kw">fn </span>hash_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>hasher = DefaultHasher::new();
-        hasher.write(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>).as_ref());
-        <span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, hasher.finish())
+        hasher.write(<span class="macro">format!</span>(<span class="string">"{:?}"</span>, <span class="self">self</span>).as_ref());
+        <span class="macro">format!</span>(<span class="string">"{:x}"</span>, hasher.finish())
     }
 
     <span class="kw">pub fn </span>into_widget(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
@@ -1053,7 +1055,7 @@
                 <span class="kw">continue</span>;
             }
 
-            <span class="comment">// Greedy approach, fit as many words on a line as possible. Don&#39;t do all of that
+            <span class="comment">// Greedy approach, fit as many words on a line as possible. Don't do all of that
             // hyphenation nonsense.
             </span><span class="kw">let </span><span class="kw-2">mut </span>width_left = limit;
             <span class="kw">let </span><span class="kw-2">mut </span>current_line = Vec::new();
@@ -1076,7 +1078,7 @@
                     .get_dims()
                     .width;
                     <span class="kw">if </span>width_left &gt; width {
-                        current_span.text.push(<span class="string">&#39; &#39;</span>);
+                        current_span.text.push(<span class="string">' '</span>);
                         current_span.text.push_str(word);
                         width_left -= width;
                     } <span class="kw">else </span>{
@@ -1103,32 +1105,32 @@
 
 <span class="kw">fn </span>render_line(spans: Vec&lt;TextSpan&gt;, tolerance: f32, assets: <span class="kw-2">&amp;</span>Assets) -&gt; GeomBatch {
     <span class="comment">// Just set a sufficiently large view box
-    </span><span class="kw">let </span><span class="kw-2">mut </span>svg = <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.to_string();
+    </span><span class="kw">let </span><span class="kw-2">mut </span>svg = <span class="string">r##"&lt;svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg"&gt;"##</span>.to_string();
 
-    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">r##&quot;&lt;text x=&quot;0&quot; y=&quot;0&quot; xml:space=&quot;preserve&quot;&gt;&quot;##</span>,).unwrap();
+    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">r##"&lt;text x="0" y="0" xml:space="preserve"&gt;"##</span>,).unwrap();
 
     <span class="kw">let </span><span class="kw-2">mut </span>contents = String::new();
     <span class="kw">for </span>span <span class="kw">in </span>spans {
         <span class="kw">let </span>fg_color = span.fg_color_for_style(<span class="kw-2">&amp;</span>assets.style.borrow());
         <span class="macro">write!</span>(
             <span class="kw-2">&amp;mut </span>contents,
-            <span class="string">r##&quot;&lt;tspan font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; {}{}&gt;{}&lt;/tspan&gt;&quot;##</span>,
+            <span class="string">r##"&lt;tspan font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" {}{}&gt;{}&lt;/tspan&gt;"##</span>,
             span.size,
             span.font.family(),
             <span class="kw">match </span>span.font {
-                Font::OverpassBold =&gt; <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
-                Font::OverpassSemiBold =&gt; <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
-                <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
+                Font::OverpassBold =&gt; <span class="string">"font-weight=\"bold\""</span>,
+                Font::OverpassSemiBold =&gt; <span class="string">"font-weight=\"600\""</span>,
+                <span class="kw">_ </span>=&gt; <span class="string">""</span>,
             },
             fg_color.as_hex(),
             fg_color.a,
             <span class="kw">if </span>span.underlined {
-                <span class="string">&quot;text-decoration=\&quot;underline\&quot;&quot;
+                <span class="string">"text-decoration=\"underline\""
             </span>} <span class="kw">else </span>{
-                <span class="string">&quot;&quot;
+                <span class="string">""
             </span>},
             <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = span.outline_color {
-                <span class="macro">format!</span>(<span class="string">&quot;stroke=\&quot;{}\&quot;&quot;</span>, c.as_hex())
+                <span class="macro">format!</span>(<span class="string">"stroke=\"{}\""</span>, c.as_hex())
             } <span class="kw">else </span>{
                 String::new()
             },
@@ -1136,19 +1138,19 @@
         )
         .unwrap();
     }
-    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">&quot;{}&lt;/text&gt;&lt;/svg&gt;&quot;</span>, contents).unwrap();
+    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">"{}&lt;/text&gt;&lt;/svg&gt;"</span>, contents).unwrap();
 
     <span class="kw">let </span><span class="kw-2">mut </span>svg_tree = <span class="kw">match </span>usvg::Tree::from_str(<span class="kw-2">&amp;</span>svg, <span class="kw-2">&amp;</span>usvg::Options::default()) {
         <span class="prelude-val">Ok</span>(t) =&gt; t,
-        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, contents, err),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"render_line({}): {}"</span>, contents, err),
     };
     svg_tree.convert_text(<span class="kw-2">&amp;</span>assets.fontdb.borrow());
     <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
     <span class="kw">match </span><span class="kw">crate</span>::svg::add_svg_inner(<span class="kw-2">&amp;mut </span>batch, svg_tree, tolerance) {
         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; batch,
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">error!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, contents, err);
-            <span class="comment">// We&#39;ll just wind up with a blank line
+            <span class="macro">error!</span>(<span class="string">"render_line({}): {}"</span>, contents, err);
+            <span class="comment">// We'll just wind up with a blank line
             </span>batch
         }
     }
@@ -1190,28 +1192,28 @@
         <span class="kw">let </span><span class="kw-2">mut </span>stroke_parameters = String::new();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.outline_color {
-            stroke_parameters = <span class="macro">format!</span>(<span class="string">&quot;stroke=\&quot;{}\&quot; stroke-width=\&quot;.1\&quot;&quot;</span>, c.as_hex());
+            stroke_parameters = <span class="macro">format!</span>(<span class="string">"stroke=\"{}\" stroke-width=\".1\""</span>, c.as_hex());
         };
 
         <span class="comment">// Just set a sufficiently large view box
-        </span><span class="kw">let </span><span class="kw-2">mut </span>svg = <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.to_string();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>svg = <span class="string">r##"&lt;svg width="9999" height="9999" viewBox="0 0 9999 9999" xmlns="http://www.w3.org/2000/svg"&gt;"##</span>.to_string();
 
         <span class="macro">write!</span>(
             <span class="kw-2">&amp;mut </span>svg,
-            <span class="string">r##&quot;&lt;path id=&quot;txtpath&quot; fill=&quot;none&quot; stroke=&quot;none&quot; d=&quot;&quot;##
+            <span class="string">r##"&lt;path id="txtpath" fill="none" stroke="none" d=""##
         </span>)
         .unwrap();
         <span class="macro">write!</span>(
             <span class="kw-2">&amp;mut </span>svg,
-            <span class="string">&quot;M {} {}&quot;</span>,
+            <span class="string">"M {} {}"</span>,
             path.points()[<span class="number">0</span>].x(),
             path.points()[<span class="number">0</span>].y()
         )
         .unwrap();
         <span class="kw">for </span>pt <span class="kw">in </span>path.points().iter().skip(<span class="number">1</span>) {
-            <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">&quot; L {} {}&quot;</span>, pt.x(), pt.y()).unwrap();
+            <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">" L {} {}"</span>, pt.x(), pt.y()).unwrap();
         }
-        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">&quot;\&quot; /&gt;&quot;</span>).unwrap();
+        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">"\" /&gt;"</span>).unwrap();
         <span class="comment">// We need to subtract and account for the length of the text
         </span><span class="kw">let </span>start_offset = (path.length().inner_meters()
             - scale * Text::from(<span class="kw-2">&amp;</span><span class="self">self</span>.text).rendered_width(<span class="kw-2">&amp;</span>assets))
@@ -1221,15 +1223,15 @@
 
         <span class="macro">write!</span>(
             <span class="kw-2">&amp;mut </span>svg,
-            <span class="string">r##&quot;&lt;text xml:space=&quot;preserve&quot; font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; startOffset=&quot;{}&quot; {}&gt;&quot;##</span>,
+            <span class="string">r##"&lt;text xml:space="preserve" font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" startOffset="{}" {}&gt;"##</span>,
             <span class="comment">// This is seemingly the easiest way to do this. We could .scale() the whole batch
             // after, but then we have to re-translate it to the proper spot
             </span>(<span class="self">self</span>.size <span class="kw">as </span>f64) * scale,
             <span class="self">self</span>.font.family(),
             <span class="kw">match </span><span class="self">self</span>.font {
-                Font::OverpassBold =&gt; <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
-                Font::OverpassSemiBold =&gt; <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
-                <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
+                Font::OverpassBold =&gt; <span class="string">"font-weight=\"bold\""</span>,
+                Font::OverpassSemiBold =&gt; <span class="string">"font-weight=\"600\""</span>,
+                <span class="kw">_ </span>=&gt; <span class="string">""</span>,
             },
             fg_color.as_hex(),
             fg_color.a,
@@ -1240,21 +1242,21 @@
 
         <span class="macro">write!</span>(
             <span class="kw-2">&amp;mut </span>svg,
-            <span class="string">r##&quot;&lt;textPath href=&quot;#txtpath&quot;&gt;{}&lt;/textPath&gt;&lt;/text&gt;&lt;/svg&gt;&quot;##</span>,
+            <span class="string">r##"&lt;textPath href="#txtpath"&gt;{}&lt;/textPath&gt;&lt;/text&gt;&lt;/svg&gt;"##</span>,
             htmlescape::encode_minimal(<span class="kw-2">&amp;</span><span class="self">self</span>.text)
         )
         .unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>svg_tree = <span class="kw">match </span>usvg::Tree::from_str(<span class="kw-2">&amp;</span>svg, <span class="kw-2">&amp;</span>usvg::Options::default()) {
             <span class="prelude-val">Ok</span>(t) =&gt; t,
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.text, err),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"curvey({}): {}"</span>, <span class="self">self</span>.text, err),
         };
         svg_tree.convert_text(<span class="kw-2">&amp;</span>assets.fontdb.borrow());
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
         <span class="kw">match </span><span class="kw">crate</span>::svg::add_svg_inner(<span class="kw-2">&amp;mut </span>batch, svg_tree, tolerance) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; batch,
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;render_curvey({}): {}&quot;</span>, <span class="self">self</span>.text, err);
+                <span class="macro">error!</span>(<span class="string">"render_curvey({}): {}"</span>, <span class="self">self</span>.text, err);
                 batch
             }
         }

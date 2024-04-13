@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/parking.rs`."><title>parking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/parking.rs`."><title>parking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -428,8 +430,8 @@
 }
 
 <span class="kw">impl </span>Layer <span class="kw">for </span>Occupancy {
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;parking occupancy&quot;</span>)
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">"parking occupancy"</span>)
     }
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
         <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
@@ -446,7 +448,7 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -455,11 +457,11 @@
                 <span class="kw-2">*</span><span class="self">self </span>= Occupancy::new(
                     ctx,
                     app,
-                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;On-street spots&quot;</span>),
-                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Public garages&quot;</span>),
-                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Parking lots&quot;</span>),
-                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Private buildings&quot;</span>),
-                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Cars looking for parking&quot;</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">"On-street spots"</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">"Public garages"</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">"Parking lots"</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">"Private buildings"</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">"Cars looking for parking"</span>),
                 );
             }
             <span class="kw">_ </span>=&gt; {}
@@ -499,19 +501,19 @@
 
         <span class="kw">if </span>app.primary.sim.infinite_parking() {
             <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                header(ctx, <span class="string">&quot;Parking occupancy&quot;</span>),
+                header(ctx, <span class="string">"Parking occupancy"</span>),
                 Text::from_multiline(<span class="macro">vec!</span>[
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;{:.0}% of the population owns a car&quot;</span>,
+                        <span class="string">"{:.0}% of the population owns a car"</span>,
                         <span class="kw">if </span>total_ppl == <span class="number">0 </span>{
                             <span class="number">0.0
                         </span>} <span class="kw">else </span>{
                             <span class="number">100.0 </span>* (has_car <span class="kw">as </span>f64) / (total_ppl <span class="kw">as </span>f64)
                         }
                     )),
-                    Line(<span class="string">&quot;&quot;</span>),
-                    Line(<span class="string">&quot;Parking simulation disabled.&quot;</span>),
-                    Line(<span class="string">&quot;Every building has unlimited capacity.&quot;</span>).secondary(),
+                    Line(<span class="string">""</span>),
+                    Line(<span class="string">"Parking simulation disabled."</span>),
+                    Line(<span class="string">"Every building has unlimited capacity."</span>).secondary(),
                 ])
                 .into_widget(ctx),
             ]))
@@ -592,10 +594,10 @@
         }
 
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            header(ctx, <span class="string">&quot;Parking occupancy&quot;</span>),
+            header(ctx, <span class="string">"Parking occupancy"</span>),
             Text::from_multiline(<span class="macro">vec!</span>[
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;{:.0}% of the population owns a car&quot;</span>,
+                    <span class="string">"{:.0}% of the population owns a car"</span>,
                     <span class="kw">if </span>total_ppl == <span class="number">0 </span>{
                         <span class="number">0.0
                     </span>} <span class="kw">else </span>{
@@ -603,34 +605,34 @@
                     }
                 )),
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;{} / {} public spots filled&quot;</span>,
+                    <span class="string">"{} / {} public spots filled"</span>,
                     prettyprint_usize(public_filled),
                     prettyprint_usize(public_filled + public_avail)
                 )),
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;{} / {} private spots filled&quot;</span>,
+                    <span class="string">"{} / {} private spots filled"</span>,
                     prettyprint_usize(private_filled),
                     prettyprint_usize(private_filled + private_avail)
                 )),
             ])
             .into_widget(ctx),
             Widget::row(<span class="macro">vec!</span>[
-                Toggle::switch(ctx, <span class="string">&quot;On-street spots&quot;</span>, <span class="prelude-val">None</span>, onstreet),
-                Toggle::switch(ctx, <span class="string">&quot;Parking lots&quot;</span>, <span class="prelude-val">None</span>, lots),
+                Toggle::switch(ctx, <span class="string">"On-street spots"</span>, <span class="prelude-val">None</span>, onstreet),
+                Toggle::switch(ctx, <span class="string">"Parking lots"</span>, <span class="prelude-val">None</span>, lots),
             ])
             .evenly_spaced(),
             Widget::row(<span class="macro">vec!</span>[
-                Toggle::switch(ctx, <span class="string">&quot;Public garages&quot;</span>, <span class="prelude-val">None</span>, garages),
-                Toggle::switch(ctx, <span class="string">&quot;Private buildings&quot;</span>, <span class="prelude-val">None</span>, private_bldgs),
+                Toggle::switch(ctx, <span class="string">"Public garages"</span>, <span class="prelude-val">None</span>, garages),
+                Toggle::switch(ctx, <span class="string">"Private buildings"</span>, <span class="prelude-val">None</span>, private_bldgs),
             ])
             .evenly_spaced(),
             Toggle::colored_checkbox(
                 ctx,
-                <span class="string">&quot;Cars looking for parking&quot;</span>,
+                <span class="string">"Cars looking for parking"</span>,
                 app.cs.parking_trip,
                 looking_for_parking,
             ),
-            ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">&quot;0%&quot;</span>, <span class="string">&quot;100%&quot;</span>]),
+            ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">"0%"</span>, <span class="string">"100%"</span>]),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
@@ -702,8 +704,8 @@
 }
 
 <span class="kw">impl </span>Layer <span class="kw">for </span>Efficiency {
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;parking efficiency&quot;</span>)
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">"parking efficiency"</span>)
     }
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
         <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
@@ -712,7 +714,7 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -732,8 +734,8 @@
 <span class="kw">impl </span>Efficiency {
     <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Efficiency {
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            header(ctx, <span class="string">&quot;Parking efficiency&quot;</span>),
-            Text::from(Line(<span class="string">&quot;How far away are people parked? (minutes)&quot;</span>).secondary())
+            header(ctx, <span class="string">"Parking efficiency"</span>),
+            Text::from(Line(<span class="string">"How far away are people parked? (minutes)"</span>).secondary())
                 .wrap_to_pct(ctx, <span class="number">15</span>)
                 .into_widget(ctx),
             ColorLegend::gradient(
@@ -741,7 +743,7 @@
                 <span class="kw-2">&amp;</span>app.cs.good_to_bad_red,
                 <span class="comment">// TODO Show a nonproportional scale? Most should be &lt; 1 min, a few &lt; 5 mins,
                 // rarely more than that.
-                </span><span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;10+&quot;</span>],
+                </span><span class="macro">vec!</span>[<span class="string">"0"</span>, <span class="string">"3"</span>, <span class="string">"6"</span>, <span class="string">"10+"</span>],
             ),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
@@ -749,10 +751,10 @@
 
         <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
         <span class="comment">// TODO This is going to spam constantly while the sim is running! Probably cache per car.
-        </span><span class="kw">let </span>draw = ctx.loading_screen(<span class="string">&quot;measure parking efficiency&quot;</span>, |ctx, timer| {
+        </span><span class="kw">let </span>draw = ctx.loading_screen(<span class="string">"measure parking efficiency"</span>, |ctx, timer| {
             <span class="kw">let </span><span class="kw-2">mut </span>draw = ToggleZoomed::builder();
 
-            timer.start(<span class="string">&quot;gather requests&quot;</span>);
+            timer.start(<span class="string">"gather requests"</span>);
             <span class="kw">let </span>requests: Vec&lt;PathRequest&gt; = app
                 .primary
                 .sim
@@ -760,12 +762,12 @@
                 .into_iter()
                 .map(|(start, end)| PathRequest::walking(start, end))
                 .collect();
-            timer.stop(<span class="string">&quot;gather requests&quot;</span>);
+            timer.stop(<span class="string">"gather requests"</span>);
             <span class="kw">for </span>(car_pt, time) <span class="kw">in </span>timer
-                .parallelize(<span class="string">&quot;calculate paths&quot;</span>, requests, |req| {
+                .parallelize(<span class="string">"calculate paths"</span>, requests, |req| {
                     <span class="kw">let </span>car_pt = req.start.pt(map);
-                    <span class="comment">// TODO Walking paths should really return some indication of &quot;zero length
-                    // path&quot; for this
+                    <span class="comment">// TODO Walking paths should really return some indication of "zero length
+                    // path" for this
                     </span><span class="kw">if </span>req.start == req.end {
                         <span class="prelude-val">Some</span>((car_pt, Duration::ZERO))
                     } <span class="kw">else </span>{

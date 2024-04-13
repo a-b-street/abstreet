@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/app_state.rs`."><title>app_state.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/app_state.rs`."><title>app_state.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -349,7 +351,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) shared_app_state: A,
 }
 
-<span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static </span>+ SharedAppState&gt; App&lt;A&gt; {
+<span class="kw">impl</span>&lt;A: <span class="lifetime">'static </span>+ SharedAppState&gt; App&lt;A&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
         <span class="self">self</span>.shared_app_state.before_event();
 
@@ -381,7 +383,7 @@
                             <span class="self">self</span>.shared_app_state.draw_default(g);
                         }
                         DrawBaselayer::Custom =&gt; {}
-                        <span class="comment">// Don&#39;t recurse, but at least clear the screen, because the state is
+                        <span class="comment">// Don't recurse, but at least clear the screen, because the state is
                         // usually expecting the previous thing to happen.
                         </span>DrawBaselayer::PreviousState =&gt; {
                             g.clear(Color::BLACK);
@@ -390,10 +392,10 @@
 
                     <span class="self">self</span>.states[<span class="self">self</span>.states.len() - <span class="number">2</span>].draw(g, <span class="kw-2">&amp;</span><span class="self">self</span>.shared_app_state);
                 } <span class="kw">else </span>{
-                    <span class="comment">// I&#39;m not entirely sure why this happens, but crashing isn&#39;t ideal.
+                    <span class="comment">// I'm not entirely sure why this happens, but crashing isn't ideal.
                     </span><span class="macro">warn!</span>(
-                        <span class="string">&quot;A state requested DrawBaselayer::PreviousState, but it&#39;s the only state \
-                         on the stack!&quot;
+                        <span class="string">"A state requested DrawBaselayer::PreviousState, but it's the only state \
+                         on the stack!"
                     </span>);
                     g.clear(Color::BLACK);
                 }
@@ -402,7 +404,7 @@
         state.draw(g, <span class="kw-2">&amp;</span><span class="self">self</span>.shared_app_state);
     }
 
-    <span class="doccomment">/// If true, then the top-most state on the stack needs to be &quot;woken up&quot; with a fake mouseover
+    <span class="doccomment">/// If true, then the top-most state on the stack needs to be "woken up" with a fake mouseover
     /// event.
     </span><span class="kw">fn </span>execute_transition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, transition: Transition&lt;A&gt;) -&gt; bool {
         <span class="kw">match </span>transition {
@@ -412,8 +414,8 @@
                 <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.states.pop().unwrap();
                 state.on_destroy(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
                 <span class="kw">if </span><span class="self">self</span>.states.is_empty() {
-                    <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
-                        <span class="comment">// Just kidding, don&#39;t actually leave.
+                    <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">"wasm32"</span>) {
+                        <span class="comment">// Just kidding, don't actually leave.
                         </span><span class="self">self</span>.states.push(state);
                     <span class="comment">// TODO Once PopupMsg is lifted here, add an explanation
                     </span>} <span class="kw">else </span>{
@@ -461,7 +463,7 @@
                 <span class="bool-val">true
             </span>}
             Transition::Recreate =&gt; {
-                <span class="comment">// TODO Don&#39;t call on_destroy?
+                <span class="comment">// TODO Don't call on_destroy?
                 </span><span class="kw">let </span><span class="kw-2">mut </span>last = <span class="self">self</span>.states.pop().unwrap();
                 <span class="kw">let </span>replacement = last.recreate(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
                 <span class="self">self</span>.states.push(replacement);
@@ -482,14 +484,14 @@
 </span><span class="kw">pub enum </span>DrawBaselayer {
     <span class="doccomment">/// Call `SharedAppState::draw_default`.
     </span>DefaultDraw,
-    <span class="doccomment">/// Don&#39;t draw anything.
+    <span class="doccomment">/// Don't draw anything.
     </span>Custom,
-    <span class="doccomment">/// Call the previous state&#39;s `draw`. This won&#39;t recurse, even if that state specifies
+    <span class="doccomment">/// Call the previous state's `draw`. This won't recurse, even if that state specifies
     /// `PreviousState`.
     </span>PreviousState,
 }
 
-<span class="doccomment">/// A temporary state of an application. There&#39;s a stack of these, with the most recent being the
+<span class="doccomment">/// A temporary state of an application. There's a stack of these, with the most recent being the
 /// active one.
 </span><span class="kw">pub trait </span>State&lt;A&gt;: downcast_rs::Downcast {
     <span class="doccomment">/// Respond to a UI event, such as input or time passing.
@@ -504,12 +506,12 @@
 
     <span class="doccomment">/// Before this state is popped or replaced, call this.
     </span><span class="kw">fn </span>on_destroy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A) {}
-    <span class="comment">// We don&#39;t need an on_enter -- the constructor for the state can just do it.
+    <span class="comment">// We don't need an on_enter -- the constructor for the state can just do it.
 
     </span><span class="doccomment">/// Respond to `Transition::Recreate` by assuming state in the app has changed, but preserving
     /// the `State`-specific state appropriately.
     </span><span class="kw">fn </span>recreate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
-        <span class="macro">panic!</span>(<span class="string">&quot;This state hasn&#39;t implemented support for Transition::Recreate&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">"This state hasn't implemented support for Transition::Recreate"</span>);
     }
 }
 
@@ -517,7 +519,7 @@
 
 <span class="doccomment">/// When a state responds to an event, it can specify some way to manipulate the stack of states.
 </span><span class="kw">pub enum </span>Transition&lt;A&gt; {
-    <span class="doccomment">/// Don&#39;t do anything, keep the current state as the active one
+    <span class="doccomment">/// Don't do anything, keep the current state as the active one
     </span>Keep,
     <span class="doccomment">/// Keep the current state as the active one, but immediately call `event` again with a mouse
     /// moved event
@@ -579,7 +581,7 @@
     </span>}
     <span class="doccomment">/// Called when the mouse has moved.
     </span><span class="kw">fn </span>on_mouseover(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A) {}
-    <span class="doccomment">/// If a panel `on_click` event didn&#39;t occur and `panel_changed` didn&#39;t return  transition, then
+    <span class="doccomment">/// If a panel `on_click` event didn't occur and `panel_changed` didn't return  transition, then
     /// call this to handle all other events.
     </span><span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
         Transition::Keep
@@ -590,7 +592,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static</span>&gt; <span class="kw">dyn </span>SimpleState&lt;A&gt; {
+<span class="kw">impl</span>&lt;A: <span class="lifetime">'static</span>&gt; <span class="kw">dyn </span>SimpleState&lt;A&gt; {
     <span class="kw">pub fn </span>new_state(panel: Panel, inner: Box&lt;<span class="kw">dyn </span>SimpleState&lt;A&gt;&gt;) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
         Box::new(SimpleStateWrapper { panel, inner })
     }
@@ -601,7 +603,7 @@
     inner: Box&lt;<span class="kw">dyn </span>SimpleState&lt;A&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static</span>&gt; State&lt;A&gt; <span class="kw">for </span>SimpleStateWrapper&lt;A&gt; {
+<span class="kw">impl</span>&lt;A: <span class="lifetime">'static</span>&gt; State&lt;A&gt; <span class="kw">for </span>SimpleStateWrapper&lt;A&gt; {
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
         <span class="kw">if </span>ctx.redo_mouseover() {
             <span class="self">self</span>.inner.on_mouseover(ctx, app);

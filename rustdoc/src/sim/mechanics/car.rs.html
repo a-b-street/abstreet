@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/car.rs`."><title>car.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/car.rs`."><title>car.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -387,7 +389,7 @@
     TimeInterval, TransitSimState, TripID, Vehicle, VehicleType,
 };
 
-<span class="doccomment">/// Represents a single vehicle. Note &quot;car&quot; is a misnomer; it could also be a bus or bike.
+<span class="doccomment">/// Represents a single vehicle. Note "car" is a misnomer; it could also be a bus or bike.
 </span><span class="attr">#[derive(Debug, Serialize, Deserialize, Clone)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Car {
     <span class="kw">pub </span>vehicle: Vehicle,
@@ -403,7 +405,7 @@
     /// vehicle.length.
     </span><span class="kw">pub </span>last_steps: VecDeque&lt;Traversable&gt;,
 
-    <span class="doccomment">/// Since lane over-taking isn&#39;t implemented yet, a vehicle tends to be stuck behind a slow
+    <span class="doccomment">/// Since lane over-taking isn't implemented yet, a vehicle tends to be stuck behind a slow
     /// leader for a while. Avoid duplicate events.
     </span><span class="kw">pub </span>wants_to_overtake: BTreeSet&lt;CarID&gt;,
 }
@@ -418,7 +420,7 @@
         };
         <span class="kw">if </span>end_dist &lt; start_dist {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;{} trying to make a crossing_state from {} to {} at {}. Something&#39;s very wrong&quot;</span>,
+                <span class="string">"{} trying to make a crossing_state from {} to {} at {}. Something's very wrong"</span>,
                 <span class="self">self</span>.vehicle.id, start_dist, end_dist, start_time
             );
         }
@@ -479,7 +481,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
             <span class="kw">while </span>leftover &gt; Distance::ZERO {
                 <span class="kw">if </span>i == <span class="self">self</span>.last_steps.len() {
-                    <span class="comment">// The vehicle is gradually appearing from somewhere. That&#39;s fine, just return
+                    <span class="comment">// The vehicle is gradually appearing from somewhere. That's fine, just return
                     // a truncated body.
                     </span><span class="kw">break</span>;
                 }
@@ -495,7 +497,7 @@
                 result = <span class="kw">match </span>PolyLine::append(piece, result) {
                     <span class="prelude-val">Ok</span>(pl) =&gt; pl,
                     <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(
-                        <span class="string">&quot;{} at {} has weird geom along {:?}: {}&quot;</span>,
+                        <span class="string">"{} at {} has weird geom along {:?}: {}"</span>,
                         <span class="self">self</span>.vehicle.id, now, <span class="self">self</span>.last_steps, err
                     ),
                 };
@@ -505,8 +507,8 @@
 
             <span class="kw">if </span>result.len() &lt; <span class="number">2 </span>{
                 <span class="comment">// Vehicles spawning at a border start with their front at literally 0 distance.
-                // Usually by the time we first try to render, they&#39;ve advanced at least a little.
-                // But sometimes there&#39;s a race when we try to immediately draw them.
+                // Usually by the time we first try to render, they've advanced at least a little.
+                // But sometimes there's a race when we try to immediately draw them.
                 </span><span class="kw">if let </span><span class="prelude-val">Ok</span>((pl, <span class="kw">_</span>)) = <span class="self">self
                     </span>.router
                     .head()
@@ -518,7 +520,7 @@
             }
             <span class="kw">match </span>PolyLine::new(result) {
                 <span class="prelude-val">Ok</span>(pl) =&gt; pl,
-                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Weird body for {} at {}: {}&quot;</span>, <span class="self">self</span>.vehicle.id, now, err),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">"Weird body for {} at {}: {}"</span>, <span class="self">self</span>.vehicle.id, now, err),
             }
         };
 
@@ -531,7 +533,7 @@
             } =&gt; {
                 <span class="kw">let </span>percent_time = <span class="number">1.0 </span>- lc_time.percent(now);
                 <span class="comment">// TODO Can probably simplify this! Lifted from the parking case
-                // The car&#39;s body is already at &#39;to&#39;, so shift back
+                // The car's body is already at 'to', so shift back
                 </span><span class="kw">let </span><span class="kw-2">mut </span>diff = (to.offset <span class="kw">as </span>isize) - (from.offset <span class="kw">as </span>isize);
                 <span class="kw">let </span>from = map.get_l(from);
                 <span class="kw">if </span>from.dir == Direction::Fwd {
@@ -543,7 +545,7 @@
                     <span class="prelude-val">Ok</span>(pl) =&gt; pl,
                     <span class="prelude-val">Err</span>(err) =&gt; {
                         <span class="macro">println!</span>(
-                            <span class="string">&quot;Body for lane-changing {} at {} broken: {}&quot;</span>,
+                            <span class="string">"Body for lane-changing {} at {} broken: {}"</span>,
                             <span class="self">self</span>.vehicle.id, now, err
                         );
                         raw_body
@@ -569,14 +571,14 @@
                         <span class="kw">if </span>map.get_l(<span class="self">self</span>.router.head().as_lane()).dir == Direction::Back {
                             diff <span class="kw-2">*</span>= -<span class="number">1</span>;
                         }
-                        <span class="comment">// TODO Sum widths in between, don&#39;t assume they&#39;re all the same as the
+                        <span class="comment">// TODO Sum widths in between, don't assume they're all the same as the
                         // parking lane width!
                         </span><span class="kw">let </span>width = map.get_l(<span class="kw-2">*</span>parking_l).width * (diff <span class="kw">as </span>f64) * percent_time;
                         <span class="kw">match </span>raw_body.shift_right(width) {
                             <span class="prelude-val">Ok</span>(pl) =&gt; pl,
                             <span class="prelude-val">Err</span>(err) =&gt; {
                                 <span class="macro">println!</span>(
-                                    <span class="string">&quot;Body for onstreet {} at {} broken: {}&quot;</span>,
+                                    <span class="string">"Body for onstreet {} at {} broken: {}"</span>,
                                     <span class="self">self</span>.vehicle.id, now, err
                                 );
                                 raw_body
@@ -592,11 +594,11 @@
                             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                         };
 
-                        <span class="comment">// Append the car&#39;s polyline on the street with the driveway
+                        <span class="comment">// Append the car's polyline on the street with the driveway
                         </span><span class="kw">let </span>maybe_full_piece = <span class="kw">if </span>is_parking {
                             raw_body.clone().extend(driveway.reversed())
                         } <span class="kw">else </span>{
-                            <span class="comment">// It&#39;s possible to exit a driveway onto something other than the lane
+                            <span class="comment">// It's possible to exit a driveway onto something other than the lane
                             // closest to the building. So use force_extend to handle possibly
                             // mismatching points.
                             </span>driveway
@@ -616,10 +618,10 @@
                                     .exact_slice(creep_along, creep_along + <span class="self">self</span>.vehicle.length)
                             }
                             <span class="prelude-val">Err</span>(err) =&gt; {
-                                <span class="comment">// Just avoid crashing; we&#39;ll display something nonsensical (just
+                                <span class="comment">// Just avoid crashing; we'll display something nonsensical (just
                                 // part of the car body on the lane) in the meantime
                                 </span><span class="macro">error!</span>(
-                                    <span class="string">&quot;Body and driveway for {} at {} broken: {}&quot;</span>,
+                                    <span class="string">"Body and driveway for {} at {} broken: {}"</span>,
                                     <span class="self">self</span>.vehicle.id, now, err
                                 );
                                 raw_body
@@ -719,7 +721,7 @@
     WaitingToAdvance {
         blocked_since: Time,
     },
-    <span class="doccomment">/// Where&#39;s the front of the car while this is happening?
+    <span class="doccomment">/// Where's the front of the car while this is happening?
     </span>Unparking {
         front: Distance,
         spot: ParkingSpot,

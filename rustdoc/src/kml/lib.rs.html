@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `kml/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `kml/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kml" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../kml/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -260,24 +262,24 @@
 }
 
 <span class="doccomment">/// Parses a .kml file and returns ExtraShapes. Objects will be clipped to the given gps_bounds. If
-/// require_all_pts_in_bounds is true, objects that&#39;re partly out-of-bounds will be skipped.
+/// require_all_pts_in_bounds is true, objects that're partly out-of-bounds will be skipped.
 </span><span class="kw">pub fn </span>load(
     path: String,
     gps_bounds: <span class="kw-2">&amp;</span>GPSBounds,
     require_all_pts_in_bounds: bool,
     timer: <span class="kw-2">&amp;mut </span>Timer,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;ExtraShapes&gt; {
-    timer.start(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
+    timer.start(<span class="macro">format!</span>(<span class="string">"read {}"</span>, path));
     <span class="kw">let </span>bytes = abstio::slurp_file(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
     <span class="kw">let </span>raw_string = std::str::from_utf8(<span class="kw-2">&amp;</span>bytes)<span class="question-mark">?</span>;
     <span class="kw">let </span>tree = roxmltree::Document::parse(raw_string)<span class="question-mark">?</span>;
-    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
+    timer.stop(<span class="macro">format!</span>(<span class="string">"read {}"</span>, path));
 
     <span class="kw">let </span><span class="kw-2">mut </span>shapes = Vec::new();
     <span class="kw">let </span><span class="kw-2">mut </span>skipped_count = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>kv = BTreeMap::new();
 
-    timer.start(<span class="string">&quot;scrape objects&quot;</span>);
+    timer.start(<span class="string">"scrape objects"</span>);
     recurse(
         tree.root(),
         <span class="kw-2">&amp;mut </span>shapes,
@@ -286,10 +288,10 @@
         gps_bounds,
         require_all_pts_in_bounds,
     )<span class="question-mark">?</span>;
-    timer.stop(<span class="string">&quot;scrape objects&quot;</span>);
+    timer.stop(<span class="string">"scrape objects"</span>);
 
     <span class="macro">info!</span>(
-        <span class="string">&quot;Got {} shapes from {} and skipped {} shapes&quot;</span>,
+        <span class="string">"Got {} shapes from {} and skipped {} shapes"</span>,
         prettyprint_usize(shapes.len()),
         path,
         prettyprint_usize(skipped_count)
@@ -316,19 +318,19 @@
             require_all_pts_in_bounds,
         )<span class="question-mark">?</span>;
     }
-    <span class="kw">if </span>node.tag_name().name() == <span class="string">&quot;SimpleData&quot; </span>{
-        <span class="kw">let </span>key = node.attribute(<span class="string">&quot;name&quot;</span>).unwrap().to_string();
+    <span class="kw">if </span>node.tag_name().name() == <span class="string">"SimpleData" </span>{
+        <span class="kw">let </span>key = node.attribute(<span class="string">"name"</span>).unwrap().to_string();
         <span class="kw">let </span>value = node
             .text()
             .map(|x| x.to_string())
             .unwrap_or_else(String::new);
         kv.insert(key, value);
-    } <span class="kw">else if </span>node.tag_name().name() == <span class="string">&quot;coordinates&quot; </span>{
+    } <span class="kw">else if </span>node.tag_name().name() == <span class="string">"coordinates" </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>any_oob = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>any_ok = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>pts: Vec&lt;LonLat&gt; = Vec::new();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(txt) = node.text() {
-            <span class="kw">for </span>pair <span class="kw">in </span>txt.trim().split(<span class="string">&#39; &#39;</span>) {
+            <span class="kw">for </span>pair <span class="kw">in </span>txt.trim().split(<span class="string">' '</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = parse_pt(pair) {
                     pts.push(pt);
                     <span class="kw">if </span>gps_bounds.contains(pt) {
@@ -337,7 +339,7 @@
                         any_oob = <span class="bool-val">true</span>;
                     }
                 } <span class="kw">else </span>{
-                    <span class="macro">bail!</span>(<span class="string">&quot;Malformed coordinates: {}&quot;</span>, pair);
+                    <span class="macro">bail!</span>(<span class="string">"Malformed coordinates: {}"</span>, pair);
                 }
             }
         }
@@ -355,9 +357,9 @@
 }
 
 <span class="kw">fn </span>parse_pt(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;LonLat&gt; {
-    <span class="kw">let </span>coords: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = input.split(<span class="string">&#39;,&#39;</span>).collect();
-    <span class="comment">// Normally each coordinate is just (X, Y), but for census tract files, there&#39;s a third Z
-    // component that&#39;s always 0. Just ignore it.
+    <span class="kw">let </span>coords: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = input.split(<span class="string">','</span>).collect();
+    <span class="comment">// Normally each coordinate is just (X, Y), but for census tract files, there's a third Z
+    // component that's always 0. Just ignore it.
     </span><span class="kw">if </span>coords.len() &lt; <span class="number">2 </span>{
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
@@ -369,22 +371,22 @@
 
 <span class="kw">impl </span>ExtraShapes {
     <span class="doccomment">/// Parses a .csv file and returns ExtraShapes. Each record must EITHER have a column called
-    /// &#39;Longitude&#39; and &#39;Latitude&#39;, representing a single point, OR a column called &#39;geometry&#39; with
-    /// a WKT-style linestring. All other columns will just be attributes. Objects that&#39;re partly
+    /// 'Longitude' and 'Latitude', representing a single point, OR a column called 'geometry' with
+    /// a WKT-style linestring. All other columns will just be attributes. Objects that're partly
     /// out-of-bounds will be excluded.
     </span><span class="kw">pub fn </span>load_csv(
         path: String,
         gps_bounds: <span class="kw-2">&amp;</span>GPSBounds,
         timer: <span class="kw-2">&amp;mut </span>Timer,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ExtraShapes&gt; {
-        timer.start(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
+        timer.start(<span class="macro">format!</span>(<span class="string">"read {}"</span>, path));
         <span class="kw">let </span><span class="kw-2">mut </span>shapes = Vec::new();
         <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_path(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>.deserialize() {
             <span class="kw">let </span><span class="kw-2">mut </span>rec: BTreeMap&lt;String, String&gt; = rec<span class="question-mark">?</span>;
             <span class="kw">match </span>(
-                rec.remove(<span class="string">&quot;Longitude&quot;</span>),
-                rec.remove(<span class="string">&quot;Latitude&quot;</span>),
-                rec.remove(<span class="string">&quot;geometry&quot;</span>),
+                rec.remove(<span class="string">"Longitude"</span>),
+                rec.remove(<span class="string">"Latitude"</span>),
+                rec.remove(<span class="string">"geometry"</span>),
             ) {
                 (<span class="prelude-val">Some</span>(lon), <span class="prelude-val">Some</span>(lat), <span class="kw">_</span>) =&gt; {
                     <span class="kw">if let </span>(<span class="prelude-val">Ok</span>(lon), <span class="prelude-val">Ok</span>(lat)) = (lon.parse::&lt;f64&gt;(), lat.parse::&lt;f64&gt;()) {
@@ -408,15 +410,15 @@
                     }
                 }
                 <span class="kw">_ </span>=&gt; {
-                    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
+                    timer.stop(<span class="macro">format!</span>(<span class="string">"read {}"</span>, path));
                     <span class="macro">bail!</span>(
-                        <span class="string">&quot;{} doesn&#39;t have a column called Longitude, Latitude, or geometry&quot;</span>,
+                        <span class="string">"{} doesn't have a column called Longitude, Latitude, or geometry"</span>,
                         path
                     )
                 }
             }
         }
-        timer.stop(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
+        timer.stop(<span class="macro">format!</span>(<span class="string">"read {}"</span>, path));
         <span class="prelude-val">Ok</span>(ExtraShapes { shapes })
     }
 }

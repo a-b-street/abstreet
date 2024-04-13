@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/seattle.rs`."><title>seattle.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/seattle.rs`."><title>seattle.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../importer/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -205,36 +207,36 @@
 <span class="kw">use </span><span class="kw">crate</span>::configuration::ImporterConfiguration;
 <span class="kw">use </span><span class="kw">crate</span>::utils::{download, download_kml};
 
-<span class="kw">pub async fn </span>input(config: <span class="kw-2">&amp;</span>ImporterConfiguration, timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">&#39;_</span>&gt;) {
+<span class="kw">pub async fn </span>input(config: <span class="kw-2">&amp;</span>ImporterConfiguration, timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">'_</span>&gt;) {
     <span class="kw">let </span>city = CityName::seattle();
 
-    <span class="comment">// Soundcast data was originally retrieved from staff at PSRC via a download link that didn&#39;t
+    <span class="comment">// Soundcast data was originally retrieved from staff at PSRC via a download link that didn't
     // last long. From that original 2014 .zip (possibly still available from
     // https://github.com/psrc/soundcast/releases), two files were extracted --
-    // parcels_urbansim.txt and trips_2014.csv. Those are now stored in S3. It&#39;s a bit weird for
+    // parcels_urbansim.txt and trips_2014.csv. Those are now stored in S3. It's a bit weird for
     // the importer pipeline to depend on something in data/input in S3, but this should let
     // anybody run the full pipeline.
     </span>download(
         config,
-        city.input_path(<span class="string">&quot;parcels_urbansim.txt&quot;</span>),
-        <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/input/us/seattle/parcels_urbansim.txt.gz&quot;</span>,
+        city.input_path(<span class="string">"parcels_urbansim.txt"</span>),
+        <span class="string">"http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/input/us/seattle/parcels_urbansim.txt.gz"</span>,
     )
     .<span class="kw">await</span>;
     download(
         config,
-        city.input_path(<span class="string">&quot;trips_2014.csv&quot;</span>),
-        <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/input/us/seattle/trips_2014.csv.gz&quot;</span>,
+        city.input_path(<span class="string">"trips_2014.csv"</span>),
+        <span class="string">"http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/input/us/seattle/trips_2014.csv.gz"</span>,
     )
     .<span class="kw">await</span>;
 
     <span class="kw">let </span>bounds = geom::GPSBounds::from(
-        geom::LonLat::read_geojson_polygon(<span class="string">&quot;importer/config/us/seattle/huge_seattle.geojson&quot;</span>)
+        geom::LonLat::read_geojson_polygon(<span class="string">"importer/config/us/seattle/huge_seattle.geojson"</span>)
             .unwrap(),
     );
     <span class="comment">// From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
     </span>download_kml(
-        city.input_path(<span class="string">&quot;blockface.bin&quot;</span>),
-        <span class="string">&quot;https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml&quot;</span>,
+        city.input_path(<span class="string">"blockface.bin"</span>),
+        <span class="string">"https://opendata.arcgis.com/datasets/a1458ad1abca41869b81f7c0db0cd777_0.kml"</span>,
         <span class="kw-2">&amp;</span>bounds,
         <span class="bool-val">true</span>,
         timer,
@@ -242,8 +244,8 @@
     .<span class="kw">await</span>;
     <span class="comment">// From https://data-seattlecitygis.opendata.arcgis.com/datasets/public-garages-or-parking-lots
     </span>download_kml(
-        city.input_path(<span class="string">&quot;offstreet_parking.bin&quot;</span>),
-        <span class="string">&quot;http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml&quot;</span>,
+        city.input_path(<span class="string">"offstreet_parking.bin"</span>),
+        <span class="string">"http://data-seattlecitygis.opendata.arcgis.com/datasets/8e52dfde6d5d45948f7a90654c8d50cd_0.kml"</span>,
         <span class="kw-2">&amp;</span>bounds,
         <span class="bool-val">true</span>,
         timer
@@ -253,25 +255,25 @@
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0
     </span>download(
         config,
-        city.input_path(<span class="string">&quot;collisions.kml&quot;</span>),
-        <span class="string">&quot;https://opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0.kml&quot;</span>,
+        city.input_path(<span class="string">"collisions.kml"</span>),
+        <span class="string">"https://opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0.kml"</span>,
     )
     .<span class="kw">await</span>;
 
     <span class="comment">// This is a little expensive, so delete data/input/us/seattle/collisions.bin to regenerate
     // this.
-    </span><span class="kw">if </span>!abstio::file_exists(city.input_path(<span class="string">&quot;collisions.bin&quot;</span>)) {
-        <span class="kw">let </span>shapes = kml::load(city.input_path(<span class="string">&quot;collisions.kml&quot;</span>), <span class="kw-2">&amp;</span>bounds, <span class="bool-val">true</span>, timer).unwrap();
+    </span><span class="kw">if </span>!abstio::file_exists(city.input_path(<span class="string">"collisions.bin"</span>)) {
+        <span class="kw">let </span>shapes = kml::load(city.input_path(<span class="string">"collisions.kml"</span>), <span class="kw-2">&amp;</span>bounds, <span class="bool-val">true</span>, timer).unwrap();
         <span class="kw">let </span>collisions = collisions::import_seattle(
             shapes,
-            <span class="string">&quot;https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0&quot;</span>);
-        abstio::write_binary(city.input_path(<span class="string">&quot;collisions.bin&quot;</span>), <span class="kw-2">&amp;</span>collisions);
+            <span class="string">"https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0"</span>);
+        abstio::write_binary(city.input_path(<span class="string">"collisions.bin"</span>), <span class="kw-2">&amp;</span>collisions);
     }
 
     <span class="comment">// From https://data-seattlecitygis.opendata.arcgis.com/datasets/parcels-1
     </span>download_kml(
-        city.input_path(<span class="string">&quot;zoning_parcels.bin&quot;</span>),
-        <span class="string">&quot;https://opendata.arcgis.com/datasets/42863f1debdc47488a1c2b9edd38053e_2.kml&quot;</span>,
+        city.input_path(<span class="string">"zoning_parcels.bin"</span>),
+        <span class="string">"https://opendata.arcgis.com/datasets/42863f1debdc47488a1c2b9edd38053e_2.kml"</span>,
         <span class="kw-2">&amp;</span>bounds,
         <span class="bool-val">true</span>,
         timer,
@@ -281,8 +283,8 @@
     <span class="comment">// From
     // https://data-seattlecitygis.opendata.arcgis.com/datasets/current-land-use-zoning-detail
     </span>download_kml(
-        city.input_path(<span class="string">&quot;land_use.bin&quot;</span>),
-        <span class="string">&quot;https://opendata.arcgis.com/datasets/dd29065b5d01420e9686570c2b77502b_0.kml&quot;</span>,
+        city.input_path(<span class="string">"land_use.bin"</span>),
+        <span class="string">"https://opendata.arcgis.com/datasets/dd29065b5d01420e9686570c2b77502b_0.kml"</span>,
         <span class="kw-2">&amp;</span>bounds,
         <span class="bool-val">false</span>,
         timer,
@@ -292,15 +294,15 @@
 
 <span class="doccomment">/// Download and pre-process data needed to generate Seattle scenarios.
 </span><span class="kw">pub async fn </span>ensure_popdat_exists(
-    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">&#39;_</span>&gt;,
+    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">'_</span>&gt;,
     config: <span class="kw-2">&amp;</span>ImporterConfiguration,
     built_raw_huge_seattle: <span class="kw-2">&amp;mut </span>bool,
     built_map_huge_seattle: <span class="kw-2">&amp;mut </span>bool,
 ) -&gt; (<span class="kw">crate</span>::soundcast::PopDat, map_model::Map) {
-    <span class="kw">let </span>huge_name = MapName::seattle(<span class="string">&quot;huge_seattle&quot;</span>);
+    <span class="kw">let </span>huge_name = MapName::seattle(<span class="string">"huge_seattle"</span>);
 
     <span class="kw">if </span>abstio::file_exists(abstio::path_popdat()) {
-        <span class="macro">println!</span>(<span class="string">&quot;- {} exists, not regenerating it&quot;</span>, abstio::path_popdat());
+        <span class="macro">println!</span>(<span class="string">"- {} exists, not regenerating it"</span>, abstio::path_popdat());
         <span class="kw">return </span>(
             abstio::read_binary(abstio::path_popdat(), timer),
             map_model::Map::load_synchronously(huge_name.path(), timer),
@@ -308,7 +310,7 @@
     }
 
     <span class="kw">if </span>!abstio::file_exists(abstio::path_raw_map(<span class="kw-2">&amp;</span>huge_name)) {
-        <span class="kw">crate</span>::utils::osm_to_raw(MapName::seattle(<span class="string">&quot;huge_seattle&quot;</span>), timer, config).<span class="kw">await</span>;
+        <span class="kw">crate</span>::utils::osm_to_raw(MapName::seattle(<span class="string">"huge_seattle"</span>), timer, config).<span class="kw">await</span>;
         <span class="kw-2">*</span>built_raw_huge_seattle = <span class="bool-val">true</span>;
     }
     <span class="kw">let </span>huge_map = <span class="kw">if </span>abstio::file_exists(huge_name.path()) {
@@ -329,18 +331,18 @@
 }
 
 <span class="doccomment">/// Match OSM buildings to parcels, scraping the number of housing units.
-</span><span class="comment">// TODO It&#39;s expensive to load the huge zoning_parcels.bin file for every map.
+</span><span class="comment">// TODO It's expensive to load the huge zoning_parcels.bin file for every map.
 </span><span class="kw">pub fn </span>match_parcels_to_buildings(map: <span class="kw-2">&amp;mut </span>Map, shapes: <span class="kw-2">&amp;</span>ExtraShapes, timer: <span class="kw-2">&amp;mut </span>Timer) {
     <span class="kw">let </span><span class="kw-2">mut </span>parcels_with_housing: Vec&lt;(Polygon, usize)&gt; = Vec::new();
     <span class="comment">// TODO We should refactor something like FindClosest, but for polygon containment
-    // The quadtree&#39;s ID is just an index into parcels_with_housing.
+    // The quadtree's ID is just an index into parcels_with_housing.
     </span><span class="kw">let </span><span class="kw-2">mut </span>quadtree = QuadTree::builder();
-    timer.start_iter(<span class="string">&quot;index all parcels&quot;</span>, shapes.shapes.len());
+    timer.start_iter(<span class="string">"index all parcels"</span>, shapes.shapes.len());
     <span class="kw">for </span>shape <span class="kw">in </span><span class="kw-2">&amp;</span>shapes.shapes {
         timer.next();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(units) = shape
             .attributes
-            .get(<span class="string">&quot;EXIST_UNITS&quot;</span>)
+            .get(<span class="string">"EXIST_UNITS"</span>)
             .and_then(|x| x.parse::&lt;usize&gt;().ok())
         {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(ring) = map
@@ -358,10 +360,10 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>used_parcels: HashSet&lt;usize&gt; = HashSet::new();
     <span class="kw">let </span><span class="kw-2">mut </span>units_per_bldg: Vec&lt;(BuildingID, usize)&gt; = Vec::new();
-    timer.start_iter(<span class="string">&quot;match buildings to parcels&quot;</span>, map.all_buildings().len());
+    timer.start_iter(<span class="string">"match buildings to parcels"</span>, map.all_buildings().len());
     <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
         timer.next();
-        <span class="comment">// If multiple parcels contain a building&#39;s center, just pick one arbitrarily
+        <span class="comment">// If multiple parcels contain a building's center, just pick one arbitrarily
         </span><span class="kw">for </span>idx <span class="kw">in </span>quadtree.query_bbox(b.polygon.get_bounds()) {
             <span class="kw">if </span>used_parcels.contains(<span class="kw-2">&amp;</span>idx)
                 || !parcels_with_housing[idx].<span class="number">0</span>.contains_pt(b.label_center)

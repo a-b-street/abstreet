@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/colors.rs`."><title>colors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/colors.rs`."><title>colors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -561,16 +563,16 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::tools::loading_tips;
 
-<span class="comment">// I&#39;ve gone back and forth how to organize color scheme code. I was previously against having one
+<span class="comment">// I've gone back and forth how to organize color scheme code. I was previously against having one
 // centralized place with all definitions, because careful naming or comments are needed to explain
-// the context of a definition. That&#39;s unnecessary when the color is defined in the one place it&#39;s
+// the context of a definition. That's unnecessary when the color is defined in the one place it's
 // used. But that was before we started consolidating the color palette in designs, and before we
 // started rapidly iterating on totally different schemes.
 //
-// For the record, the compiler catches typos with this approach, but I don&#39;t think I had a single
+// For the record, the compiler catches typos with this approach, but I don't think I had a single
 // bug that took more than 30s to catch and fix in ~1.5 years of the untyped string key. ;)
 //
-// TODO There are plenty of colors left that aren&#39;t captured here. :(
+// TODO There are plenty of colors left that aren't captured here. :(
 
 </span><span class="attr">#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>ColorSchemeChoice {
@@ -584,11 +586,11 @@
 <span class="kw">impl </span>ColorSchemeChoice {
     <span class="kw">pub fn </span>choices() -&gt; Vec&lt;Choice&lt;ColorSchemeChoice&gt;&gt; {
         <span class="macro">vec!</span>[
-            Choice::new(<span class="string">&quot;day mode&quot;</span>, ColorSchemeChoice::DayMode),
-            Choice::new(<span class="string">&quot;night mode&quot;</span>, ColorSchemeChoice::NightMode),
-            Choice::new(<span class="string">&quot;textured&quot;</span>, ColorSchemeChoice::Textured),
-            Choice::new(<span class="string">&quot;classic&quot;</span>, ColorSchemeChoice::ClassicDayMode),
-            Choice::new(<span class="string">&quot;LTN&quot;</span>, ColorSchemeChoice::LTN),
+            Choice::new(<span class="string">"day mode"</span>, ColorSchemeChoice::DayMode),
+            Choice::new(<span class="string">"night mode"</span>, ColorSchemeChoice::NightMode),
+            Choice::new(<span class="string">"textured"</span>, ColorSchemeChoice::Textured),
+            Choice::new(<span class="string">"classic"</span>, ColorSchemeChoice::ClassicDayMode),
+            Choice::new(<span class="string">"LTN"</span>, ColorSchemeChoice::LTN),
         ]
     }
 
@@ -601,9 +603,9 @@
             }
         }
         <span class="macro">bail!</span>(
-            <span class="string">&quot;Invalid --color_scheme={}. Choices: {}&quot;</span>,
+            <span class="string">"Invalid --color_scheme={}. Choices: {}"</span>,
             x,
-            options.join(<span class="string">&quot;, &quot;</span>)
+            options.join(<span class="string">", "</span>)
         );
     }
 }
@@ -742,8 +744,8 @@
             <span class="comment">// UI
             </span>panel_bg: gui_style.panel_bg,
             inner_panel_bg: gui_style.section_bg,
-            day_time_slider: hex(<span class="string">&quot;#F4DA22&quot;</span>),
-            night_time_slider: hex(<span class="string">&quot;#12409D&quot;</span>),
+            day_time_slider: hex(<span class="string">"#F4DA22"</span>),
+            night_time_slider: hex(<span class="string">"#12409D"</span>),
             selected: Color::RED.alpha(<span class="number">0.7</span>),
             current_object: Color::WHITE,
             perma_selected_object: Color::BLUE,
@@ -761,26 +763,26 @@
             sidewalk_lines: Color::grey(<span class="number">0.7</span>),
             general_road_marking: Color::WHITE,
             road_center_line: Color::YELLOW,
-            light_rail_track: hex(<span class="string">&quot;#844204&quot;</span>),
-            private_road: <span class="prelude-val">Some</span>(hex(<span class="string">&quot;#F0B0C0&quot;</span>)),
-            unzoomed_highway: hex(<span class="string">&quot;#E892A2&quot;</span>),
-            unzoomed_arterial: hex(<span class="string">&quot;#FFC73E&quot;</span>),
+            light_rail_track: hex(<span class="string">"#844204"</span>),
+            private_road: <span class="prelude-val">Some</span>(hex(<span class="string">"#F0B0C0"</span>)),
+            unzoomed_highway: hex(<span class="string">"#E892A2"</span>),
+            unzoomed_arterial: hex(<span class="string">"#FFC73E"</span>),
             unzoomed_residential: Color::WHITE,
-            unzoomed_cycleway: hex(<span class="string">&quot;#0F7D4B&quot;</span>),
-            unzoomed_footway: hex(<span class="string">&quot;#DED68A&quot;</span>),
+            unzoomed_cycleway: hex(<span class="string">"#0F7D4B"</span>),
+            unzoomed_footway: hex(<span class="string">"#DED68A"</span>),
             <span class="comment">// TODO Distinguish shared use and footway unzoomed or zoomed?
-            </span>footway: hex(<span class="string">&quot;#DED68A&quot;</span>),
-            shared_use: hex(<span class="string">&quot;#DED68A&quot;</span>),
+            </span>footway: hex(<span class="string">"#DED68A"</span>),
+            shared_use: hex(<span class="string">"#DED68A"</span>),
 
             <span class="comment">// Intersections
             </span>normal_intersection: Color::grey(<span class="number">0.2</span>),
             stop_sign: Color::RED,
             stop_sign_pole: Color::grey(<span class="number">0.5</span>),
-            signal_protected_turn: hex(<span class="string">&quot;#72CE36&quot;</span>),
-            signal_permitted_turn: hex(<span class="string">&quot;#4CA7E9&quot;</span>),
-            signal_banned_turn: hex(<span class="string">&quot;#EB3223&quot;</span>),
+            signal_protected_turn: hex(<span class="string">"#72CE36"</span>),
+            signal_permitted_turn: hex(<span class="string">"#4CA7E9"</span>),
+            signal_banned_turn: hex(<span class="string">"#EB3223"</span>),
             signal_box: Color::grey(<span class="number">0.5</span>),
-            signal_spinner: hex(<span class="string">&quot;#F2994A&quot;</span>),
+            signal_spinner: hex(<span class="string">"#F2994A"</span>),
             signal_turn_block_bg: Color::grey(<span class="number">0.6</span>),
 
             <span class="comment">// Problems encountered on a trip
@@ -792,49 +794,49 @@
             </span>void_background: Color::BLACK,
             map_background: Color::grey(<span class="number">0.87</span>).into(),
             unzoomed_interesting_intersection: Color::BLACK,
-            residential_building: hex(<span class="string">&quot;#C4C1BC&quot;</span>),
-            commercial_building: hex(<span class="string">&quot;#9FABA7&quot;</span>),
-            building_outline: hex(<span class="string">&quot;#938E85&quot;</span>),
+            residential_building: hex(<span class="string">"#C4C1BC"</span>),
+            commercial_building: hex(<span class="string">"#9FABA7"</span>),
+            building_outline: hex(<span class="string">"#938E85"</span>),
             parking_lot: Color::grey(<span class="number">0.7</span>),
-            grass: hex(<span class="string">&quot;#94C84A&quot;</span>).into(),
-            water: hex(<span class="string">&quot;#A4C8EA&quot;</span>).into(),
-            study_area: hex(<span class="string">&quot;#96830C&quot;</span>).into(),
+            grass: hex(<span class="string">"#94C84A"</span>).into(),
+            water: hex(<span class="string">"#A4C8EA"</span>).into(),
+            study_area: hex(<span class="string">"#96830C"</span>).into(),
 
             <span class="comment">// Unzoomed dynamic elements
-            </span>unzoomed_car: hex(<span class="string">&quot;#FE5f55&quot;</span>),
-            unzoomed_bike: hex(<span class="string">&quot;#90BE6D&quot;</span>),
-            unzoomed_bus: hex(<span class="string">&quot;#FFD166&quot;</span>),
-            unzoomed_pedestrian: hex(<span class="string">&quot;#457B9D&quot;</span>),
+            </span>unzoomed_car: hex(<span class="string">"#FE5f55"</span>),
+            unzoomed_bike: hex(<span class="string">"#90BE6D"</span>),
+            unzoomed_bus: hex(<span class="string">"#FFD166"</span>),
+            unzoomed_pedestrian: hex(<span class="string">"#457B9D"</span>),
 
             <span class="comment">// Agents
             </span>agent_colors: <span class="macro">vec!</span>[
-                hex(<span class="string">&quot;#5C45A0&quot;</span>),
-                hex(<span class="string">&quot;#3E8BC3&quot;</span>),
-                hex(<span class="string">&quot;#E1BA13&quot;</span>),
-                hex(<span class="string">&quot;#96322F&quot;</span>),
-                hex(<span class="string">&quot;#00A27B&quot;</span>),
+                hex(<span class="string">"#5C45A0"</span>),
+                hex(<span class="string">"#3E8BC3"</span>),
+                hex(<span class="string">"#E1BA13"</span>),
+                hex(<span class="string">"#96322F"</span>),
+                hex(<span class="string">"#00A27B"</span>),
             ],
             route: Color::ORANGE.alpha(<span class="number">0.5</span>),
-            turn_arrow: hex(<span class="string">&quot;#DF8C3D&quot;</span>),
-            brake_light: hex(<span class="string">&quot;#FF1300&quot;</span>),
+            turn_arrow: hex(<span class="string">"#DF8C3D"</span>),
+            brake_light: hex(<span class="string">"#FF1300"</span>),
             bus_body: Color::rgb(<span class="number">50</span>, <span class="number">133</span>, <span class="number">117</span>),
             bus_label: Color::rgb(<span class="number">249</span>, <span class="number">206</span>, <span class="number">24</span>),
-            train_body: hex(<span class="string">&quot;#42B6E9&quot;</span>),
+            train_body: hex(<span class="string">"#42B6E9"</span>),
             ped_head: Color::rgb(<span class="number">139</span>, <span class="number">69</span>, <span class="number">19</span>),
             ped_foot: Color::BLACK,
             ped_preparing_bike_body: Color::rgb(<span class="number">255</span>, <span class="number">0</span>, <span class="number">144</span>),
             ped_crowd: Color::rgb_f(<span class="number">0.2</span>, <span class="number">0.7</span>, <span class="number">0.7</span>),
-            bike_frame: hex(<span class="string">&quot;#AAA9AD&quot;</span>),
-            parked_car: hex(<span class="string">&quot;#938E85&quot;</span>),
+            bike_frame: hex(<span class="string">"#AAA9AD"</span>),
+            parked_car: hex(<span class="string">"#938E85"</span>),
 
             <span class="comment">// Layers
-            </span>good_to_bad_red: ColorScale(<span class="macro">vec!</span>[hex(<span class="string">&quot;#F19A93&quot;</span>), hex(<span class="string">&quot;#A32015&quot;</span>)]),
-            good_to_bad_green: ColorScale(<span class="macro">vec!</span>[hex(<span class="string">&quot;#BEDB92&quot;</span>), hex(<span class="string">&quot;#397A4C&quot;</span>)]),
-            bus_layer: hex(<span class="string">&quot;#4CA7E9&quot;</span>),
-            edits_layer: hex(<span class="string">&quot;#12409D&quot;</span>),
+            </span>good_to_bad_red: ColorScale(<span class="macro">vec!</span>[hex(<span class="string">"#F19A93"</span>), hex(<span class="string">"#A32015"</span>)]),
+            good_to_bad_green: ColorScale(<span class="macro">vec!</span>[hex(<span class="string">"#BEDB92"</span>), hex(<span class="string">"#397A4C"</span>)]),
+            bus_layer: hex(<span class="string">"#4CA7E9"</span>),
+            edits_layer: hex(<span class="string">"#12409D"</span>),
 
             <span class="comment">// Misc
-            </span>parking_trip: hex(<span class="string">&quot;#4E30A6&quot;</span>),
+            </span>parking_trip: hex(<span class="string">"#4E30A6"</span>),
             bike_trip: Color::rgb(<span class="number">15</span>, <span class="number">125</span>, <span class="number">75</span>),
             bus_trip: Color::rgb(<span class="number">190</span>, <span class="number">74</span>, <span class="number">76</span>),
             before_changes: Color::BLUE,
@@ -848,17 +850,17 @@
         cs.scheme = ColorSchemeChoice::NightMode;
         cs.gui_style = widgetry::Style::dark_bg();
 
-        cs.void_background = hex(<span class="string">&quot;#200A24&quot;</span>);
+        cs.void_background = hex(<span class="string">"#200A24"</span>);
         cs.map_background = Color::BLACK.into();
-        cs.grass = hex(<span class="string">&quot;#243A1F&quot;</span>).into();
-        cs.water = hex(<span class="string">&quot;#21374E&quot;</span>).into();
-        cs.residential_building = hex(<span class="string">&quot;#2C422E&quot;</span>);
-        cs.commercial_building = hex(<span class="string">&quot;#5D5F97&quot;</span>);
+        cs.grass = hex(<span class="string">"#243A1F"</span>).into();
+        cs.water = hex(<span class="string">"#21374E"</span>).into();
+        cs.residential_building = hex(<span class="string">"#2C422E"</span>);
+        cs.commercial_building = hex(<span class="string">"#5D5F97"</span>);
 
-        cs.driving_lane = hex(<span class="string">&quot;#404040&quot;</span>);
-        cs.parking_lane = hex(<span class="string">&quot;#353535&quot;</span>);
-        cs.sidewalk = hex(<span class="string">&quot;#6B6B6B&quot;</span>);
-        cs.general_road_marking = hex(<span class="string">&quot;#B1B1B1&quot;</span>);
+        cs.driving_lane = hex(<span class="string">"#404040"</span>);
+        cs.parking_lane = hex(<span class="string">"#353535"</span>);
+        cs.sidewalk = hex(<span class="string">"#6B6B6B"</span>);
+        cs.general_road_marking = hex(<span class="string">"#B1B1B1"</span>);
         cs.normal_intersection = cs.driving_lane;
         cs.road_center_line = cs.general_road_marking;
 
@@ -867,9 +869,9 @@
         cs.unzoomed_arterial = cs.sidewalk;
         cs.unzoomed_residential = cs.driving_lane;
         cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
-        cs.stop_sign = hex(<span class="string">&quot;#A32015&quot;</span>);
-        cs.private_road = <span class="prelude-val">Some</span>(hex(<span class="string">&quot;#9E757F&quot;</span>));
-        cs.study_area = hex(<span class="string">&quot;#D9B002&quot;</span>).into();
+        cs.stop_sign = hex(<span class="string">"#A32015"</span>);
+        cs.private_road = <span class="prelude-val">Some</span>(hex(<span class="string">"#9E757F"</span>));
+        cs.study_area = hex(<span class="string">"#D9B002"</span>).into();
 
         cs.panel_bg = cs.gui_style.panel_bg;
         cs.inner_panel_bg = cs.panel_bg.alpha(<span class="number">1.0</span>);
@@ -895,17 +897,17 @@
         cs.road_class_colors = <span class="bool-val">true</span>;
         cs.show_buildings_in_minimap = <span class="bool-val">false</span>;
 
-        cs.map_background = hex(<span class="string">&quot;#EEE5C8&quot;</span>).into();
-        cs.grass = hex(<span class="string">&quot;#BED4A3&quot;</span>).into();
-        cs.water = hex(<span class="string">&quot;#6384D6&quot;</span>).into();
+        cs.map_background = hex(<span class="string">"#EEE5C8"</span>).into();
+        cs.grass = hex(<span class="string">"#BED4A3"</span>).into();
+        cs.water = hex(<span class="string">"#6384D6"</span>).into();
 
-        cs.sidewalk = hex(<span class="string">&quot;#A9A9A9&quot;</span>);
-        cs.sidewalk_lines = hex(<span class="string">&quot;#989898&quot;</span>);
+        cs.sidewalk = hex(<span class="string">"#A9A9A9"</span>);
+        cs.sidewalk_lines = hex(<span class="string">"#989898"</span>);
 
-        cs.unzoomed_arterial = hex(<span class="string">&quot;#F6A483&quot;</span>);
+        cs.unzoomed_arterial = hex(<span class="string">"#F6A483"</span>);
 
-        cs.residential_building = hex(<span class="string">&quot;#C5D2E5&quot;</span>);
-        cs.commercial_building = hex(<span class="string">&quot;#99AECC&quot;</span>);
+        cs.residential_building = hex(<span class="string">"#C5D2E5"</span>);
+        cs.commercial_building = hex(<span class="string">"#99AECC"</span>);
 
         cs
     }
@@ -917,12 +919,12 @@
         cs.fade_map_dark = Color::BLACK.alpha(<span class="number">0.3</span>);
 
         <span class="comment">// Based on Mapbox light scheme: https://www.mapbox.com/maps/light
-        </span>cs.map_background = hex(<span class="string">&quot;#F6F6F4&quot;</span>).into();
+        </span>cs.map_background = hex(<span class="string">"#F6F6F4"</span>).into();
         <span class="comment">// Water is #CAD2D3, but more blue
-        </span>cs.water = hex(<span class="string">&quot;#c7d7d9&quot;</span>).into();
+        </span>cs.water = hex(<span class="string">"#c7d7d9"</span>).into();
         <span class="comment">// #ECEEED, but more green
-        </span>cs.grass = hex(<span class="string">&quot;#ddebe4&quot;</span>).into();
-        <span class="comment">// Many maps would use line thickness to distinguish main and local roads, but we&#39;re stuck
+        </span>cs.grass = hex(<span class="string">"#ddebe4"</span>).into();
+        <span class="comment">// Many maps would use line thickness to distinguish main and local roads, but we're stuck
         // with geometric interpretation, so use black.
         </span>cs.unzoomed_highway = Color::BLACK;
         cs.unzoomed_arterial = Color::BLACK;
@@ -1019,7 +1021,7 @@
     <span class="kw">pub fn </span>road_center_line(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Color {
         <span class="comment">// TODO A more robust approach is to offload this question to osm2lanes, and color by
         // separators
-        </span><span class="kw">if </span>map.get_name().city.country == <span class="string">&quot;gb&quot; </span>{
+        </span><span class="kw">if </span>map.get_name().city.country == <span class="string">"gb" </span>{
             <span class="self">self</span>.general_road_marking
         } <span class="kw">else </span>{
             <span class="self">self</span>.road_center_line
@@ -1030,30 +1032,30 @@
     // and changing it to use a nice hex string is way too hard.
     </span><span class="kw">pub fn </span>export(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>f = File::create(path)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;unzoomed_highway {}&quot;</span>, <span class="self">self</span>.unzoomed_highway.as_hex())<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;unzoomed_arterial {}&quot;</span>, <span class="self">self</span>.unzoomed_arterial.as_hex())<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"unzoomed_highway {}"</span>, <span class="self">self</span>.unzoomed_highway.as_hex())<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"unzoomed_arterial {}"</span>, <span class="self">self</span>.unzoomed_arterial.as_hex())<span class="question-mark">?</span>;
         <span class="macro">writeln!</span>(
             f,
-            <span class="string">&quot;unzoomed_residential {}&quot;</span>,
+            <span class="string">"unzoomed_residential {}"</span>,
             <span class="self">self</span>.unzoomed_residential.as_hex()
         )<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;unzoomed_cycleway {}&quot;</span>, <span class="self">self</span>.unzoomed_cycleway.as_hex())<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;unzoomed_footway {}&quot;</span>, <span class="self">self</span>.unzoomed_footway.as_hex())<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"unzoomed_cycleway {}"</span>, <span class="self">self</span>.unzoomed_cycleway.as_hex())<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"unzoomed_footway {}"</span>, <span class="self">self</span>.unzoomed_footway.as_hex())<span class="question-mark">?</span>;
         <span class="macro">writeln!</span>(
             f,
-            <span class="string">&quot;residential_building {}&quot;</span>,
+            <span class="string">"residential_building {}"</span>,
             <span class="self">self</span>.residential_building.as_hex()
         )<span class="question-mark">?</span>;
         <span class="macro">writeln!</span>(
             f,
-            <span class="string">&quot;commercial_building {}&quot;</span>,
+            <span class="string">"commercial_building {}"</span>,
             <span class="self">self</span>.commercial_building.as_hex()
         )<span class="question-mark">?</span>;
         <span class="kw">if let </span>Fill::Color(c) = <span class="self">self</span>.grass {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;grass {}&quot;</span>, c.as_hex())<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"grass {}"</span>, c.as_hex())<span class="question-mark">?</span>;
         }
         <span class="kw">if let </span>Fill::Color(c) = <span class="self">self</span>.water {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;water {}&quot;</span>, c.as_hex())<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"water {}"</span>, c.as_hex())<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1061,11 +1063,11 @@
     <span class="kw">pub fn </span>import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>raw = String::from_utf8(abstio::slurp_file(path)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>colors = Vec::new();
-        <span class="kw">for </span>line <span class="kw">in </span>raw.split(<span class="string">&#39;\n&#39;</span>) {
+        <span class="kw">for </span>line <span class="kw">in </span>raw.split(<span class="string">'\n'</span>) {
             <span class="kw">if </span>line.is_empty() {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>parts = line.split(<span class="string">&#39; &#39;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>parts = line.split(<span class="string">' '</span>);
             parts.next();
             colors.push(Color::hex(parts.next().unwrap()));
         }

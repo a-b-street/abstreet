@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `updater/src/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="updater" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `updater/src/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="updater" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../updater/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -482,8 +484,8 @@
 
 <span class="attr">#[derive(StructOpt)]
 #[structopt(
-    name = <span class="string">&quot;updater&quot;</span>,
-    about = <span class="string">&quot;Download the latest version of per-city data&quot;
+    name = <span class="string">"updater"</span>,
+    about = <span class="string">"Download the latest version of per-city data"
 </span>)]
 </span><span class="kw">enum </span>Task {
     <span class="doccomment">/// Synchronize the source-of-truth in S3 with data in the local directory. Based on current
@@ -515,32 +517,32 @@
         <span class="doccomment">/// Only update files from the manifest. Leave extra files alone.
         </span><span class="attr">#[structopt(long)]
         </span>dont_delete: bool,
-        <span class="doccomment">/// Only useful for Dustin. &quot;Download&quot; from my local S3 source-of-truth, not from the
+        <span class="doccomment">/// Only useful for Dustin. "Download" from my local S3 source-of-truth, not from the
         /// network.
         </span><span class="attr">#[structopt(long)]
         </span>dl_from_local: bool,
         <span class="doccomment">/// Download data tied to a named release. See
         /// https://a-b-street.github.io/docs/tech/dev/data.html.
-        </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;dev&quot;</span>)]
+        </span><span class="attr">#[structopt(long, default_value = <span class="string">"dev"</span>)]
         </span>version: String,
     },
 }
 
 <span class="attr">#[tokio::main]
 </span><span class="kw">async fn </span>main() {
-    <span class="kw">if </span>!std::path::Path::new(<span class="string">&quot;data&quot;</span>).exists() {
-        <span class="macro">panic!</span>(<span class="string">&quot;Your current directory doesn&#39;t have the data/ directory. Run from the git root: cd ../; cargo run --bin updater -- args&quot;</span>);
+    <span class="kw">if </span>!std::path::Path::new(<span class="string">"data"</span>).exists() {
+        <span class="macro">panic!</span>(<span class="string">"Your current directory doesn't have the data/ directory. Run from the git root: cd ../; cargo run --bin updater -- args"</span>);
     }
 
     abstutil::logger::setup();
     <span class="kw">match </span>Task::from_args() {
         Task::Upload =&gt; {
-            upload(<span class="string">&quot;dev&quot;</span>);
+            upload(<span class="string">"dev"</span>);
         }
         Task::IncrementalUpload { version } =&gt; {
-            <span class="comment">// We DON&#39;T want to override the main data immediately from the batch Docker jobs. If
+            <span class="comment">// We DON'T want to override the main data immediately from the batch Docker jobs. If
             // running locally, can temporarily disable this assertion.
-            </span><span class="macro">assert_ne!</span>(version, <span class="string">&quot;dev&quot;</span>);
+            </span><span class="macro">assert_ne!</span>(version, <span class="string">"dev"</span>);
             incremental_upload(version);
         }
         Task::DryRun { single_file } =&gt; {
@@ -549,17 +551,17 @@
                 <span class="kw">let </span>truth = Manifest::load()
                     .entries
                     .remove(<span class="kw-2">&amp;</span>path)
-                    .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;{} not in data/MANIFEST.txt&quot;</span>, path))
+                    .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"{} not in data/MANIFEST.txt"</span>, path))
                     .checksum;
                 <span class="kw">if </span>local != truth {
-                    <span class="macro">println!</span>(<span class="string">&quot;{} has changed&quot;</span>, path);
+                    <span class="macro">println!</span>(<span class="string">"{} has changed"</span>, path);
                 }
             } <span class="kw">else </span>{
                 just_compare();
             }
         }
         Task::OptIntoAll =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(<span class="kw-2">&amp;</span>DataPacks::all_data_packs()));
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, abstutil::to_json(<span class="kw-2">&amp;</span>DataPacks::all_data_packs()));
         }
         Task::Download {
             minimal,
@@ -590,7 +592,7 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>failed = Vec::new();
     <span class="kw">for </span>(path, entry) <span class="kw">in </span>truth.entries {
         <span class="kw">if </span>local.entries.get(<span class="kw-2">&amp;</span>path).map(|x| <span class="kw-2">&amp;</span>x.checksum) != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>entry.checksum) {
-            <span class="kw">if </span>minimal &amp;&amp; !path.contains(<span class="string">&quot;montlake&quot;</span>) &amp;&amp; path != <span class="string">&quot;data/system/us/seattle/city.bin&quot; </span>{
+            <span class="kw">if </span>minimal &amp;&amp; !path.contains(<span class="string">"montlake"</span>) &amp;&amp; path != <span class="string">"data/system/us/seattle/city.bin" </span>{
                 <span class="kw">continue</span>;
             }
 
@@ -598,31 +600,31 @@
             <span class="kw">match </span>download_file(<span class="kw-2">&amp;</span>version, <span class="kw-2">&amp;</span>path, dl_from_local).<span class="kw">await </span>{
                 <span class="prelude-val">Ok</span>(bytes) =&gt; {
                     <span class="macro">println!</span>(
-                        <span class="string">&quot;&gt; decompress {}, which is {} bytes compressed&quot;</span>,
+                        <span class="string">"&gt; decompress {}, which is {} bytes compressed"</span>,
                         path,
                         prettyprint_usize(bytes.len())
                     );
                     <span class="kw">let </span><span class="kw-2">mut </span>decoder = flate2::read::GzDecoder::new(<span class="kw-2">&amp;</span>bytes[..]);
                     <span class="kw">let </span><span class="kw-2">mut </span>out = File::create(<span class="kw-2">&amp;</span>path).unwrap();
                     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = std::io::copy(<span class="kw-2">&amp;mut </span>decoder, <span class="kw-2">&amp;mut </span>out) {
-                        <span class="macro">println!</span>(<span class="string">&quot;{}, but continuing&quot;</span>, err);
-                        failed.push(<span class="macro">format!</span>(<span class="string">&quot;{} failed: {}&quot;</span>, path, err));
+                        <span class="macro">println!</span>(<span class="string">"{}, but continuing"</span>, err);
+                        failed.push(<span class="macro">format!</span>(<span class="string">"{} failed: {}"</span>, path, err));
                     }
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">println!</span>(<span class="string">&quot;{}, but continuing&quot;</span>, err);
-                    failed.push(<span class="macro">format!</span>(<span class="string">&quot;{} failed: {}&quot;</span>, path, err));
+                    <span class="macro">println!</span>(<span class="string">"{}, but continuing"</span>, err);
+                    failed.push(<span class="macro">format!</span>(<span class="string">"{} failed: {}"</span>, path, err));
                 }
             };
         }
     }
     <span class="kw">if </span>!failed.is_empty() {
         <span class="comment">// Fail the build.
-        </span><span class="macro">panic!</span>(<span class="string">&quot;Failed to download stuff: {:?}&quot;</span>, failed);
+        </span><span class="macro">panic!</span>(<span class="string">"Failed to download stuff: {:?}"</span>, failed);
     }
 
-    remove_empty_directories(<span class="string">&quot;data/input&quot;</span>);
-    remove_empty_directories(<span class="string">&quot;data/system&quot;</span>);
+    remove_empty_directories(<span class="string">"data/input"</span>);
+    remove_empty_directories(<span class="string">"data/system"</span>);
 }
 
 <span class="kw">fn </span>just_compare() {
@@ -633,7 +635,7 @@
     <span class="comment">// Anything local need deleting?
     </span><span class="kw">for </span>path <span class="kw">in </span>local.entries.keys() {
         <span class="kw">if </span>!truth.entries.contains_key(path) {
-            <span class="macro">println!</span>(<span class="string">&quot;- Remove {}&quot;</span>, path);
+            <span class="macro">println!</span>(<span class="string">"- Remove {}"</span>, path);
         }
     }
 
@@ -642,26 +644,26 @@
         <span class="kw">if </span>local.entries.get(<span class="kw-2">&amp;</span>path).map(|x| <span class="kw-2">&amp;</span>x.checksum) != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>entry.checksum) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(old_bytes) = local.entries.get(<span class="kw-2">&amp;</span>path).map(|x| x.uncompressed_size_bytes) {
                 <span class="kw">if </span>old_bytes == entry.uncompressed_size_bytes {
-                    <span class="macro">println!</span>(<span class="string">&quot;- Update {}. Same size, md5sum changed&quot;</span>, path);
+                    <span class="macro">println!</span>(<span class="string">"- Update {}. Same size, md5sum changed"</span>, path);
                 } <span class="kw">else </span>{
                     <span class="macro">println!</span>(
-                        <span class="string">&quot;- Update {}. {} bytes difference&quot;</span>,
+                        <span class="string">"- Update {}. {} bytes difference"</span>,
                         path,
                         (old_bytes <span class="kw">as </span>isize) - (entry.uncompressed_size_bytes <span class="kw">as </span>isize)
                     );
                 }
             } <span class="kw">else </span>{
-                <span class="macro">println!</span>(<span class="string">&quot;- Add {}&quot;</span>, path);
+                <span class="macro">println!</span>(<span class="string">"- Add {}"</span>, path);
             }
         }
     }
 }
 
 <span class="kw">fn </span>upload(version: <span class="kw-2">&amp;</span>str) {
-    <span class="kw">let </span>remote_base = <span class="macro">format!</span>(<span class="string">&quot;/home/dabreegster/s3_abst_data/{}&quot;</span>, version);
+    <span class="kw">let </span>remote_base = <span class="macro">format!</span>(<span class="string">"/home/dabreegster/s3_abst_data/{}"</span>, version);
 
     <span class="kw">let </span>remote: Manifest = abstio::maybe_read_json(
-        <span class="macro">format!</span>(<span class="string">&quot;{}/MANIFEST.json&quot;</span>, remote_base),
+        <span class="macro">format!</span>(<span class="string">"{}/MANIFEST.json"</span>, remote_base),
         <span class="kw-2">&amp;mut </span>Timer::throwaway(),
     )
     .unwrap_or(Manifest {
@@ -672,25 +674,25 @@
     <span class="comment">// Anything remote need deleting?
     </span><span class="kw">for </span>path <span class="kw">in </span>remote.entries.keys() {
         <span class="kw">if </span>!local.entries.contains_key(path) {
-            rm(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}/{}.gz&quot;</span>, remote_base, path));
+            rm(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}.gz"</span>, remote_base, path));
         }
     }
 
     <span class="comment">// Anything missing or needing updating?
     </span><span class="kw">let </span>local_entries = std::mem::take(<span class="kw-2">&amp;mut </span>local.entries);
-    <span class="kw">for </span>(path, entry) <span class="kw">in </span>Timer::new(<span class="string">&quot;compress files&quot;</span>).parallelize(
-        <span class="string">&quot;compress files&quot;</span>,
+    <span class="kw">for </span>(path, entry) <span class="kw">in </span>Timer::new(<span class="string">"compress files"</span>).parallelize(
+        <span class="string">"compress files"</span>,
         local_entries.into_iter().collect(),
         |(path, <span class="kw-2">mut </span>entry)| {
-            <span class="kw">let </span>remote_path = <span class="macro">format!</span>(<span class="string">&quot;{}/{}.gz&quot;</span>, remote_base, path);
+            <span class="kw">let </span>remote_path = <span class="macro">format!</span>(<span class="string">"{}/{}.gz"</span>, remote_base, path);
             <span class="kw">let </span>changed = remote.entries.get(<span class="kw-2">&amp;</span>path).map(|x| <span class="kw-2">&amp;</span>x.checksum) != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>entry.checksum);
             <span class="kw">if </span>changed {
                 compress(<span class="kw-2">&amp;</span>path, <span class="kw-2">&amp;</span>remote_path);
             }
-            <span class="comment">// Always do this -- even if nothing changed, compressed_size_bytes isn&#39;t filled out by
+            <span class="comment">// Always do this -- even if nothing changed, compressed_size_bytes isn't filled out by
             // generate_manifest.
             </span>entry.compressed_size_bytes = fs_err::metadata(<span class="kw-2">&amp;</span>remote_path)
-                .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Compressed {} not there?&quot;</span>, remote_path))
+                .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"Compressed {} not there?"</span>, remote_path))
                 .len();
             (path, entry)
         },
@@ -698,30 +700,30 @@
         local.entries.insert(path, entry);
     }
 
-    abstio::write_json(<span class="macro">format!</span>(<span class="string">&quot;{}/MANIFEST.json&quot;</span>, remote_base), <span class="kw-2">&amp;</span>local);
-    abstio::write_json(<span class="string">&quot;data/MANIFEST.json&quot;</span>.to_string(), <span class="kw-2">&amp;</span>local);
+    abstio::write_json(<span class="macro">format!</span>(<span class="string">"{}/MANIFEST.json"</span>, remote_base), <span class="kw-2">&amp;</span>local);
+    abstio::write_json(<span class="string">"data/MANIFEST.json"</span>.to_string(), <span class="kw-2">&amp;</span>local);
 
     must_run_cmd(
-        Command::new(<span class="string">&quot;aws&quot;</span>)
-            .arg(<span class="string">&quot;s3&quot;</span>)
-            .arg(<span class="string">&quot;sync&quot;</span>)
-            .arg(<span class="string">&quot;--delete&quot;</span>)
-            .arg(<span class="macro">format!</span>(<span class="string">&quot;{}/data&quot;</span>, remote_base))
-            .arg(<span class="macro">format!</span>(<span class="string">&quot;s3://abstreet/{}/data&quot;</span>, version)),
+        Command::new(<span class="string">"aws"</span>)
+            .arg(<span class="string">"s3"</span>)
+            .arg(<span class="string">"sync"</span>)
+            .arg(<span class="string">"--delete"</span>)
+            .arg(<span class="macro">format!</span>(<span class="string">"{}/data"</span>, remote_base))
+            .arg(<span class="macro">format!</span>(<span class="string">"s3://abstreet/{}/data"</span>, version)),
     );
     <span class="comment">// Because of the directory structure, do this one separately, without --delete. The wasm files
     // also live in /dev/.
     </span>must_run_cmd(
-        Command::new(<span class="string">&quot;aws&quot;</span>)
-            .arg(<span class="string">&quot;s3&quot;</span>)
-            .arg(<span class="string">&quot;cp&quot;</span>)
-            .arg(<span class="macro">format!</span>(<span class="string">&quot;{}/MANIFEST.json&quot;</span>, remote_base))
-            .arg(<span class="macro">format!</span>(<span class="string">&quot;s3://abstreet/{}/MANIFEST.json&quot;</span>, version)),
+        Command::new(<span class="string">"aws"</span>)
+            .arg(<span class="string">"s3"</span>)
+            .arg(<span class="string">"cp"</span>)
+            .arg(<span class="macro">format!</span>(<span class="string">"{}/MANIFEST.json"</span>, remote_base))
+            .arg(<span class="macro">format!</span>(<span class="string">"s3://abstreet/{}/MANIFEST.json"</span>, version)),
     );
 }
 
 <span class="kw">fn </span>incremental_upload(version: String) {
-    <span class="kw">let </span>remote_base = <span class="string">&quot;tmp_incremental_upload&quot;</span>;
+    <span class="kw">let </span>remote_base = <span class="string">"tmp_incremental_upload"</span>;
 
     <span class="comment">// Assume the local copy of the manifest from git is the current source of truth.
     </span><span class="kw">let </span><span class="kw-2">mut </span>truth = Manifest::load();
@@ -729,16 +731,16 @@
 
     <span class="comment">// Anything missing or needing updating?
     </span><span class="kw">let </span><span class="kw-2">mut </span>changes = <span class="bool-val">false</span>;
-    <span class="kw">for </span>(path, entry) <span class="kw">in </span>Timer::new(<span class="string">&quot;compress files&quot;</span>)
+    <span class="kw">for </span>(path, entry) <span class="kw">in </span>Timer::new(<span class="string">"compress files"</span>)
         .parallelize(
-            <span class="string">&quot;compress files&quot;</span>,
+            <span class="string">"compress files"</span>,
             local.entries.into_iter().collect(),
             |(path, <span class="kw-2">mut </span>entry)| {
                 <span class="kw">if </span>truth.entries.get(<span class="kw-2">&amp;</span>path).map(|x| <span class="kw-2">&amp;</span>x.checksum) != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>entry.checksum) {
-                    <span class="kw">let </span>remote_path = <span class="macro">format!</span>(<span class="string">&quot;{}/{}.gz&quot;</span>, remote_base, path);
+                    <span class="kw">let </span>remote_path = <span class="macro">format!</span>(<span class="string">"{}/{}.gz"</span>, remote_base, path);
                     compress(<span class="kw-2">&amp;</span>path, <span class="kw-2">&amp;</span>remote_path);
                     entry.compressed_size_bytes = fs_err::metadata(<span class="kw-2">&amp;</span>remote_path)
-                        .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Compressed {} not there?&quot;</span>, remote_path))
+                        .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"Compressed {} not there?"</span>, remote_path))
                         .len();
                     <span class="prelude-val">Some</span>((path, entry))
                 } <span class="kw">else </span>{
@@ -757,49 +759,49 @@
     }
 
     <span class="comment">// TODO /home/dabreegster/s3_abst_data/{version}/MANIFEST.json will get out of sync...
-    </span>abstio::write_json(<span class="string">&quot;data/MANIFEST.json&quot;</span>.to_string(), <span class="kw-2">&amp;</span>truth);
+    </span>abstio::write_json(<span class="string">"data/MANIFEST.json"</span>.to_string(), <span class="kw-2">&amp;</span>truth);
 
     must_run_cmd(
-        Command::new(<span class="string">&quot;aws&quot;</span>)
-            .arg(<span class="string">&quot;s3&quot;</span>)
-            .arg(<span class="string">&quot;sync&quot;</span>)
-            .arg(<span class="macro">format!</span>(<span class="string">&quot;{}/data&quot;</span>, remote_base))
-            .arg(<span class="macro">format!</span>(<span class="string">&quot;s3://abstreet/{}/data&quot;</span>, version)),
+        Command::new(<span class="string">"aws"</span>)
+            .arg(<span class="string">"s3"</span>)
+            .arg(<span class="string">"sync"</span>)
+            .arg(<span class="macro">format!</span>(<span class="string">"{}/data"</span>, remote_base))
+            .arg(<span class="macro">format!</span>(<span class="string">"s3://abstreet/{}/data"</span>, version)),
     );
     <span class="comment">// Upload the new manifest file to S3.
-    // TODO This won&#39;t work from AWS Batch; the workers will stomp over each other.
+    // TODO This won't work from AWS Batch; the workers will stomp over each other.
     </span>must_run_cmd(
-        Command::new(<span class="string">&quot;aws&quot;</span>)
-            .arg(<span class="string">&quot;s3&quot;</span>)
-            .arg(<span class="string">&quot;cp&quot;</span>)
-            .arg(<span class="string">&quot;data/MANIFEST.json&quot;</span>)
-            .arg(<span class="macro">format!</span>(<span class="string">&quot;s3://abstreet/{}/MANIFEST.json&quot;</span>, version)),
+        Command::new(<span class="string">"aws"</span>)
+            .arg(<span class="string">"s3"</span>)
+            .arg(<span class="string">"cp"</span>)
+            .arg(<span class="string">"data/MANIFEST.json"</span>)
+            .arg(<span class="macro">format!</span>(<span class="string">"s3://abstreet/{}/MANIFEST.json"</span>, version)),
     );
 
     <span class="comment">// Nuke the temporary workspace
-    </span>must_run_cmd(Command::new(<span class="string">&quot;rm&quot;</span>).arg(<span class="string">&quot;-rfv&quot;</span>).arg(remote_base));
+    </span>must_run_cmd(Command::new(<span class="string">"rm"</span>).arg(<span class="string">"-rfv"</span>).arg(remote_base));
 }
 
 <span class="kw">fn </span>generate_manifest(truth: <span class="kw-2">&amp;</span>Manifest) -&gt; Manifest {
     <span class="kw">let </span><span class="kw-2">mut </span>paths = Vec::new();
-    <span class="kw">for </span>entry <span class="kw">in </span>WalkDir::new(<span class="string">&quot;data/input&quot;</span>)
+    <span class="kw">for </span>entry <span class="kw">in </span>WalkDir::new(<span class="string">"data/input"</span>)
         .into_iter()
-        .chain(WalkDir::new(<span class="string">&quot;data/system&quot;</span>).into_iter())
+        .chain(WalkDir::new(<span class="string">"data/system"</span>).into_iter())
         .filter_map(|e| e.ok())
     {
         <span class="kw">if </span>entry.file_type().is_dir() {
             <span class="kw">continue</span>;
         }
         <span class="kw">let </span>orig_path = entry.path().display().to_string();
-        <span class="kw">let </span>path = orig_path.replace(<span class="string">&quot;\\&quot;</span>, <span class="string">&quot;/&quot;</span>);
-        <span class="kw">if </span>path.contains(<span class="string">&quot;system/assets/&quot;</span>)
-            || path.contains(<span class="string">&quot;system/ltn_proposals&quot;</span>)
-            || path.contains(<span class="string">&quot;system/proposals&quot;</span>)
-            || path.contains(<span class="string">&quot;system/study_areas&quot;</span>)
+        <span class="kw">let </span>path = orig_path.replace(<span class="string">"\\"</span>, <span class="string">"/"</span>);
+        <span class="kw">if </span>path.contains(<span class="string">"system/assets/"</span>)
+            || path.contains(<span class="string">"system/ltn_proposals"</span>)
+            || path.contains(<span class="string">"system/proposals"</span>)
+            || path.contains(<span class="string">"system/study_areas"</span>)
         {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if </span>path.ends_with(<span class="string">&quot;.osm&quot;</span>) {
+        <span class="kw">if </span>path.ends_with(<span class="string">".osm"</span>) {
             <span class="kw">continue</span>;
         }
         paths.push((orig_path, path));
@@ -807,10 +809,10 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>kv = BTreeMap::new();
     <span class="kw">for </span>(path, entry) <span class="kw">in
-        </span>Timer::new(<span class="string">&quot;compute md5sums&quot;</span>).parallelize(<span class="string">&quot;compute md5sums&quot;</span>, paths, |(orig_path, path)| {
-            <span class="comment">// If the file&#39;s modtime is newer than 12 hours or the uncompressed size has changed,
+        </span>Timer::new(<span class="string">"compute md5sums"</span>).parallelize(<span class="string">"compute md5sums"</span>, paths, |(orig_path, path)| {
+            <span class="comment">// If the file's modtime is newer than 12 hours or the uncompressed size has changed,
             // calculate md5sum. Otherwise assume no change. This heuristic saves lots of time and
-            // doesn&#39;t stress my poor SSD as much.
+            // doesn't stress my poor SSD as much.
             </span><span class="kw">let </span>metadata = fs_err::metadata(<span class="kw-2">&amp;</span>orig_path).unwrap();
             <span class="kw">let </span>uncompressed_size_bytes = metadata.len();
             <span class="kw">let </span>recent_modtime = metadata.modified().unwrap().elapsed().unwrap()
@@ -855,19 +857,19 @@
         }
         context.consume(<span class="kw-2">&amp;</span>buffer[..n]);
     }
-    <span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, context.compute())
+    <span class="macro">format!</span>(<span class="string">"{:x}"</span>, context.compute())
 }
 
 <span class="kw">fn </span>rm(path: <span class="kw-2">&amp;</span>str) {
-    <span class="macro">println!</span>(<span class="string">&quot;&gt; rm {}&quot;</span>, path);
+    <span class="macro">println!</span>(<span class="string">"&gt; rm {}"</span>, path);
     <span class="kw">match </span>fs_err::remove_file(path) {
         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {}
         <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">match </span>e.kind() {
             std::io::ErrorKind::NotFound =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;file {} does not exist, continuing&quot;</span>, <span class="kw-2">&amp;</span>path);
+                <span class="macro">println!</span>(<span class="string">"file {} does not exist, continuing"</span>, <span class="kw-2">&amp;</span>path);
             }
             other_error =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;problem removing file: {:?}&quot;</span>, other_error);
+                <span class="macro">panic!</span>(<span class="string">"problem removing file: {:?}"</span>, other_error);
             }
         },
     }
@@ -876,13 +878,13 @@
 <span class="kw">async fn </span>download_file(version: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>str, dl_from_local: bool) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
     <span class="kw">if </span>dl_from_local {
         <span class="kw">return </span>abstio::slurp_file(<span class="macro">format!</span>(
-            <span class="string">&quot;/home/dabreegster/s3_abst_data/{}/{}.gz&quot;</span>,
+            <span class="string">"/home/dabreegster/s3_abst_data/{}/{}.gz"</span>,
             version, path
         ));
     }
 
-    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;https://play.abstreet.org/{}/{}.gz&quot;</span>, version, path);
-    <span class="macro">println!</span>(<span class="string">&quot;&gt; download {}&quot;</span>, url);
+    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"https://play.abstreet.org/{}/{}.gz"</span>, version, path);
+    <span class="macro">println!</span>(<span class="string">"&gt; download {}"</span>, url);
     <span class="kw">let </span>(<span class="kw-2">mut </span>tx, rx) = futures_channel::mpsc::channel(<span class="number">1000</span>);
     abstio::print_download_progress(rx);
     abstio::download_bytes(url, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>tx).<span class="kw">await
@@ -891,7 +893,7 @@
 <span class="comment">// download() will remove stray files, but leave empty directories around. Since some runtime code
 // discovers lists of countries, cities, etc from the filesystem, this can get confusing.
 //
-// I&#39;m sure there&#39;s a simpler way to do this, but I haven&#39;t found it.
+// I'm sure there's a simpler way to do this, but I haven't found it.
 </span><span class="kw">fn </span>remove_empty_directories(root: <span class="kw-2">&amp;</span>str) {
     <span class="kw">loop </span>{
         <span class="comment">// First just find all directories and files.
@@ -905,7 +907,7 @@
             }
         }
 
-        <span class="comment">// Now filter out directories that&#39;re a prefix of some path.
+        <span class="comment">// Now filter out directories that're a prefix of some path.
         </span>all_dirs.retain(|dir| !all_paths.iter().any(|p| p != dir &amp;&amp; p.starts_with(dir)));
 
         <span class="kw">if </span>all_dirs.is_empty() {
@@ -913,8 +915,8 @@
         } <span class="kw">else </span>{
             <span class="comment">// Remove them! Then repeat, since we might have nested/empty/directories/.
             </span><span class="kw">for </span>x <span class="kw">in </span>all_dirs {
-                <span class="macro">println!</span>(<span class="string">&quot;&gt; Removing empty directory {}&quot;</span>, x);
-                <span class="comment">// This fails if the directory isn&#39;t empty, which is a good sanity check. If
+                <span class="macro">println!</span>(<span class="string">"&gt; Removing empty directory {}"</span>, x);
+                <span class="comment">// This fails if the directory isn't empty, which is a good sanity check. If
                 // something weird happened, just bail.
                 </span>fs_err::remove_dir(<span class="kw-2">&amp;</span>x).unwrap();
             }
@@ -923,11 +925,11 @@
 }
 
 <span class="kw">fn </span>compress(path: <span class="kw-2">&amp;</span>str, remote_path: <span class="kw-2">&amp;</span>str) {
-    <span class="macro">assert!</span>(!path.ends_with(<span class="string">&quot;.gz&quot;</span>));
-    <span class="macro">assert!</span>(remote_path.ends_with(<span class="string">&quot;.gz&quot;</span>));
+    <span class="macro">assert!</span>(!path.ends_with(<span class="string">".gz"</span>));
+    <span class="macro">assert!</span>(remote_path.ends_with(<span class="string">".gz"</span>));
 
     fs_err::create_dir_all(std::path::Path::new(remote_path).parent().unwrap()).unwrap();
-    <span class="macro">println!</span>(<span class="string">&quot;&gt; compressing {}&quot;</span>, path);
+    <span class="macro">println!</span>(<span class="string">"&gt; compressing {}"</span>, path);
     <span class="kw">let </span><span class="kw-2">mut </span>input = BufReader::new(File::open(path).unwrap());
     <span class="kw">let </span>out = File::create(remote_path).unwrap();
     <span class="kw">let </span><span class="kw-2">mut </span>encoder = flate2::write::GzEncoder::new(out, flate2::Compression::best());

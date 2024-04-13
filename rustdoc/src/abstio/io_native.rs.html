@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/io_native.rs`."><title>io_native.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="abstio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/io_native.rs`."><title>io_native.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="abstio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../abstio/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -235,7 +237,7 @@
             }
         }
         <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>e) <span class="kw">if </span>e.kind() == std::io::ErrorKind::NotFound =&gt; {}
-        <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_dir {:?}: {}&quot;</span>, path, e),
+        <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">panic!</span>(<span class="string">"Couldn't read_dir {:?}: {}"</span>, path, e),
     };
     files.sort();
     files
@@ -255,8 +257,8 @@
 }
 
 <span class="kw">pub fn </span>maybe_read_binary&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
-    <span class="kw">if </span>!path.ends_with(<span class="string">&quot;.bin&quot;</span>) {
-        <span class="macro">panic!</span>(<span class="string">&quot;read_binary needs {} to end with .bin&quot;</span>, path);
+    <span class="kw">if </span>!path.ends_with(<span class="string">".bin"</span>) {
+        <span class="macro">panic!</span>(<span class="string">"read_binary needs {} to end with .bin"</span>, path);
     }
 
     timer.read_file(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
@@ -265,11 +267,11 @@
 
 <span class="comment">// TODO Idea: Have a wrapper type DotJSON(...) and DotBin(...) to distinguish raw path strings
 </span><span class="kw">fn </span>maybe_write_json&lt;T: Serialize&gt;(path: <span class="kw-2">&amp;</span>str, obj: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">if </span>!path.ends_with(<span class="string">&quot;.json&quot;</span>) {
-        <span class="macro">panic!</span>(<span class="string">&quot;write_json needs {} to end with .json&quot;</span>, path);
+    <span class="kw">if </span>!path.ends_with(<span class="string">".json"</span>) {
+        <span class="macro">panic!</span>(<span class="string">"write_json needs {} to end with .json"</span>, path);
     }
     fs_err::create_dir_all(std::path::Path::new(path).parent().unwrap())
-        .expect(<span class="string">&quot;Creating parent dir failed&quot;</span>);
+        .expect(<span class="string">"Creating parent dir failed"</span>);
 
     <span class="kw">let </span><span class="kw-2">mut </span>file = File::create(path)<span class="question-mark">?</span>;
     file.write_all(to_json(obj).as_bytes())<span class="question-mark">?</span>;
@@ -278,18 +280,18 @@
 
 <span class="kw">pub fn </span>write_json&lt;T: Serialize&gt;(path: String, obj: <span class="kw-2">&amp;</span>T) {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = maybe_write_json(<span class="kw-2">&amp;</span>path, obj) {
-        <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t write_json({}): {}&quot;</span>, path, err);
+        <span class="macro">panic!</span>(<span class="string">"Can't write_json({}): {}"</span>, path, err);
     }
-    <span class="macro">info!</span>(<span class="string">&quot;Wrote {}&quot;</span>, path);
+    <span class="macro">info!</span>(<span class="string">"Wrote {}"</span>, path);
 }
 
 <span class="kw">fn </span>maybe_write_binary&lt;T: Serialize&gt;(path: <span class="kw-2">&amp;</span>str, obj: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">if </span>!path.ends_with(<span class="string">&quot;.bin&quot;</span>) {
-        <span class="macro">panic!</span>(<span class="string">&quot;write_binary needs {} to end with .bin&quot;</span>, path);
+    <span class="kw">if </span>!path.ends_with(<span class="string">".bin"</span>) {
+        <span class="macro">panic!</span>(<span class="string">"write_binary needs {} to end with .bin"</span>, path);
     }
 
     fs_err::create_dir_all(std::path::Path::new(path).parent().unwrap())
-        .expect(<span class="string">&quot;Creating parent dir failed&quot;</span>);
+        .expect(<span class="string">"Creating parent dir failed"</span>);
 
     <span class="kw">let </span>file = BufWriter::new(File::create(path)<span class="question-mark">?</span>);
     bincode::serialize_into(file, obj).map_err(|err| err.into())
@@ -297,9 +299,9 @@
 
 <span class="kw">pub fn </span>write_binary&lt;T: Serialize&gt;(path: String, obj: <span class="kw-2">&amp;</span>T) {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = maybe_write_binary(<span class="kw-2">&amp;</span>path, obj) {
-        <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t write_binary({}): {}&quot;</span>, path, err);
+        <span class="macro">panic!</span>(<span class="string">"Can't write_binary({}): {}"</span>, path, err);
     }
-    <span class="macro">info!</span>(<span class="string">&quot;Wrote {}&quot;</span>, path);
+    <span class="macro">info!</span>(<span class="string">"Wrote {}"</span>, path);
 }
 
 <span class="kw">pub fn </span>write_raw(path: String, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
@@ -314,13 +316,13 @@
 </span><span class="kw">pub fn </span>delete_file&lt;I: AsRef&lt;str&gt;&gt;(path: I) {
     <span class="kw">let </span>path = path.as_ref();
     <span class="kw">if </span>fs_err::remove_file(path).is_ok() {
-        <span class="macro">info!</span>(<span class="string">&quot;Deleted {}&quot;</span>, path);
+        <span class="macro">info!</span>(<span class="string">"Deleted {}"</span>, path);
     } <span class="kw">else </span>{
-        <span class="macro">info!</span>(<span class="string">&quot;{} doesn&#39;t exist, so not deleting it&quot;</span>, path);
+        <span class="macro">info!</span>(<span class="string">"{} doesn't exist, so not deleting it"</span>, path);
     }
 }
 
-<span class="comment">// TODO I&#39;d like to get rid of this and just use Timer.read_file, but external libraries consume
+<span class="comment">// TODO I'd like to get rid of this and just use Timer.read_file, but external libraries consume
 // the reader. :\
 </span><span class="kw">pub struct </span>FileWithProgress {
     inner: BufReader&lt;File&gt;,
@@ -333,9 +335,9 @@
 }
 
 <span class="kw">impl </span>FileWithProgress {
-    <span class="doccomment">/// Also hands back a callback that&#39;ll add the final result to the timer. The caller must run
+    <span class="doccomment">/// Also hands back a callback that'll add the final result to the timer. The caller must run
     /// it.
-    </span><span class="comment">// TODO It&#39;s really a FnOnce, but I don&#39;t understand the compiler error.
+    </span><span class="comment">// TODO It's really a FnOnce, but I don't understand the compiler error.
     </span><span class="kw">pub fn </span>new(path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(FileWithProgress, Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>Timer)&gt;)&gt; {
         <span class="kw">let </span>file = File::open(path)<span class="question-mark">?</span>;
         <span class="kw">let </span>path_copy = path.to_string();
@@ -355,7 +357,7 @@
                 timer.add_result(
                     elapsed,
                     <span class="macro">format!</span>(
-                        <span class="string">&quot;Reading {} ({} MB)... {}&quot;</span>,
+                        <span class="string">"Reading {} ({} MB)... {}"</span>,
                         path_copy,
                         prettyprint_usize(total_bytes / <span class="number">1024 </span>/ <span class="number">1024</span>),
                         prettyprint_time(elapsed)
@@ -372,7 +374,7 @@
         <span class="self">self</span>.processed_bytes += bytes;
         <span class="kw">if </span><span class="self">self</span>.processed_bytes &gt; <span class="self">self</span>.total_bytes {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;{} is too many bytes read from {}&quot;</span>,
+                <span class="string">"{} is too many bytes read from {}"</span>,
                 prettyprint_usize(<span class="self">self</span>.processed_bytes),
                 <span class="self">self</span>.path
             );
@@ -385,14 +387,14 @@
             <span class="kw">if </span>done {
                 <span class="comment">// TODO Not seeing this case happen!
                 </span><span class="macro">println!</span>(
-                    <span class="string">&quot;Read {} ({})... {}&quot;</span>,
+                    <span class="string">"Read {} ({})... {}"</span>,
                     <span class="self">self</span>.path,
                     prettyprint_usize(<span class="self">self</span>.total_bytes / <span class="number">1024 </span>/ <span class="number">1024</span>),
                     prettyprint_time(elapsed_seconds(<span class="self">self</span>.started_at))
                 );
             } <span class="kw">else </span>{
                 <span class="macro">print!</span>(
-                    <span class="string">&quot;Reading {}: {}/{} MB... {}&quot;</span>,
+                    <span class="string">"Reading {}: {}/{} MB... {}"</span>,
                     <span class="self">self</span>.path,
                     prettyprint_usize(<span class="self">self</span>.processed_bytes / <span class="number">1024 </span>/ <span class="number">1024</span>),
                     prettyprint_usize(<span class="self">self</span>.total_bytes / <span class="number">1024 </span>/ <span class="number">1024</span>),
@@ -409,7 +411,7 @@
 <span class="doccomment">/// Returns path on success
 </span><span class="kw">pub fn </span>write_file(path: String, contents: String) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>file = File::create(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
-    <span class="macro">write!</span>(file, <span class="string">&quot;{}&quot;</span>, contents)<span class="question-mark">?</span>;
+    <span class="macro">write!</span>(file, <span class="string">"{}"</span>, contents)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(path)
 }
 </code></pre></div></section></main></body></html>

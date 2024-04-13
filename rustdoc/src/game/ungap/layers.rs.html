@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/layers.rs`."><title>layers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/layers.rs`."><title>layers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -477,7 +479,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::ungap::bike_network;
 <span class="kw">use </span><span class="kw">crate</span>::ungap::bike_network::DrawNetworkLayer;
 
-<span class="doccomment">/// A bottom-right panel for managing a bunch of toggleable layers in the &quot;ungap the map&quot; tool.
+<span class="doccomment">/// A bottom-right panel for managing a bunch of toggleable layers in the "ungap the map" tool.
 </span><span class="kw">pub struct </span>Layers {
     panel: Panel,
     minimized: bool,
@@ -485,7 +487,7 @@
     labels: <span class="prelude-ty">Option</span>&lt;DrawRoadLabels&gt;,
     elevation: bool,
     steep_streets: <span class="prelude-ty">Option</span>&lt;Drawable&gt;,
-    <span class="comment">// TODO Once widgetry buttons can take custom enums, that&#39;d be perfect here
+    <span class="comment">// TODO Once widgetry buttons can take custom enums, that'd be perfect here
     </span>road_types: HashMap&lt;String, Drawable&gt;,
     fade_map: Drawable,
 
@@ -540,45 +542,45 @@
                         </span>.closest_pt(pt, Distance::meters(<span class="number">300.0</span>))
                     {
                         label =
-                            Line(<span class="macro">format!</span>(<span class="string">&quot;{} ft&quot;</span>, elevation.to_feet().round())).into_widget(ctx);
+                            Line(<span class="macro">format!</span>(<span class="string">"{} ft"</span>, elevation.to_feet().round())).into_widget(ctx);
                     }
                 }
             }
-            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;current elevation&quot;</span>, label);
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">"current elevation"</span>, label);
         }
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(<span class="kw">match </span>x.as_ref() {
                     <span class="comment">// TODO Add physical picture examples
-                    </span><span class="string">&quot;highway&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Highways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Unless there&#39;s a separate trail (like on the 520 or I90 bridge), highways aren&#39;t accessible to biking&quot;</span>]),
-                    <span class="string">&quot;major street&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Major streets&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Arterials have more traffic, but are often where businesses are located&quot;</span>]),
-                    <span class="string">&quot;minor street&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Minor streets&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Local streets have a low volume of traffic and are usually comfortable for biking, even without dedicated infrastructure&quot;</span>]),
-                    <span class="string">&quot;trail&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Trails&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Trails like the Burke Gilman are usually well-separated from vehicle traffic. The space is usually shared between people walking, cycling, and rolling.&quot;</span>]),
-                    <span class="string">&quot;protected bike lane&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Protected bike lanes&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Bike lanes separated from vehicle traffic by physical barriers or a few feet of striping&quot;</span>]),
-                    <span class="string">&quot;painted bike lane&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Painted bike lanes&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Bike lanes without any separation from vehicle traffic. Often uncomfortably close to the \&quot;door zone\&quot; of parked cars.&quot;</span>]),
-                    <span class="string">&quot;greenway&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Stay Healthy Streets and neighborhood greenways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking.&quot;</span>]),
+                    </span><span class="string">"highway" </span>=&gt; PopupMsg::new_state(ctx, <span class="string">"Highways"</span>, <span class="macro">vec!</span>[<span class="string">"Unless there's a separate trail (like on the 520 or I90 bridge), highways aren't accessible to biking"</span>]),
+                    <span class="string">"major street" </span>=&gt; PopupMsg::new_state(ctx, <span class="string">"Major streets"</span>, <span class="macro">vec!</span>[<span class="string">"Arterials have more traffic, but are often where businesses are located"</span>]),
+                    <span class="string">"minor street" </span>=&gt; PopupMsg::new_state(ctx, <span class="string">"Minor streets"</span>, <span class="macro">vec!</span>[<span class="string">"Local streets have a low volume of traffic and are usually comfortable for biking, even without dedicated infrastructure"</span>]),
+                    <span class="string">"trail" </span>=&gt; PopupMsg::new_state(ctx, <span class="string">"Trails"</span>, <span class="macro">vec!</span>[<span class="string">"Trails like the Burke Gilman are usually well-separated from vehicle traffic. The space is usually shared between people walking, cycling, and rolling."</span>]),
+                    <span class="string">"protected bike lane" </span>=&gt; PopupMsg::new_state(ctx, <span class="string">"Protected bike lanes"</span>, <span class="macro">vec!</span>[<span class="string">"Bike lanes separated from vehicle traffic by physical barriers or a few feet of striping"</span>]),
+                    <span class="string">"painted bike lane" </span>=&gt; PopupMsg::new_state(ctx, <span class="string">"Painted bike lanes"</span>, <span class="macro">vec!</span>[<span class="string">"Bike lanes without any separation from vehicle traffic. Often uncomfortably close to the \"door zone\" of parked cars."</span>]),
+                    <span class="string">"greenway" </span>=&gt; PopupMsg::new_state(ctx, <span class="string">"Stay Healthy Streets and neighborhood greenways"</span>, <span class="macro">vec!</span>[<span class="string">"Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking."</span>]),
                     <span class="comment">// TODO Add URLs
-                    </span><span class="string">&quot;about the elevation data&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;About the elevation data&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Biking uphill next to traffic without any dedicated space isn&#39;t fun.&quot;</span>, <span class="string">&quot;Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle&#39;s bumpy roads... is downright terrifying.&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;Note the elevation data is incorrect near bridges.&quot;</span>, <span class="string">&quot;Thanks to King County LIDAR and Ordnance Survey for the data, and Eldan Goldenberg for processing it.&quot;</span>]),
-                   <span class="string">&quot;zoom map out&quot; </span>=&gt; {
+                    </span><span class="string">"about the elevation data" </span>=&gt; PopupMsg::new_state(ctx, <span class="string">"About the elevation data"</span>, <span class="macro">vec!</span>[<span class="string">"Biking uphill next to traffic without any dedicated space isn't fun."</span>, <span class="string">"Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle's bumpy roads... is downright terrifying."</span>, <span class="string">""</span>, <span class="string">"Note the elevation data is incorrect near bridges."</span>, <span class="string">"Thanks to King County LIDAR and Ordnance Survey for the data, and Eldan Goldenberg for processing it."</span>]),
+                   <span class="string">"zoom map out" </span>=&gt; {
                         ctx.canvas.center_zoom(-<span class="number">8.0</span>);
                         <span class="self">self</span>.update_panel(ctx, app);
                         <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                     },
-                    <span class="string">&quot;zoom map in&quot; </span>=&gt; {
+                    <span class="string">"zoom map in" </span>=&gt; {
                         ctx.canvas.center_zoom(<span class="number">8.0</span>);
                         <span class="self">self</span>.update_panel(ctx, app);
                         <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                     },
-                    <span class="string">&quot;search&quot; </span>=&gt; {
+                    <span class="string">"search" </span>=&gt; {
                         Navigator::new_state(ctx, app)
                     }
-                    <span class="string">&quot;hide panel&quot; </span>=&gt; {
+                    <span class="string">"hide panel" </span>=&gt; {
                         <span class="self">self</span>.minimized = <span class="bool-val">true</span>;
                         <span class="self">self</span>.update_panel(ctx, app);
                         <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                     }
-                    <span class="string">&quot;show panel&quot; </span>=&gt; {
+                    <span class="string">"show panel" </span>=&gt; {
                         <span class="self">self</span>.minimized = <span class="bool-val">false</span>;
                         <span class="self">self</span>.update_panel(ctx, app);
                         <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
@@ -587,23 +589,23 @@
             }));
             }
             Outcome::Changed(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;bike network&quot; </span>=&gt; {
-                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;bike network&quot;</span>) {
+                <span class="string">"bike network" </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">"bike network"</span>) {
                         <span class="self">self</span>.bike_network = <span class="prelude-val">Some</span>(DrawNetworkLayer::new(ctx, app));
                     } <span class="kw">else </span>{
                         <span class="self">self</span>.bike_network = <span class="prelude-val">None</span>;
                     }
                     <span class="self">self</span>.update_panel(ctx, app);
                 }
-                <span class="string">&quot;road labels&quot; </span>=&gt; {
-                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;road labels&quot;</span>) {
+                <span class="string">"road labels" </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">"road labels"</span>) {
                         <span class="self">self</span>.labels = <span class="prelude-val">Some</span>(DrawRoadLabels::only_major_roads());
                     } <span class="kw">else </span>{
                         <span class="self">self</span>.labels = <span class="prelude-val">None</span>;
                     }
                 }
-                <span class="string">&quot;elevation&quot; </span>=&gt; {
-                    <span class="self">self</span>.elevation = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;elevation&quot;</span>);
+                <span class="string">"elevation" </span>=&gt; {
+                    <span class="self">self</span>.elevation = <span class="self">self</span>.panel.is_checked(<span class="string">"elevation"</span>);
                     <span class="self">self</span>.update_panel(ctx, app);
                     <span class="kw">if </span><span class="self">self</span>.elevation {
                         <span class="kw">let </span>name = app.primary.map.get_name().clone();
@@ -622,13 +624,13 @@
                         }
                     }
                 }
-                <span class="string">&quot;steep streets&quot; </span>=&gt; {
-                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;steep streets&quot;</span>) {
+                <span class="string">"steep streets" </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">"steep streets"</span>) {
                         <span class="kw">let </span>(<span class="kw-2">mut </span>colorer, <span class="kw">_</span>, <span class="kw">_</span>) =
                             <span class="kw">crate</span>::layer::elevation::SteepStreets::make_colorer(ctx, app);
                         <span class="comment">// The Colorer fades the map as the very first thing in the batch, but we
-                        // don&#39;t want to do that twice.
-                        // TODO Can&#39;t use no_fading without complicating make_colorer...
+                        // don't want to do that twice.
+                        // TODO Can't use no_fading without complicating make_colorer...
                         </span>colorer.draw.unzoomed.shift();
                         <span class="self">self</span>.steep_streets = <span class="prelude-val">Some</span>(colorer.draw.unzoomed.upload(ctx));
                     } <span class="kw">else </span>{
@@ -664,10 +666,10 @@
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(draw) = <span class="self">self</span>.road_types.get(name) {
                     g.redraw(draw);
                 }
-                <span class="kw">if </span>name == <span class="string">&quot;trail&quot;
-                    </span>|| name == <span class="string">&quot;protected bike lane&quot;
-                    </span>|| name == <span class="string">&quot;painted bike lane&quot;
-                    </span>|| name == <span class="string">&quot;greenway&quot;
+                <span class="kw">if </span>name == <span class="string">"trail"
+                    </span>|| name == <span class="string">"protected bike lane"
+                    </span>|| name == <span class="string">"painted bike lane"
+                    </span>|| name == <span class="string">"greenway"
                 </span>{
                     draw_bike_layer = <span class="bool-val">false</span>;
                 }
@@ -695,9 +697,9 @@
 
     <span class="kw">pub fn </span>layer_icon_pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenPt {
         <span class="kw">if </span><span class="self">self</span>.minimized {
-            <span class="self">self</span>.panel.center_of(<span class="string">&quot;show panel&quot;</span>)
+            <span class="self">self</span>.panel.center_of(<span class="string">"show panel"</span>)
         } <span class="kw">else </span>{
-            <span class="self">self</span>.panel.center_of(<span class="string">&quot;layer icon&quot;</span>)
+            <span class="self">self</span>.panel.center_of(<span class="string">"layer icon"</span>)
         }
     }
 
@@ -722,77 +724,77 @@
             <span class="kw">return </span>ctx
                 .style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/layers.svg"</span>)
                 .hotkey(Key::L)
-                .build_widget(ctx, <span class="string">&quot;show panel&quot;</span>);
+                .build_widget(ctx, <span class="string">"show panel"</span>);
         }
 
         Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Image::from_path(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
+                Image::from_path(<span class="string">"system/assets/tools/layers.svg"</span>)
                     .dims(<span class="number">30.0</span>)
                     .into_widget(ctx)
                     .centered_vert()
-                    .named(<span class="string">&quot;layer icon&quot;</span>),
+                    .named(<span class="string">"layer icon"</span>),
                 Widget::custom_row(<span class="macro">vec!</span>[
                     <span class="comment">// TODO Looks too close to access restrictions
-                    </span>legend_btn(app.cs.unzoomed_highway, <span class="string">&quot;highway&quot;</span>).build_def(ctx),
-                    legend_btn(app.cs.unzoomed_arterial, <span class="string">&quot;major street&quot;</span>).build_def(ctx),
-                    legend_btn(app.cs.unzoomed_residential, <span class="string">&quot;minor street&quot;</span>).build_def(ctx),
+                    </span>legend_btn(app.cs.unzoomed_highway, <span class="string">"highway"</span>).build_def(ctx),
+                    legend_btn(app.cs.unzoomed_arterial, <span class="string">"major street"</span>).build_def(ctx),
+                    legend_btn(app.cs.unzoomed_residential, <span class="string">"minor street"</span>).build_def(ctx),
                 ]),
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/search.svg"</span>)
                     .hotkey(Key::K)
-                    .build_widget(ctx, <span class="string">&quot;search&quot;</span>),
+                    .build_widget(ctx, <span class="string">"search"</span>),
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/minimize.svg&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/minimize.svg"</span>)
                     .hotkey(Key::L)
-                    .build_widget(ctx, <span class="string">&quot;hide panel&quot;</span>)
+                    .build_widget(ctx, <span class="string">"hide panel"</span>)
                     .align_right(),
             ]),
             Widget::custom_row({
                 <span class="kw">let </span><span class="kw-2">mut </span>row = <span class="macro">vec!</span>[Toggle::checkbox(
                     ctx,
-                    <span class="string">&quot;bike network&quot;</span>,
+                    <span class="string">"bike network"</span>,
                     Key::B,
                     <span class="self">self</span>.bike_network.is_some(),
                 )];
                 <span class="kw">if </span><span class="self">self</span>.bike_network.is_some() {
-                    row.push(legend_btn(<span class="kw-2">*</span>bike_network::DEDICATED_TRAIL, <span class="string">&quot;trail&quot;</span>).build_def(ctx));
+                    row.push(legend_btn(<span class="kw-2">*</span>bike_network::DEDICATED_TRAIL, <span class="string">"trail"</span>).build_def(ctx));
                     row.push(
-                        legend_btn(<span class="kw-2">*</span>bike_network::PROTECTED_BIKE_LANE, <span class="string">&quot;protected bike lane&quot;</span>)
+                        legend_btn(<span class="kw-2">*</span>bike_network::PROTECTED_BIKE_LANE, <span class="string">"protected bike lane"</span>)
                             .build_def(ctx),
                     );
                     row.push(
-                        legend_btn(<span class="kw-2">*</span>bike_network::PAINTED_BIKE_LANE, <span class="string">&quot;painted bike lane&quot;</span>)
+                        legend_btn(<span class="kw-2">*</span>bike_network::PAINTED_BIKE_LANE, <span class="string">"painted bike lane"</span>)
                             .build_def(ctx),
                     );
-                    row.push(legend_btn(<span class="kw-2">*</span>bike_network::GREENWAY, <span class="string">&quot;greenway&quot;</span>).build_def(ctx));
+                    row.push(legend_btn(<span class="kw-2">*</span>bike_network::GREENWAY, <span class="string">"greenway"</span>).build_def(ctx));
                 }
                 row
             }),
             <span class="comment">// TODO Distinguish door-zone bike lanes?
             // TODO Call out bike turning boxes?
             // TODO Call out bike signals?
-            </span>Toggle::checkbox(ctx, <span class="string">&quot;road labels&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.labels.is_some()),
+            </span>Toggle::checkbox(ctx, <span class="string">"road labels"</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.labels.is_some()),
             Widget::row(<span class="macro">vec!</span>[
-                Toggle::checkbox(ctx, <span class="string">&quot;elevation&quot;</span>, Key::E, <span class="self">self</span>.elevation),
+                Toggle::checkbox(ctx, <span class="string">"elevation"</span>, Key::E, <span class="self">self</span>.elevation),
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;about the elevation data&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/info.svg"</span>)
+                    .build_widget(ctx, <span class="string">"about the elevation data"</span>)
                     .centered_vert(),
                 Text::new()
                     .into_widget(ctx)
-                    .named(<span class="string">&quot;current elevation&quot;</span>)
+                    .named(<span class="string">"current elevation"</span>)
                     .centered_vert(),
             ]),
             Widget::row({
                 <span class="kw">let </span><span class="kw-2">mut </span>row = <span class="macro">vec!</span>[Toggle::checkbox(
                     ctx,
-                    <span class="string">&quot;steep streets&quot;</span>,
+                    <span class="string">"steep streets"</span>,
                     Key::S,
                     <span class="self">self</span>.steep_streets.is_some(),
                 )];
@@ -819,11 +821,11 @@
 
     <span class="kw">fn </span>highlight_road_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, name: <span class="kw-2">&amp;</span>str) {
         <span class="comment">// TODO Button enums would rock
-        </span><span class="kw">if </span>name == <span class="string">&quot;bike network&quot;
-            </span>|| name == <span class="string">&quot;road labels&quot;
-            </span>|| name == <span class="string">&quot;elevation&quot;
-            </span>|| name == <span class="string">&quot;steep streets&quot;
-            </span>|| name.starts_with(<span class="string">&quot;about &quot;</span>)
+        </span><span class="kw">if </span>name == <span class="string">"bike network"
+            </span>|| name == <span class="string">"road labels"
+            </span>|| name == <span class="string">"elevation"
+            </span>|| name == <span class="string">"steep streets"
+            </span>|| name.starts_with(<span class="string">"about "</span>)
         {
             <span class="kw">return</span>;
         }
@@ -844,22 +846,22 @@
                 }
             }
 
-            <span class="kw">let </span>show = (name == <span class="string">&quot;highway&quot; </span>&amp;&amp; rank == RoadRank::Highway)
-                || (name == <span class="string">&quot;major street&quot; </span>&amp;&amp; rank == RoadRank::Arterial)
-                || (name == <span class="string">&quot;minor street&quot; </span>&amp;&amp; rank == RoadRank::Local)
-                || (name == <span class="string">&quot;trail&quot; </span>&amp;&amp; r.is_cycleway())
-                || (name == <span class="string">&quot;protected bike lane&quot; </span>&amp;&amp; bike_lane &amp;&amp; buffer)
-                || (name == <span class="string">&quot;painted bike lane&quot; </span>&amp;&amp; bike_lane &amp;&amp; !buffer)
-                || (name == <span class="string">&quot;greenway&quot; </span>&amp;&amp; bike_network::is_greenway(r));
+            <span class="kw">let </span>show = (name == <span class="string">"highway" </span>&amp;&amp; rank == RoadRank::Highway)
+                || (name == <span class="string">"major street" </span>&amp;&amp; rank == RoadRank::Arterial)
+                || (name == <span class="string">"minor street" </span>&amp;&amp; rank == RoadRank::Local)
+                || (name == <span class="string">"trail" </span>&amp;&amp; r.is_cycleway())
+                || (name == <span class="string">"protected bike lane" </span>&amp;&amp; bike_lane &amp;&amp; buffer)
+                || (name == <span class="string">"painted bike lane" </span>&amp;&amp; bike_lane &amp;&amp; !buffer)
+                || (name == <span class="string">"greenway" </span>&amp;&amp; bike_network::is_greenway(r));
             <span class="kw">if </span>show {
                 <span class="kw">let </span>color = <span class="kw">match </span>name {
-                    <span class="string">&quot;highway&quot; </span>=&gt; app.cs.unzoomed_highway,
-                    <span class="string">&quot;major street&quot; </span>=&gt; app.cs.unzoomed_arterial,
-                    <span class="string">&quot;minor street&quot; </span>=&gt; app.cs.unzoomed_residential,
+                    <span class="string">"highway" </span>=&gt; app.cs.unzoomed_highway,
+                    <span class="string">"major street" </span>=&gt; app.cs.unzoomed_arterial,
+                    <span class="string">"minor street" </span>=&gt; app.cs.unzoomed_residential,
                     <span class="comment">// Some of the bike layers are too faded, so always use a louder green.
                     </span><span class="kw">_ </span>=&gt; Color::GREEN,
                 };
-                <span class="comment">// TODO If it&#39;s a bike element, should probably thicken for the unzoomed scale...
+                <span class="comment">// TODO If it's a bike element, should probably thicken for the unzoomed scale...
                 // the maximum amount?
                 </span>batch.push(color, r.get_thick_polygon());
             }
@@ -881,7 +883,7 @@
     Widget::custom_col(<span class="macro">vec!</span>[
         builder
             .clone()
-            .image_path(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
+            .image_path(<span class="string">"system/assets/speed/plus.svg"</span>)
             .corner_rounding(geom::CornerRadii {
                 top_left: <span class="number">16.0</span>,
                 top_right: <span class="number">16.0</span>,
@@ -889,9 +891,9 @@
                 bottom_left: <span class="number">0.0</span>,
             })
             .disabled(ctx.canvas.is_max_zoom())
-            .build_widget(ctx, <span class="string">&quot;zoom map in&quot;</span>),
+            .build_widget(ctx, <span class="string">"zoom map in"</span>),
         builder
-            .image_path(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
+            .image_path(<span class="string">"system/assets/speed/minus.svg"</span>)
             .image_dims(<span class="number">30.0</span>)
             .padding(<span class="number">12.0</span>)
             .corner_rounding(geom::CornerRadii {
@@ -901,7 +903,7 @@
                 bottom_left: <span class="number">16.0</span>,
             })
             .disabled(ctx.canvas.is_min_zoom())
-            .build_widget(ctx, <span class="string">&quot;zoom map out&quot;</span>),
+            .build_widget(ctx, <span class="string">"zoom map out"</span>),
     ])
 }
 

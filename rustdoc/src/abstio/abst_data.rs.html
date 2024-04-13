@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/abst_data.rs`."><title>abst_data.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="abstio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/abst_data.rs`."><title>abst_data.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="abstio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../abstio/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -208,12 +210,12 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::CityName;
 
-<span class="doccomment">/// A list of all canonical data files for A/B Street that&#39;re uploaded somewhere. The file formats
+<span class="doccomment">/// A list of all canonical data files for A/B Street that're uploaded somewhere. The file formats
 /// are tied to the latest version of the git repo. Players use the updater crate to sync these
 /// files with local copies.
 </span><span class="attr">#[derive(Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>Manifest {
-    <span class="doccomment">/// Keyed by path, starting with &quot;data/&quot;
+    <span class="doccomment">/// Keyed by path, starting with "data/"
     </span><span class="kw">pub </span>entries: BTreeMap&lt;String, Entry&gt;,
 }
 
@@ -223,49 +225,49 @@
     <span class="doccomment">/// md5sum of the file
     </span><span class="kw">pub </span>checksum: String,
     <span class="doccomment">/// Uncompressed size in bytes. Because we have some massive files more than 2^32 bytes
-    /// described by this, explicitly use u64 instead of usize, so wasm doesn&#39;t break.
+    /// described by this, explicitly use u64 instead of usize, so wasm doesn't break.
     </span><span class="kw">pub </span>uncompressed_size_bytes: u64,
     <span class="doccomment">/// Compressed size in bytes
     </span><span class="kw">pub </span>compressed_size_bytes: u64,
 }
 
 <span class="kw">impl </span>Manifest {
-    <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
     </span><span class="kw">pub fn </span>load() -&gt; Manifest {
         <span class="kw">crate</span>::maybe_read_json(
-            <span class="kw">crate</span>::path(<span class="string">&quot;MANIFEST.json&quot;</span>),
+            <span class="kw">crate</span>::path(<span class="string">"MANIFEST.json"</span>),
             <span class="kw-2">&amp;mut </span>abstutil::Timer::throwaway(),
         )
         .unwrap()
     }
 
-    <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
     </span><span class="kw">pub fn </span>load() -&gt; Manifest {
-        abstutil::from_json(<span class="kw-2">&amp;</span><span class="macro">include_bytes!</span>(<span class="string">&quot;../../data/MANIFEST.json&quot;</span>).to_vec()).unwrap()
+        abstutil::from_json(<span class="kw-2">&amp;</span><span class="macro">include_bytes!</span>(<span class="string">"../../data/MANIFEST.json"</span>).to_vec()).unwrap()
     }
 
     <span class="doccomment">/// Removes entries from the Manifest to match the DataPacks that should exist locally.
     </span><span class="kw">pub fn </span>filter(<span class="kw-2">mut </span><span class="self">self</span>, data_packs: DataPacks) -&gt; Manifest {
         <span class="kw">let </span><span class="kw-2">mut </span>remove = Vec::new();
         <span class="kw">for </span>path <span class="kw">in </span><span class="self">self</span>.entries.keys() {
-            <span class="kw">if </span>path.starts_with(<span class="string">&quot;data/system/extra_fonts&quot;</span>) {
+            <span class="kw">if </span>path.starts_with(<span class="string">"data/system/extra_fonts"</span>) {
                 <span class="comment">// Always grab all of these
                 </span><span class="kw">continue</span>;
             }
             <span class="comment">// If the user has opted into any input data at all, we want to grab some of the shared
             // input files.
-            </span><span class="kw">if </span>path.starts_with(<span class="string">&quot;data/input/shared&quot;</span>) {
+            </span><span class="kw">if </span>path.starts_with(<span class="string">"data/input/shared"</span>) {
                 <span class="comment">// But some of the files are large, so of course we hardcode some more overrides
                 // here. Maybe some of this data should be scoped to a country, not a city.
-                </span><span class="kw">if </span>path.ends_with(<span class="string">&quot;Road Safety Data - Accidents 2019.csv&quot;</span>)
-                    || path.ends_with(<span class="string">&quot;wu03ew_v2.csv&quot;</span>)
-                    || path.ends_with(<span class="string">&quot;zones_core.geojson&quot;</span>)
+                </span><span class="kw">if </span>path.ends_with(<span class="string">"Road Safety Data - Accidents 2019.csv"</span>)
+                    || path.ends_with(<span class="string">"wu03ew_v2.csv"</span>)
+                    || path.ends_with(<span class="string">"zones_core.geojson"</span>)
                 {
-                    <span class="kw">if </span>data_packs.input.iter().any(|x| x.starts_with(<span class="string">&quot;gb/&quot;</span>)) {
+                    <span class="kw">if </span>data_packs.input.iter().any(|x| x.starts_with(<span class="string">"gb/"</span>)) {
                         <span class="kw">continue</span>;
                     }
-                } <span class="kw">else if </span>path.ends_with(<span class="string">&quot;kc_2016_lidar.tif&quot;</span>) {
-                    <span class="kw">if </span>data_packs.input.contains(<span class="string">&quot;us/seattle&quot;</span>) {
+                } <span class="kw">else if </span>path.ends_with(<span class="string">"kc_2016_lidar.tif"</span>) {
+                    <span class="kw">if </span>data_packs.input.contains(<span class="string">"us/seattle"</span>) {
                         <span class="kw">continue</span>;
                     }
                 } <span class="kw">else if </span>!data_packs.input.is_empty() {
@@ -273,21 +275,21 @@
                 }
             }
 
-            <span class="kw">let </span>parts = path.split(<span class="string">&#39;/&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-            <span class="kw">let </span><span class="kw-2">mut </span>data_pack = <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, parts[<span class="number">2</span>], parts[<span class="number">3</span>]);
+            <span class="kw">let </span>parts = path.split(<span class="string">'/'</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+            <span class="kw">let </span><span class="kw-2">mut </span>data_pack = <span class="macro">format!</span>(<span class="string">"{}/{}"</span>, parts[<span class="number">2</span>], parts[<span class="number">3</span>]);
             <span class="kw">if </span>Manifest::is_file_part_of_huge_seattle(path) {
-                data_pack = <span class="string">&quot;us/huge_seattle&quot;</span>.to_string();
+                data_pack = <span class="string">"us/huge_seattle"</span>.to_string();
             }
-            <span class="kw">if </span>parts[<span class="number">1</span>] == <span class="string">&quot;input&quot; </span>{
+            <span class="kw">if </span>parts[<span class="number">1</span>] == <span class="string">"input" </span>{
                 <span class="kw">if </span>data_packs.input.contains(<span class="kw-2">&amp;</span>data_pack) {
                     <span class="kw">continue</span>;
                 }
-            } <span class="kw">else if </span>parts[<span class="number">1</span>] == <span class="string">&quot;system&quot; </span>{
+            } <span class="kw">else if </span>parts[<span class="number">1</span>] == <span class="string">"system" </span>{
                 <span class="kw">if </span>data_packs.runtime.contains(<span class="kw-2">&amp;</span>data_pack) {
                     <span class="kw">continue</span>;
                 }
             } <span class="kw">else </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;Wait what&#39;s {}&quot;</span>, path);
+                <span class="macro">panic!</span>(<span class="string">"Wait what's {}"</span>, path);
             }
             remove.push(path.clone());
         }
@@ -298,38 +300,38 @@
     </span>}
 
     <span class="doccomment">/// Because there are so many Seattle maps and they get downloaded in one data pack on native,
-    /// managing the total file size is important. The &quot;us/seattle&quot; data pack only contains small
-    /// maps; the &quot;us/huge_seattle&quot; pack has the rest. This returns true for files belonging to
-    /// &quot;us/huge_seattle&quot;.
+    /// managing the total file size is important. The "us/seattle" data pack only contains small
+    /// maps; the "us/huge_seattle" pack has the rest. This returns true for files belonging to
+    /// "us/huge_seattle".
     </span><span class="kw">pub fn </span>is_file_part_of_huge_seattle(path: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="kw">let </span>path = path
-            .strip_prefix(<span class="kw-2">&amp;</span><span class="kw">crate</span>::path(<span class="string">&quot;&quot;</span>))
-            .or_else(|| path.strip_prefix(<span class="string">&quot;data/&quot;</span>))
+            .strip_prefix(<span class="kw-2">&amp;</span><span class="kw">crate</span>::path(<span class="string">""</span>))
+            .or_else(|| path.strip_prefix(<span class="string">"data/"</span>))
             .unwrap_or(path);
-        <span class="kw">let </span>name = <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = path.strip_prefix(<span class="string">&quot;system/us/seattle/maps/&quot;</span>) {
-            x.strip_suffix(<span class="string">&quot;.bin&quot;</span>).unwrap()
-        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = path.strip_prefix(<span class="string">&quot;system/us/seattle/scenarios/&quot;</span>) {
-            x.split(<span class="string">&#39;/&#39;</span>).next().unwrap()
-        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = path.strip_prefix(<span class="string">&quot;system/us/seattle/prebaked_results/&quot;</span>) {
-            x.split(<span class="string">&#39;/&#39;</span>).next().unwrap()
+        <span class="kw">let </span>name = <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = path.strip_prefix(<span class="string">"system/us/seattle/maps/"</span>) {
+            x.strip_suffix(<span class="string">".bin"</span>).unwrap()
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = path.strip_prefix(<span class="string">"system/us/seattle/scenarios/"</span>) {
+            x.split(<span class="string">'/'</span>).next().unwrap()
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = path.strip_prefix(<span class="string">"system/us/seattle/prebaked_results/"</span>) {
+            x.split(<span class="string">'/'</span>).next().unwrap()
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="bool-val">false</span>;
         };
-        name == <span class="string">&quot;huge_seattle&quot;
-            </span>|| name == <span class="string">&quot;north_seattle&quot;
-            </span>|| name == <span class="string">&quot;south_seattle&quot;
-            </span>|| name == <span class="string">&quot;west_seattle&quot;
+        name == <span class="string">"huge_seattle"
+            </span>|| name == <span class="string">"north_seattle"
+            </span>|| name == <span class="string">"south_seattle"
+            </span>|| name == <span class="string">"west_seattle"
     </span>}
 
-    <span class="doccomment">/// If an entry&#39;s path is system data, return the city.
+    <span class="doccomment">/// If an entry's path is system data, return the city.
     </span><span class="kw">pub fn </span>path_to_city(path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;CityName&gt; {
-        <span class="kw">let </span>parts = path.split(<span class="string">&#39;/&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="kw">if </span>parts[<span class="number">1</span>] == <span class="string">&quot;system&quot; </span>{
-            <span class="kw">if </span>parts[<span class="number">2</span>] == <span class="string">&quot;assets&quot;
-                </span>|| parts[<span class="number">2</span>] == <span class="string">&quot;extra_fonts&quot;
-                </span>|| parts[<span class="number">2</span>] == <span class="string">&quot;ltn_proposals&quot;
-                </span>|| parts[<span class="number">2</span>] == <span class="string">&quot;proposals&quot;
-                </span>|| parts[<span class="number">2</span>] == <span class="string">&quot;study_areas&quot;
+        <span class="kw">let </span>parts = path.split(<span class="string">'/'</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">if </span>parts[<span class="number">1</span>] == <span class="string">"system" </span>{
+            <span class="kw">if </span>parts[<span class="number">2</span>] == <span class="string">"assets"
+                </span>|| parts[<span class="number">2</span>] == <span class="string">"extra_fonts"
+                </span>|| parts[<span class="number">2</span>] == <span class="string">"ltn_proposals"
+                </span>|| parts[<span class="number">2</span>] == <span class="string">"proposals"
+                </span>|| parts[<span class="number">2</span>] == <span class="string">"study_areas"
             </span>{
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
@@ -340,8 +342,8 @@
 
     <span class="doccomment">/// Look up an entry.
     </span><span class="kw">pub fn </span>get_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Entry&gt; {
-        <span class="kw">let </span>path = path.strip_prefix(<span class="kw-2">&amp;</span><span class="kw">crate</span>::path(<span class="string">&quot;&quot;</span>)).unwrap_or(path);
-        <span class="self">self</span>.entries.get(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;data/{}&quot;</span>, path))
+        <span class="kw">let </span>path = path.strip_prefix(<span class="kw-2">&amp;</span><span class="kw">crate</span>::path(<span class="string">""</span>)).unwrap_or(path);
+        <span class="self">self</span>.entries.get(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"data/{}"</span>, path))
     }
 }
 
@@ -349,36 +351,36 @@
 </span><span class="attr">#[derive(Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>DataPacks {
     <span class="doccomment">/// A list of cities to download for using in A/B Street. Expressed the same as
-    /// `CityName::to_path`, like &quot;gb/london&quot;.
+    /// `CityName::to_path`, like "gb/london".
     </span><span class="kw">pub </span>runtime: BTreeSet&lt;String&gt;,
     <span class="doccomment">/// A list of cities to download for running the map importer.
     </span><span class="kw">pub </span>input: BTreeSet&lt;String&gt;,
 }
 
 <span class="kw">impl </span>DataPacks {
-    <span class="doccomment">/// Load the player&#39;s config for what files to download, or create the config.
-    </span><span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    <span class="doccomment">/// Load the player's config for what files to download, or create the config.
+    </span><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
     </span><span class="kw">pub fn </span>load_or_create() -&gt; DataPacks {
-        <span class="kw">let </span>path = <span class="kw">crate</span>::path_player(<span class="string">&quot;data.json&quot;</span>);
+        <span class="kw">let </span>path = <span class="kw">crate</span>::path_player(<span class="string">"data.json"</span>);
         <span class="kw">match </span><span class="kw">crate</span>::maybe_read_json::&lt;DataPacks&gt;(path.clone(), <span class="kw-2">&amp;mut </span>abstutil::Timer::throwaway()) {
             <span class="prelude-val">Ok</span>(cfg) =&gt; cfg,
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;player/data.json invalid, assuming defaults: {}&quot;</span>, err);
+                <span class="macro">warn!</span>(<span class="string">"player/data.json invalid, assuming defaults: {}"</span>, err);
                 <span class="kw">let </span><span class="kw-2">mut </span>cfg = DataPacks {
                     runtime: BTreeSet::new(),
                     input: BTreeSet::new(),
                 };
-                cfg.runtime.insert(<span class="string">&quot;us/seattle&quot;</span>.to_string());
+                cfg.runtime.insert(<span class="string">"us/seattle"</span>.to_string());
                 <span class="kw">crate</span>::write_json(path, <span class="kw-2">&amp;</span>cfg);
                 cfg
             }
         }
     }
 
-    <span class="doccomment">/// Saves the player&#39;s config for what files to download.
-    </span><span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    <span class="doccomment">/// Saves the player's config for what files to download.
+    </span><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
     </span><span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">crate</span>::write_json(<span class="kw">crate</span>::path_player(<span class="string">&quot;data.json&quot;</span>), <span class="self">self</span>);
+        <span class="kw">crate</span>::write_json(<span class="kw">crate</span>::path_player(<span class="string">"data.json"</span>), <span class="self">self</span>);
     }
 
     <span class="doccomment">/// Fill out all data packs based on the local manifest.
@@ -388,18 +390,18 @@
             input: BTreeSet::new(),
         };
         <span class="kw">for </span>path <span class="kw">in </span>Manifest::load().entries.keys() {
-            <span class="kw">if </span>path.starts_with(<span class="string">&quot;data/system/extra_fonts&quot;</span>) || path.starts_with(<span class="string">&quot;data/input/shared&quot;</span>)
+            <span class="kw">if </span>path.starts_with(<span class="string">"data/system/extra_fonts"</span>) || path.starts_with(<span class="string">"data/input/shared"</span>)
             {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let </span>parts = path.split(<span class="string">&#39;/&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-            <span class="kw">let </span><span class="kw-2">mut </span>city = <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, parts[<span class="number">2</span>], parts[<span class="number">3</span>]);
+            <span class="kw">let </span>parts = path.split(<span class="string">'/'</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+            <span class="kw">let </span><span class="kw-2">mut </span>city = <span class="macro">format!</span>(<span class="string">"{}/{}"</span>, parts[<span class="number">2</span>], parts[<span class="number">3</span>]);
             <span class="kw">if </span>Manifest::is_file_part_of_huge_seattle(path) {
-                city = <span class="string">&quot;us/huge_seattle&quot;</span>.to_string();
+                city = <span class="string">"us/huge_seattle"</span>.to_string();
             }
-            <span class="kw">if </span>parts[<span class="number">1</span>] == <span class="string">&quot;input&quot; </span>{
+            <span class="kw">if </span>parts[<span class="number">1</span>] == <span class="string">"input" </span>{
                 data_packs.input.insert(city);
-            } <span class="kw">else if </span>parts[<span class="number">1</span>] == <span class="string">&quot;system&quot; </span>{
+            } <span class="kw">else if </span>parts[<span class="number">1</span>] == <span class="string">"system" </span>{
                 data_packs.runtime.insert(city);
             }
         }

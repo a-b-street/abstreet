@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="cli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../cli/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -446,7 +448,7 @@
 <a href="#446" id="446">446</a>
 <a href="#447" id="447">447</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a
-//! single executable to reduce the cost of static linking in the release&#39;s file size.
+//! single executable to reduce the cost of static linking in the release's file size.
 
 </span><span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>log;
@@ -469,7 +471,7 @@
 <span class="kw">use </span>abstutil::Timer;
 
 <span class="attr">#[derive(StructOpt)]
-#[structopt(name = <span class="string">&quot;abcli&quot;</span>, about = <span class="string">&quot;The A/B Street multi-tool&quot;</span>)]
+#[structopt(name = <span class="string">"abcli"</span>, about = <span class="string">"The A/B Street multi-tool"</span>)]
 </span><span class="kw">enum </span>Command {
     <span class="doccomment">/// Print a binary map or scenario file as JSON
     </span>DumpJSON {
@@ -492,7 +494,7 @@
     </span>AugmentScenario {
         <span class="doccomment">/// The path to a scenario to augment. This will be modified in-place.
         ///
-        /// This tool isn&#39;t very smart about detecting if a scenario already has these extra trips
+        /// This tool isn't very smart about detecting if a scenario already has these extra trips
         /// added in; be careful about running this on the correct input.
         </span><span class="attr">#[structopt(long)]
         </span>input_scenario: String,
@@ -500,17 +502,17 @@
         /// later
         </span><span class="attr">#[structopt(long)]
         </span>add_return_trips: bool,
-        <span class="doccomment">/// Before a person&#39;s final trip home, insert a round-trip to a nearby cafe or restaurant
+        <span class="doccomment">/// Before a person's final trip home, insert a round-trip to a nearby cafe or restaurant
         </span><span class="attr">#[structopt(long)]
         </span>add_lunch_trips: bool,
         <span class="doccomment">/// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.
-        </span><span class="attr">#[structopt(long, parse(try_from_str = parse_modifiers), default_value = <span class="string">&quot;[]&quot;</span>)]
+        </span><span class="attr">#[structopt(long, parse(try_from_str = parse_modifiers), default_value = <span class="string">"[]"</span>)]
         </span>scenario_modifiers: ModifierList,
         <span class="doccomment">/// Delete cancelled trips, and delete people with no remaining trips.
         </span><span class="attr">#[structopt(long)]
         </span>delete_cancelled_trips: bool,
         <span class="doccomment">/// A seed for generating random numbers
-        </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;42&quot;</span>)]
+        </span><span class="attr">#[structopt(long, default_value = <span class="string">"42"</span>)]
         </span>rng_seed: u64,
     },
     <span class="doccomment">/// Clips an OSM file to a boundary. This is a simple Rust port of `osmium extract large_map.osm
@@ -549,7 +551,7 @@
         </span><span class="attr">#[structopt(long)]
         </span>skip_problems: bool,
     },
-    <span class="doccomment">/// Transform a JSON map that&#39;s been manually edited into the binary format suitable for
+    <span class="doccomment">/// Transform a JSON map that's been manually edited into the binary format suitable for
     /// simulation.
     </span>ImportJSONMap {
         <span class="doccomment">/// The path to a JSON map file to import
@@ -570,12 +572,12 @@
         <span class="doccomment">/// The path to a map to generate houses for
         </span><span class="attr">#[structopt(long)]
         </span>map: String,
-        <span class="doccomment">/// If the tool doesn&#39;t generate at least this many houses, then fail. This can be used to
+        <span class="doccomment">/// If the tool doesn't generate at least this many houses, then fail. This can be used to
         /// autodetect if a map probably already has most houses tagged in OSM.
         </span><span class="attr">#[structopt(long)]
         </span>num_required: usize,
         <span class="doccomment">/// A seed for generating random numbers
-        </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;42&quot;</span>)]
+        </span><span class="attr">#[structopt(long, default_value = <span class="string">"42"</span>)]
         </span>rng_seed: u64,
         <span class="doccomment">/// The GeoJSON file to write
         </span><span class="attr">#[structopt(long)]
@@ -583,7 +585,7 @@
     },
     <span class="doccomment">/// Prints the osm.pbf file from download.geofabrik.de that covers a given boundary.
     ///
-    /// This is a useful tool when importing a new map, if you don&#39;t already know which geofabrik
+    /// This is a useful tool when importing a new map, if you don't already know which geofabrik
     /// file you should use as your OSM input.
     </span>PickGeofabrik {
         <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon
@@ -595,8 +597,8 @@
         <span class="doccomment">/// The path to a GeoJSON file with a boundary
         </span><span class="attr">#[structopt(long)]
         </span>geojson_path: String,
-        <span class="doccomment">/// What to name the new imported map. The country will always be &quot;zz&quot; (a fake country
-        /// code), with the city as &quot;oneshot.&quot; This name shouldn&#39;t contain spaces or be empty.
+        <span class="doccomment">/// What to name the new imported map. The country will always be "zz" (a fake country
+        /// code), with the city as "oneshot." This name shouldn't contain spaces or be empty.
         </span><span class="attr">#[structopt(long)]
         </span>map_name: String,
         <span class="doccomment">/// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.
@@ -647,11 +649,11 @@
     </span>RegenerateEverything {
         <span class="doccomment">/// If this command is being run in the cloud, parallelize the jobs by specifying which
         /// shard this invocation should run.
-        </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;0&quot;</span>)]
+        </span><span class="attr">#[structopt(long, default_value = <span class="string">"0"</span>)]
         </span>shard_num: usize,
         <span class="doccomment">/// If this command is being run in the cloud, parallelize the jobs by specifying how many
         /// total shards there are.
-        </span><span class="attr">#[structopt(long, default_value = <span class="string">&quot;1&quot;</span>)]
+        </span><span class="attr">#[structopt(long, default_value = <span class="string">"1"</span>)]
         </span>num_shards: usize,
     },
     <span class="doccomment">/// Generate a shell script to regenerate all cities that uses an external task runner.
@@ -661,9 +663,9 @@
         <span class="attr">#[structopt(flatten)]
         </span>job: Job,
     },
-    <span class="doccomment">/// Simulate a full day of a scenario, and write the &quot;prebaked results,&quot; so the UI can later be
+    <span class="doccomment">/// Simulate a full day of a scenario, and write the "prebaked results," so the UI can later be
     /// used for A/B testing.
-    </span><span class="attr">#[structopt(name = <span class="string">&quot;prebake-scenario&quot;</span>)]
+    </span><span class="attr">#[structopt(name = <span class="string">"prebake-scenario"</span>)]
     </span>PrebakeScenario {
         <span class="doccomment">/// The path to a scenario file
         </span><span class="attr">#[structopt()]
@@ -734,7 +736,7 @@
             output,
         } =&gt; generate_houses::run(map, num_required, rng_seed, output),
         Command::PickGeofabrik { input } =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, importer::pick_geofabrik(input).<span class="kw">await</span><span class="question-mark">?</span>.<span class="number">0</span>)
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, importer::pick_geofabrik(input).<span class="kw">await</span><span class="question-mark">?</span>.<span class="number">0</span>)
         }
         Command::OneStepImport {
             geojson_path,
@@ -785,7 +787,7 @@
             num_shards,
         } =&gt; importer::regenerate_everything(shard_num, num_shards).<span class="kw">await</span>,
         Command::RegenerateEverythingExternally =&gt; regenerate_everything_externally()<span class="question-mark">?</span>,
-        Command::Import { job } =&gt; job.run(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
+        Command::Import { job } =&gt; job.run(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">"import one city"</span>)).<span class="kw">await</span>,
         Command::PrebakeScenario { scenario_path } =&gt; prebake_scenario(scenario_path),
     }
     <span class="prelude-val">Ok</span>(())
@@ -793,32 +795,32 @@
 
 <span class="kw">fn </span>dump_json(path: String) {
     <span class="comment">// Just try to deserialize as different formats
-    </span><span class="kw">if </span>path.contains(<span class="string">&quot;/maps/&quot;</span>) {
+    </span><span class="kw">if </span>path.contains(<span class="string">"/maps/"</span>) {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(map) =
             abstio::maybe_read_binary::&lt;map_model::Map&gt;(path.clone(), <span class="kw-2">&amp;mut </span>Timer::throwaway())
         {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(<span class="kw-2">&amp;</span>map));
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, abstutil::to_json(<span class="kw-2">&amp;</span>map));
             <span class="kw">return</span>;
         }
     }
-    <span class="kw">if </span>path.contains(<span class="string">&quot;/raw_maps/&quot;</span>) {
+    <span class="kw">if </span>path.contains(<span class="string">"/raw_maps/"</span>) {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(map) =
             abstio::maybe_read_binary::&lt;raw_map::RawMap&gt;(path.clone(), <span class="kw-2">&amp;mut </span>Timer::throwaway())
         {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(<span class="kw-2">&amp;</span>map));
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, abstutil::to_json(<span class="kw-2">&amp;</span>map));
             <span class="kw">return</span>;
         }
     }
-    <span class="kw">if </span>path.contains(<span class="string">&quot;/scenarios/&quot;</span>) {
+    <span class="kw">if </span>path.contains(<span class="string">"/scenarios/"</span>) {
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(scenario) =
             abstio::maybe_read_binary::&lt;synthpop::Scenario&gt;(path.clone(), <span class="kw-2">&amp;mut </span>Timer::throwaway())
         {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(<span class="kw-2">&amp;</span>scenario));
+            <span class="macro">println!</span>(<span class="string">"{}"</span>, abstutil::to_json(<span class="kw-2">&amp;</span>scenario));
             <span class="kw">return</span>;
         }
     }
     <span class="macro">panic!</span>(
-        <span class="string">&quot;Don&#39;t know how to dump JSON for {}. Only maps, raw maps, and scenarios are supported.&quot;</span>,
+        <span class="string">"Don't know how to dump JSON for {}. Only maps, raw maps, and scenarios are supported."</span>,
         path
     );
 }
@@ -834,38 +836,38 @@
     scenario.scenario_name = scenario_name;
     scenario.save();
     <span class="macro">println!</span>(
-        <span class="string">&quot;Wrote {}&quot;</span>,
+        <span class="string">"Wrote {}"</span>,
         abstio::path_scenario(<span class="kw-2">&amp;</span>scenario.map_name, <span class="kw-2">&amp;</span>scenario.scenario_name)
     );
 }
 
 <span class="kw">fn </span>import_json_map(input: String, output: String) {
-    <span class="comment">// TODO This can&#39;t handle the output of dump_map! What?!
+    <span class="comment">// TODO This can't handle the output of dump_map! What?!
     </span><span class="kw">let </span><span class="kw-2">mut </span>map: map_model::Map = abstio::read_json(input, <span class="kw-2">&amp;mut </span>Timer::throwaway());
     map.map_loaded_directly(<span class="kw-2">&amp;mut </span>Timer::throwaway());
     abstio::write_binary(output, <span class="kw-2">&amp;</span>map);
 }
 
 <span class="kw">fn </span>minify_map(path: String) {
-    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;minify map&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">"minify map"</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>map = map_model::Map::load_synchronously(path, <span class="kw-2">&amp;mut </span>timer);
     map.minify(<span class="kw-2">&amp;mut </span>timer);
-    <span class="comment">// This also changes the name, so this won&#39;t overwrite anything
+    <span class="comment">// This also changes the name, so this won't overwrite anything
     </span>map.save();
 }
 
 <span class="kw">fn </span>regenerate_everything_externally() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>path = <span class="string">&quot;regenerate.sh&quot;</span>;
+    <span class="kw">let </span>path = <span class="string">"regenerate.sh"</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>f = File::create(path)<span class="question-mark">?</span>;
-    <span class="macro">writeln!</span>(f, <span class="string">&quot;#!/bin/sh&quot;</span>)<span class="question-mark">?</span>;
-    <span class="macro">writeln!</span>(f, <span class="string">&quot;pueue parallel 16&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(f, <span class="string">"#!/bin/sh"</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(f, <span class="string">"pueue parallel 16"</span>)<span class="question-mark">?</span>;
     <span class="kw">for </span>city <span class="kw">in </span>CityName::list_all_cities_from_importer_config() {
-        <span class="kw">if </span>city == CityName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>) {
+        <span class="kw">if </span>city == CityName::new(<span class="string">"gb"</span>, <span class="string">"london"</span>) {
             <span class="comment">// Special case because there are so many maps
             </span><span class="kw">for </span>map <span class="kw">in </span>city.list_all_maps_in_city_from_importer_config() {
                 <span class="macro">writeln!</span>(
                     f,
-                    <span class="string">&quot;pueue add -- ./import.sh --raw --map --scenario {} --city=gb/london&quot;</span>,
+                    <span class="string">"pueue add -- ./import.sh --raw --map --scenario {} --city=gb/london"</span>,
                     map.map
                 )<span class="question-mark">?</span>;
             }
@@ -873,21 +875,21 @@
         }
 
         <span class="kw">let </span>job = Job::full_for_city(city);
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;pueue add -- ./import.sh {}&quot;</span>, job.flags().join(<span class="string">&quot; &quot;</span>))<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"pueue add -- ./import.sh {}"</span>, job.flags().join(<span class="string">" "</span>))<span class="question-mark">?</span>;
     }
-    <span class="macro">println!</span>(<span class="string">&quot;&quot;</span>);
+    <span class="macro">println!</span>(<span class="string">""</span>);
     <span class="macro">println!</span>(
-        <span class="string">&quot;You can run {}. You&#39;ll need https://github.com/Nukesor/pueue set up first&quot;</span>,
+        <span class="string">"You can run {}. You'll need https://github.com/Nukesor/pueue set up first"</span>,
         path
     );
-    <span class="macro">println!</span>(<span class="string">&quot;Handy reminders: pueue status / pause / reset&quot;</span>);
-    <span class="macro">println!</span>(<span class="string">&quot;pueue status | grep Success | wc -l&quot;</span>);
-    <span class="macro">println!</span>(<span class="string">&quot;For the long-tail: pueue status | grep Running&quot;</span>);
+    <span class="macro">println!</span>(<span class="string">"Handy reminders: pueue status / pause / reset"</span>);
+    <span class="macro">println!</span>(<span class="string">"pueue status | grep Success | wc -l"</span>);
+    <span class="macro">println!</span>(<span class="string">"For the long-tail: pueue status | grep Running"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn </span>prebake_scenario(path: String) {
-    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;prebake scenario&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">"prebake scenario"</span>);
     <span class="kw">let </span>scenario: synthpop::Scenario = abstio::must_read_object(path, <span class="kw-2">&amp;mut </span>timer);
     <span class="kw">let </span>map = map_model::Map::load_synchronously(scenario.map_name.path(), <span class="kw-2">&amp;mut </span>timer);
     sim::prebake::prebake(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>timer);

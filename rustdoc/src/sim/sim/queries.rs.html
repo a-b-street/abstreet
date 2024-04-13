@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/sim/queries.rs`."><title>queries.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/sim/queries.rs`."><title>queries.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -600,12 +602,12 @@
     }
 
     <span class="kw">pub fn </span>debug_ped(<span class="kw-2">&amp;</span><span class="self">self</span>, id: PedestrianID) {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.walking.debug_ped_json(id));
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="self">self</span>.walking.debug_ped_json(id));
         <span class="self">self</span>.trips.debug_trip(AgentID::Pedestrian(id));
     }
 
     <span class="kw">pub fn </span>debug_car(<span class="kw-2">&amp;</span><span class="self">self</span>, id: CarID) {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.driving.debug_car_json(id));
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="self">self</span>.driving.debug_car_json(id));
         <span class="self">self</span>.trips.debug_trip(AgentID::Car(id));
     }
 
@@ -693,7 +695,7 @@
     <span class="kw">pub fn </span>trip_to_person(<span class="kw-2">&amp;</span><span class="self">self</span>, id: TripID) -&gt; <span class="prelude-ty">Option</span>&lt;PersonID&gt; {
         <span class="self">self</span>.trips.trip_to_person(id)
     }
-    <span class="comment">// TODO This returns None for parked cars owned by people! That&#39;s confusing. Dedupe with
+    <span class="comment">// TODO This returns None for parked cars owned by people! That's confusing. Dedupe with
     // get_owner_of_car.
     </span><span class="kw">pub fn </span>agent_to_person(<span class="kw-2">&amp;</span><span class="self">self</span>, id: AgentID) -&gt; <span class="prelude-ty">Option</span>&lt;PersonID&gt; {
         <span class="self">self</span>.agent_to_trip(id)
@@ -833,15 +835,15 @@
         <span class="self">self</span>.intersections.get_waiting_agents(id)
     }
 
-    <span class="doccomment">/// For every agent that&#39;s currently not moving, figure out how long they&#39;ve been waiting and
-    /// why they&#39;re blocked.
+    <span class="doccomment">/// For every agent that's currently not moving, figure out how long they've been waiting and
+    /// why they're blocked.
     </span><span class="kw">pub fn </span>get_blocked_by_graph(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; BTreeMap&lt;AgentID, (Duration, DelayCause)&gt; {
         <span class="comment">// Pedestrians can only be blocked at intersections, which is handled inside this call
         </span><span class="self">self</span>.driving
             .get_blocked_by_graph(<span class="self">self</span>.time, map, <span class="kw-2">&amp;</span><span class="self">self</span>.intersections)
     }
 
-    <span class="doccomment">/// (bus, stop index it&#39;s coming from, percent to next stop, location)
+    <span class="doccomment">/// (bus, stop index it's coming from, percent to next stop, location)
     </span><span class="kw">pub fn </span>status_of_buses(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         route: TransitRouteID,
@@ -963,7 +965,7 @@
     }
 
     <span class="doccomment">/// Returns the best-case time for a trip in a world with no traffic or intersection delays.
-    /// Might fail in some cases where the real trip succeeds, but the single-mode path can&#39;t be
+    /// Might fail in some cases where the real trip succeeds, but the single-mode path can't be
     /// found. Assumes the TripID exists.
     </span><span class="kw">pub fn </span>get_trip_time_lower_bound(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, id: TripID) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
         <span class="kw">let </span>info = <span class="self">self</span>.trips.trip_info(id);
@@ -991,7 +993,7 @@
                 <span class="prelude-val">Ok</span>(path.estimate_duration(map, max_speed))
             }
             <span class="prelude-val">None </span>=&gt; <span class="macro">bail!</span>(
-                <span class="string">&quot;can&#39;t figure out PathRequest from {:?} to {:?} via {}&quot;</span>,
+                <span class="string">"can't figure out PathRequest from {:?} to {:?} via {}"</span>,
                 info.start,
                 info.end,
                 info.mode.ongoing_verb()
@@ -1066,7 +1068,7 @@
     }
 
     <span class="doccomment">/// This does not include transit riders. Some callers need those in addition, but the
-    /// rendering ones don&#39;t.
+    /// rendering ones don't.
     </span><span class="kw">pub fn </span>get_unzoomed_agents(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;UnzoomedAgent&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="self">self</span>.driving.get_unzoomed_agents(<span class="self">self</span>.time, map);
         result.extend(<span class="self">self</span>.walking.get_unzoomed_agents(<span class="self">self</span>.time, map));
@@ -1092,7 +1094,7 @@
 /// could be blocked by two conflicting turns.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Serialize)]
 </span><span class="kw">pub enum </span>DelayCause {
-    <span class="doccomment">/// Queued behind someone, or someone&#39;s doing a conflicting turn, or someone&#39;s eating up space
+    <span class="doccomment">/// Queued behind someone, or someone's doing a conflicting turn, or someone's eating up space
     /// in a target queue
     </span>Agent(AgentID),
     <span class="doccomment">/// Waiting on a traffic signal to change, or pausing at a stop sign before proceeding

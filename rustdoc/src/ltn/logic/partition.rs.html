@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/logic/partition.rs`."><title>partition.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/logic/partition.rs`."><title>partition.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -486,7 +488,7 @@
 <span class="kw">use </span>map_model::osm::RoadRank;
 <span class="kw">use </span>map_model::{IntersectionID, Map, RoadID, RoadSideID};
 
-<span class="doccomment">/// An opaque ID, won&#39;t be contiguous as we adjust boundaries
+<span class="doccomment">/// An opaque ID, won't be contiguous as we adjust boundaries
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>NeighbourhoodID(<span class="kw">pub </span>usize);
 
@@ -520,7 +522,7 @@
 <span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>NeighbourhoodInfo {
     <span class="kw">pub </span>block: Block,
-    <span class="doccomment">/// Draw a special cone of light when focused on this neighbourhood. It doesn&#39;t change which
+    <span class="doccomment">/// Draw a special cone of light when focused on this neighbourhood. It doesn't change which
     /// roads can be edited.
     </span><span class="kw">pub </span>override_drawing_boundary: <span class="prelude-ty">Option</span>&lt;Polygon&gt;,
 }
@@ -546,7 +548,7 @@
     <span class="doccomment">/// Only valid before the LTN tool has been activated this session
     </span><span class="kw">pub fn </span>empty() -&gt; Partitioning {
         Partitioning {
-            map: MapName::new(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;temp&quot;</span>, <span class="string">&quot;orary&quot;</span>),
+            map: MapName::new(<span class="string">"zz"</span>, <span class="string">"temp"</span>, <span class="string">"orary"</span>),
             neighbourhoods: BTreeMap::new(),
             single_blocks: Vec::new(),
 
@@ -564,26 +566,26 @@
     }
 
     <span class="kw">pub fn </span>seed_using_heuristics(map: <span class="kw-2">&amp;</span>Map, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; Partitioning {
-        timer.start(<span class="string">&quot;seed partitioning with heuristics&quot;</span>);
+        timer.start(<span class="string">"seed partitioning with heuristics"</span>);
 
-        timer.start(<span class="string">&quot;find single blocks&quot;</span>);
+        timer.start(<span class="string">"find single blocks"</span>);
         <span class="kw">let </span>input_single_blocks = Perimeter::find_all_single_blocks(map);
-        timer.stop(<span class="string">&quot;find single blocks&quot;</span>);
+        timer.stop(<span class="string">"find single blocks"</span>);
 
-        <span class="comment">// Merge holes upfront. Otherwise, it&#39;s usually impossible to expand a boundary with a
-        // block containing a hole. Plus, there&#39;s no known scenario when somebody would want to
+        <span class="comment">// Merge holes upfront. Otherwise, it's usually impossible to expand a boundary with a
+        // block containing a hole. Plus, there's no known scenario when somebody would want to
         // make a neighbourhood boundary involve a hole.
-        </span>timer.start(<span class="string">&quot;merge holes&quot;</span>);
+        </span>timer.start(<span class="string">"merge holes"</span>);
         <span class="kw">let </span>input = Perimeter::merge_holes(map, input_single_blocks);
-        timer.stop(<span class="string">&quot;merge holes&quot;</span>);
+        timer.stop(<span class="string">"merge holes"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>single_blocks = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>single_block_perims = Vec::new();
-        timer.start_iter(<span class="string">&quot;fix deadends and blockify&quot;</span>, input.len());
+        timer.start_iter(<span class="string">"fix deadends and blockify"</span>, input.len());
         <span class="kw">for </span><span class="kw-2">mut </span>perim <span class="kw">in </span>input {
             timer.next();
-            <span class="comment">// TODO Some perimeters don&#39;t blockify after collapsing dead-ends. So do this
-            // upfront, and separately work on any blocks that don&#39;t show up.
+            <span class="comment">// TODO Some perimeters don't blockify after collapsing dead-ends. So do this
+            // upfront, and separately work on any blocks that don't show up.
             // https://github.com/a-b-street/abstreet/issues/841
             </span>perim.collapse_deadends();
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(block) = perim.to_block(map) {
@@ -592,9 +594,9 @@
             }
         }
 
-        timer.start(<span class="string">&quot;partition&quot;</span>);
+        timer.start(<span class="string">"partition"</span>);
         <span class="kw">let </span>partitions = Perimeter::partition_by_predicate(single_block_perims, |r| {
-            <span class="comment">// &quot;Interior&quot; roads of a neighbourhood aren&#39;t classified as arterial
+            <span class="comment">// "Interior" roads of a neighbourhood aren't classified as arterial
             </span>map.get_r(r).get_rank() == RoadRank::Local
         });
 
@@ -604,9 +606,9 @@
             </span><span class="kw">let </span>stepwise_debug = <span class="bool-val">false</span>;
             merged.extend(Perimeter::merge_all(map, perimeters, stepwise_debug));
         }
-        timer.stop(<span class="string">&quot;partition&quot;</span>);
+        timer.stop(<span class="string">"partition"</span>);
 
-        timer.start_iter(<span class="string">&quot;blockify merged&quot;</span>, merged.len());
+        timer.start_iter(<span class="string">"blockify merged"</span>, merged.len());
         <span class="kw">let </span><span class="kw-2">mut </span>blocks = Vec::new();
         <span class="kw">for </span>perimeter <span class="kw">in </span>merged {
             timer.next();
@@ -615,7 +617,7 @@
                     blocks.push(block);
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">warn!</span>(<span class="string">&quot;Failed to make a block from a merged perimeter: {}&quot;</span>, err);
+                    <span class="macro">warn!</span>(<span class="string">"Failed to make a block from a merged perimeter: {}"</span>, err);
                 }
             }
         }
@@ -645,20 +647,20 @@
                 p.block_to_neighbourhood.insert(id, neighbourhood);
             } <span class="kw">else </span>{
                 <span class="macro">error!</span>(
-                        <span class="string">&quot;Block doesn&#39;t belong to any neighbourhood. Continuing without boundary adjustment. {:?}&quot;</span>,
+                        <span class="string">"Block doesn't belong to any neighbourhood. Continuing without boundary adjustment. {:?}"</span>,
                         p.get_block(id).perimeter
                     );
                 p.broken = <span class="bool-val">true</span>;
             }
         }
 
-        timer.stop(<span class="string">&quot;seed partitioning with heuristics&quot;</span>);
+        timer.stop(<span class="string">"seed partitioning with heuristics"</span>);
         p
     }
 
     <span class="doccomment">/// Add all specified blocks to new_owner. `Ok(None)` is success.  `Ok(Some(x))` is also
     /// success, but means the old neighbourhood of SOME block in `add_all` is now gone and
-    /// replaced with something new. (This call shouldn&#39;t be used to remove multiple blocks at
+    /// replaced with something new. (This call shouldn't be used to remove multiple blocks at
     /// once, since interpreting the result is confusing!)
     </span><span class="kw">pub fn </span>transfer_blocks(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
@@ -673,7 +675,7 @@
         <span class="kw">if </span>new_neighbourhood_blocks.len() != <span class="number">1 </span>{
             <span class="comment">// This happens when a hole would be created by adding this block. There are probably
             // some smaller blocks nearby to add first.
-            </span><span class="macro">bail!</span>(<span class="string">&quot;Couldn&#39;t add block -- you may need to add an intermediate block first to avoid a hole, or there&#39;s a bug you can&#39;t workaround yet. Try adding pink blocks first.&quot;</span>);
+            </span><span class="macro">bail!</span>(<span class="string">"Couldn't add block -- you may need to add an intermediate block first to avoid a hole, or there's a bug you can't workaround yet. Try adding pink blocks first."</span>);
         }
         <span class="kw">let </span>new_neighbourhood_block = new_neighbourhood_blocks.pop().unwrap();
 
@@ -760,7 +762,7 @@
             }
         }
 
-        <span class="comment">// We didn&#39;t find any match, so we&#39;re jettisoning a block near the edge of the map (or a
+        <span class="comment">// We didn't find any match, so we're jettisoning a block near the edge of the map (or a
         // buggy area missing blocks). Create a new neighbourhood with just this block.
         </span><span class="kw">let </span>new_owner = NeighbourhoodID(<span class="self">self</span>.neighbourhood_id_counter);
         <span class="self">self</span>.neighbourhood_id_counter += <span class="number">1</span>;
@@ -793,7 +795,7 @@
 
         <span class="comment">// Convert from m^2 to km^2
         </span><span class="kw">let </span>area = area / <span class="number">1_000_000.0</span>;
-        <span class="macro">format!</span>(<span class="string">&quot;~{:.1} km²&quot;</span>, area)
+        <span class="macro">format!</span>(<span class="string">"~{:.1} km²"</span>, area)
     }
 
     <span class="kw">pub fn </span>get_info(<span class="kw-2">&amp;</span><span class="self">self</span>, id: NeighbourhoodID) -&gt; <span class="kw-2">&amp;</span>NeighbourhoodInfo {
@@ -870,17 +872,17 @@
                 <span class="kw">return </span><span class="kw-2">*</span>block;
             }
         }
-        <span class="macro">unreachable!</span>(<span class="string">&quot;{:?} has no blocks&quot;</span>, id);
+        <span class="macro">unreachable!</span>(<span class="string">"{:?} has no blocks"</span>, id);
     }
 
-    <span class="doccomment">/// Blocks on the &quot;frontier&quot; are adjacent to the perimeter, either just inside or outside.
+    <span class="doccomment">/// Blocks on the "frontier" are adjacent to the perimeter, either just inside or outside.
     </span><span class="kw">pub fn </span>calculate_frontier(<span class="kw-2">&amp;</span><span class="self">self</span>, perim: <span class="kw-2">&amp;</span>Perimeter) -&gt; BTreeSet&lt;BlockID&gt; {
         <span class="kw">let </span>perim_roads: BTreeSet&lt;RoadID&gt; = perim.roads.iter().map(|id| id.road).collect();
 
         <span class="kw">let </span><span class="kw-2">mut </span>frontier = BTreeSet::new();
         <span class="kw">for </span>(block_id, block) <span class="kw">in </span><span class="self">self</span>.all_single_blocks() {
             <span class="kw">for </span>road_side_id <span class="kw">in </span><span class="kw-2">&amp;</span>block.perimeter.roads {
-                <span class="comment">// If the perimeter has this RoadSideID on the same side, we&#39;re just inside. If it has
+                <span class="comment">// If the perimeter has this RoadSideID on the same side, we're just inside. If it has
                 // the other side, just on the outside. Either way, on the frontier.
                 </span><span class="kw">if </span>perim_roads.contains(<span class="kw-2">&amp;</span>road_side_id.road) {
                     frontier.insert(block_id);
@@ -897,7 +899,7 @@
         blocks
     }
 
-    <span class="comment">// Possibly returns multiple merged blocks. The input is never &quot;lost&quot; -- if any perimeter fails
+    <span class="comment">// Possibly returns multiple merged blocks. The input is never "lost" -- if any perimeter fails
     // to become a block, fail the whole operation.
     </span><span class="kw">fn </span>make_merged_blocks(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, input: BTreeSet&lt;BlockID&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Block&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>perimeters = Vec::new();
@@ -912,7 +914,7 @@
         <span class="prelude-val">Ok</span>(blocks)
     }
 
-    <span class="doccomment">/// We want to add target_block to new_owner, but we can&#39;t. Find the blocks we may need to add
+    <span class="doccomment">/// We want to add target_block to new_owner, but we can't. Find the blocks we may need to add
     /// first.
     </span><span class="kw">pub fn </span>find_intermediate_blocks(
         <span class="kw-2">&amp;</span><span class="self">self</span>,

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/buildings.rs`."><title>buildings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/buildings.rs`."><title>buildings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -263,10 +265,10 @@
     keep_bldg_tags: bool,
     timer: <span class="kw-2">&amp;mut </span>Timer,
 ) -&gt; Vec&lt;Building&gt; {
-    timer.start(<span class="string">&quot;convert buildings&quot;</span>);
+    timer.start(<span class="string">"convert buildings"</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>center_per_bldg: BTreeMap&lt;osm::OsmID, HashablePt2D&gt; = BTreeMap::new();
     <span class="kw">let </span><span class="kw-2">mut </span>query: HashSet&lt;HashablePt2D&gt; = HashSet::new();
-    timer.start_iter(<span class="string">&quot;get building center points&quot;</span>, input.len());
+    timer.start_iter(<span class="string">"get building center points"</span>, input.len());
     <span class="kw">for </span>(id, b) <span class="kw">in </span>input {
         timer.next();
         <span class="kw">let </span>center = b.polygon.center().to_hashable();
@@ -279,7 +281,7 @@
         map,
         query,
         |l| l.is_walkable(),
-        <span class="comment">// Don&#39;t put connections too close to intersections
+        <span class="comment">// Don't put connections too close to intersections
         </span>sidewalk_buffer,
         <span class="comment">// Try not to skip any buildings, but more than 1km from a sidewalk is a little much
         </span>Distance::meters(<span class="number">1000.0</span>),
@@ -287,7 +289,7 @@
     );
 
     <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
-    timer.start_iter(<span class="string">&quot;match buildings to sidewalks&quot;</span>, center_per_bldg.len());
+    timer.start_iter(<span class="string">"match buildings to sidewalks"</span>, center_per_bldg.len());
     <span class="kw">for </span>(orig_id, bldg_center) <span class="kw">in </span>center_per_bldg {
         timer.next();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(sidewalk_pos) = sidewalk_pts.get(<span class="kw-2">&amp;</span>bldg_center) {
@@ -296,7 +298,7 @@
                 <span class="prelude-val">Ok</span>(l) =&gt; trim_path(<span class="kw-2">&amp;</span>b.polygon, l),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                     <span class="macro">warn!</span>(
-                        <span class="string">&quot;Skipping building {} because front path has 0 length&quot;</span>,
+                        <span class="string">"Skipping building {} because front path has 0 length"</span>,
                         orig_id
                     );
                     <span class="kw">continue</span>;
@@ -309,7 +311,7 @@
             <span class="comment">// TODO is it worth using height or building:height as an alternative if not tagged?
             </span><span class="kw">let </span>levels = b
                 .osm_tags
-                .get(<span class="string">&quot;building:levels&quot;</span>)
+                .get(<span class="string">"building:levels"</span>)
                 .and_then(|x| x.parse::&lt;f64&gt;().ok())
                 .unwrap_or(<span class="number">1.0</span>);
 
@@ -345,7 +347,7 @@
                 } <span class="kw">else </span>{
                     OffstreetParking::Private(
                         b.num_parking_spots,
-                        b.osm_tags.is(<span class="string">&quot;building&quot;</span>, <span class="string">&quot;parking&quot;</span>) || b.osm_tags.is(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>),
+                        b.osm_tags.is(<span class="string">"building"</span>, <span class="string">"parking"</span>) || b.osm_tags.is(<span class="string">"amenity"</span>, <span class="string">"parking"</span>),
                     )
                 },
                 osm_tags: <span class="kw">if </span>keep_bldg_tags {
@@ -361,23 +363,23 @@
     }
 
     <span class="macro">info!</span>(
-        <span class="string">&quot;Discarded {} buildings that weren&#39;t close enough to a sidewalk&quot;</span>,
+        <span class="string">"Discarded {} buildings that weren't close enough to a sidewalk"</span>,
         input.len() - results.len()
     );
-    timer.stop(<span class="string">&quot;convert buildings&quot;</span>);
+    timer.stop(<span class="string">"convert buildings"</span>);
 
     results
 }
 
-<span class="comment">// If the house number is missing, just omit it. (In the past, we showed &quot;???&quot; but this was a
+<span class="comment">// If the house number is missing, just omit it. (In the past, we showed "???" but this was a
 // confusing UX)
 </span><span class="kw">fn </span>get_address(tags: <span class="kw-2">&amp;</span>Tags, sidewalk: LaneID, map: <span class="kw-2">&amp;</span>Map) -&gt; String {
     <span class="kw">let </span>street = tags
-        .get(<span class="string">&quot;addr:street&quot;</span>)
+        .get(<span class="string">"addr:street"</span>)
         .cloned()
         .unwrap_or_else(|| map.get_parent(sidewalk).get_name(<span class="prelude-val">None</span>));
-    <span class="kw">match </span>tags.get(<span class="string">&quot;addr:housenumber&quot;</span>) {
-        <span class="prelude-val">Some</span>(num) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, num, street),
+    <span class="kw">match </span>tags.get(<span class="string">"addr:housenumber"</span>) {
+        <span class="prelude-val">Some</span>(num) =&gt; <span class="macro">format!</span>(<span class="string">"{} {}"</span>, num, street),
         <span class="prelude-val">None </span>=&gt; street,
     }
 }
@@ -403,7 +405,7 @@
         commercial = <span class="bool-val">true</span>;
     }
 
-    <span class="kw">if </span>tags.is(<span class="string">&quot;ruins&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+    <span class="kw">if </span>tags.is(<span class="string">"ruins"</span>, <span class="string">"yes"</span>) {
         <span class="kw">if </span>commercial {
             <span class="kw">return </span>BuildingType::Commercial(<span class="number">0</span>);
         }
@@ -415,15 +417,15 @@
 
     <span class="attr">#[allow(clippy::if_same_then_else)] </span><span class="comment">// false positive (remove after addressing TODO below)
     </span><span class="kw">if </span>tags.is_any(
-        <span class="string">&quot;building&quot;</span>,
+        <span class="string">"building"</span>,
         <span class="macro">vec!</span>[
-            <span class="string">&quot;office&quot;</span>,
-            <span class="string">&quot;industrial&quot;</span>,
-            <span class="string">&quot;commercial&quot;</span>,
-            <span class="string">&quot;retail&quot;</span>,
-            <span class="string">&quot;warehouse&quot;</span>,
-            <span class="string">&quot;civic&quot;</span>,
-            <span class="string">&quot;public&quot;</span>,
+            <span class="string">"office"</span>,
+            <span class="string">"industrial"</span>,
+            <span class="string">"commercial"</span>,
+            <span class="string">"retail"</span>,
+            <span class="string">"warehouse"</span>,
+            <span class="string">"civic"</span>,
+            <span class="string">"public"</span>,
         ],
     ) {
         <span class="comment">// 1 person per 10 square meters
@@ -432,33 +434,33 @@
         //  - regional/cultural norms
         </span>workers = (area_sq_meters / <span class="number">10.0</span>) <span class="kw">as </span>usize;
     } <span class="kw">else if </span>tags.is_any(
-        <span class="string">&quot;building&quot;</span>,
-        <span class="macro">vec!</span>[<span class="string">&quot;school&quot;</span>, <span class="string">&quot;university&quot;</span>, <span class="string">&quot;construction&quot;</span>, <span class="string">&quot;church&quot;</span>],
+        <span class="string">"building"</span>,
+        <span class="macro">vec!</span>[<span class="string">"school"</span>, <span class="string">"university"</span>, <span class="string">"construction"</span>, <span class="string">"church"</span>],
     ) {
         <span class="comment">// TODO: special handling in future
         </span><span class="kw">return </span>BuildingType::Empty;
     } <span class="kw">else if </span>tags.is_any(
-        <span class="string">&quot;building&quot;</span>,
+        <span class="string">"building"</span>,
         <span class="macro">vec!</span>[
-            <span class="string">&quot;garage&quot;</span>,
-            <span class="string">&quot;garages&quot;</span>,
-            <span class="string">&quot;shed&quot;</span>,
-            <span class="string">&quot;roof&quot;</span>,
-            <span class="string">&quot;greenhouse&quot;</span>,
-            <span class="string">&quot;farm_auxiliary&quot;</span>,
-            <span class="string">&quot;barn&quot;</span>,
-            <span class="string">&quot;service&quot;</span>,
+            <span class="string">"garage"</span>,
+            <span class="string">"garages"</span>,
+            <span class="string">"shed"</span>,
+            <span class="string">"roof"</span>,
+            <span class="string">"greenhouse"</span>,
+            <span class="string">"farm_auxiliary"</span>,
+            <span class="string">"barn"</span>,
+            <span class="string">"service"</span>,
         ],
     ) {
         <span class="kw">return </span>BuildingType::Empty;
     } <span class="kw">else if </span>tags.is_any(
-        <span class="string">&quot;building&quot;</span>,
-        <span class="macro">vec!</span>[<span class="string">&quot;house&quot;</span>, <span class="string">&quot;detached&quot;</span>, <span class="string">&quot;semidetached_house&quot;</span>, <span class="string">&quot;farm&quot;</span>],
+        <span class="string">"building"</span>,
+        <span class="macro">vec!</span>[<span class="string">"house"</span>, <span class="string">"detached"</span>, <span class="string">"semidetached_house"</span>, <span class="string">"farm"</span>],
     ) {
         residents = rng.gen_range(<span class="number">0</span>..<span class="number">3</span>);
-    } <span class="kw">else if </span>tags.is_any(<span class="string">&quot;building&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;hut&quot;</span>, <span class="string">&quot;static_caravan&quot;</span>, <span class="string">&quot;cabin&quot;</span>]) {
+    } <span class="kw">else if </span>tags.is_any(<span class="string">"building"</span>, <span class="macro">vec!</span>[<span class="string">"hut"</span>, <span class="string">"static_caravan"</span>, <span class="string">"cabin"</span>]) {
         residents = rng.gen_range(<span class="number">0</span>..<span class="number">2</span>);
-    } <span class="kw">else if </span>tags.is_any(<span class="string">&quot;building&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;apartments&quot;</span>, <span class="string">&quot;terrace&quot;</span>, <span class="string">&quot;residential&quot;</span>]) {
+    } <span class="kw">else if </span>tags.is_any(<span class="string">"building"</span>, <span class="macro">vec!</span>[<span class="string">"apartments"</span>, <span class="string">"terrace"</span>, <span class="string">"residential"</span>]) {
         <span class="comment">// 1 person per 10 square meters
         // TODO: Hone in this parameter. Space per person varies with (among other things):
         //  - building type. e.g. apartment vs single family

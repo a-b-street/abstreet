@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/render/cells.rs`."><title>cells.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/render/cells.rs`."><title>cells.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -380,15 +382,15 @@
 }
 
 <span class="kw">impl </span>RenderCells {
-    <span class="doccomment">/// Partition a neighbourhood&#39;s boundary polygon based on the cells. This discretizes space into
-    /// a grid, and then extracts a polygon from the raster. The results don&#39;t look perfect, but
-    /// it&#39;s fast.
+    <span class="doccomment">/// Partition a neighbourhood's boundary polygon based on the cells. This discretizes space into
+    /// a grid, and then extracts a polygon from the raster. The results don't look perfect, but
+    /// it's fast.
     </span><span class="kw">pub fn </span>new(map: <span class="kw-2">&amp;</span>Map, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood) -&gt; RenderCells {
         RenderCellsBuilder::new(map, neighbourhood).finalize()
     }
 
     <span class="doccomment">/// Draw cells as areas with different colors. The colors are meaningless, but the same color
-    /// won&#39;t be shared between adjacent cells.
+    /// won't be shared between adjacent cells.
     </span><span class="kw">pub fn </span>draw_colored_areas(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GeomBatch {
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
         <span class="kw">for </span>(color, polygons) <span class="kw">in </span><span class="self">self</span>.colors.iter().zip(<span class="self">self</span>.polygons_per_cell.iter()) {
@@ -399,7 +401,7 @@
         batch
     }
 
-    <span class="doccomment">/// Draw the boundary between cells as a thick outline. It&#39;s meant to look like the
+    <span class="doccomment">/// Draw the boundary between cells as a thick outline. It's meant to look like the
     /// neighbourhood is split into disconnected islands.
     </span><span class="kw">pub fn </span>draw_island_outlines(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GeomBatch {
         <span class="kw">let </span>neighbourhood_boundary = <span class="self">self
@@ -464,7 +466,7 @@
                     .center_pts
                     .maybe_exact_slice(interval.start, interval.end)
                 {
-                    <span class="comment">// Walk along the center line. We could look at the road&#39;s thickness and fill
+                    <span class="comment">// Walk along the center line. We could look at the road's thickness and fill
                     // out points based on that, but the diffusion should take care of it.
                     </span><span class="kw">for </span>(pt, <span class="kw">_</span>) <span class="kw">in
                         </span>slice.step_along(Distance::meters(RESOLUTION_M / <span class="number">2.0</span>), Distance::ZERO)
@@ -474,14 +476,14 @@
                             ((pt.y() - bounds.min_y) / RESOLUTION_M) <span class="kw">as </span>usize,
                         );
                         <span class="comment">// Due to tunnels/bridges, sometimes a road belongs to a neighbourhood, but
-                        // leaks outside the neighbourhood&#39;s boundary. Avoid crashing. The real fix
+                        // leaks outside the neighbourhood's boundary. Avoid crashing. The real fix
                         // is to better define boundaries in the face of z-order changes.
                         //
                         // Example is https://www.openstreetmap.org/way/87298633
                         </span><span class="kw">if </span>grid_idx &gt;= grid.data.len() {
                             <span class="kw">if </span>warn_leak {
                                 <span class="macro">warn!</span>(
-                                    <span class="string">&quot;{} leaks outside its neighbourhood&#39;s boundary polygon, near {}&quot;</span>,
+                                    <span class="string">"{} leaks outside its neighbourhood's boundary polygon, near {}"</span>,
                                     road.id, pt
                                 );
                                 <span class="comment">// In some neighbourhoods, there are so many warnings that logging
@@ -498,9 +500,9 @@
                 }
             }
         }
-        <span class="comment">// Also mark the boundary polygon, so we can prevent the diffusion from &quot;leaking&quot; outside
+        <span class="comment">// Also mark the boundary polygon, so we can prevent the diffusion from "leaking" outside
         // the area. The grid covers the rectangular bounds of the polygon. Rather than make an
-        // enum with 3 cases, just assign a new index to mean &quot;boundary.&quot;
+        // enum with 3 cases, just assign a new index to mean "boundary."
         </span><span class="kw">let </span>boundary_marker = neighbourhood.cells.len();
         <span class="kw">for </span>(pt, <span class="kw">_</span>) <span class="kw">in
             </span>geom::PolyLine::unchecked_new(boundary_polygon.get_outer_ring().clone().into_points())
@@ -543,7 +545,7 @@
 
         <span class="kw">for </span>(idx, color) <span class="kw">in </span><span class="self">self</span>.colors.into_iter().enumerate() {
             <span class="comment">// contour will find where the grid is &gt;= a threshold value. The main grid has one
-            // number per cell, so we can&#39;t directly use it -- the area &gt;= some cell index is
+            // number per cell, so we can't directly use it -- the area &gt;= some cell index is
             // meaningless. Per cell, make a new grid that just has that cell.
             </span><span class="kw">let </span>grid: Grid&lt;f64&gt; = Grid {
                 width: <span class="self">self</span>.grid.width,
@@ -582,7 +584,7 @@
                 }
             }
 
-            <span class="comment">// Sometimes one cell &quot;leaks&quot; out of the neighbourhood boundary. Not sure why. But we
+            <span class="comment">// Sometimes one cell "leaks" out of the neighbourhood boundary. Not sure why. But we
             // can just clip the result.
             </span><span class="kw">let </span><span class="kw-2">mut </span>clipped = Vec::new();
             <span class="kw">for </span>p <span class="kw">in </span>cell_polygons {
@@ -603,7 +605,7 @@
 }
 
 <span class="doccomment">/// Returns a set of adjacent indices. The pairs are symmetric -- (x, y) and (y, x) will both be
-/// populated. Adjacency with boundary_marker doesn&#39;t count.
+/// populated. Adjacency with boundary_marker doesn't count.
 </span><span class="kw">fn </span>diffusion(grid: <span class="kw-2">&amp;mut </span>Grid&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt;, boundary_marker: usize) -&gt; HashSet&lt;(usize, usize)&gt; {
     <span class="comment">// Grid indices to propagate
     </span><span class="kw">let </span><span class="kw-2">mut </span>queue: VecDeque&lt;usize&gt; = VecDeque::new();
@@ -611,7 +613,7 @@
     <span class="comment">// Initially seed the queue with all colored tiles
     </span><span class="kw">for </span>(idx, value) <span class="kw">in </span>grid.data.iter().enumerate() {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = value {
-            <span class="comment">// Don&#39;t expand the boundary tiles
+            <span class="comment">// Don't expand the boundary tiles
             </span><span class="kw">if </span><span class="kw-2">*</span>x != boundary_marker {
                 queue.push_back(idx);
             }
@@ -624,14 +626,14 @@
         <span class="kw">let </span>current_idx = queue.pop_front().unwrap();
         <span class="kw">let </span>current_color = grid.data[current_idx].unwrap();
         <span class="kw">let </span>(current_x, current_y) = grid.xy(current_idx);
-        <span class="comment">// Don&#39;t flood to diagonal neighbors. That would usually result in &quot;leaking&quot; out past the
-        // boundary tiles when the boundary polygon isn&#39;t axis-aligned.
-        // TODO But this still does &quot;leak&quot; out sometimes -- the cell covering 22nd/Lynn, for
+        <span class="comment">// Don't flood to diagonal neighbors. That would usually result in "leaking" out past the
+        // boundary tiles when the boundary polygon isn't axis-aligned.
+        // TODO But this still does "leak" out sometimes -- the cell covering 22nd/Lynn, for
         // example.
         </span><span class="kw">for </span>(next_x, next_y) <span class="kw">in </span>grid.orthogonal_neighbors(current_x, current_y) {
             <span class="kw">let </span>next_idx = grid.idx(next_x, next_y);
             <span class="kw">if let </span><span class="prelude-val">Some</span>(prev_color) = grid.data[next_idx] {
-                <span class="comment">// If the color doesn&#39;t match our current_color, we&#39;ve found the border between two
+                <span class="comment">// If the color doesn't match our current_color, we've found the border between two
                 // cells.
                 </span><span class="kw">if </span>current_color != prev_color
                     &amp;&amp; current_color != boundary_marker
@@ -640,7 +642,7 @@
                     adjacencies.insert((current_color, prev_color));
                     adjacencies.insert((prev_color, current_color));
                 }
-                <span class="comment">// If a color has been assigned, don&#39;t flood any further.
+                <span class="comment">// If a color has been assigned, don't flood any further.
             </span>} <span class="kw">else </span>{
                 grid.data[next_idx] = <span class="prelude-val">Some</span>(current_color);
                 queue.push_back(next_idx);
@@ -668,8 +670,8 @@
             }
         }
 
-        <span class="comment">// If there are multiple colors available, prefer one that hasn&#39;t been used anywhere yet.
-        // Cells far apart shouldn&#39;t seem related to the user.
+        <span class="comment">// If there are multiple colors available, prefer one that hasn't been used anywhere yet.
+        // Cells far apart shouldn't seem related to the user.
         </span><span class="kw">let </span><span class="kw-2">mut </span>choice = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>backup = <span class="prelude-val">None</span>;
         <span class="kw">for </span>(idx, available) <span class="kw">in </span>available_colors.into_iter().enumerate() {

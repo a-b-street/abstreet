@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/parking_overhead.rs`."><title>parking_overhead.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/parking_overhead.rs`."><title>parking_overhead.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -271,31 +273,31 @@
                 Widget::row(<span class="macro">vec!</span>[
                     Text::from_multiline(<span class="macro">vec!</span>[
                         Line(
-                            <span class="string">&quot;Trips taken by car also include time to walk between the building \
-                             and parking spot, as well as the time to find parking.&quot;</span>,
+                            <span class="string">"Trips taken by car also include time to walk between the building \
+                             and parking spot, as well as the time to find parking."</span>,
                         ),
-                        Line(<span class="string">&quot;Overhead is 1 - driving time / total time&quot;</span>),
-                        Line(<span class="string">&quot;Ideally, overhead is 0% -- the entire trip is just spent driving.&quot;</span>),
-                        Line(<span class="string">&quot;&quot;</span>),
-                        Line(<span class="string">&quot;High overhead could mean:&quot;</span>),
+                        Line(<span class="string">"Overhead is 1 - driving time / total time"</span>),
+                        Line(<span class="string">"Ideally, overhead is 0% -- the entire trip is just spent driving."</span>),
+                        Line(<span class="string">""</span>),
+                        Line(<span class="string">"High overhead could mean:"</span>),
                         Line(
-                            <span class="string">&quot;- the car burned more resources and caused more traffic looking for \
-                             parking&quot;</span>,
+                            <span class="string">"- the car burned more resources and caused more traffic looking for \
+                             parking"</span>,
                         ),
                         Line(
-                            <span class="string">&quot;- somebody with impaired movement had to walk far to reach their \
-                             vehicle&quot;</span>,
+                            <span class="string">"- somebody with impaired movement had to walk far to reach their \
+                             vehicle"</span>,
                         ),
-                        Line(<span class="string">&quot;- the person was inconvenienced&quot;</span>),
-                        Line(<span class="string">&quot;&quot;</span>),
+                        Line(<span class="string">"- the person was inconvenienced"</span>),
+                        Line(<span class="string">""</span>),
                         Line(
-                            <span class="string">&quot;Note: Trips beginning/ending outside the map have an artificially \
-                             high overhead,&quot;</span>,
+                            <span class="string">"Note: Trips beginning/ending outside the map have an artificially \
+                             high overhead,"</span>,
                         ),
-                        Line(<span class="string">&quot;since the time spent driving off-map isn&#39;t shown here.&quot;</span>),
+                        Line(<span class="string">"since the time spent driving off-map isn't shown here."</span>),
                     ])
                     .into_widget(ctx),
-                    Filler::square_width(ctx, <span class="number">0.15</span>).named(<span class="string">&quot;preview&quot;</span>),
+                    Filler::square_width(ctx, <span class="number">0.15</span>).named(<span class="string">"preview"</span>),
                 ])
                 .evenly_spaced(),
                 table.render(ctx, app),
@@ -323,7 +325,7 @@
                     <span class="self">self</span>.table.replace_render(ctx, app, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel);
                 } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(idx) = x.parse::&lt;usize&gt;() {
                     <span class="kw">return </span>open_trip_transition(app, idx);
-                } <span class="kw">else if </span>x == <span class="string">&quot;close&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"close" </span>{
                     <span class="kw">return </span>Transition::Pop;
                 } <span class="kw">else </span>{
                     <span class="macro">unreachable!</span>()
@@ -425,13 +427,13 @@
         },
         to_controls: Box::new(|ctx, <span class="kw">_</span>, state| {
             Widget::row(<span class="macro">vec!</span>[
-                Toggle::switch(ctx, <span class="string">&quot;starting off-map&quot;</span>, <span class="prelude-val">None</span>, state.starts_off_map),
-                Toggle::switch(ctx, <span class="string">&quot;ending off-map&quot;</span>, <span class="prelude-val">None</span>, state.ends_off_map),
+                Toggle::switch(ctx, <span class="string">"starting off-map"</span>, <span class="prelude-val">None</span>, state.starts_off_map),
+                Toggle::switch(ctx, <span class="string">"ending off-map"</span>, <span class="prelude-val">None</span>, state.ends_off_map),
             ])
         }),
         from_controls: Box::new(|panel| Filters {
-            starts_off_map: panel.is_checked(<span class="string">&quot;starting off-map&quot;</span>),
-            ends_off_map: panel.is_checked(<span class="string">&quot;ending off-map&quot;</span>),
+            starts_off_map: panel.is_checked(<span class="string">"starting off-map"</span>),
+            ends_off_map: panel.is_checked(<span class="string">"ending off-map"</span>),
         }),
         apply: Box::new(|state, x, <span class="kw">_</span>| {
             <span class="kw">if </span>!state.starts_off_map &amp;&amp; x.starts_off_map {
@@ -445,42 +447,42 @@
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>table = Table::new(
-        <span class="string">&quot;parking_overhead&quot;</span>,
+        <span class="string">"parking_overhead"</span>,
         produce_raw_data(app),
         Box::new(|x| x.trip.<span class="number">0</span>.to_string()),
-        <span class="string">&quot;Percent overhead&quot;</span>,
+        <span class="string">"Percent overhead"</span>,
         filter,
     );
-    table.static_col(<span class="string">&quot;Trip ID&quot;</span>, Box::new(|x| x.trip.<span class="number">0</span>.to_string()));
+    table.static_col(<span class="string">"Trip ID"</span>, Box::new(|x| x.trip.<span class="number">0</span>.to_string()));
     table.column(
-        <span class="string">&quot;Total duration&quot;</span>,
+        <span class="string">"Total duration"</span>,
         Box::new(|ctx, app, x| Text::from(x.total_duration.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.total_duration))),
     );
     table.column(
-        <span class="string">&quot;Driving duration&quot;</span>,
+        <span class="string">"Driving duration"</span>,
         Box::new(|ctx, app, x| {
             Text::from(x.driving_duration.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)
         }),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.driving_duration))),
     );
     table.column(
-        <span class="string">&quot;Parking duration&quot;</span>,
+        <span class="string">"Parking duration"</span>,
         Box::new(|ctx, app, x| {
             Text::from(x.parking_duration.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)
         }),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.parking_duration))),
     );
     table.column(
-        <span class="string">&quot;Walking duration&quot;</span>,
+        <span class="string">"Walking duration"</span>,
         Box::new(|ctx, app, x| {
             Text::from(x.walking_duration.to_string(<span class="kw-2">&amp;</span>app.opts.units)).render(ctx)
         }),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.walking_duration))),
     );
     table.column(
-        <span class="string">&quot;Percent overhead&quot;</span>,
-        Box::new(|ctx, <span class="kw">_</span>, x| Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}%&quot;</span>, x.percent_overhead)).render(ctx)),
+        <span class="string">"Percent overhead"</span>,
+        Box::new(|ctx, <span class="kw">_</span>, x| Text::from(<span class="macro">format!</span>(<span class="string">"{}%"</span>, x.percent_overhead)).render(ctx)),
         Col::Sortable(Box::new(|rows| rows.sort_by_key(|x| x.percent_overhead))),
     );
 

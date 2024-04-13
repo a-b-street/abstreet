@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/devtools/story.rs`."><title>story.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/devtools/story.rs`."><title>story.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -458,7 +460,7 @@
     dirty: bool,
 }
 
-<span class="comment">// TODO We&#39;ll constantly rebuild the world, so these are indices into a list of markers. Maybe we
+<span class="comment">// TODO We'll constantly rebuild the world, so these are indices into a list of markers. Maybe we
 // should just assign opaque IDs and hash into them. (Deleting a marker in the middle of the list
 // would mean changing IDs of everything after it.)
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -486,24 +488,24 @@
     <span class="kw">fn </span>rebuild_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
         <span class="self">self</span>.panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Story map editor&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Story map editor"</span>).small_heading().into_widget(ctx),
                 Widget::vert_separator(ctx, <span class="number">30.0</span>),
                 ctx.style()
                     .btn_outline
                     .popup(<span class="kw-2">&amp;</span><span class="self">self</span>.story.name)
                     .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, <span class="string">&quot;load&quot;</span>),
+                    .build_widget(ctx, <span class="string">"load"</span>),
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>)
+                    .icon(<span class="string">"system/assets/tools/save.svg"</span>)
                     .hotkey(lctrl(Key::S))
                     .disabled(!<span class="self">self</span>.dirty)
-                    .build_widget(ctx, <span class="string">&quot;save&quot;</span>),
+                    .build_widget(ctx, <span class="string">"save"</span>),
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style()
                 .btn_plain
-                .icon_text(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>, <span class="string">&quot;Draw freehand&quot;</span>)
+                .icon_text(<span class="string">"system/assets/tools/select.svg"</span>, <span class="string">"Draw freehand"</span>)
                 .hotkey(Key::F)
                 .build_def(ctx),
         ]))
@@ -517,7 +519,7 @@
         <span class="kw">for </span>(idx, marker) <span class="kw">in </span><span class="self">self</span>.story.markers.iter().enumerate() {
             <span class="kw">let </span><span class="kw-2">mut </span>draw_normal = GeomBatch::new();
             <span class="kw">let </span>label_center = <span class="kw">if </span>marker.pts.len() == <span class="number">1 </span>{
-                <span class="comment">// TODO Erase the &quot;B&quot; from it though...
+                <span class="comment">// TODO Erase the "B" from it though...
                 </span>draw_normal = map_gui::tools::goal_marker(ctx, marker.pts[<span class="number">0</span>], <span class="number">2.0</span>);
                 marker.pts[<span class="number">0</span>]
             } <span class="kw">else </span>{
@@ -550,7 +552,7 @@
                 .hitbox(hitbox)
                 .draw(draw_normal)
                 .draw_hovered(draw_hovered)
-                .hotkey(Key::Backspace, <span class="string">&quot;delete&quot;</span>)
+                .hotkey(Key::Backspace, <span class="string">"delete"</span>)
                 .clickable()
                 .draggable()
                 .build(ctx);
@@ -576,7 +578,7 @@
                 <span class="kw">return </span>Transition::Push(EditingMarker::new_state(
                     ctx,
                     <span class="self">self</span>.story.markers.len() - <span class="number">1</span>,
-                    <span class="string">&quot;new marker&quot;</span>,
+                    <span class="string">"new marker"</span>,
                 ));
             }
             WorldOutcome::Dragging {
@@ -592,7 +594,7 @@
                 <span class="self">self</span>.rebuild_panel(ctx);
                 <span class="self">self</span>.rebuild_world(ctx);
             }
-            WorldOutcome::Keypress(<span class="string">&quot;delete&quot;</span>, MarkerID(idx)) =&gt; {
+            WorldOutcome::Keypress(<span class="string">"delete"</span>, MarkerID(idx)) =&gt; {
                 <span class="self">self</span>.story.markers.remove(idx);
                 <span class="self">self</span>.dirty = <span class="bool-val">true</span>;
                 <span class="self">self</span>.rebuild_panel(ctx);
@@ -610,15 +612,15 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="comment">// TODO autosave
                     </span><span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;save&quot; </span>=&gt; {
-                    <span class="kw">if </span><span class="self">self</span>.story.name == <span class="string">&quot;new story&quot; </span>{
+                <span class="string">"save" </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.story.name == <span class="string">"new story" </span>{
                         <span class="kw">return </span>Transition::Push(PromptInput::new_state(
                             ctx,
-                            <span class="string">&quot;Name this story map&quot;</span>,
+                            <span class="string">"Name this story map"</span>,
                             String::new(),
                             Box::new(|name, <span class="kw">_</span>, <span class="kw">_</span>| {
                                 Transition::Multi(<span class="macro">vec!</span>[
@@ -640,11 +642,11 @@
                         <span class="self">self</span>.rebuild_panel(ctx);
                     }
                 }
-                <span class="string">&quot;load&quot; </span>=&gt; {
+                <span class="string">"load" </span>=&gt; {
                     <span class="comment">// TODO autosave
                     </span><span class="kw">let </span><span class="kw-2">mut </span>choices = Vec::new();
                     <span class="kw">for </span>(name, story) <span class="kw">in
-                        </span>abstio::load_all_objects::&lt;RecordedStoryMap&gt;(abstio::path_player(<span class="string">&quot;stories&quot;</span>))
+                        </span>abstio::load_all_objects::&lt;RecordedStoryMap&gt;(abstio::path_player(<span class="string">"stories"</span>))
                     {
                         <span class="kw">if </span>story.name == <span class="self">self</span>.story.name {
                             <span class="kw">continue</span>;
@@ -654,16 +656,16 @@
                         }
                     }
                     choices.push(Choice::new(
-                        <span class="string">&quot;new story&quot;</span>,
+                        <span class="string">"new story"</span>,
                         StoryMap {
-                            name: <span class="string">&quot;new story&quot;</span>.to_string(),
+                            name: <span class="string">"new story"</span>.to_string(),
                             markers: Vec::new(),
                         },
                     ));
 
                     <span class="kw">return </span>Transition::Push(ChooseSomething::new_state(
                         ctx,
-                        <span class="string">&quot;Load story&quot;</span>,
+                        <span class="string">"Load story"</span>,
                         choices,
                         Box::new(|story, ctx, <span class="kw">_</span>| {
                             Transition::Multi(<span class="macro">vec!</span>[
@@ -673,7 +675,7 @@
                         }),
                     ));
                 }
-                <span class="string">&quot;Draw freehand&quot; </span>=&gt; {
+                <span class="string">"Draw freehand" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(Box::new(DrawFreehand {
                         lasso: Lasso::new(Distance::meters(<span class="number">1.0</span>)),
                         new_idx: <span class="self">self</span>.story.markers.len(),
@@ -719,7 +721,7 @@
 <span class="kw">impl </span>StoryMap {
     <span class="kw">fn </span>new() -&gt; StoryMap {
         StoryMap {
-            name: <span class="string">&quot;new story&quot;</span>.to_string(),
+            name: <span class="string">"new story"</span>.to_string(),
             markers: Vec::new(),
         }
     }
@@ -753,7 +755,7 @@
                 .collect(),
         };
         abstio::write_json(
-            abstio::path_player(<span class="macro">format!</span>(<span class="string">&quot;stories/{}.json&quot;</span>, story.name)),
+            abstio::path_player(<span class="macro">format!</span>(<span class="string">"stories/{}.json"</span>, story.name)),
             <span class="kw-2">&amp;</span>story,
         );
     }
@@ -767,14 +769,14 @@
     <span class="kw">fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, idx: usize, label: <span class="kw-2">&amp;</span>str) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Editing marker&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Editing marker"</span>).small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            ctx.style().btn_outline.text(<span class="string">&quot;delete&quot;</span>).build_def(ctx),
-            TextBox::default_widget(ctx, <span class="string">&quot;label&quot;</span>, label.to_string()),
+            ctx.style().btn_outline.text(<span class="string">"delete"</span>).build_def(ctx),
+            TextBox::default_widget(ctx, <span class="string">"label"</span>, label.to_string()),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;confirm&quot;</span>)
+                .text(<span class="string">"confirm"</span>)
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))
@@ -792,10 +794,10 @@
         panel: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-            <span class="string">&quot;confirm&quot; </span>=&gt; {
+            <span class="string">"close" </span>=&gt; Transition::Pop,
+            <span class="string">"confirm" </span>=&gt; {
                 <span class="kw">let </span>idx = <span class="self">self</span>.idx;
-                <span class="kw">let </span>label = panel.text_box(<span class="string">&quot;label&quot;</span>);
+                <span class="kw">let </span>label = panel.text_box(<span class="string">"label"</span>);
                 Transition::Multi(<span class="macro">vec!</span>[
                     Transition::Pop,
                     Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, <span class="kw">_</span>| {
@@ -808,7 +810,7 @@
                     })),
                 ])
             }
-            <span class="string">&quot;delete&quot; </span>=&gt; {
+            <span class="string">"delete" </span>=&gt; {
                 <span class="kw">let </span>idx = <span class="self">self</span>.idx;
                 Transition::Multi(<span class="macro">vec!</span>[
                     Transition::Pop,
@@ -853,7 +855,7 @@
                     editor.rebuild_panel(ctx);
                     editor.rebuild_world(ctx);
                 })),
-                Transition::Push(EditingMarker::new_state(ctx, idx, <span class="string">&quot;new marker&quot;</span>)),
+                Transition::Push(EditingMarker::new_state(ctx, idx, <span class="string">"new marker"</span>)),
             ]);
         }
 

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/options.rs`."><title>options.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/options.rs`."><title>options.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -435,7 +437,7 @@
 </span><span class="comment">// TODO SimOptions stuff too
 </span><span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>Options {
-    <span class="doccomment">/// Dev mode exposes experimental tools useful for debugging, but that&#39;d likely confuse most
+    <span class="doccomment">/// Dev mode exposes experimental tools useful for debugging, but that'd likely confuse most
     /// players.
     </span><span class="kw">pub </span>dev: bool,
     <span class="doccomment">/// Every time we draw, render all agents zoomed in. Extremely slow. Just used to flush out
@@ -459,7 +461,7 @@
     <span class="doccomment">/// Draw crosswalks and unmarked crossings.
     </span><span class="kw">pub </span>show_crosswalks: bool,
     <span class="doccomment">/// If true, draw an icon for traffic signals both when zoomed and unzoomed. If false, color
-    /// the intersection when unzoomed and render the signal&#39;s current state when zoomed.
+    /// the intersection when unzoomed and render the signal's current state when zoomed.
     </span><span class="kw">pub </span>show_traffic_signal_icon: bool,
     <span class="doccomment">/// If true, modify several basemap features to de-emphasize them: border intersections
     </span><span class="kw">pub </span>simplify_basemap: bool,
@@ -471,7 +473,7 @@
 
     <span class="doccomment">/// How much to advance the sim with one of the speed controls
     </span><span class="kw">pub </span>time_increment: Duration,
-    <span class="doccomment">/// When time warping, don&#39;t draw to speed up simulation
+    <span class="doccomment">/// When time warping, don't draw to speed up simulation
     </span><span class="kw">pub </span>dont_draw_time_warp: bool,
     <span class="doccomment">/// The delay threshold to halt on when jumping to the next delay
     </span><span class="kw">pub </span>jump_to_delay: Duration,
@@ -488,14 +490,14 @@
     /// built-in defaults.
     </span><span class="kw">pub fn </span>load_or_default() -&gt; Options {
         <span class="kw">match </span>abstio::maybe_read_json::&lt;Options&gt;(
-            abstio::path_player(<span class="string">&quot;settings.json&quot;</span>),
+            abstio::path_player(<span class="string">"settings.json"</span>),
             <span class="kw-2">&amp;mut </span>Timer::throwaway(),
         ) {
             <span class="prelude-val">Ok</span>(opts) =&gt; {
                 <span class="kw">return </span>opts;
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t restore settings, so using defaults. {}&quot;</span>, err);
+                <span class="macro">warn!</span>(<span class="string">"Couldn't restore settings, so using defaults. {}"</span>, err);
             }
         }
 
@@ -530,7 +532,7 @@
     }
 }
 
-<span class="doccomment">/// Different ways of drawing traffic signals. The names of these aren&#39;t super meaningful...
+<span class="doccomment">/// Different ways of drawing traffic signals. The names of these aren't super meaningful...
 </span><span class="attr">#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>TrafficSignalStyle {
     Brian,
@@ -557,51 +559,51 @@
         Box::new(OptionsPanel {
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::custom_row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Settings&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Settings"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="string">&quot;Camera controls&quot;</span>.text_widget(ctx),
+                <span class="string">"Camera controls"</span>.text_widget(ctx),
                 Widget::col(<span class="macro">vec!</span>[
                     Toggle::checkbox(
                         ctx,
-                        <span class="string">&quot;Invert direction of vertical scrolling&quot;</span>,
+                        <span class="string">"Invert direction of vertical scrolling"</span>,
                         <span class="prelude-val">None</span>,
                         ctx.canvas.settings.invert_scroll,
                     ),
                     Toggle::checkbox(
                         ctx,
-                        <span class="string">&quot;Pan map when cursor is at edge of screen&quot;</span>,
+                        <span class="string">"Pan map when cursor is at edge of screen"</span>,
                         <span class="prelude-val">None</span>,
                         ctx.canvas.settings.edge_auto_panning,
                     )
-                    .named(<span class="string">&quot;autopan&quot;</span>),
+                    .named(<span class="string">"autopan"</span>),
                     Toggle::checkbox(
                         ctx,
-                        <span class="string">&quot;Use touchpad to pan and hold Control to zoom&quot;</span>,
+                        <span class="string">"Use touchpad to pan and hold Control to zoom"</span>,
                         <span class="prelude-val">None</span>,
                         ctx.canvas.settings.touchpad_to_move,
                     ),
                     Toggle::checkbox(
                         ctx,
-                        <span class="string">&quot;Use arrow keys to pan and Q/W to zoom&quot;</span>,
+                        <span class="string">"Use arrow keys to pan and Q/W to zoom"</span>,
                         <span class="prelude-val">None</span>,
                         ctx.canvas.settings.keys_to_pan,
                     ),
                     Widget::row(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Scroll speed for menus&quot;</span>.text_widget(ctx).centered_vert(),
+                        <span class="string">"Scroll speed for menus"</span>.text_widget(ctx).centered_vert(),
                         Spinner::widget(
                             ctx,
-                            <span class="string">&quot;gui_scroll_speed&quot;</span>,
+                            <span class="string">"gui_scroll_speed"</span>,
                             (<span class="number">1</span>, <span class="number">50</span>),
                             ctx.canvas.settings.gui_scroll_speed,
                             <span class="number">1</span>,
                         ),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Zoom speed for the map&quot;</span>.text_widget(ctx).centered_vert(),
+                        <span class="string">"Zoom speed for the map"</span>.text_widget(ctx).centered_vert(),
                         Spinner::widget(
                             ctx,
-                            <span class="string">&quot;canvas_scroll_speed&quot;</span>,
+                            <span class="string">"canvas_scroll_speed"</span>,
                             (<span class="number">1</span>, <span class="number">30</span>),
                             ctx.canvas.settings.canvas_scroll_speed,
                             <span class="number">1</span>,
@@ -610,69 +612,69 @@
                 ])
                 .bg(app.cs().inner_panel_bg)
                 .padding(<span class="number">8</span>),
-                <span class="string">&quot;Appearance&quot;</span>.text_widget(ctx),
+                <span class="string">"Appearance"</span>.text_widget(ctx),
                 Widget::col(<span class="macro">vec!</span>[
                     Widget::row(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Traffic signal rendering:&quot;</span>.text_widget(ctx),
+                        <span class="string">"Traffic signal rendering:"</span>.text_widget(ctx),
                         Widget::dropdown(
                             ctx,
-                            <span class="string">&quot;Traffic signal rendering&quot;</span>,
+                            <span class="string">"Traffic signal rendering"</span>,
                             app.opts().traffic_signal_style.clone(),
                             <span class="macro">vec!</span>[
-                                Choice::new(<span class="string">&quot;Default (Brian&#39;s style)&quot;</span>, TrafficSignalStyle::Brian),
-                                Choice::new(<span class="string">&quot;Yuwen&#39;s style&quot;</span>, TrafficSignalStyle::Yuwen),
+                                Choice::new(<span class="string">"Default (Brian's style)"</span>, TrafficSignalStyle::Brian),
+                                Choice::new(<span class="string">"Yuwen's style"</span>, TrafficSignalStyle::Yuwen),
                                 Choice::new(
-                                    <span class="string">&quot;arrows showing individual turns (to debug)&quot;</span>,
+                                    <span class="string">"arrows showing individual turns (to debug)"</span>,
                                     TrafficSignalStyle::IndividualTurnArrows,
                                 ),
                             ],
                         ),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Camera angle:&quot;</span>.text_widget(ctx),
+                        <span class="string">"Camera angle:"</span>.text_widget(ctx),
                         Widget::dropdown(
                             ctx,
-                            <span class="string">&quot;Camera angle&quot;</span>,
+                            <span class="string">"Camera angle"</span>,
                             app.opts().camera_angle.clone(),
                             <span class="macro">vec!</span>[
-                                Choice::new(<span class="string">&quot;Top-down&quot;</span>, CameraAngle::TopDown),
-                                Choice::new(<span class="string">&quot;Isometric (northeast)&quot;</span>, CameraAngle::IsometricNE),
-                                Choice::new(<span class="string">&quot;Isometric (northwest)&quot;</span>, CameraAngle::IsometricNW),
-                                Choice::new(<span class="string">&quot;Isometric (southeast)&quot;</span>, CameraAngle::IsometricSE),
-                                Choice::new(<span class="string">&quot;Isometric (southwest)&quot;</span>, CameraAngle::IsometricSW),
-                                Choice::new(<span class="string">&quot;Abstract (just symbols)&quot;</span>, CameraAngle::Abstract),
+                                Choice::new(<span class="string">"Top-down"</span>, CameraAngle::TopDown),
+                                Choice::new(<span class="string">"Isometric (northeast)"</span>, CameraAngle::IsometricNE),
+                                Choice::new(<span class="string">"Isometric (northwest)"</span>, CameraAngle::IsometricNW),
+                                Choice::new(<span class="string">"Isometric (southeast)"</span>, CameraAngle::IsometricSE),
+                                Choice::new(<span class="string">"Isometric (southwest)"</span>, CameraAngle::IsometricSW),
+                                Choice::new(<span class="string">"Abstract (just symbols)"</span>, CameraAngle::Abstract),
                             ],
                         ),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Color scheme:&quot;</span>.text_widget(ctx),
+                        <span class="string">"Color scheme:"</span>.text_widget(ctx),
                         Widget::dropdown(
                             ctx,
-                            <span class="string">&quot;Color scheme&quot;</span>,
+                            <span class="string">"Color scheme"</span>,
                             app.opts().color_scheme,
                             ColorSchemeChoice::choices(),
                         ),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Camera zoom to switch to unzoomed view&quot;</span>.text_widget(ctx),
+                        <span class="string">"Camera zoom to switch to unzoomed view"</span>.text_widget(ctx),
                         Widget::dropdown(
                             ctx,
-                            <span class="string">&quot;min zoom&quot;</span>,
+                            <span class="string">"min zoom"</span>,
                             ctx.canvas.settings.min_zoom_for_detail,
                             <span class="macro">vec!</span>[
-                                Choice::new(<span class="string">&quot;1.0&quot;</span>, <span class="number">1.0</span>),
-                                Choice::new(<span class="string">&quot;2.0&quot;</span>, <span class="number">2.0</span>),
-                                Choice::new(<span class="string">&quot;3.0&quot;</span>, <span class="number">3.0</span>),
-                                Choice::new(<span class="string">&quot;4.0&quot;</span>, <span class="number">4.0</span>),
-                                Choice::new(<span class="string">&quot;5.0&quot;</span>, <span class="number">5.0</span>),
-                                Choice::new(<span class="string">&quot;6.0&quot;</span>, <span class="number">6.0</span>),
+                                Choice::new(<span class="string">"1.0"</span>, <span class="number">1.0</span>),
+                                Choice::new(<span class="string">"2.0"</span>, <span class="number">2.0</span>),
+                                Choice::new(<span class="string">"3.0"</span>, <span class="number">3.0</span>),
+                                Choice::new(<span class="string">"4.0"</span>, <span class="number">4.0</span>),
+                                Choice::new(<span class="string">"5.0"</span>, <span class="number">5.0</span>),
+                                Choice::new(<span class="string">"6.0"</span>, <span class="number">6.0</span>),
                             ],
                         ),
                     ]),
-                    Widget::row(<span class="macro">vec!</span>[<span class="string">&quot;Language&quot;</span>.text_widget(ctx), {
+                    Widget::row(<span class="macro">vec!</span>[<span class="string">"Language"</span>.text_widget(ctx), {
                         <span class="kw">let </span><span class="kw-2">mut </span>default = app.opts().language.clone();
                         <span class="kw">let </span><span class="kw-2">mut </span>have_default = <span class="bool-val">false</span>;
-                        <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::new(<span class="string">&quot;Map native language&quot;</span>, <span class="prelude-val">None</span>)];
+                        <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::new(<span class="string">"Map native language"</span>, <span class="prelude-val">None</span>)];
                         <span class="kw">for </span>lang <span class="kw">in </span>app.map().get_languages() {
                             <span class="kw">if </span>default.as_ref() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>lang) {
                                 have_default = <span class="bool-val">true</span>;
@@ -684,25 +686,25 @@
                         </span><span class="kw">if </span>!have_default {
                             default = <span class="prelude-val">None</span>;
                         }
-                        Widget::dropdown(ctx, <span class="string">&quot;language&quot;</span>, default, choices)
+                        Widget::dropdown(ctx, <span class="string">"language"</span>, default, choices)
                     }]),
                     Toggle::choice(
                         ctx,
-                        <span class="string">&quot;metric / imperial units&quot;</span>,
-                        <span class="string">&quot;metric&quot;</span>,
-                        <span class="string">&quot;imperial&quot;</span>,
+                        <span class="string">"metric / imperial units"</span>,
+                        <span class="string">"metric"</span>,
+                        <span class="string">"imperial"</span>,
                         <span class="prelude-val">None</span>,
                         app.opts().units.metric,
                     ),
                 ])
                 .bg(app.cs().inner_panel_bg)
                 .padding(<span class="number">8</span>),
-                <span class="string">&quot;Debug&quot;</span>.text_widget(ctx),
+                <span class="string">"Debug"</span>.text_widget(ctx),
                 Widget::col(<span class="macro">vec!</span>[
-                    Toggle::checkbox(ctx, <span class="string">&quot;Enable developer mode&quot;</span>, <span class="prelude-val">None</span>, app.opts().dev),
+                    Toggle::checkbox(ctx, <span class="string">"Enable developer mode"</span>, <span class="prelude-val">None</span>, app.opts().dev),
                     Toggle::checkbox(
                         ctx,
-                        <span class="string">&quot;Draw all agents to debug geometry (Slow!)&quot;</span>,
+                        <span class="string">"Draw all agents to debug geometry (Slow!)"</span>,
                         <span class="prelude-val">None</span>,
                         app.opts().debug_all_agents,
                     ),
@@ -711,7 +713,7 @@
                 .padding(<span class="number">8</span>),
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Apply&quot;</span>)
+                    .text(<span class="string">"Apply"</span>)
                     .hotkey(Key::Enter)
                     .build_def(ctx)
                     .centered_horiz(),
@@ -725,50 +727,50 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; widgetry::Transition&lt;A&gt; {
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>widgetry::Transition::Pop;
                 }
-                <span class="string">&quot;Apply&quot; </span>=&gt; {
+                <span class="string">"Apply" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>opts = app.opts().clone();
-                    opts.dev = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Enable developer mode&quot;</span>);
+                    opts.dev = <span class="self">self</span>.panel.is_checked(<span class="string">"Enable developer mode"</span>);
                     opts.debug_all_agents = <span class="self">self
                         </span>.panel
-                        .is_checked(<span class="string">&quot;Draw all agents to debug geometry (Slow!)&quot;</span>);
+                        .is_checked(<span class="string">"Draw all agents to debug geometry (Slow!)"</span>);
 
                     ctx.canvas.settings.invert_scroll = <span class="self">self
                         </span>.panel
-                        .is_checked(<span class="string">&quot;Invert direction of vertical scrolling&quot;</span>);
+                        .is_checked(<span class="string">"Invert direction of vertical scrolling"</span>);
                     ctx.canvas.settings.touchpad_to_move = <span class="self">self
                         </span>.panel
-                        .is_checked(<span class="string">&quot;Use touchpad to pan and hold Control to zoom&quot;</span>);
+                        .is_checked(<span class="string">"Use touchpad to pan and hold Control to zoom"</span>);
                     ctx.canvas.settings.keys_to_pan = <span class="self">self
                         </span>.panel
-                        .is_checked(<span class="string">&quot;Use arrow keys to pan and Q/W to zoom&quot;</span>);
-                    ctx.canvas.settings.edge_auto_panning = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;autopan&quot;</span>);
-                    ctx.canvas.settings.gui_scroll_speed = <span class="self">self</span>.panel.spinner(<span class="string">&quot;gui_scroll_speed&quot;</span>);
+                        .is_checked(<span class="string">"Use arrow keys to pan and Q/W to zoom"</span>);
+                    ctx.canvas.settings.edge_auto_panning = <span class="self">self</span>.panel.is_checked(<span class="string">"autopan"</span>);
+                    ctx.canvas.settings.gui_scroll_speed = <span class="self">self</span>.panel.spinner(<span class="string">"gui_scroll_speed"</span>);
                     ctx.canvas.settings.canvas_scroll_speed =
-                        <span class="self">self</span>.panel.spinner(<span class="string">&quot;canvas_scroll_speed&quot;</span>);
-                    ctx.canvas.settings.min_zoom_for_detail = <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;min zoom&quot;</span>);
-                    <span class="comment">// Copy the settings into the Options struct, so they&#39;re saved.
+                        <span class="self">self</span>.panel.spinner(<span class="string">"canvas_scroll_speed"</span>);
+                    ctx.canvas.settings.min_zoom_for_detail = <span class="self">self</span>.panel.dropdown_value(<span class="string">"min zoom"</span>);
+                    <span class="comment">// Copy the settings into the Options struct, so they're saved.
                     </span>opts.canvas_settings = ctx.canvas.settings.clone();
 
-                    <span class="kw">let </span>style = <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;Traffic signal rendering&quot;</span>);
+                    <span class="kw">let </span>style = <span class="self">self</span>.panel.dropdown_value(<span class="string">"Traffic signal rendering"</span>);
                     <span class="kw">if </span>opts.traffic_signal_style != style {
                         opts.traffic_signal_style = style;
-                        <span class="macro">println!</span>(<span class="string">&quot;Rerendering traffic signals...&quot;</span>);
+                        <span class="macro">println!</span>(<span class="string">"Rerendering traffic signals..."</span>);
                         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;mut </span>app.mut_draw_map().intersections {
                             <span class="kw-2">*</span>i.draw_traffic_signal.borrow_mut() = <span class="prelude-val">None</span>;
                         }
                     }
 
-                    <span class="kw">let </span>camera_angle = <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;Camera angle&quot;</span>);
+                    <span class="kw">let </span>camera_angle = <span class="self">self</span>.panel.dropdown_value(<span class="string">"Camera angle"</span>);
                     <span class="kw">if </span>opts.camera_angle != camera_angle {
                         opts.camera_angle = camera_angle;
-                        ctx.loading_screen(<span class="string">&quot;rerendering buildings&quot;</span>, |ctx, timer| {
+                        ctx.loading_screen(<span class="string">"rerendering buildings"</span>, |ctx, timer| {
                             <span class="kw">let </span><span class="kw-2">mut </span>all_buildings = GeomBatch::new();
                             <span class="kw">let </span><span class="kw-2">mut </span>all_building_outlines = GeomBatch::new();
                             timer
-                                .start_iter(<span class="string">&quot;rendering buildings&quot;</span>, app.map().all_buildings().len());
+                                .start_iter(<span class="string">"rendering buildings"</span>, app.map().all_buildings().len());
                             <span class="kw">for </span>b <span class="kw">in </span>app.map().all_buildings() {
                                 timer.next();
                                 DrawBuilding::new(
@@ -785,24 +787,24 @@
                                 r.clear_rendering();
                             }
 
-                            timer.start(<span class="string">&quot;upload geometry&quot;</span>);
+                            timer.start(<span class="string">"upload geometry"</span>);
                             app.mut_draw_map().draw_all_buildings = all_buildings.upload(ctx);
                             app.mut_draw_map().draw_all_building_outlines =
                                 all_building_outlines.upload(ctx);
-                            timer.stop(<span class="string">&quot;upload geometry&quot;</span>);
+                            timer.stop(<span class="string">"upload geometry"</span>);
                         });
                     }
 
-                    <span class="kw">if </span>app.change_color_scheme(ctx, <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;Color scheme&quot;</span>)) {
-                        <span class="comment">// change_color_scheme doesn&#39;t modify our local copy of Options!
+                    <span class="kw">if </span>app.change_color_scheme(ctx, <span class="self">self</span>.panel.dropdown_value(<span class="string">"Color scheme"</span>)) {
+                        <span class="comment">// change_color_scheme doesn't modify our local copy of Options!
                         </span>opts.color_scheme = app.opts().color_scheme;
-                        <span class="comment">// If the player picks a different scheme, don&#39;t undo it later.
+                        <span class="comment">// If the player picks a different scheme, don't undo it later.
                         </span>opts.toggle_day_night_colors = <span class="bool-val">false</span>;
                     }
 
-                    opts.units.metric = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;metric / imperial units&quot;</span>);
+                    opts.units.metric = <span class="self">self</span>.panel.is_checked(<span class="string">"metric / imperial units"</span>);
 
-                    <span class="kw">let </span>language = <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;language&quot;</span>);
+                    <span class="kw">let </span>language = <span class="self">self</span>.panel.dropdown_value(<span class="string">"language"</span>);
                     <span class="kw">if </span>language != opts.language {
                         opts.language = language;
                         <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;mut </span>app.mut_draw_map().roads {
@@ -815,7 +817,7 @@
                     opts.show_building_driveways = <span class="bool-val">true</span>;
                     <span class="kw">let </span>show_building_outlines = opts.show_building_outlines;
                     opts.show_building_outlines = <span class="bool-val">true</span>;
-                    abstio::write_json(abstio::path_player(<span class="string">&quot;settings.json&quot;</span>), <span class="kw-2">&amp;</span>opts);
+                    abstio::write_json(abstio::path_player(<span class="string">"settings.json"</span>), <span class="kw-2">&amp;</span>opts);
                     opts.show_building_driveways = show_building_driveways;
                     opts.show_building_outlines = show_building_outlines;
                     <span class="kw-2">*</span>app.mut_opts() = opts;

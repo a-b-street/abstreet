@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/predict.rs`."><title>predict.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/predict.rs`."><title>predict.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -538,7 +540,7 @@
                     <span class="kw">if </span>count &gt; <span class="number">0 </span>{
                         <span class="comment">// TODO Word more precisely... or less verbosely.
                         </span><span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(Text::from(Line(<span class="macro">format!</span>(
-                            <span class="string">&quot;{} trips might cross this high-stress road&quot;</span>,
+                            <span class="string">"{} trips might cross this high-stress road"</span>,
                             prettyprint_usize(count)
                         ))));
                     }
@@ -548,10 +550,10 @@
 
         <span class="kw">match </span><span class="self">self</span>.top_panel.event(ctx) {
             Outcome::Clicked(x) =&gt; {
-                <span class="kw">if </span>x == <span class="string">&quot;read about how this prediction works&quot; </span>{
-                    open_browser(<span class="string">&quot;https://a-b-street.github.io/docs/software/ungap_the_map/tech_details.html#predict-impact&quot;</span>);
+                <span class="kw">if </span>x == <span class="string">"read about how this prediction works" </span>{
+                    open_browser(<span class="string">"https://a-b-street.github.io/docs/software/ungap_the_map/tech_details.html#predict-impact"</span>);
                     <span class="kw">return </span>Transition::Keep;
-                } <span class="kw">else if </span>x == <span class="string">&quot;Calculate&quot; </span>{
+                } <span class="kw">else if </span>x == <span class="string">"Calculate" </span>{
                     <span class="kw">let </span>change_key = app.primary.map.get_edits_change_key();
                     <span class="kw">let </span>map_name = app.primary.map.get_name().clone();
                     <span class="kw">let </span>scenario_name = Scenario::default_scenario_for_map(<span class="kw-2">&amp;</span>map_name);
@@ -582,7 +584,7 @@
             Outcome::Changed(<span class="kw">_</span>) =&gt; {
                 <span class="kw">let </span>(map_name, <span class="kw-2">mut </span>data) = app.session.mode_shift.take().unwrap();
                 data.filters = Filters::from_controls(<span class="kw-2">&amp;</span><span class="self">self</span>.top_panel);
-                ctx.loading_screen(<span class="string">&quot;update mode shift&quot;</span>, |ctx, timer| {
+                ctx.loading_screen(<span class="string">"update mode shift"</span>, |ctx, timer| {
                     data.recalculate_gaps(ctx, app, timer)
                 });
                 app.session.mode_shift.set(map_name, data);
@@ -624,25 +626,25 @@
             ctx.style()
                 .btn_plain
                 .icon_text(
-                    <span class="string">&quot;system/assets/tools/info.svg&quot;</span>,
-                    <span class="string">&quot;How many drivers might switch to biking?&quot;</span>,
+                    <span class="string">"system/assets/tools/info.svg"</span>,
+                    <span class="string">"How many drivers might switch to biking?"</span>,
                 )
-                .build_widget(ctx, <span class="string">&quot;read about how this prediction works&quot;</span>),
+                .build_widget(ctx, <span class="string">"read about how this prediction works"</span>),
             percentage_bar(
                 ctx,
                 Text::from(Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;{} total driving trips in this area&quot;</span>,
+                    <span class="string">"{} total driving trips in this area"</span>,
                     prettyprint_usize(data.all_candidate_trips.len())
                 ))),
                 <span class="number">0.0</span>,
             ),
             Widget::col(<span class="macro">vec!</span>[
-                <span class="string">&quot;Who might cycle if it was safer?&quot;</span>.text_widget(ctx),
+                <span class="string">"Who might cycle if it was safer?"</span>.text_widget(ctx),
                 data.filters.to_controls(ctx),
                 percentage_bar(
                     ctx,
                     Text::from(Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} / {} trips, based on these thresholds&quot;</span>,
+                        <span class="string">"{} / {} trips, based on these thresholds"</span>,
                         prettyprint_usize(data.filtered_trips.len()),
                         prettyprint_usize(data.all_candidate_trips.len())
                     ))),
@@ -651,11 +653,11 @@
             ])
             .section(ctx),
             Widget::col(<span class="macro">vec!</span>[
-                <span class="string">&quot;How many would switch based on your proposal?&quot;</span>.text_widget(ctx),
+                <span class="string">"How many would switch based on your proposal?"</span>.text_widget(ctx),
                 percentage_bar(
                     ctx,
                     Text::from(Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;{} / {} trips would switch&quot;</span>,
+                        <span class="string">"{} / {} trips would switch"</span>,
                         prettyprint_usize(data.results.num_trips),
                         prettyprint_usize(data.all_candidate_trips.len())
                     ))),
@@ -667,24 +669,24 @@
         ];
     } <span class="kw">else </span>{
         <span class="kw">let </span>scenario_name = Scenario::default_scenario_for_map(<span class="kw-2">&amp;</span>map_name);
-        <span class="kw">if </span>scenario_name == <span class="string">&quot;home_to_work&quot; </span>{
+        <span class="kw">if </span>scenario_name == <span class="string">"home_to_work" </span>{
             col =
-                <span class="macro">vec!</span>[<span class="string">&quot;This city doesn&#39;t have travel demand model data available&quot;</span>.text_widget(ctx)];
+                <span class="macro">vec!</span>[<span class="string">"This city doesn't have travel demand model data available"</span>.text_widget(ctx)];
         } <span class="kw">else </span>{
             <span class="kw">let </span>size = Manifest::load()
                 .get_entry(<span class="kw-2">&amp;</span>abstio::path_scenario(<span class="kw-2">&amp;</span>map_name, <span class="kw-2">&amp;</span>scenario_name))
                 .map(|entry| prettyprint_bytes(entry.compressed_size_bytes))
-                .unwrap_or_else(|| <span class="string">&quot;???&quot;</span>.to_string());
+                .unwrap_or_else(|| <span class="string">"???"</span>.to_string());
             col = <span class="macro">vec!</span>[
                 Text::from_multiline(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Predicting impact of your proposal may take a moment.&quot;</span>),
-                    Line(<span class="string">&quot;The application may freeze up during that time.&quot;</span>),
-                    Line(<span class="macro">format!</span>(<span class="string">&quot;We need to load a {} file&quot;</span>, size)),
+                    Line(<span class="string">"Predicting impact of your proposal may take a moment."</span>),
+                    Line(<span class="string">"The application may freeze up during that time."</span>),
+                    Line(<span class="macro">format!</span>(<span class="string">"We need to load a {} file"</span>, size)),
                 ])
                 .into_widget(ctx),
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Calculate&quot;</span>)
+                    .text(<span class="string">"Calculate"</span>)
                     .build_def(ctx),
             ];
         }
@@ -693,7 +695,7 @@
     Tab::PredictImpact.make_left_panel(ctx, app, Widget::col(col))
 }
 
-<span class="comment">// TODO For now, it&#39;s easier to just copy pieces from sandbox/dashboards/mode_shift.rs. I&#39;m not
+<span class="comment">// TODO For now, it's easier to just copy pieces from sandbox/dashboards/mode_shift.rs. I'm not
 // sure how these two tools will interact yet, so not worth trying to refactor anything. One works
 // off Scenario files directly, the other off an instantiated Scenario.
 
@@ -750,24 +752,24 @@
     <span class="kw">fn </span>to_controls(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
         Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Max biking time&quot;</span>.text_widget(ctx).centered_vert(),
+                <span class="string">"Max biking time"</span>.text_widget(ctx).centered_vert(),
                 Spinner::widget(
                     ctx,
-                    <span class="string">&quot;max_biking_time&quot;</span>,
+                    <span class="string">"max_biking_time"</span>,
                     (Duration::ZERO, Duration::hours(<span class="number">12</span>)),
                     <span class="self">self</span>.max_biking_time,
                     Duration::minutes(<span class="number">1</span>),
                 ),
             ]),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Max elevation gain&quot;</span>.text_widget(ctx).centered_vert(),
+                <span class="string">"Max elevation gain"</span>.text_widget(ctx).centered_vert(),
                 Spinner::widget_with_custom_rendering(
                     ctx,
-                    <span class="string">&quot;max_elevation_gain&quot;</span>,
+                    <span class="string">"max_elevation_gain"</span>,
                     (Distance::ZERO, Distance::meters(<span class="number">500.0</span>)),
                     <span class="self">self</span>.max_elevation_gain,
                     Distance::meters(<span class="number">1.0</span>),
-                    <span class="comment">// Even if the user&#39;s settings are set to feet, our step size is in meters, so
+                    <span class="comment">// Even if the user's settings are set to feet, our step size is in meters, so
                     // just render in meters.
                     </span>Box::new(|x| x.to_string(<span class="kw-2">&amp;</span>UnitFmt::metric())),
                 ),
@@ -777,8 +779,8 @@
 
     <span class="kw">fn </span>from_controls(panel: <span class="kw-2">&amp;</span>Panel) -&gt; Filters {
         Filters {
-            max_biking_time: panel.spinner(<span class="string">&quot;max_biking_time&quot;</span>),
-            max_elevation_gain: panel.spinner(<span class="string">&quot;max_elevation_gain&quot;</span>),
+            max_biking_time: panel.spinner(<span class="string">"max_biking_time"</span>),
+            max_elevation_gain: panel.spinner(<span class="string">"max_elevation_gain"</span>),
         }
     }
 }
@@ -795,13 +797,13 @@
     <span class="kw">fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Text {
         <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
         txt.add_line(Line(<span class="macro">format!</span>(
-            <span class="string">&quot;{} total vehicle miles traveled daily, now eliminated&quot;</span>,
+            <span class="string">"{} total vehicle miles traveled daily, now eliminated"</span>,
             prettyprint_usize(<span class="self">self</span>.total_driving_distance.to_miles() <span class="kw">as </span>usize)
         )));
         <span class="comment">// Round to 1 decimal place
         </span><span class="kw">let </span>tons = (<span class="self">self</span>.annual_co2_emissions_tons * <span class="number">10.0</span>).round() / <span class="number">10.0</span>;
         txt.add_line(Line(<span class="macro">format!</span>(
-            <span class="string">&quot;{} tons of CO2 emissions saved annually&quot;</span>,
+            <span class="string">"{} tons of CO2 emissions saved annually"</span>,
             tons
         )));
         txt
@@ -835,7 +837,7 @@
             .unwrap_or(<span class="kw-2">&amp;</span>app.primary.map);
         <span class="kw">let </span>all_candidate_trips = timer
             .parallelize(
-                <span class="string">&quot;analyze trips&quot;</span>,
+                <span class="string">"analyze trips"</span>,
                 scenario
                     .all_trips()
                     .filter(|trip| {
@@ -892,7 +894,7 @@
             .map(|x| <span class="kw-2">&amp;</span>x.map)
             .unwrap_or(<span class="kw-2">&amp;</span>app.primary.map);
 
-        <span class="comment">// Find all high-stress roads, since we&#39;ll filter by them next
+        <span class="comment">// Find all high-stress roads, since we'll filter by them next
         </span><span class="kw">let </span><span class="kw-2">mut </span>high_stress = HashSet::new();
         <span class="kw">for </span>r <span class="kw">in </span>unedited_map.all_roads() {
             <span class="kw">for </span>dr <span class="kw">in </span>r.id.both_directions() {
@@ -915,7 +917,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>count_per_road = Counter::new();
         <span class="kw">for </span>(idx, path) <span class="kw">in </span>timer
-            .parallelize(<span class="string">&quot;calculate routes&quot;</span>, filtered_requests, |(idx, req)| {
+            .parallelize(<span class="string">"calculate routes"</span>, filtered_requests, |(idx, req)| {
                 unedited_map.pathfind_v2(req).map(|path| (idx, path))
             })
             .into_iter()

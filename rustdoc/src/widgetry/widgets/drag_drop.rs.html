@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/drag_drop.rs`."><title>drag_drop.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/drag_drop.rs`."><title>drag_drop.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -402,11 +404,11 @@
     },
 }
 
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Copy + PartialEq&gt; DragDrop&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <span class="lifetime">'static </span>+ Copy + PartialEq&gt; DragDrop&lt;T&gt; {
     <span class="doccomment">/// This widget emits several events.
     ///
     /// - `Outcome::Changed(label)` when a different card is selected or hovered on
-    /// - `Outcome::Changed(&quot;dragging &quot; + label)` while dragging, when the drop position of the
+    /// - `Outcome::Changed("dragging " + label)` while dragging, when the drop position of the
     ///    card changes. Call `get_dragging_state` to learn the indices.
     /// - `Outcome::DragDropReleased` when a card is dropped
     ///
@@ -495,7 +497,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Copy + PartialEq&gt; DragDrop&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <span class="lifetime">'static </span>+ Copy + PartialEq&gt; DragDrop&lt;T&gt; {
     <span class="kw">fn </span>recalc_draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) {
         <span class="kw">let </span><span class="kw-2">mut </span>stack = GeomBatchStack::from_axis(Vec::new(), <span class="self">self</span>.axis);
         stack.set_spacing(SPACE_BETWEEN_CARDS);
@@ -531,7 +533,7 @@
                 <span class="kw">let </span>orig_dims = <span class="self">self</span>.cards[orig_idx].dims;
 
                 <span class="kw">for </span>(idx, card) <span class="kw">in </span><span class="self">self</span>.cards.iter().enumerate() {
-                    <span class="comment">// the target we&#39;re dragging
+                    <span class="comment">// the target we're dragging
                     </span><span class="kw">let </span>batch = <span class="kw">if </span>idx == orig_idx {
                         card.selected_batch.clone()
                     } <span class="kw">else if </span>idx &lt;= new_idx &amp;&amp; idx &gt; orig_idx {
@@ -569,13 +571,13 @@
                 // At the moment it seems like not a big deal to just clone the thing
                 </span><span class="kw">let </span>dims = stack.clone().batch().get_dims();
 
-                <span class="comment">// The dragged batch follows the cursor, but don&#39;t translate it until we&#39;ve captured
+                <span class="comment">// The dragged batch follows the cursor, but don't translate it until we've captured
                 // the pre-existing `dims`, otherwise the dragged position will be included in the
                 // overall dims of this widget, causing other screen content to shift around as we
                 // drag.
                 </span><span class="kw">let </span><span class="kw-2">mut </span>dragged_batch = std::mem::take(stack.get_mut(orig_idx).unwrap());
 
-                <span class="comment">// offset the dragged item just a little to initially hint that it&#39;s moveable
+                <span class="comment">// offset the dragged item just a little to initially hint that it's moveable
                 </span><span class="kw">let </span>floating_effect_offset = <span class="number">4.0</span>;
                 dragged_batch = dragged_batch
                     .translate(
@@ -612,7 +614,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Copy + PartialEq&gt; WidgetImpl <span class="kw">for </span>DragDrop&lt;T&gt; {
+<span class="kw">impl</span>&lt;T: <span class="lifetime">'static </span>+ Copy + PartialEq&gt; WidgetImpl <span class="kw">for </span>DragDrop&lt;T&gt; {
     <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
         <span class="self">self</span>.dims
     }
@@ -681,7 +683,7 @@
                     // the new card
                     </span><span class="kw">let </span>updated_idx = <span class="self">self</span>.mouseover_card(ctx).unwrap_or(new_idx);
                     <span class="kw">if </span>new_idx != updated_idx {
-                        output.outcome = Outcome::Changed(<span class="macro">format!</span>(<span class="string">&quot;dragging {}&quot;</span>, <span class="self">self</span>.label));
+                        output.outcome = Outcome::Changed(<span class="macro">format!</span>(<span class="string">"dragging {}"</span>, <span class="self">self</span>.label));
                     }
 
                     State::Dragging {

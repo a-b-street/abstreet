@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/perma.rs`."><title>perma.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/perma.rs`."><title>perma.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -335,8 +337,8 @@
 <span class="comment">// Manually change this to attempt to preserve edits after major OSM updates.
 </span><span class="kw">const </span>IGNORE_OLD_LANES: bool = <span class="bool-val">false</span>;
 
-<span class="doccomment">/// MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won&#39;t
-/// work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that&#39;re less
+<span class="doccomment">/// MapEdits are converted to this before serializing. Referencing things like LaneID in a Map won't
+/// work if the basemap is rebuilt from new OSM data, so instead we use stabler OSM IDs that're less
 /// likely to change.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone)]
 </span><span class="kw">pub struct </span>PermanentMapEdits {
@@ -356,8 +358,8 @@
     control: PermanentEditIntersectionControl,
     modal_filter: <span class="prelude-ty">Option</span>&lt;DiagonalFilter&gt;,
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>crosswalks: BTreeMap&lt;perma_traffic_signal::Turn, TurnType&gt;,
 }
@@ -366,8 +368,8 @@
 </span><span class="kw">pub enum </span>PermanentEditIntersectionControl {
     StopSign {
         <span class="attr">#[serde(
-            serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-            deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+            serialize_with = <span class="string">"serialize_btreemap"</span>,
+            deserialize_with = <span class="string">"deserialize_btreemap"
         </span>)]
         </span>must_stop: BTreeMap&lt;OriginalRoad, bool&gt;,
     },
@@ -425,20 +427,20 @@
             PermanentEditCmd::ChangeRoad { r, new, old } =&gt; {
                 <span class="kw">let </span>id = map.find_r_by_osm_id(r)<span class="question-mark">?</span>;
                 <span class="kw">let </span>num_current = map.get_r(id).lanes.len();
-                <span class="comment">// The basemap changed -- it&#39;d be pretty hard to understand the original
+                <span class="comment">// The basemap changed -- it'd be pretty hard to understand the original
                 // intent of the edit.
                 </span><span class="kw">if </span>num_current != old.lanes_ltr.len() {
                     <span class="kw">if </span>IGNORE_OLD_LANES {
-                        <span class="macro">warn!</span>(<span class="string">&quot;Lanes in {r} have changed since the edits, but keeping the edits anyway&quot;</span>);
+                        <span class="macro">warn!</span>(<span class="string">"Lanes in {r} have changed since the edits, but keeping the edits anyway"</span>);
                         <span class="kw">return </span><span class="prelude-val">Ok</span>(EditCmd::ChangeRoad {
                             r: id,
                             new,
-                            <span class="comment">// Note we change &#39;old&#39; to match the current basemap
+                            <span class="comment">// Note we change 'old' to match the current basemap
                             </span>old: EditRoad::get_orig_from_osm(map.get_r(id), map.get_config()),
                         });
                     } <span class="kw">else </span>{
                         <span class="macro">bail!</span>(
-                            <span class="string">&quot;number of lanes in {} is {} now, but {} in the edits&quot;</span>,
+                            <span class="string">"number of lanes in {} is {} now, but {} in the edits"</span>,
                             r,
                             num_current,
                             old.lanes_ltr.len()
@@ -453,16 +455,16 @@
                     i: id,
                     new: new
                         .with_permanent(id, map)
-                        .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;new ChangeIntersection of {} invalid&quot;</span>, i))<span class="question-mark">?</span>,
+                        .with_context(|| <span class="macro">format!</span>(<span class="string">"new ChangeIntersection of {} invalid"</span>, i))<span class="question-mark">?</span>,
                     old: old
                         .with_permanent(id, map)
-                        .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;old ChangeIntersection of {} invalid&quot;</span>, i))<span class="question-mark">?</span>,
+                        .with_context(|| <span class="macro">format!</span>(<span class="string">"old ChangeIntersection of {} invalid"</span>, i))<span class="question-mark">?</span>,
                 })
             }
             PermanentEditCmd::ChangeRouteSchedule { gtfs_id, old, new } =&gt; {
                 <span class="kw">let </span>id = map
                     .find_tr_by_gtfs(<span class="kw-2">&amp;</span>gtfs_id)
-                    .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t find {}&quot;</span>, gtfs_id))<span class="question-mark">?</span>;
+                    .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"can't find {}"</span>, gtfs_id))<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(EditCmd::ChangeRouteSchedule { id, old, new })
             }
         }
@@ -475,7 +477,7 @@
         PermanentMapEdits {
             map_name: map.get_name().clone(),
             edits_name: <span class="self">self</span>.edits_name.clone(),
-            <span class="comment">// Increase this every time there&#39;s a schema change
+            <span class="comment">// Increase this every time there's a schema change
             </span>version: <span class="number">13</span>,
             proposal_description: <span class="self">self</span>.proposal_description.clone(),
             proposal_link: <span class="self">self</span>.proposal_link.clone(),
@@ -486,7 +488,7 @@
 
 <span class="kw">impl </span>PermanentMapEdits {
     <span class="doccomment">/// Transform permanent edits to MapEdits, looking up the map IDs by the hopefully stabler OSM
-    /// IDs. Validate that the basemap hasn&#39;t changed in important ways.
+    /// IDs. Validate that the basemap hasn't changed in important ways.
     </span><span class="kw">pub fn </span>into_edits(<span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;MapEdits&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>edits = MapEdits {
             edits_name: <span class="self">self</span>.edits_name,
@@ -507,7 +509,7 @@
     }
 
     <span class="doccomment">/// Transform permanent edits to MapEdits, looking up the map IDs by the hopefully stabler OSM
-    /// IDs. Strip out commands that&#39;re broken, but log warnings.
+    /// IDs. Strip out commands that're broken, but log warnings.
     </span><span class="kw">pub fn </span>into_edits_permissive(<span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; MapEdits {
         <span class="kw">let </span><span class="kw-2">mut </span>edits = MapEdits {
             edits_name: <span class="self">self</span>.edits_name,
@@ -519,7 +521,7 @@
                 .filter_map(|cmd| <span class="kw">match </span>cmd.into_cmd(map) {
                     <span class="prelude-val">Ok</span>(cmd) =&gt; <span class="prelude-val">Some</span>(cmd),
                     <span class="prelude-val">Err</span>(err) =&gt; {
-                        <span class="macro">warn!</span>(<span class="string">&quot;Skipping broken command: {}&quot;</span>, err);
+                        <span class="macro">warn!</span>(<span class="string">"Skipping broken command: {}"</span>, err);
                         <span class="prelude-val">None
                     </span>}
                 })
@@ -563,7 +565,7 @@
                 EditIntersectionControl::Closed =&gt; PermanentEditIntersectionControl::Closed,
             },
             <span class="comment">// TODO This uses local map IDs, not even OSM IDs. Inconsistent with PermanentMapEdits,
-            // but this should all get overhauled &quot;soon&quot; to be GeoJSON and reference no IDs at all.
+            // but this should all get overhauled "soon" to be GeoJSON and reference no IDs at all.
             </span>modal_filter: <span class="self">self</span>.modal_filter.clone(),
             crosswalks: <span class="self">self
                 </span>.crosswalks
@@ -587,7 +589,7 @@
                 </span><span class="kw">let </span><span class="kw-2">mut </span>ss = ControlStopSign::new(map, i);
                 <span class="kw">if </span>translated_must_stop.len() != ss.roads.len() {
                     <span class="macro">bail!</span>(
-                        <span class="string">&quot;Stop sign has {} roads now, but {} from edits&quot;</span>,
+                        <span class="string">"Stop sign has {} roads now, but {} from edits"</span>,
                         ss.roads.len(),
                         translated_must_stop.len()
                     );
@@ -596,7 +598,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(road) = ss.roads.get_mut(<span class="kw-2">&amp;</span>r) {
                         road.must_stop = stop;
                     } <span class="kw">else </span>{
-                        <span class="macro">bail!</span>(<span class="string">&quot;{} doesn&#39;t connect to {}&quot;</span>, i, r);
+                        <span class="macro">bail!</span>(<span class="string">"{} doesn't connect to {}"</span>, i, r);
                     }
                 }
 
@@ -620,7 +622,7 @@
             }
             <span class="kw">if </span>turn_ids.len() != <span class="number">1 </span>{
                 <span class="macro">bail!</span>(
-                    <span class="string">&quot;{:?} didn&#39;t map to exactly 1 crossing turn: {:?}&quot;</span>,
+                    <span class="string">"{:?} didn't map to exactly 1 crossing turn: {:?}"</span>,
                     movement,
                     turn_ids
                 );

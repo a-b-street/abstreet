@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/counts.rs`."><title>counts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="synthpop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/counts.rs`."><title>counts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="synthpop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../synthpop/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -148,7 +150,7 @@
 /// intersections over some span of time. The data could represent real observations or something
 /// from a simulation.
 ///
-/// There&#39;s some nice UIs in other crates to compare counts.
+/// There's some nice UIs in other crates to compare counts.
 </span><span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>TrafficCounts {
     <span class="kw">pub </span>map: MapName,
@@ -163,7 +165,7 @@
 <span class="kw">impl </span>Default <span class="kw">for </span>TrafficCounts {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            map: MapName::new(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;place&quot;</span>, <span class="string">&quot;holder&quot;</span>),
+            map: MapName::new(<span class="string">"zz"</span>, <span class="string">"place"</span>, <span class="string">"holder"</span>),
             description: String::new(),
             per_road: Counter::new(),
             per_intersection: Counter::new(),
@@ -189,7 +191,7 @@
             per_intersection: Counter::new(),
         };
 
-        <span class="comment">// Statistic::Min will be wrong later for roads that&#39;re 0. So explicitly start with 0 for every
+        <span class="comment">// Statistic::Min will be wrong later for roads that're 0. So explicitly start with 0 for every
         // road/intersection.
         </span><span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
             counts.per_road.add(r.id, <span class="number">0</span>);
@@ -198,14 +200,14 @@
             counts.per_intersection.add(i.id, <span class="number">0</span>);
         }
 
-        <span class="comment">// It&#39;s very memory intensive to calculate all of the paths in one chunk, then process them to
+        <span class="comment">// It's very memory intensive to calculate all of the paths in one chunk, then process them to
         // get counts. Increment the counters as we go.
         //
         // TODO But that makes it hard to use timer.parallelize for this. We could make a thread-local
         // Counter and aggregte them at the end, but the way timer.parallelize uses scoped_threadpool
-        // right now won&#39;t let that work. Stick to single-threaded for now.
+        // right now won't let that work. Stick to single-threaded for now.
 
-        </span>timer.start_iter(<span class="string">&quot;calculate routes&quot;</span>, requests.len());
+        </span>timer.start_iter(<span class="string">"calculate routes"</span>, requests.len());
         <span class="kw">for </span>(req, count) <span class="kw">in </span>requests {
             timer.next();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = pathfinder.pathfind_v2(req.clone(), map) {
@@ -227,7 +229,7 @@
             }
         }
 
-        <span class="comment">// If we&#39;re starting or ending at a border, count it
+        <span class="comment">// If we're starting or ending at a border, count it
         </span><span class="kw">let </span>req = path.get_req();
         <span class="kw">if </span>req.start.dist_along() == Distance::ZERO {
             <span class="comment">// TODO src_i and dst_i may not work for pedestrians on contraflow sidewalks
@@ -246,14 +248,14 @@
     <span class="doccomment">/// Print a comparison of counts. Only look at roads/intersections in `self`.
     </span><span class="kw">pub fn </span>quickly_compare(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>TrafficCounts) {
         <span class="comment">// TODO Easy ASCII art table without huge dependencies?
-        </span><span class="macro">println!</span>(<span class="string">&quot;{} vs {}&quot;</span>, <span class="self">self</span>.description, other.description);
+        </span><span class="macro">println!</span>(<span class="string">"{} vs {}"</span>, <span class="self">self</span>.description, other.description);
         <span class="kw">let </span><span class="kw-2">mut </span>sum = <span class="number">0.0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
         <span class="kw">for </span>(r, cnt1) <span class="kw">in </span><span class="self">self</span>.per_road.borrow() {
             <span class="kw">let </span>cnt1 = <span class="kw-2">*</span>cnt1;
             <span class="kw">let </span>cnt2 = other.per_road.get(<span class="kw-2">*</span>r);
             <span class="macro">println!</span>(
-                <span class="string">&quot;{}: {} vs {}&quot;</span>,
+                <span class="string">"{}: {} vs {}"</span>,
                 r,
                 prettyprint_usize(cnt1),
                 prettyprint_usize(cnt2)
@@ -265,7 +267,7 @@
             <span class="kw">let </span>cnt1 = <span class="kw-2">*</span>cnt1;
             <span class="kw">let </span>cnt2 = other.per_intersection.get(<span class="kw-2">*</span>i);
             <span class="macro">println!</span>(
-                <span class="string">&quot;{}: {} vs {}&quot;</span>,
+                <span class="string">"{}: {} vs {}"</span>,
                 i,
                 prettyprint_usize(cnt1),
                 prettyprint_usize(cnt2)
@@ -273,7 +275,7 @@
             sum += (cnt1 <span class="kw">as </span>f64 - cnt2 <span class="kw">as </span>f64).powi(<span class="number">2</span>);
             n += <span class="number">1</span>;
         }
-        <span class="macro">println!</span>(<span class="string">&quot;RMSE = {:.2}&quot;</span>, (sum / n <span class="kw">as </span>f64).sqrt());
+        <span class="macro">println!</span>(<span class="string">"RMSE = {:.2}"</span>, (sum / n <span class="kw">as </span>f64).sqrt());
     }
 }
 </code></pre></div></section></main></body></html>

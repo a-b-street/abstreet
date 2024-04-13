@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/v2.rs`."><title>v2.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/v2.rs`."><title>v2.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -443,15 +445,15 @@
     ContraflowMovement(MovementID),
 }
 
-<span class="doccomment">/// A path between two endpoints for a particular mode. This representation is immutable and doesn&#39;t
+<span class="doccomment">/// A path between two endpoints for a particular mode. This representation is immutable and doesn't
 /// prescribe specific lanes and turns to follow.
 </span><span class="attr">#[derive(Clone, Debug, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>PathV2 {
     steps: Vec&lt;PathStepV2&gt;,
-    <span class="comment">// TODO There will be a PathRequestV2, but I&#39;m not sure how it&#39;ll change yet.
+    <span class="comment">// TODO There will be a PathRequestV2, but I'm not sure how it'll change yet.
     </span>req: PathRequest,
     cost: Duration,
-    <span class="comment">// TODO Temporarily we&#39;ll keep plumbing these along for path_v2_to_v1 to work, but we&#39;ll
+    <span class="comment">// TODO Temporarily we'll keep plumbing these along for path_v2_to_v1 to work, but we'll
     // probably just discover uber-turns lazily at the simulation layer instead.
     </span>uber_turns: Vec&lt;UberTurnV2&gt;,
 
@@ -470,7 +472,7 @@
         <span class="kw">let </span>orig_start_lane = req.start.lane();
 
         <span class="comment">// If we had two possible start positions, figure out which one we wound up using
-        // TODO Doesn&#39;t make sense for pedestrians yet
+        // TODO Doesn't make sense for pedestrians yet
         </span><span class="kw">if </span>req.constraints != PathConstraints::Pedestrian {
             <span class="kw">if let </span><span class="prelude-val">Some</span>((pos, <span class="kw">_</span>)) = req.alt_start {
                 <span class="kw">if let </span>PathStepV2::Along(dr) = steps[<span class="number">0</span>] {
@@ -539,7 +541,7 @@
 
     <span class="doccomment">/// Estimate how long following the path will take in the best case, assuming no traffic, delay
     /// at intersections, elevation, or penalties for crossing private roads. To determine the
-    /// speed along each step, the agent&#39;s optional max_speed must be known.
+    /// speed along each step, the agent's optional max_speed must be known.
     ///
     /// TODO Hack. The one use of this actually needs to apply main_road_penalty. We want to omit
     /// some penalties, but use others. Come up with a better way of expressing this.
@@ -573,7 +575,7 @@
                             .speed_limit
                             .min(map.get_r(m.to.road).speed_limit);
                     } <span class="kw">else </span>{
-                        <span class="comment">// Assume it&#39;s a SharedSidewalkCorner and just skip
+                        <span class="comment">// Assume it's a SharedSidewalkCorner and just skip
                         </span><span class="kw">continue</span>;
                     }
                 }
@@ -594,8 +596,8 @@
             <span class="kw">return </span><span class="self">self</span>.into_v1_walking(map);
         }
 
-        <span class="comment">// This is a somewhat brute-force method: run Dijkstra&#39;s algorithm on a graph of lanes and
-        // turns, but only build the graph along the path of roads we&#39;ve already found. This handles
+        <span class="comment">// This is a somewhat brute-force method: run Dijkstra's algorithm on a graph of lanes and
+        // turns, but only build the graph along the path of roads we've already found. This handles
         // arbitrary lookahead needed, and forces use of the original start/end lanes requested.
         </span><span class="kw">let </span><span class="kw-2">mut </span>graph = petgraph::graphmap::DiGraphMap::new();
         <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
@@ -615,8 +617,8 @@
             }
         }
 
-        <span class="comment">// The v2 path might immediately require a turn that&#39;s only available from some lanes. If
-        // the req.start lane can&#39;t make that turn, then producing the v1 path would fail. So let&#39;s
+        <span class="comment">// The v2 path might immediately require a turn that's only available from some lanes. If
+        // the req.start lane can't make that turn, then producing the v1 path would fail. So let's
         // allow starting from any lane on the same side of the road. Since petgraph can only start
         // from a single node and since we want to prefer the originally requested lane anyway,
         // create a virtual start node and connect it to all possible starting lanes.
@@ -659,17 +661,17 @@
                     <span class="kw">return </span>t.parent.<span class="number">0</span>;
                 }
 
-                <span class="comment">// Normally opportunistic lane-changing adjusts the path live, but that doesn&#39;t work
+                <span class="comment">// Normally opportunistic lane-changing adjusts the path live, but that doesn't work
                 // near uber-turns. So still use some of the penalties here.
                 </span><span class="kw">let </span>(lt, lc, slow_lane) = map.get_t(<span class="kw-2">*</span>t).penalty(<span class="self">self</span>.req.constraints, map);
                 <span class="kw">let </span><span class="kw-2">mut </span>extra_penalty = lt + lc;
                 <span class="kw">if </span><span class="self">self</span>.req.constraints == PathConstraints::Bike {
                     extra_penalty += slow_lane;
                 }
-                <span class="comment">// Always treat every lane/turn as at least cost 1; otherwise A* can&#39;t understand
+                <span class="comment">// Always treat every lane/turn as at least cost 1; otherwise A* can't understand
                 // that a final path with 10 steps costs more than one with 5. The
                 // road-based pathfinding has already chosen the overall route; when
-                // we&#39;re picking individual lanes, the length of each lane along one
+                // we're picking individual lanes, the length of each lane along one
                 // road is going to be about the same.
                 </span><span class="kw">let </span>base = <span class="number">1</span>;
                 base + extra_penalty
@@ -678,7 +680,7 @@
         ) {
             <span class="prelude-val">Some</span>((<span class="kw">_</span>, path)) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>steps = Vec::new();
-                <span class="comment">// Skip the first node; it&#39;s always virtual_start_node
+                <span class="comment">// Skip the first node; it's always virtual_start_node
                 </span><span class="macro">assert_eq!</span>(path[<span class="number">0</span>], virtual_start_node);
                 <span class="kw">for </span>pair <span class="kw">in </span>path.windows(<span class="number">2</span>) {
                     <span class="kw">if </span>pair[<span class="number">0</span>] == virtual_start_node {
@@ -686,7 +688,7 @@
                     }
 
                     steps.push(PathStep::Lane(pair[<span class="number">0</span>]));
-                    <span class="comment">// We don&#39;t need to look for this turn in the map; we know it exists.
+                    <span class="comment">// We don't need to look for this turn in the map; we know it exists.
                     </span>steps.push(PathStep::Turn(TurnID {
                         parent: map.get_l(pair[<span class="number">0</span>]).dst_i,
                         src: pair[<span class="number">0</span>],
@@ -710,7 +712,7 @@
                 <span class="prelude-val">Ok</span>(Path::new(map, steps, <span class="self">self</span>.req, uber_turns, blocked_starts))
             }
             <span class="prelude-val">None </span>=&gt; <span class="macro">bail!</span>(
-                <span class="string">&quot;Can&#39;t transform a road-based path to a lane-based path for {}&quot;</span>,
+                <span class="string">"Can't transform a road-based path to a lane-based path for {}"</span>,
                 <span class="self">self</span>.req
             ),
         }
@@ -744,8 +746,8 @@
         })
     }
 
-    <span class="doccomment">/// Draws the thickened path, matching entire roads. Ignores the path&#39;s exact starting and
-    /// ending distance. Doesn&#39;t handle contraflow yet.
+    <span class="doccomment">/// Draws the thickened path, matching entire roads. Ignores the path's exact starting and
+    /// ending distance. Doesn't handle contraflow yet.
     </span><span class="kw">pub fn </span>trace_v2(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;Polygon&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>left_pts = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>right_pts = Vec::new();
@@ -765,7 +767,7 @@
                     }
                 }
                 PathStepV2::Contraflow(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(),
-                <span class="comment">// Just make a straight line across the intersection. It&#39;d be fancier to try and
+                <span class="comment">// Just make a straight line across the intersection. It'd be fancier to try and
                 // trace along.
                 </span>PathStepV2::Movement(<span class="kw">_</span>) | PathStepV2::ContraflowMovement(<span class="kw">_</span>) =&gt; {}
             }
@@ -776,7 +778,7 @@
         <span class="prelude-val">Ok</span>(Ring::deduping_new(left_pts)<span class="question-mark">?</span>.into_polygon())
     }
 
-    <span class="doccomment">/// Returns polygons covering the entire path. Ignores the path&#39;s exact starting and ending
+    <span class="doccomment">/// Returns polygons covering the entire path. Ignores the path's exact starting and ending
     /// distance.
     </span><span class="kw">pub fn </span>trace_all_polygons(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;Polygon&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>polygons = Vec::new();
@@ -800,7 +802,7 @@
     <span class="kw-2">mut </span>uber_turns_v2: Vec&lt;UberTurnV2&gt;,
 ) -&gt; Vec&lt;UberTurn&gt; {
     <span class="comment">// Pathfinding v1 needs to know the uber turns that the path crosses, for the simulation layer.
-    // Since we now construct the path in two stages, it&#39;s easiest to just reconstruct the uber
+    // Since we now construct the path in two stages, it's easiest to just reconstruct the uber
     // turns after building the lane-based path.
 
     </span><span class="kw">let </span>num_uts = uber_turns_v2.len();

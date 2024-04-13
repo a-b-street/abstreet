@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/make/activity_model.rs`."><title>activity_model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="synthpop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/make/activity_model.rs`."><title>activity_model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="synthpop" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../synthpop/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -319,7 +321,7 @@
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
 <a href="#321" id="321">321</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.
+</pre></div><pre class="rust"><code><span class="doccomment">//! An activity model creates "people" that follow a set schedule of activities through the day.
 //! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go
 //! somewhere at some time. This is an extremely simple activity model that just uses data inferred
 //! from OSM.
@@ -376,7 +378,7 @@
         residents.shuffle(rng);
         workers.shuffle(rng);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(map, <span class="string">&quot;random people going to and from work&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(map, <span class="string">"random people going to and from work"</span>);
         <span class="comment">// Include all buses/trains
         </span>s.only_seed_buses = <span class="prelude-val">None</span>;
 
@@ -385,12 +387,12 @@
 
         <span class="comment">// this saturation figure is an arbitrary guess - we assume that the number of trips will
         // scale as some factor of the people living and/or working on the map. A number of more
-        // than 1.0 will primarily affect the number of &quot;pass through&quot; trips - people who neither
+        // than 1.0 will primarily affect the number of "pass through" trips - people who neither
         // work nor live in the neighborhood.
         </span><span class="kw">let </span>trip_saturation = <span class="number">1.2</span>;
         <span class="kw">let </span>num_trips = (trip_saturation * (residents_cap + workers_cap) <span class="kw">as </span>f64) <span class="kw">as </span>usize;
 
-        <span class="comment">// bound probabilities to ensure we&#39;re getting some diversity of agents
+        <span class="comment">// bound probabilities to ensure we're getting some diversity of agents
         </span><span class="kw">let </span>lower_bound_prob = <span class="number">0.05</span>;
         <span class="kw">let </span>upper_bound_prob = <span class="number">0.90</span>;
         <span class="kw">let </span>prob_local_resident = <span class="kw">if </span>workers_cap == <span class="number">0 </span>{
@@ -407,14 +409,14 @@
         );
 
         <span class="macro">debug!</span>(
-            <span class="string">&quot;BUILDINGS - workplaces: {}, residences: {}, mixed: {}&quot;</span>,
+            <span class="string">"BUILDINGS - workplaces: {}, residences: {}, mixed: {}"</span>,
             prettyprint_usize(num_bldg_commercial),
             prettyprint_usize(num_bldg_residential),
             prettyprint_usize(num_bldg_mixed_residential_commercial)
         );
         <span class="macro">debug!</span>(
-            <span class="string">&quot;CAPACITY - workers_cap: {}, residents_cap: {}, prob_local_worker: {:.1}%, \
-             prob_local_resident: {:.1}%&quot;</span>,
+            <span class="string">"CAPACITY - workers_cap: {}, residents_cap: {}, prob_local_worker: {:.1}%, \
+             prob_local_resident: {:.1}%"</span>,
             prettyprint_usize(workers_cap),
             prettyprint_usize(residents_cap),
             prob_local_worker * <span class="number">100.</span>,
@@ -425,12 +427,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>num_trips_commuting_in = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>num_trips_commuting_out = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>num_trips_passthru = <span class="number">0</span>;
-        timer.start(<span class="string">&quot;create people&quot;</span>);
+        timer.start(<span class="string">"create people"</span>);
 
         <span class="comment">// Only consider two-way intersections, so the agent can return the same way
         // they came.
-        // TODO: instead, if it&#39;s not a two-way border, we should find an intersection
-        // an incoming border &quot;near&quot; the outgoing border, to allow a broader set of
+        // TODO: instead, if it's not a two-way border, we should find an intersection
+        // an incoming border "near" the outgoing border, to allow a broader set of
         // realistic options.
         // TODO: prefer larger thoroughfares to better reflect reality.
         </span><span class="kw">let </span>commuter_borders: Vec&lt;TripEndpoint&gt; = map
@@ -489,12 +491,12 @@
         s.people.extend(
             timer
                 .parallelize(
-                    <span class="string">&quot;create people: making PersonSpec from endpoints&quot;</span>,
+                    <span class="string">"create people: making PersonSpec from endpoints"</span>,
                     person_params,
                     |(home, work, <span class="kw-2">mut </span>rng)| <span class="kw">match </span>create_prole(home, work, map, <span class="kw-2">&amp;mut </span>rng) {
                         <span class="prelude-val">Ok</span>(person) =&gt; <span class="prelude-val">Some</span>(person),
                         <span class="prelude-val">Err</span>(e) =&gt; {
-                            <span class="macro">trace!</span>(<span class="string">&quot;Unable to create person. error: {}&quot;</span>, e);
+                            <span class="macro">trace!</span>(<span class="string">"Unable to create person. error: {}"</span>, e);
                             <span class="prelude-val">None
                         </span>}
                     },
@@ -503,11 +505,11 @@
                 .flatten(),
         );
 
-        timer.stop(<span class="string">&quot;create people&quot;</span>);
+        timer.stop(<span class="string">"create people"</span>);
 
         <span class="macro">info!</span>(
-            <span class="string">&quot;TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}, \
-             errored: {}, leftover_resident_capacity: {}, leftover_worker_capacity: {}&quot;</span>,
+            <span class="string">"TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}, \
+             errored: {}, leftover_resident_capacity: {}, leftover_worker_capacity: {}"</span>,
             prettyprint_usize(num_trips),
             prettyprint_usize(num_trips_local),
             prettyprint_usize(num_trips_commuting_in),
@@ -530,13 +532,13 @@
     <span class="kw">if </span>home == work {
         <span class="comment">// TODO: handle edge-case of working and living in the same building...  maybe more likely
         // to go for a walk later in the day or something
-        </span><span class="macro">bail!</span>(<span class="string">&quot;TODO: handle working and living in the same building&quot;</span>);
+        </span><span class="macro">bail!</span>(<span class="string">"TODO: handle working and living in the same building"</span>);
     }
 
     <span class="kw">let </span>mode = <span class="kw">match </span>(<span class="kw-2">&amp;</span>home, <span class="kw-2">&amp;</span>work) {
         <span class="comment">// commuting entirely within map
         </span>(TripEndpoint::Building(home_bldg), TripEndpoint::Building(work_bldg)) =&gt; {
-            <span class="comment">// Decide mode based on walking distance. If the buildings aren&#39;t connected,
+            <span class="comment">// Decide mode based on walking distance. If the buildings aren't connected,
             // probably a bug in importing; just skip this person.
             </span><span class="kw">let </span>dist = <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = PathRequest::between_buildings(
                 map,
@@ -548,11 +550,11 @@
             {
                 path.total_length()
             } <span class="kw">else </span>{
-                <span class="macro">bail!</span>(<span class="string">&quot;no path found&quot;</span>);
+                <span class="macro">bail!</span>(<span class="string">"no path found"</span>);
             };
 
             <span class="comment">// TODO If home or work is in an access-restricted zone (like a living street),
-            // then probably don&#39;t drive there. Actually, it depends on the specific tagging;
+            // then probably don't drive there. Actually, it depends on the specific tagging;
             // access=no in the US usually means a gated community.
             </span>select_trip_mode(dist, rng)
         }
@@ -561,7 +563,7 @@
     };
 
     <span class="comment">// TODO This will cause a single morning and afternoon rush. Outside of these times,
-    // it&#39;ll be really quiet. Probably want a normal distribution centered around these
+    // it'll be really quiet. Probably want a normal distribution centered around these
     // peak times, but with a long tail.
     </span><span class="kw">let </span><span class="kw-2">mut </span>depart_am = rand_time(
         rng,

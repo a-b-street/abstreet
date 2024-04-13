@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/polygons.rs`."><title>polygons.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/polygons.rs`."><title>polygons.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -176,13 +178,13 @@
         center: <span class="prelude-ty">Option</span>&lt;Pt2D&gt;,
     ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         <span class="kw">if </span>items.is_empty() {
-            <span class="kw">return </span>PopupMsg::new_state(ctx, <span class="string">&quot;Woops&quot;</span>, <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;No {}, never mind&quot;</span>, noun)]);
+            <span class="kw">return </span>PopupMsg::new_state(ctx, <span class="string">"Woops"</span>, <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"No {}, never mind"</span>, noun)]);
         }
 
         Box::new(PolygonDebugger {
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Geometry debugger&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Geometry debugger"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 Widget::row(<span class="macro">vec!</span>[
@@ -191,12 +193,12 @@
                     </span>ctx.style()
                         .btn_prev()
                         .hotkey(Key::LeftArrow)
-                        .build_widget(ctx, <span class="string">&quot;previous&quot;</span>),
-                    <span class="string">&quot;noun X/Y&quot;</span>.text_widget(ctx).named(<span class="string">&quot;pointer&quot;</span>).centered_vert(),
+                        .build_widget(ctx, <span class="string">"previous"</span>),
+                    <span class="string">"noun X/Y"</span>.text_widget(ctx).named(<span class="string">"pointer"</span>).centered_vert(),
                     ctx.style()
                         .btn_next()
                         .hotkey(Key::RightArrow)
-                        .build_widget(ctx, <span class="string">&quot;next&quot;</span>),
+                        .build_widget(ctx, <span class="string">"next"</span>),
                 ])
                 .evenly_spaced(),
             ]))
@@ -216,15 +218,15 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;previous&quot; </span>=&gt; {
+                <span class="string">"previous" </span>=&gt; {
                     <span class="kw">if </span><span class="self">self</span>.idx != <span class="number">0 </span>{
                         <span class="self">self</span>.idx -= <span class="number">1</span>;
                     }
                 }
-                <span class="string">&quot;next&quot; </span>=&gt; {
+                <span class="string">"next" </span>=&gt; {
                     <span class="kw">if </span><span class="self">self</span>.idx != <span class="self">self</span>.items.len() - <span class="number">1 </span>{
                         <span class="self">self</span>.idx += <span class="number">1</span>;
                     }
@@ -234,15 +236,15 @@
         }
         <span class="self">self</span>.panel.replace(
             ctx,
-            <span class="string">&quot;pointer&quot;</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;{} {}/{}&quot;</span>, <span class="self">self</span>.noun, <span class="self">self</span>.idx + <span class="number">1</span>, <span class="self">self</span>.items.len()).text_widget(ctx),
+            <span class="string">"pointer"</span>,
+            <span class="macro">format!</span>(<span class="string">"{} {}/{}"</span>, <span class="self">self</span>.noun, <span class="self">self</span>.idx + <span class="number">1</span>, <span class="self">self</span>.items.len()).text_widget(ctx),
         );
 
         Transition::Keep
     }
 
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
-        <span class="comment">// This is drawn in screen-space, so zooming doesn&#39;t affect the text size
+        <span class="comment">// This is drawn in screen-space, so zooming doesn't affect the text size
         </span><span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
 
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.items[<span class="self">self</span>.idx] {
@@ -277,7 +279,7 @@
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = <span class="self">self</span>.center {
             batch.append(
-                Text::from(<span class="string">&quot;c&quot;</span>)
+                Text::from(<span class="string">"c"</span>)
                     .bg(app.cs.panel_bg)
                     .render(g)
                     .centered_on(g.canvas.map_to_screen(pt).to_pt()),

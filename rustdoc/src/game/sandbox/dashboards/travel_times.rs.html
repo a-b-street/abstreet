@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/travel_times.rs`."><title>travel_times.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/travel_times.rs`."><title>travel_times.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -689,7 +691,7 @@
     }
 
     <span class="kw">fn </span>make_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, filter: Filter) -&gt; Panel {
-        <span class="kw">let </span><span class="kw-2">mut </span>filters = <span class="macro">vec!</span>[<span class="string">&quot;Filters&quot;</span>.text_widget(ctx)];
+        <span class="kw">let </span><span class="kw-2">mut </span>filters = <span class="macro">vec!</span>[<span class="string">"Filters"</span>.text_widget(ctx)];
         <span class="kw">for </span>mode <span class="kw">in </span>TripMode::all() {
             filters.push(Toggle::colored_checkbox(
                 ctx,
@@ -702,7 +704,7 @@
         filters.push(
             ctx.style()
                 .btn_plain
-                .text(<span class="string">&quot;Export to CSV&quot;</span>)
+                .text(<span class="string">"Export to CSV"</span>)
                 .build_def(ctx)
                 .align_bottom(),
         );
@@ -714,18 +716,18 @@
                 Widget::col(<span class="macro">vec!</span>[
                     summary_boxes(ctx, app, <span class="kw-2">&amp;</span>filter),
                     Widget::col(<span class="macro">vec!</span>[
-                        Text::from(Line(<span class="string">&quot;Travel Times&quot;</span>).small_heading()).into_widget(ctx),
+                        Text::from(Line(<span class="string">"Travel Times"</span>).small_heading()).into_widget(ctx),
                         Widget::row(<span class="macro">vec!</span>[
-                            <span class="string">&quot;filter:&quot;</span>.text_widget(ctx).centered_vert(),
+                            <span class="string">"filter:"</span>.text_widget(ctx).centered_vert(),
                             Widget::dropdown(
                                 ctx,
-                                <span class="string">&quot;filter&quot;</span>,
+                                <span class="string">"filter"</span>,
                                 filter.changes_pct,
                                 <span class="macro">vec!</span>[
-                                    Choice::new(<span class="string">&quot;any change&quot;</span>, <span class="prelude-val">None</span>),
-                                    Choice::new(<span class="string">&quot;at least 1% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.01</span>)),
-                                    Choice::new(<span class="string">&quot;at least 10% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.1</span>)),
-                                    Choice::new(<span class="string">&quot;at least 50% change&quot;</span>, <span class="prelude-val">Some</span>(<span class="number">0.5</span>)),
+                                    Choice::new(<span class="string">"any change"</span>, <span class="prelude-val">None</span>),
+                                    Choice::new(<span class="string">"at least 1% change"</span>, <span class="prelude-val">Some</span>(<span class="number">0.01</span>)),
+                                    Choice::new(<span class="string">"at least 10% change"</span>, <span class="prelude-val">Some</span>(<span class="number">0.1</span>)),
+                                    Choice::new(<span class="string">"at least 50% change"</span>, <span class="prelude-val">Some</span>(<span class="number">0.5</span>)),
                                 ],
                             ),
                         ])
@@ -742,11 +744,11 @@
                     .evenly_spaced(),
                     Widget::row(<span class="macro">vec!</span>[
                         Widget::col(<span class="macro">vec!</span>[
-                            Text::from(Line(<span class="string">&quot;Intersection Delays&quot;</span>).small_heading())
+                            Text::from(Line(<span class="string">"Intersection Delays"</span>).small_heading())
                                 .into_widget(ctx),
                             Toggle::checkbox(
                                 ctx,
-                                <span class="string">&quot;include trips without any changes&quot;</span>,
+                                <span class="string">"include trips without any changes"</span>,
                                 <span class="prelude-val">None</span>,
                                 filter.include_no_changes(),
                             ),
@@ -771,19 +773,19 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Export to CSV&quot; </span>=&gt; {
+                <span class="string">"Export to CSV" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(<span class="kw">match </span>export_times(app) {
                         <span class="prelude-val">Ok</span>(path) =&gt; PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Data exported&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {}&quot;</span>, path)],
+                            <span class="string">"Data exported"</span>,
+                            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Data exported to {}"</span>, path)],
                         ),
                         <span class="prelude-val">Err</span>(err) =&gt; {
-                            PopupMsg::new_state(ctx, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[err.to_string()])
+                            PopupMsg::new_state(ctx, <span class="string">"Export failed"</span>, <span class="macro">vec!</span>[err.to_string()])
                         }
                     });
                 }
-                <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+                <span class="string">"close" </span>=&gt; Transition::Pop,
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
             Outcome::ClickCustom(data) =&gt; {
@@ -797,9 +799,9 @@
                 }
 
                 <span class="kw">let </span><span class="kw-2">mut </span>filter = Filter {
-                    changes_pct: <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;filter&quot;</span>),
+                    changes_pct: <span class="self">self</span>.panel.dropdown_value(<span class="string">"filter"</span>),
                     modes: BTreeSet::new(),
-                    include_no_changes: <span class="self">self</span>.panel.is_checked(<span class="string">&quot;include trips without any changes&quot;</span>),
+                    include_no_changes: <span class="self">self</span>.panel.is_checked(<span class="string">"include trips without any changes"</span>),
                 };
                 <span class="kw">for </span>m <span class="kw">in </span>TripMode::all() {
                     <span class="kw">if </span><span class="self">self</span>.panel.is_checked(m.ongoing_verb()) {
@@ -855,14 +857,14 @@
 
     Widget::row(<span class="macro">vec!</span>[
         Text::from_multiline(<span class="macro">vec!</span>[
-            Line(<span class="macro">format!</span>(<span class="string">&quot;Faster Trips: {}&quot;</span>, prettyprint_usize(num_faster))).big_heading_plain(),
+            Line(<span class="macro">format!</span>(<span class="string">"Faster Trips: {}"</span>, prettyprint_usize(num_faster))).big_heading_plain(),
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;{:.2}% of finished trips&quot;</span>,
+                <span class="string">"{:.2}% of finished trips"</span>,
                 <span class="number">100.0 </span>* (num_faster <span class="kw">as </span>f64) / num_total
             ))
             .small(),
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;Average {} faster per trip&quot;</span>,
+                <span class="string">"Average {} faster per trip"</span>,
                 <span class="kw">if </span>num_faster == <span class="number">0 </span>{
                     Duration::ZERO
                 } <span class="kw">else </span>{
@@ -871,7 +873,7 @@
             ))
             .small(),
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;Saved {} in total&quot;</span>,
+                <span class="string">"Saved {} in total"</span>,
                 sum_faster.to_rounded_string(<span class="number">1</span>)
             ))
             .small(),
@@ -879,17 +881,17 @@
         .into_widget(ctx)
         .container()
         .padding(<span class="number">20</span>)
-        .bg(Color::hex(<span class="string">&quot;#72CE36&quot;</span>).alpha(<span class="number">0.5</span>))
+        .bg(Color::hex(<span class="string">"#72CE36"</span>).alpha(<span class="number">0.5</span>))
         .outline(ctx.style().section_outline),
         Text::from_multiline(<span class="macro">vec!</span>[
-            Line(<span class="macro">format!</span>(<span class="string">&quot;Slower Trips: {}&quot;</span>, prettyprint_usize(num_slower))).big_heading_plain(),
+            Line(<span class="macro">format!</span>(<span class="string">"Slower Trips: {}"</span>, prettyprint_usize(num_slower))).big_heading_plain(),
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;{:.2}% of finished trips&quot;</span>,
+                <span class="string">"{:.2}% of finished trips"</span>,
                 <span class="number">100.0 </span>* (num_slower <span class="kw">as </span>f64) / num_total
             ))
             .small(),
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;Average {} slower per trip&quot;</span>,
+                <span class="string">"Average {} slower per trip"</span>,
                 <span class="kw">if </span>num_slower == <span class="number">0 </span>{
                     Duration::ZERO
                 } <span class="kw">else </span>{
@@ -897,7 +899,7 @@
                 }
             ))
             .small(),
-            Line(<span class="macro">format!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, sum_slower.to_rounded_string(<span class="number">1</span>))).small(),
+            Line(<span class="macro">format!</span>(<span class="string">"Lost {} in total"</span>, sum_slower.to_rounded_string(<span class="number">1</span>))).small(),
         ])
         .into_widget(ctx)
         .container()
@@ -905,9 +907,9 @@
         .bg(app.cs.signal_banned_turn.alpha(<span class="number">0.5</span>))
         .outline(ctx.style().section_outline),
         Text::from_multiline(<span class="macro">vec!</span>[
-            Line(<span class="macro">format!</span>(<span class="string">&quot;Unchanged: {}&quot;</span>, prettyprint_usize(num_same))).big_heading_plain(),
+            Line(<span class="macro">format!</span>(<span class="string">"Unchanged: {}"</span>, prettyprint_usize(num_same))).big_heading_plain(),
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;{:.2}% of finished trips&quot;</span>,
+                <span class="string">"{:.2}% of finished trips"</span>,
                 <span class="number">100.0 </span>* (num_same <span class="kw">as </span>f64) / num_total
             ))
             .small(),
@@ -915,7 +917,7 @@
         .into_widget(ctx)
         .container()
         .padding(<span class="number">20</span>)
-        .bg(Color::hex(<span class="string">&quot;#F4DA22&quot;</span>).alpha(<span class="number">0.5</span>))
+        .bg(Color::hex(<span class="string">"#F4DA22"</span>).alpha(<span class="number">0.5</span>))
         .outline(ctx.style().section_outline),
     ])
     .evenly_spaced()
@@ -928,17 +930,17 @@
     }
 
     Widget::col(<span class="macro">vec!</span>[
-        Line(<span class="string">&quot;Trip time before vs. after&quot;</span>)
+        Line(<span class="string">"Trip time before vs. after"</span>)
             .small_heading()
             .into_widget(ctx),
         CompareTimes::new_widget(
             ctx,
             <span class="macro">format!</span>(
-                <span class="string">&quot;Trip time before \&quot;{}\&quot;&quot;</span>,
+                <span class="string">"Trip time before \"{}\""</span>,
                 app.primary.map.get_edits().edits_name
             ),
             <span class="macro">format!</span>(
-                <span class="string">&quot;Trip time after \&quot;{}\&quot;&quot;</span>,
+                <span class="string">"Trip time after \"{}\""</span>,
                 app.primary.map.get_edits().edits_name
             ),
             points,
@@ -1007,9 +1009,9 @@
     </span><span class="kw">if </span><span class="bool-val">false </span>{
         batch.append(
             Text::from_multiline(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;trip&quot;</span>).secondary(),
-                Line(<span class="string">&quot;time&quot;</span>).secondary(),
-                Line(<span class="string">&quot;after&quot;</span>).secondary(),
+                Line(<span class="string">"trip"</span>).secondary(),
+                Line(<span class="string">"time"</span>).secondary(),
+                Line(<span class="string">"after"</span>).secondary(),
             ])
             .render(ctx)
             .translate(total_width, total_height / <span class="number">2.0</span>),
@@ -1100,27 +1102,27 @@
                 Text::from_multiline(<span class="macro">vec!</span>[
                     Line(<span class="kw">match </span>idx {
                         <span class="number">0 </span>=&gt; <span class="macro">format!</span>(
-                            <span class="string">&quot;{} trips shorter than {}&quot;</span>,
+                            <span class="string">"{} trips shorter than {}"</span>,
                             prettyprint_usize(num_savings),
                             duration_buckets[idx + <span class="number">1</span>]
                         ),
                         i <span class="kw">if </span>i + <span class="number">1 </span>== duration_buckets.len() =&gt; <span class="macro">format!</span>(
-                            <span class="string">&quot;{} trips longer than {}&quot;</span>,
+                            <span class="string">"{} trips longer than {}"</span>,
                             prettyprint_usize(num_savings),
                             duration_buckets[idx]
                         ),
                         <span class="kw">_ </span>=&gt; <span class="macro">format!</span>(
-                            <span class="string">&quot;{} trips between {} and {}&quot;</span>,
+                            <span class="string">"{} trips between {} and {}"</span>,
                             prettyprint_usize(num_savings),
                             duration_buckets[idx],
                             duration_buckets[idx + <span class="number">1</span>]
                         ),
                     }),
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;Saved {} in total&quot;</span>,
+                        <span class="string">"Saved {} in total"</span>,
                         total_savings.to_rounded_string(<span class="number">1</span>)
                     ))
-                    .fg(Color::hex(<span class="string">&quot;#72CE36&quot;</span>)),
+                    .fg(Color::hex(<span class="string">"#72CE36"</span>)),
                 ]),
                 <span class="prelude-val">None</span>,
             ));
@@ -1136,23 +1138,23 @@
                 Text::from_multiline(<span class="macro">vec!</span>[
                     Line(<span class="kw">match </span>idx {
                         <span class="number">0 </span>=&gt; <span class="macro">format!</span>(
-                            <span class="string">&quot;{} trips shorter than {}&quot;</span>,
+                            <span class="string">"{} trips shorter than {}"</span>,
                             prettyprint_usize(num_loss),
                             duration_buckets[idx + <span class="number">1</span>]
                         ),
                         i <span class="kw">if </span>i + <span class="number">1 </span>== duration_buckets.len() =&gt; <span class="macro">format!</span>(
-                            <span class="string">&quot;{} trips longer than {}&quot;</span>,
+                            <span class="string">"{} trips longer than {}"</span>,
                             prettyprint_usize(num_loss),
                             duration_buckets[idx]
                         ),
                         <span class="kw">_ </span>=&gt; <span class="macro">format!</span>(
-                            <span class="string">&quot;{} trips between {} and {}&quot;</span>,
+                            <span class="string">"{} trips between {} and {}"</span>,
                             prettyprint_usize(num_loss),
                             duration_buckets[idx],
                             duration_buckets[idx + <span class="number">1</span>]
                         ),
                     }),
-                    Line(<span class="macro">format!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, total_loss.to_rounded_string(<span class="number">1</span>)))
+                    Line(<span class="macro">format!</span>(<span class="string">"Lost {} in total"</span>, total_loss.to_rounded_string(<span class="number">1</span>)))
                         .fg(app.cs.signal_banned_turn),
                 ]),
                 <span class="prelude-val">None</span>,
@@ -1203,15 +1205,15 @@
 
     Widget::col(<span class="macro">vec!</span>[
         Text::from_multiline(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Aggregate difference by trip duration&quot;</span>).small_heading(),
+            Line(<span class="string">"Aggregate difference by trip duration"</span>).small_heading(),
             Line(<span class="macro">format!</span>(
-                <span class="string">&quot;Grouped by the duration of the trip before\n\&quot;{}\&quot; changes.&quot;</span>,
+                <span class="string">"Grouped by the duration of the trip before\n\"{}\" changes."</span>,
                 app.primary.map.get_edits().edits_name
             )),
         ])
         .into_widget(ctx)
         .container(),
-        Line(<span class="string">&quot;Total Time Saved (faster)&quot;</span>)
+        Line(<span class="string">"Total Time Saved (faster)"</span>)
             .secondary()
             .into_widget(ctx)
             .centered_horiz(),
@@ -1227,7 +1229,7 @@
             DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|<span class="kw">_</span>| GeomBatch::new())),
         ])
         .centered_horiz(),
-        Line(<span class="string">&quot;Total Time Lost (slower)&quot;</span>)
+        Line(<span class="string">"Total Time Lost (slower)"</span>)
             .secondary()
             .into_widget(ctx)
             .centered_horiz(),
@@ -1291,12 +1293,12 @@
 
 <span class="kw">fn </span>export_times(app: <span class="kw-2">&amp;</span>App) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
     <span class="kw">let </span>path = <span class="macro">format!</span>(
-        <span class="string">&quot;trip_times_{}_{}.csv&quot;</span>,
+        <span class="string">"trip_times_{}_{}.csv"</span>,
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
     <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
-    <span class="macro">writeln!</span>(out, <span class="string">&quot;id,mode,seconds_before,seconds_after&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(out, <span class="string">"id,mode,seconds_before,seconds_after"</span>)<span class="question-mark">?</span>;
     <span class="kw">for </span>(id, b, a, mode) <span class="kw">in </span>app
         .primary
         .sim
@@ -1305,7 +1307,7 @@
     {
         <span class="macro">writeln!</span>(
             out,
-            <span class="string">&quot;{},{:?},{},{}&quot;</span>,
+            <span class="string">"{},{:?},{},{}"</span>,
             id.<span class="number">0</span>,
             mode,
             b.inner_seconds(),

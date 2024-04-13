@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/gmns.rs`."><title>gmns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/gmns.rs`."><title>gmns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -425,7 +427,7 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>records = matches_per_plan
         .into_iter()
         .next()
-        .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;no matches for {}&quot;</span>, i.orig_id))<span class="question-mark">?
+        .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">"no matches for {}"</span>, i.orig_id))<span class="question-mark">?
         </span>.<span class="number">1</span>;
     records.sort_by_key(|rec| rec.stage);
 
@@ -444,7 +446,7 @@
                 });
             }
             std::cmp::Ordering::Less =&gt; {
-                <span class="macro">bail!</span>(<span class="string">&quot;missing intermediate stage&quot;</span>);
+                <span class="macro">bail!</span>(<span class="string">"missing intermediate stage"</span>);
             }
             std::cmp::Ordering::Greater =&gt; {}
         }
@@ -452,7 +454,7 @@
 
         <span class="kw">if </span>stage.stage_type.simple_duration() != Duration::seconds(rec.green_time <span class="kw">as </span>f64) {
             <span class="macro">bail!</span>(
-                <span class="string">&quot;Stage {} has green_times {} and {}&quot;</span>,
+                <span class="string">"Stage {} has green_times {} and {}"</span>,
                 rec.stage,
                 stage.stage_type.simple_duration(),
                 rec.green_time
@@ -470,13 +472,13 @@
             <span class="prelude-val">Ok</span>(x) =&gt; x,
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="macro">error!</span>(
-                    <span class="string">&quot;Skipping {} -&gt; {} for stage {}: {}&quot;</span>,
+                    <span class="string">"Skipping {} -&gt; {} for stage {}: {}"</span>,
                     rec.geometry.<span class="number">0</span>, rec.geometry.<span class="number">1</span>, rec.stage, err
                 );
                 <span class="kw">continue</span>;
             }
         };
-        <span class="kw">if </span>rec.protection == <span class="string">&quot;protected&quot; </span>{
+        <span class="kw">if </span>rec.protection == <span class="string">"protected" </span>{
             stage.protected_movements.insert(mvmnt);
         } <span class="kw">else </span>{
             stage.yield_movements.insert(mvmnt);
@@ -512,15 +514,15 @@
     <span class="kw">let </span><span class="kw-2">mut </span>failures_other = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
 
-    ctx.loading_screen(<span class="string">&quot;import signal timing&quot;</span>, |<span class="kw">_</span>, timer| {
-        timer.start_iter(<span class="string">&quot;import&quot;</span>, all_signals.len());
+    ctx.loading_screen(<span class="string">"import signal timing"</span>, |<span class="kw">_</span>, timer| {
+        timer.start_iter(<span class="string">"import"</span>, all_signals.len());
         <span class="kw">for </span>i <span class="kw">in </span>all_signals {
             timer.next();
             <span class="kw">match </span>import(<span class="kw-2">&amp;</span>app.primary.map, i, <span class="kw-2">&amp;</span>bytes)
                 .and_then(|signal| signal.validate(app.primary.map.get_i(i)).map(|<span class="kw">_</span>| signal))
             {
                 <span class="prelude-val">Ok</span>(signal) =&gt; {
-                    <span class="macro">info!</span>(<span class="string">&quot;Success at {}&quot;</span>, i);
+                    <span class="macro">info!</span>(<span class="string">"Success at {}"</span>, i);
                     successes += <span class="number">1</span>;
                     edits
                         .commands
@@ -531,8 +533,8 @@
                         }));
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;Failure at {}: {}&quot;</span>, i, err);
-                    <span class="kw">if </span>err.to_string().contains(<span class="string">&quot;no matches for&quot;</span>) {
+                    <span class="macro">error!</span>(<span class="string">"Failure at {}: {}"</span>, i, err);
+                    <span class="kw">if </span>err.to_string().contains(<span class="string">"no matches for"</span>) {
                         failures_no_match += <span class="number">1</span>;
                     } <span class="kw">else </span>{
                         failures_other += <span class="number">1</span>;
@@ -546,49 +548,49 @@
 
     PopupMsg::new_state(
         ctx,
-        <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Import from {}&quot;</span>, path),
+        <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Import from {}"</span>, path),
         <span class="macro">vec!</span>[
-            <span class="macro">format!</span>(<span class="string">&quot;{} traffic signals successfully imported&quot;</span>, successes),
-            <span class="macro">format!</span>(<span class="string">&quot;{} intersections without any data&quot;</span>, failures_no_match),
-            <span class="macro">format!</span>(<span class="string">&quot;{} other failures&quot;</span>, failures_other),
+            <span class="macro">format!</span>(<span class="string">"{} traffic signals successfully imported"</span>, successes),
+            <span class="macro">format!</span>(<span class="string">"{} intersections without any data"</span>, failures_no_match),
+            <span class="macro">format!</span>(<span class="string">"{} other failures"</span>, failures_other),
         ],
     )
 }
 
 <span class="attr">#[derive(Debug, Deserialize)]
 </span><span class="kw">struct </span>Record {
-    <span class="attr">#[serde(deserialize_with = <span class="string">&quot;parse_osm_ids&quot;</span>, rename = <span class="string">&quot;osm_node_id&quot;</span>)]
+    <span class="attr">#[serde(deserialize_with = <span class="string">"parse_osm_ids"</span>, rename = <span class="string">"osm_node_id"</span>)]
     </span>osm_ids: Vec&lt;osm::NodeID&gt;,
     timing_plan_id: String,
     green_time: usize,
-    <span class="attr">#[serde(rename = <span class="string">&quot;stage_no&quot;</span>)]
+    <span class="attr">#[serde(rename = <span class="string">"stage_no"</span>)]
     </span>stage: usize,
-    <span class="attr">#[serde(deserialize_with = <span class="string">&quot;parse_linestring&quot;</span>)]
+    <span class="attr">#[serde(deserialize_with = <span class="string">"parse_linestring"</span>)]
     </span>geometry: (LonLat, LonLat),
     protection: String,
     <span class="comment">// Something like EBL or NBT -- eastbound left, northbound through.
     </span>mvmt_txt_id: String,
 }
 
-<span class="kw">fn </span>parse_linestring&lt;<span class="lifetime">&#39;de</span>, D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;(LonLat, LonLat), D::Error&gt; {
+<span class="kw">fn </span>parse_linestring&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;(LonLat, LonLat), D::Error&gt; {
     <span class="kw">let </span>raw = &lt;String&gt;::deserialize(d)<span class="question-mark">?</span>;
     <span class="kw">let </span>pts = LonLat::parse_wkt_linestring(<span class="kw-2">&amp;</span>raw)
-        .ok_or_else(|| serde::de::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;bad linestring {}&quot;</span>, raw)))<span class="question-mark">?</span>;
+        .ok_or_else(|| serde::de::Error::custom(<span class="macro">format!</span>(<span class="string">"bad linestring {}"</span>, raw)))<span class="question-mark">?</span>;
     <span class="kw">if </span>pts.len() != <span class="number">2 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(serde::de::Error::custom(<span class="macro">format!</span>(
-            <span class="string">&quot;{} points, expecting 2&quot;</span>,
+            <span class="string">"{} points, expecting 2"</span>,
             pts.len()
         )));
     }
     <span class="prelude-val">Ok</span>((pts[<span class="number">0</span>], pts[<span class="number">1</span>]))
 }
 
-<span class="kw">fn </span>parse_osm_ids&lt;<span class="lifetime">&#39;de</span>, D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;osm::NodeID&gt;, D::Error&gt; {
+<span class="kw">fn </span>parse_osm_ids&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;osm::NodeID&gt;, D::Error&gt; {
     <span class="kw">let </span>raw = &lt;String&gt;::deserialize(d)<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>ids = Vec::new();
-    <span class="kw">for </span>id <span class="kw">in </span>raw.split(<span class="string">&#39;_&#39;</span>) {
+    <span class="kw">for </span>id <span class="kw">in </span>raw.split(<span class="string">'_'</span>) {
         ids.push(osm::NodeID(id.parse::&lt;i64&gt;().map_err(|<span class="kw">_</span>| {
-            serde::de::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;bad ID {}&quot;</span>, id))
+            serde::de::Error::custom(<span class="macro">format!</span>(<span class="string">"bad ID {}"</span>, id))
         })<span class="question-mark">?</span>));
     }
     <span class="prelude-val">Ok</span>(ids)
@@ -597,7 +599,7 @@
 <span class="doccomment">/// Snaps a line to a vehicle movement across an intersection. It uses movement endpoints and a
 /// hint about turn type to match.
 ///
-/// OSM IDs aren&#39;t used to snap, because GMNS and A/B Street may disagree about where a road
+/// OSM IDs aren't used to snap, because GMNS and A/B Street may disagree about where a road
 /// segment begins/ends. This could happen from OSM IDs changing over time or from different rules
 /// about importing things like service roads.
 </span><span class="kw">struct </span>Snapper {
@@ -616,7 +618,7 @@
             <span class="kw">let </span>incoming_id = r.directed_id_to(i);
             <span class="kw">let </span>outgoing_id = r.directed_id_from(i);
 
-            <span class="comment">// TODO There are a few methods for finding the &quot;middle&quot; of a directed road; here&#39;s yet
+            <span class="comment">// TODO There are a few methods for finding the "middle" of a directed road; here's yet
             // another.
             </span><span class="kw">let </span><span class="kw-2">mut </span>incoming_pts = Vec::new();
             <span class="kw">let </span><span class="kw-2">mut </span>outgoing_pts = Vec::new();
@@ -640,7 +642,7 @@
             }
         }
         <span class="kw">if </span>roads_incoming.is_empty() || roads_outgoing.is_empty() {
-            <span class="macro">bail!</span>(<span class="string">&quot;{} has no incoming or outgoing roads&quot;</span>, i);
+            <span class="macro">bail!</span>(<span class="string">"{} has no incoming or outgoing roads"</span>, i);
         }
 
         <span class="prelude-val">Ok</span>(Snapper {
@@ -657,12 +659,12 @@
     }
 
     <span class="kw">fn </span>get_mvmnt(<span class="kw-2">&amp;</span><span class="self">self</span>, pair: (Pt2D, Pt2D), code: <span class="kw-2">&amp;</span>str, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;MovementID&gt; {
-        <span class="comment">// Code is something like &quot;WBT&quot;, westbound through.
+        <span class="comment">// Code is something like "WBT", westbound through.
         </span><span class="kw">let </span>code_turn_type = <span class="kw">match </span>code.chars().last() {
-            <span class="prelude-val">Some</span>(<span class="string">&#39;T&#39;</span>) =&gt; TurnType::Straight,
-            <span class="prelude-val">Some</span>(<span class="string">&#39;L&#39;</span>) =&gt; TurnType::Left,
-            <span class="prelude-val">Some</span>(<span class="string">&#39;R&#39;</span>) =&gt; TurnType::Right,
-            x =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Weird movement_str {:?}&quot;</span>, x),
+            <span class="prelude-val">Some</span>(<span class="string">'T'</span>) =&gt; TurnType::Straight,
+            <span class="prelude-val">Some</span>(<span class="string">'L'</span>) =&gt; TurnType::Left,
+            <span class="prelude-val">Some</span>(<span class="string">'R'</span>) =&gt; TurnType::Right,
+            x =&gt; <span class="macro">bail!</span>(<span class="string">"Weird movement_str {:?}"</span>, x),
         };
         <span class="kw">let </span>code_direction = <span class="kw-2">&amp;</span>code[<span class="number">0</span>..<span class="number">2</span>];
 
@@ -695,7 +697,7 @@
             })
             .unwrap();
 
-        <span class="comment">// Debug if the we didn&#39;t agree
+        <span class="comment">// Debug if the we didn't agree
         </span><span class="kw">let </span>direction = cardinal_direction(
             map.get_l(mvmnt.members[<span class="number">0</span>].src)
                 .lane_center_pts
@@ -703,7 +705,7 @@
         );
         <span class="kw">if </span>mvmnt.turn_type != code_turn_type || direction != code_direction {
             <span class="macro">warn!</span>(
-                <span class="string">&quot;A {} snapped to a {} {:?}&quot;</span>,
+                <span class="string">"A {} snapped to a {} {:?}"</span>,
                 code, direction, mvmnt.turn_type
             );
         }
@@ -712,24 +714,24 @@
     }
 }
 
-<span class="kw">fn </span>cardinal_direction(angle: Angle) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+<span class="kw">fn </span>cardinal_direction(angle: Angle) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     <span class="comment">// Note Y inversion, as usual
     </span><span class="kw">let </span>deg = angle.normalized_degrees();
     <span class="kw">if </span>deg &gt;= <span class="number">335.0 </span>|| deg &lt;= <span class="number">45.0 </span>{
-        <span class="kw">return </span><span class="string">&quot;EB&quot;</span>;
+        <span class="kw">return </span><span class="string">"EB"</span>;
     }
     <span class="kw">if </span>(<span class="number">45.0</span>..=<span class="number">135.0</span>).contains(<span class="kw-2">&amp;</span>deg) {
-        <span class="kw">return </span><span class="string">&quot;SB&quot;</span>;
+        <span class="kw">return </span><span class="string">"SB"</span>;
     }
     <span class="kw">if </span>(<span class="number">135.0</span>..=<span class="number">225.0</span>).contains(<span class="kw-2">&amp;</span>deg) {
-        <span class="kw">return </span><span class="string">&quot;WB&quot;</span>;
+        <span class="kw">return </span><span class="string">"WB"</span>;
     }
-    <span class="string">&quot;NB&quot;
+    <span class="string">"NB"
 </span>}
 
-<span class="comment">// The GMNS input doesn&#39;t include crosswalks yet -- and even once it does, it&#39;s likely the two map
+<span class="comment">// The GMNS input doesn't include crosswalks yet -- and even once it does, it's likely the two map
 // models will disagree about where sidewalks exist. Try to add all crosswalks to the stage where
-// they&#39;re compatible. Downgrade right turns from protected to permitted as needed.
+// they're compatible. Downgrade right turns from protected to permitted as needed.
 </span><span class="kw">fn </span>add_crosswalks(signal: <span class="kw-2">&amp;mut </span>ControlTrafficSignal, map: <span class="kw-2">&amp;</span>Map) {
     <span class="kw">let </span>downgrade_type = <span class="kw">if </span>map.get_config().driving_side == DrivingSide::Right {
         TurnType::Right

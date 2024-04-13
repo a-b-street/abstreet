@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/url.rs`."><title>url.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/url.rs`."><title>url.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -287,7 +289,7 @@
         <span class="kw">let </span>zoom_lvl = log_arg.log2() - <span class="number">8.0</span>;
 
         <span class="comment">// Trim precision
-        </span><span class="macro">format!</span>(<span class="string">&quot;{:.2}/{:.5}/{:.5}&quot;</span>, zoom_lvl, center.y(), center.x())
+        </span><span class="macro">format!</span>(<span class="string">"{:.2}/{:.5}/{:.5}"</span>, zoom_lvl, center.y(), center.x())
     }
 
     <span class="doccomment">/// Modify the current URL to set --cam to an OSM-style `zoom/lat/lon` string
@@ -295,7 +297,7 @@
     /// viewport.
     </span><span class="kw">pub fn </span>update_url_cam(ctx: <span class="kw-2">&amp;</span>EventCtx, gps_bounds: <span class="kw-2">&amp;</span>GPSBounds) {
         <span class="kw">let </span>cam = URLManager::get_cam_param(ctx, gps_bounds);
-        must_update_url(Box::new(<span class="kw">move </span>|url| change_url_param(url, <span class="string">&quot;--cam&quot;</span>, <span class="kw-2">&amp;</span>cam)))
+        must_update_url(Box::new(<span class="kw">move </span>|url| change_url_param(url, <span class="string">"--cam"</span>, <span class="kw-2">&amp;</span>cam)))
     }
 
     <span class="doccomment">/// Parse an OSM-style `zoom/lat/lon` string
@@ -317,7 +319,7 @@
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to
     /// center on and the camera zoom.
     </span><span class="kw">fn </span>parse_center_camera(raw: <span class="kw-2">&amp;</span>str, gps_bounds: <span class="kw-2">&amp;</span>GPSBounds) -&gt; <span class="prelude-ty">Option</span>&lt;(Pt2D, f64)&gt; {
-        <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = raw.split(<span class="string">&#39;/&#39;</span>).collect();
+        <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = raw.split(<span class="string">'/'</span>).collect();
         <span class="kw">if </span>parts.len() != <span class="number">3 </span>{
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -342,7 +344,7 @@
         // horiz_meters_per_screen. Easy algebra:
         // let cam_zoom = ctx.canvas.window_width / horiz_meters_per_screen;
 
-        // But actually, the algebra shows we don&#39;t even need window_width. Easy!
+        // But actually, the algebra shows we don't even need window_width. Easy!
         </span><span class="kw">let </span>cam_zoom = <span class="number">1.0 </span>/ horiz_meters_per_pixel;
 
         <span class="prelude-val">Some</span>((pt, cam_zoom))
@@ -351,58 +353,58 @@
 
 <span class="kw">fn </span>must_update_url(transform: Box&lt;<span class="kw">dyn </span>Fn(String) -&gt; String&gt;) {
     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = update_url(transform) {
-        <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t update URL: {}&quot;</span>, err);
+        <span class="macro">warn!</span>(<span class="string">"Couldn't update URL: {}"</span>, err);
     }
 }
 
 <span class="attr">#[allow(unused_variables)]
 </span><span class="kw">fn </span>update_url(transform: Box&lt;<span class="kw">dyn </span>Fn(String) -&gt; String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
     </span>{
-        <span class="kw">let </span>window = web_sys::window().ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>window = web_sys::window().ok_or(<span class="macro">anyhow!</span>(<span class="string">"no window?"</span>))<span class="question-mark">?</span>;
         <span class="kw">let </span>url = window.location().href().map_err(|err| {
             <span class="macro">anyhow!</span>(err
                 .as_string()
-                .unwrap_or(<span class="string">&quot;window.location.href failed&quot;</span>.to_string()))
+                .unwrap_or(<span class="string">"window.location.href failed"</span>.to_string()))
         })<span class="question-mark">?</span>;
         <span class="kw">let </span>new_url = (transform)(url);
 
         <span class="comment">// Setting window.location.href may seem like the obvious thing to do, but that actually
-        // refreshes the page. This method just changes the URL and doesn&#39;t mess up history. See
+        // refreshes the page. This method just changes the URL and doesn't mess up history. See
         // https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API.
         </span><span class="kw">let </span>history = window.history().map_err(|err| {
             <span class="macro">anyhow!</span>(err
                 .as_string()
-                .unwrap_or(<span class="string">&quot;window.history failed&quot;</span>.to_string()))
+                .unwrap_or(<span class="string">"window.history failed"</span>.to_string()))
         })<span class="question-mark">?</span>;
         history
-            .replace_state_with_url(<span class="kw-2">&amp;</span>wasm_bindgen::JsValue::NULL, <span class="string">&quot;&quot;</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>new_url))
+            .replace_state_with_url(<span class="kw-2">&amp;</span>wasm_bindgen::JsValue::NULL, <span class="string">""</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>new_url))
             .map_err(|err| {
                 <span class="macro">anyhow!</span>(err
                     .as_string()
-                    .unwrap_or(<span class="string">&quot;window.history.replace_state failed&quot;</span>.to_string()))
+                    .unwrap_or(<span class="string">"window.history.replace_state failed"</span>.to_string()))
             })<span class="question-mark">?</span>;
     }
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn </span>change_url_free_param(url: String, free_param: <span class="kw-2">&amp;</span>str) -&gt; String {
-    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn&#39;t even expose such a nice
+    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn't even expose such a nice
     // API for doing this anyway.
-    </span><span class="kw">let </span>url_parts = url.split(<span class="string">&#39;?&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    </span><span class="kw">let </span>url_parts = url.split(<span class="string">'?'</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     <span class="kw">if </span>url_parts.len() == <span class="number">1 </span>{
-        <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, url, free_param);
+        <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{}?{}"</span>, url, free_param);
     }
     <span class="kw">let </span><span class="kw-2">mut </span>query_params = String::new();
     <span class="kw">let </span><span class="kw-2">mut </span>found_free = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
-    <span class="kw">for </span>x <span class="kw">in </span>url_parts[<span class="number">1</span>].split(<span class="string">&#39;&amp;&#39;</span>) {
+    <span class="kw">for </span>x <span class="kw">in </span>url_parts[<span class="number">1</span>].split(<span class="string">'&amp;'</span>) {
         <span class="kw">if </span>!first {
-            query_params.push(<span class="string">&#39;&amp;&#39;</span>);
+            query_params.push(<span class="string">'&amp;'</span>);
         }
         first = <span class="bool-val">false</span>;
 
-        <span class="kw">if </span>x.starts_with(<span class="string">&quot;--&quot;</span>) {
+        <span class="kw">if </span>x.starts_with(<span class="string">"--"</span>) {
             query_params.push_str(x);
         } <span class="kw">else if </span>!found_free {
             <span class="comment">// Replace the first free parameter
@@ -414,32 +416,32 @@
     }
     <span class="kw">if </span>!found_free {
         <span class="kw">if </span>!first {
-            query_params.push(<span class="string">&#39;&amp;&#39;</span>);
+            query_params.push(<span class="string">'&amp;'</span>);
         }
         query_params.push_str(free_param);
     }
 
-    <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, url_parts[<span class="number">0</span>], query_params)
+    <span class="macro">format!</span>(<span class="string">"{}?{}"</span>, url_parts[<span class="number">0</span>], query_params)
 }
 
 <span class="kw">fn </span>change_url_param(url: String, key: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>str) -&gt; String {
-    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn&#39;t even expose such a nice
+    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn't even expose such a nice
     // API for doing this anyway.
-    </span><span class="kw">let </span>url_parts = url.split(<span class="string">&#39;?&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    </span><span class="kw">let </span>url_parts = url.split(<span class="string">'?'</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     <span class="kw">if </span>url_parts.len() == <span class="number">1 </span>{
-        <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;{}?{}={}&quot;</span>, url, key, value);
+        <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{}?{}={}"</span>, url, key, value);
     }
     <span class="kw">let </span><span class="kw-2">mut </span>query_params = String::new();
     <span class="kw">let </span><span class="kw-2">mut </span>found_key = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
-    <span class="kw">for </span>x <span class="kw">in </span>url_parts[<span class="number">1</span>].split(<span class="string">&#39;&amp;&#39;</span>) {
+    <span class="kw">for </span>x <span class="kw">in </span>url_parts[<span class="number">1</span>].split(<span class="string">'&amp;'</span>) {
         <span class="kw">if </span>!first {
-            query_params.push(<span class="string">&#39;&amp;&#39;</span>);
+            query_params.push(<span class="string">'&amp;'</span>);
         }
         first = <span class="bool-val">false</span>;
 
         <span class="kw">if </span>x.starts_with(key) {
-            query_params.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, key, value));
+            query_params.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}={}"</span>, key, value));
             found_key = <span class="bool-val">true</span>;
         } <span class="kw">else </span>{
             query_params.push_str(x);
@@ -447,12 +449,12 @@
     }
     <span class="kw">if </span>!found_key {
         <span class="kw">if </span>!first {
-            query_params.push(<span class="string">&#39;&amp;&#39;</span>);
+            query_params.push(<span class="string">'&amp;'</span>);
         }
-        query_params.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, key, value));
+        query_params.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}={}"</span>, key, value));
     }
 
-    <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, url_parts[<span class="number">0</span>], query_params)
+    <span class="macro">format!</span>(<span class="string">"{}?{}"</span>, url_parts[<span class="number">0</span>], query_params)
 }
 
 <span class="attr">#[cfg(test)]
@@ -462,24 +464,24 @@
         <span class="kw">use </span><span class="kw">super</span>::change_url_free_param;
 
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>,
+            <span class="string">"http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin"</span>,
             change_url_free_param(
-                <span class="string">&quot;http://0.0.0.0:8000/?--dev&quot;</span>.to_string(),
-                <span class="string">&quot;seattle/maps/montlake.bin&quot;
+                <span class="string">"http://0.0.0.0:8000/?--dev"</span>.to_string(),
+                <span class="string">"seattle/maps/montlake.bin"
             </span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/qa.bin&quot;</span>,
+            <span class="string">"http://0.0.0.0:8000/?--dev&amp;seattle/maps/qa.bin"</span>,
             change_url_free_param(
-                <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>.to_string(),
-                <span class="string">&quot;seattle/maps/qa.bin&quot;
+                <span class="string">"http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin"</span>.to_string(),
+                <span class="string">"seattle/maps/qa.bin"
             </span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;http://0.0.0.0:8000?seattle/maps/montlake.bin&quot;</span>,
+            <span class="string">"http://0.0.0.0:8000?seattle/maps/montlake.bin"</span>,
             change_url_free_param(
-                <span class="string">&quot;http://0.0.0.0:8000&quot;</span>.to_string(),
-                <span class="string">&quot;seattle/maps/montlake.bin&quot;
+                <span class="string">"http://0.0.0.0:8000"</span>.to_string(),
+                <span class="string">"seattle/maps/montlake.bin"
             </span>)
         );
     }
@@ -489,19 +491,19 @@
         <span class="kw">use </span><span class="kw">super</span>::change_url_param;
 
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&amp;--cam=16.6/53.78449/-1.70701&quot;</span>,
+            <span class="string">"http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&amp;--cam=16.6/53.78449/-1.70701"</span>,
             change_url_param(
-                <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>.to_string(),
-                <span class="string">&quot;--cam&quot;</span>,
-                <span class="string">&quot;16.6/53.78449/-1.70701&quot;
+                <span class="string">"http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin"</span>.to_string(),
+                <span class="string">"--cam"</span>,
+                <span class="string">"16.6/53.78449/-1.70701"
             </span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;http://0.0.0.0:8000?--cam=16.6/53.78449/-1.70701&quot;</span>,
+            <span class="string">"http://0.0.0.0:8000?--cam=16.6/53.78449/-1.70701"</span>,
             change_url_param(
-                <span class="string">&quot;http://0.0.0.0:8000&quot;</span>.to_string(),
-                <span class="string">&quot;--cam&quot;</span>,
-                <span class="string">&quot;16.6/53.78449/-1.70701&quot;
+                <span class="string">"http://0.0.0.0:8000"</span>.to_string(),
+                <span class="string">"--cam"</span>,
+                <span class="string">"16.6/53.78449/-1.70701"
             </span>)
         );
     }

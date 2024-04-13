@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/levels.rs`."><title>levels.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/levels.rs`."><title>levels.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="santa" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../santa/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -153,12 +155,12 @@
     <span class="kw">pub fn </span>all() -&gt; Vec&lt;Level&gt; {
         <span class="macro">vec!</span>[
             Level {
-                title: <span class="string">&quot;Queen Anne&quot;</span>.to_string(),
-                description: <span class="string">&quot;Nice hilltop views, beautiful houses -- but are they far from \
-                              stores?&quot;
+                title: <span class="string">"Queen Anne"</span>.to_string(),
+                description: <span class="string">"Nice hilltop views, beautiful houses -- but are they far from \
+                              stores?"
                     </span>.to_string(),
-                map: MapName::seattle(<span class="string">&quot;qa&quot;</span>),
-                music: <span class="string">&quot;jingle_bells&quot;</span>.to_string(),
+                map: MapName::seattle(<span class="string">"qa"</span>),
+                music: <span class="string">"jingle_bells"</span>.to_string(),
                 start: LonLat::new(-<span class="number">122.3649489</span>, <span class="number">47.6395838</span>),
                 minimap_zoom: <span class="number">1</span>,
                 time_limit: Duration::seconds(<span class="number">90.0</span>),
@@ -168,42 +170,42 @@
                 unlock_vehicles: <span class="macro">vec!</span>[],
             },
             Level {
-                title: <span class="string">&quot;University District&quot;</span>.to_string(),
-                description: <span class="string">&quot;Tear yourself away from all the bubble tea to deliver presents to \
-                              some college students, whether they&#39;ve been naughty or nice.&quot;
+                title: <span class="string">"University District"</span>.to_string(),
+                description: <span class="string">"Tear yourself away from all the bubble tea to deliver presents to \
+                              some college students, whether they've been naughty or nice."
                     </span>.to_string(),
-                map: MapName::seattle(<span class="string">&quot;udistrict_ravenna&quot;</span>),
-                music: <span class="string">&quot;god_rest_ye_merry_gentlemen&quot;</span>.to_string(),
+                map: MapName::seattle(<span class="string">"udistrict_ravenna"</span>),
+                music: <span class="string">"god_rest_ye_merry_gentlemen"</span>.to_string(),
                 start: LonLat::new(-<span class="number">122.3130618</span>, <span class="number">47.6648984</span>),
                 minimap_zoom: <span class="number">1</span>,
                 time_limit: Duration::minutes(<span class="number">2</span>),
                 goal: <span class="number">1500</span>,
 
                 unlock_upzones: <span class="number">1</span>,
-                unlock_vehicles: <span class="macro">vec!</span>[<span class="string">&quot;cargo bike&quot;</span>.to_string()],
+                unlock_vehicles: <span class="macro">vec!</span>[<span class="string">"cargo bike"</span>.to_string()],
             },
             Level {
-                title: <span class="string">&quot;Wallingfjord&quot;</span>.to_string(),
-                description: <span class="string">&quot;Stone and 45th have food aplenty, but can you manage deliveries to \
-                              everyone tucked away in the neighborhood?&quot;
+                title: <span class="string">"Wallingfjord"</span>.to_string(),
+                description: <span class="string">"Stone and 45th have food aplenty, but can you manage deliveries to \
+                              everyone tucked away in the neighborhood?"
                     </span>.to_string(),
-                map: MapName::seattle(<span class="string">&quot;wallingford&quot;</span>),
-                music: <span class="string">&quot;silent_night&quot;</span>.to_string(),
+                map: MapName::seattle(<span class="string">"wallingford"</span>),
+                music: <span class="string">"silent_night"</span>.to_string(),
                 start: LonLat::new(-<span class="number">122.3427877</span>, <span class="number">47.648515</span>),
                 minimap_zoom: <span class="number">2</span>,
                 time_limit: Duration::minutes(<span class="number">3</span>),
                 goal: <span class="number">1500</span>,
 
                 unlock_upzones: <span class="number">1</span>,
-                unlock_vehicles: <span class="macro">vec!</span>[<span class="string">&quot;sleigh&quot;</span>.to_string()],
+                unlock_vehicles: <span class="macro">vec!</span>[<span class="string">"sleigh"</span>.to_string()],
             },
             Level {
-                title: <span class="string">&quot;Montlake&quot;</span>.to_string(),
-                description: <span class="string">&quot;With the Montlake Market closed, how will you manage to bring cheer \
-                              to this sleepy little pocket of the city?&quot;
+                title: <span class="string">"Montlake"</span>.to_string(),
+                description: <span class="string">"With the Montlake Market closed, how will you manage to bring cheer \
+                              to this sleepy little pocket of the city?"
                     </span>.to_string(),
-                map: MapName::seattle(<span class="string">&quot;montlake&quot;</span>),
-                music: <span class="string">&quot;dance_sugar_plum_fairy&quot;</span>.to_string(),
+                map: MapName::seattle(<span class="string">"montlake"</span>),
+                music: <span class="string">"dance_sugar_plum_fairy"</span>.to_string(),
                 start: LonLat::new(-<span class="number">122.3020559</span>, <span class="number">47.639528</span>),
                 minimap_zoom: <span class="number">1</span>,
                 time_limit: Duration::minutes(<span class="number">3</span>),
@@ -213,12 +215,12 @@
                 unlock_vehicles: <span class="macro">vec!</span>[],
             },
             Level {
-                title: <span class="string">&quot;Phinney Ridge&quot;</span>.to_string(),
-                description: <span class="string">&quot;Take your pick from the scrumptious options along Greenwood Ave! \
-                              But stray into the neighborhood at your own risk...&quot;
+                title: <span class="string">"Phinney Ridge"</span>.to_string(),
+                description: <span class="string">"Take your pick from the scrumptious options along Greenwood Ave! \
+                              But stray into the neighborhood at your own risk..."
                     </span>.to_string(),
-                map: MapName::seattle(<span class="string">&quot;phinney&quot;</span>),
-                music: <span class="string">&quot;silent_night&quot;</span>.to_string(),
+                map: MapName::seattle(<span class="string">"phinney"</span>),
+                music: <span class="string">"silent_night"</span>.to_string(),
                 start: LonLat::new(-<span class="number">122.3552942</span>, <span class="number">47.6869442</span>),
                 minimap_zoom: <span class="number">1</span>,
                 time_limit: Duration::minutes(<span class="number">3</span>),
@@ -228,12 +230,12 @@
                 unlock_vehicles: <span class="macro">vec!</span>[],
             },
             Level {
-                title: <span class="string">&quot;South Pole Union&quot;</span>.to_string(),
-                description: <span class="string">&quot;Suddenly, shops everywhere! Can you find all of the residents \
-                              huddled inside?&quot;
+                title: <span class="string">"South Pole Union"</span>.to_string(),
+                description: <span class="string">"Suddenly, shops everywhere! Can you find all of the residents \
+                              huddled inside?"
                     </span>.to_string(),
-                map: MapName::seattle(<span class="string">&quot;slu&quot;</span>),
-                music: <span class="string">&quot;carol_bells&quot;</span>.to_string(),
+                map: MapName::seattle(<span class="string">"slu"</span>),
+                music: <span class="string">"carol_bells"</span>.to_string(),
                 start: LonLat::new(-<span class="number">122.334343</span>, <span class="number">47.623173</span>),
                 minimap_zoom: <span class="number">1</span>,
                 time_limit: Duration::seconds(<span class="number">90.0</span>),
@@ -243,12 +245,12 @@
                 unlock_vehicles: <span class="macro">vec!</span>[],
             },
             Level {
-                title: <span class="string">&quot;Magnolia&quot;</span>.to_string(),
-                description: <span class="string">&quot;Struggle past the intense hills and restrictive zoning to tackle \
-                              one of the lowest-density parts of Seattle!&quot;
+                title: <span class="string">"Magnolia"</span>.to_string(),
+                description: <span class="string">"Struggle past the intense hills and restrictive zoning to tackle \
+                              one of the lowest-density parts of Seattle!"
                     </span>.to_string(),
-                map: MapName::seattle(<span class="string">&quot;central_seattle&quot;</span>),
-                music: <span class="string">&quot;god_rest_ye_merry_gentlemen&quot;</span>.to_string(),
+                map: MapName::seattle(<span class="string">"central_seattle"</span>),
+                music: <span class="string">"god_rest_ye_merry_gentlemen"</span>.to_string(),
                 start: LonLat::new(-<span class="number">122.4008951</span>, <span class="number">47.6558634</span>),
                 minimap_zoom: <span class="number">2</span>,
                 time_limit: Duration::minutes(<span class="number">4</span>),

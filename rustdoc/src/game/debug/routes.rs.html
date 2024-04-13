@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/routes.rs`."><title>routes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/routes.rs`."><title>routes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -619,16 +621,16 @@
             goal: <span class="prelude-val">None</span>,
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Route explorer&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Route explorer"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;All routes&quot;</span>)
+                    .text(<span class="string">"All routes"</span>)
                     .hotkey(Key::A)
                     .build_def(ctx),
                 params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params())
-                    .named(<span class="string">&quot;params&quot;</span>),
+                    .named(<span class="string">"params"</span>),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -666,28 +668,28 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;bikes&quot; </span>=&gt; {
+                <span class="string">"bikes" </span>=&gt; {
                     <span class="kw">let </span>controls =
                         params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params());
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;params&quot;</span>, controls);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"params"</span>, controls);
                     <span class="self">self</span>.recalc_paths(ctx, app);
                 }
-                <span class="string">&quot;cars&quot; </span>=&gt; {
+                <span class="string">"cars" </span>=&gt; {
                     <span class="kw">let </span>controls =
                         params_to_controls(ctx, TripMode::Drive, app.primary.map.routing_params());
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;params&quot;</span>, controls);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"params"</span>, controls);
                     <span class="self">self</span>.recalc_paths(ctx, app);
                 }
-                <span class="string">&quot;pedestrians&quot; </span>=&gt; {
+                <span class="string">"pedestrians" </span>=&gt; {
                     <span class="kw">let </span>controls =
                         params_to_controls(ctx, TripMode::Walk, app.primary.map.routing_params());
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;params&quot;</span>, controls);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"params"</span>, controls);
                     <span class="self">self</span>.recalc_paths(ctx, app);
                 }
-                <span class="string">&quot;All routes&quot; </span>=&gt; {
+                <span class="string">"All routes" </span>=&gt; {
                     <span class="kw">return </span>Transition::Replace(AllRoutesExplorer::new_state(ctx, app));
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -741,7 +743,7 @@
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref mut </span>confirmed, <span class="kw">_</span>)) = <span class="self">self</span>.goal {
-            <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">&quot;end here&quot;</span>) {
+            <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">"end here"</span>) {
                 app.primary.current_selection = <span class="prelude-val">None</span>;
                 <span class="kw-2">*</span>confirmed = <span class="bool-val">true</span>;
             }
@@ -780,29 +782,29 @@
     <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[Widget::custom_row(<span class="macro">vec!</span>[
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/meters/bike.svg"</span>)
             .disabled(mode == TripMode::Bike)
-            .build_widget(ctx, <span class="string">&quot;bikes&quot;</span>),
+            .build_widget(ctx, <span class="string">"bikes"</span>),
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/meters/car.svg"</span>)
             .disabled(mode == TripMode::Drive)
-            .build_widget(ctx, <span class="string">&quot;cars&quot;</span>),
+            .build_widget(ctx, <span class="string">"cars"</span>),
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/meters/pedestrian.svg"</span>)
             .disabled(mode == TripMode::Walk)
-            .build_widget(ctx, <span class="string">&quot;pedestrians&quot;</span>),
+            .build_widget(ctx, <span class="string">"pedestrians"</span>),
     ])
     .evenly_spaced()];
     <span class="kw">if </span>mode == TripMode::Drive || mode == TripMode::Bike {
         rows.push(Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Unprotected turn penalty:&quot;
+            <span class="string">"Unprotected turn penalty:"
                 </span>.text_widget(ctx)
                 .margin_right(<span class="number">20</span>),
             Spinner::widget(
                 ctx,
-                <span class="string">&quot;unprotected_turn_penalty&quot;</span>,
+                <span class="string">"unprotected_turn_penalty"</span>,
                 (Duration::seconds(<span class="number">1.0</span>), Duration::seconds(<span class="number">100.0</span>)),
                 params.unprotected_turn_penalty,
                 Duration::seconds(<span class="number">1.0</span>),
@@ -811,52 +813,52 @@
     }
     <span class="kw">if </span>mode == TripMode::Bike {
         rows.push(Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Bike lane penalty:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+            <span class="string">"Bike lane penalty:"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
             Spinner::f64_widget(
                 ctx,
-                <span class="string">&quot;bike_lane_penalty&quot;</span>,
+                <span class="string">"bike_lane_penalty"</span>,
                 (<span class="number">0.0</span>, <span class="number">2.0</span>),
                 params.bike_lane_penalty,
                 <span class="number">0.1</span>,
             ),
         ]));
         rows.push(Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Bus lane penalty:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+            <span class="string">"Bus lane penalty:"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
             Spinner::f64_widget(
                 ctx,
-                <span class="string">&quot;bus_lane_penalty&quot;</span>,
+                <span class="string">"bus_lane_penalty"</span>,
                 (<span class="number">0.0</span>, <span class="number">2.0</span>),
                 params.bus_lane_penalty,
                 <span class="number">0.1</span>,
             ),
         ]));
         rows.push(Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Driving lane penalty:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+            <span class="string">"Driving lane penalty:"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
             Spinner::f64_widget(
                 ctx,
-                <span class="string">&quot;driving_lane_penalty&quot;</span>,
+                <span class="string">"driving_lane_penalty"</span>,
                 (<span class="number">0.0</span>, <span class="number">2.0</span>),
                 params.driving_lane_penalty,
                 <span class="number">0.1</span>,
             ),
         ]));
         rows.push(Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Avoid steep inclines (&gt;= 8%):&quot;
+            <span class="string">"Avoid steep inclines (&gt;= 8%):"
                 </span>.text_widget(ctx)
                 .margin_right(<span class="number">20</span>),
             Spinner::f64_widget(
                 ctx,
-                <span class="string">&quot;avoid_steep_incline_penalty&quot;</span>,
+                <span class="string">"avoid_steep_incline_penalty"</span>,
                 (<span class="number">0.0</span>, <span class="number">2.0</span>),
                 params.avoid_steep_incline_penalty,
                 <span class="number">0.1</span>,
             ),
         ]));
         rows.push(Widget::row(<span class="macro">vec!</span>[
-            <span class="string">&quot;Avoid high-stress roads:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+            <span class="string">"Avoid high-stress roads:"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
             Spinner::f64_widget(
                 ctx,
-                <span class="string">&quot;avoid_high_stress&quot;</span>,
+                <span class="string">"avoid_high_stress"</span>,
                 (<span class="number">0.0</span>, <span class="number">2.0</span>),
                 params.avoid_high_stress,
                 <span class="number">0.1</span>,
@@ -868,20 +870,20 @@
 
 <span class="kw">fn </span>controls_to_params(panel: <span class="kw-2">&amp;</span>Panel) -&gt; (TripMode, RoutingParams) {
     <span class="kw">let </span><span class="kw-2">mut </span>params = RoutingParams::default();
-    <span class="kw">if </span>!panel.is_button_enabled(<span class="string">&quot;cars&quot;</span>) {
-        params.unprotected_turn_penalty = panel.spinner(<span class="string">&quot;unprotected_turn_penalty&quot;</span>);
+    <span class="kw">if </span>!panel.is_button_enabled(<span class="string">"cars"</span>) {
+        params.unprotected_turn_penalty = panel.spinner(<span class="string">"unprotected_turn_penalty"</span>);
         <span class="kw">return </span>(TripMode::Drive, params);
     }
-    <span class="kw">if </span>!panel.is_button_enabled(<span class="string">&quot;pedestrians&quot;</span>) {
+    <span class="kw">if </span>!panel.is_button_enabled(<span class="string">"pedestrians"</span>) {
         <span class="kw">return </span>(TripMode::Walk, params);
     }
-    params.unprotected_turn_penalty = panel.spinner(<span class="string">&quot;unprotected_turn_penalty&quot;</span>);
-    params.bike_lane_penalty = panel.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;bike_lane_penalty&quot;</span>).<span class="number">0</span>;
-    params.bus_lane_penalty = panel.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;bus_lane_penalty&quot;</span>).<span class="number">0</span>;
-    params.driving_lane_penalty = panel.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;driving_lane_penalty&quot;</span>).<span class="number">0</span>;
+    params.unprotected_turn_penalty = panel.spinner(<span class="string">"unprotected_turn_penalty"</span>);
+    params.bike_lane_penalty = panel.spinner::&lt;RoundedF64&gt;(<span class="string">"bike_lane_penalty"</span>).<span class="number">0</span>;
+    params.bus_lane_penalty = panel.spinner::&lt;RoundedF64&gt;(<span class="string">"bus_lane_penalty"</span>).<span class="number">0</span>;
+    params.driving_lane_penalty = panel.spinner::&lt;RoundedF64&gt;(<span class="string">"driving_lane_penalty"</span>).<span class="number">0</span>;
     params.avoid_steep_incline_penalty =
-        panel.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;avoid_steep_incline_penalty&quot;</span>).<span class="number">0</span>;
-    params.avoid_high_stress = panel.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;avoid_high_stress&quot;</span>).<span class="number">0</span>;
+        panel.spinner::&lt;RoundedF64&gt;(<span class="string">"avoid_steep_incline_penalty"</span>).<span class="number">0</span>;
+    params.avoid_high_stress = panel.spinner::&lt;RoundedF64&gt;(<span class="string">"avoid_high_stress"</span>).<span class="number">0</span>;
     (TripMode::Bike, params)
 }
 
@@ -902,11 +904,11 @@
         </span>app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
 
         <span class="kw">let </span>(requests, baseline_counts) =
-            ctx.loading_screen(<span class="string">&quot;calculate baseline paths&quot;</span>, |<span class="kw">_</span>, timer| {
+            ctx.loading_screen(<span class="string">"calculate baseline paths"</span>, |<span class="kw">_</span>, timer| {
                 <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
                 <span class="kw">let </span>requests = timer
                     .parallelize(
-                        <span class="string">&quot;predict route requests&quot;</span>,
+                        <span class="string">"predict route requests"</span>,
                         app.primary.sim.all_trip_info(),
                         |(<span class="kw">_</span>, trip)| TripEndpoint::path_req(trip.start, trip.end, trip.mode, map),
                     )
@@ -925,15 +927,15 @@
         Box::new(AllRoutesExplorer {
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;All routes explorer&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"All routes explorer"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="macro">format!</span>(<span class="string">&quot;{} total requests&quot;</span>, prettyprint_usize(requests.len())).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"{} total requests"</span>, prettyprint_usize(requests.len())).text_widget(ctx),
                 params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params())
-                    .named(<span class="string">&quot;params&quot;</span>),
+                    .named(<span class="string">"params"</span>),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Calculate differential demand&quot;</span>)
+                    .text(<span class="string">"Calculate differential demand"</span>)
                     .build_def(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -953,27 +955,27 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;bikes&quot; </span>=&gt; {
+                <span class="string">"bikes" </span>=&gt; {
                     <span class="kw">let </span>controls =
                         params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params());
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;params&quot;</span>, controls);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"params"</span>, controls);
                 }
-                <span class="string">&quot;cars&quot; </span>=&gt; {
+                <span class="string">"cars" </span>=&gt; {
                     <span class="kw">let </span>controls =
                         params_to_controls(ctx, TripMode::Drive, app.primary.map.routing_params());
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;params&quot;</span>, controls);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"params"</span>, controls);
                 }
-                <span class="string">&quot;pedestrians&quot; </span>=&gt; {
+                <span class="string">"pedestrians" </span>=&gt; {
                     <span class="kw">let </span>controls =
                         params_to_controls(ctx, TripMode::Walk, app.primary.map.routing_params());
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;params&quot;</span>, controls);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"params"</span>, controls);
                 }
-                <span class="string">&quot;Calculate differential demand&quot; </span>=&gt; {
+                <span class="string">"Calculate differential demand" </span>=&gt; {
                     ctx.loading_screen(
-                        <span class="string">&quot;calculate differential demand due to routing params&quot;</span>,
+                        <span class="string">"calculate differential demand due to routing params"</span>,
                         |ctx, timer| {
                             <span class="kw">let </span>(<span class="kw">_</span>, params) = controls_to_params(<span class="kw-2">&amp;</span><span class="self">self</span>.panel);
                             <span class="kw">let </span>pathfinder = Pathfinder::new_ch(
@@ -1028,8 +1030,8 @@
                 <span class="kw">let </span>current = <span class="self">self</span>.current_counts.get(r);
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                 cmp_count(<span class="kw-2">&amp;mut </span>txt, baseline, current);
-                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{} baseline&quot;</span>, prettyprint_usize(baseline)));
-                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{} now&quot;</span>, prettyprint_usize(current)));
+                txt.add_line(<span class="macro">format!</span>(<span class="string">"{} baseline"</span>, prettyprint_usize(baseline)));
+                txt.add_line(<span class="macro">format!</span>(<span class="string">"{} now"</span>, prettyprint_usize(current)));
                 <span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(txt);
             }
         }
@@ -1055,14 +1057,14 @@
 ) -&gt; Counter&lt;RoadID&gt; {
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
     <span class="kw">let </span>paths = timer
-        .parallelize(<span class="string">&quot;pathfind&quot;</span>, requests.to_vec(), |req| {
+        .parallelize(<span class="string">"pathfind"</span>, requests.to_vec(), |req| {
             pathfinder.pathfind_v2(req, map)
         })
         .into_iter()
         .flatten()
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     <span class="kw">let </span><span class="kw-2">mut </span>counter = Counter::new();
-    timer.start_iter(<span class="string">&quot;compute demand&quot;</span>, paths.len());
+    timer.start_iter(<span class="string">"compute demand"</span>, paths.len());
     <span class="kw">for </span>path <span class="kw">in </span>paths {
         timer.next();
         <span class="kw">for </span>step <span class="kw">in </span>path.get_steps() {
@@ -1074,7 +1076,7 @@
     counter
 }
 
-<span class="doccomment">/// Evaluate why an alternative path wasn&#39;t chosen, by showing the cost to reach every road from
+<span class="doccomment">/// Evaluate why an alternative path wasn't chosen, by showing the cost to reach every road from
 /// one start.
 </span><span class="kw">pub struct </span>PathCostDebugger {
     draw_path: Drawable,
@@ -1093,7 +1095,7 @@
         <span class="kw">let </span>(full_cost, all_costs) = app.primary.map.all_costs_from(req)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
         <span class="comment">// Highlight all directed roads with a cost less than the cost of the chosen path. This
-        // more or less shows &quot;alternatives considered&quot;; the boundary becomes the point where the
+        // more or less shows "alternatives considered"; the boundary becomes the point where the
         // chosen path really did win.
         </span><span class="kw">for </span>(dr, cost) <span class="kw">in </span><span class="kw-2">&amp;</span>all_costs {
             <span class="kw">if </span><span class="kw-2">*</span>cost &lt;= full_cost {
@@ -1115,10 +1117,10 @@
             tooltip: <span class="prelude-val">None</span>,
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Path cost debugger&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Path cost debugger"</span>).small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="macro">format!</span>(<span class="string">&quot;Cost of chosen path: {}&quot;</span>, full_cost).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"Cost of chosen path: {}"</span>, full_cost).text_widget(ctx),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -1137,9 +1139,9 @@
                 </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                 <span class="kw">for </span>dir <span class="kw">in </span>[Direction::Fwd, Direction::Back] {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(cost) = <span class="self">self</span>.costs.get(<span class="kw-2">&amp;</span>DirectedRoadID { road: r, dir }) {
-                        txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Cost {:?}: {}&quot;</span>, dir, cost));
+                        txt.add_line(<span class="macro">format!</span>(<span class="string">"Cost {:?}: {}"</span>, dir, cost));
                     } <span class="kw">else </span>{
-                        txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;No cost {:?}&quot;</span>, dir));
+                        txt.add_line(<span class="macro">format!</span>(<span class="string">"No cost {:?}"</span>, dir));
                     }
                 }
                 <span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(txt);
@@ -1148,7 +1150,7 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),

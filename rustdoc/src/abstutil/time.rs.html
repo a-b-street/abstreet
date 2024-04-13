@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstutil/src/time.rs`."><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="abstutil" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstutil/src/time.rs`."><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="abstutil" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../abstutil/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -643,14 +645,14 @@
     }
 
     <span class="comment">// Returns when done
-    </span><span class="kw">fn </span>next&lt;<span class="lifetime">&#39;a</span>&gt;(
+    </span><span class="kw">fn </span>next&lt;<span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        maybe_sink: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">&#39;a</span>&gt;&gt;,
+        maybe_sink: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">'a</span>&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;(f64, String)&gt; {
         <span class="self">self</span>.processed_items += <span class="number">1</span>;
         <span class="kw">if </span><span class="self">self</span>.processed_items &gt; <span class="self">self</span>.total_items {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;{} is too few items for {} progress&quot;</span>,
+                <span class="string">"{} is too few items for {} progress"</span>,
                 prettyprint_usize(<span class="self">self</span>.total_items),
                 <span class="self">self</span>.label
             );
@@ -659,7 +661,7 @@
         <span class="kw">if </span><span class="self">self</span>.processed_items == <span class="self">self</span>.total_items {
             <span class="kw">let </span>elapsed = elapsed_seconds(<span class="self">self</span>.started_at);
             <span class="kw">let </span>line = <span class="macro">format!</span>(
-                <span class="string">&quot;{} ({})... {}&quot;</span>,
+                <span class="string">"{} ({})... {}"</span>,
                 <span class="self">self</span>.label,
                 prettyprint_usize(<span class="self">self</span>.total_items),
                 prettyprint_time(elapsed)
@@ -668,7 +670,7 @@
                 temporary_println(maybe_sink, line.clone());
             } <span class="kw">else </span>{
                 clear_current_line();
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, line);
+                <span class="macro">println!</span>(<span class="string">"{}"</span>, line);
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>sink) = maybe_sink {
                     sink.reprintln(line.clone());
                 }
@@ -677,14 +679,14 @@
         } <span class="kw">else if </span>elapsed_seconds(<span class="self">self</span>.last_printed_at) &gt;= PROGRESS_FREQUENCY_SECONDS {
             <span class="self">self</span>.last_printed_at = Instant::now();
             <span class="kw">let </span>line = <span class="macro">format!</span>(
-                <span class="string">&quot;{}: {}/{}... {}&quot;</span>,
+                <span class="string">"{}: {}/{}... {}"</span>,
                 <span class="self">self</span>.label,
                 prettyprint_usize(<span class="self">self</span>.processed_items),
                 prettyprint_usize(<span class="self">self</span>.total_items),
                 prettyprint_time(elapsed_seconds(<span class="self">self</span>.started_at))
             );
             clear_current_line();
-            <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, line);
+            <span class="macro">print!</span>(<span class="string">"{}"</span>, line);
             stdout().flush().unwrap();
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>sink) = maybe_sink {
@@ -716,13 +718,13 @@
 }
 
 <span class="doccomment">/// Hierarchial magic
-</span><span class="kw">pub struct </span>Timer&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub struct </span>Timer&lt;<span class="lifetime">'a</span>&gt; {
     results: Vec&lt;String&gt;,
     stack: Vec&lt;StackEntry&gt;,
 
     outermost_name: String,
 
-    sink: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">&#39;a</span>&gt;&gt;,
+    sink: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">'a</span>&gt;&gt;,
 }
 
 <span class="kw">struct </span>TimerSpan {
@@ -732,8 +734,8 @@
     nested_time: f64,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Timer&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>new&lt;S: Into&lt;String&gt;&gt;(raw_name: S) -&gt; Timer&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Timer&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub fn </span>new&lt;S: Into&lt;String&gt;&gt;(raw_name: S) -&gt; Timer&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">let </span>name = raw_name.into();
         <span class="kw">let </span><span class="kw-2">mut </span>t = Timer {
             results: Vec::new(),
@@ -745,15 +747,15 @@
         t
     }
 
-    <span class="kw">pub fn </span>new_with_sink(name: <span class="kw-2">&amp;</span>str, sink: Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">&#39;a</span>&gt;) -&gt; Timer&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub fn </span>new_with_sink(name: <span class="kw-2">&amp;</span>str, sink: Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">'a</span>&gt;) -&gt; Timer&lt;<span class="lifetime">'a</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>t = Timer::new(name);
         t.sink = <span class="prelude-val">Some</span>(sink);
         t
     }
 
-    <span class="comment">// TODO Shouldn&#39;t use this much.
-    </span><span class="kw">pub fn </span>throwaway() -&gt; Timer&lt;<span class="lifetime">&#39;a</span>&gt; {
-        Timer::new(<span class="string">&quot;throwaway&quot;</span>)
+    <span class="comment">// TODO Shouldn't use this much.
+    </span><span class="kw">pub fn </span>throwaway() -&gt; Timer&lt;<span class="lifetime">'a</span>&gt; {
+        Timer::new(<span class="string">"throwaway"</span>)
     }
 
     <span class="kw">fn </span>temporary_println(<span class="kw-2">&amp;mut </span><span class="self">self</span>, line: String) {
@@ -764,12 +766,12 @@
     </span><span class="kw">pub fn </span>done(<span class="self">self</span>) {}
 
     <span class="kw">pub fn </span>start&lt;S: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, raw_name: S) {
-        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">&quot;throwaway&quot; </span>{
+        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">"throwaway" </span>{
             <span class="kw">return</span>;
         }
 
         <span class="kw">let </span>name = raw_name.into();
-        <span class="self">self</span>.temporary_println(<span class="macro">format!</span>(<span class="string">&quot;{}...&quot;</span>, name));
+        <span class="self">self</span>.temporary_println(<span class="macro">format!</span>(<span class="string">"{}..."</span>, name));
         <span class="self">self</span>.stack.push(StackEntry::TimerSpan(TimerSpan {
             name,
             started_at: Instant::now(),
@@ -779,36 +781,36 @@
     }
 
     <span class="kw">pub fn </span>stop&lt;S: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, raw_name: S) {
-        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">&quot;throwaway&quot; </span>{
+        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">"throwaway" </span>{
             <span class="kw">return</span>;
         }
         <span class="kw">let </span>name = raw_name.into();
 
         <span class="kw">let </span>span = <span class="kw">match </span><span class="self">self</span>.stack.pop().unwrap() {
             StackEntry::TimerSpan(s) =&gt; s,
-            StackEntry::Progress(p) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;stop() during unfinished start_iter(): {:?}&quot;</span>, p),
-            StackEntry::File(f) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;stop() while reading file {}&quot;</span>, f.path),
+            StackEntry::Progress(p) =&gt; <span class="macro">panic!</span>(<span class="string">"stop() during unfinished start_iter(): {:?}"</span>, p),
+            StackEntry::File(f) =&gt; <span class="macro">panic!</span>(<span class="string">"stop() while reading file {}"</span>, f.path),
         };
         <span class="macro">assert_eq!</span>(span.name, name);
         <span class="kw">let </span>elapsed = elapsed_seconds(span.started_at);
-        <span class="kw">let </span>line = <span class="macro">format!</span>(<span class="string">&quot;{} took {}&quot;</span>, name, prettyprint_time(elapsed));
+        <span class="kw">let </span>line = <span class="macro">format!</span>(<span class="string">"{} took {}"</span>, name, prettyprint_time(elapsed));
 
-        <span class="kw">let </span>padding = <span class="string">&quot;  &quot;</span>.repeat(<span class="self">self</span>.stack.len());
+        <span class="kw">let </span>padding = <span class="string">"  "</span>.repeat(<span class="self">self</span>.stack.len());
         <span class="kw">match </span><span class="self">self</span>.stack.last_mut() {
             <span class="prelude-val">Some</span>(StackEntry::TimerSpan(<span class="kw-2">ref mut </span>s)) =&gt; {
-                s.nested_results.push(<span class="macro">format!</span>(<span class="string">&quot;{}- {}&quot;</span>, padding, line));
+                s.nested_results.push(<span class="macro">format!</span>(<span class="string">"{}- {}"</span>, padding, line));
                 s.nested_results.extend(span.nested_results);
                 <span class="kw">if </span>span.nested_time != <span class="number">0.0 </span>{
                     temporary_println(
                         <span class="kw-2">&amp;mut </span><span class="self">self</span>.sink,
                         <span class="macro">format!</span>(
-                            <span class="string">&quot;{}... plus {}&quot;</span>,
+                            <span class="string">"{}... plus {}"</span>,
                             name,
                             prettyprint_time(elapsed - span.nested_time)
                         ),
                     );
                     s.nested_results.push(<span class="macro">format!</span>(
-                        <span class="string">&quot;  {}- ... plus {}&quot;</span>,
+                        <span class="string">"  {}- ... plus {}"</span>,
                         padding,
                         prettyprint_time(elapsed - span.nested_time)
                     ));
@@ -817,20 +819,20 @@
             }
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             <span class="prelude-val">None </span>=&gt; {
-                <span class="self">self</span>.results.push(<span class="macro">format!</span>(<span class="string">&quot;{}- {}&quot;</span>, padding, line));
+                <span class="self">self</span>.results.push(<span class="macro">format!</span>(<span class="string">"{}- {}"</span>, padding, line));
                 <span class="self">self</span>.results.extend(span.nested_results);
                 <span class="kw">if </span>span.nested_time != <span class="number">0.0 </span>{
                     <span class="self">self</span>.temporary_println(<span class="macro">format!</span>(
-                        <span class="string">&quot;{}... plus {}&quot;</span>,
+                        <span class="string">"{}... plus {}"</span>,
                         name,
                         prettyprint_time(elapsed - span.nested_time)
                     ));
                     <span class="self">self</span>.results.push(<span class="macro">format!</span>(
-                        <span class="string">&quot;  - ... plus {}&quot;</span>,
+                        <span class="string">"  - ... plus {}"</span>,
                         prettyprint_time(elapsed - span.nested_time)
                     ));
                 }
-                <span class="comment">// Don&#39;t bother tracking excess time that the Timer has existed but had no spans
+                <span class="comment">// Don't bother tracking excess time that the Timer has existed but had no spans
             </span>}
         }
 
@@ -838,7 +840,7 @@
     }
 
     <span class="kw">pub fn </span>start_iter&lt;S: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, raw_name: S, total_items: usize) {
-        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">&quot;throwaway&quot; </span>{
+        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">"throwaway" </span>{
             <span class="kw">return</span>;
         }
         <span class="kw">if </span>total_items == <span class="number">0 </span>{
@@ -852,14 +854,14 @@
     }
 
     <span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">&quot;throwaway&quot; </span>{
+        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">"throwaway" </span>{
             <span class="kw">return</span>;
         }
         <span class="kw">let </span>maybe_result =
             <span class="kw">if let </span><span class="prelude-val">Some</span>(StackEntry::Progress(<span class="kw-2">ref mut </span>progress)) = <span class="self">self</span>.stack.last_mut() {
                 progress.next(<span class="kw-2">&amp;mut </span><span class="self">self</span>.sink)
             } <span class="kw">else </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t next() while a TimerSpan is top of the stack&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"Can't next() while a TimerSpan is top of the stack"</span>);
             };
         <span class="kw">if let </span><span class="prelude-val">Some</span>((elapsed, result)) = maybe_result {
             <span class="self">self</span>.stack.pop();
@@ -868,30 +870,30 @@
     }
 
     <span class="kw">pub fn </span>cancel_iter_early(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">&quot;throwaway&quot; </span>{
+        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">"throwaway" </span>{
             <span class="kw">return</span>;
         }
         <span class="kw">let </span>elapsed = <span class="kw">if let </span><span class="prelude-val">Some</span>(StackEntry::Progress(<span class="kw-2">ref mut </span>progress)) = <span class="self">self</span>.stack.last_mut() {
             progress.cancel_iter_early()
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t cancel_iter_early() while a TimerSpan is top of the stack&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"Can't cancel_iter_early() while a TimerSpan is top of the stack"</span>);
         };
         <span class="self">self</span>.stack.pop();
-        <span class="self">self</span>.add_result(elapsed, <span class="string">&quot;cancelled early&quot;</span>.to_string());
+        <span class="self">self</span>.add_result(elapsed, <span class="string">"cancelled early"</span>.to_string());
     }
 
     <span class="kw">pub fn </span>add_result(<span class="kw-2">&amp;mut </span><span class="self">self</span>, elapsed: f64, line: String) {
-        <span class="kw">let </span>padding = <span class="string">&quot;  &quot;</span>.repeat(<span class="self">self</span>.stack.len());
+        <span class="kw">let </span>padding = <span class="string">"  "</span>.repeat(<span class="self">self</span>.stack.len());
         <span class="kw">match </span><span class="self">self</span>.stack.last_mut() {
             <span class="prelude-val">Some</span>(StackEntry::TimerSpan(<span class="kw-2">ref mut </span>s)) =&gt; {
-                s.nested_results.push(<span class="macro">format!</span>(<span class="string">&quot;{}- {}&quot;</span>, padding, line));
+                s.nested_results.push(<span class="macro">format!</span>(<span class="string">"{}- {}"</span>, padding, line));
                 s.nested_time += elapsed;
             }
             <span class="prelude-val">Some</span>(StackEntry::Progress(<span class="kw">_</span>)) =&gt; {}
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             <span class="prelude-val">None </span>=&gt; {
-                <span class="self">self</span>.results.push(<span class="macro">format!</span>(<span class="string">&quot;{}- {}&quot;</span>, padding, line));
-                <span class="comment">// Don&#39;t bother tracking excess time that the Timer has existed but had no spans
+                <span class="self">self</span>.results.push(<span class="macro">format!</span>(<span class="string">"{}- {}"</span>, padding, line));
+                <span class="comment">// Don't bother tracking excess time that the Timer has existed but had no spans
             </span>}
         }
     }
@@ -912,7 +914,7 @@
         <span class="self">self</span>.inner_parallelize(timer_name, requests, cb, num_cpus::get().max(<span class="number">1</span>) <span class="kw">as </span>u32)
     }
 
-    <span class="doccomment">/// Like `parallelize`, but leave one CPU free, to avoid thrashing the user&#39;s system.
+    <span class="doccomment">/// Like `parallelize`, but leave one CPU free, to avoid thrashing the user's system.
     </span><span class="kw">pub fn </span>parallelize_polite&lt;I, O, F: Fn(I) -&gt; O&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         timer_name: <span class="kw-2">&amp;</span>str,
@@ -944,9 +946,9 @@
         O: Send,
         F: Send + Clone + Copy,
     {
-        <span class="comment">// Here&#39;s the sequential equivalent, to conveniently compare times. Also gotta use this in
+        <span class="comment">// Here's the sequential equivalent, to conveniently compare times. Also gotta use this in
         // wasm; no threads.
-        </span><span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+        </span><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
         </span>{
             <span class="comment">// Silence a warning
             </span><span class="kw">let _ </span>= num_cpus;
@@ -960,7 +962,7 @@
             <span class="kw">return </span>results;
         }
 
-        <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+        <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
         </span>{
             scoped_threadpool::Pool::new(num_cpus).scoped(|scope| {
                 <span class="kw">let </span>(tx, rx) = std::sync::mpsc::channel();
@@ -1019,29 +1021,29 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; std::ops::Drop <span class="kw">for </span>Timer&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; std::ops::Drop <span class="kw">for </span>Timer&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">&quot;throwaway&quot; </span>{
+        <span class="kw">if </span><span class="self">self</span>.outermost_name == <span class="string">"throwaway" </span>{
             <span class="kw">return</span>;
         }
 
         <span class="kw">let </span>stop_name = <span class="self">self</span>.outermost_name.clone();
 
-        <span class="comment">// If we&#39;re in the middle of unwinding a panic, don&#39;t further blow up.
+        <span class="comment">// If we're in the middle of unwinding a panic, don't further blow up.
         </span><span class="kw">match </span><span class="self">self</span>.stack.last() {
             <span class="prelude-val">Some</span>(StackEntry::TimerSpan(<span class="kw-2">ref </span>s)) =&gt; {
                 <span class="kw">if </span>s.name != stop_name {
-                    <span class="macro">error!</span>(<span class="string">&quot;dropping Timer during {}, due to panic?&quot;</span>, s.name);
+                    <span class="macro">error!</span>(<span class="string">"dropping Timer during {}, due to panic?"</span>, s.name);
                     <span class="kw">return</span>;
                 }
             }
             <span class="prelude-val">Some</span>(StackEntry::File(<span class="kw-2">ref </span>r)) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;dropping Timer while reading {}, due to panic?&quot;</span>, r.path);
+                <span class="macro">error!</span>(<span class="string">"dropping Timer while reading {}, due to panic?"</span>, r.path);
                 <span class="kw">return</span>;
             }
             <span class="prelude-val">Some</span>(StackEntry::Progress(<span class="kw-2">ref </span>p)) =&gt; {
                 <span class="macro">error!</span>(
-                    <span class="string">&quot;dropping Timer while doing progress {}, due to panic?&quot;</span>,
+                    <span class="string">"dropping Timer while doing progress {}, due to panic?"</span>,
                     p.label
                 );
                 <span class="kw">return</span>;
@@ -1056,18 +1058,18 @@
         }
 
         <span class="kw">if </span>std::thread::panicking() {
-            <span class="macro">error!</span>(<span class="string">&quot;&quot;</span>);
-            <span class="macro">error!</span>(<span class="string">&quot;&quot;</span>);
-            <span class="macro">error!</span>(<span class="string">&quot;&quot;</span>);
-            <span class="macro">error!</span>(<span class="string">&quot;&quot;</span>);
-            <span class="macro">error!</span>(<span class="string">&quot;&quot;</span>);
-            <span class="macro">error!</span>(<span class="string">&quot;!!! The program panicked, look above for the stack trace !!!&quot;</span>);
+            <span class="macro">error!</span>(<span class="string">""</span>);
+            <span class="macro">error!</span>(<span class="string">""</span>);
+            <span class="macro">error!</span>(<span class="string">""</span>);
+            <span class="macro">error!</span>(<span class="string">""</span>);
+            <span class="macro">error!</span>(<span class="string">""</span>);
+            <span class="macro">error!</span>(<span class="string">"!!! The program panicked, look above for the stack trace !!!"</span>);
         }
     }
 }
 
 <span class="kw">pub fn </span>prettyprint_time(seconds: f64) -&gt; String {
-    <span class="macro">format!</span>(<span class="string">&quot;{:.4}s&quot;</span>, seconds)
+    <span class="macro">format!</span>(<span class="string">"{:.4}s"</span>, seconds)
 }
 
 <span class="attr">#[cfg(unix)]
@@ -1075,18 +1077,18 @@
     <span class="comment">// Fails in the test runner.
     </span><span class="kw">if let </span><span class="prelude-val">Ok</span>((terminal_width, <span class="kw">_</span>)) = termion::terminal_size() {
         <span class="macro">print!</span>(
-            <span class="string">&quot;{}{}&quot;</span>,
+            <span class="string">"{}{}"</span>,
             termion::clear::CurrentLine,
             termion::cursor::Left(terminal_width)
         );
     } <span class="kw">else </span>{
-        <span class="macro">print!</span>(<span class="string">&quot;\r&quot;</span>);
+        <span class="macro">print!</span>(<span class="string">"\r"</span>);
     }
 }
 
 <span class="attr">#[cfg(not(unix))]
 </span><span class="kw">pub fn </span>clear_current_line() {
-    <span class="macro">print!</span>(<span class="string">&quot;\r&quot;</span>);
+    <span class="macro">print!</span>(<span class="string">"\r"</span>);
 }
 
 <span class="kw">struct </span>TimedFileReader {
@@ -1117,14 +1119,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Read <span class="kw">for </span>Timer&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Read <span class="kw">for </span>Timer&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, std::io::Error&gt; {
         <span class="kw">let </span>file = <span class="kw">match </span><span class="self">self</span>.stack.last_mut() {
             <span class="prelude-val">Some</span>(StackEntry::File(<span class="kw-2">ref mut </span>f)) =&gt; f,
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
                     ErrorKind::Other,
-                    <span class="string">&quot;trying to read when Timer doesn&#39;t have file on the stack?!&quot;</span>,
+                    <span class="string">"trying to read when Timer doesn't have file on the stack?!"</span>,
                 ));
             }
         };
@@ -1133,7 +1135,7 @@
         file.processed_bytes += bytes;
         <span class="kw">if </span>file.processed_bytes &gt; file.total_bytes {
             <span class="macro">panic!</span>(
-                <span class="string">&quot;{} is too many bytes read from {}&quot;</span>,
+                <span class="string">"{} is too many bytes read from {}"</span>,
                 prettyprint_usize(file.processed_bytes),
                 file.path
             );
@@ -1142,17 +1144,17 @@
         <span class="kw">if </span>file.processed_bytes == file.total_bytes {
             <span class="kw">let </span>elapsed = elapsed_seconds(file.started_at);
             <span class="kw">let </span>line = <span class="macro">format!</span>(
-                <span class="string">&quot;Read {} ({})... {}&quot;</span>,
+                <span class="string">"Read {} ({})... {}"</span>,
                 file.path,
                 prettyprint_usize(file.total_bytes / <span class="number">1024 </span>/ <span class="number">1024</span>),
                 prettyprint_time(elapsed)
             );
-            <span class="kw">if </span><span class="self">self</span>.outermost_name != <span class="string">&quot;throwaway&quot; </span>{
+            <span class="kw">if </span><span class="self">self</span>.outermost_name != <span class="string">"throwaway" </span>{
                 <span class="kw">if </span>file.last_printed_at.is_none() {
                     <span class="self">self</span>.temporary_println(line.clone());
                 } <span class="kw">else </span>{
                     clear_current_line();
-                    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, line);
+                    <span class="macro">println!</span>(<span class="string">"{}"</span>, line);
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>sink) = <span class="self">self</span>.sink {
                         sink.reprintln(line.clone());
                     }
@@ -1163,9 +1165,9 @@
         } <span class="kw">else if </span>file.last_printed_at.is_none()
             || elapsed_seconds(file.last_printed_at.unwrap()) &gt;= PROGRESS_FREQUENCY_SECONDS
         {
-            <span class="kw">if </span><span class="self">self</span>.outermost_name != <span class="string">&quot;throwaway&quot; </span>{
+            <span class="kw">if </span><span class="self">self</span>.outermost_name != <span class="string">"throwaway" </span>{
                 <span class="kw">let </span>line = <span class="macro">format!</span>(
-                    <span class="string">&quot;Reading {}: {}/{} MB... {}&quot;</span>,
+                    <span class="string">"Reading {}: {}/{} MB... {}"</span>,
                     file.path,
                     prettyprint_usize(file.processed_bytes / <span class="number">1024 </span>/ <span class="number">1024</span>),
                     prettyprint_usize(file.total_bytes / <span class="number">1024 </span>/ <span class="number">1024</span>),
@@ -1173,7 +1175,7 @@
                 );
                 <span class="comment">// TODO Refactor this pattern...
                 </span>clear_current_line();
-                <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, line);
+                <span class="macro">print!</span>(<span class="string">"{}"</span>, line);
                 stdout().flush().unwrap();
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>sink) = <span class="self">self</span>.sink {
@@ -1193,14 +1195,14 @@
 }
 
 <span class="comment">// Print progress info while a Timer is still active. Invisible on web by default.
-</span><span class="kw">fn </span>temporary_println&lt;<span class="lifetime">&#39;a</span>&gt;(maybe_sink: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">&#39;a</span>&gt;&gt;, line: String) {
-    <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+</span><span class="kw">fn </span>temporary_println&lt;<span class="lifetime">'a</span>&gt;(maybe_sink: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">'a</span>&gt;&gt;, line: String) {
+    <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
     </span>{
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, line);
+        <span class="macro">println!</span>(<span class="string">"{}"</span>, line);
     }
-    <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
     </span>{
-        <span class="macro">debug!</span>(<span class="string">&quot;{}&quot;</span>, line);
+        <span class="macro">debug!</span>(<span class="string">"{}"</span>, line);
     }
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>sink) = maybe_sink {
         sink.println(line);
@@ -1208,8 +1210,8 @@
 }
 
 <span class="comment">// Print info about a completed Timer. Always uses info logs, so works on native and web.
-</span><span class="kw">fn </span>finalized_println&lt;<span class="lifetime">&#39;a</span>&gt;(maybe_sink: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">&#39;a</span>&gt;&gt;, line: String) {
-    <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, line);
+</span><span class="kw">fn </span>finalized_println&lt;<span class="lifetime">'a</span>&gt;(maybe_sink: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>TimerSink + <span class="lifetime">'a</span>&gt;&gt;, line: String) {
+    <span class="macro">info!</span>(<span class="string">"{}"</span>, line);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>sink) = maybe_sink {
         sink.println(line);
     }

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/design_ltn/page.rs`."><title>page.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/design_ltn/page.rs`."><title>page.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -833,17 +835,17 @@
             Widget::nothing()
         } <span class="kw">else </span>{
             <span class="kw">let </span>msg = <span class="kw">if </span>disconnected_cells == <span class="number">1 </span>{
-                <span class="string">&quot;1 cell isn&#39;t reachable&quot;</span>.to_string()
+                <span class="string">"1 cell isn't reachable"</span>.to_string()
             } <span class="kw">else </span>{
-                <span class="macro">format!</span>(<span class="string">&quot;{disconnected_cells} cells aren&#39;t reachable&quot;</span>)
+                <span class="macro">format!</span>(<span class="string">"{disconnected_cells} cells aren't reachable"</span>)
             };
 
             ctx.style()
                 .btn_plain
-                .icon_text(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>, msg)
+                .icon_text(<span class="string">"system/assets/tools/warning.svg"</span>, msg)
                 .label_color(Color::RED, ControlState::Default)
                 .no_tooltip()
-                .build_widget(ctx, <span class="string">&quot;warning1&quot;</span>)
+                .build_widget(ctx, <span class="string">"warning1"</span>)
         };
         <span class="self">self</span>.show_unreachable_cell = ctx.upload(show_unreachable_cell);
 
@@ -853,12 +855,12 @@
             ctx.style()
                 .btn_plain
                 .icon_text(
-                    <span class="string">&quot;system/assets/tools/warning.svg&quot;</span>,
-                    <span class="string">&quot;Part of the perimeter is a local street&quot;</span>,
+                    <span class="string">"system/assets/tools/warning.svg"</span>,
+                    <span class="string">"Part of the perimeter is a local street"</span>,
                 )
                 .label_color(Color::RED, ControlState::Default)
                 .no_tooltip()
-                .build_widget(ctx, <span class="string">&quot;warning2&quot;</span>)
+                .build_widget(ctx, <span class="string">"warning2"</span>)
         };
 
         <span class="self">self</span>.bottom_panel = make_bottom_panel(
@@ -867,7 +869,7 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel,
             Widget::col(<span class="macro">vec!</span>[
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;Area: {}&quot;</span>,
+                    <span class="string">"Area: {}"</span>,
                     app.partitioning()
                         .neighbourhood_area_km2(<span class="self">self</span>.neighbourhood.id)
                 )
@@ -898,27 +900,27 @@
             <span class="kw">return </span>t;
         }
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.bottom_panel.event(ctx) {
-            <span class="kw">if </span>x == <span class="string">&quot;Advanced&quot; </span>{
+            <span class="kw">if </span>x == <span class="string">"Advanced" </span>{
                 <span class="kw">return </span>launch_advanced(ctx, app, <span class="self">self</span>.neighbourhood.id);
-            } <span class="kw">else if </span>x == <span class="string">&quot;warning1&quot; </span>{
+            } <span class="kw">else if </span>x == <span class="string">"warning1" </span>{
                 <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                     ctx,
-                    <span class="string">&quot;Unreachable cell&quot;</span>,
+                    <span class="string">"Unreachable cell"</span>,
                     <span class="macro">vec!</span>[
-                        <span class="string">&quot;Some streets inside this area can&#39;t be reached by car at all.&quot;</span>,
-                        <span class="string">&quot;You probably drew too many filters.&quot;</span>,
-                        <span class="string">&quot;&quot;</span>,
-                        <span class="string">&quot;(This may be incorrectly detected near some private/gated roads)&quot;</span>,
+                        <span class="string">"Some streets inside this area can't be reached by car at all."</span>,
+                        <span class="string">"You probably drew too many filters."</span>,
+                        <span class="string">""</span>,
+                        <span class="string">"(This may be incorrectly detected near some private/gated roads)"</span>,
                     ],
                 ));
-            } <span class="kw">else if </span>x == <span class="string">&quot;warning2&quot; </span>{
+            } <span class="kw">else if </span>x == <span class="string">"warning2" </span>{
                 <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;Unusual perimeter&quot;</span>,
+                        <span class="string">"Unusual perimeter"</span>,
                         <span class="macro">vec!</span>[
-                        <span class="string">&quot;Part of this area&#39;s perimeter consists of streets classified as local.&quot;</span>,
-                        <span class="string">&quot;This is usually fine, when this area doesn&#39;t connect to other main roads farther away.&quot;</span>,
-                        <span class="string">&quot;If you&#39;re near the edge of the map, it might be an error. Try importing a larger area, including the next major road in that direction&quot;</span>,
+                        <span class="string">"Part of this area's perimeter consists of streets classified as local."</span>,
+                        <span class="string">"This is usually fine, when this area doesn't connect to other main roads farther away."</span>,
+                        <span class="string">"If you're near the edge of the map, it might be an error. Try importing a larger area, including the next major road in that direction"</span>,
                         ],
                         ));
             }
@@ -990,10 +992,10 @@
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
 
-        <span class="kw">if </span><span class="self">self</span>.bottom_panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;warning1&quot;</span>.to_string()) {
+        <span class="kw">if </span><span class="self">self</span>.bottom_panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"warning1"</span>.to_string()) {
             g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.show_unreachable_cell);
         }
-        <span class="kw">if </span><span class="self">self</span>.bottom_panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;warning2&quot;</span>.to_string()) {
+        <span class="kw">if </span><span class="self">self</span>.bottom_panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">"warning2"</span>.to_string()) {
             g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.show_suspicious_perimeters);
         }
 
@@ -1049,7 +1051,7 @@
         highlight_cell
             .add_unnamed()
             .hitboxes(polygons.clone())
-            <span class="comment">// Don&#39;t draw cells by default
+            <span class="comment">// Don't draw cells by default
             </span>.drawn_in_master_batch()
             .draw_hovered(batch)
             .build(ctx);
@@ -1073,7 +1075,7 @@
     }
 
     <span class="comment">// Draw one-way arrows and mark private roads
-    </span><span class="kw">let </span>private_road = GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/map/private_road.svg&quot;</span>);
+    </span><span class="kw">let </span>private_road = GeomBatch::load_svg(ctx, <span class="string">"system/assets/map/private_road.svg"</span>);
 
     <span class="kw">for </span>r <span class="kw">in </span>neighbourhood
         .interior_roads
@@ -1083,7 +1085,7 @@
         <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>r);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(dir) = road.oneway_for_driving() {
             <span class="comment">// Manually tuned to make arrows fit within roads of any width. We could be more
-            // specific and calculate based on the road&#39;s outline, a buffer, etc, but we&#39;d still
+            // specific and calculate based on the road's outline, a buffer, etc, but we'd still
             // have to do some math to account for the triangular arrow cap. This value looks
             // reasonable.
             </span><span class="kw">let </span>thickness = <span class="number">0.2 </span>* road.get_width();
@@ -1123,8 +1125,8 @@
             }
 
             <span class="kw">if </span>!any {
-                <span class="comment">// If the label won and we haven&#39;t drawn anything, draw arrows right at the start
-                // and end. Otherwise the user has no idea what&#39;s happening
+                <span class="comment">// If the label won and we haven't drawn anything, draw arrows right at the start
+                // and end. Otherwise the user has no idea what's happening
                 </span><span class="kw">for </span>dist <span class="kw">in </span>[Distance::ZERO, road.length()] {
                     <span class="kw">let </span>(pt, angle) = road.center_pts.must_dist_along(dist);
                     draw_arrow(pt, angle);
@@ -1132,7 +1134,7 @@
             }
         }
 
-        <span class="comment">// Mimic the UK-style &quot;no entry&quot; / dead-end symbol at both ends of every private road
+        <span class="comment">// Mimic the UK-style "no entry" / dead-end symbol at both ends of every private road
         // segment
         </span><span class="kw">if </span>is_private(road) {
             <span class="comment">// The outline is 1m on each side
@@ -1161,34 +1163,34 @@
 }
 
 <span class="kw">fn </span>launch_advanced(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, id: NeighbourhoodID) -&gt; Transition {
-    <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::string(<span class="string">&quot;Automatically place modal filters&quot;</span>)];
+    <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::string(<span class="string">"Automatically place modal filters"</span>)];
     <span class="kw">if </span>!app.partitioning().custom_boundaries.contains_key(<span class="kw-2">&amp;</span>id) {
-        choices.push(Choice::string(<span class="string">&quot;Customize boundary (for drawing only)&quot;</span>));
-        choices.push(Choice::string(<span class="string">&quot;Convert to freehand area&quot;</span>));
+        choices.push(Choice::string(<span class="string">"Customize boundary (for drawing only)"</span>));
+        choices.push(Choice::string(<span class="string">"Convert to freehand area"</span>));
     }
 
     Transition::Push(ChooseSomething::new_state(
         ctx,
-        <span class="string">&quot;Advanced features&quot;</span>,
+        <span class="string">"Advanced features"</span>,
         choices,
         Box::new(<span class="kw">move </span>|choice, ctx, app| {
-            <span class="kw">if </span>choice == <span class="string">&quot;Customize boundary (for drawing only)&quot; </span>{
+            <span class="kw">if </span>choice == <span class="string">"Customize boundary (for drawing only)" </span>{
                 Transition::Replace(pages::CustomizeBoundary::new_state(ctx, app, id))
-            } <span class="kw">else if </span>choice == <span class="string">&quot;Convert to freehand area&quot; </span>{
+            } <span class="kw">else if </span>choice == <span class="string">"Convert to freehand area" </span>{
                 Transition::Replace(pages::FreehandBoundary::new_from_polygon(
                     ctx,
                     app,
-                    <span class="macro">format!</span>(<span class="string">&quot;Converted from {:?}&quot;</span>, id),
+                    <span class="macro">format!</span>(<span class="string">"Converted from {:?}"</span>, id),
                     app.partitioning().get_info(id).block.polygon.clone(),
                 ))
             } <span class="kw">else </span>{
                 Transition::Replace(ChooseSomething::new_state(
                     ctx,
-                    <span class="string">&quot;Add one filter automatically, using different heuristics&quot;</span>,
+                    <span class="string">"Add one filter automatically, using different heuristics"</span>,
                     AutoFilterHeuristic::choices(),
                     Box::new(<span class="kw">move </span>|heuristic, ctx, app| {
                         <span class="kw">match </span>ctx.loading_screen(
-                            <span class="string">&quot;automatically filter a neighbourhood&quot;</span>,
+                            <span class="string">"automatically filter a neighbourhood"</span>,
                             |ctx, timer| {
                                 <span class="kw">let </span>neighbourhood = Neighbourhood::new(app, id);
                                 heuristic.apply(ctx, app, <span class="kw-2">&amp;</span>neighbourhood, timer)
@@ -1199,7 +1201,7 @@
                             }
                             <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
                                 ctx,
-                                <span class="string">&quot;Error&quot;</span>,
+                                <span class="string">"Error"</span>,
                                 <span class="macro">vec!</span>[err.to_string()],
                             )),
                         }
@@ -1210,14 +1212,14 @@
     ))
 }
 
-<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="macro">vec!</span>[
-        <span class="string">&quot;The colored cells show where it&#39;s possible to drive without leaving the neighbourhood.&quot;</span>,
-        <span class="string">&quot;&quot;</span>,
-        <span class="string">&quot;The darker red roads have more predicted shortcutting traffic.&quot;</span>,
-        <span class="string">&quot;&quot;</span>,
-        <span class="string">&quot;Hint: You can place filters at roads or intersections.&quot;</span>,
-        <span class="string">&quot;Use the lasso tool to quickly sketch your idea.&quot;</span>,
+        <span class="string">"The colored cells show where it's possible to drive without leaving the neighbourhood."</span>,
+        <span class="string">""</span>,
+        <span class="string">"The darker red roads have more predicted shortcutting traffic."</span>,
+        <span class="string">""</span>,
+        <span class="string">"Hint: You can place filters at roads or intersections."</span>,
+        <span class="string">"Use the lasso tool to quickly sketch your idea."</span>,
     ]
 }
 
@@ -1240,20 +1242,20 @@
         } <span class="kw">else </span>{
             Widget::nothing()
         }
-        .named(<span class="string">&quot;edit mode contents&quot;</span>),
+        .named(<span class="string">"edit mode contents"</span>),
         Widget::vertical_separator(ctx),
         Widget::row(<span class="macro">vec!</span>[
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/undo.svg"</span>)
                 <span class="comment">// TODO Basemap edits count in here
                 </span>.disabled(app.per_map.map.get_edits().commands.is_empty())
                 .hotkey(lctrl(Key::Z))
-                .build_widget(ctx, <span class="string">&quot;undo&quot;</span>),
+                .build_widget(ctx, <span class="string">"undo"</span>),
             Widget::col(<span class="macro">vec!</span>[
-                <span class="macro">format!</span>(<span class="string">&quot;{} new filters&quot;</span>, road_filters + diagonal_filters).text_widget(ctx),
-                <span class="macro">format!</span>(<span class="string">&quot;{} turn restrictions changed&quot;</span>, turn_restrictions).text_widget(ctx),
-                <span class="macro">format!</span>(<span class="string">&quot;{} road directions changed&quot;</span>, one_ways).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"{} new filters"</span>, road_filters + diagonal_filters).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"{} turn restrictions changed"</span>, turn_restrictions).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"{} road directions changed"</span>, one_ways).text_widget(ctx),
             ]),
         ]),
         Widget::vertical_separator(ctx),
@@ -1263,14 +1265,14 @@
                 Widget::vertical_separator(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Adjust boundary&quot;</span>)
+                    .text(<span class="string">"Adjust boundary"</span>)
                     .hotkey(Key::B)
                     .build_def(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Per-resident route impact&quot;</span>)
+                    .text(<span class="string">"Per-resident route impact"</span>)
                     .build_def(ctx),
-                ctx.style().btn_outline.text(<span class="string">&quot;Advanced&quot;</span>).build_def(ctx),
+                ctx.style().btn_outline.text(<span class="string">"Advanced"</span>).build_def(ctx),
             ])
             .centered_vert()
         } <span class="kw">else </span>{
@@ -1278,7 +1280,7 @@
                 Widget::vertical_separator(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Per-resident route impact&quot;</span>)
+                    .text(<span class="string">"Per-resident route impact"</span>)
                     .build_def(ctx),
             ])
             .centered_vert()
@@ -1298,7 +1300,7 @@
 
     <span class="kw">for </span>(r, orig) <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_edits().original_roads {
         <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>r);
-        <span class="comment">// Don&#39;t count existing filters that were modified?
+        <span class="comment">// Don't count existing filters that were modified?
         </span><span class="kw">if </span>road.modal_filter.is_some() &amp;&amp; orig.modal_filter.is_none() {
             road_filters += <span class="number">1</span>;
         }
@@ -1333,10 +1335,10 @@
     <span class="kw">let </span>edit_mode = <span class="kw-2">&amp;</span>app.session.edit_mode;
     <span class="kw">let </span>hide_color = render::filter_hide_color(app.session.filter_type);
     <span class="kw">let </span>name = <span class="kw">match </span>app.session.filter_type {
-        FilterType::WalkCycleOnly =&gt; <span class="string">&quot;Modal filter -- walking/cycling only&quot;</span>,
-        FilterType::NoEntry =&gt; <span class="string">&quot;Modal filter - no entry&quot;</span>,
-        FilterType::BusGate =&gt; <span class="string">&quot;Bus gate&quot;</span>,
-        FilterType::SchoolStreet =&gt; <span class="string">&quot;School street&quot;</span>,
+        FilterType::WalkCycleOnly =&gt; <span class="string">"Modal filter -- walking/cycling only"</span>,
+        FilterType::NoEntry =&gt; <span class="string">"Modal filter - no entry"</span>,
+        FilterType::BusGate =&gt; <span class="string">"Bus gate"</span>,
+        FilterType::SchoolStreet =&gt; <span class="string">"School street"</span>,
     };
 
     Widget::row(<span class="macro">vec!</span>[
@@ -1356,11 +1358,11 @@
                 .tooltip_and_disabled({
                     <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                     txt.add_line(Line(Key::F1.describe()).fg(ctx.style().text_hotkey_color));
-                    txt.append(Line(<span class="string">&quot; - &quot;</span>));
+                    txt.append(Line(<span class="string">" - "</span>));
                     txt.append(Line(name));
-                    txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
+                    txt.add_line(Line(<span class="string">"Click"</span>).fg(ctx.style().text_hotkey_color));
                     txt.append(Line(
-                        <span class="string">&quot; a road or intersection to add or remove a modal filter&quot;</span>,
+                        <span class="string">" a road or intersection to add or remove a modal filter"</span>,
                     ));
                     txt
                 })
@@ -1370,57 +1372,57 @@
             ctx.style()
                 .btn_plain
                 .dropdown()
-                .build_widget(ctx, <span class="string">&quot;Change modal filter&quot;</span>)
+                .build_widget(ctx, <span class="string">"Change modal filter"</span>)
                 .centered_vert(),
         ]),
         ctx.style()
             .btn_solid_primary
-            .icon(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/tools/select.svg"</span>)
             .disabled(<span class="macro">matches!</span>(edit_mode, EditMode::FreehandFilters(<span class="kw">_</span>)))
             .hotkey(Key::F2)
             .tooltip_and_disabled({
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                 txt.add_line(Line(Key::F2.describe()).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; - Freehand filters&quot;</span>));
-                txt.add_line(Line(<span class="string">&quot;Click and drag&quot;</span>).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; across the roads you want to filter&quot;</span>));
+                txt.append(Line(<span class="string">" - Freehand filters"</span>));
+                txt.add_line(Line(<span class="string">"Click and drag"</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">" across the roads you want to filter"</span>));
                 txt
             })
-            .build_widget(ctx, <span class="string">&quot;Freehand filters&quot;</span>)
+            .build_widget(ctx, <span class="string">"Freehand filters"</span>)
             .centered_vert(),
         ctx.style()
             .btn_solid_primary
-            .icon(<span class="string">&quot;system/assets/tools/one_ways.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/tools/one_ways.svg"</span>)
             .disabled(<span class="macro">matches!</span>(edit_mode, EditMode::Oneways))
             .hotkey(Key::F3)
             .tooltip_and_disabled({
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                 txt.add_line(Line(Key::F3.describe()).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; - One-ways&quot;</span>));
-                txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; a road to change its direction&quot;</span>));
+                txt.append(Line(<span class="string">" - One-ways"</span>));
+                txt.add_line(Line(<span class="string">"Click"</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">" a road to change its direction"</span>));
                 txt
             })
-            .build_widget(ctx, <span class="string">&quot;One-ways&quot;</span>)
+            .build_widget(ctx, <span class="string">"One-ways"</span>)
             .centered_vert(),
         ctx.style()
             .btn_solid_primary
-            .icon(<span class="string">&quot;system/assets/tools/shortcut.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/tools/shortcut.svg"</span>)
             .disabled(<span class="macro">matches!</span>(edit_mode, EditMode::Shortcuts(<span class="kw">_</span>)))
             .hotkey(Key::F4)
             .tooltip_and_disabled({
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                 txt.add_line(Line(Key::F4.describe()).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; - Shortcuts&quot;</span>));
-                txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; a road to view shortcuts through it&quot;</span>));
+                txt.append(Line(<span class="string">" - Shortcuts"</span>));
+                txt.add_line(Line(<span class="string">"Click"</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">" a road to view shortcuts through it"</span>));
                 txt
             })
-            .build_widget(ctx, <span class="string">&quot;Shortcuts&quot;</span>)
+            .build_widget(ctx, <span class="string">"Shortcuts"</span>)
             .centered_vert(),
         ctx.style()
             .btn_solid_primary
-            .icon(<span class="string">&quot;system/assets/tools/20_mph.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/tools/20_mph.svg"</span>)
             .image_color(
                 RewriteColor::Change(Color::RED, Color::CLEAR),
                 ControlState::Default,
@@ -1434,29 +1436,29 @@
             .tooltip_and_disabled({
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                 txt.add_line(Line(Key::F5.describe()).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; - Speed limits&quot;</span>));
-                txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; a road to convert it to 20mph (32kph)&quot;</span>));
+                txt.append(Line(<span class="string">" - Speed limits"</span>));
+                txt.add_line(Line(<span class="string">"Click"</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">" a road to convert it to 20mph (32kph)"</span>));
                 txt
             })
-            .build_widget(ctx, <span class="string">&quot;Speed limits&quot;</span>)
+            .build_widget(ctx, <span class="string">"Speed limits"</span>)
             .centered_vert(),
         ctx.style()
             .btn_solid_primary
-            .icon(<span class="string">&quot;system/assets/map/no_right_turn_button.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/map/no_right_turn_button.svg"</span>)
             .disabled(<span class="macro">matches!</span>(edit_mode, EditMode::TurnRestrictions(<span class="kw">_</span>)))
             .hotkey(Key::F6)
             .tooltip_and_disabled({
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                 txt.add_line(Line(Key::F6.describe()).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; - Turn restrictions&quot;</span>));
-                txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">" - Turn restrictions"</span>));
+                txt.add_line(Line(<span class="string">"Click"</span>).fg(ctx.style().text_hotkey_color));
                 txt.append(Line(
-                    <span class="string">&quot; a road to edit turn restrictions at its intersections&quot;</span>,
+                    <span class="string">" a road to edit turn restrictions at its intersections"</span>,
                 ));
                 txt
             })
-            .build_widget(ctx, <span class="string">&quot;Turn restrictions&quot;</span>)
+            .build_widget(ctx, <span class="string">"Turn restrictions"</span>)
             .centered_vert(),
     ])
 }

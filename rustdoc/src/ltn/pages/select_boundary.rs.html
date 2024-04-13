@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/select_boundary.rs`."><title>select_boundary.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/select_boundary.rs`."><title>select_boundary.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -497,7 +499,7 @@
 
     orig_partitioning: Partitioning,
 
-    <span class="comment">// As an optimization, don&#39;t repeatedly attempt to make an edit that&#39;ll fail. The bool is
+    <span class="comment">// As an optimization, don't repeatedly attempt to make an edit that'll fail. The bool is
     // whether the block is already included or not
     </span>last_failed_change: <span class="prelude-ty">Option</span>&lt;(BlockID, bool)&gt;,
     draw_last_error: Drawable,
@@ -514,10 +516,10 @@
         <span class="kw">if </span>app.partitioning().broken {
             <span class="kw">return </span>PopupMsg::new_state(
                 ctx,
-                <span class="string">&quot;Error&quot;</span>,
+                <span class="string">"Error"</span>,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;Sorry, you can&#39;t adjust any boundaries on this map.&quot;</span>,
-                    <span class="string">&quot;This is a known problem without any workaround yet.&quot;</span>,
+                    <span class="string">"Sorry, you can't adjust any boundaries on this map."</span>,
+                    <span class="string">"This is a known problem without any workaround yet."</span>,
                 ],
             );
         }
@@ -572,8 +574,8 @@
                 .hover_alpha(<span class="number">0.8</span>);
             <span class="kw">if </span><span class="self">self</span>.frontier.contains(<span class="kw-2">&amp;</span>id) {
                 obj = obj
-                    .hotkey(Key::Space, <span class="string">&quot;remove&quot;</span>)
-                    .hotkey(Key::LeftShift, <span class="string">&quot;remove&quot;</span>)
+                    .hotkey(Key::Space, <span class="string">"remove"</span>)
+                    .hotkey(Key::LeftShift, <span class="string">"remove"</span>)
                     .clickable();
             }
             obj.build(ctx);
@@ -583,12 +585,12 @@
                 .hitbox(app.partitioning().get_block(id).polygon.clone())
                 .draw_color(colors::BLOCK_IN_FRONTIER)
                 .hover_alpha(<span class="number">0.8</span>)
-                .hotkey(Key::Space, <span class="string">&quot;add&quot;</span>)
-                .hotkey(Key::LeftControl, <span class="string">&quot;add&quot;</span>)
+                .hotkey(Key::Space, <span class="string">"add"</span>)
+                .hotkey(Key::LeftControl, <span class="string">"add"</span>)
                 .clickable()
                 .build(ctx);
         } <span class="kw">else </span>{
-            <span class="comment">// TODO Adds an invisible, non-clickable block. Don&#39;t add the block at all then?
+            <span class="comment">// TODO Adds an invisible, non-clickable block. Don't add the block at all then?
             </span><span class="self">self</span>.world
                 .add(id)
                 .hitbox(app.partitioning().get_block(id).polygon.clone())
@@ -597,7 +599,7 @@
         }
     }
 
-    <span class="comment">// If the block is part of the current neighbourhood, remove it. Otherwise add it. It&#39;s assumed
+    <span class="comment">// If the block is part of the current neighbourhood, remove it. Otherwise add it. It's assumed
     // this block is in the previous frontier
     </span><span class="kw">fn </span>toggle_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, id: BlockID) -&gt; Transition {
         <span class="kw">if </span><span class="self">self</span>.last_failed_change == <span class="prelude-val">Some</span>((id, <span class="self">self</span>.currently_have_block(app, id))) {
@@ -636,7 +638,7 @@
                 <span class="kw">let </span>label = Text::from(Line(err.to_string()))
                     .wrap_to_pct(ctx, <span class="number">15</span>)
                     .into_widget(ctx);
-                <span class="self">self</span>.left_panel.replace(ctx, <span class="string">&quot;warning&quot;</span>, label);
+                <span class="self">self</span>.left_panel.replace(ctx, <span class="string">"warning"</span>, label);
 
                 <span class="comment">// Figure out what we need to do first
                 </span><span class="kw">if </span>!<span class="self">self</span>.currently_have_block(app, id) {
@@ -685,8 +687,8 @@
         <span class="self">self</span>.last_failed_change = <span class="prelude-val">None</span>;
         <span class="self">self</span>.draw_last_error = Drawable::empty(ctx);
 
-        ctx.loading_screen(<span class="string">&quot;expand current neighbourhood boundary&quot;</span>, |ctx, timer| {
-            timer.start(<span class="string">&quot;find matching blocks&quot;</span>);
+        ctx.loading_screen(<span class="string">"expand current neighbourhood boundary"</span>, |ctx, timer| {
+            timer.start(<span class="string">"find matching blocks"</span>);
             <span class="comment">// Find all of the blocks within the polygon
             </span><span class="kw">let </span><span class="kw-2">mut </span>add_blocks = Vec::new();
             <span class="kw">for </span>(id, block) <span class="kw">in </span>app.partitioning().all_single_blocks() {
@@ -696,18 +698,18 @@
                     }
                 }
             }
-            timer.stop(<span class="string">&quot;find matching blocks&quot;</span>);
+            timer.stop(<span class="string">"find matching blocks"</span>);
 
             <span class="kw">while </span>!add_blocks.is_empty() {
                 <span class="comment">// Proceed in rounds. Calculate the current frontier, find all of the blocks in there,
                 // try to add them, repeat.
                 //
                 // It should be safe to add multiple blocks in a round without recalculating the
-                // frontier; adding one block shouldn&#39;t mess up the frontier for another
+                // frontier; adding one block shouldn't mess up the frontier for another
                 </span><span class="kw">let </span><span class="kw-2">mut </span>changed = <span class="bool-val">false</span>;
                 <span class="kw">let </span><span class="kw-2">mut </span>still_todo = Vec::new();
-                timer.start_iter(<span class="string">&quot;try to add blocks&quot;</span>, add_blocks.len());
-                <span class="comment">// TODO Sometimes it&#39;d help to add all at once!
+                timer.start_iter(<span class="string">"try to add blocks"</span>, add_blocks.len());
+                <span class="comment">// TODO Sometimes it'd help to add all at once!
                 </span><span class="kw">for </span>block_id <span class="kw">in </span>add_blocks.drain(..) {
                     timer.next();
                     <span class="kw">if </span><span class="self">self</span>.frontier.contains(<span class="kw-2">&amp;</span>block_id) {
@@ -730,7 +732,7 @@
                         <span class="kw-2">&amp;</span>app.partitioning().neighbourhood_block(<span class="self">self</span>.id).perimeter,
                     );
                 } <span class="kw">else </span>{
-                    <span class="macro">info!</span>(<span class="string">&quot;Giving up on adding {} blocks&quot;</span>, still_todo.len());
+                    <span class="macro">info!</span>(<span class="string">"Giving up on adding {} blocks"</span>, still_todo.len());
                     <span class="kw">break</span>;
                 }
             }
@@ -755,7 +757,7 @@
             }
 
             <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.left_panel.event(ctx) {
-                <span class="kw">if </span>x == <span class="string">&quot;Cancel&quot; </span>{
+                <span class="kw">if </span>x == <span class="string">"Cancel" </span>{
                     <span class="self">self</span>.lasso = <span class="prelude-val">None</span>;
                     <span class="self">self</span>.left_panel = make_panel(ctx, app, <span class="self">self</span>.id, <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel.top_panel);
                 }
@@ -764,7 +766,7 @@
             <span class="kw">return </span>Transition::Keep;
         }
 
-        <span class="comment">// PreserveState doesn&#39;t matter, can&#39;t switch proposals in SelectBoundary anyway
+        <span class="comment">// PreserveState doesn't matter, can't switch proposals in SelectBoundary anyway
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(t) =
             <span class="self">self</span>.appwide_panel
                 .event(ctx, app, <span class="kw-2">&amp;</span><span class="kw">crate</span>::save::PreserveState::Route, help)
@@ -780,17 +782,17 @@
         }
         <span class="kw">match </span><span class="self">self</span>.left_panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Cancel&quot; </span>=&gt; {
-                    <span class="comment">// TODO If we destroyed the current neighbourhood, then we cancel, we&#39;ll pop
+                <span class="string">"Cancel" </span>=&gt; {
+                    <span class="comment">// TODO If we destroyed the current neighbourhood, then we cancel, we'll pop
                     // back to a different neighbourhood than we started with. And also the original
                     // partitioning will have been lost!!!
                     </span><span class="macro">mut_partitioning!</span>(app) = <span class="self">self</span>.orig_partitioning.clone();
                     <span class="kw">return </span>Transition::Replace(pages::DesignLTN::new_state(ctx, app, <span class="self">self</span>.id));
                 }
-                <span class="string">&quot;Confirm&quot; </span>=&gt; {
+                <span class="string">"Confirm" </span>=&gt; {
                     <span class="kw">return </span>Transition::Replace(pages::DesignLTN::new_state(ctx, app, <span class="self">self</span>.id));
                 }
-                <span class="string">&quot;Select freehand&quot; </span>=&gt; {
+                <span class="string">"Select freehand" </span>=&gt; {
                     <span class="self">self</span>.lasso = <span class="prelude-val">Some</span>(Lasso::new(Distance::meters(<span class="number">1.0</span>)));
                     <span class="self">self</span>.left_panel = make_panel_for_lasso(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel.top_panel);
                 }
@@ -799,13 +801,13 @@
             Outcome::Changed(<span class="kw">_</span>) =&gt; {
                 app.session.add_intermediate_blocks = <span class="self">self
                     </span>.left_panel
-                    .is_checked(<span class="string">&quot;add intermediate blocks automatically&quot;</span>);
+                    .is_checked(<span class="string">"add intermediate blocks automatically"</span>);
             }
             <span class="kw">_ </span>=&gt; {}
         }
 
         <span class="kw">match </span><span class="self">self</span>.world.event(ctx) {
-            WorldOutcome::Keypress(<span class="string">&quot;add&quot; </span>| <span class="string">&quot;remove&quot;</span>, id) | WorldOutcome::ClickedObject(id) =&gt; {
+            WorldOutcome::Keypress(<span class="string">"add" </span>| <span class="string">"remove"</span>, id) | WorldOutcome::ClickedObject(id) =&gt; {
                 <span class="kw">return </span><span class="self">self</span>.toggle_block(ctx, app, id);
             }
             <span class="kw">_ </span>=&gt; {}
@@ -851,61 +853,61 @@
         ctx,
         top_panel,
         Widget::col(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Adjusting neighbourhood boundary&quot;</span>)
+            Line(<span class="string">"Adjusting neighbourhood boundary"</span>)
                 .small_heading()
                 .into_widget(ctx),
             Text::from_all(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color),
-                Line(<span class="string">&quot; to add/remove a block&quot;</span>),
+                Line(<span class="string">"Click"</span>).fg(ctx.style().text_hotkey_color),
+                Line(<span class="string">" to add/remove a block"</span>),
             ])
             .into_widget(ctx),
             Text::from_all(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Hold &quot;</span>),
+                Line(<span class="string">"Hold "</span>),
                 Line(Key::LeftControl.describe()).fg(ctx.style().text_hotkey_color),
-                Line(<span class="string">&quot; and paint over blocks to add&quot;</span>),
+                Line(<span class="string">" and paint over blocks to add"</span>),
             ])
             .into_widget(ctx),
             Text::from_all(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Hold &quot;</span>),
+                Line(<span class="string">"Hold "</span>),
                 Line(Key::LeftShift.describe()).fg(ctx.style().text_hotkey_color),
-                Line(<span class="string">&quot; and paint over blocks to remove&quot;</span>),
+                Line(<span class="string">" and paint over blocks to remove"</span>),
             ])
             .into_widget(ctx),
             Toggle::checkbox(
                 ctx,
-                <span class="string">&quot;add intermediate blocks automatically&quot;</span>,
+                <span class="string">"add intermediate blocks automatically"</span>,
                 <span class="prelude-val">None</span>,
                 app.session.add_intermediate_blocks,
             ),
             <span class="macro">format!</span>(
-                <span class="string">&quot;Neighbourhood area: {}&quot;</span>,
+                <span class="string">"Neighbourhood area: {}"</span>,
                 app.partitioning().neighbourhood_area_km2(id)
             )
             .text_widget(ctx),
             ctx.style()
                 .btn_outline
-                .icon_text(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>, <span class="string">&quot;Select freehand&quot;</span>)
+                .icon_text(<span class="string">"system/assets/tools/select.svg"</span>, <span class="string">"Select freehand"</span>)
                 .hotkey(Key::F)
                 .build_def(ctx),
             Widget::row(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_solid_primary
-                    .text(<span class="string">&quot;Confirm&quot;</span>)
+                    .text(<span class="string">"Confirm"</span>)
                     .hotkey(Key::Enter)
                     .build_def(ctx),
                 ctx.style()
                     .btn_solid_destructive
-                    .text(<span class="string">&quot;Cancel&quot;</span>)
+                    .text(<span class="string">"Cancel"</span>)
                     .hotkey(Key::Escape)
                     .build_def(ctx),
             ]),
-            Widget::placeholder(ctx, <span class="string">&quot;warning&quot;</span>),
+            Widget::placeholder(ctx, <span class="string">"warning"</span>),
             legend_entry(
                 ctx,
                 colors::BLOCK_IN_BOUNDARY,
-                <span class="string">&quot;block part of current neighbourhood&quot;</span>,
+                <span class="string">"block part of current neighbourhood"</span>,
             ),
-            legend_entry(ctx, colors::BLOCK_IN_FRONTIER, <span class="string">&quot;block could be added&quot;</span>),
+            legend_entry(ctx, colors::BLOCK_IN_FRONTIER, <span class="string">"block could be added"</span>),
         ]),
     )
     .build(ctx)
@@ -916,17 +918,17 @@
         ctx,
         top_panel,
         Widget::col(<span class="macro">vec!</span>[
-            <span class="string">&quot;Draw a custom boundary for a neighbourhood&quot;
+            <span class="string">"Draw a custom boundary for a neighbourhood"
                 </span>.text_widget(ctx)
                 .centered_vert(),
             Text::from_all(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Click and drag&quot;</span>).fg(ctx.style().text_hotkey_color),
-                Line(<span class="string">&quot; to select the blocks to add to this neighbourhood&quot;</span>),
+                Line(<span class="string">"Click and drag"</span>).fg(ctx.style().text_hotkey_color),
+                Line(<span class="string">" to select the blocks to add to this neighbourhood"</span>),
             ])
             .into_widget(ctx),
             ctx.style()
                 .btn_solid_destructive
-                .text(<span class="string">&quot;Cancel&quot;</span>)
+                .text(<span class="string">"Cancel"</span>)
                 .hotkey(Key::Escape)
                 .build_def(ctx),
         ]),
@@ -934,14 +936,14 @@
     .build(ctx)
 }
 
-<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="macro">vec!</span>[
-        <span class="string">&quot;You can grow or shrink the blue neighbourhood boundary here.&quot;</span>,
-        <span class="string">&quot;Due to various known issues, it&#39;s not always possible to draw the boundary you want.&quot;</span>,
-        <span class="string">&quot;&quot;</span>,
-        <span class="string">&quot;The aqua blocks show where you can currently expand the boundary.&quot;</span>,
-        <span class="string">&quot;Hint: There may be very small blocks near complex roads.&quot;</span>,
-        <span class="string">&quot;Try the freehand tool to select them.&quot;</span>,
+        <span class="string">"You can grow or shrink the blue neighbourhood boundary here."</span>,
+        <span class="string">"Due to various known issues, it's not always possible to draw the boundary you want."</span>,
+        <span class="string">""</span>,
+        <span class="string">"The aqua blocks show where you can currently expand the boundary."</span>,
+        <span class="string">"Hint: There may be very small blocks near complex roads."</span>,
+        <span class="string">"Try the freehand tool to select them."</span>,
     ]
 }
 </code></pre></div></section></main></body></html>

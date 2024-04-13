@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -336,13 +338,13 @@
     <span class="kw">pub fn </span>all() -&gt; BTreeMap&lt;String, Vec&lt;Challenge&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>tree = BTreeMap::new();
         tree.insert(
-            <span class="string">&quot;Optimize one commute&quot;</span>.to_string(),
+            <span class="string">"Optimize one commute"</span>.to_string(),
             <span class="comment">// TODO Need to tune both people and goals again.
             </span><span class="macro">vec!</span>[
                 Challenge {
-                    title: <span class="string">&quot;Part 1&quot;</span>.to_string(),
-                    description: <span class="macro">vec!</span>[<span class="string">&quot;Speed up one VIP&#39;s daily commute, at any cost!&quot;</span>.to_string()],
-                    alias: <span class="string">&quot;commute/pt1&quot;</span>.to_string(),
+                    title: <span class="string">"Part 1"</span>.to_string(),
+                    description: <span class="macro">vec!</span>[<span class="string">"Speed up one VIP's daily commute, at any cost!"</span>.to_string()],
+                    alias: <span class="string">"commute/pt1"</span>.to_string(),
                     gameplay: GameplayMode::OptimizeCommute(
                         OrigPersonID(<span class="number">140824</span>, <span class="number">2</span>),
                         Duration::minutes(<span class="number">2</span>) + Duration::seconds(<span class="number">30.0</span>),
@@ -352,9 +354,9 @@
                     ),
                 },
                 Challenge {
-                    title: <span class="string">&quot;Part 2&quot;</span>.to_string(),
-                    description: <span class="macro">vec!</span>[<span class="string">&quot;Speed up another VIP&#39;s commute&quot;</span>.to_string()],
-                    alias: <span class="string">&quot;commute/pt2&quot;</span>.to_string(),
+                    title: <span class="string">"Part 2"</span>.to_string(),
+                    description: <span class="macro">vec!</span>[<span class="string">"Speed up another VIP's commute"</span>.to_string()],
+                    alias: <span class="string">"commute/pt2"</span>.to_string(),
                     gameplay: GameplayMode::OptimizeCommute(
                         OrigPersonID(<span class="number">141039</span>, <span class="number">2</span>),
                         Duration::minutes(<span class="number">5</span>),
@@ -366,11 +368,11 @@
             ],
         );
         tree.insert(
-            <span class="string">&quot;Traffic signal survivor&quot;</span>.to_string(),
+            <span class="string">"Traffic signal survivor"</span>.to_string(),
             <span class="macro">vec!</span>[Challenge {
-                title: <span class="string">&quot;Traffic signal survivor&quot;</span>.to_string(),
-                description: <span class="macro">vec!</span>[<span class="string">&quot;Fix traffic signal timing and unblock vehicles&quot;</span>.to_string()],
-                alias: <span class="string">&quot;trafficsig/pt1&quot;</span>.to_string(),
+                title: <span class="string">"Traffic signal survivor"</span>.to_string(),
+                description: <span class="macro">vec!</span>[<span class="string">"Fix traffic signal timing and unblock vehicles"</span>.to_string()],
+                alias: <span class="string">"trafficsig/pt1"</span>.to_string(),
                 gameplay: GameplayMode::FixTrafficSignals,
                 cutscene: <span class="prelude-val">Some</span>(
                     <span class="kw">crate</span>::sandbox::gameplay::fix_traffic_signals::FixTrafficSignals::cutscene_pt1,
@@ -420,12 +422,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>links = BTreeMap::new();
         <span class="kw">let </span><span class="kw-2">mut </span>master_col = <span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Challenges&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Challenges"</span>).small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Introduction and tutorial&quot;</span>)
+                .text(<span class="string">"Introduction and tutorial"</span>)
                 .build_def(ctx)
                 .container()
                 .section(ctx),
@@ -490,25 +492,25 @@
                 txt.into_widget(ctx),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Start!&quot;</span>)
+                    .text(<span class="string">"Start!"</span>)
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ];
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(scores) = app.session.high_scores.get(<span class="kw-2">&amp;</span>challenge.gameplay) {
-                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;{} high scores:&quot;</span>, scores.len()));
-                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Goal: {}&quot;</span>, scores[<span class="number">0</span>].goal));
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">"{} high scores:"</span>, scores.len()));
+                txt.add_line(<span class="macro">format!</span>(<span class="string">"Goal: {}"</span>, scores[<span class="number">0</span>].goal));
                 <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">1</span>;
                 <span class="kw">for </span>score <span class="kw">in </span>scores {
                     txt.add_line(<span class="macro">format!</span>(
-                        <span class="string">&quot;{}) {}, using proposal: {}&quot;</span>,
+                        <span class="string">"{}) {}, using proposal: {}"</span>,
                         idx, score.score, score.edits_name
                     ));
                     idx += <span class="number">1</span>;
                 }
                 inner_col.push(txt.into_widget(ctx));
             } <span class="kw">else </span>{
-                inner_col.push(<span class="string">&quot;No attempts yet&quot;</span>.text_widget(ctx));
+                inner_col.push(<span class="string">"No attempts yet"</span>.text_widget(ctx));
             }
 
             main_row.push(Widget::col(inner_col).section(ctx));
@@ -537,10 +539,10 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-            <span class="string">&quot;Introduction and tutorial&quot; </span>=&gt; Transition::Replace(Tutorial::start(ctx, app)),
-            <span class="string">&quot;Start!&quot; </span>=&gt; {
-                <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+            <span class="string">"close" </span>=&gt; Transition::Pop,
+            <span class="string">"Introduction and tutorial" </span>=&gt; Transition::Replace(Tutorial::start(ctx, app)),
+            <span class="string">"Start!" </span>=&gt; {
+                <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
                 </span>{
                     <span class="kw">let </span>map_name = <span class="self">self
                         </span>.challenge
@@ -556,8 +558,8 @@
                             Box::new(|ctx, <span class="kw">_</span>| {
                                 Transition::Replace(widgetry::tools::PopupMsg::new_state(
                                     ctx,
-                                    <span class="string">&quot;Download complete&quot;</span>,
-                                    <span class="macro">vec!</span>[<span class="string">&quot;Download complete. Click &#39;Start!&#39; again&quot;</span>],
+                                    <span class="string">"Download complete"</span>,
+                                    <span class="macro">vec!</span>[<span class="string">"Download complete. Click 'Start!' again"</span>],
                                 ))
                             }),
                         );
@@ -565,7 +567,7 @@
                 }
 
                 <span class="kw">let </span>challenge = <span class="self">self</span>.challenge.take().unwrap();
-                <span class="comment">// Constructing the cutscene doesn&#39;t require the map/scenario to be loaded
+                <span class="comment">// Constructing the cutscene doesn't require the map/scenario to be loaded
                 </span><span class="kw">let </span>sandbox = SandboxMode::simple_new(app, challenge.gameplay.clone());
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(cutscene) = challenge.cutscene {
                     Transition::Multi(<span class="macro">vec!</span>[

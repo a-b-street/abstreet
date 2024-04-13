@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/pathfinder.rs`."><title>pathfinder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/pathfinder.rs`."><title>pathfinder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -401,7 +403,7 @@
 </span><span class="comment">// TODO Deprecated
 </span><span class="attr">#[derive(Clone, Copy, PartialEq)]
 </span><span class="kw">pub enum </span>PathfinderCaching {
-    <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and don&#39;t cache it
+    <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and don't cache it
     </span>NoCache,
     <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and cache it
     </span>CacheDijkstra,
@@ -447,41 +449,41 @@
         engine: <span class="kw-2">&amp;</span>CreateEngine,
         timer: <span class="kw-2">&amp;mut </span>Timer,
     ) -&gt; Pathfinder {
-        timer.start(<span class="string">&quot;prepare pathfinding for cars&quot;</span>);
+        timer.start(<span class="string">"prepare pathfinding for cars"</span>);
         <span class="kw">let </span>car_graph = VehiclePathfinder::new(map, PathConstraints::Car, <span class="kw-2">&amp;</span>params, engine);
-        timer.stop(<span class="string">&quot;prepare pathfinding for cars&quot;</span>);
+        timer.stop(<span class="string">"prepare pathfinding for cars"</span>);
 
         <span class="comment">// The edge weights for bikes are so different from the driving graph that reusing the node
         // ordering actually hurts!
-        </span>timer.start(<span class="string">&quot;prepare pathfinding for bikes&quot;</span>);
+        </span>timer.start(<span class="string">"prepare pathfinding for bikes"</span>);
         <span class="kw">let </span>bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, <span class="kw-2">&amp;</span>params, engine);
-        timer.stop(<span class="string">&quot;prepare pathfinding for bikes&quot;</span>);
+        timer.stop(<span class="string">"prepare pathfinding for bikes"</span>);
 
-        timer.start(<span class="string">&quot;prepare pathfinding for buses&quot;</span>);
+        timer.start(<span class="string">"prepare pathfinding for buses"</span>);
         <span class="kw">let </span>bus_graph = VehiclePathfinder::new(
             map,
             PathConstraints::Bus,
             <span class="kw-2">&amp;</span>params,
             <span class="kw-2">&amp;</span>car_graph.engine.reuse_ordering(),
         );
-        timer.stop(<span class="string">&quot;prepare pathfinding for buses&quot;</span>);
+        timer.stop(<span class="string">"prepare pathfinding for buses"</span>);
 
         <span class="comment">// Light rail networks are absolutely tiny; using a contraction hierarchy for them is
-        // overkill. And in fact, it costs a bit of memory and file size, so don&#39;t do it!
-        </span>timer.start(<span class="string">&quot;prepare pathfinding for trains&quot;</span>);
+        // overkill. And in fact, it costs a bit of memory and file size, so don't do it!
+        </span>timer.start(<span class="string">"prepare pathfinding for trains"</span>);
         <span class="kw">let </span>train_graph = VehiclePathfinder::new(
             map,
             PathConstraints::Train,
             <span class="kw-2">&amp;</span>params,
             <span class="kw-2">&amp;</span>CreateEngine::Dijkstra,
         );
-        timer.stop(<span class="string">&quot;prepare pathfinding for trains&quot;</span>);
+        timer.stop(<span class="string">"prepare pathfinding for trains"</span>);
 
-        timer.start(<span class="string">&quot;prepare pathfinding for pedestrians&quot;</span>);
+        timer.start(<span class="string">"prepare pathfinding for pedestrians"</span>);
         <span class="kw">let </span>walking_graph = SidewalkPathfinder::new(map, <span class="prelude-val">None</span>, engine);
-        timer.stop(<span class="string">&quot;prepare pathfinding for pedestrians&quot;</span>);
+        timer.stop(<span class="string">"prepare pathfinding for pedestrians"</span>);
 
-        <span class="comment">// Transit routes haven&#39;t been created yet, so defer this step
+        <span class="comment">// Transit routes haven't been created yet, so defer this step
         </span><span class="kw">let </span>walking_with_transit_graph = SidewalkPathfinder::empty();
 
         Pathfinder {
@@ -509,7 +511,7 @@
     }
 
     <span class="doccomment">/// Create a new Pathfinder with custom routing params that can only serve some modes. Slow to
-    /// create, fast to use. Doesn&#39;t re-use the node ordering when building the CH.
+    /// create, fast to use. Doesn't re-use the node ordering when building the CH.
     </span><span class="kw">pub fn </span>new_ch(
         map: <span class="kw-2">&amp;</span>Map,
         params: RoutingParams,
@@ -529,7 +531,7 @@
     ) -&gt; Pathfinder {
         <span class="kw">let </span><span class="kw-2">mut </span>p = Pathfinder::empty();
         <span class="kw">for </span>constraints <span class="kw">in </span>modes {
-            timer.start(<span class="macro">format!</span>(<span class="string">&quot;prepare pathfinding for just {:?}&quot;</span>, constraints));
+            timer.start(<span class="macro">format!</span>(<span class="string">"prepare pathfinding for just {:?}"</span>, constraints));
             <span class="kw">match </span>constraints {
                 PathConstraints::Pedestrian =&gt; {
                     p.walking_graph = SidewalkPathfinder::new(map, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>engine);
@@ -547,7 +549,7 @@
                     p.train_graph = VehiclePathfinder::new(map, constraints, <span class="kw-2">&amp;</span>params, <span class="kw-2">&amp;</span>engine);
                 }
             }
-            timer.stop(<span class="macro">format!</span>(<span class="string">&quot;prepare pathfinding for just {:?}&quot;</span>, constraints));
+            timer.stop(<span class="macro">format!</span>(<span class="string">"prepare pathfinding for just {:?}"</span>, constraints));
         }
         p.params = params;
         p
@@ -597,7 +599,7 @@
             };
         }
 
-        <span class="comment">// If the params differ from the ones baked into the map, the CHs won&#39;t match. Do we have a
+        <span class="comment">// If the params differ from the ones baked into the map, the CHs won't match. Do we have a
         // cached alternative?
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(alt) = <span class="self">self
             </span>.cached_alternatives
@@ -608,8 +610,8 @@
             <span class="kw">return </span>alt.pathfind_with_params(req, params, PathfinderCaching::NoCache, map);
         }
 
-        <span class="comment">// If somebody&#39;s repeatedly calling this without caching, log very obnoxiously.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(<span class="string">&quot;Pathfinding slowly for {} with custom params&quot;</span>, req));
+        <span class="comment">// If somebody's repeatedly calling this without caching, log very obnoxiously.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(<span class="string">"Pathfinding slowly for {} with custom params"</span>, req));
         <span class="kw">let </span>tmp_pathfinder = Pathfinder::new_limited(
             map,
             params.clone(),
@@ -661,30 +663,30 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>apply_edits(<span class="kw-2">&amp;mut </span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, timer: <span class="kw-2">&amp;mut </span>Timer) {
-        timer.start(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
+        timer.start(<span class="string">"apply edits to car pathfinding"</span>);
         <span class="self">self</span>.car_graph.apply_edits(map);
-        timer.stop(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
+        timer.stop(<span class="string">"apply edits to car pathfinding"</span>);
 
-        timer.start(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
+        timer.start(<span class="string">"apply edits to bike pathfinding"</span>);
         <span class="self">self</span>.bike_graph.apply_edits(map);
-        timer.stop(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
+        timer.stop(<span class="string">"apply edits to bike pathfinding"</span>);
 
-        timer.start(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
+        timer.start(<span class="string">"apply edits to bus pathfinding"</span>);
         <span class="self">self</span>.bus_graph.apply_edits(map);
-        timer.stop(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
+        timer.stop(<span class="string">"apply edits to bus pathfinding"</span>);
 
-        timer.start(<span class="string">&quot;apply edits to train pathfinding&quot;</span>);
+        timer.start(<span class="string">"apply edits to train pathfinding"</span>);
         <span class="self">self</span>.train_graph.apply_edits(map);
-        timer.stop(<span class="string">&quot;apply edits to train pathfinding&quot;</span>);
+        timer.stop(<span class="string">"apply edits to train pathfinding"</span>);
 
-        timer.start(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
+        timer.start(<span class="string">"apply edits to pedestrian pathfinding"</span>);
         <span class="self">self</span>.walking_graph.apply_edits(map, <span class="prelude-val">None</span>);
-        timer.stop(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
+        timer.stop(<span class="string">"apply edits to pedestrian pathfinding"</span>);
 
-        timer.start(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
+        timer.start(<span class="string">"apply edits to pedestrian using transit pathfinding"</span>);
         <span class="self">self</span>.walking_with_transit_graph
             .apply_edits(map, <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.bus_graph, <span class="kw-2">&amp;</span><span class="self">self</span>.train_graph)));
-        timer.stop(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
+        timer.stop(<span class="string">"apply edits to pedestrian using transit pathfinding"</span>);
     }
 }
 
@@ -701,7 +703,7 @@
         }
     }
 
-    <span class="doccomment">/// New pathfinders will be created as-needed using Dijkstra&#39;s, no spammy logging
+    <span class="doccomment">/// New pathfinders will be created as-needed using Dijkstra's, no spammy logging
     </span><span class="kw">pub fn </span>pathfind_with_params(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         map: <span class="kw-2">&amp;</span>Map,

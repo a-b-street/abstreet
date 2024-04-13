@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/map_editor/src/edit.rs`."><title>edit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_editor" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/map_editor/src/edit.rs`."><title>edit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="map_editor" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../map_editor/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -308,107 +310,107 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
         <span class="kw">for </span>(k, v) <span class="kw">in </span>tags.inner() {
-            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v)).secondary());
+            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"{} = {}"</span>, k, v)).secondary());
         }
         txt.add_line(Line(<span class="macro">format!</span>(
-            <span class="string">&quot;Length before trimming: {}&quot;</span>,
+            <span class="string">"Length before trimming: {}"</span>,
             road.untrimmed_length()
         )));
         <span class="kw">if </span>app.model.intersection_geom {
             txt.add_line(Line(<span class="macro">format!</span>(
-                <span class="string">&quot;Length after trimming: {}&quot;</span>,
+                <span class="string">"Length after trimming: {}"</span>,
                 road.center_line.length()
             )));
         }
         <span class="kw">for </span>(rt, to) <span class="kw">in </span><span class="kw-2">&amp;</span>road.turn_restrictions {
-            <span class="macro">info!</span>(<span class="string">&quot;Simple turn restriction {:?} to {}&quot;</span>, rt, to);
+            <span class="macro">info!</span>(<span class="string">"Simple turn restriction {:?} to {}"</span>, rt, to);
         }
         <span class="kw">for </span>(via, to) <span class="kw">in </span><span class="kw-2">&amp;</span>road.complicated_turn_restrictions {
-            <span class="macro">info!</span>(<span class="string">&quot;Complicated turn restriction via {} to {}&quot;</span>, via, to);
+            <span class="macro">info!</span>(<span class="string">"Complicated turn restriction via {} to {}"</span>, via, to);
         }
         <span class="kw">let </span>info = txt.into_widget(ctx);
 
         <span class="kw">let </span>controls = Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;lanes:forward&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                <span class="string">"lanes:forward"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
                 Spinner::widget(
                     ctx,
-                    <span class="string">&quot;lanes:forward&quot;</span>,
+                    <span class="string">"lanes:forward"</span>,
                     (<span class="number">1</span>, <span class="number">5</span>),
-                    tags.get(<span class="string">&quot;lanes:forward&quot;</span>)
+                    tags.get(<span class="string">"lanes:forward"</span>)
                         .and_then(|x| x.parse::&lt;usize&gt;().ok())
                         .unwrap_or(<span class="number">1</span>),
                     <span class="number">1</span>,
                 ),
             ]),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;lanes:backward&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                <span class="string">"lanes:backward"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
                 Spinner::widget(
                     ctx,
-                    <span class="string">&quot;lanes:backward&quot;</span>,
+                    <span class="string">"lanes:backward"</span>,
                     (<span class="number">0</span>, <span class="number">5</span>),
-                    tags.get(<span class="string">&quot;lanes:backward&quot;</span>)
+                    tags.get(<span class="string">"lanes:backward"</span>)
                         .and_then(|x| x.parse::&lt;usize&gt;().ok())
-                        .unwrap_or_else(|| <span class="kw">if </span>tags.is(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) { <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>}),
+                        .unwrap_or_else(|| <span class="kw">if </span>tags.is(<span class="string">"oneway"</span>, <span class="string">"yes"</span>) { <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>}),
                     <span class="number">1</span>,
                 ),
             ]),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;sidewalk&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                <span class="string">"sidewalk"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
                 Widget::dropdown(
                     ctx,
-                    <span class="string">&quot;sidewalk&quot;</span>,
-                    <span class="kw">if </span>tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;both&quot;</span>) {
-                        <span class="string">&quot;both&quot;
-                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;none&quot;</span>) {
-                        <span class="string">&quot;none&quot;
-                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;left&quot;</span>) {
-                        <span class="string">&quot;left&quot;
-                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>) {
-                        <span class="string">&quot;right&quot;
+                    <span class="string">"sidewalk"</span>,
+                    <span class="kw">if </span>tags.is(<span class="string">"sidewalk"</span>, <span class="string">"both"</span>) {
+                        <span class="string">"both"
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">"sidewalk"</span>, <span class="string">"none"</span>) {
+                        <span class="string">"none"
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">"sidewalk"</span>, <span class="string">"left"</span>) {
+                        <span class="string">"left"
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">"sidewalk"</span>, <span class="string">"right"</span>) {
+                        <span class="string">"right"
                     </span>} <span class="kw">else </span>{
-                        <span class="string">&quot;both&quot;
+                        <span class="string">"both"
                     </span>}
                     .to_string(),
-                    Choice::strings(<span class="macro">vec!</span>[<span class="string">&quot;both&quot;</span>, <span class="string">&quot;none&quot;</span>, <span class="string">&quot;left&quot;</span>, <span class="string">&quot;right&quot;</span>]),
+                    Choice::strings(<span class="macro">vec!</span>[<span class="string">"both"</span>, <span class="string">"none"</span>, <span class="string">"left"</span>, <span class="string">"right"</span>]),
                 ),
             ]),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;parking&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                <span class="string">"parking"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
                 Widget::dropdown(
                     ctx,
-                    <span class="string">&quot;parking&quot;</span>,
+                    <span class="string">"parking"</span>,
                     <span class="comment">// TODO Not all possibilities represented here; very simplified.
-                    </span><span class="kw">if </span>tags.is(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
-                        <span class="string">&quot;both&quot;
-                    </span>} <span class="kw">else if </span>tags.is_any(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;no_parking&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>]) {
-                        <span class="string">&quot;none&quot;
-                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
-                        <span class="string">&quot;left&quot;
-                    </span>} <span class="kw">else if </span>tags.is(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;parallel&quot;</span>) {
-                        <span class="string">&quot;right&quot;
+                    </span><span class="kw">if </span>tags.is(<span class="string">"parking:lane:both"</span>, <span class="string">"parallel"</span>) {
+                        <span class="string">"both"
+                    </span>} <span class="kw">else if </span>tags.is_any(<span class="string">"parking:lane:both"</span>, <span class="macro">vec!</span>[<span class="string">"no_parking"</span>, <span class="string">"no_stopping"</span>]) {
+                        <span class="string">"none"
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">"parking:lane:left"</span>, <span class="string">"parallel"</span>) {
+                        <span class="string">"left"
+                    </span>} <span class="kw">else if </span>tags.is(<span class="string">"parking:lane:right"</span>, <span class="string">"parallel"</span>) {
+                        <span class="string">"right"
                     </span>} <span class="kw">else </span>{
-                        <span class="string">&quot;none&quot;
+                        <span class="string">"none"
                     </span>}
                     .to_string(),
-                    Choice::strings(<span class="macro">vec!</span>[<span class="string">&quot;both&quot;</span>, <span class="string">&quot;none&quot;</span>, <span class="string">&quot;left&quot;</span>, <span class="string">&quot;right&quot;</span>]),
+                    Choice::strings(<span class="macro">vec!</span>[<span class="string">"both"</span>, <span class="string">"none"</span>, <span class="string">"left"</span>, <span class="string">"right"</span>]),
                 ),
             ]),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Width scale&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
-                Spinner::widget(ctx, <span class="string">&quot;width_scale&quot;</span>, (<span class="number">0.5</span>, <span class="number">10.0</span>), <span class="number">1.0</span>, <span class="number">0.5</span>),
+                <span class="string">"Width scale"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                Spinner::widget(ctx, <span class="string">"width_scale"</span>, (<span class="number">0.5</span>, <span class="number">10.0</span>), <span class="number">1.0</span>, <span class="number">0.5</span>),
             ]),
         ]);
 
         <span class="kw">let </span>col = <span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Editing road&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Editing road"</span>).small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(<span class="macro">vec!</span>[info, controls]),
             ctx.style()
                 .btn_solid_primary
-                .text(<span class="string">&quot;Apply&quot;</span>)
+                .text(<span class="string">"Apply"</span>)
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ];
@@ -434,8 +436,8 @@
         panel: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition&lt;App&gt; {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-            <span class="string">&quot;Apply&quot; </span>=&gt; {
+            <span class="string">"close" </span>=&gt; Transition::Pop,
+            <span class="string">"Apply" </span>=&gt; {
                 app.model.road_deleted(<span class="self">self</span>.r);
 
                 <span class="kw">let </span><span class="kw-2">mut </span>tags = app
@@ -445,38 +447,38 @@
                     .cloned()
                     .unwrap_or_else(Tags::empty);
 
-                tags.remove(<span class="string">&quot;lanes&quot;</span>);
-                tags.remove(<span class="string">&quot;oneway&quot;</span>);
-                <span class="kw">let </span>fwd: usize = panel.spinner(<span class="string">&quot;lanes:forward&quot;</span>);
-                <span class="kw">let </span>back: usize = panel.spinner(<span class="string">&quot;lanes:backward&quot;</span>);
+                tags.remove(<span class="string">"lanes"</span>);
+                tags.remove(<span class="string">"oneway"</span>);
+                <span class="kw">let </span>fwd: usize = panel.spinner(<span class="string">"lanes:forward"</span>);
+                <span class="kw">let </span>back: usize = panel.spinner(<span class="string">"lanes:backward"</span>);
                 <span class="kw">if </span>back == <span class="number">0 </span>{
-                    tags.insert(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>);
-                    tags.insert(<span class="string">&quot;lanes&quot;</span>, fwd.to_string());
+                    tags.insert(<span class="string">"oneway"</span>, <span class="string">"yes"</span>);
+                    tags.insert(<span class="string">"lanes"</span>, fwd.to_string());
                 } <span class="kw">else </span>{
-                    tags.insert(<span class="string">&quot;lanes&quot;</span>, (fwd + back).to_string());
-                    tags.insert(<span class="string">&quot;lanes:forward&quot;</span>, fwd.to_string());
-                    tags.insert(<span class="string">&quot;lanes:backward&quot;</span>, back.to_string());
+                    tags.insert(<span class="string">"lanes"</span>, (fwd + back).to_string());
+                    tags.insert(<span class="string">"lanes:forward"</span>, fwd.to_string());
+                    tags.insert(<span class="string">"lanes:backward"</span>, back.to_string());
                 }
 
-                tags.insert(<span class="string">&quot;sidewalk&quot;</span>, panel.dropdown_value::&lt;String, <span class="kw-2">&amp;</span>str&gt;(<span class="string">&quot;sidewalk&quot;</span>));
+                tags.insert(<span class="string">"sidewalk"</span>, panel.dropdown_value::&lt;String, <span class="kw-2">&amp;</span>str&gt;(<span class="string">"sidewalk"</span>));
 
-                tags.remove(<span class="string">&quot;parking:lane:both&quot;</span>);
-                tags.remove(<span class="string">&quot;parking:lane:left&quot;</span>);
-                tags.remove(<span class="string">&quot;parking:lane:right&quot;</span>);
-                <span class="kw">match </span>panel.dropdown_value::&lt;String, <span class="kw-2">&amp;</span>str&gt;(<span class="string">&quot;parking&quot;</span>).as_ref() {
-                    <span class="string">&quot;both&quot; </span>=&gt; {
-                        tags.insert(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+                tags.remove(<span class="string">"parking:lane:both"</span>);
+                tags.remove(<span class="string">"parking:lane:left"</span>);
+                tags.remove(<span class="string">"parking:lane:right"</span>);
+                <span class="kw">match </span>panel.dropdown_value::&lt;String, <span class="kw-2">&amp;</span>str&gt;(<span class="string">"parking"</span>).as_ref() {
+                    <span class="string">"both" </span>=&gt; {
+                        tags.insert(<span class="string">"parking:lane:both"</span>, <span class="string">"parallel"</span>);
                     }
-                    <span class="string">&quot;none&quot; </span>=&gt; {
-                        tags.insert(<span class="string">&quot;parking:lane:both&quot;</span>, <span class="string">&quot;none&quot;</span>);
+                    <span class="string">"none" </span>=&gt; {
+                        tags.insert(<span class="string">"parking:lane:both"</span>, <span class="string">"none"</span>);
                     }
-                    <span class="string">&quot;left&quot; </span>=&gt; {
-                        tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
-                        tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;none&quot;</span>);
+                    <span class="string">"left" </span>=&gt; {
+                        tags.insert(<span class="string">"parking:lane:left"</span>, <span class="string">"parallel"</span>);
+                        tags.insert(<span class="string">"parking:lane:right"</span>, <span class="string">"none"</span>);
                     }
-                    <span class="string">&quot;right&quot; </span>=&gt; {
-                        tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;none&quot;</span>);
-                        tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+                    <span class="string">"right" </span>=&gt; {
+                        tags.insert(<span class="string">"parking:lane:left"</span>, <span class="string">"none"</span>);
+                        tags.insert(<span class="string">"parking:lane:right"</span>, <span class="string">"parallel"</span>);
                     }
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
@@ -484,7 +486,7 @@
                 <span class="kw">let </span>road = app.model.map.streets.roads.get_mut(<span class="kw-2">&amp;</span><span class="self">self</span>.r).unwrap();
                 road.lane_specs_ltr =
                     osm2streets::get_lane_specs_ltr(<span class="kw-2">&amp;</span>tags, <span class="kw-2">&amp;</span>app.model.map.streets.config);
-                <span class="kw">let </span>scale = panel.spinner(<span class="string">&quot;width_scale&quot;</span>);
+                <span class="kw">let </span>scale = panel.spinner(<span class="string">"width_scale"</span>);
                 <span class="kw">for </span>lane <span class="kw">in </span><span class="kw-2">&amp;mut </span>road.lane_specs_ltr {
                     lane.width <span class="kw-2">*</span>= scale;
                 }
@@ -502,7 +504,7 @@
         app: <span class="kw-2">&amp;mut </span>App,
         panel: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&lt;App&gt;&gt; {
-        <span class="kw">let </span>scale = panel.spinner(<span class="string">&quot;width_scale&quot;</span>);
+        <span class="kw">let </span>scale = panel.spinner(<span class="string">"width_scale"</span>);
         app.model.road_deleted(<span class="self">self</span>.r);
         <span class="kw">let </span>tags = app
             .model

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/common/warp.rs`."><title>warp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/common/warp.rs`."><title>warp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -322,7 +324,7 @@
             Transition::Multi(<span class="macro">vec!</span>[
                 Transition::Pop,
                 Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
-                    <span class="comment">// Other states pretty much don&#39;t use info panels.
+                    <span class="comment">// Other states pretty much don't use info panels.
                     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>s) = state.downcast_mut::&lt;SandboxMode&gt;() {
                         <span class="kw">let </span><span class="kw-2">mut </span>actions = s.contextual_actions();
                         s.controls.common.as_mut().unwrap().launch_info_panel(
@@ -352,12 +354,12 @@
         Box::new(DebugWarp {
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Warp to an object by ID&quot;</span>)
+                    Line(<span class="string">"Warp to an object by ID"</span>)
                         .small_heading()
                         .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="string">&quot;Example: r42 is Road #42&quot;</span>.text_widget(ctx),
+                <span class="string">"Example: r42 is Road #42"</span>.text_widget(ctx),
                 <span class="comment">// T
                 // his
                 //
@@ -367,38 +369,38 @@
                 // d
                 // isorienting...
                 </span>Text::from_all(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;r&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;oad, &quot;</span>),
-                    Line(<span class="string">&quot;l&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;ane, &quot;</span>),
-                    Line(<span class="string">&quot;i&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;ntersection, &quot;</span>),
-                    Line(<span class="string">&quot;b&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;uilding, &quot;</span>),
-                    Line(<span class="string">&quot;p&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;edestrian, &quot;</span>),
-                    Line(<span class="string">&quot;c&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;ar, &quot;</span>),
-                    Line(<span class="string">&quot;t&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;rip, &quot;</span>),
-                    Line(<span class="string">&quot;P&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;erson, &quot;</span>),
-                    Line(<span class="string">&quot;R&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;oute, parking &quot;</span>),
-                    Line(<span class="string">&quot;L&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;ot&quot;</span>),
+                    Line(<span class="string">"r"</span>).fg(c),
+                    Line(<span class="string">"oad, "</span>),
+                    Line(<span class="string">"l"</span>).fg(c),
+                    Line(<span class="string">"ane, "</span>),
+                    Line(<span class="string">"i"</span>).fg(c),
+                    Line(<span class="string">"ntersection, "</span>),
+                    Line(<span class="string">"b"</span>).fg(c),
+                    Line(<span class="string">"uilding, "</span>),
+                    Line(<span class="string">"p"</span>).fg(c),
+                    Line(<span class="string">"edestrian, "</span>),
+                    Line(<span class="string">"c"</span>).fg(c),
+                    Line(<span class="string">"ar, "</span>),
+                    Line(<span class="string">"t"</span>).fg(c),
+                    Line(<span class="string">"rip, "</span>),
+                    Line(<span class="string">"P"</span>).fg(c),
+                    Line(<span class="string">"erson, "</span>),
+                    Line(<span class="string">"R"</span>).fg(c),
+                    Line(<span class="string">"oute, parking "</span>),
+                    Line(<span class="string">"L"</span>).fg(c),
+                    Line(<span class="string">"ot"</span>),
                 ])
                 .into_widget(ctx),
                 Text::from_all(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Or &quot;</span>),
-                    Line(<span class="string">&quot;j&quot;</span>).fg(c),
-                    Line(<span class="string">&quot;ump to the previous position&quot;</span>),
+                    Line(<span class="string">"Or "</span>),
+                    Line(<span class="string">"j"</span>).fg(c),
+                    Line(<span class="string">"ump to the previous position"</span>),
                 ])
                 .into_widget(ctx),
-                TextBox::default_widget(ctx, <span class="string">&quot;input&quot;</span>, String::new()),
+                TextBox::default_widget(ctx, <span class="string">"input"</span>, String::new()),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Go!&quot;</span>)
+                    .text(<span class="string">"Go!"</span>)
                     .hotkey(Key::Enter)
                     .build_def(ctx),
             ]))
@@ -411,9 +413,9 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-                <span class="string">&quot;Go!&quot; </span>=&gt; {
-                    <span class="kw">let </span>input = <span class="self">self</span>.panel.text_box(<span class="string">&quot;input&quot;</span>);
+                <span class="string">"close" </span>=&gt; Transition::Pop,
+                <span class="string">"Go!" </span>=&gt; {
+                    <span class="kw">let </span>input = <span class="self">self</span>.panel.text_box(<span class="string">"input"</span>);
                     warp_to_id(ctx, app, <span class="kw-2">&amp;</span>input)
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -434,8 +436,8 @@
     } <span class="kw">else </span>{
         Transition::Replace(PopupMsg::new_state(
             ctx,
-            <span class="string">&quot;Bad warp ID&quot;</span>,
-            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;{} isn&#39;t a valid ID&quot;</span>, input)],
+            <span class="string">"Bad warp ID"</span>,
+            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"{} isn't a valid ID"</span>, input)],
         ))
     }
 }
@@ -444,7 +446,7 @@
     <span class="kw">if </span>line.is_empty() {
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="kw">if </span>line == <span class="string">&quot;j&quot; </span>{
+    <span class="kw">if </span>line == <span class="string">"j" </span>{
         <span class="kw">if let </span><span class="prelude-val">Some</span>((pt, zoom)) = app.primary.last_warped_from {
             <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Replace(Warping::new_state(
                 ctx,
@@ -459,17 +461,17 @@
 
     <span class="kw">let </span>id = <span class="kw">match </span>(<span class="kw-2">&amp;</span>line[<span class="number">1</span>..line.len()]).parse::&lt;usize&gt;() {
         <span class="prelude-val">Ok</span>(idx) =&gt; <span class="kw">match </span>line.chars().next().unwrap() {
-            <span class="string">&#39;r&#39; </span>=&gt; {
+            <span class="string">'r' </span>=&gt; {
                 <span class="kw">let </span>r = app.primary.map.maybe_get_r(RoadID(idx))<span class="question-mark">?</span>;
                 ID::Lane(r.lanes[<span class="number">0</span>].id)
             }
-            <span class="string">&#39;R&#39; </span>=&gt; {
+            <span class="string">'R' </span>=&gt; {
                 <span class="kw">let </span>r = TransitRouteID(idx);
                 app.primary.map.maybe_get_tr(r)<span class="question-mark">?</span>;
                 <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
                     Transition::Pop,
                     Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
-                        <span class="comment">// Other states pretty much don&#39;t use info panels.
+                        <span class="comment">// Other states pretty much don't use info panels.
                         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>s) = state.downcast_mut::&lt;SandboxMode&gt;() {
                             <span class="kw">let </span><span class="kw-2">mut </span>actions = s.contextual_actions();
                             s.controls.common.as_mut().unwrap().launch_info_panel(
@@ -482,19 +484,19 @@
                     })),
                 ]));
             }
-            <span class="string">&#39;l&#39; </span>=&gt; ID::Lane(LaneID::decode_u32(idx <span class="kw">as </span>u32)),
-            <span class="string">&#39;L&#39; </span>=&gt; ID::ParkingLot(ParkingLotID(idx)),
-            <span class="string">&#39;i&#39; </span>=&gt; ID::Intersection(IntersectionID(idx)),
-            <span class="string">&#39;b&#39; </span>=&gt; ID::Building(BuildingID(idx)),
-            <span class="string">&#39;a&#39; </span>=&gt; ID::Area(AreaID(idx)),
-            <span class="string">&#39;p&#39; </span>=&gt; ID::Pedestrian(PedestrianID(idx)),
-            <span class="string">&#39;P&#39; </span>=&gt; {
+            <span class="string">'l' </span>=&gt; ID::Lane(LaneID::decode_u32(idx <span class="kw">as </span>u32)),
+            <span class="string">'L' </span>=&gt; ID::ParkingLot(ParkingLotID(idx)),
+            <span class="string">'i' </span>=&gt; ID::Intersection(IntersectionID(idx)),
+            <span class="string">'b' </span>=&gt; ID::Building(BuildingID(idx)),
+            <span class="string">'a' </span>=&gt; ID::Area(AreaID(idx)),
+            <span class="string">'p' </span>=&gt; ID::Pedestrian(PedestrianID(idx)),
+            <span class="string">'P' </span>=&gt; {
                 <span class="kw">let </span>id = PersonID(idx);
                 app.primary.sim.lookup_person(id)<span class="question-mark">?</span>;
                 <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
                     Transition::Pop,
                     Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
-                        <span class="comment">// Other states pretty much don&#39;t use info panels.
+                        <span class="comment">// Other states pretty much don't use info panels.
                         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>s) = state.downcast_mut::&lt;SandboxMode&gt;() {
                             <span class="kw">let </span><span class="kw-2">mut </span>actions = s.contextual_actions();
                             s.controls.common.as_mut().unwrap().launch_info_panel(
@@ -507,18 +509,18 @@
                     })),
                 ]));
             }
-            <span class="string">&#39;c&#39; </span>=&gt; {
+            <span class="string">'c' </span>=&gt; {
                 <span class="comment">// This one gets more complicated. :)
                 </span><span class="kw">let </span>c = app.primary.sim.lookup_car_id(idx)<span class="question-mark">?</span>;
                 ID::Car(c)
             }
-            <span class="string">&#39;t&#39; </span>=&gt; {
+            <span class="string">'t' </span>=&gt; {
                 <span class="kw">let </span>trip = TripID(idx);
                 <span class="kw">let </span>person = app.primary.sim.trip_to_person(trip)<span class="question-mark">?</span>;
                 <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
                     Transition::Pop,
                     Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
-                        <span class="comment">// Other states pretty much don&#39;t use info panels.
+                        <span class="comment">// Other states pretty much don't use info panels.
                         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>s) = state.downcast_mut::&lt;SandboxMode&gt;() {
                             <span class="kw">let </span><span class="kw-2">mut </span>actions = s.contextual_actions();
                             s.controls.common.as_mut().unwrap().launch_info_panel(
@@ -540,7 +542,7 @@
         }
     };
     <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = app.primary.canonical_point(id.clone()) {
-        <span class="macro">println!</span>(<span class="string">&quot;Warping to {:?}&quot;</span>, id);
+        <span class="macro">println!</span>(<span class="string">"Warping to {:?}"</span>, id);
         <span class="prelude-val">Some</span>(Transition::Replace(Warping::new_state(
             ctx,
             pt,

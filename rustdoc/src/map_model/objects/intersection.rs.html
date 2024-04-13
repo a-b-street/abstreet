@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/intersection.rs`."><title>intersection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/intersection.rs`."><title>intersection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -282,15 +284,15 @@
 <span class="attr">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>IntersectionID(
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+        serialize_with = <span class="string">"serialize_usize"</span>,
+        deserialize_with = <span class="string">"deserialize_usize"
     </span>)]
     </span><span class="kw">pub </span>usize,
 );
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>IntersectionID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Intersection #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+        <span class="macro">write!</span>(f, <span class="string">"Intersection #{}"</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
@@ -311,12 +313,12 @@
 
     <span class="doccomment">/// Note that a lane may belong to both incoming_lanes and outgoing_lanes.
     </span><span class="comment">// TODO narrow down when and why. is it just sidewalks in weird cases?
-    // TODO Change to BTreeSet, or otherwise emphasize to callers that the order of these isn&#39;t
+    // TODO Change to BTreeSet, or otherwise emphasize to callers that the order of these isn't
     // meaningful
     </span><span class="kw">pub </span>incoming_lanes: Vec&lt;LaneID&gt;,
     <span class="kw">pub </span>outgoing_lanes: Vec&lt;LaneID&gt;,
 
-    <span class="comment">// These&#39;re ordered clockwise around the intersection
+    <span class="comment">// These're ordered clockwise around the intersection
     </span><span class="kw">pub </span>roads: Vec&lt;RoadID&gt;,
 
     <span class="kw">pub </span>modal_filter: <span class="prelude-ty">Option</span>&lt;DiagonalFilter&gt;,
@@ -376,7 +378,7 @@
 
     <span class="doccomment">/// Does this intersection connect to only a single driveable road segment?
     </span><span class="kw">pub fn </span>is_deadend_for_driving(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
-        <span class="comment">// If a driveable road leads only to a cycle lane, then that&#39;s still a dead-end for driving
+        <span class="comment">// If a driveable road leads only to a cycle lane, then that's still a dead-end for driving
         </span><span class="self">self</span>.roads
             .iter()
             .filter(|r| PathConstraints::Car.can_use_road(map.get_r(<span class="kw-2">**</span>r), map))
@@ -404,7 +406,7 @@
 
     <span class="doccomment">/// Higher numbers get drawn on top
     </span><span class="kw">pub fn </span>get_zorder(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; isize {
-        <span class="comment">// TODO Not sure min makes sense -- what about a 1 and a 0? Prefer the nonzeros. If there&#39;s
+        <span class="comment">// TODO Not sure min makes sense -- what about a 1 and a 0? Prefer the nonzeros. If there's
         // a -1 and a 1... need to see it to know what to do.
         </span><span class="self">self</span>.roads
             .iter()
@@ -422,7 +424,7 @@
     }
 
     <span class="comment">// TODO Use osm2streets RoadEdge?
-    // This skips the &quot;interior&quot; piece of any loop roads
+    // This skips the "interior" piece of any loop roads
     </span><span class="kw">pub fn </span>get_road_sides_sorted(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;RoadSideID&gt; {
         <span class="comment">// TODO For loop roads, osm2streets repeats the roads! Consider upstream fixes.
         </span><span class="kw">let </span><span class="kw-2">mut </span>deduped = <span class="self">self</span>.roads.clone();
@@ -432,7 +434,7 @@
         <span class="kw">for </span>r <span class="kw">in </span>deduped {
             <span class="kw">let </span>r = map.get_r(r);
             <span class="kw">if </span>r.src_i == r.dst_i {
-                <span class="comment">// For loop roads, one of the sides is &quot;interior&quot; and should just be skipped. The
+                <span class="comment">// For loop roads, one of the sides is "interior" and should just be skipped. The
                 // side depends on clockwise orientation -- just sketching it out on paper is
                 // enough to be convincing.
                 </span><span class="kw">if </span>r.center_pts.is_clockwise() {
@@ -502,7 +504,7 @@
         abstutil::plain_list_names(road_names)
     }
 
-    <span class="doccomment">/// Don&#39;t call for SharedSidewalkCorners
+    <span class="doccomment">/// Don't call for SharedSidewalkCorners
     </span><span class="kw">pub fn </span>turn_to_movement(<span class="kw-2">&amp;</span><span class="self">self</span>, turn: TurnID) -&gt; (MovementID, CompressedMovementID) {
         <span class="kw">for </span>(idx, m) <span class="kw">in </span><span class="self">self</span>.movements.values().enumerate() {
             <span class="kw">if </span>m.members.contains(<span class="kw-2">&amp;</span>turn) {
@@ -517,12 +519,12 @@
         }
 
         <span class="macro">panic!</span>(
-            <span class="string">&quot;{} doesn&#39;t belong to any movements in {} or is a SharedSidewalkCorner maybe&quot;</span>,
+            <span class="string">"{} doesn't belong to any movements in {} or is a SharedSidewalkCorner maybe"</span>,
             turn, <span class="self">self</span>.id
         )
     }
 
-    <span class="kw">pub fn </span>find_road_between&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, other: IntersectionID, map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Road&gt; {
+    <span class="kw">pub fn </span>find_road_between&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, other: IntersectionID, map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Road&gt; {
         <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.roads {
             <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>r);
             <span class="kw">if </span>road.other_endpt(<span class="self">self</span>.id) == other {

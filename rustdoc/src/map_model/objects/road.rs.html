@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/road.rs`."><title>road.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/road.rs`."><title>road.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -758,15 +760,15 @@
 <span class="attr">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>RoadID(
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+        serialize_with = <span class="string">"serialize_usize"</span>,
+        deserialize_with = <span class="string">"deserialize_usize"
     </span>)]
     </span><span class="kw">pub </span>usize,
 );
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>RoadID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Road #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+        <span class="macro">write!</span>(f, <span class="string">"Road #{}"</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
@@ -806,7 +808,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DirectedRoadID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;DirectedRoadID({}, {})&quot;</span>, <span class="self">self</span>.road.<span class="number">0</span>, <span class="self">self</span>.dir,)
+        <span class="macro">write!</span>(f, <span class="string">"DirectedRoadID({}, {})"</span>, <span class="self">self</span>.road.<span class="number">0</span>, <span class="self">self</span>.dir,)
     }
 }
 
@@ -845,7 +847,7 @@
         }
         <span class="kw">if </span>found.len() != <span class="number">1 </span>{
             <span class="macro">panic!</span>(
-                <span class="string">&quot;must_get_sidewalk broken by {} ({}). Found lanes {:?}&quot;</span>,
+                <span class="string">"must_get_sidewalk broken by {} ({}). Found lanes {:?}"</span>,
                 <span class="self">self</span>,
                 map.get_r(<span class="self">self</span>.road).orig_id,
                 found
@@ -904,9 +906,9 @@
 </span><span class="kw">pub struct </span>Road {
     <span class="kw">pub </span>id: RoadID,
     <span class="kw">pub </span>osm_tags: Tags,
-    <span class="doccomment">/// self is &#39;from&#39;
+    <span class="doccomment">/// self is 'from'
     </span><span class="kw">pub </span>turn_restrictions: Vec&lt;(RestrictionType, RoadID)&gt;,
-    <span class="doccomment">/// self is &#39;from&#39;. (via, to). Only BanTurns.
+    <span class="doccomment">/// self is 'from'. (via, to). Only BanTurns.
     </span><span class="kw">pub </span>complicated_turn_restrictions: Vec&lt;(RoadID, RoadID)&gt;,
     <span class="kw">pub </span>orig_id: OriginalRoad,
     <span class="kw">pub </span>speed_limit: Speed,
@@ -938,7 +940,7 @@
     <span class="doccomment">/// Meaningless order
     </span><span class="kw">pub </span>transit_stops: BTreeSet&lt;TransitStopID&gt;,
 
-    <span class="doccomment">/// There&#39;s either a modal filter on this road or not
+    <span class="doccomment">/// There's either a modal filter on this road or not
     </span><span class="kw">pub </span>modal_filter: <span class="prelude-ty">Option</span>&lt;RoadFilter&gt;,
 
     <span class="doccomment">/// Some kind of modal filter or barrier this distance along center_pts.
@@ -977,7 +979,7 @@
                 <span class="kw">return </span>(dir, idx);
             }
         }
-        <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t contain {}&quot;</span>, <span class="self">self</span>.id, lane);
+        <span class="macro">panic!</span>(<span class="string">"{} doesn't contain {}"</span>, <span class="self">self</span>.id, lane);
     }
 
     <span class="kw">pub fn </span>parking_to_driving(<span class="kw-2">&amp;</span><span class="self">self</span>, parking: LaneID) -&gt; <span class="prelude-ty">Option</span>&lt;LaneID&gt; {
@@ -985,11 +987,11 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>speed_limit_from_osm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Speed {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(limit) = <span class="self">self</span>.osm_tags.get(<span class="string">&quot;maxspeed&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(limit) = <span class="self">self</span>.osm_tags.get(<span class="string">"maxspeed"</span>) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(speed) = <span class="kw">if let </span><span class="prelude-val">Ok</span>(kmph) = limit.parse::&lt;f64&gt;() {
                 <span class="prelude-val">Some</span>(Speed::km_per_hour(kmph))
             } <span class="kw">else if let </span><span class="prelude-val">Some</span>(mph) = limit
-                .strip_suffix(<span class="string">&quot; mph&quot;</span>)
+                .strip_suffix(<span class="string">" mph"</span>)
                 .and_then(|x| x.parse::&lt;f64&gt;().ok())
             {
                 <span class="prelude-val">Some</span>(Speed::miles_per_hour(mph))
@@ -997,7 +999,7 @@
                 <span class="prelude-val">None
             </span>} {
                 <span class="kw">if </span>speed == Speed::ZERO {
-                    <span class="macro">warn!</span>(<span class="string">&quot;{} has a speed limit of 0&quot;</span>, <span class="self">self</span>.orig_id.osm_way_id);
+                    <span class="macro">warn!</span>(<span class="string">"{} has a speed limit of 0"</span>, <span class="self">self</span>.orig_id.osm_way_id);
                     <span class="kw">return </span>Speed::miles_per_hour(<span class="number">1.0</span>);
                 }
                 <span class="kw">return </span>speed;
@@ -1006,14 +1008,14 @@
             <span class="comment">// TODO Handle implicits, like PL:zone30
         </span>}
 
-        <span class="comment">// These&#39;re half reasonable guesses. Better to explicitly tag in OSM.
+        <span class="comment">// These're half reasonable guesses. Better to explicitly tag in OSM.
         </span><span class="kw">if </span><span class="self">self
             </span>.osm_tags
-            .is_any(osm::HIGHWAY, <span class="macro">vec!</span>[<span class="string">&quot;primary&quot;</span>, <span class="string">&quot;secondary&quot;</span>, <span class="string">&quot;motorway_link&quot;</span>])
+            .is_any(osm::HIGHWAY, <span class="macro">vec!</span>[<span class="string">"primary"</span>, <span class="string">"secondary"</span>, <span class="string">"motorway_link"</span>])
         {
             <span class="kw">return </span>Speed::miles_per_hour(<span class="number">40.0</span>);
         }
-        <span class="kw">if </span><span class="self">self</span>.osm_tags.is(osm::HIGHWAY, <span class="string">&quot;living_street&quot;</span>) {
+        <span class="kw">if </span><span class="self">self</span>.osm_tags.is(osm::HIGHWAY, <span class="string">"living_street"</span>) {
             <span class="comment">// about 12mph
             </span><span class="kw">return </span>Speed::km_per_hour(<span class="number">20.0</span>);
         }
@@ -1057,7 +1059,7 @@
             }
         }
         <span class="kw">let </span>lane = found.unwrap_or(<span class="kw-2">&amp;</span><span class="self">self</span>.lanes[<span class="number">0</span>]);
-        <span class="comment">// There&#39;s a weird edge case with single lane light rail on left-handed maps...
+        <span class="comment">// There's a weird edge case with single lane light rail on left-handed maps...
         </span><span class="kw">let </span>shifted = <span class="kw">if </span>map.get_config().driving_side == DrivingSide::Right || found.is_none() {
             lane.lane_center_pts.must_shift_left(lane.width / <span class="number">2.0</span>)
         } <span class="kw">else </span>{
@@ -1120,46 +1122,46 @@
 
     <span class="kw">pub fn </span>get_name(<span class="kw-2">&amp;</span><span class="self">self</span>, lang: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt;) -&gt; String {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(lang) = lang {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;name:{}&quot;</span>, lang)) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"name:{}"</span>, lang)) {
                 <span class="kw">return </span>name.to_string();
             }
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">&quot;name&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">"name"</span>) {
             <span class="kw">if </span>name.is_empty() {
-                <span class="kw">return </span><span class="string">&quot;???&quot;</span>.to_string();
+                <span class="kw">return </span><span class="string">"???"</span>.to_string();
             } <span class="kw">else </span>{
                 <span class="kw">return </span>name.to_string();
             }
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">&quot;ref&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">"ref"</span>) {
             <span class="kw">return </span>name.to_string();
         }
         <span class="kw">if </span><span class="self">self
             </span>.osm_tags
             .get(osm::HIGHWAY)
-            .map(|hwy| hwy.ends_with(<span class="string">&quot;_link&quot;</span>))
+            .map(|hwy| hwy.ends_with(<span class="string">"_link"</span>))
             .unwrap_or(<span class="bool-val">false</span>)
         {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">&quot;destination:street&quot;</span>) {
-                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;Exit for {}&quot;</span>, name);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">"destination:street"</span>) {
+                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"Exit for {}"</span>, name);
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">&quot;destination:ref&quot;</span>) {
-                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;Exit for {}&quot;</span>, name);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">"destination:ref"</span>) {
+                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"Exit for {}"</span>, name);
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">&quot;destination&quot;</span>) {
-                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;Exit for {}&quot;</span>, name);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.osm_tags.get(<span class="string">"destination"</span>) {
+                <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"Exit for {}"</span>, name);
             }
-            <span class="comment">// Sometimes &#39;directions&#39; is filled out, but incorrectly...
+            <span class="comment">// Sometimes 'directions' is filled out, but incorrectly...
         </span>}
-        <span class="string">&quot;???&quot;</span>.to_string()
+        <span class="string">"???"</span>.to_string()
     }
 
     <span class="kw">pub fn </span>get_rank(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; osm::RoadRank {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = <span class="self">self</span>.osm_tags.get(osm::HIGHWAY) {
-            <span class="kw">if </span>x == <span class="string">&quot;construction&quot; </span>{
+            <span class="kw">if </span>x == <span class="string">"construction" </span>{
                 <span class="comment">// What exactly is under construction?
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(x) = <span class="self">self</span>.osm_tags.get(<span class="string">&quot;construction&quot;</span>) {
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(x) = <span class="self">self</span>.osm_tags.get(<span class="string">"construction"</span>) {
                     osm::RoadRank::from_highway(x)
                 } <span class="kw">else </span>{
                     osm::RoadRank::Local
@@ -1192,7 +1194,7 @@
     }
 
     <span class="kw">pub fn </span>is_service(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.osm_tags.is(osm::HIGHWAY, <span class="string">&quot;service&quot;</span>)
+        <span class="self">self</span>.osm_tags.is(osm::HIGHWAY, <span class="string">"service"</span>)
     }
 
     <span class="kw">pub fn </span>is_cycleway(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -1219,7 +1221,7 @@
         <span class="macro">vec!</span>[<span class="self">self</span>.src_i, <span class="self">self</span>.dst_i]
     }
 
-    <span class="doccomment">/// Returns the other intersection of this road, panicking if this road doesn&#39;t connect to the
+    <span class="doccomment">/// Returns the other intersection of this road, panicking if this road doesn't connect to the
     /// input
     /// TODO This should use CommonEndpoint
     </span><span class="kw">pub fn </span>other_endpt(<span class="kw-2">&amp;</span><span class="self">self</span>, i: IntersectionID) -&gt; IntersectionID {
@@ -1228,7 +1230,7 @@
         } <span class="kw">else if </span><span class="self">self</span>.dst_i == i {
             <span class="self">self</span>.src_i
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t touch {}&quot;</span>, <span class="self">self</span>.id, i);
+            <span class="macro">panic!</span>(<span class="string">"{} doesn't touch {}"</span>, <span class="self">self</span>.id, i);
         }
     }
 
@@ -1237,11 +1239,11 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>access_restrictions_from_osm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AccessRestrictions {
-        <span class="kw">let </span>allow_through_traffic = <span class="kw">if </span><span class="self">self</span>.osm_tags.is(<span class="string">&quot;access&quot;</span>, <span class="string">&quot;private&quot;</span>) {
+        <span class="kw">let </span>allow_through_traffic = <span class="kw">if </span><span class="self">self</span>.osm_tags.is(<span class="string">"access"</span>, <span class="string">"private"</span>) {
             EnumSet::new()
-        } <span class="kw">else if </span><span class="self">self</span>.osm_tags.is(osm::HIGHWAY, <span class="string">&quot;living_street&quot;</span>) {
+        } <span class="kw">else if </span><span class="self">self</span>.osm_tags.is(osm::HIGHWAY, <span class="string">"living_street"</span>) {
             <span class="kw">let </span><span class="kw-2">mut </span>allow = PathConstraints::Pedestrian | PathConstraints::Bike;
-            <span class="kw">if </span><span class="self">self</span>.osm_tags.is(<span class="string">&quot;psv&quot;</span>, <span class="string">&quot;yes&quot;</span>) || <span class="self">self</span>.osm_tags.is(<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+            <span class="kw">if </span><span class="self">self</span>.osm_tags.is(<span class="string">"psv"</span>, <span class="string">"yes"</span>) || <span class="self">self</span>.osm_tags.is(<span class="string">"bus"</span>, <span class="string">"yes"</span>) {
                 allow |= PathConstraints::Bus;
             }
             allow
@@ -1253,7 +1255,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>get_zone&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Zone&gt; {
+    <span class="kw">pub fn </span>get_zone&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Zone&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.is_private() {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -1273,7 +1275,7 @@
         <span class="self">self</span>.length() &lt; Distance::meters(<span class="number">2.0</span>)
     }
 
-    <span class="doccomment">/// Get the DirectedRoadID pointing to the intersection. Panics if the intersection isn&#39;t an
+    <span class="doccomment">/// Get the DirectedRoadID pointing to the intersection. Panics if the intersection isn't an
     /// endpoint.
     </span><span class="kw">pub fn </span>directed_id_from(<span class="kw-2">&amp;</span><span class="self">self</span>, i: IntersectionID) -&gt; DirectedRoadID {
         DirectedRoadID {
@@ -1283,12 +1285,12 @@
             } <span class="kw">else if </span><span class="self">self</span>.dst_i == i {
                 Direction::Back
             } <span class="kw">else </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t point to {}&quot;</span>, <span class="self">self</span>.id, i);
+                <span class="macro">panic!</span>(<span class="string">"{} doesn't point to {}"</span>, <span class="self">self</span>.id, i);
             },
         }
     }
 
-    <span class="doccomment">/// Get the DirectedRoadID pointing from the intersection. Panics if the intersection isn&#39;t an
+    <span class="doccomment">/// Get the DirectedRoadID pointing from the intersection. Panics if the intersection isn't an
     /// endpoint.
     </span><span class="kw">pub fn </span>directed_id_to(<span class="kw-2">&amp;</span><span class="self">self</span>, i: IntersectionID) -&gt; DirectedRoadID {
         <span class="kw">let </span><span class="kw-2">mut </span>id = <span class="self">self</span>.directed_id_from(i);
@@ -1355,14 +1357,14 @@
                 found_start = <span class="bool-val">true</span>;
             }
         }
-        <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t contain both {} and {}&quot;</span>, <span class="self">self</span>.id, l1, l2);
+        <span class="macro">panic!</span>(<span class="string">"{} doesn't contain both {} and {}"</span>, <span class="self">self</span>.id, l1, l2);
     }
 
     <span class="doccomment">/// A simple classification of if the directed road is stressful or not for cycling. Arterial
     /// roads without a bike lane match this. Why arterial, instead of looking at speed limits?
     /// Even on arterial roads with official speed limits lowered, in practice vehicles still
     /// travel at the speed suggested by the design of the road.
-    </span><span class="comment">// TODO Should elevation matter or not? Flat high-speed roads are still terrifying, but there&#39;s
+    </span><span class="comment">// TODO Should elevation matter or not? Flat high-speed roads are still terrifying, but there's
     // something about slogging up (or flying down!) a pothole-filled road inches from cars.
     </span><span class="kw">pub fn </span>high_stress_for_bikes(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, dir: Direction) -&gt; bool {
         <span class="kw">let </span><span class="kw-2">mut </span>bike_lanes = <span class="bool-val">false</span>;
@@ -1395,8 +1397,8 @@
 }
 
 <span class="comment">// TODO All of this is kind of deprecated? Some callers seem to really need to still handle lanes
-// going outward from the &quot;center&quot; line. Should keep whittling this down, probably. These very much
-// don&#39;t handle multiple direction changes.
+// going outward from the "center" line. Should keep whittling this down, probably. These very much
+// don't handle multiple direction changes.
 </span><span class="kw">impl </span>Road {
     <span class="doccomment">/// These are ordered from closest to center lane (left-most when driving on the right) to
     /// farthest (sidewalk)
@@ -1429,20 +1431,20 @@
         }
     }
 
-    <span class="doccomment">/// Returns lanes from the &quot;center&quot; going out
+    <span class="doccomment">/// Returns lanes from the "center" going out
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>incoming_lanes(<span class="kw-2">&amp;</span><span class="self">self</span>, i: IntersectionID) -&gt; Vec&lt;(LaneID, LaneType)&gt; {
         <span class="kw">if </span><span class="self">self</span>.src_i == i {
             <span class="self">self</span>.children_backwards()
         } <span class="kw">else if </span><span class="self">self</span>.dst_i == i {
             <span class="self">self</span>.children_forwards()
         } <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t have an endpoint at {}&quot;</span>, <span class="self">self</span>.id, i);
+            <span class="macro">panic!</span>(<span class="string">"{} doesn't have an endpoint at {}"</span>, <span class="self">self</span>.id, i);
         }
     }
 }
 
 <span class="doccomment">/// Refers to a road segment between two nodes, using OSM IDs. Note OSM IDs are not stable over
-/// time and the relationship between a road/intersection and way/node isn&#39;t 1:1 at all.
+/// time and the relationship between a road/intersection and way/node isn't 1:1 at all.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 </span><span class="kw">pub struct </span>OriginalRoad {
     <span class="kw">pub </span>osm_way_id: osm::WayID,
@@ -1454,14 +1456,14 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;OriginalRoad({} from {} to {}&quot;</span>,
+            <span class="string">"OriginalRoad({} from {} to {}"</span>,
             <span class="self">self</span>.osm_way_id, <span class="self">self</span>.i1, <span class="self">self</span>.i2
         )
     }
 }
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>OriginalRoad {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>)
     }
 }
 

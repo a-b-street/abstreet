@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/lane.rs`."><title>lane.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/lane.rs`."><title>lane.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -648,7 +650,7 @@
 
         <span class="kw">match </span>lane.lane_type {
             LaneType::Sidewalk | LaneType::Shoulder =&gt; {
-                <span class="comment">// Don&#39;t draw these for shoulders
+                <span class="comment">// Don't draw these for shoulders
                 </span><span class="kw">if </span>lane.is_sidewalk() {
                     batch.extend(app.cs().sidewalk_lines, calculate_sidewalk_lines(lane));
                 }
@@ -681,7 +683,7 @@
                     .step_along(Distance::meters(<span class="number">30.0</span>), Distance::meters(<span class="number">5.0</span>))
                 {
                     batch.append(
-                        GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/bus_only.svg&quot;</span>)
+                        GeomBatch::load_svg(prerender, <span class="string">"system/assets/map/bus_only.svg"</span>)
                             .scale(<span class="number">0.06</span>)
                             .centered_on(pt)
                             .rotate(angle.shortest_rotation_towards(Angle::degrees(-<span class="number">90.0</span>))),
@@ -694,7 +696,7 @@
                     .step_along(Distance::meters(<span class="number">30.0</span>), Distance::meters(<span class="number">5.0</span>))
                 {
                     batch.append(
-                        GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
+                        GeomBatch::load_svg(prerender, <span class="string">"system/assets/meters/bike.svg"</span>)
                             .scale(<span class="number">0.06</span>)
                             .centered_on(pt)
                             .rotate(angle.shortest_rotation_towards(Angle::degrees(-<span class="number">90.0</span>))),
@@ -721,7 +723,7 @@
                     .step_along(Distance::meters(<span class="number">30.0</span>), Distance::meters(<span class="number">5.0</span>))
                 {
                     batch.append(
-                        GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>)
+                        GeomBatch::load_svg(prerender, <span class="string">"system/assets/map/shared_left_turn.svg"</span>)
                             .autocrop()
                             .scale(<span class="number">0.003</span>)
                             .centered_on(pt)
@@ -736,7 +738,7 @@
                 {
                     <span class="comment">// TODO Still not quite centered right, but close enough
                     </span>batch.append(
-                        GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/under_construction.svg&quot;</span>)
+                        GeomBatch::load_svg(prerender, <span class="string">"system/assets/map/under_construction.svg"</span>)
                             .scale(<span class="number">0.05</span>)
                             .rotate_around_batch_center(
                                 angle.shortest_rotation_towards(Angle::degrees(-<span class="number">90.0</span>)),
@@ -819,7 +821,7 @@
     }
 
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, <span class="kw">_</span>: <span class="kw-2">&amp;</span>DrawOptions) {
-        <span class="comment">// Lazily calculate, because these are expensive to all do up-front, and most players won&#39;t
+        <span class="comment">// Lazily calculate, because these are expensive to all do up-front, and most players won't
         // exhaustively see every lane during a single session
         </span><span class="kw">let </span><span class="kw-2">mut </span>draw = <span class="self">self</span>.draw_default.borrow_mut();
         <span class="kw">if </span>draw.is_none() {
@@ -883,7 +885,7 @@
                 lane_angle.rotate_degs(<span class="number">90.0</span>)
             };
             <span class="comment">// Find the outside of the lane. Actually, shift inside a little bit, since the line
-            // will have thickness, but shouldn&#39;t really intersect the adjacent line
+            // will have thickness, but shouldn't really intersect the adjacent line
             // when drawn.
             </span><span class="kw">let </span>t_pt = pt.project_away(lane.width * <span class="number">0.4</span>, perp_angle);
             <span class="comment">// The perp leg
@@ -901,13 +903,13 @@
     result
 }
 
-<span class="comment">// Because the stripe straddles two lanes, it&#39;ll be partly hidden on one side. There are a bunch of
+<span class="comment">// Because the stripe straddles two lanes, it'll be partly hidden on one side. There are a bunch of
 // ways to work around this z-order issue. The current approach is to rely on the fact that
 // quadtrees return LaneIDs in order, and lanes are always created from left-&gt;right.
 </span><span class="kw">fn </span>calculate_driving_lines(lane: <span class="kw-2">&amp;</span>Lane, road: <span class="kw-2">&amp;</span>Road) -&gt; Vec&lt;Polygon&gt; {
     <span class="kw">let </span>idx = lane.id.offset;
 
-    <span class="comment">// If the lane to the left of us isn&#39;t in the same direction or isn&#39;t the same type, don&#39;t
+    <span class="comment">// If the lane to the left of us isn't in the same direction or isn't the same type, don't
     // need dashed lines.
     </span><span class="kw">if </span>idx == <span class="number">0
         </span>|| lane.dir != road.lanes[idx - <span class="number">1</span>].dir
@@ -930,7 +932,7 @@
 
 <span class="kw">fn </span>calculate_turn_markings(map: <span class="kw-2">&amp;</span>Map, lane: <span class="kw-2">&amp;</span>Lane) -&gt; Vec&lt;Polygon&gt; {
     <span class="comment">// Does this lane connect to every other possible outbound lane of the same type, excluding
-    // U-turns to the same road? If so, then there&#39;s nothing unexpected to communicate.
+    // U-turns to the same road? If so, then there's nothing unexpected to communicate.
     </span><span class="kw">let </span>i = map.get_i(lane.dst_i);
     <span class="kw">if </span>i.outgoing_lanes.iter().all(|l| {
         <span class="kw">let </span>l = map.get_l(<span class="kw-2">*</span>l);
@@ -984,7 +986,7 @@
     <span class="comment">// Put the middle, not the straight line of the marking in the middle of the lane
     </span><span class="kw">let </span>offset = (right + left) / <span class="number">2.0</span>;
 
-    <span class="comment">// If the lane is too short to fit the arrows, don&#39;t make them
+    <span class="comment">// If the lane is too short to fit the arrows, don't make them
     </span><span class="kw">if </span>lane.length() &lt; length_max + location {
         <span class="kw">return </span>Vec::new();
     }
@@ -1178,9 +1180,9 @@
                 Distance::meters(<span class="number">2.0</span>),
                 Distance::meters(<span class="number">2.5</span>),
             ) {
-                batch.push(Color::hex(<span class="string">&quot;#108833&quot;</span>), poly.clone());
+                batch.push(Color::hex(<span class="string">"#108833"</span>), poly.clone());
                 batch.push(
-                    Color::hex(<span class="string">&quot;#A8882A&quot;</span>),
+                    Color::hex(<span class="string">"#A8882A"</span>),
                     poly.to_outline(Distance::meters(<span class="number">0.25</span>)),
                 );
             }

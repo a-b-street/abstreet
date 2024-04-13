@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/gtfs.rs`."><title>gtfs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="convert_osm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/gtfs.rs`."><title>gtfs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="convert_osm" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../convert_osm/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -273,14 +275,14 @@
 
 <span class="kw">pub fn </span>import(map: <span class="kw-2">&amp;mut </span>RawMap) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="comment">// Collect metadata about routes
-    </span><span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/routes.txt&quot;</span>))<span class="question-mark">?</span>)
+    </span><span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">"gtfs/routes.txt"</span>))<span class="question-mark">?</span>)
         .deserialize()
     {
         <span class="kw">let </span>rec: Route = rec<span class="question-mark">?</span>;
         <span class="comment">// See https://developers.google.com/transit/gtfs/reference#routestxt
         </span><span class="kw">let </span>route_type = <span class="kw">match </span>rec.route_type {
             <span class="number">3 </span>=&gt; RawTransitType::Bus,
-            <span class="comment">// These aren&#39;t distinguished in the map model yet. Trams and streetcars might
+            <span class="comment">// These aren't distinguished in the map model yet. Trams and streetcars might
             // particularly mess up...  or just fail to snap to a road later.
             </span><span class="number">0 </span>| <span class="number">1 </span>| <span class="number">2 </span>=&gt; RawTransitType::Train,
             <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
@@ -303,7 +305,7 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>route_to_shapes = MultiMap::new();
     <span class="comment">// Map (route_id, shape_id) to trip_id
     </span><span class="kw">let </span><span class="kw-2">mut </span>route_and_shape_to_trips = MultiMap::new();
-    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/trips.txt&quot;</span>))<span class="question-mark">?</span>)
+    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">"gtfs/trips.txt"</span>))<span class="question-mark">?</span>)
         .deserialize()
     {
         <span class="kw">let </span>rec: Trip = rec<span class="question-mark">?</span>;
@@ -317,7 +319,7 @@
     // the shape currently to pick an entry/exit border, so this could be a half-reasonable
     // workaround.
     </span><span class="kw">let </span><span class="kw-2">mut </span>raw_shapes: HashMap&lt;ShapeID, Vec&lt;(Pt2D, usize)&gt;&gt; = HashMap::new();
-    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/shapes.txt&quot;</span>))<span class="question-mark">?</span>)
+    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">"gtfs/shapes.txt"</span>))<span class="question-mark">?</span>)
         .deserialize()
     {
         <span class="kw">let </span>rec: Shape = rec<span class="question-mark">?</span>;
@@ -334,12 +336,12 @@
     <span class="kw">for </span><span class="kw-2">mut </span>route <span class="kw">in </span>map.transit_routes.drain(..) {
         <span class="kw">let </span>shape_ids = route_to_shapes.get(RouteID(route.gtfs_id.clone()));
         <span class="kw">if </span>shape_ids.is_empty() {
-            <span class="macro">warn!</span>(<span class="string">&quot;Route {} has no shape&quot;</span>, route.gtfs_id);
+            <span class="macro">warn!</span>(<span class="string">"Route {} has no shape"</span>, route.gtfs_id);
             <span class="kw">continue</span>;
         }
         <span class="kw">if </span>shape_ids.len() &gt; <span class="number">1 </span>{
             <span class="macro">warn!</span>(
-                <span class="string">&quot;Route {} has several shapes, choosing one arbitrarily: {:?}&quot;</span>,
+                <span class="string">"Route {} has several shapes, choosing one arbitrarily: {:?}"</span>,
                 route.gtfs_id, shape_ids
             );
         }
@@ -348,7 +350,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>pts = <span class="kw">if let </span><span class="prelude-val">Some</span>(pts) = raw_shapes.remove(shape_id) {
             pts
         } <span class="kw">else </span>{
-            <span class="macro">warn!</span>(<span class="string">&quot;Route {} is missing its shape&quot;</span>, route.gtfs_id);
+            <span class="macro">warn!</span>(<span class="string">"Route {} is missing its shape"</span>, route.gtfs_id);
             <span class="kw">continue</span>;
         };
         <span class="comment">// Points are usually sorted, but just in case...
@@ -360,14 +362,14 @@
                 transit_routes.push(route);
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;Route {} has a weird shape: {}&quot;</span>, route.gtfs_id, err);
+                <span class="macro">warn!</span>(<span class="string">"Route {} has a weird shape: {}"</span>, route.gtfs_id, err);
                 <span class="kw">continue</span>;
             }
         }
     }
     map.transit_routes = transit_routes;
 
-    <span class="comment">// For now, every route uses exactly one trip ID, and there&#39;s no schedule. Just pick an
+    <span class="comment">// For now, every route uses exactly one trip ID, and there's no schedule. Just pick an
     // arbitrary trip per route.
     </span><span class="kw">let </span><span class="kw-2">mut </span>route_to_trip = HashMap::new();
     <span class="kw">for </span>(route_id, shape_id) <span class="kw">in </span><span class="kw-2">&amp;</span>route_to_shape {
@@ -380,7 +382,7 @@
     <span class="comment">// Scrape the trip ID -&gt; (stop ID, sequence number)
     </span><span class="kw">let </span><span class="kw-2">mut </span>trip_to_stops: HashMap&lt;TripID, Vec&lt;(StopID, usize)&gt;&gt; = HashMap::new();
     <span class="kw">for </span>rec <span class="kw">in
-        </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/stop_times.txt&quot;</span>))<span class="question-mark">?</span>)
+        </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">"gtfs/stop_times.txt"</span>))<span class="question-mark">?</span>)
             .deserialize()
     {
         <span class="kw">let </span>rec: StopTime = rec<span class="question-mark">?</span>;
@@ -403,7 +405,7 @@
     }
 
     <span class="comment">// Scrape stop metadata
-    </span><span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/stops.txt&quot;</span>))<span class="question-mark">?</span>)
+    </span><span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">"gtfs/stops.txt"</span>))<span class="question-mark">?</span>)
         .deserialize()
     {
         <span class="kw">let </span>rec: Stop = rec<span class="question-mark">?</span>;
@@ -498,19 +500,19 @@
     </span><span class="kw">for </span>route <span class="kw">in </span><span class="kw-2">&amp;</span>map.transit_routes {
         <span class="kw">let </span>points = map.streets.gps_bounds.convert_back(route.shape.points());
         <span class="kw">let </span><span class="kw-2">mut </span>attributes = BTreeMap::new();
-        attributes.insert(<span class="string">&quot;long_name&quot;</span>.to_string(), route.long_name.clone());
-        attributes.insert(<span class="string">&quot;short_name&quot;</span>.to_string(), route.short_name.clone());
-        attributes.insert(<span class="string">&quot;gtfs_id&quot;</span>.to_string(), route.gtfs_id.clone());
-        attributes.insert(<span class="string">&quot;num_stops&quot;</span>.to_string(), route.stops.len().to_string());
-        attributes.insert(<span class="string">&quot;route_type&quot;</span>.to_string(), <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, route.route_type));
+        attributes.insert(<span class="string">"long_name"</span>.to_string(), route.long_name.clone());
+        attributes.insert(<span class="string">"short_name"</span>.to_string(), route.short_name.clone());
+        attributes.insert(<span class="string">"gtfs_id"</span>.to_string(), route.gtfs_id.clone());
+        attributes.insert(<span class="string">"num_stops"</span>.to_string(), route.stops.len().to_string());
+        attributes.insert(<span class="string">"route_type"</span>.to_string(), <span class="macro">format!</span>(<span class="string">"{:?}"</span>, route.route_type));
         shapes.push(ExtraShape { points, attributes });
     }
 
     <span class="comment">// One point per stop
     </span><span class="kw">for </span>stop <span class="kw">in </span>map.transit_stops.values() {
         <span class="kw">let </span><span class="kw-2">mut </span>attributes = BTreeMap::new();
-        attributes.insert(<span class="string">&quot;gtfs_id&quot;</span>.to_string(), stop.gtfs_id.clone());
-        attributes.insert(<span class="string">&quot;name&quot;</span>.to_string(), stop.name.clone());
+        attributes.insert(<span class="string">"gtfs_id"</span>.to_string(), stop.gtfs_id.clone());
+        attributes.insert(<span class="string">"name"</span>.to_string(), stop.name.clone());
         <span class="kw">let </span>points = <span class="macro">vec!</span>[stop.position.to_gps(<span class="kw-2">&amp;</span>map.streets.gps_bounds)];
         shapes.push(ExtraShape { points, attributes });
     }
@@ -518,7 +520,7 @@
     abstio::write_binary(
         map.name
             .city
-            .input_path(<span class="macro">format!</span>(<span class="string">&quot;gtfs_{}.bin&quot;</span>, map.name.map)),
+            .input_path(<span class="macro">format!</span>(<span class="string">"gtfs_{}.bin"</span>, map.name.map)),
         <span class="kw-2">&amp;</span>ExtraShapes { shapes },
     );
 }

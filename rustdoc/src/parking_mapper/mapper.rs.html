@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/parking_mapper/src/mapper.rs`."><title>mapper.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="parking_mapper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/parking_mapper/src/mapper.rs`."><title>mapper.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="parking_mapper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../parking_mapper/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -693,7 +695,7 @@
 
 <span class="kw">type </span>App = SimpleApp&lt;()&gt;;
 
-<span class="kw">const </span>FAKE_PARKING_TAG: <span class="kw-2">&amp;</span>str = <span class="string">&quot;abst:parking_source&quot;</span>;
+<span class="kw">const </span>FAKE_PARKING_TAG: <span class="kw-2">&amp;</span>str = <span class="string">"abst:parking_source"</span>;
 
 <span class="kw">pub struct </span>ParkingMapper {
     panel: Panel,
@@ -771,14 +773,14 @@
         <span class="kw">if </span>show == Show::UnmappedDividedHighways {
             <span class="kw">for </span>r <span class="kw">in </span>find_divided_highways(app) {
                 <span class="kw">let </span>r = map.get_r(r);
-                <span class="kw">if </span>!r.osm_tags.is(<span class="string">&quot;dual_carriageway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+                <span class="kw">if </span>!r.osm_tags.is(<span class="string">"dual_carriageway"</span>, <span class="string">"yes"</span>) {
                     batch.push(color, r.get_thick_polygon());
                 }
             }
         }
         <span class="kw">if </span>show == Show::OverlappingStuff {
             ctx.loading_screen(
-                <span class="string">&quot;find buildings and parking lots overlapping roads&quot;</span>,
+                <span class="string">"find buildings and parking lots overlapping roads"</span>,
                 |<span class="kw">_</span>, timer| {
                     <span class="kw">for </span>poly <span class="kw">in </span>find_overlapping_stuff(app, timer) {
                         batch.push(color, poly);
@@ -803,9 +805,9 @@
             draw_layer: ctx.upload(batch),
             show,
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-                map_gui::tools::app_header(ctx, app, <span class="string">&quot;Parking mapper&quot;</span>),
+                map_gui::tools::app_header(ctx, app, <span class="string">"Parking mapper"</span>),
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;{} / {} ways done (you&#39;ve mapped {})&quot;</span>,
+                    <span class="string">"{} / {} ways done (you've mapped {})"</span>,
                     prettyprint_usize(done.len()),
                     prettyprint_usize(done.len() + todo.len()),
                     data.len()
@@ -814,42 +816,42 @@
                 Widget::row(<span class="macro">vec!</span>[
                     Widget::dropdown(
                         ctx,
-                        <span class="string">&quot;Show&quot;</span>,
+                        <span class="string">"Show"</span>,
                         show,
                         <span class="macro">vec!</span>[
-                            Choice::new(<span class="string">&quot;missing tags&quot;</span>, Show::ToDo),
-                            Choice::new(<span class="string">&quot;already mapped&quot;</span>, Show::Done),
-                            Choice::new(<span class="string">&quot;divided highways&quot;</span>, Show::DividedHighways).tooltip(
-                                <span class="string">&quot;Roads divided in OSM often have the wrong number of lanes tagged&quot;</span>,
+                            Choice::new(<span class="string">"missing tags"</span>, Show::ToDo),
+                            Choice::new(<span class="string">"already mapped"</span>, Show::Done),
+                            Choice::new(<span class="string">"divided highways"</span>, Show::DividedHighways).tooltip(
+                                <span class="string">"Roads divided in OSM often have the wrong number of lanes tagged"</span>,
                             ),
-                            Choice::new(<span class="string">&quot;unmapped divided highways&quot;</span>, Show::UnmappedDividedHighways),
+                            Choice::new(<span class="string">"unmapped divided highways"</span>, Show::UnmappedDividedHighways),
                             Choice::new(
-                                <span class="string">&quot;buildings and parking lots overlapping roads&quot;</span>,
+                                <span class="string">"buildings and parking lots overlapping roads"</span>,
                                 Show::OverlappingStuff,
                             )
-                            .tooltip(<span class="string">&quot;Roads often have the wrong number of lanes tagged&quot;</span>),
+                            .tooltip(<span class="string">"Roads often have the wrong number of lanes tagged"</span>),
                         ],
                     ),
                     ColorLegend::row(
                         ctx,
                         color,
                         <span class="kw">match </span>show {
-                            Show::ToDo =&gt; <span class="string">&quot;TODO&quot;</span>,
-                            Show::Done =&gt; <span class="string">&quot;done&quot;</span>,
-                            Show::DividedHighways =&gt; <span class="string">&quot;divided highways&quot;</span>,
-                            Show::UnmappedDividedHighways =&gt; <span class="string">&quot;unmapped divided highways&quot;</span>,
+                            Show::ToDo =&gt; <span class="string">"TODO"</span>,
+                            Show::Done =&gt; <span class="string">"done"</span>,
+                            Show::DividedHighways =&gt; <span class="string">"divided highways"</span>,
+                            Show::UnmappedDividedHighways =&gt; <span class="string">"unmapped divided highways"</span>,
                             Show::OverlappingStuff =&gt; {
-                                <span class="string">&quot;buildings and parking lots overlapping roads&quot;
+                                <span class="string">"buildings and parking lots overlapping roads"
                             </span>}
                         },
                     ),
                 ]),
-                Toggle::checkbox(ctx, <span class="string">&quot;max 3 days parking (default in Seattle)&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
+                Toggle::checkbox(ctx, <span class="string">"max 3 days parking (default in Seattle)"</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Generate OsmChange file&quot;</span>)
+                    .text(<span class="string">"Generate OsmChange file"</span>)
                     .build_def(ctx),
-                <span class="string">&quot;Select a road&quot;</span>.text_widget(ctx).named(<span class="string">&quot;info&quot;</span>),
+                <span class="string">"Select a road"</span>.text_widget(ctx).named(<span class="string">"info"</span>),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -897,42 +899,42 @@
                     <span class="self">self</span>.selected = <span class="prelude-val">Some</span>((ids, ctx.upload(batch)));
 
                     <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
-                    txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Click to map parking for OSM way {}&quot;</span>, way));
+                    txt.add_line(<span class="macro">format!</span>(<span class="string">"Click to map parking for OSM way {}"</span>, way));
                     txt.add_appended(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Shortcut: press &quot;</span>),
+                        Line(<span class="string">"Shortcut: press "</span>),
                         Key::N.txt(ctx),
-                        Line(<span class="string">&quot; to indicate no parking&quot;</span>),
+                        Line(<span class="string">" to indicate no parking"</span>),
                     ]);
                     txt.add_appended(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Press &quot;</span>),
+                        Line(<span class="string">"Press "</span>),
                         Key::S.txt(ctx),
-                        Line(<span class="string">&quot; to open Bing StreetSide here&quot;</span>),
+                        Line(<span class="string">" to open Bing StreetSide here"</span>),
                     ]);
                     txt.add_appended(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Press &quot;</span>),
+                        Line(<span class="string">"Press "</span>),
                         Key::E.txt(ctx),
-                        Line(<span class="string">&quot; to edit OpenStreetMap for this way&quot;</span>),
+                        Line(<span class="string">" to edit OpenStreetMap for this way"</span>),
                     ]);
                     <span class="kw">for </span>(k, v) <span class="kw">in </span>road.osm_tags.inner() {
-                        <span class="kw">if </span>k.starts_with(<span class="string">&quot;abst:&quot;</span>) {
+                        <span class="kw">if </span>k.starts_with(<span class="string">"abst:"</span>) {
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw">if </span>k.contains(<span class="string">&quot;parking&quot;</span>) {
+                        <span class="kw">if </span>k.contains(<span class="string">"parking"</span>) {
                             <span class="kw">if </span>!road.osm_tags.contains_key(FAKE_PARKING_TAG) {
-                                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v));
+                                txt.add_line(<span class="macro">format!</span>(<span class="string">"{} = {}"</span>, k, v));
                             }
-                        } <span class="kw">else if </span>k == <span class="string">&quot;sidewalk&quot; </span>{
-                            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v)).secondary());
+                        } <span class="kw">else if </span>k == <span class="string">"sidewalk" </span>{
+                            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"{} = {}"</span>, k, v)).secondary());
                         } <span class="kw">else </span>{
-                            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, k, v)).secondary());
+                            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"{} = {}"</span>, k, v)).secondary());
                         }
                     }
-                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;info&quot;</span>, txt.into_widget(ctx));
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">"info"</span>, txt.into_widget(ctx));
                 }
             } <span class="kw">else if </span><span class="self">self</span>.selected.is_some() {
                 <span class="self">self</span>.selected = <span class="prelude-val">None</span>;
                 <span class="self">self</span>.panel
-                    .replace(ctx, <span class="string">&quot;info&quot;</span>, <span class="string">&quot;Select a road&quot;</span>.text_widget(ctx));
+                    .replace(ctx, <span class="string">"info"</span>, <span class="string">"Select a road"</span>.text_widget(ctx));
             }
         }
         <span class="kw">if </span><span class="self">self</span>.selected.is_some() &amp;&amp; ctx.normal_left_click() {
@@ -957,7 +959,7 @@
             <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
                 <span class="kw">let </span>gps = pt.to_gps(map.get_gps_bounds());
                 open_browser(<span class="macro">format!</span>(
-                    <span class="string">&quot;https://www.bing.com/maps?cp={}~{}&amp;style=x&quot;</span>,
+                    <span class="string">"https://www.bing.com/maps?cp={}~{}&amp;style=x"</span>,
                     gps.y(),
                     gps.x()
                 ));
@@ -966,7 +968,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw-2">ref </span>roads, <span class="kw">_</span>)) = <span class="self">self</span>.selected {
             <span class="kw">if </span>ctx.input.pressed(Key::E) {
                 open_browser(<span class="macro">format!</span>(
-                    <span class="string">&quot;https://www.openstreetmap.org/edit?way={}&quot;</span>,
+                    <span class="string">"https://www.openstreetmap.org/edit?way={}"</span>,
                     map.get_r(<span class="kw-2">*</span>roads.iter().next().unwrap())
                         .orig_id
                         .osm_way_id
@@ -977,35 +979,35 @@
 
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Generate OsmChange file&quot; </span>=&gt; {
+                <span class="string">"Generate OsmChange file" </span>=&gt; {
                     <span class="kw">if </span><span class="self">self</span>.data.is_empty() {
                         <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;No changes yet&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="string">&quot;Map some parking first&quot;</span>],
+                            <span class="string">"No changes yet"</span>,
+                            <span class="macro">vec!</span>[<span class="string">"Map some parking first"</span>],
                         ));
                     }
-                    <span class="kw">return match </span>ctx.loading_screen(<span class="string">&quot;generate OsmChange file&quot;</span>, |<span class="kw">_</span>, timer| {
+                    <span class="kw">return match </span>ctx.loading_screen(<span class="string">"generate OsmChange file"</span>, |<span class="kw">_</span>, timer| {
                         generate_osmc(
                             <span class="kw-2">&amp;</span><span class="self">self</span>.data,
                             <span class="self">self</span>.panel
-                                .is_checked(<span class="string">&quot;max 3 days parking (default in Seattle)&quot;</span>),
+                                .is_checked(<span class="string">"max 3 days parking (default in Seattle)"</span>),
                             timer,
                         )
                     }) {
                         <span class="prelude-val">Ok</span>(()) =&gt; Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Diff generated&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="string">&quot;diff.osc created. Load it in JOSM, verify, and upload!&quot;</span>],
+                            <span class="string">"Diff generated"</span>,
+                            <span class="macro">vec!</span>[<span class="string">"diff.osc created. Load it in JOSM, verify, and upload!"</span>],
                         )),
                         <span class="prelude-val">Err</span>(err) =&gt; Transition::Push(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, err)],
+                            <span class="string">"Error"</span>,
+                            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"{}"</span>, err)],
                         )),
                     };
                 }
-                <span class="string">&quot;Home&quot; </span>=&gt; {
+                <span class="string">"Home" </span>=&gt; {
                     <span class="kw">return </span>Transition::Clear(<span class="macro">vec!</span>[map_gui::tools::TitleScreen::new_state(
                         ctx,
                         app,
@@ -1013,7 +1015,7 @@
                         Box::new(|ctx, app, <span class="kw">_</span>| <span class="self">Self</span>::new_state(ctx, app)),
                     )]);
                 }
-                <span class="string">&quot;change map&quot; </span>=&gt; {
+                <span class="string">"change map" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
@@ -1036,7 +1038,7 @@
                 <span class="kw">return </span>Transition::Replace(ParkingMapper::make(
                     ctx,
                     app,
-                    <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;Show&quot;</span>),
+                    <span class="self">self</span>.panel.dropdown_value(<span class="string">"Show"</span>),
                     <span class="self">self</span>.data.clone(),
                 ));
             }
@@ -1098,7 +1100,7 @@
         Box::new(ChangeWay {
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;What kind of parking does this road have?&quot;</span>)
+                    Line(<span class="string">"What kind of parking does this road have?"</span>)
                         .small_heading()
                         .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -1106,18 +1108,18 @@
                 Menu::widget(
                     ctx,
                     <span class="macro">vec!</span>[
-                        Choice::new(<span class="string">&quot;none -- no stopping or parking&quot;</span>, Value::NoStopping),
-                        Choice::new(<span class="string">&quot;both sides&quot;</span>, Value::BothSides),
-                        Choice::new(<span class="string">&quot;just on the green side&quot;</span>, Value::RightOnly),
-                        Choice::new(<span class="string">&quot;just on the blue side&quot;</span>, Value::LeftOnly),
+                        Choice::new(<span class="string">"none -- no stopping or parking"</span>, Value::NoStopping),
+                        Choice::new(<span class="string">"both sides"</span>, Value::BothSides),
+                        Choice::new(<span class="string">"just on the green side"</span>, Value::RightOnly),
+                        Choice::new(<span class="string">"just on the blue side"</span>, Value::LeftOnly),
                         Choice::new(
-                            <span class="string">&quot;it changes at some point along the road&quot;</span>,
+                            <span class="string">"it changes at some point along the road"</span>,
                             Value::Complicated,
                         ),
-                        Choice::new(<span class="string">&quot;loading zone on one or both sides&quot;</span>, Value::Complicated),
+                        Choice::new(<span class="string">"loading zone on one or both sides"</span>, Value::Complicated),
                     ],
                 )
-                .named(<span class="string">&quot;menu&quot;</span>),
+                .named(<span class="string">"menu"</span>),
             ]))
             .build(ctx),
             draw: ctx.upload(batch),
@@ -1133,16 +1135,16 @@
         ctx.canvas_movement();
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+                <span class="string">"close" </span>=&gt; Transition::Pop,
                 <span class="kw">_ </span>=&gt; {
-                    <span class="kw">let </span>value = <span class="self">self</span>.panel.take_menu_choice::&lt;Value&gt;(<span class="string">&quot;menu&quot;</span>);
+                    <span class="kw">let </span>value = <span class="self">self</span>.panel.take_menu_choice::&lt;Value&gt;(<span class="string">"menu"</span>);
                     <span class="kw">if </span>value == Value::Complicated {
                         Transition::Replace(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Complicated road&quot;</span>,
+                            <span class="string">"Complicated road"</span>,
                             <span class="macro">vec!</span>[
-                                <span class="string">&quot;You&#39;ll have to manually split the way in ID or JOSM and apply \
-                                 the appropriate parking tags to each section.&quot;</span>,
+                                <span class="string">"You'll have to manually split the way in ID or JOSM and apply \
+                                 the appropriate parking tags to each section."</span>,
                             ],
                         ))
                     } <span class="kw">else </span>{
@@ -1182,25 +1184,25 @@
     <span class="kw">use </span>abstutil::Tags;
 
     <span class="kw">let </span><span class="kw-2">mut </span>modified_ways = Vec::new();
-    timer.start_iter(<span class="string">&quot;fetch latest OSM data per modified way&quot;</span>, data.len());
+    timer.start_iter(<span class="string">"fetch latest OSM data per modified way"</span>, data.len());
     <span class="kw">for </span>(way, value) <span class="kw">in </span>data {
         timer.next();
         <span class="kw">if </span>value == <span class="kw-2">&amp;</span>Value::Complicated {
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;https://api.openstreetmap.org/api/0.6/way/{}&quot;</span>, way.<span class="number">0</span>);
-        <span class="macro">info!</span>(<span class="string">&quot;Fetching {}&quot;</span>, url);
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"https://api.openstreetmap.org/api/0.6/way/{}"</span>, way.<span class="number">0</span>);
+        <span class="macro">info!</span>(<span class="string">"Fetching {}"</span>, url);
         <span class="kw">let </span>resp = reqwest::blocking::get(<span class="kw-2">&amp;</span>url)<span class="question-mark">?</span>.text()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>tree = xmltree::Element::parse(resp.as_bytes())<span class="question-mark">?
-            </span>.take_child(<span class="string">&quot;way&quot;</span>)
+            </span>.take_child(<span class="string">"way"</span>)
             .unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>osm_tags = Tags::empty();
         <span class="kw">let </span><span class="kw-2">mut </span>other_children = Vec::new();
         <span class="kw">for </span>node <span class="kw">in </span>tree.children.drain(..) {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(elem) = node.as_element() {
-                <span class="kw">if </span>elem.name == <span class="string">&quot;tag&quot; </span>{
-                    osm_tags.insert(elem.attributes[<span class="string">&quot;k&quot;</span>].clone(), elem.attributes[<span class="string">&quot;v&quot;</span>].clone());
+                <span class="kw">if </span>elem.name == <span class="string">"tag" </span>{
+                    osm_tags.insert(elem.attributes[<span class="string">"k"</span>].clone(), elem.attributes[<span class="string">"v"</span>].clone());
                     <span class="kw">continue</span>;
                 }
             }
@@ -1208,31 +1210,31 @@
         }
 
         <span class="comment">// Fill out the tags.
-        </span>osm_tags.remove(<span class="string">&quot;parking:lane:left&quot;</span>);
-        osm_tags.remove(<span class="string">&quot;parking:lane:right&quot;</span>);
-        osm_tags.remove(<span class="string">&quot;parking_lane_both&quot;</span>);
+        </span>osm_tags.remove(<span class="string">"parking:lane:left"</span>);
+        osm_tags.remove(<span class="string">"parking:lane:right"</span>);
+        osm_tags.remove(<span class="string">"parking_lane_both"</span>);
         <span class="kw">match </span>value {
             Value::BothSides =&gt; {
-                osm_tags.insert(<span class="string">&quot;parking_lane_both&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
+                osm_tags.insert(<span class="string">"parking_lane_both"</span>, <span class="string">"parallel"</span>);
                 <span class="kw">if </span>in_seattle {
-                    osm_tags.insert(<span class="string">&quot;parking:condition:both:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
+                    osm_tags.insert(<span class="string">"parking:condition:both:maxstay"</span>, <span class="string">"3 days"</span>);
                 }
             }
             Value::NoStopping =&gt; {
-                osm_tags.insert(<span class="string">&quot;parking_lane_both&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>);
+                osm_tags.insert(<span class="string">"parking_lane_both"</span>, <span class="string">"no_stopping"</span>);
             }
             Value::RightOnly =&gt; {
-                osm_tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
-                osm_tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>);
+                osm_tags.insert(<span class="string">"parking:lane:right"</span>, <span class="string">"parallel"</span>);
+                osm_tags.insert(<span class="string">"parking:lane:left"</span>, <span class="string">"no_stopping"</span>);
                 <span class="kw">if </span>in_seattle {
-                    osm_tags.insert(<span class="string">&quot;parking:condition:right:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
+                    osm_tags.insert(<span class="string">"parking:condition:right:maxstay"</span>, <span class="string">"3 days"</span>);
                 }
             }
             Value::LeftOnly =&gt; {
-                osm_tags.insert(<span class="string">&quot;parking:lane:left&quot;</span>, <span class="string">&quot;parallel&quot;</span>);
-                osm_tags.insert(<span class="string">&quot;parking:lane:right&quot;</span>, <span class="string">&quot;no_stopping&quot;</span>);
+                osm_tags.insert(<span class="string">"parking:lane:left"</span>, <span class="string">"parallel"</span>);
+                osm_tags.insert(<span class="string">"parking:lane:right"</span>, <span class="string">"no_stopping"</span>);
                 <span class="kw">if </span>in_seattle {
-                    osm_tags.insert(<span class="string">&quot;parking:condition:left:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
+                    osm_tags.insert(<span class="string">"parking:condition:left:maxstay"</span>, <span class="string">"3 days"</span>);
                 }
             }
             Value::Complicated =&gt; <span class="macro">unreachable!</span>(),
@@ -1240,32 +1242,32 @@
 
         tree.children = other_children;
         <span class="kw">for </span>(k, v) <span class="kw">in </span>osm_tags.inner() {
-            <span class="kw">let </span><span class="kw-2">mut </span>new_elem = xmltree::Element::new(<span class="string">&quot;tag&quot;</span>);
-            new_elem.attributes.insert(<span class="string">&quot;k&quot;</span>.to_string(), k.to_string());
-            new_elem.attributes.insert(<span class="string">&quot;v&quot;</span>.to_string(), v.to_string());
+            <span class="kw">let </span><span class="kw-2">mut </span>new_elem = xmltree::Element::new(<span class="string">"tag"</span>);
+            new_elem.attributes.insert(<span class="string">"k"</span>.to_string(), k.to_string());
+            new_elem.attributes.insert(<span class="string">"v"</span>.to_string(), v.to_string());
             tree.children.push(xmltree::XMLNode::Element(new_elem));
         }
 
-        tree.attributes.remove(<span class="string">&quot;timestamp&quot;</span>);
-        tree.attributes.remove(<span class="string">&quot;changeset&quot;</span>);
-        tree.attributes.remove(<span class="string">&quot;user&quot;</span>);
-        tree.attributes.remove(<span class="string">&quot;uid&quot;</span>);
-        tree.attributes.remove(<span class="string">&quot;visible&quot;</span>);
+        tree.attributes.remove(<span class="string">"timestamp"</span>);
+        tree.attributes.remove(<span class="string">"changeset"</span>);
+        tree.attributes.remove(<span class="string">"user"</span>);
+        tree.attributes.remove(<span class="string">"uid"</span>);
+        tree.attributes.remove(<span class="string">"visible"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>bytes: Vec&lt;u8&gt; = Vec::new();
         tree.write(<span class="kw-2">&amp;mut </span>bytes)<span class="question-mark">?</span>;
         <span class="kw">let </span>out = String::from_utf8(bytes)<span class="question-mark">?</span>;
-        <span class="kw">let </span>stripped = out.trim_start_matches(<span class="string">&quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot;?&gt;&quot;</span>);
+        <span class="kw">let </span>stripped = out.trim_start_matches(<span class="string">"&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;"</span>);
         modified_ways.push(stripped.to_string());
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>f = File::create(<span class="string">&quot;diff.osc&quot;</span>)<span class="question-mark">?</span>;
-    <span class="macro">writeln!</span>(f, <span class="string">&quot;&lt;osmChange version=\&quot;0.6\&quot; generator=\&quot;abst\&quot;&gt;&lt;modify&gt;&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>f = File::create(<span class="string">"diff.osc"</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(f, <span class="string">"&lt;osmChange version=\"0.6\" generator=\"abst\"&gt;&lt;modify&gt;"</span>)<span class="question-mark">?</span>;
     <span class="kw">for </span>w <span class="kw">in </span>modified_ways {
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;  {}&quot;</span>, w)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"  {}"</span>, w)<span class="question-mark">?</span>;
     }
-    <span class="macro">writeln!</span>(f, <span class="string">&quot;&lt;/modify&gt;&lt;/osmChange&gt;&quot;</span>)<span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;Wrote diff.osc&quot;</span>);
+    <span class="macro">writeln!</span>(f, <span class="string">"&lt;/modify&gt;&lt;/osmChange&gt;"</span>)<span class="question-mark">?</span>;
+    <span class="macro">info!</span>(<span class="string">"Wrote diff.osc"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
@@ -1273,7 +1275,7 @@
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.map;
     <span class="kw">let </span><span class="kw-2">mut </span>closest: FindClosest&lt;RoadID&gt; = FindClosest::new();
     <span class="comment">// TODO Consider not even filtering by oneway. I keep finding mistakes where people split a
-    // road, but didn&#39;t mark one side oneway!
+    // road, but didn't mark one side oneway!
     </span><span class="kw">let </span><span class="kw-2">mut </span>oneways = Vec::new();
     <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
         <span class="kw">if </span>r.oneway_for_driving().is_some() {
@@ -1312,7 +1314,7 @@
     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.map;
     <span class="kw">let </span><span class="kw-2">mut </span>closest: FindClosest&lt;RoadID&gt; = FindClosest::new();
     <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
-        <span class="kw">if </span>r.osm_tags.contains_key(<span class="string">&quot;tunnel&quot;</span>) {
+        <span class="kw">if </span>r.osm_tags.contains_key(<span class="string">"tunnel"</span>) {
             <span class="kw">continue</span>;
         }
         closest.add(r.id, r.center_pts.points());
@@ -1320,7 +1322,7 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>polygons = Vec::new();
 
-    timer.start_iter(<span class="string">&quot;check buildings&quot;</span>, map.all_buildings().len());
+    timer.start_iter(<span class="string">"check buildings"</span>, map.all_buildings().len());
     <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
         timer.next();
         <span class="kw">for </span>(r, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span>closest.all_close_pts(b.label_center, Distance::meters(<span class="number">500.0</span>)) {
@@ -1335,7 +1337,7 @@
         }
     }
 
-    timer.start_iter(<span class="string">&quot;check parking lots&quot;</span>, map.all_parking_lots().len());
+    timer.start_iter(<span class="string">"check parking lots"</span>, map.all_parking_lots().len());
     <span class="kw">for </span>pl <span class="kw">in </span>map.all_parking_lots() {
         timer.next();
         <span class="kw">for </span>(r, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span>closest.all_close_pts(pl.polygon.center(), Distance::meters(<span class="number">500.0</span>)) {

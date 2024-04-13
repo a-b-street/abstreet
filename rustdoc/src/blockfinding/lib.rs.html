@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `blockfinding/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blockfinding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `blockfinding/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="blockfinding" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../blockfinding/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -798,9 +800,9 @@
 
 <span class="doccomment">/// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
 /// the block may contain buildings and interior roads. In the simple case, a block represents a
-/// single &quot;city block&quot;, with no interior roads. It may also cover a &quot;neighborhood&quot;, where the
-/// perimeter contains some &quot;major&quot; and the interior consists only of &quot;minor&quot; roads.
-</span><span class="comment">// TODO Maybe &quot;block&quot; is a misleading term. &quot;Contiguous road trace area&quot;?
+/// single "city block", with no interior roads. It may also cover a "neighborhood", where the
+/// perimeter contains some "major" and the interior consists only of "minor" roads.
+</span><span class="comment">// TODO Maybe "block" is a misleading term. "Contiguous road trace area"?
 </span><span class="attr">#[derive(Clone, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>Block {
     <span class="kw">pub </span>perimeter: Perimeter,
@@ -808,7 +810,7 @@
     </span><span class="kw">pub </span>polygon: Polygon,
 }
 
-<span class="doccomment">/// A sequence of roads in order, beginning and ending at the same place. No &quot;crossings&quot; -- tracing
+<span class="doccomment">/// A sequence of roads in order, beginning and ending at the same place. No "crossings" -- tracing
 /// along this sequence should geometrically yield a simple polygon.
 </span><span class="comment">// TODO Handle the map boundary. Sometimes this perimeter should be broken up by border
 // intersections or possibly by water/park areas.
@@ -829,27 +831,27 @@
         <span class="kw">let </span>start_road_side = map.get_l(start).get_nearest_side_of_road(map);
 
         <span class="kw">if </span>skip.contains(<span class="kw-2">&amp;</span>start_road_side.road) {
-            <span class="macro">bail!</span>(<span class="string">&quot;Started on a road we shouldn&#39;t trace&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">"Started on a road we shouldn't trace"</span>);
         }
 
-        <span class="comment">// We may start on a loop road on the &quot;inner&quot; direction
+        <span class="comment">// We may start on a loop road on the "inner" direction
         </span>{
             <span class="kw">let </span>start_r = map.get_parent(start);
             <span class="kw">if </span>start_r.src_i == start_r.dst_i {
                 <span class="kw">let </span>i = map.get_i(start_r.src_i);
                 <span class="kw">if </span>!i.get_road_sides_sorted(map).contains(<span class="kw-2">&amp;</span>start_road_side) {
-                    <span class="macro">bail!</span>(<span class="string">&quot;Starting on inner piece of a loop road&quot;</span>);
+                    <span class="macro">bail!</span>(<span class="string">"Starting on inner piece of a loop road"</span>);
                 }
             }
         }
 
-        <span class="comment">// We need to track which side of the road we&#39;re at, but also which direction we&#39;re facing
+        <span class="comment">// We need to track which side of the road we're at, but also which direction we're facing
         </span><span class="kw">let </span><span class="kw-2">mut </span>current_road_side = start_road_side;
         <span class="kw">let </span><span class="kw-2">mut </span>current_intersection = map.get_l(start).dst_i;
         <span class="kw">loop </span>{
             <span class="kw">let </span>i = map.get_i(current_intersection);
             <span class="kw">if </span>i.is_border() {
-                <span class="macro">bail!</span>(<span class="string">&quot;hit the map boundary at {}&quot;</span>, i.orig_id);
+                <span class="macro">bail!</span>(<span class="string">"hit the map boundary at {}"</span>, i.orig_id);
             }
             <span class="kw">let </span><span class="kw-2">mut </span>sorted_roads = i.get_road_sides_sorted(map);
             sorted_roads.retain(|id| !skip.contains(<span class="kw-2">&amp;</span>id.road));
@@ -858,7 +860,7 @@
                 .iter()
                 .position(|x| <span class="kw-2">*</span>x == current_road_side)
                 .unwrap() <span class="kw">as </span>isize;
-            <span class="comment">// Do we go clockwise or counter-clockwise around the intersection? Well, unless we&#39;re
+            <span class="comment">// Do we go clockwise or counter-clockwise around the intersection? Well, unless we're
             // at a dead-end, we want to avoid the other side of the same road.
             </span><span class="kw">let </span><span class="kw-2">mut </span>next = <span class="kw-2">*</span>wraparound_get(<span class="kw-2">&amp;</span>sorted_roads, idx + <span class="number">1</span>);
             <span class="macro">assert_ne!</span>(next, current_road_side);
@@ -867,7 +869,7 @@
                 <span class="macro">assert_ne!</span>(next, current_road_side);
                 <span class="kw">if </span>next.road == current_road_side.road {
                     <span class="kw">if </span>sorted_roads.len() != <span class="number">2 </span>{
-                        <span class="macro">bail!</span>(<span class="string">&quot;Looped back on the same road, but not at a dead-end&quot;</span>);
+                        <span class="macro">bail!</span>(<span class="string">"Looped back on the same road, but not at a dead-end"</span>);
                     }
                 }
             }
@@ -884,7 +886,7 @@
 
             <span class="kw">if </span>roads.len() &gt; map.all_roads().len() {
                 <span class="macro">bail!</span>(
-                    <span class="string">&quot;Infinite loop starting from {start} ({})&quot;</span>,
+                    <span class="string">"Infinite loop starting from {start} ({})"</span>,
                     map.get_parent(start).orig_id
                 );
             }
@@ -914,12 +916,12 @@
                     perimeters.push(perimeter);
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="comment">// The logs are quite spammy and not helpful yet, since they&#39;re all expected
+                    <span class="comment">// The logs are quite spammy and not helpful yet, since they're all expected
                     // cases near the map boundary
                     </span><span class="kw">if </span><span class="bool-val">false </span>{
-                        <span class="macro">warn!</span>(<span class="string">&quot;Failed from {}: {}&quot;</span>, lane.id, err);
+                        <span class="macro">warn!</span>(<span class="string">"Failed from {}: {}"</span>, lane.id, err);
                     }
-                    <span class="comment">// Don&#39;t try again
+                    <span class="comment">// Don't try again
                     </span>seen.insert(side);
                 }
             }
@@ -928,7 +930,7 @@
     }
 
     <span class="doccomment">/// Blockfinding is specialized for the LTN tool, so non-driveable roads (cycleways and light
-    /// rail) are considered invisible and can&#39;t be on a perimeter. Previously, there were also
+    /// rail) are considered invisible and can't be on a perimeter. Previously, there were also
     /// some heuristics here to try to skip certain bridges/tunnels that break the planarity of
     /// blocks.
     </span><span class="kw">pub fn </span>find_roads_to_skip_tracing(map: <span class="kw-2">&amp;</span>Map) -&gt; HashSet&lt;RoadID&gt; {
@@ -943,7 +945,7 @@
                 || r.orig_id.osm_way_id == osm::WayID(<span class="number">2800303</span>)
             {
                 <span class="comment">// TODO Hack to avoid the A27 bridge in Chichester
-                // Note that https://www.openstreetmap.org/way/700169409 isn&#39;t the ID to skip,
+                // Note that https://www.openstreetmap.org/way/700169409 isn't the ID to skip,
                 // because osm2streets merges roads, and this ID arbitrarily disappears here
                 </span>skip.insert(r.id);
             }
@@ -951,7 +953,7 @@
         skip
     }
 
-    <span class="doccomment">/// A perimeter has the first and last road matching up, but that&#39;s confusing to
+    <span class="doccomment">/// A perimeter has the first and last road matching up, but that's confusing to
     /// work with. Temporarily undo that.
     </span><span class="kw">fn </span>undo_invariant(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.roads[<span class="number">0</span>]), <span class="self">self</span>.roads.pop());
@@ -963,8 +965,8 @@
         <span class="self">self</span>.roads.push(<span class="self">self</span>.roads[<span class="number">0</span>]);
     }
 
-    <span class="doccomment">/// Try to merge two blocks. This&#39;ll only succeed when the blocks are adjacent, but the merge
-    /// wouldn&#39;t create an interior &quot;hole&quot;.
+    <span class="doccomment">/// Try to merge two blocks. This'll only succeed when the blocks are adjacent, but the merge
+    /// wouldn't create an interior "hole".
     ///
     /// Note this always modifies both perimeters, even upon failure. The caller should copy the
     /// input and only use the output upon success.
@@ -984,12 +986,12 @@
             <span class="kw">let </span>common: HashSet&lt;RoadID&gt; = roads1.intersection(<span class="kw-2">&amp;</span>roads2).cloned().collect();
             <span class="kw">if </span>common.is_empty() {
                 <span class="kw">if </span>debug_failures {
-                    <span class="macro">warn!</span>(<span class="string">&quot;No common roads&quot;</span>);
+                    <span class="macro">warn!</span>(<span class="string">"No common roads"</span>);
                 }
-                <span class="macro">bail!</span>(<span class="string">&quot;No common roads&quot;</span>);
+                <span class="macro">bail!</span>(<span class="string">"No common roads"</span>);
             }
 
-            <span class="comment">// &quot;Rotate&quot; the order of roads, so that all of the overlapping roads are at the end of the
+            <span class="comment">// "Rotate" the order of roads, so that all of the overlapping roads are at the end of the
             // list. If the entire perimeter is surrounded by the other, then no rotation needed.
             </span><span class="kw">if </span><span class="self">self</span>.roads.len() != common.len() {
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
@@ -1001,7 +1003,7 @@
                     i += <span class="number">1</span>;
                     <span class="kw">if </span>i == <span class="self">self</span>.roads.len() {
                         <span class="macro">bail!</span>(
-                            <span class="string">&quot;Rotating {:?} against common {:?} infinite-looped&quot;</span>,
+                            <span class="string">"Rotating {:?} against common {:?} infinite-looped"</span>,
                             <span class="self">self</span>.roads,
                             common
                         );
@@ -1019,7 +1021,7 @@
                     i += <span class="number">1</span>;
                     <span class="kw">if </span>i == other.roads.len() {
                         <span class="macro">bail!</span>(
-                            <span class="string">&quot;Rotating {:?} against common {:?} infinite-looped&quot;</span>,
+                            <span class="string">"Rotating {:?} against common {:?} infinite-looped"</span>,
                             <span class="self">self</span>.roads,
                             common
                         );
@@ -1028,7 +1030,7 @@
             }
 
             <span class="kw">if </span>debug_failures {
-                <span class="macro">println!</span>(<span class="string">&quot;\nCommon: {:?}\n{:?}\n{:?}&quot;</span>, common, <span class="self">self</span>, other);
+                <span class="macro">println!</span>(<span class="string">"\nCommon: {:?}\n{:?}\n{:?}"</span>, common, <span class="self">self</span>, other);
             }
 
             <span class="kw">if </span>!reverse_to_fix_winding_order &amp;&amp; <span class="self">self</span>.reverse_to_fix_winding_order(map, other) {
@@ -1040,19 +1042,19 @@
             }
 
             <span class="comment">// Check if all of the common roads are at the end of each perimeter, so we can
-            // &quot;blindly&quot; do this snipping. If this isn&#39;t true, then the overlapping portions are
+            // "blindly" do this snipping. If this isn't true, then the overlapping portions are
             // split by non-overlapping roads. This happens when merging the two blocks would
-            // result in a &quot;hole.&quot;
+            // result in a "hole."
             </span><span class="kw">for </span>id <span class="kw">in </span><span class="self">self</span>.roads.iter().rev().take(common.len()) {
                 <span class="kw">if </span>!common.contains(<span class="kw-2">&amp;</span>id.road) {
                     <span class="kw">if </span>debug_failures {
                         <span class="macro">warn!</span>(
-                            <span class="string">&quot;The common roads on the first aren&#39;t consecutive, near {:?}&quot;</span>,
+                            <span class="string">"The common roads on the first aren't consecutive, near {:?}"</span>,
                             id
                         );
                     }
                     <span class="macro">bail!</span>(
-                        <span class="string">&quot;The common roads on the first aren&#39;t consecutive, near {:?}&quot;</span>,
+                        <span class="string">"The common roads on the first aren't consecutive, near {:?}"</span>,
                         id
                     );
                 }
@@ -1061,12 +1063,12 @@
                 <span class="kw">if </span>!common.contains(<span class="kw-2">&amp;</span>id.road) {
                     <span class="kw">if </span>debug_failures {
                         <span class="macro">warn!</span>(
-                            <span class="string">&quot;The common roads on the second aren&#39;t consecutive, near {:?}&quot;</span>,
+                            <span class="string">"The common roads on the second aren't consecutive, near {:?}"</span>,
                             id
                         );
                     }
                     <span class="macro">bail!</span>(
-                        <span class="string">&quot;The common roads on the first aren&#39;t consecutive, near {:?}&quot;</span>,
+                        <span class="string">"The common roads on the first aren't consecutive, near {:?}"</span>,
                         id
                     );
                 }
@@ -1084,9 +1086,9 @@
             <span class="comment">// TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
             </span><span class="kw">if </span><span class="self">self</span>.roads.is_empty() {
                 <span class="kw">if </span>debug_failures {
-                    <span class="macro">warn!</span>(<span class="string">&quot;Two perimeters had every road in common: {:?}&quot;</span>, common);
+                    <span class="macro">warn!</span>(<span class="string">"Two perimeters had every road in common: {:?}"</span>, common);
                 }
-                <span class="macro">bail!</span>(<span class="string">&quot;Two perimeters had every road in common: {:?}&quot;</span>, common);
+                <span class="macro">bail!</span>(<span class="string">"Two perimeters had every road in common: {:?}"</span>, common);
             }
 
             <span class="self">self</span>.interior.extend(common);
@@ -1095,16 +1097,16 @@
             <span class="comment">// Restore the first=last invariant
             </span><span class="self">self</span>.restore_invariant();
 
-            <span class="comment">// Make sure we didn&#39;t wind up with any internal dead-ends
+            <span class="comment">// Make sure we didn't wind up with any internal dead-ends
             </span><span class="self">self</span>.collapse_deadends();
 
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.check_continuity(map) {
                 <span class="macro">debug!</span>(
-                    <span class="string">&quot;A merged perimeter couldn&#39;t be blockified: {}. {:?}&quot;</span>,
+                    <span class="string">"A merged perimeter couldn't be blockified: {}. {:?}"</span>,
                     err, <span class="self">self
                 </span>);
                 <span class="macro">bail!</span>(
-                    <span class="string">&quot;A merged perimeter couldn&#39;t be blockified: {}. {:?}&quot;</span>,
+                    <span class="string">"A merged perimeter couldn't be blockified: {}. {:?}"</span>,
                     err,
                     <span class="self">self
                 </span>);
@@ -1120,7 +1122,7 @@
             <span class="kw">let </span>r1 = map.get_r(pair[<span class="number">0</span>].road);
             <span class="kw">let </span>r2 = map.get_r(pair[<span class="number">1</span>].road);
             <span class="kw">if </span>r1.common_endpoint(r2) == CommonEndpoint::None {
-                <span class="macro">bail!</span>(<span class="string">&quot;Part of the perimeter goes from {:?} to {:?}, but they don&#39;t share a common endpoint&quot;</span>, pair[<span class="number">0</span>], pair[<span class="number">1</span>]);
+                <span class="macro">bail!</span>(<span class="string">"Part of the perimeter goes from {:?} to {:?}, but they don't share a common endpoint"</span>, pair[<span class="number">0</span>], pair[<span class="number">1</span>]);
             }
         }
         <span class="prelude-val">Ok</span>(())
@@ -1168,11 +1170,11 @@
     }
 
     <span class="doccomment">/// Try to merge all given perimeters. If successful, only one perimeter will be returned.
-    /// Perimeters are never &quot;destroyed&quot; -- if not merged, they&#39;ll appear in the results. If
+    /// Perimeters are never "destroyed" -- if not merged, they'll appear in the results. If
     /// `stepwise_debug` is true, returns after performing just one merge.
     </span><span class="kw">pub fn </span>merge_all(map: <span class="kw-2">&amp;</span>Map, <span class="kw-2">mut </span>input: Vec&lt;Perimeter&gt;, stepwise_debug: bool) -&gt; Vec&lt;Perimeter&gt; {
         <span class="comment">// Internal dead-ends break merging, so first collapse of those. Do this before even
-        // looking for neighbors, since find_common_roads doesn&#39;t understand dead-ends.
+        // looking for neighbors, since find_common_roads doesn't understand dead-ends.
         </span><span class="kw">for </span>p <span class="kw">in </span><span class="kw-2">&amp;mut </span>input {
             p.collapse_deadends();
         }
@@ -1181,7 +1183,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>debug = <span class="bool-val">false</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>results: Vec&lt;Perimeter&gt; = Vec::new();
             <span class="kw">let </span>num_input = input.len();
-            <span class="lifetime">&#39;INPUT</span>: <span class="kw">for </span>perimeter <span class="kw">in </span>input {
+            <span class="lifetime">'INPUT</span>: <span class="kw">for </span>perimeter <span class="kw">in </span>input {
                 <span class="kw">if </span>debug {
                     results.push(perimeter);
                     <span class="kw">continue</span>;
@@ -1198,7 +1200,7 @@
 
                         <span class="comment">// To debug, return after any single change
                         </span>debug = stepwise_debug;
-                        <span class="kw">continue </span><span class="lifetime">&#39;INPUT</span>;
+                        <span class="kw">continue </span><span class="lifetime">'INPUT</span>;
                     }
                 }
 
@@ -1215,7 +1217,7 @@
         }
     }
 
-    <span class="doccomment">/// If the perimeter follows any dead-end roads, &quot;collapse&quot; them and instead make the perimeter
+    <span class="doccomment">/// If the perimeter follows any dead-end roads, "collapse" them and instead make the perimeter
     /// contain the dead-end.
     </span><span class="kw">pub fn </span>collapse_deadends(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Repeatedly try to do this as long as something is changing.
@@ -1224,18 +1226,18 @@
             <span class="self">self</span>.undo_invariant();
 
             <span class="comment">// TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop
-            // around a disconnected fragment of road, don&#39;t touch it
+            // around a disconnected fragment of road, don't touch it
             </span><span class="kw">if </span><span class="self">self</span>.roads.len() == <span class="number">2 </span>&amp;&amp; <span class="self">self</span>.roads[<span class="number">0</span>].road == <span class="self">self</span>.roads[<span class="number">1</span>].road {
                 <span class="self">self</span>.restore_invariant();
                 <span class="kw">return</span>;
             }
 
-            <span class="comment">// If the dead-end straddles the loop, it&#39;s confusing. Just rotate until that&#39;s not true.
+            <span class="comment">// If the dead-end straddles the loop, it's confusing. Just rotate until that's not true.
             </span><span class="kw">while </span><span class="self">self</span>.roads[<span class="number">0</span>].road == <span class="self">self</span>.roads.last().unwrap().road {
                 <span class="self">self</span>.roads.rotate_left(<span class="number">1</span>);
             }
 
-            <span class="comment">// TODO This won&#39;t handle a deadend that&#39;s more than 1 segment long
+            <span class="comment">// TODO This won't handle a deadend that's more than 1 segment long
             </span><span class="kw">let </span><span class="kw-2">mut </span>roads: Vec&lt;RoadSideID&gt; = Vec::new();
             <span class="kw">let </span><span class="kw-2">mut </span>changed = <span class="bool-val">false</span>;
             <span class="kw">for </span>id <span class="kw">in </span><span class="self">self</span>.roads.drain(..) {
@@ -1375,7 +1377,7 @@
             <span class="kw">let </span>lane2 = pair[<span class="number">1</span>].get_outermost_lane(map);
             <span class="comment">// If lane1 and lane2 are the same, then it just means we found a dead-end road with
             // exactly one lane, which is usually a footway or cycleway that legitimately is a
-            // dead-end, or connects to some other road we didn&#39;t import. We&#39;ll just trace around
+            // dead-end, or connects to some other road we didn't import. We'll just trace around
             // it like a normal dead-end road.
             </span><span class="kw">let </span><span class="kw-2">mut </span>pl = <span class="kw">match </span>pair[<span class="number">0</span>].side {
                 SideOfRoad::Right =&gt; road1
@@ -1385,7 +1387,7 @@
                     // wind up here at all
                     </span>.unwrap_or_else(|err| {
                         <span class="macro">warn!</span>(
-                            <span class="string">&quot;Can&#39;t get right edge of {} ({}): {}&quot;</span>,
+                            <span class="string">"Can't get right edge of {} ({}): {}"</span>,
                             road1.id, err, road1.orig_id
                         );
                         road1.center_pts.clone()
@@ -1395,7 +1397,7 @@
                     .shift_left(road1.get_half_width())
                     .unwrap_or_else(|err| {
                         <span class="macro">warn!</span>(
-                            <span class="string">&quot;Can&#39;t get left edge of {} ({}): {}&quot;</span>,
+                            <span class="string">"Can't get left edge of {} ({}): {}"</span>,
                             road1.id, err, road1.orig_id
                         );
                         road1.center_pts.clone()
@@ -1405,24 +1407,24 @@
                 pl = pl.reversed();
             }
             <span class="kw">let </span>keep_lane_orientation = <span class="kw">if </span>pair[<span class="number">0</span>].road == pair[<span class="number">1</span>].road {
-                <span class="comment">// We&#39;re doubling back at a dead-end. Always follow the orientation of the lane.
+                <span class="comment">// We're doubling back at a dead-end. Always follow the orientation of the lane.
                 </span><span class="bool-val">true
             </span>} <span class="kw">else </span>{
                 <span class="kw">match </span>lane1.common_endpoint(lane2) {
                     CommonEndpoint::One(i) =&gt; i == lane1.dst_i,
                     CommonEndpoint::Both =&gt; {
-                        <span class="comment">// Two different roads link the same two intersections. I don&#39;t think we
+                        <span class="comment">// Two different roads link the same two intersections. I don't think we
                         // can decide the order of points other than seeing which endpoint is
                         // closest to our last point.
                         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last) = pts.last() {
                             last.dist_to(pl.first_pt()) &lt; last.dist_to(pl.last_pt())
                         } <span class="kw">else </span>{
-                            <span class="comment">// The orientation doesn&#39;t matter
+                            <span class="comment">// The orientation doesn't matter
                             </span><span class="bool-val">true
                         </span>}
                     }
                     CommonEndpoint::None =&gt; <span class="macro">bail!</span>(
-                        <span class="string">&quot;{} and {} don&#39;t share a common endpoint&quot;</span>,
+                        <span class="string">"{} and {} don't share a common endpoint"</span>,
                         lane1.id,
                         lane2.id
                     ),
@@ -1432,13 +1434,13 @@
                 pl = pl.reversed();
             }
 
-            <span class="comment">// Before we add this road&#39;s points, try to trace along the polygon&#39;s boundary. Usually
-            // this has no effect (we&#39;ll dedupe points), but sometimes there&#39;s an extra curve.
+            <span class="comment">// Before we add this road's points, try to trace along the polygon's boundary. Usually
+            // this has no effect (we'll dedupe points), but sometimes there's an extra curve.
             //
-            // Note this logic is similar to how we find SharedSidewalkCorners. Don&#39;t rely on that
-            // existing, since the outermost lane mightn&#39;t be a sidewalk.
+            // Note this logic is similar to how we find SharedSidewalkCorners. Don't rely on that
+            // existing, since the outermost lane mightn't be a sidewalk.
             //
-            // If the ring.doubles_back(), don&#39;t bother. If we tried to trace the boundary, it
+            // If the ring.doubles_back(), don't bother. If we tried to trace the boundary, it
             // usually breaks the final Ring we produce. Better to skip bad intersection polygons
             // and still produce a reasonable looking block.
             </span><span class="kw">let </span>prev_i = <span class="kw">if </span>keep_lane_orientation {
@@ -1463,7 +1465,7 @@
 
             pts.extend(pl.into_points());
         }
-        <span class="comment">// Do the intersection boundary tracing for the last piece. We didn&#39;t know enough to do it
+        <span class="comment">// Do the intersection boundary tracing for the last piece. We didn't know enough to do it
         // the first time.
         </span><span class="kw">let </span>first_intersection = map.get_i(first_intersection.unwrap());
         <span class="kw">let </span>ring = first_intersection.polygon.get_outer_ring();
@@ -1476,7 +1478,7 @@
         pts.push(pts[<span class="number">0</span>]);
         pts.dedup();
         <span class="kw">let </span>polygon = Ring::unsafe_deduping_new(pts)<span class="question-mark">?</span>.into_polygon();
-        <span class="comment">// TODO To debug anyway, we could plumb through a Tessellation, but there&#39;s pretty much
+        <span class="comment">// TODO To debug anyway, we could plumb through a Tessellation, but there's pretty much
         // always a root problem in the map geometry that should be properly fixed.
 
         </span><span class="prelude-val">Ok</span>(Block {
@@ -1501,12 +1503,12 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Looks for perimeters that&#39;re completely surrounded by other perimeters, aka, holes.
+    <span class="doccomment">/// Looks for perimeters that're completely surrounded by other perimeters, aka, holes.
     /// Attempts to merge them with the surrounding perimeter. This can be useful for applications
-    /// trying to incrementally merge adjacent blocks without creating splits, because it&#39;s often
+    /// trying to incrementally merge adjacent blocks without creating splits, because it's often
     /// impossible to do this in one merge when there are holes.
     ///
-    /// This should never &quot;lose&quot; any of the input. It may not be fast or guaranteed to find and fix
+    /// This should never "lose" any of the input. It may not be fast or guaranteed to find and fix
     /// every hole.
     </span><span class="kw">pub fn </span>merge_holes(map: <span class="kw-2">&amp;</span>Map, <span class="kw-2">mut </span>perims: Vec&lt;Perimeter&gt;) -&gt; Vec&lt;Perimeter&gt; {
         <span class="comment">// Fixed-point for now -- find and fix one hole at a time. Slow, but simple.
@@ -1517,11 +1519,11 @@
             </span><span class="kw">let </span><span class="kw-2">mut </span>hole = <span class="prelude-val">None</span>;
             <span class="kw">for </span>(idx, perim) <span class="kw">in </span>perims.iter().enumerate() {
                 <span class="kw">let </span>copy = perim.clone().flip_side_of_road();
-                <span class="comment">// Now that we&#39;ve &quot;expanded&quot; the perimeter to the other side of the road, is there
+                <span class="comment">// Now that we've "expanded" the perimeter to the other side of the road, is there
                 // another perimeter that completely contains it?
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(surrounding) = perims.iter().position(|p| p.contains(<span class="kw-2">&amp;</span>copy)) {
                     hole = <span class="prelude-val">Some</span>((idx, surrounding));
-                    <span class="comment">// TODO If the first hole found doesn&#39;t merge for some reason, then we&#39;ll get
+                    <span class="comment">// TODO If the first hole found doesn't merge for some reason, then we'll get
                     // stuck and just give up, even if there are other holes that might be fixed
                     // later. The indices just get too tricky.
                     </span><span class="kw">break</span>;
@@ -1540,7 +1542,7 @@
             }
 
             <span class="kw">if </span>perims.len() == num_before {
-                <span class="comment">// We didn&#39;t change anything, so stop
+                <span class="comment">// We didn't change anything, so stop
                 </span><span class="kw">break</span>;
             }
         }
@@ -1550,10 +1552,10 @@
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Perimeter {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;Perimeter:&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">writeln!</span>(f, <span class="string">"Perimeter:"</span>)<span class="question-mark">?</span>;
         <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.roads {
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;- {:?} of {}&quot;</span>, id.side, id.road)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"- {:?} of {}"</span>, id.side, id.road)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }

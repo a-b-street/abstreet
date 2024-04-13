@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/lane.rs`."><title>lane.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/lane.rs`."><title>lane.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -355,41 +357,41 @@
     <span class="kw">let </span><span class="kw-2">mut </span>kv = Vec::new();
 
     <span class="kw">if </span>!l.is_walkable() {
-        kv.push((<span class="string">&quot;Type&quot;</span>, l.lane_type.describe().to_string()));
+        kv.push((<span class="string">"Type"</span>, l.lane_type.describe().to_string()));
     }
     <span class="kw">if </span>r.is_private() {
         <span class="kw">let </span><span class="kw-2">mut </span>ban = Vec::new();
         <span class="kw">for </span>p <span class="kw">in </span>PathConstraints::all() {
             <span class="kw">if </span>!r.access_restrictions.allow_through_traffic.contains(p) {
-                ban.push(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, p).to_ascii_lowercase());
+                ban.push(<span class="macro">format!</span>(<span class="string">"{:?}"</span>, p).to_ascii_lowercase());
             }
         }
         <span class="kw">if </span>!ban.is_empty() {
-            kv.push((<span class="string">&quot;No through-traffic for&quot;</span>, ban.join(<span class="string">&quot;, &quot;</span>)));
+            kv.push((<span class="string">"No through-traffic for"</span>, ban.join(<span class="string">", "</span>)));
         }
     }
 
     <span class="kw">if </span>l.is_parking() {
         kv.push((
-            <span class="string">&quot;Parking&quot;</span>,
+            <span class="string">"Parking"</span>,
             <span class="macro">format!</span>(
-                <span class="string">&quot;{} / {} spots available&quot;</span>,
+                <span class="string">"{} / {} spots available"</span>,
                 app.primary.sim.get_free_onstreet_spots(l.id).len(),
                 l.number_parking_spots(app.primary.map.get_config())
             ),
         ));
     } <span class="kw">else </span>{
-        kv.push((<span class="string">&quot;Speed limit&quot;</span>, r.speed_limit.to_string(<span class="kw-2">&amp;</span>app.opts.units)));
+        kv.push((<span class="string">"Speed limit"</span>, r.speed_limit.to_string(<span class="kw-2">&amp;</span>app.opts.units)));
     }
 
-    kv.push((<span class="string">&quot;Length&quot;</span>, l.length().to_string(<span class="kw-2">&amp;</span>app.opts.units)));
+    kv.push((<span class="string">"Length"</span>, l.length().to_string(<span class="kw-2">&amp;</span>app.opts.units)));
 
     rows.extend(make_table(ctx, kv));
 
     <span class="kw">if </span>l.is_parking() {
         <span class="kw">let </span>capacity = l.number_parking_spots(app.primary.map.get_config());
         <span class="kw">let </span><span class="kw-2">mut </span>series = <span class="macro">vec!</span>[Series {
-            label: <span class="macro">format!</span>(<span class="string">&quot;After \&quot;{}\&quot;&quot;</span>, app.primary.map.get_edits().edits_name),
+            label: <span class="macro">format!</span>(<span class="string">"After \"{}\""</span>, app.primary.map.get_edits().edits_name),
             color: app.cs.after_changes,
             pts: app.primary.sim.get_analytics().parking_lane_availability(
                 app.primary.sim.time(),
@@ -399,7 +401,7 @@
         }];
         <span class="kw">if </span>app.has_prebaked().is_some() {
             series.push(Series {
-                label: <span class="macro">format!</span>(<span class="string">&quot;Before \&quot;{}\&quot;&quot;</span>, app.primary.map.get_edits().edits_name),
+                label: <span class="macro">format!</span>(<span class="string">"Before \"{}\""</span>, app.primary.map.get_edits().edits_name),
                 color: app.cs.before_changes.alpha(<span class="number">0.5</span>),
                 pts: app.prebaked().parking_lane_availability(
                     app.primary.sim.get_end_of_day(),
@@ -409,12 +411,12 @@
             });
         }
         <span class="kw">let </span>section = Widget::col(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Parking spots available&quot;</span>)
+            Line(<span class="string">"Parking spots available"</span>)
                 .small_heading()
                 .into_widget(ctx),
             LinePlot::new_widget(
                 ctx,
-                <span class="string">&quot;parking availability&quot;</span>,
+                <span class="string">"parking availability"</span>,
                 series,
                 PlotOptions {
                     max_y: <span class="prelude-val">Some</span>(capacity),
@@ -446,57 +448,57 @@
     <span class="kw">let </span>l = map.get_l(id);
     <span class="kw">let </span>r = map.get_r(id.road);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>kv = <span class="macro">vec!</span>[(<span class="string">&quot;Parent&quot;</span>.to_string(), r.id.to_string())];
+    <span class="kw">let </span><span class="kw-2">mut </span>kv = <span class="macro">vec!</span>[(<span class="string">"Parent"</span>.to_string(), r.id.to_string())];
 
     <span class="kw">if </span>l.lane_type.is_for_moving_vehicles() {
         kv.push((
-            <span class="string">&quot;Driving blackhole&quot;</span>.to_string(),
+            <span class="string">"Driving blackhole"</span>.to_string(),
             l.driving_blackhole.to_string(),
         ));
         kv.push((
-            <span class="string">&quot;Biking blackhole&quot;</span>.to_string(),
+            <span class="string">"Biking blackhole"</span>.to_string(),
             l.biking_blackhole.to_string(),
         ));
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(types) = l.get_lane_level_turn_restrictions(r, <span class="bool-val">false</span>) {
         kv.push((
-            <span class="string">&quot;Turn restrictions&quot;</span>.to_string(),
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, types.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()),
+            <span class="string">"Turn restrictions"</span>.to_string(),
+            <span class="macro">format!</span>(<span class="string">"{:?}"</span>, types.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()),
         ));
     }
     <span class="kw">for </span>(restriction, to) <span class="kw">in </span><span class="kw-2">&amp;</span>r.turn_restrictions {
         kv.push((
-            <span class="macro">format!</span>(<span class="string">&quot;Restriction from this road to {}&quot;</span>, to),
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, restriction),
+            <span class="macro">format!</span>(<span class="string">"Restriction from this road to {}"</span>, to),
+            <span class="macro">format!</span>(<span class="string">"{:?}"</span>, restriction),
         ));
     }
 
-    <span class="comment">// TODO Simplify and expose everywhere after there&#39;s better data
+    <span class="comment">// TODO Simplify and expose everywhere after there's better data
     </span>kv.push((
-        <span class="string">&quot;Elevation change&quot;</span>.to_string(),
+        <span class="string">"Elevation change"</span>.to_string(),
         <span class="macro">format!</span>(
-            <span class="string">&quot;{} to {}&quot;</span>,
+            <span class="string">"{} to {}"</span>,
             map.get_i(l.src_i).elevation,
             map.get_i(l.dst_i).elevation
         ),
     ));
     kv.push((
-        <span class="string">&quot;Incline / grade&quot;</span>.to_string(),
-        <span class="macro">format!</span>(<span class="string">&quot;{:.1}%&quot;</span>, r.percent_incline * <span class="number">100.0</span>),
+        <span class="string">"Incline / grade"</span>.to_string(),
+        <span class="macro">format!</span>(<span class="string">"{:.1}%"</span>, r.percent_incline * <span class="number">100.0</span>),
     ));
     kv.push((
-        <span class="string">&quot;Elevation details&quot;</span>.to_string(),
+        <span class="string">"Elevation details"</span>.to_string(),
         <span class="macro">format!</span>(
-            <span class="string">&quot;{} over {}&quot;</span>,
+            <span class="string">"{} over {}"</span>,
             map.get_i(l.dst_i).elevation - map.get_i(l.src_i).elevation,
             l.length()
         ),
     ));
     kv.push((
-        <span class="string">&quot;Dir, side, offset&quot;</span>.to_string(),
+        <span class="string">"Dir, side, offset"</span>.to_string(),
         <span class="macro">format!</span>(
-            <span class="string">&quot;{}, {:?}, {}&quot;</span>,
+            <span class="string">"{}, {:?}, {}"</span>,
             l.dir,
             l.get_nearest_side_of_road(map).side,
             l.id.offset
@@ -504,8 +506,8 @@
     ));
     <span class="kw">if let </span><span class="prelude-val">Some</span>((reserved, total)) = app.primary.sim.debug_queue_lengths(l.id) {
         kv.push((
-            <span class="string">&quot;Queue (reserved, total) length&quot;</span>.to_string(),
-            <span class="macro">format!</span>(<span class="string">&quot;{}, {}&quot;</span>, reserved, total),
+            <span class="string">"Queue (reserved, total) length"</span>.to_string(),
+            <span class="macro">format!</span>(<span class="string">"{}, {}"</span>, reserved, total),
         ));
     }
 
@@ -514,12 +516,12 @@
     rows.push(
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Open OSM way&quot;</span>)
-            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, r.orig_id.osm_way_id)),
+            .text(<span class="string">"Open OSM way"</span>)
+            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"open {}"</span>, r.orig_id.osm_way_id)),
     );
 
-    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;&quot;</span>);
-    txt.add_line(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">""</span>);
+    txt.add_line(<span class="string">"Raw OpenStreetMap data"</span>);
     rows.push(txt.into_widget(ctx));
 
     rows.extend(make_table(
@@ -553,9 +555,9 @@
     <span class="kw">let </span>r = id.road;
 
     <span class="comment">// Since this applies to the entire road, ignore lane type.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;Traffic over entire road, not just this lane&quot;</span>);
+    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">"Traffic over entire road, not just this lane"</span>);
     txt.add_line(<span class="macro">format!</span>(
-        <span class="string">&quot;Since midnight: {} commuters and vehicles crossed&quot;</span>,
+        <span class="string">"Since midnight: {} commuters and vehicles crossed"</span>,
         prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r))
     ));
     rows.push(txt.into_widget(ctx));
@@ -571,7 +573,7 @@
     </span>rows.push(throughput(
         ctx,
         app,
-        <span class="string">&quot;Number of commuters and vehicles per hour&quot;</span>,
+        <span class="string">"Number of commuters and vehicles per hour"</span>,
         <span class="kw">move </span>|a| {
             <span class="kw">if </span>a.road_thruput.raw.is_empty() {
                 a.road_thruput.count_per_hour(r, time)
@@ -611,7 +613,7 @@
     rows.push(problem_count(
         ctx,
         app,
-        <span class="string">&quot;Number of problems per 15 minutes&quot;</span>,
+        <span class="string">"Number of problems per 15 minutes"</span>,
         <span class="kw">move </span>|a| a.problems_per_lane(time, id),
         opts,
     ));
@@ -627,32 +629,32 @@
     <span class="kw">let </span>r = map.get_r(id.road);
 
     <span class="kw">let </span>label = <span class="kw">if </span>l.is_shoulder() {
-        <span class="string">&quot;Shoulder&quot;
+        <span class="string">"Shoulder"
     </span>} <span class="kw">else if </span>l.is_sidewalk() {
-        <span class="string">&quot;Sidewalk&quot;
+        <span class="string">"Sidewalk"
     </span>} <span class="kw">else </span>{
-        <span class="string">&quot;Lane&quot;
+        <span class="string">"Lane"
     </span>};
 
     <span class="comment">// Navbar
     </span>rows.push(Widget::row(<span class="macro">vec!</span>[
-        Line(<span class="macro">format!</span>(<span class="string">&quot;{} #{}&quot;</span>, label, id.encode_u32()))
+        Line(<span class="macro">format!</span>(<span class="string">"{} #{}"</span>, label, id.encode_u32()))
             .small_heading()
             .into_widget(ctx),
         header_btns(ctx),
     ]));
 
     <span class="comment">// subtitle
-    </span>rows.push(<span class="macro">format!</span>(<span class="string">&quot;@ {}&quot;</span>, r.get_name(app.opts.language.as_ref())).text_widget(ctx));
+    </span>rows.push(<span class="macro">format!</span>(<span class="string">"@ {}"</span>, r.get_name(app.opts.language.as_ref())).text_widget(ctx));
 
     <span class="comment">// tabs
-    </span><span class="kw">let </span><span class="kw-2">mut </span>tabs = <span class="macro">vec!</span>[(<span class="string">&quot;Info&quot;</span>, Tab::LaneInfo(id))];
+    </span><span class="kw">let </span><span class="kw-2">mut </span>tabs = <span class="macro">vec!</span>[(<span class="string">"Info"</span>, Tab::LaneInfo(id))];
     <span class="kw">if </span>!l.is_parking() {
-        tabs.push((<span class="string">&quot;Traffic&quot;</span>, Tab::LaneTraffic(id, DataOptions::new())));
-        tabs.push((<span class="string">&quot;Problems&quot;</span>, Tab::LaneProblems(id, ProblemOptions::new())));
+        tabs.push((<span class="string">"Traffic"</span>, Tab::LaneTraffic(id, DataOptions::new())));
+        tabs.push((<span class="string">"Problems"</span>, Tab::LaneProblems(id, ProblemOptions::new())));
     }
     <span class="kw">if </span>app.opts.dev {
-        tabs.push((<span class="string">&quot;Debug&quot;</span>, Tab::LaneDebug(id)));
+        tabs.push((<span class="string">"Debug"</span>, Tab::LaneDebug(id)));
     }
     rows.push(make_tabs(ctx, <span class="kw-2">&amp;mut </span>details.hyperlinks, tab, tabs));
 

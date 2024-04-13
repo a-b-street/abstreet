@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/blockfinder.rs`."><title>blockfinder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/blockfinder.rs`."><title>blockfinder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -521,7 +523,7 @@
     world: World&lt;Obj&gt;,
     to_merge: BTreeSet&lt;Obj&gt;,
 
-    <span class="comment">// Since we can&#39;t easily color adjacent groups of blocks differently when we classify but don&#39;t
+    <span class="comment">// Since we can't easily color adjacent groups of blocks differently when we classify but don't
     // merge, just remember the groups here
     </span>partitions: Vec&lt;Vec&lt;Obj&gt;&gt;,
 }
@@ -542,10 +544,10 @@
             partitions: Vec::new(),
         };
 
-        ctx.loading_screen(<span class="string">&quot;calculate all blocks&quot;</span>, |ctx, timer| {
-            timer.start(<span class="string">&quot;find single blocks&quot;</span>);
+        ctx.loading_screen(<span class="string">"calculate all blocks"</span>, |ctx, timer| {
+            timer.start(<span class="string">"find single blocks"</span>);
             <span class="kw">let </span>perimeters = Perimeter::find_all_single_blocks(<span class="kw-2">&amp;</span>app.primary.map);
-            timer.stop(<span class="string">&quot;find single blocks&quot;</span>);
+            timer.stop(<span class="string">"find single blocks"</span>);
             state.add_blocks_with_coloring(ctx, app, perimeters, timer);
         });
         state.world.initialize_hover(ctx);
@@ -567,7 +569,7 @@
         );
         <span class="kw">for </span>(idx, id) <span class="kw">in </span>block.perimeter.roads.iter().enumerate().skip(<span class="number">1</span>) {
             hovered.append(
-                Text::from(Line(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, idx)).fg(Color::RED))
+                Text::from(Line(<span class="macro">format!</span>(<span class="string">"{}"</span>, idx)).fg(Color::RED))
                     .bg(Color::BLACK)
                     .render_autocropped(ctx)
                     .scale(<span class="number">1.0</span>)
@@ -587,9 +589,9 @@
             .draw_hovered(hovered)
             .clickable();
         <span class="kw">if </span><span class="self">self</span>.to_merge.contains(<span class="kw-2">&amp;</span>id) {
-            obj = obj.hotkey(Key::Space, <span class="string">&quot;remove from merge set&quot;</span>)
+            obj = obj.hotkey(Key::Space, <span class="string">"remove from merge set"</span>)
         } <span class="kw">else </span>{
-            obj = obj.hotkey(Key::Space, <span class="string">&quot;add to merge set&quot;</span>)
+            obj = obj.hotkey(Key::Space, <span class="string">"add to merge set"</span>)
         }
         obj.build(ctx);
         <span class="self">self</span>.blocks.insert(id, block);
@@ -605,7 +607,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>colors = Perimeter::calculate_coloring(<span class="kw-2">&amp;</span>perimeters, COLORS.len())
             .unwrap_or_else(|| (<span class="number">0</span>..perimeters.len()).collect());
 
-        timer.start_iter(<span class="string">&quot;blockify&quot;</span>, perimeters.len());
+        timer.start_iter(<span class="string">"blockify"</span>, perimeters.len());
         <span class="kw">let </span><span class="kw-2">mut </span>blocks = Vec::new();
         <span class="kw">for </span>perimeter <span class="kw">in </span>perimeters {
             timer.next();
@@ -616,7 +618,7 @@
             copy.collapse_deadends();
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = copy.to_block(<span class="kw-2">&amp;</span>app.primary.map) {
                 <span class="macro">error!</span>(
-                    <span class="string">&quot;A perimeter won&#39;t blockify after collapsing deadends: {}&quot;</span>,
+                    <span class="string">"A perimeter won't blockify after collapsing deadends: {}"</span>,
                     err
                 );
                 <span class="kw">continue</span>;
@@ -627,8 +629,8 @@
                     blocks.push(block);
                 }
                 <span class="prelude-val">Err</span>(err) =&gt; {
-                    <span class="macro">warn!</span>(<span class="string">&quot;Failed to make a block from a perimeter: {}&quot;</span>, err);
-                    <span class="comment">// We assigned a color, so don&#39;t let the indices get out of sync!
+                    <span class="macro">warn!</span>(<span class="string">"Failed to make a block from a perimeter: {}"</span>, err);
+                    <span class="comment">// We assigned a color, so don't let the indices get out of sync!
                     </span>colors.remove(blocks.len());
                 }
             }
@@ -645,15 +647,15 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Merge&quot; </span>=&gt; {
+                <span class="string">"Merge" </span>=&gt; {
                     <span class="comment">// TODO We could update the panel, but meh
                     </span><span class="kw">let </span><span class="kw-2">mut </span>perimeters = Vec::new();
                     <span class="kw">for </span>id <span class="kw">in </span>std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.to_merge) {
                         perimeters.push(<span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap().perimeter);
-                        <span class="comment">// TODO If we happen to be hovering on one, uh oh! It&#39;s going to change
+                        <span class="comment">// TODO If we happen to be hovering on one, uh oh! It's going to change
                         // ID...
                         </span><span class="self">self</span>.world.delete(id);
                     }
@@ -665,7 +667,7 @@
                         <span class="kw">let </span>id = <span class="self">self</span>.new_id();
                         <span class="kw">let </span>block = perimeter
                             .to_block(<span class="kw-2">&amp;</span>app.primary.map)
-                            .expect(<span class="string">&quot;Merged perimeter broke the polygon&quot;</span>);
+                            .expect(<span class="string">"Merged perimeter broke the polygon"</span>);
                         <span class="comment">// To make the one-merge-at-a-time debugging easier, keep these in the
                         // merge set
                         </span><span class="kw">if </span>debug {
@@ -677,26 +679,26 @@
                     }
                     <span class="kw">return </span>Transition::Keep;
                 }
-                <span class="string">&quot;Collapse dead-ends&quot; </span>=&gt; {
+                <span class="string">"Collapse dead-ends" </span>=&gt; {
                     <span class="kw">for </span>id <span class="kw">in </span>std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.to_merge) {
                         <span class="kw">let </span><span class="kw-2">mut </span>perimeter = <span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap().perimeter;
                         perimeter.collapse_deadends();
                         <span class="kw">let </span>block = perimeter
                             .to_block(<span class="kw-2">&amp;</span>app.primary.map)
-                            .expect(<span class="string">&quot;collapsing deadends broke the polygon shape&quot;</span>);
+                            .expect(<span class="string">"collapsing deadends broke the polygon shape"</span>);
                         <span class="self">self</span>.world.delete_before_replacement(id);
-                        <span class="comment">// We&#39;ll lose the original coloring, oh well
+                        <span class="comment">// We'll lose the original coloring, oh well
                         </span><span class="self">self</span>.add_block(ctx, app, id, MODIFIED, block);
                     }
                 }
-                <span class="string">&quot;Classify neighborhoods (but don&#39;t merge)&quot; </span>| <span class="string">&quot;Auto-merge all neighborhoods&quot; </span>=&gt; {
+                <span class="string">"Classify neighborhoods (but don't merge)" </span>| <span class="string">"Auto-merge all neighborhoods" </span>=&gt; {
                     <span class="kw">let </span>perimeters: Vec&lt;Perimeter&gt; = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.blocks)
                         .into_iter()
                         .map(|(<span class="kw">_</span>, b)| b.perimeter)
                         .collect();
                     <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
                     <span class="kw">let </span>partitions = Perimeter::partition_by_predicate(perimeters, |r| {
-                        <span class="comment">// &quot;Interior&quot; roads of a neighborhood aren&#39;t classified as arterial
+                        <span class="comment">// "Interior" roads of a neighborhood aren't classified as arterial
                         </span><span class="kw">let </span>road = map.get_r(r);
                         road.get_rank() == RoadRank::Local
                     });
@@ -707,7 +709,7 @@
                     <span class="self">self</span>.to_merge.clear();
                     <span class="self">self</span>.partitions = Vec::new();
 
-                    <span class="kw">if </span>x == <span class="string">&quot;Auto-merge all neighborhoods&quot; </span>{
+                    <span class="kw">if </span>x == <span class="string">"Auto-merge all neighborhoods" </span>{
                         <span class="comment">// Actually merge the partitions
                         </span><span class="kw">let </span><span class="kw-2">mut </span>merged = Vec::new();
                         <span class="kw">for </span>perimeters <span class="kw">in </span>partitions {
@@ -739,7 +741,7 @@
                         }
                     }
                 }
-                <span class="string">&quot;Merge all holes&quot; </span>=&gt; {
+                <span class="string">"Merge all holes" </span>=&gt; {
                     <span class="kw">let </span>perimeters: Vec&lt;Perimeter&gt; = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.blocks)
                         .into_iter()
                         .map(|(<span class="kw">_</span>, b)| b.perimeter)
@@ -754,7 +756,7 @@
 
                     <span class="self">self</span>.add_blocks_with_coloring(ctx, app, perimeters, <span class="kw-2">&amp;mut </span>Timer::throwaway());
                 }
-                <span class="string">&quot;Reset&quot; </span>=&gt; {
+                <span class="string">"Reset" </span>=&gt; {
                     <span class="kw">return </span>Transition::Replace(Blockfinder::new_state(ctx, app));
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -762,17 +764,17 @@
         }
 
         <span class="kw">match </span><span class="self">self</span>.world.event(ctx) {
-            WorldOutcome::Keypress(<span class="string">&quot;add to merge set&quot;</span>, id) =&gt; {
+            WorldOutcome::Keypress(<span class="string">"add to merge set"</span>, id) =&gt; {
                 <span class="self">self</span>.to_merge.insert(id);
                 <span class="kw">let </span>block = <span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap();
                 <span class="self">self</span>.world.delete_before_replacement(id);
                 <span class="self">self</span>.add_block(ctx, app, id, TO_MERGE, block);
             }
-            WorldOutcome::Keypress(<span class="string">&quot;remove from merge set&quot;</span>, id) =&gt; {
+            WorldOutcome::Keypress(<span class="string">"remove from merge set"</span>, id) =&gt; {
                 <span class="self">self</span>.to_merge.remove(<span class="kw-2">&amp;</span>id);
                 <span class="kw">let </span>block = <span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap();
                 <span class="self">self</span>.world.delete_before_replacement(id);
-                <span class="comment">// We&#39;ll lose the original coloring, oh well
+                <span class="comment">// We'll lose the original coloring, oh well
                 </span><span class="self">self</span>.add_block(ctx, app, id, MODIFIED, block);
             }
             WorldOutcome::ClickedObject(id) =&gt; {
@@ -801,7 +803,7 @@
         <span class="self">self</span>.world.draw(g);
         <span class="self">self</span>.panel.draw(g);
 
-        <span class="comment">// If we&#39;ve partitioned by neighborhood but not merged, show the grouping when hovering
+        <span class="comment">// If we've partitioned by neighborhood but not merged, show the grouping when hovering
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.world.get_hovering() {
             <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
             <span class="kw">for </span>group <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.partitions {
@@ -839,23 +841,23 @@
 
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Blockfinder&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Blockfinder"</span>).small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="string">&quot;You can also hold LCtrl to quickly highlight&quot;</span>.text_widget(ctx),
+            <span class="string">"You can also hold LCtrl to quickly highlight"</span>.text_widget(ctx),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Show perimeter in order&quot;</span>)
+                .text(<span class="string">"Show perimeter in order"</span>)
                 .hotkey(Key::O)
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Debug polygon by points&quot;</span>)
+                .text(<span class="string">"Debug polygon by points"</span>)
                 .hotkey(Key::D)
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Debug polygon by triangles&quot;</span>)
+                .text(<span class="string">"Debug polygon by triangles"</span>)
                 .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
@@ -879,8 +881,8 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-            <span class="string">&quot;Show perimeter in order&quot; </span>=&gt; {
+            <span class="string">"close" </span>=&gt; Transition::Pop,
+            <span class="string">"Show perimeter in order" </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>items = Vec::new();
                 <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
                 <span class="kw">for </span>road_side <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.block.perimeter.roads {
@@ -889,15 +891,15 @@
                 }
                 <span class="kw">return </span>Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;side of road&quot;</span>,
+                    <span class="string">"side of road"</span>,
                     items,
                     <span class="prelude-val">None</span>,
                 ));
             }
-            <span class="string">&quot;Debug polygon by points&quot; </span>=&gt; {
+            <span class="string">"Debug polygon by points" </span>=&gt; {
                 <span class="kw">return </span>Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;pt&quot;</span>,
+                    <span class="string">"pt"</span>,
                     <span class="self">self</span>.block
                         .polygon
                         .get_outer_ring()
@@ -909,10 +911,10 @@
                     <span class="prelude-val">None</span>,
                 ));
             }
-            <span class="string">&quot;Debug polygon by triangles&quot; </span>=&gt; {
+            <span class="string">"Debug polygon by triangles" </span>=&gt; {
                 <span class="kw">return </span>Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
-                    <span class="string">&quot;pt&quot;</span>,
+                    <span class="string">"pt"</span>,
                     <span class="self">self</span>.block
                         .polygon
                         .triangles()
@@ -939,39 +941,39 @@
 <span class="kw">fn </span>make_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Panel {
     Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
         Widget::row(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Blockfinder&quot;</span>).small_heading().into_widget(ctx),
+            Line(<span class="string">"Blockfinder"</span>).small_heading().into_widget(ctx),
             ctx.style().btn_close_widget(ctx),
         ]),
-        <span class="string">&quot;Click a block to examine.&quot;</span>.text_widget(ctx),
-        <span class="string">&quot;Press space to mark/unmark for merging&quot;</span>.text_widget(ctx),
+        <span class="string">"Click a block to examine."</span>.text_widget(ctx),
+        <span class="string">"Press space to mark/unmark for merging"</span>.text_widget(ctx),
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Merge&quot;</span>)
+            .text(<span class="string">"Merge"</span>)
             .hotkey(Key::M)
             .build_def(ctx),
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Collapse dead-ends&quot;</span>)
+            .text(<span class="string">"Collapse dead-ends"</span>)
             .hotkey(Key::D)
             .build_def(ctx),
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Classify neighborhoods (but don&#39;t merge)&quot;</span>)
+            .text(<span class="string">"Classify neighborhoods (but don't merge)"</span>)
             .hotkey(Key::C)
             .build_def(ctx),
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Auto-merge all neighborhoods&quot;</span>)
+            .text(<span class="string">"Auto-merge all neighborhoods"</span>)
             .hotkey(Key::A)
             .build_def(ctx),
         ctx.style()
             .btn_outline
-            .text(<span class="string">&quot;Merge all holes&quot;</span>)
+            .text(<span class="string">"Merge all holes"</span>)
             .hotkey(Key::H)
             .build_def(ctx),
         ctx.style()
             .btn_solid_destructive
-            .text(<span class="string">&quot;Reset&quot;</span>)
+            .text(<span class="string">"Reset"</span>)
             .hotkey(Key::R)
             .build_def(ctx),
     ]))

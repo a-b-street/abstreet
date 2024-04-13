@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/risks.rs`."><title>risks.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/risks.rs`."><title>risks.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -279,22 +281,22 @@
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 DashTab::RiskSummaries.picker(ctx, app),
                 Widget::col(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Filters&quot;</span>.text_widget(ctx),
+                    <span class="string">"Filters"</span>.text_widget(ctx),
                     Toggle::checkbox(
                         ctx,
-                        <span class="string">&quot;include trips without any changes&quot;</span>,
+                        <span class="string">"include trips without any changes"</span>,
                         <span class="prelude-val">None</span>,
                         include_no_changes,
                     ),
                 ])
                 .section(ctx),
                 Widget::row(<span class="macro">vec!</span>[
-                    Image::from_path(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>)
+                    Image::from_path(<span class="string">"system/assets/meters/pedestrian.svg"</span>)
                         .dims(<span class="number">36.0</span>)
                         .into_widget(ctx)
                         .centered_vert(),
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;Pedestrian Risks - {} Finished Trips&quot;</span>,
+                        <span class="string">"Pedestrian Risks - {} Finished Trips"</span>,
                         prettyprint_usize(ped_filter.finished_trip_count(app))
                     ))
                     .big_heading_plain()
@@ -306,7 +308,7 @@
                     <span class="number">32</span>,
                     <span class="macro">vec!</span>[
                         Widget::col(<span class="macro">vec!</span>[
-                            Line(<span class="string">&quot;Arterial intersection crossings&quot;</span>)
+                            Line(<span class="string">"Arterial intersection crossings"</span>)
                                 .small_heading()
                                 .into_widget(ctx)
                                 .centered_horiz(),
@@ -319,7 +321,7 @@
                         ])
                         .section(ctx),
                         Widget::col(<span class="macro">vec!</span>[
-                            Line(<span class="string">&quot;Overcrowded sidewalks&quot;</span>)
+                            Line(<span class="string">"Overcrowded sidewalks"</span>)
                                 .small_heading()
                                 .into_widget(ctx)
                                 .centered_horiz(),
@@ -334,12 +336,12 @@
                 )
                 .margin_above(<span class="number">30</span>),
                 Widget::row(<span class="macro">vec!</span>[
-                    Image::from_path(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
+                    Image::from_path(<span class="string">"system/assets/meters/bike.svg"</span>)
                         .dims(<span class="number">36.0</span>)
                         .into_widget(ctx)
                         .centered_vert(),
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;Cyclist Risks - {} Finished Trips&quot;</span>,
+                        <span class="string">"Cyclist Risks - {} Finished Trips"</span>,
                         prettyprint_usize(bike_filter.finished_trip_count(app))
                     ))
                     .big_heading_plain()
@@ -351,7 +353,7 @@
                     <span class="number">32</span>,
                     <span class="macro">vec!</span>[
                         Widget::col(<span class="macro">vec!</span>[
-                            Line(<span class="string">&quot;Complex intersection crossings&quot;</span>)
+                            Line(<span class="string">"Complex intersection crossings"</span>)
                                 .small_heading()
                                 .into_widget(ctx)
                                 .centered_horiz(),
@@ -364,7 +366,7 @@
                         ])
                         .section(ctx),
                         Widget::col(<span class="macro">vec!</span>[
-                            Line(<span class="string">&quot;Cars wanting to over-take cyclists&quot;</span>)
+                            Line(<span class="string">"Cars wanting to over-take cyclists"</span>)
                                 .small_heading()
                                 .into_widget(ctx)
                                 .centered_horiz(),
@@ -378,7 +380,7 @@
                     ],
                 )
                 .margin_above(<span class="number">30</span>),
-                ctx.style().btn_plain.text(<span class="string">&quot;Export to CSV&quot;</span>).build_def(ctx),
+                ctx.style().btn_plain.text(<span class="string">"Export to CSV"</span>).build_def(ctx),
             ]))
             .exact_size_percent(<span class="number">90</span>, <span class="number">90</span>)
             .build(ctx),
@@ -390,16 +392,16 @@
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-                <span class="string">&quot;Export to CSV&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; Transition::Pop,
+                <span class="string">"Export to CSV" </span>=&gt; {
                     <span class="kw">return </span>Transition::Push(<span class="kw">match </span>export_problems(app) {
                         <span class="prelude-val">Ok</span>(path) =&gt; PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Data exported&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {}&quot;</span>, path)],
+                            <span class="string">"Data exported"</span>,
+                            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Data exported to {}"</span>, path)],
                         ),
                         <span class="prelude-val">Err</span>(err) =&gt; {
-                            PopupMsg::new_state(ctx, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[err.to_string()])
+                            PopupMsg::new_state(ctx, <span class="string">"Export failed"</span>, <span class="macro">vec!</span>[err.to_string()])
                         }
                     });
                 }
@@ -415,7 +417,7 @@
                     <span class="kw">return </span>t;
                 }
 
-                <span class="kw">let </span>include_no_changes = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;include trips without any changes&quot;</span>);
+                <span class="kw">let </span>include_no_changes = <span class="self">self</span>.panel.is_checked(<span class="string">"include trips without any changes"</span>);
                 Transition::Replace(RiskSummaries::new_state(ctx, app, include_no_changes))
             }
             <span class="kw">_ </span>=&gt; Transition::Keep,
@@ -443,14 +445,14 @@
 
 <span class="kw">fn </span>export_problems(app: <span class="kw-2">&amp;</span>App) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
     <span class="kw">let </span>path = <span class="macro">format!</span>(
-        <span class="string">&quot;trip_problems_{}_{}.csv&quot;</span>,
+        <span class="string">"trip_problems_{}_{}.csv"</span>,
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
     <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
     <span class="macro">writeln!</span>(
         out,
-        <span class="string">&quot;id,mode,seconds_after,problem_type,problems_before,problems_after&quot;
+        <span class="string">"id,mode,seconds_after,problem_type,problems_before,problems_after"
     </span>)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>before = app.prebaked();
@@ -466,7 +468,7 @@
             <span class="kw">if </span>count_before != <span class="number">0 </span>|| count_after != <span class="number">0 </span>{
                 <span class="macro">writeln!</span>(
                     out,
-                    <span class="string">&quot;{},{:?},{},{:?},{},{}&quot;</span>,
+                    <span class="string">"{},{:?},{},{:?},{},{}"</span>,
                     id.<span class="number">0</span>,
                     mode,
                     time_after.inner_seconds(),

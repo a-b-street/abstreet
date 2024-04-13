@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/turn.rs`."><title>turn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/turn.rs`."><title>turn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_model" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_model/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -328,7 +330,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>TurnID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;TurnID({}, {}, {})&quot;</span>, <span class="self">self</span>.src, <span class="self">self</span>.dst, <span class="self">self</span>.parent)
+        <span class="macro">write!</span>(f, <span class="string">"TurnID({}, {}, {})"</span>, <span class="self">self</span>.src, <span class="self">self</span>.dst, <span class="self">self</span>.parent)
     }
 }
 
@@ -361,8 +363,8 @@
 // turns should be treated as less important.
 </span><span class="attr">#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy, PartialOrd)]
 </span><span class="kw">pub enum </span>TurnPriority {
-    <span class="doccomment">/// For stop signs: Can&#39;t currently specify this!
-    /// For traffic signals: Can&#39;t do this turn right now.
+    <span class="doccomment">/// For stop signs: Can't currently specify this!
+    /// For traffic signals: Can't do this turn right now.
     </span>Banned,
     <span class="doccomment">/// For stop signs: cars have to stop before doing this turn, and are accepted with the lowest
     /// priority.
@@ -436,7 +438,7 @@
         <span class="kw">let </span>to = map.get_l(<span class="self">self</span>.id.dst);
 
         <span class="comment">// Starting from the farthest from the center line (right in the US), where is this travel
-        // lane? Filters by the lane type and ignores lanes that don&#39;t go to the target road.
+        // lane? Filters by the lane type and ignores lanes that don't go to the target road.
         </span><span class="kw">let </span>from_idx = {
             <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
             <span class="kw">let </span>r = map.get_r(from.id.road);
@@ -480,8 +482,8 @@
         // this.
         </span><span class="kw">let </span>lc_cost = ((from_idx <span class="kw">as </span>isize) - (to_idx <span class="kw">as </span>isize)).abs() <span class="kw">as </span>usize;
 
-        <span class="comment">// If we&#39;re a bike, prefer bike lanes, then bus lanes. If we&#39;re a bus, prefer bus lanes.
-        // Otherwise, avoid special lanes, even if we&#39;re allowed to use them sometimes because they
+        <span class="comment">// If we're a bike, prefer bike lanes, then bus lanes. If we're a bus, prefer bus lanes.
+        // Otherwise, avoid special lanes, even if we're allowed to use them sometimes because they
         // happen to double as turn lanes.
         </span><span class="kw">let </span>lt_cost = <span class="kw">if </span>constraints == PathConstraints::Bike {
             <span class="kw">if </span>to.is_biking() {
@@ -498,7 +500,7 @@
                 <span class="number">1
             </span>}
         } <span class="kw">else if </span>to.is_bus() {
-            <span class="comment">// Cars should stay out of bus lanes unless it&#39;s required to make a turn
+            <span class="comment">// Cars should stay out of bus lanes unless it's required to make a turn
             </span><span class="number">3
         </span>} <span class="kw">else </span>{
             <span class="number">0
@@ -589,11 +591,11 @@
     }
 
     <span class="doccomment">/// Only appropriat for pedestrian crossings. The geometry of crosswalks will first cross part
-    /// of a sidewalk corner, then actually enter the road. Extract the piece that&#39;s in the road.
+    /// of a sidewalk corner, then actually enter the road. Extract the piece that's in the road.
     </span><span class="kw">pub fn </span>crosswalk_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Line&gt; {
         <span class="kw">let </span>pts = <span class="self">self</span>.geom.points();
         <span class="kw">if </span>pts.len() &lt; <span class="number">3 </span>{
-            <span class="macro">warn!</span>(<span class="string">&quot;Crosswalk {} was squished earlier&quot;</span>, <span class="self">self</span>.id);
+            <span class="macro">warn!</span>(<span class="string">"Crosswalk {} was squished earlier"</span>, <span class="self">self</span>.id);
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
         Line::new(pts[<span class="number">1</span>], pts[<span class="number">2</span>]).ok()

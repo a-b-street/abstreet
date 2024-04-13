@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/backend_glow.rs`."><title>backend_glow.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/backend_glow.rs`."><title>backend_glow.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -687,10 +689,10 @@
 <span class="kw">use </span><span class="kw">crate</span>::drawing::Uniforms;
 <span class="kw">use crate</span>::{Canvas, Color, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenRectangle};
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;native-backend&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"native-backend"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::backend_glow_native::setup;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;wasm-backend&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"wasm-backend"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::backend_glow_wasm::setup;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>build_program(
@@ -698,7 +700,7 @@
     vertex_shader_src: <span class="kw-2">&amp;</span>str,
     fragment_shader_src: <span class="kw-2">&amp;</span>str,
 ) -&gt; anyhow::Result&lt;glow::Program&gt; {
-    <span class="kw">let </span>program = gl.create_program().expect(<span class="string">&quot;Cannot create program&quot;</span>);
+    <span class="kw">let </span>program = gl.create_program().expect(<span class="string">"Cannot create program"</span>);
 
     <span class="kw">let </span>shaders = [
         compile_shader(gl, glow::VERTEX_SHADER, vertex_shader_src)<span class="question-mark">?</span>,
@@ -711,8 +713,8 @@
 
     gl.link_program(program);
     <span class="kw">if </span>!gl.get_program_link_status(program) {
-        <span class="macro">error!</span>(<span class="string">&quot;Linking error: {}&quot;</span>, gl.get_program_info_log(program));
-        <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, gl.get_program_info_log(program));
+        <span class="macro">error!</span>(<span class="string">"Linking error: {}"</span>, gl.get_program_info_log(program));
+        <span class="macro">panic!</span>(<span class="string">"{}"</span>, gl.get_program_info_log(program));
     }
 
     <span class="kw">for </span>shader <span class="kw">in </span><span class="kw-2">&amp;</span>shaders {
@@ -745,29 +747,29 @@
     gl.shader_source(shader, shader_source);
     gl.compile_shader(shader);
     <span class="kw">if </span>!gl.get_shader_compile_status(shader) {
-        <span class="macro">bail!</span>(<span class="string">&quot;error compiling shader: {}&quot;</span>, gl.get_shader_info_log(shader));
+        <span class="macro">bail!</span>(<span class="string">"error compiling shader: {}"</span>, gl.get_shader_info_log(shader));
     }
 
     <span class="prelude-val">Ok</span>(shader)
 }
 
-<span class="comment">// Represents one frame that&#39;s gonna be drawn
-</span><span class="kw">pub struct </span>GfxCtxInnards&lt;<span class="lifetime">&#39;a</span>&gt; {
-    gl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>glow::Context,
+<span class="comment">// Represents one frame that's gonna be drawn
+</span><span class="kw">pub struct </span>GfxCtxInnards&lt;<span class="lifetime">'a</span>&gt; {
+    gl: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>glow::Context,
     current_clip: <span class="prelude-ty">Option</span>&lt;[i32; <span class="number">4</span>]&gt;,
     transform_location: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::UniformLocation,
     window_location: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::UniformLocation,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GfxCtxInnards&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; GfxCtxInnards&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub fn </span>new(
-        gl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>glow::Context,
-        program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>&lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::Program,
+        gl: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>glow::Context,
+        program: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>&lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::Program,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>(transform_location, window_location) = <span class="kw">unsafe </span>{
             (
-                gl.get_uniform_location(<span class="kw-2">*</span>program, <span class="string">&quot;transform&quot;</span>).unwrap(),
-                gl.get_uniform_location(<span class="kw-2">*</span>program, <span class="string">&quot;window&quot;</span>).unwrap(),
+                gl.get_uniform_location(<span class="kw-2">*</span>program, <span class="string">"transform"</span>).unwrap(),
+                gl.get_uniform_location(<span class="kw-2">*</span>program, <span class="string">"window"</span>).unwrap(),
             )
         };
         GfxCtxInnards {
@@ -845,7 +847,7 @@
     }
 }
 
-<span class="doccomment">/// Geometry that&#39;s been uploaded to the GPU once and can be quickly redrawn many times. Create by
+<span class="doccomment">/// Geometry that's been uploaded to the GPU once and can be quickly redrawn many times. Create by
 /// creating a `GeomBatch` and calling `ctx.upload(batch)`.
 </span><span class="kw">pub struct </span>Drawable {
     vert_array: VertexArray,
@@ -890,7 +892,7 @@
     }
 
     <span class="kw">fn </span>destroy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gl: <span class="kw-2">&amp;</span>glow::Context) {
-        <span class="macro">assert!</span>(!<span class="self">self</span>.was_destroyed, <span class="string">&quot;already destroyed&quot;</span>);
+        <span class="macro">assert!</span>(!<span class="self">self</span>.was_destroyed, <span class="string">"already destroyed"</span>);
         <span class="self">self</span>.was_destroyed = <span class="bool-val">true</span>;
         <span class="kw">unsafe </span>{
             gl.delete_vertex_array(<span class="self">self</span>.id);
@@ -902,7 +904,7 @@
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.was_destroyed,
-            <span class="string">&quot;failed to call `destroy` before dropped. Memory leaked.&quot;
+            <span class="string">"failed to call `destroy` before dropped. Memory leaked."
         </span>);
     }
 }
@@ -922,7 +924,7 @@
     }
 
     <span class="kw">fn </span>destroy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gl: <span class="kw-2">&amp;</span>glow::Context) {
-        <span class="macro">assert!</span>(!<span class="self">self</span>.was_destroyed, <span class="string">&quot;already destroyed&quot;</span>);
+        <span class="macro">assert!</span>(!<span class="self">self</span>.was_destroyed, <span class="string">"already destroyed"</span>);
         <span class="self">self</span>.was_destroyed = <span class="bool-val">true</span>;
         <span class="kw">unsafe </span>{ gl.delete_buffer(<span class="self">self</span>.id) };
     }
@@ -932,15 +934,15 @@
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.was_destroyed,
-            <span class="string">&quot;failed to call `destroy` before dropped. Memory leaked.&quot;
+            <span class="string">"failed to call `destroy` before dropped. Memory leaked."
         </span>);
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;wasm-backend&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"wasm-backend"</span>)]
 </span><span class="kw">type </span>WindowAdapter = <span class="kw">crate</span>::backend_glow_wasm::WindowAdapter;
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;native-backend&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"native-backend"</span>)]
 </span><span class="kw">type </span>WindowAdapter = <span class="kw">crate</span>::backend_glow_native::WindowAdapter;
 
 <span class="kw">pub struct </span>PrerenderInnards {
@@ -949,7 +951,7 @@
     window_adapter: <span class="prelude-ty">Option</span>&lt;WindowAdapter&gt;,
     program: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::Program,
 
-    <span class="comment">// TODO Prerender doesn&#39;t know what things are temporary and permanent. Could make the API more
+    <span class="comment">// TODO Prerender doesn't know what things are temporary and permanent. Could make the API more
     // detailed.
     </span><span class="kw">pub </span>total_bytes_uploaded: Cell&lt;usize&gt;,
 }
@@ -1066,7 +1068,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>window(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>winit::window::Window {
-        <span class="self">self</span>.window_adapter.as_ref().expect(<span class="string">&quot;no window&quot;</span>).window()
+        <span class="self">self</span>.window_adapter.as_ref().expect(<span class="string">"no window"</span>).window()
     }
 
     <span class="kw">pub fn </span>request_redraw(<span class="kw-2">&amp;</span><span class="self">self</span>) {
@@ -1089,12 +1091,12 @@
         <span class="kw">let </span>physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
         <span class="self">self</span>.window_adapter
             .as_ref()
-            .expect(<span class="string">&quot;no window&quot;</span>)
+            .expect(<span class="string">"no window"</span>)
             .window_resized(new_size, scale_factor);
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.gl
                 .viewport(<span class="number">0</span>, <span class="number">0</span>, physical_size.width, physical_size.height);
-            <span class="comment">// I think it&#39;s safe to assume there&#39;s not a clip right now.
+            <span class="comment">// I think it's safe to assume there's not a clip right now.
             </span><span class="self">self</span>.gl
                 .scissor(<span class="number">0</span>, <span class="number">0</span>, physical_size.width, physical_size.height);
         }
@@ -1115,7 +1117,7 @@
     <span class="kw">pub fn </span>draw_finished(<span class="kw-2">&amp;</span><span class="self">self</span>, gfx_ctx_innards: GfxCtxInnards) {
         <span class="self">self</span>.window_adapter
             .as_ref()
-            .expect(<span class="string">&quot;no window&quot;</span>)
+            .expect(<span class="string">"no window"</span>)
             .draw_finished(gfx_ctx_innards)
     }
 
@@ -1161,20 +1163,20 @@
         <span class="kw">if </span><span class="self">self</span>.is_gl2 {
             texture
                 .upload_gl2(<span class="kw-2">&amp;</span><span class="self">self</span>.gl)
-                .expect(<span class="string">&quot;failed to upload textures&quot;</span>);
+                .expect(<span class="string">"failed to upload textures"</span>);
 
             <span class="kw">unsafe </span>{
                 <span class="kw">let </span>location = <span class="self">self
                     </span>.gl
-                    .get_uniform_location(<span class="self">self</span>.program, <span class="string">&quot;texture_scale&quot;</span>)
+                    .get_uniform_location(<span class="self">self</span>.program, <span class="string">"texture_scale"</span>)
                     .unwrap();
                 <span class="self">self</span>.gl
                     .uniform_2_f32_slice(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>location), <span class="kw-2">&amp;</span>[scale.<span class="number">0</span>, scale.<span class="number">1</span>]);
             }
         } <span class="kw">else </span>{
             <span class="macro">warn!</span>(
-                <span class="string">&quot;texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
-                 browser.&quot;
+                <span class="string">"texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
+                 browser."
             </span>);
         }
     }
@@ -1204,7 +1206,7 @@
 /// Implementation is based on the the description of ArrayTextures from:
 /// https://www.khronos.org/opengl/wiki/Array_Texture.
 ///
-/// OpenGL texture arrays expect each texture&#39;s bytes to be contiguous, but it&#39;s conventional to
+/// OpenGL texture arrays expect each texture's bytes to be contiguous, but it's conventional to
 /// store textures in a grid within a single spritesheet image, where a row and column traverses
 /// multiple sprites.
 ///
@@ -1241,7 +1243,7 @@
         <span class="kw">let </span>img = <span class="kw">if let </span>image::DynamicImage::ImageRgba8(img) = dynamic_img {
             img
         } <span class="kw">else </span>{
-            <span class="macro">todo!</span>(<span class="string">&quot;support other image formats&quot;</span>);
+            <span class="macro">todo!</span>(<span class="string">"support other image formats"</span>);
         };
 
         <span class="kw">let </span>bytes_per_pixel = <span class="number">4</span>;
@@ -1254,16 +1256,16 @@
         <span class="macro">assert_eq!</span>(
             sprites_per_row * sprite_width,
             img_width,
-            <span class="string">&quot;sprites must align exactly&quot;
+            <span class="string">"sprites must align exactly"
         </span>);
         <span class="macro">assert_eq!</span>(
             sprites_per_column * sprite_height,
             img_height,
-            <span class="string">&quot;sprites must align exactly&quot;
+            <span class="string">"sprites must align exactly"
         </span>);
 
         <span class="macro">info!</span>(
-            <span class="string">&quot;img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)&quot;</span>,
+            <span class="string">"img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)"</span>,
             img_width,
             img_height,
             img.pixels().len(),
@@ -1277,7 +1279,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>texture_bytes: Vec&lt;u8&gt; = Vec::with_capacity(img.pixels().len() * bytes_per_pixel);
 
         <span class="comment">// In order to avoid branching in our shader logic, all shapes are rendered with a texture.
-        // Even &quot;non-textured&quot; styles like Fill::Color, use a &quot;default&quot; no-op (pure white) texture,
+        // Even "non-textured" styles like Fill::Color, use a "default" no-op (pure white) texture,
         // which we generate here.
         </span>texture_bytes.append(<span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[
             <span class="number">255</span>;
@@ -1308,11 +1310,11 @@
         })
     }
 
-    <span class="comment">// Utilizes `tex_storage_3d` which isn&#39;t supported by WebGL 1.0.
+    <span class="comment">// Utilizes `tex_storage_3d` which isn't supported by WebGL 1.0.
     </span><span class="kw">fn </span>upload_gl2(<span class="kw-2">&amp;</span><span class="self">self</span>, gl: <span class="kw-2">&amp;</span>glow::Context) -&gt; anyhow::Result&lt;()&gt; {
         <span class="kw">let </span>texture_id = <span class="kw">unsafe </span>{
             gl.create_texture()
-                .map_err(|err| <span class="macro">anyhow!</span>(<span class="string">&quot;error creating texture: {}&quot;</span>, err))<span class="question-mark">?
+                .map_err(|err| <span class="macro">anyhow!</span>(<span class="string">"error creating texture: {}"</span>, err))<span class="question-mark">?
         </span>};
 
         <span class="kw">let </span>format = glow::RGBA;

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/edits.rs`."><title>edits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/edits.rs`."><title>edits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -447,44 +449,44 @@
         <span class="kw">let </span>i = app.primary.map.get_i(signal.id);
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;How long should this stage last?&quot;</span>)
+                Line(<span class="string">"How long should this stage last?"</span>)
                     .small_heading()
                     .into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Duration:&quot;</span>.text_widget(ctx).centered_vert(),
+                <span class="string">"Duration:"</span>.text_widget(ctx).centered_vert(),
                 Spinner::widget(
                     ctx,
-                    <span class="string">&quot;duration&quot;</span>,
+                    <span class="string">"duration"</span>,
                     (signal.get_min_crossing_time(idx, i), Duration::minutes(<span class="number">5</span>)),
                     signal.stages[idx].stage_type.simple_duration(),
                     Duration::seconds(<span class="number">1.0</span>),
                 ),
             ]),
-            Line(<span class="string">&quot;Minimum time is set by the time required for crosswalk&quot;</span>)
+            Line(<span class="string">"Minimum time is set by the time required for crosswalk"</span>)
                 .secondary()
                 .into_widget(ctx),
             Widget::col(<span class="macro">vec!</span>[
                 Text::from_all(<span class="kw">match </span>signal.stages[idx].stage_type {
                     StageType::Fixed(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Fixed timing&quot;</span>).small_heading(),
-                        Line(<span class="string">&quot; (Adjust both values below to enable variable timing)&quot;</span>),
+                        Line(<span class="string">"Fixed timing"</span>).small_heading(),
+                        Line(<span class="string">" (Adjust both values below to enable variable timing)"</span>),
                     ],
                     StageType::Variable(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Variable timing&quot;</span>).small_heading(),
-                        Line(<span class="string">&quot; (Set either values below to 0 to use fixed timing.&quot;</span>),
+                        Line(<span class="string">"Variable timing"</span>).small_heading(),
+                        Line(<span class="string">" (Set either values below to 0 to use fixed timing."</span>),
                     ],
                 })
                 .into_widget(ctx)
-                .named(<span class="string">&quot;timing type&quot;</span>),
+                .named(<span class="string">"timing type"</span>),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;How much additional time can this stage last?&quot;
+                    <span class="string">"How much additional time can this stage last?"
                         </span>.text_widget(ctx)
                         .centered_vert(),
                     Spinner::widget(
                         ctx,
-                        <span class="string">&quot;additional&quot;</span>,
+                        <span class="string">"additional"</span>,
                         (Duration::ZERO, Duration::minutes(<span class="number">5</span>)),
                         <span class="kw">match </span>signal.stages[idx].stage_type {
                             StageType::Fixed(<span class="kw">_</span>) =&gt; Duration::ZERO,
@@ -494,12 +496,12 @@
                     ),
                 ]),
                 Widget::row(<span class="macro">vec!</span>[
-                    <span class="string">&quot;How long with no demand before the stage ends?&quot;
+                    <span class="string">"How long with no demand before the stage ends?"
                         </span>.text_widget(ctx)
                         .centered_vert(),
                     Spinner::widget(
                         ctx,
-                        <span class="string">&quot;delay&quot;</span>,
+                        <span class="string">"delay"</span>,
                         (Duration::ZERO, Duration::seconds(<span class="number">300.0</span>)),
                         <span class="kw">match </span>signal.stages[idx].stage_type {
                             StageType::Fixed(<span class="kw">_</span>) =&gt; Duration::ZERO,
@@ -514,7 +516,7 @@
             .outline(ctx.style().section_outline),
             ctx.style()
                 .btn_solid_primary
-                .text(<span class="string">&quot;Apply&quot;</span>)
+                .text(<span class="string">"Apply"</span>)
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))
@@ -532,11 +534,11 @@
         panel: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-            <span class="string">&quot;Apply&quot; </span>=&gt; {
-                <span class="kw">let </span>dt = panel.spinner(<span class="string">&quot;duration&quot;</span>);
-                <span class="kw">let </span>delay = panel.spinner(<span class="string">&quot;delay&quot;</span>);
-                <span class="kw">let </span>additional = panel.spinner(<span class="string">&quot;additional&quot;</span>);
+            <span class="string">"close" </span>=&gt; Transition::Pop,
+            <span class="string">"Apply" </span>=&gt; {
+                <span class="kw">let </span>dt = panel.spinner(<span class="string">"duration"</span>);
+                <span class="kw">let </span>delay = panel.spinner(<span class="string">"delay"</span>);
+                <span class="kw">let </span>additional = panel.spinner(<span class="string">"additional"</span>);
                 <span class="kw">let </span>new_type = <span class="kw">if </span>delay == Duration::ZERO || additional == Duration::ZERO {
                     StageType::Fixed(dt)
                 } <span class="kw">else </span>{
@@ -564,22 +566,22 @@
         panel: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
         <span class="kw">let </span>new_label = Text::from_all(
-            <span class="kw">if </span>panel.spinner::&lt;Duration&gt;(<span class="string">&quot;delay&quot;</span>) == Duration::ZERO
-                || panel.spinner::&lt;Duration&gt;(<span class="string">&quot;additional&quot;</span>) == Duration::ZERO
+            <span class="kw">if </span>panel.spinner::&lt;Duration&gt;(<span class="string">"delay"</span>) == Duration::ZERO
+                || panel.spinner::&lt;Duration&gt;(<span class="string">"additional"</span>) == Duration::ZERO
             {
                 <span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Fixed timing&quot;</span>).small_heading(),
-                    Line(<span class="string">&quot; (Adjust both values below to enable variable timing)&quot;</span>),
+                    Line(<span class="string">"Fixed timing"</span>).small_heading(),
+                    Line(<span class="string">" (Adjust both values below to enable variable timing)"</span>),
                 ]
             } <span class="kw">else </span>{
                 <span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Variable timing&quot;</span>).small_heading(),
-                    Line(<span class="string">&quot; (Set either values below to 0 to use fixed timing.&quot;</span>),
+                    Line(<span class="string">"Variable timing"</span>).small_heading(),
+                    Line(<span class="string">" (Set either values below to 0 to use fixed timing."</span>),
                 ]
             },
         )
         .into_widget(ctx);
-        panel.replace(ctx, <span class="string">&quot;timing type&quot;</span>, new_label);
+        panel.replace(ctx, <span class="string">"timing type"</span>, new_label);
         <span class="prelude-val">None
     </span>}
 
@@ -610,19 +612,19 @@
         .iter()
         .any(|t| t.between_sidewalks());
 
-    <span class="kw">let </span>use_template = <span class="string">&quot;use template&quot;</span>;
-    <span class="kw">let </span>all_walk = <span class="string">&quot;add an all-walk stage at the end&quot;</span>;
-    <span class="kw">let </span>major_minor_timing = <span class="string">&quot;use timing pattern for a major/minor intersection&quot;</span>;
-    <span class="kw">let </span>stop_sign = <span class="string">&quot;convert to stop signs&quot;</span>;
-    <span class="kw">let </span>close = <span class="string">&quot;close intersection for construction&quot;</span>;
-    <span class="kw">let </span>reset = <span class="string">&quot;reset to default&quot;</span>;
-    <span class="kw">let </span>gmns_picker = <span class="string">&quot;import from a new GMNS timing.csv&quot;</span>;
+    <span class="kw">let </span>use_template = <span class="string">"use template"</span>;
+    <span class="kw">let </span>all_walk = <span class="string">"add an all-walk stage at the end"</span>;
+    <span class="kw">let </span>major_minor_timing = <span class="string">"use timing pattern for a major/minor intersection"</span>;
+    <span class="kw">let </span>stop_sign = <span class="string">"convert to stop signs"</span>;
+    <span class="kw">let </span>close = <span class="string">"close intersection for construction"</span>;
+    <span class="kw">let </span>reset = <span class="string">"reset to default"</span>;
+    <span class="kw">let </span>gmns_picker = <span class="string">"import from a new GMNS timing.csv"</span>;
     <span class="kw">let </span>gmns_existing = app
         .session
         .last_gmns_timing_csv
         .as_ref()
-        .map(|(path, <span class="kw">_</span>)| <span class="macro">format!</span>(<span class="string">&quot;import from GMNS {}&quot;</span>, path));
-    <span class="kw">let </span>gmns_all = <span class="string">&quot;import all traffic signals from a new GMNS timing.csv&quot;</span>;
+        .map(|(path, <span class="kw">_</span>)| <span class="macro">format!</span>(<span class="string">"import from GMNS {}"</span>, path));
+    <span class="kw">let </span>gmns_all = <span class="string">"import all traffic signals from a new GMNS timing.csv"</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[use_template.to_string()];
     <span class="kw">if </span>has_sidewalks {
@@ -643,12 +645,12 @@
 
     ChooseSomething::new_state(
         ctx,
-        <span class="string">&quot;What do you want to change?&quot;</span>,
+        <span class="string">"What do you want to change?"</span>,
         Choice::strings(choices),
         Box::new(<span class="kw">move </span>|x, ctx, app| <span class="kw">match </span>x.as_str() {
             x <span class="kw">if </span>x == use_template =&gt; Transition::Replace(ChooseSomething::new_state(
                 ctx,
-                <span class="string">&quot;Use which preset for this intersection?&quot;</span>,
+                <span class="string">"Use which preset for this intersection?"</span>,
                 Choice::from(ControlTrafficSignal::get_possible_policies(
                     <span class="kw-2">&amp;</span>app.primary.map,
                     i,
@@ -679,14 +681,14 @@
             ]),
             x <span class="kw">if </span>x == major_minor_timing =&gt; Transition::Replace(ChooseSomething::new_state(
                 ctx,
-                <span class="string">&quot;Use what timing split?&quot;</span>,
+                <span class="string">"Use what timing split?"</span>,
                 <span class="macro">vec!</span>[
                     Choice::new(
-                        <span class="string">&quot;120s cycle: 96s major roads, 24s minor roads&quot;</span>,
+                        <span class="string">"120s cycle: 96s major roads, 24s minor roads"</span>,
                         (Duration::seconds(<span class="number">96.0</span>), Duration::seconds(<span class="number">24.0</span>)),
                     ),
                     Choice::new(
-                        <span class="string">&quot;60s cycle: 36s major roads, 24s minor roads&quot;</span>,
+                        <span class="string">"60s cycle: 36s major roads, 24s minor roads"</span>,
                         (Duration::seconds(<span class="number">36.0</span>), Duration::seconds(<span class="number">24.0</span>)),
                     ),
                 ],
@@ -705,7 +707,7 @@
                         ]),
                         <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
                             ctx,
-                            <span class="string">&quot;Error&quot;</span>,
+                            <span class="string">"Error"</span>,
                             <span class="macro">vec!</span>[err.to_string()],
                         )),
                     }
@@ -781,7 +783,7 @@
                             ]),
                             <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
                                 ctx,
-                                <span class="string">&quot;Error&quot;</span>,
+                                <span class="string">"Error"</span>,
                                 <span class="macro">vec!</span>[err.to_string()],
                             )),
                         }
@@ -807,7 +809,7 @@
                     ]),
                     <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;Error&quot;</span>,
+                        <span class="string">"Error"</span>,
                         <span class="macro">vec!</span>[err.to_string()],
                     )),
                 }
@@ -818,7 +820,7 @@
                 Box::new(<span class="kw">move </span>|ctx, app, maybe_file| {
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((path, bytes))) = maybe_file {
                         <span class="comment">// TODO This menu for a single intersection is a strange place to import for all
-                        // intersections, but I&#39;m not sure where else it should go. Also, this will
+                        // intersections, but I'm not sure where else it should go. Also, this will
                         // blindly overwrite changes for all intersections and quit the current editor.
                         </span>Transition::Multi(<span class="macro">vec!</span>[
                             Transition::Pop,

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/labels.rs`."><title>labels.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/labels.rs`."><title>labels.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -430,7 +432,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>quadtree = QuadTree::new();
 
-        <span class="lifetime">&#39;ROAD</span>: <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+        <span class="lifetime">'ROAD</span>: <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
             <span class="kw">if </span>!(<span class="self">self</span>.include_roads)(r) || r.length() &lt; Distance::meters(<span class="number">30.0</span>) {
                 <span class="kw">continue</span>;
             }
@@ -442,10 +444,10 @@
             };
             <span class="kw">let </span>(pt, angle) = r.center_pts.must_dist_along(r.length() / <span class="number">2.0</span>);
 
-            <span class="comment">// Don&#39;t get too close to other labels.
+            <span class="comment">// Don't get too close to other labels.
             </span><span class="kw">let </span>big_bounds = cheaply_overestimate_bounds(<span class="kw-2">&amp;</span>name, text_scale, pt, angle);
             <span class="kw">if </span>quadtree.query_bbox(big_bounds).next().is_some() {
-                <span class="kw">continue </span><span class="lifetime">&#39;ROAD</span>;
+                <span class="kw">continue </span><span class="lifetime">'ROAD</span>;
             }
             quadtree.insert_with_box((), big_bounds);
 
@@ -472,7 +474,7 @@
 <span class="comment">// TODO Surely somebody has written one of these.
 </span><span class="kw">fn </span>simplify_name(<span class="kw-2">mut </span>x: String) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
     <span class="comment">// Skip unnamed roads and highway exits
-    </span><span class="kw">if </span>x == <span class="string">&quot;???&quot; </span>|| x.starts_with(<span class="string">&quot;Exit for &quot;</span>) {
+    </span><span class="kw">if </span>x == <span class="string">"???" </span>|| x.starts_with(<span class="string">"Exit for "</span>) {
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
@@ -488,42 +490,42 @@
     <span class="kw">let </span><span class="kw-2">mut </span>replace = Vec::new();
 
     <span class="kw">for </span>(long, short) <span class="kw">in </span>[
-        (<span class="string">&quot;Northeast&quot;</span>, <span class="string">&quot;NE&quot;</span>),
-        (<span class="string">&quot;Northwest&quot;</span>, <span class="string">&quot;NW&quot;</span>),
-        (<span class="string">&quot;Southeast&quot;</span>, <span class="string">&quot;SE&quot;</span>),
-        (<span class="string">&quot;Southwest&quot;</span>, <span class="string">&quot;SW&quot;</span>),
+        (<span class="string">"Northeast"</span>, <span class="string">"NE"</span>),
+        (<span class="string">"Northwest"</span>, <span class="string">"NW"</span>),
+        (<span class="string">"Southeast"</span>, <span class="string">"SE"</span>),
+        (<span class="string">"Southwest"</span>, <span class="string">"SW"</span>),
         <span class="comment">// Order matters -- do the longer patterns first
-        </span>(<span class="string">&quot;North&quot;</span>, <span class="string">&quot;N&quot;</span>),
-        (<span class="string">&quot;South&quot;</span>, <span class="string">&quot;S&quot;</span>),
-        (<span class="string">&quot;East&quot;</span>, <span class="string">&quot;E&quot;</span>),
-        (<span class="string">&quot;West&quot;</span>, <span class="string">&quot;W&quot;</span>),
+        </span>(<span class="string">"North"</span>, <span class="string">"N"</span>),
+        (<span class="string">"South"</span>, <span class="string">"S"</span>),
+        (<span class="string">"East"</span>, <span class="string">"E"</span>),
+        (<span class="string">"West"</span>, <span class="string">"W"</span>),
     ] {
         <span class="comment">// Only replace directions at the start or end of the string
         </span>replace.push((
-            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;^{long} &quot;</span>)).unwrap(),
-            <span class="macro">format!</span>(<span class="string">&quot;{short} &quot;</span>),
+            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"^{long} "</span>)).unwrap(),
+            <span class="macro">format!</span>(<span class="string">"{short} "</span>),
         ));
         replace.push((
-            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {long}$&quot;</span>)).unwrap(),
-            <span class="macro">format!</span>(<span class="string">&quot; {short}&quot;</span>),
+            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">" {long}$"</span>)).unwrap(),
+            <span class="macro">format!</span>(<span class="string">" {short}"</span>),
         ));
     }
 
     <span class="kw">for </span>(long, short) <span class="kw">in </span>[
-        (<span class="string">&quot;Street&quot;</span>, <span class="string">&quot;St&quot;</span>),
-        (<span class="string">&quot;Boulevard&quot;</span>, <span class="string">&quot;Blvd&quot;</span>),
-        (<span class="string">&quot;Avenue&quot;</span>, <span class="string">&quot;Ave&quot;</span>),
-        (<span class="string">&quot;Place&quot;</span>, <span class="string">&quot;Pl&quot;</span>),
+        (<span class="string">"Street"</span>, <span class="string">"St"</span>),
+        (<span class="string">"Boulevard"</span>, <span class="string">"Blvd"</span>),
+        (<span class="string">"Avenue"</span>, <span class="string">"Ave"</span>),
+        (<span class="string">"Place"</span>, <span class="string">"Pl"</span>),
     ] {
         <span class="comment">// At the end is reasonable
         </span>replace.push((
-            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}$&quot;</span>, long)).unwrap(),
+            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}$"</span>, long)).unwrap(),
             short.to_string(),
         ));
         <span class="comment">// In the middle, surrounded by spaces
         </span>replace.push((
-            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {} &quot;</span>, long)).unwrap(),
-            <span class="macro">format!</span>(<span class="string">&quot; {} &quot;</span>, short),
+            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">" {} "</span>, long)).unwrap(),
+            <span class="macro">format!</span>(<span class="string">" {} "</span>, short),
         ));
     }
 
@@ -537,13 +539,13 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_simplify_name() {
         <span class="kw">for </span>(input, want) <span class="kw">in </span>[
-            (<span class="string">&quot;Northeast Northgate Way&quot;</span>, <span class="string">&quot;NE Northgate Way&quot;</span>),
-            (<span class="string">&quot;South 42nd Street&quot;</span>, <span class="string">&quot;S 42nd St&quot;</span>),
-            (<span class="string">&quot;Northcote Road&quot;</span>, <span class="string">&quot;Northcote Road&quot;</span>),
+            (<span class="string">"Northeast Northgate Way"</span>, <span class="string">"NE Northgate Way"</span>),
+            (<span class="string">"South 42nd Street"</span>, <span class="string">"S 42nd St"</span>),
+            (<span class="string">"Northcote Road"</span>, <span class="string">"Northcote Road"</span>),
         ] {
             <span class="kw">let </span>got = simplify_name(input.to_string()).unwrap();
             <span class="kw">if </span>got != want {
-                <span class="macro">panic!</span>(<span class="string">&quot;simplify_name({}) = {}; expected {}&quot;</span>, input, got, want);
+                <span class="macro">panic!</span>(<span class="string">"simplify_name({}) = {}; expected {}"</span>, input, got, want);
             }
         }
     }
@@ -563,7 +565,7 @@
     .get_bounds()
 }
 
-<span class="doccomment">/// Draws labels in map-space that roughly fit on the roads. Don&#39;t change behavior during zooming;
+<span class="doccomment">/// Draws labels in map-space that roughly fit on the roads. Don't change behavior during zooming;
 /// labels are only meant to be legible when zoomed in.
 </span><span class="kw">pub struct </span>DrawSimpleRoadLabels {
     draw: Drawable,
@@ -587,7 +589,7 @@
             fg_color,
             label_covers_road: HashMap::new(),
         };
-        ctx.loading_screen(<span class="string">&quot;label roads&quot;</span>, |ctx, timer| {
+        ctx.loading_screen(<span class="string">"label roads"</span>, |ctx, timer| {
             labels.render(ctx, app, timer);
         });
         labels
@@ -624,7 +626,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
         <span class="kw">let </span>map = app.map();
 
-        timer.start_iter(<span class="string">&quot;render roads&quot;</span>, map.all_roads().len());
+        timer.start_iter(<span class="string">"render roads"</span>, map.all_roads().len());
         <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
             timer.next();
             <span class="comment">// Skip very short roads and tunnels
@@ -640,7 +642,7 @@
 
             <span class="kw">let </span>txt_batch = Text::from(Line(<span class="kw-2">&amp;</span>name)).render_autocropped(ctx);
             <span class="kw">if </span>txt_batch.is_empty() {
-                <span class="comment">// This happens when we don&#39;t have a font loaded with the right characters
+                <span class="comment">// This happens when we don't have a font loaded with the right characters
                 </span><span class="kw">continue</span>;
             }
             <span class="kw">let </span>txt_bounds = txt_batch.get_bounds();
@@ -649,11 +651,11 @@
             //
             // We need to make the text fit in the road polygon. road_width gives us the height of
             // the text, accounting for the outline around the road polygon and a buffer. If the
-            // road&#39;s length is short, the text could overflow into the intersections, so scale it
+            // road's length is short, the text could overflow into the intersections, so scale it
             // down further.
             //
-            // Since the text fits inside the road polygon, we don&#39;t need to do any kind of hitbox
-            // testing and make sure multiple labels don&#39;t overlap!
+            // Since the text fits inside the road polygon, we don't need to do any kind of hitbox
+            // testing and make sure multiple labels don't overlap!
 
             // The road has an outline of 1m, but also leave a slight buffer
             </span><span class="kw">let </span>outline_thickness = Distance::meters(<span class="number">2.0</span>);
@@ -664,7 +666,7 @@
             <span class="comment">// Fit the text height in the road width perfectly
             </span><span class="kw">let </span><span class="kw-2">mut </span>scale = road_width / txt_bounds.height();
 
-            <span class="comment">// If the road is short and we&#39;ll overflow, then scale down even more.
+            <span class="comment">// If the road is short and we'll overflow, then scale down even more.
             </span><span class="kw">if </span>txt_bounds.width() * scale &gt; road_length {
                 scale = road_length / txt_bounds.width();
                 <span class="comment">// TODO In this case, the vertical centering in the road polygon is wrong
@@ -683,8 +685,8 @@
             // But use the scale / text size calculated assuming rectangles.
             //
             // Note we render the text twice here, and once again in render_curvey. This seems
-            // cheap enough so far. There&#39;s internal SVG caching in widgetry, but we could also
-            // consider caching a &quot;road name -&gt; txt_bounds&quot; mapping through the whole app.
+            // cheap enough so far. There's internal SVG caching in widgetry, but we could also
+            // consider caching a "road name -&gt; txt_bounds" mapping through the whole app.
 
             // The orientation of the text and the direction we vertically center depends on the
             // direction the road points
@@ -695,8 +697,8 @@
                 <span class="number">1.0
             </span>};
             <span class="comment">// The polyline passed to render_curvey will be used as the bottom of the text
-            // (glossing over whether or not this is a &quot;baseline&quot; or something else). We want to
-            // vertically center. SVG 1.1 has alignment-baseline, but usvg doesn&#39;t support this. So
+            // (glossing over whether or not this is a "baseline" or something else). We want to
+            // vertically center. SVG 1.1 has alignment-baseline, but usvg doesn't support this. So
             // shift the road polyline.
             </span><span class="kw">let </span><span class="kw-2">mut </span>curve = r
                 .center_pts

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/load.rs`."><title>load.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/load.rs`."><title>load.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../widgetry/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -467,7 +469,7 @@
 <span class="kw">use </span>futures_channel::{mpsc, oneshot};
 <span class="kw">use </span>instant::Instant;
 <span class="kw">use </span>serde::de::DeserializeOwned;
-<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
 </span><span class="kw">use </span>tokio::runtime::Runtime;
 
 <span class="kw">use </span>abstutil::Timer;
@@ -475,16 +477,16 @@
 
 <span class="kw">use crate</span>::{Color, EventCtx, GfxCtx, Line, Panel, State, Text, Transition, UpdateType};
 
-<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
 </span><span class="kw">pub use </span>native_loader::FileLoader;
 
-<span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+<span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
 </span><span class="kw">pub use </span>wasm_loader::FileLoader;
 
 <span class="doccomment">/// Use this with FileLoader to just read raw bytes without any deserialization.
 </span><span class="kw">pub struct </span>RawBytes(<span class="kw">pub </span>Vec&lt;u8&gt;);
 
-<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
 </span><span class="kw">mod </span>native_loader {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -503,7 +505,7 @@
             <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A, <span class="kw-2">&amp;mut </span>Timer, <span class="prelude-ty">Result</span>&lt;T&gt;) -&gt; Transition&lt;A&gt;&gt;&gt;,
     }
 
-    <span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static</span>, T: <span class="lifetime">&#39;static </span>+ Readable&gt; FileLoader&lt;A, T&gt; {
+    <span class="kw">impl</span>&lt;A: <span class="lifetime">'static</span>, T: <span class="lifetime">'static </span>+ Readable&gt; FileLoader&lt;A, T&gt; {
         <span class="kw">pub fn </span>new_state(
             <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx,
             path: String,
@@ -516,10 +518,10 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static</span>, T: <span class="lifetime">&#39;static </span>+ Readable&gt; State&lt;A&gt; <span class="kw">for </span>FileLoader&lt;A, T&gt; {
+    <span class="kw">impl</span>&lt;A: <span class="lifetime">'static</span>, T: <span class="lifetime">'static </span>+ Readable&gt; State&lt;A&gt; <span class="kw">for </span>FileLoader&lt;A, T&gt; {
         <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
-            <span class="macro">debug!</span>(<span class="string">&quot;Loading {}&quot;</span>, <span class="self">self</span>.path);
-            ctx.loading_screen(<span class="macro">format!</span>(<span class="string">&quot;load {}&quot;</span>, <span class="self">self</span>.path), |ctx, timer| {
+            <span class="macro">debug!</span>(<span class="string">"Loading {}"</span>, <span class="self">self</span>.path);
+            ctx.loading_screen(<span class="macro">format!</span>(<span class="string">"load {}"</span>, <span class="self">self</span>.path), |ctx, timer| {
                 <span class="kw">let </span>file = T::read_file(<span class="self">self</span>.path.clone(), timer);
                 (<span class="self">self</span>.on_load.take().unwrap())(ctx, app, timer, file)
             })
@@ -531,9 +533,9 @@
     }
 
     <span class="comment">// Two implementations for reading the file, using serde or just raw bytes
-    </span><span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ DeserializeOwned&gt; Readable <span class="kw">for </span>T {
+    </span><span class="kw">impl</span>&lt;T: <span class="lifetime">'static </span>+ DeserializeOwned&gt; Readable <span class="kw">for </span>T {
         <span class="kw">fn </span>read_file(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
-            <span class="comment">// TODO We&#39;ll eventually want to remove the dependency on abstio
+            <span class="comment">// TODO We'll eventually want to remove the dependency on abstio
             </span>abstio::read_object(path, timer)
         }
     }
@@ -544,7 +546,7 @@
     }
 }
 
-<span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+<span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
 </span><span class="kw">mod </span>wasm_loader {
     <span class="kw">use </span>std::io::Read;
 
@@ -567,8 +569,8 @@
     <span class="doccomment">/// Loads a JSON, bincoded, or raw file, then deserializes it
     ///
     /// Instead of blockingly reading a file within ctx.loading_screen, on the web have to
-    /// asynchronously make an HTTP request and keep &quot;polling&quot; for completion in a way that&#39;s
-    /// compatible with winit&#39;s event loop.
+    /// asynchronously make an HTTP request and keep "polling" for completion in a way that's
+    /// compatible with winit's event loop.
     </span><span class="kw">pub struct </span>FileLoader&lt;A, T&gt; {
         response: oneshot::Receiver&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt;&gt;,
         on_load:
@@ -583,7 +585,7 @@
         got_read_bytes: mpsc::Receiver&lt;usize&gt;,
     }
 
-    <span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static</span>, T: <span class="lifetime">&#39;static </span>+ Readable&gt; FileLoader&lt;A, T&gt; {
+    <span class="kw">impl</span>&lt;A: <span class="lifetime">'static</span>, T: <span class="lifetime">'static </span>+ Readable&gt; FileLoader&lt;A, T&gt; {
         <span class="kw">pub fn </span>new_state(
             ctx: <span class="kw-2">&amp;mut </span>EventCtx,
             path: String,
@@ -592,14 +594,14 @@
             <span class="kw">let </span>base_url = ctx
                 .prerender
                 .assets_base_url()
-                .expect(<span class="string">&quot;assets_base_url must be specified for wasm builds via `Settings`&quot;</span>);
+                .expect(<span class="string">"assets_base_url must be specified for wasm builds via `Settings`"</span>);
 
             <span class="comment">// Note that files are gzipped on S3 and other deployments. When running locally, we
-            // just symlink the data/ directory, where files aren&#39;t compressed.
+            // just symlink the data/ directory, where files aren't compressed.
             </span><span class="kw">let </span>url = <span class="kw">if </span>ctx.prerender.assets_are_gzipped() {
-                <span class="macro">format!</span>(<span class="string">&quot;{}/{}.gz&quot;</span>, base_url, path)
+                <span class="macro">format!</span>(<span class="string">"{}/{}.gz"</span>, base_url, path)
             } <span class="kw">else </span>{
-                <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, base_url, path)
+                <span class="macro">format!</span>(<span class="string">"{}/{}"</span>, base_url, path)
             };
 
             <span class="comment">// Make the HTTP request nonblockingly. When the response is received, send it through
@@ -608,10 +610,10 @@
             <span class="kw">let </span>(tx_total_bytes, got_total_bytes) = oneshot::channel();
             <span class="kw">let </span>(<span class="kw-2">mut </span>tx_read_bytes, got_read_bytes) = mpsc::channel(<span class="number">10</span>);
             <span class="kw">let </span>url_copy = url.clone();
-            <span class="macro">debug!</span>(<span class="string">&quot;Loading {}&quot;</span>, url_copy);
+            <span class="macro">debug!</span>(<span class="string">"Loading {}"</span>, url_copy);
             wasm_bindgen_futures::spawn_local(<span class="kw">async move </span>{
                 <span class="kw">let </span><span class="kw-2">mut </span>opts = RequestInit::new();
-                opts.method(<span class="string">&quot;GET&quot;</span>);
+                opts.method(<span class="string">"GET"</span>);
                 opts.mode(RequestMode::Cors);
                 <span class="kw">let </span>request = Request::new_with_str_and_init(<span class="kw-2">&amp;</span>url_copy, <span class="kw-2">&amp;</span>opts).unwrap();
 
@@ -622,7 +624,7 @@
                         <span class="kw">if </span>resp.ok() {
                             <span class="kw">let </span>total_bytes = resp
                                 .headers()
-                                .get(<span class="string">&quot;Content-Length&quot;</span>)
+                                .get(<span class="string">"Content-Length"</span>)
                                 .unwrap()
                                 .unwrap()
                                 .parse::&lt;usize&gt;()
@@ -638,7 +640,7 @@
                                 <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
                                     tx_read_bytes.try_send(array.byte_length() <span class="kw">as </span>usize)
                                 {
-                                    <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t send update on bytes: {}&quot;</span>, err);
+                                    <span class="macro">warn!</span>(<span class="string">"Couldn't send update on bytes: {}"</span>, err);
                                 }
                                 <span class="comment">// TODO Can we avoid this clone?
                                 </span>buffer.extend(array.to_vec());
@@ -647,11 +649,11 @@
                         } <span class="kw">else </span>{
                             <span class="kw">let </span>status = resp.status();
                             <span class="kw">let </span>err = resp.status_text();
-                            tx.send(<span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;HTTP {}: {}&quot;</span>, status, err))).unwrap();
+                            tx.send(<span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"HTTP {}: {}"</span>, status, err))).unwrap();
                         }
                     }
                     <span class="prelude-val">Err</span>(err) =&gt; {
-                        tx.send(<span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;{:?}&quot;</span>, err))).unwrap();
+                        tx.send(<span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"{:?}"</span>, err))).unwrap();
                     }
                 }
             });
@@ -659,7 +661,7 @@
             Box::new(FileLoader {
                 response: rx,
                 on_load: <span class="prelude-val">Some</span>(on_load),
-                panel: ctx.make_loading_screen(Text::from(<span class="macro">format!</span>(<span class="string">&quot;Loading {}...&quot;</span>, url))),
+                panel: ctx.make_loading_screen(Text::from(<span class="macro">format!</span>(<span class="string">"Loading {}..."</span>, url))),
                 started: Instant::now(),
                 url,
                 total_bytes: <span class="prelude-val">None</span>,
@@ -670,7 +672,7 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static</span>, T: <span class="lifetime">&#39;static </span>+ Readable&gt; State&lt;A&gt; <span class="kw">for </span>FileLoader&lt;A, T&gt; {
+    <span class="kw">impl</span>&lt;A: <span class="lifetime">'static</span>, T: <span class="lifetime">'static </span>+ Readable&gt; State&lt;A&gt; <span class="kw">for </span>FileLoader&lt;A, T&gt; {
         <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
             <span class="kw">if </span><span class="self">self</span>.total_bytes.is_none() {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(total)) = <span class="self">self</span>.got_total_bytes.try_recv() {
@@ -685,21 +687,21 @@
                 <span class="comment">// TODO We stop drawing and start blocking at this point. It can take a
                 // while. Any way to make it still be nonblockingish? Maybe put some of the work
                 // inside that spawn_local?
-                </span><span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="self">self</span>.url));
+                </span><span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(<span class="string">"Loading {}..."</span>, <span class="self">self</span>.url));
                 <span class="kw">let </span>result = maybe_resp.and_then(|resp| T::read_url(<span class="self">self</span>.url.clone(), resp));
                 <span class="kw">return </span>(<span class="self">self</span>.on_load.take().unwrap())(ctx, app, <span class="kw-2">&amp;mut </span>timer, result);
             }
 
             <span class="kw">let </span><span class="kw-2">mut </span>lines = <span class="macro">vec!</span>[
-                Line(<span class="macro">format!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="self">self</span>.url)),
+                Line(<span class="macro">format!</span>(<span class="string">"Loading {}..."</span>, <span class="self">self</span>.url)),
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;Time spent: {}&quot;</span>,
+                    <span class="string">"Time spent: {}"</span>,
                     Duration::realtime_elapsed(<span class="self">self</span>.started)
                 )),
             ];
             <span class="kw">if let </span><span class="prelude-val">Some</span>(total) = <span class="self">self</span>.total_bytes {
                 lines.push(Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;Read {} / {} bytes&quot;</span>,
+                    <span class="string">"Read {} / {} bytes"</span>,
                     prettyprint_usize(<span class="self">self</span>.read_bytes),
                     prettyprint_usize(total)
                 )));
@@ -720,16 +722,16 @@
     }
 
     <span class="comment">// Two implementations for reading the file, using serde or just raw bytes
-    </span><span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ DeserializeOwned&gt; Readable <span class="kw">for </span>T {
+    </span><span class="kw">impl</span>&lt;T: <span class="lifetime">'static </span>+ DeserializeOwned&gt; Readable <span class="kw">for </span>T {
         <span class="kw">fn </span>read_url(url: String, resp: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
-            <span class="kw">if </span>url.ends_with(<span class="string">&quot;.gz&quot;</span>) {
+            <span class="kw">if </span>url.ends_with(<span class="string">".gz"</span>) {
                 <span class="kw">let </span>decoder = flate2::read::GzDecoder::new(<span class="kw-2">&amp;</span>resp[..]);
-                <span class="kw">if </span>url.ends_with(<span class="string">&quot;.bin.gz&quot;</span>) {
+                <span class="kw">if </span>url.ends_with(<span class="string">".bin.gz"</span>) {
                     abstutil::from_binary_reader(decoder)
                 } <span class="kw">else </span>{
                     abstutil::from_json_reader(decoder)
                 }
-            } <span class="kw">else if </span>url.ends_with(<span class="string">&quot;.bin&quot;</span>) {
+            } <span class="kw">else if </span>url.ends_with(<span class="string">".bin"</span>) {
                 abstutil::from_binary(&amp;&amp;resp)
             } <span class="kw">else </span>{
                 abstutil::from_json(&amp;&amp;resp)
@@ -738,7 +740,7 @@
     }
     <span class="kw">impl </span>Readable <span class="kw">for </span>RawBytes {
         <span class="kw">fn </span>read_url(url: String, resp: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;RawBytes&gt; {
-            <span class="kw">if </span>url.ends_with(<span class="string">&quot;.gz&quot;</span>) {
+            <span class="kw">if </span>url.ends_with(<span class="string">".gz"</span>) {
                 <span class="kw">let </span><span class="kw-2">mut </span>decoder = flate2::read::GzDecoder::new(<span class="kw-2">&amp;</span>resp[..]);
                 <span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = Vec::new();
                 decoder
@@ -758,26 +760,26 @@
     panel: Panel,
     receiver: oneshot::Receiver&lt;<span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Send + FnOnce(<span class="kw-2">&amp;</span>A) -&gt; T&gt;&gt;&gt;,
     on_load: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A, <span class="prelude-ty">Result</span>&lt;T&gt;) -&gt; Transition&lt;A&gt;&gt;&gt;,
-    <span class="comment">// These&#39;re just two different types of progress updates that callers can provide
+    <span class="comment">// These're just two different types of progress updates that callers can provide
     </span>outer_progress_receiver: <span class="prelude-ty">Option</span>&lt;mpsc::Receiver&lt;String&gt;&gt;,
     inner_progress_receiver: <span class="prelude-ty">Option</span>&lt;mpsc::Receiver&lt;String&gt;&gt;,
     last_outer_progress: String,
     last_inner_progress: String,
 
     <span class="comment">// If Runtime is dropped, any active tasks will be canceled, so we retain it here even
-    // though we never access it. It might make more sense for Runtime to live on App if we&#39;re
+    // though we never access it. It might make more sense for Runtime to live on App if we're
     // going to be doing more background spawning.
-    </span><span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    </span><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
     #[allow(dead_code)]
     </span>runtime: Runtime,
 }
 
 <span class="kw">impl</span>&lt;A, T&gt; FutureLoader&lt;A, T&gt;
 <span class="kw">where
-    </span>A: <span class="lifetime">&#39;static</span>,
-    T: <span class="lifetime">&#39;static</span>,
+    </span>A: <span class="lifetime">'static</span>,
+    T: <span class="lifetime">'static</span>,
 {
-    <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    <span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
     </span><span class="kw">pub fn </span>new_state(
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
         future: Pin&lt;Box&lt;<span class="kw">dyn </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Send + FnOnce(<span class="kw-2">&amp;</span>A) -&gt; T&gt;&gt;&gt;&gt;&gt;,
@@ -803,7 +805,7 @@
         })
     }
 
-    <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
     </span><span class="kw">pub fn </span>new_state(
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
         future: Pin&lt;Box&lt;<span class="kw">dyn </span>Send + Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>Send + FnOnce(<span class="kw-2">&amp;</span>A) -&gt; T&gt;&gt;&gt;&gt;&gt;,
@@ -835,19 +837,19 @@
 
 <span class="kw">impl</span>&lt;A, T&gt; State&lt;A&gt; <span class="kw">for </span>FutureLoader&lt;A, T&gt;
 <span class="kw">where
-    </span>A: <span class="lifetime">&#39;static</span>,
-    T: <span class="lifetime">&#39;static</span>,
+    </span>A: <span class="lifetime">'static</span>,
+    T: <span class="lifetime">'static</span>,
 {
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
         <span class="kw">match </span><span class="self">self</span>.receiver.try_recv() {
             <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;channel failed: {:?}&quot;</span>, e);
+                <span class="macro">error!</span>(<span class="string">"channel failed: {:?}"</span>, e);
                 <span class="kw">let </span>on_load = <span class="self">self</span>.on_load.take().unwrap();
-                on_load(ctx, app, <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;channel canceled&quot;</span>)))
+                on_load(ctx, app, <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"channel canceled"</span>)))
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>rx) = <span class="self">self</span>.outer_progress_receiver {
-                    <span class="comment">// Read all of the progress that&#39;s happened
+                    <span class="comment">// Read all of the progress that's happened
                     </span><span class="kw">loop </span>{
                         <span class="kw">match </span>rx.try_next() {
                             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(msg)) =&gt; {
@@ -885,7 +887,7 @@
                 <span class="self">self</span>.panel = ctx.make_loading_screen(Text::from_multiline(<span class="macro">vec!</span>[
                     Line(<span class="kw-2">&amp;</span><span class="self">self</span>.loading_title),
                     Line(<span class="macro">format!</span>(
-                        <span class="string">&quot;Time spent: {}&quot;</span>,
+                        <span class="string">"Time spent: {}"</span>,
                         Duration::realtime_elapsed(<span class="self">self</span>.started)
                     )),
                     Line(<span class="kw-2">&amp;</span><span class="self">self</span>.last_outer_progress),
@@ -898,12 +900,12 @@
                 Transition::Keep
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e))) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;error in fetching data&quot;</span>);
+                <span class="macro">error!</span>(<span class="string">"error in fetching data"</span>);
                 <span class="kw">let </span>on_load = <span class="self">self</span>.on_load.take().unwrap();
                 on_load(ctx, app, <span class="prelude-val">Err</span>(e))
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(builder))) =&gt; {
-                <span class="macro">debug!</span>(<span class="string">&quot;future complete&quot;</span>);
+                <span class="macro">debug!</span>(<span class="string">"future complete"</span>);
                 <span class="kw">let </span>t = builder(app);
                 <span class="kw">let </span>on_load = <span class="self">self</span>.on_load.take().unwrap();
                 on_load(ctx, app, <span class="prelude-val">Ok</span>(t))

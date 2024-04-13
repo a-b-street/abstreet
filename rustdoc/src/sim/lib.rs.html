@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -615,7 +617,7 @@
 </pre></div><pre class="rust"><code><span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also
 //! https://a-b-street.github.io/docs/tech/trafficsim/index.html.
 //!
-//! The simulation is very roughly layered into two pieces: the low-level &quot;mechanics&quot; of simulating
+//! The simulation is very roughly layered into two pieces: the low-level "mechanics" of simulating
 //! individual agents over time, and higher-level systems like TripManager and TransitSimState that
 //! glue together individual goals executed by the agents.
 //!
@@ -705,8 +707,8 @@
 </span><span class="kw">pub struct </span>CarID {
     <span class="doccomment">/// The numeric ID must be globally unique, without considering VehicleType.
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+        serialize_with = <span class="string">"serialize_usize"</span>,
+        deserialize_with = <span class="string">"deserialize_usize"
     </span>)]
     </span><span class="kw">pub </span>id: usize,
     <span class="doccomment">/// VehicleType is bundled for convenience; many places need to know this without a lookup.
@@ -716,10 +718,10 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>CarID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self</span>.vehicle_type {
-            VehicleType::Car =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Car #{}&quot;</span>, <span class="self">self</span>.id),
-            VehicleType::Bus =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Bus #{}&quot;</span>, <span class="self">self</span>.id),
-            VehicleType::Train =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Train #{}&quot;</span>, <span class="self">self</span>.id),
-            VehicleType::Bike =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Bike #{}&quot;</span>, <span class="self">self</span>.id),
+            VehicleType::Car =&gt; <span class="macro">write!</span>(f, <span class="string">"Car #{}"</span>, <span class="self">self</span>.id),
+            VehicleType::Bus =&gt; <span class="macro">write!</span>(f, <span class="string">"Bus #{}"</span>, <span class="self">self</span>.id),
+            VehicleType::Train =&gt; <span class="macro">write!</span>(f, <span class="string">"Train #{}"</span>, <span class="self">self</span>.id),
+            VehicleType::Bike =&gt; <span class="macro">write!</span>(f, <span class="string">"Bike #{}"</span>, <span class="self">self</span>.id),
         }
     }
 }
@@ -727,15 +729,15 @@
 <span class="attr">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>PedestrianID(
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+        serialize_with = <span class="string">"serialize_usize"</span>,
+        deserialize_with = <span class="string">"deserialize_usize"
     </span>)]
     </span><span class="kw">pub </span>usize,
 );
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>PedestrianID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Pedestrian #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+        <span class="macro">write!</span>(f, <span class="string">"Pedestrian #{}"</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
@@ -751,7 +753,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_car(<span class="self">self</span>) -&gt; CarID {
         <span class="kw">match </span><span class="self">self </span>{
             AgentID::Car(id) =&gt; id,
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Not a CarID: {:?}&quot;</span>, <span class="self">self</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Not a CarID: {:?}"</span>, <span class="self">self</span>),
         }
     }
 
@@ -793,9 +795,9 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>AgentID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            AgentID::Car(id) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;AgentID({})&quot;</span>, id),
-            AgentID::Pedestrian(id) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;AgentID({})&quot;</span>, id),
-            AgentID::BusPassenger(person, bus) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;AgentID({} on {})&quot;</span>, person, bus),
+            AgentID::Car(id) =&gt; <span class="macro">write!</span>(f, <span class="string">"AgentID({})"</span>, id),
+            AgentID::Pedestrian(id) =&gt; <span class="macro">write!</span>(f, <span class="string">"AgentID({})"</span>, id),
+            AgentID::BusPassenger(person, bus) =&gt; <span class="macro">write!</span>(f, <span class="string">"AgentID({} on {})"</span>, person, bus),
         }
     }
 }
@@ -822,35 +824,35 @@
         ]
     }
 
-    <span class="kw">pub fn </span>noun(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">pub fn </span>noun(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            AgentType::Car =&gt; <span class="string">&quot;Car&quot;</span>,
-            AgentType::Bike =&gt; <span class="string">&quot;Bike&quot;</span>,
-            AgentType::Bus =&gt; <span class="string">&quot;Bus&quot;</span>,
-            AgentType::Train =&gt; <span class="string">&quot;Train&quot;</span>,
-            AgentType::Pedestrian =&gt; <span class="string">&quot;Pedestrian&quot;</span>,
-            AgentType::TransitRider =&gt; <span class="string">&quot;Transit rider&quot;</span>,
+            AgentType::Car =&gt; <span class="string">"Car"</span>,
+            AgentType::Bike =&gt; <span class="string">"Bike"</span>,
+            AgentType::Bus =&gt; <span class="string">"Bus"</span>,
+            AgentType::Train =&gt; <span class="string">"Train"</span>,
+            AgentType::Pedestrian =&gt; <span class="string">"Pedestrian"</span>,
+            AgentType::TransitRider =&gt; <span class="string">"Transit rider"</span>,
         }
     }
 
-    <span class="kw">pub fn </span>plural_noun(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">pub fn </span>plural_noun(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            AgentType::Car =&gt; <span class="string">&quot;cars&quot;</span>,
-            AgentType::Bike =&gt; <span class="string">&quot;bikes&quot;</span>,
-            AgentType::Bus =&gt; <span class="string">&quot;buses&quot;</span>,
-            AgentType::Train =&gt; <span class="string">&quot;trains&quot;</span>,
-            AgentType::Pedestrian =&gt; <span class="string">&quot;pedestrians&quot;</span>,
-            AgentType::TransitRider =&gt; <span class="string">&quot;transit riders&quot;</span>,
+            AgentType::Car =&gt; <span class="string">"cars"</span>,
+            AgentType::Bike =&gt; <span class="string">"bikes"</span>,
+            AgentType::Bus =&gt; <span class="string">"buses"</span>,
+            AgentType::Train =&gt; <span class="string">"trains"</span>,
+            AgentType::Pedestrian =&gt; <span class="string">"pedestrians"</span>,
+            AgentType::TransitRider =&gt; <span class="string">"transit riders"</span>,
         }
     }
 
-    <span class="kw">pub fn </span>ongoing_verb(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">pub fn </span>ongoing_verb(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
-            AgentType::Car =&gt; <span class="string">&quot;driving&quot;</span>,
-            AgentType::Bike =&gt; <span class="string">&quot;biking&quot;</span>,
+            AgentType::Car =&gt; <span class="string">"driving"</span>,
+            AgentType::Bike =&gt; <span class="string">"biking"</span>,
             AgentType::Bus | AgentType::Train =&gt; <span class="macro">unreachable!</span>(),
-            AgentType::Pedestrian =&gt; <span class="string">&quot;walking&quot;</span>,
-            AgentType::TransitRider =&gt; <span class="string">&quot;riding transit&quot;</span>,
+            AgentType::Pedestrian =&gt; <span class="string">"walking"</span>,
+            AgentType::TransitRider =&gt; <span class="string">"riding transit"</span>,
         }
     }
 }
@@ -858,8 +860,8 @@
 <span class="attr">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>TripID(
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+        serialize_with = <span class="string">"serialize_usize"</span>,
+        deserialize_with = <span class="string">"deserialize_usize"
     </span>)]
     </span><span class="kw">pub </span>usize,
 );
@@ -868,22 +870,22 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>TripID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Trip #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+        <span class="macro">write!</span>(f, <span class="string">"Trip #{}"</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
 <span class="attr">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>PersonID(
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+        serialize_with = <span class="string">"serialize_usize"</span>,
+        deserialize_with = <span class="string">"deserialize_usize"
     </span>)]
     </span><span class="kw">pub </span>usize,
 );
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>PersonID {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Person {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+        <span class="macro">write!</span>(f, <span class="string">"Person {}"</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
@@ -898,10 +900,10 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>VehicleType {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            VehicleType::Car =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;car&quot;</span>),
-            VehicleType::Bus =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;bus&quot;</span>),
-            VehicleType::Train =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;train&quot;</span>),
-            VehicleType::Bike =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;bike&quot;</span>),
+            VehicleType::Car =&gt; <span class="macro">write!</span>(f, <span class="string">"car"</span>),
+            VehicleType::Bus =&gt; <span class="macro">write!</span>(f, <span class="string">"bus"</span>),
+            VehicleType::Train =&gt; <span class="macro">write!</span>(f, <span class="string">"train"</span>),
+            VehicleType::Bike =&gt; <span class="macro">write!</span>(f, <span class="string">"bike"</span>),
         }
     }
 }
@@ -1024,9 +1026,9 @@
 <span class="doccomment">/// Point of interest, that is
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>SidewalkPOI {
-    <span class="doccomment">/// Note that for offstreet parking, the path will be the same as the building&#39;s front path.
+    <span class="doccomment">/// Note that for offstreet parking, the path will be the same as the building's front path.
     </span>ParkingSpot(ParkingSpot),
-    <span class="doccomment">/// Don&#39;t actually know where this goes yet!
+    <span class="doccomment">/// Don't actually know where this goes yet!
     </span>DeferredParkingSpot,
     Building(BuildingID),
     TransitStop(TransitStopID),
@@ -1063,7 +1065,7 @@
         }
     }
 
-    <span class="comment">// TODO For the case when we have to start/stop biking somewhere else, this won&#39;t match up with
+    <span class="comment">// TODO For the case when we have to start/stop biking somewhere else, this won't match up with
     // a building though!
     </span><span class="kw">pub fn </span>bike_rack(b: BuildingID, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;SidewalkSpot&gt; {
         <span class="kw">let </span>(bike_pos, sidewalk_pos) = map.get_b(b).biking_connection(map)<span class="question-mark">?</span>;
@@ -1116,7 +1118,7 @@
 <span class="kw">impl </span>TimeInterval {
     <span class="kw">pub fn </span>new(start: Time, end: Time) -&gt; TimeInterval {
         <span class="kw">if </span>end &lt; start {
-            <span class="macro">panic!</span>(<span class="string">&quot;Bad TimeInterval {} .. {}&quot;</span>, start, end);
+            <span class="macro">panic!</span>(<span class="string">"Bad TimeInterval {} .. {}"</span>, start, end);
         }
         TimeInterval { start, end }
     }
@@ -1149,7 +1151,7 @@
 <span class="kw">impl </span>DistanceInterval {
     <span class="kw">pub fn </span>new_driving(start: Distance, end: Distance) -&gt; DistanceInterval {
         <span class="kw">if </span>end &lt; start {
-            <span class="macro">panic!</span>(<span class="string">&quot;Bad DistanceInterval {} .. {}&quot;</span>, start, end);
+            <span class="macro">panic!</span>(<span class="string">"Bad DistanceInterval {} .. {}"</span>, start, end);
         }
         DistanceInterval { start, end }
     }

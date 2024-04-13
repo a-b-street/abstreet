@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/trip.rs`."><title>trip.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/trip.rs`."><title>trip.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1062,12 +1064,12 @@
 
     {
         col.push(Widget::custom_row(<span class="macro">vec!</span>[
-            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">&quot;Trip time&quot;</span>).secondary().into_widget(ctx)])
+            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">"Trip time"</span>).secondary().into_widget(ctx)])
                 .force_width_window_pct(ctx, col_width),
             Text::from_all(<span class="macro">vec!</span>[
                 Line(props.total_time.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
                 Line(<span class="macro">format!</span>(
-                    <span class="string">&quot; {} / {} this trip&quot;</span>,
+                    <span class="string">" {} / {} this trip"</span>,
                     activity,
                     time_so_far.to_string(<span class="kw-2">&amp;</span>app.opts.units)
                 ))
@@ -1078,34 +1080,34 @@
     }
     {
         col.push(Widget::custom_row(<span class="macro">vec!</span>[
-            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">&quot;Distance&quot;</span>).secondary().into_widget(ctx)])
+            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">"Distance"</span>).secondary().into_widget(ctx)])
                 .force_width_window_pct(ctx, col_width),
             Text::from_all(<span class="macro">vec!</span>[
                 Line(props.dist_crossed.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
-                Line(<span class="macro">format!</span>(<span class="string">&quot;/{}&quot;</span>, props.total_dist.to_string(<span class="kw-2">&amp;</span>app.opts.units))).secondary(),
+                Line(<span class="macro">format!</span>(<span class="string">"/{}"</span>, props.total_dist.to_string(<span class="kw-2">&amp;</span>app.opts.units))).secondary(),
             ])
             .into_widget(ctx),
         ]));
     }
     {
         col.push(Widget::custom_row(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Waiting&quot;</span>)
+            Line(<span class="string">"Waiting"</span>)
                 .secondary()
                 .into_widget(ctx)
                 .container()
                 .force_width_window_pct(ctx, col_width),
             Widget::col(<span class="macro">vec!</span>[
-                <span class="macro">format!</span>(<span class="string">&quot;{} here&quot;</span>, props.waiting_here.to_string(<span class="kw-2">&amp;</span>app.opts.units)).text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">"{} here"</span>, props.waiting_here.to_string(<span class="kw-2">&amp;</span>app.opts.units)).text_widget(ctx),
                 Text::from_all(<span class="macro">vec!</span>[
                     <span class="kw">if </span>props.total_waiting != Duration::ZERO {
                         Line(<span class="macro">format!</span>(
-                            <span class="string">&quot;{}%&quot;</span>,
+                            <span class="string">"{}%"</span>,
                             (<span class="number">100.0 </span>* (props.total_waiting / time_so_far)) <span class="kw">as </span>usize
                         ))
                     } <span class="kw">else </span>{
-                        Line(<span class="string">&quot;0%&quot;</span>)
+                        Line(<span class="string">"0%"</span>)
                     },
-                    Line(<span class="macro">format!</span>(<span class="string">&quot; total of {} time spent waiting&quot;</span>, activity)).secondary(),
+                    Line(<span class="macro">format!</span>(<span class="string">" total of {} time spent waiting"</span>, activity)).secondary(),
                 ])
                 .into_widget(ctx),
             ]),
@@ -1120,7 +1122,7 @@
     ));
     {
         col.push(Widget::custom_row(<span class="macro">vec!</span>[
-            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">&quot;Purpose&quot;</span>).secondary().into_widget(ctx)])
+            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">"Purpose"</span>).secondary().into_widget(ctx)])
                 .force_width_window_pct(ctx, col_width),
             Line(trip.purpose.to_string()).secondary().into_widget(ctx),
         ]));
@@ -1155,7 +1157,7 @@
         col.extend(make_table(
             ctx,
             <span class="macro">vec!</span>[(
-                <span class="string">&quot;Start delayed&quot;</span>,
+                <span class="string">"Start delayed"</span>,
                 (now - trip.departure).to_string(<span class="kw-2">&amp;</span>app.opts.units),
             )],
         ));
@@ -1169,10 +1171,10 @@
             ctx,
             <span class="macro">vec!</span>[
                 (
-                    <span class="string">&quot;Estimated trip time&quot;</span>,
+                    <span class="string">"Estimated trip time"</span>,
                     estimated_trip_time.to_string(<span class="kw-2">&amp;</span>app.opts.units),
                 ),
-                (<span class="string">&quot;Purpose&quot;</span>, trip.purpose.to_string()),
+                (<span class="string">"Purpose"</span>, trip.purpose.to_string()),
             ],
         ));
 
@@ -1193,7 +1195,7 @@
             <span class="prelude-val">None</span>,
         ));
     } <span class="kw">else </span>{
-        col.extend(make_table(ctx, <span class="macro">vec!</span>[(<span class="string">&quot;Purpose&quot;</span>, trip.purpose.to_string())]));
+        col.extend(make_table(ctx, <span class="macro">vec!</span>[(<span class="string">"Purpose"</span>, trip.purpose.to_string())]));
 
         col.push(make_trip_details(
             ctx,
@@ -1251,7 +1253,7 @@
             },
         );
         details.hyperlinks.insert(
-            <span class="macro">format!</span>(<span class="string">&quot;show before changes for {}&quot;</span>, id),
+            <span class="macro">format!</span>(<span class="string">"show before changes for {}"</span>, id),
             Tab::PersonTrips(person, open),
         );
         col.push(
@@ -1260,20 +1262,20 @@
                 .btn()
                 .label_styled_text(
                     Text::from_all(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;After / &quot;</span>),
-                        Line(<span class="string">&quot;Before&quot;</span>).secondary(),
-                        Line(<span class="string">&quot; &quot;</span>),
+                        Line(<span class="string">"After / "</span>),
+                        Line(<span class="string">"Before"</span>).secondary(),
+                        Line(<span class="string">" "</span>),
                         Line(<span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name).underlined(),
                     ]),
                     ControlState::Default,
                 )
-                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;show before changes for {}&quot;</span>, id)),
+                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"show before changes for {}"</span>, id)),
         );
     } <span class="kw">else if </span>app.has_prebaked().is_some() {
         <span class="kw">let </span><span class="kw-2">mut </span>open = open_trips.clone();
         open.insert(id, OpenTrip::new());
         details.hyperlinks.insert(
-            <span class="macro">format!</span>(<span class="string">&quot;show after changes for {}&quot;</span>, id),
+            <span class="macro">format!</span>(<span class="string">"show after changes for {}"</span>, id),
             Tab::PersonTrips(person, open),
         );
         col.push(
@@ -1282,14 +1284,14 @@
                 .btn()
                 .label_styled_text(
                     Text::from_all(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;After / &quot;</span>).secondary(),
-                        Line(<span class="string">&quot;Before&quot;</span>),
-                        Line(<span class="string">&quot; &quot;</span>),
+                        Line(<span class="string">"After / "</span>).secondary(),
+                        Line(<span class="string">"Before"</span>),
+                        Line(<span class="string">" "</span>),
                         Line(<span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name).underlined(),
                     ]),
                     ControlState::Default,
                 )
-                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;show after changes for {}&quot;</span>, id)),
+                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"show after changes for {}"</span>, id)),
         );
     }
 
@@ -1297,7 +1299,7 @@
     {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(end_time) = phases.last().as_ref().and_then(|p| p.end_time) {
             col.push(Widget::custom_row(<span class="macro">vec!</span>[
-                Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">&quot;Trip time&quot;</span>).secondary().into_widget(ctx)])
+                Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">"Trip time"</span>).secondary().into_widget(ctx)])
                     .force_width_window_pct(ctx, col_width),
                 (end_time - trip.departure)
                     .to_string(<span class="kw-2">&amp;</span>app.opts.units)
@@ -1305,17 +1307,17 @@
             ]));
         } <span class="kw">else </span>{
             col.push(Widget::custom_row(<span class="macro">vec!</span>[
-                Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">&quot;Trip time&quot;</span>).secondary().into_widget(ctx)])
+                Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">"Trip time"</span>).secondary().into_widget(ctx)])
                     .force_width_window_pct(ctx, col_width),
-                <span class="string">&quot;Trip didn&#39;t complete before map changes&quot;</span>.text_widget(ctx),
+                <span class="string">"Trip didn't complete before map changes"</span>.text_widget(ctx),
             ]));
         }
 
-        <span class="comment">// TODO This is always the waiting time in the current simulation, even if we&#39;ve chosen to
+        <span class="comment">// TODO This is always the waiting time in the current simulation, even if we've chosen to
         // look at the prebaked results! Misleading -- change the text.
         </span><span class="kw">let </span>(<span class="kw">_</span>, waiting, <span class="kw">_</span>) = app.primary.sim.finished_trip_details(id).unwrap();
         col.push(Widget::custom_row(<span class="macro">vec!</span>[
-            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">&quot;Total waiting time&quot;</span>)
+            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">"Total waiting time"</span>)
                 .secondary()
                 .into_widget(ctx)])
             .force_width_window_pct(ctx, col_width),
@@ -1323,7 +1325,7 @@
         ]));
 
         col.push(Widget::custom_row(<span class="macro">vec!</span>[
-            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">&quot;Purpose&quot;</span>).secondary().into_widget(ctx)])
+            Widget::custom_row(<span class="macro">vec!</span>[Line(<span class="string">"Purpose"</span>).secondary().into_widget(ctx)])
                 .force_width_window_pct(ctx, col_width),
             Line(trip.purpose.to_string()).secondary().into_widget(ctx),
         ]));
@@ -1363,13 +1365,13 @@
     <span class="kw">let </span>trip = app.primary.sim.trip_info(id);
 
     <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[Text::from(<span class="macro">format!</span>(
-        <span class="string">&quot;Trip cancelled: {}&quot;</span>,
+        <span class="string">"Trip cancelled: {}"</span>,
         trip.cancellation_reason.as_ref().unwrap()
     ))
     .wrap_to_pct(ctx, <span class="number">20</span>)
     .into_widget(ctx)];
 
-    col.extend(make_table(ctx, <span class="macro">vec!</span>[(<span class="string">&quot;Purpose&quot;</span>, trip.purpose.to_string())]));
+    col.extend(make_table(ctx, <span class="macro">vec!</span>[(<span class="string">"Purpose"</span>, trip.purpose.to_string())]));
 
     col.push(make_trip_details(
         ctx,
@@ -1412,16 +1414,16 @@
             txt.add_appended(<span class="macro">vec!</span>[
                 Line(arterial_intersection_crossings.to_string()),
                 <span class="kw">if </span>arterial_intersection_crossings == <span class="number">1 </span>{
-                    Line(<span class="string">&quot; crossing at wide intersections&quot;</span>)
+                    Line(<span class="string">" crossing at wide intersections"</span>)
                 } <span class="kw">else </span>{
-                    Line(<span class="string">&quot; crossings at wide intersections&quot;</span>)
+                    Line(<span class="string">" crossings at wide intersections"</span>)
                 }
                 .secondary(),
             ]);
-            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;{overcrowding} overcrowded sidewalks crossed&quot;</span>)).secondary());
+            txt.add_line(Line(<span class="macro">format!</span>(<span class="string">"{overcrowding} overcrowded sidewalks crossed"</span>)).secondary());
 
             Widget::custom_row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Risk Exposure&quot;</span>)
+                Line(<span class="string">"Risk Exposure"</span>)
                     .secondary()
                     .into_widget(ctx)
                     .container()
@@ -1448,24 +1450,24 @@
             txt.add_appended(<span class="macro">vec!</span>[
                 Line(count_complex_intersections.to_string()),
                 <span class="kw">if </span>count_complex_intersections == <span class="number">1 </span>{
-                    Line(<span class="string">&quot; crossing at complex intersections&quot;</span>)
+                    Line(<span class="string">" crossing at complex intersections"</span>)
                 } <span class="kw">else </span>{
-                    Line(<span class="string">&quot; crossings at complex intersections&quot;</span>)
+                    Line(<span class="string">" crossings at complex intersections"</span>)
                 }
                 .secondary(),
             ]);
             txt.add_appended(<span class="macro">vec!</span>[
                 Line(count_overtakes.to_string()),
                 <span class="kw">if </span>count_overtakes == <span class="number">1 </span>{
-                    Line(<span class="string">&quot; vehicle wanted to over-take&quot;</span>)
+                    Line(<span class="string">" vehicle wanted to over-take"</span>)
                 } <span class="kw">else </span>{
-                    Line(<span class="string">&quot; vehicles wanted to over-take&quot;</span>)
+                    Line(<span class="string">" vehicles wanted to over-take"</span>)
                 }
                 .secondary(),
             ]);
 
             Widget::custom_row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Risk Exposure&quot;</span>)
+                Line(<span class="string">"Risk Exposure"</span>)
                     .secondary()
                     .into_widget(ctx)
                     .container()
@@ -1490,7 +1492,7 @@
         <span class="kw">match </span>problem {
             Problem::IntersectionDelay(i, delay) =&gt; {
                 <span class="kw">let </span>i = map.get_i(<span class="kw-2">*</span>i);
-                <span class="comment">// TODO These thresholds don&#39;t match what we use as thresholds in the simulation.
+                <span class="comment">// TODO These thresholds don't match what we use as thresholds in the simulation.
                 </span><span class="kw">let </span>(slow, slower) = <span class="kw">if </span>i.is_traffic_signal() {
                     (Duration::seconds(<span class="number">30.0</span>), Duration::minutes(<span class="number">2</span>))
                 } <span class="kw">else </span>{
@@ -1504,13 +1506,13 @@
                     (Color::WHITE, app.cs.slowest_intersection)
                 };
                 details.draw_extra.unzoomed.append(
-                    Text::from(Line(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, delay)).fg(fg_color))
+                    Text::from(Line(<span class="macro">format!</span>(<span class="string">"{}"</span>, delay)).fg(fg_color))
                         .bg(bg_color)
                         .render(ctx)
                         .centered_on(i.polygon.center()),
                 );
                 details.draw_extra.zoomed.append(
-                    Text::from(Line(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, delay)).fg(fg_color))
+                    Text::from(Line(<span class="macro">format!</span>(<span class="string">"{}"</span>, delay)).fg(fg_color))
                         .bg(bg_color)
                         .render(ctx)
                         .scale(<span class="number">0.4</span>)
@@ -1518,7 +1520,7 @@
                 );
                 details.tooltips.push((
                     i.polygon.clone(),
-                    Text::from(Line(<span class="macro">format!</span>(<span class="string">&quot;{} delay here&quot;</span>, delay))),
+                    Text::from(Line(<span class="macro">format!</span>(<span class="string">"{} delay here"</span>, delay))),
                     <span class="comment">// Rewind to just before the agent starts waiting
                     </span>(id, <span class="kw-2">*</span>time - <span class="kw-2">*</span>delay - Duration::seconds(<span class="number">5.0</span>)),
                 ));
@@ -1526,12 +1528,12 @@
             Problem::ComplexIntersectionCrossing(i) =&gt; {
                 <span class="kw">let </span>i = map.get_i(<span class="kw-2">*</span>i);
                 details.draw_extra.unzoomed.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/alert.svg"</span>)
                         .centered_on(i.polygon.center())
                         .color(RewriteColor::ChangeAlpha(<span class="number">0.8</span>)),
                 );
                 details.draw_extra.zoomed.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/alert.svg"</span>)
                         .scale(<span class="number">0.5</span>)
                         .color(RewriteColor::ChangeAlpha(<span class="number">0.5</span>))
                         .centered_on(i.polygon.center()),
@@ -1539,9 +1541,9 @@
                 details.tooltips.push((
                     i.polygon.clone(),
                     Text::from_multiline(<span class="macro">vec!</span>[
-                        Line(<span class="macro">format!</span>(<span class="string">&quot;This intersection has {} legs&quot;</span>, i.roads.len())),
-                        Line(<span class="string">&quot;This has an increased risk of crash or injury for cyclists&quot;</span>),
-                        Line(<span class="string">&quot;Source: 2020 Seattle DOT Safety Analysis&quot;</span>),
+                        Line(<span class="macro">format!</span>(<span class="string">"This intersection has {} legs"</span>, i.roads.len())),
+                        Line(<span class="string">"This has an increased risk of crash or injury for cyclists"</span>),
+                        Line(<span class="string">"Source: 2020 Seattle DOT Safety Analysis"</span>),
                     ]),
                     (id, <span class="kw-2">*</span>time),
                 ));
@@ -1549,12 +1551,12 @@
             Problem::OvertakeDesired(on) =&gt; {
                 <span class="kw">let </span>pt = on.get_polyline(map).middle();
                 details.draw_extra.unzoomed.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/alert.svg"</span>)
                         .centered_on(pt)
                         .color(RewriteColor::ChangeAlpha(<span class="number">0.8</span>)),
                 );
                 details.draw_extra.zoomed.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/alert.svg"</span>)
                         .scale(<span class="number">0.5</span>)
                         .color(RewriteColor::ChangeAlpha(<span class="number">0.5</span>))
                         .centered_on(pt),
@@ -1564,7 +1566,7 @@
                         Traversable::Lane(l) =&gt; map.get_parent(<span class="kw-2">*</span>l).get_thick_polygon(),
                         Traversable::Turn(t) =&gt; map.get_i(t.parent).polygon.clone(),
                     },
-                    Text::from(<span class="string">&quot;A vehicle wanted to over-take this cyclist near here.&quot;</span>),
+                    Text::from(<span class="string">"A vehicle wanted to over-take this cyclist near here."</span>),
                     (id, <span class="kw-2">*</span>time),
                 ));
             }
@@ -1573,12 +1575,12 @@
 
                 <span class="kw">let </span>geom = t.geom.make_polygons(Distance::meters(<span class="number">10.0</span>));
                 details.draw_extra.unzoomed.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/alert.svg"</span>)
                         .centered_on(geom.center())
                         .color(RewriteColor::ChangeAlpha(<span class="number">0.8</span>)),
                 );
                 details.draw_extra.zoomed.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/alert.svg"</span>)
                         .scale(<span class="number">0.5</span>)
                         .color(RewriteColor::ChangeAlpha(<span class="number">0.5</span>))
                         .centered_on(geom.center()),
@@ -1586,8 +1588,8 @@
                 details.tooltips.push((
                     geom,
                     Text::from_multiline(<span class="macro">vec!</span>[
-                        Line(<span class="string">&quot;Arterial intersections have an increased risk of crash or injury for pedestrians&quot;</span>),
-                        Line(<span class="string">&quot;Source: 2020 Seattle DOT Safety Analysis&quot;</span>),
+                        Line(<span class="string">"Arterial intersections have an increased risk of crash or injury for pedestrians"</span>),
+                        Line(<span class="string">"Source: 2020 Seattle DOT Safety Analysis"</span>),
                     ]),
                     (id, <span class="kw-2">*</span>time)
                 ));
@@ -1595,12 +1597,12 @@
             Problem::PedestrianOvercrowding(on) =&gt; {
                 <span class="kw">let </span>pt = on.get_polyline(map).middle();
                 details.draw_extra.unzoomed.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/alert.svg"</span>)
                         .centered_on(pt)
                         .color(RewriteColor::ChangeAlpha(<span class="number">0.8</span>)),
                 );
                 details.draw_extra.zoomed.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/tools/alert.svg"</span>)
                         .scale(<span class="number">0.5</span>)
                         .color(RewriteColor::ChangeAlpha(<span class="number">0.5</span>))
                         .centered_on(pt),
@@ -1610,7 +1612,7 @@
                         Traversable::Lane(l) =&gt; map.get_parent(<span class="kw-2">*</span>l).get_thick_polygon(),
                         Traversable::Turn(t) =&gt; map.get_i(t.parent).polygon.clone(),
                     },
-                    Text::from(<span class="string">&quot;Too many pedestrians are crowded together here.&quot;</span>),
+                    Text::from(<span class="string">"Too many pedestrians are crowded together here."</span>),
                     (id, <span class="kw-2">*</span>time),
                 ));
             }
@@ -1635,7 +1637,7 @@
     <span class="kw">let </span>total_duration_so_far = end_time.unwrap_or_else(|| sim.time()) - trip.departure;
 
     <span class="comment">// Represent each phase of a trip as a rectangular segment, with width proportional to the
-    // phase&#39;s duration. As we go through, build up one batch to draw containing the rectangles and
+    // phase's duration. As we go through, build up one batch to draw containing the rectangles and
     // icons above them.
     </span><span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
     <span class="comment">// And associate a tooltip with each rectangle segment
@@ -1647,12 +1649,12 @@
     <span class="kw">for </span>(idx, p) <span class="kw">in </span>phases.iter().enumerate() {
         <span class="kw">let </span><span class="kw-2">mut </span>tooltip = <span class="macro">vec!</span>[
             p.phase_type.describe(map),
-            <span class="macro">format!</span>(<span class="string">&quot;  Started at {}&quot;</span>, p.start_time.ampm_tostring()),
+            <span class="macro">format!</span>(<span class="string">"  Started at {}"</span>, p.start_time.ampm_tostring()),
         ];
         <span class="kw">let </span>phase_duration = <span class="kw">if let </span><span class="prelude-val">Some</span>(t2) = p.end_time {
             <span class="kw">let </span>d = t2 - p.start_time;
             tooltip.push(<span class="macro">format!</span>(
-                <span class="string">&quot;  Ended at {} (duration: {})&quot;</span>,
+                <span class="string">"  Ended at {} (duration: {})"</span>,
                 t2.ampm_tostring(),
                 d
             ));
@@ -1660,7 +1662,7 @@
         } <span class="kw">else </span>{
             <span class="kw">let </span>d = sim.time() - p.start_time;
             tooltip.push(<span class="macro">format!</span>(
-                <span class="string">&quot;  Ongoing (duration so far: {})&quot;</span>,
+                <span class="string">"  Ongoing (duration so far: {})"</span>,
                 d.to_string(<span class="kw-2">&amp;</span>app.opts.units)
             ));
             d
@@ -1670,14 +1672,14 @@
         </span>} <span class="kw">else </span>{
             phase_duration / total_duration_so_far
         };
-        <span class="comment">// Don&#39;t crash when this is too low
+        <span class="comment">// Don't crash when this is too low
         </span><span class="kw">let </span>percent_duration = percent_duration.max(<span class="number">0.01</span>);
         tooltip.push(<span class="macro">format!</span>(
-            <span class="string">&quot;  {}% of trip percentage&quot;</span>,
+            <span class="string">"  {}% of trip percentage"</span>,
             (<span class="number">100.0 </span>* percent_duration) <span class="kw">as </span>usize
         ));
         tooltip.push(<span class="macro">format!</span>(
-            <span class="string">&quot;  Total delayed time {}&quot;</span>,
+            <span class="string">"  Total delayed time {}"</span>,
             sim.trip_blocked_time(trip_id)
         ));
 
@@ -1699,7 +1701,7 @@
             <span class="comment">// Show where we are in the trip currently
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(p) = progress_along_path {
                 batch.append(
-                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/timeline/current_pos.svg&quot;</span>).centered_on(
+                    GeomBatch::load_svg(ctx, <span class="string">"system/assets/timeline/current_pos.svg"</span>).centered_on(
                         Pt2D::new(x1 + p * phase_width, icon_height + (rectangle_height / <span class="number">2.0</span>)),
                     ),
                 );
@@ -1709,16 +1711,16 @@
             GeomBatch::load_svg(
                 ctx.prerender,
                 <span class="kw">match </span>p.phase_type {
-                    TripPhaseType::Driving =&gt; <span class="string">&quot;system/assets/timeline/driving.svg&quot;</span>,
-                    TripPhaseType::Walking =&gt; <span class="string">&quot;system/assets/timeline/walking.svg&quot;</span>,
-                    TripPhaseType::Biking =&gt; <span class="string">&quot;system/assets/timeline/biking.svg&quot;</span>,
-                    TripPhaseType::Parking =&gt; <span class="string">&quot;system/assets/timeline/parking.svg&quot;</span>,
+                    TripPhaseType::Driving =&gt; <span class="string">"system/assets/timeline/driving.svg"</span>,
+                    TripPhaseType::Walking =&gt; <span class="string">"system/assets/timeline/walking.svg"</span>,
+                    TripPhaseType::Biking =&gt; <span class="string">"system/assets/timeline/biking.svg"</span>,
+                    TripPhaseType::Parking =&gt; <span class="string">"system/assets/timeline/parking.svg"</span>,
                     TripPhaseType::WaitingForBus(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                        <span class="string">&quot;system/assets/timeline/waiting_for_bus.svg&quot;
+                        <span class="string">"system/assets/timeline/waiting_for_bus.svg"
                     </span>}
-                    TripPhaseType::RidingBus(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="string">&quot;system/assets/timeline/riding_bus.svg&quot;</span>,
+                    TripPhaseType::RidingBus(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="string">"system/assets/timeline/riding_bus.svg"</span>,
                     TripPhaseType::Cancelled | TripPhaseType::Finished =&gt; <span class="macro">unreachable!</span>(),
-                    TripPhaseType::DelayedStart =&gt; <span class="string">&quot;system/assets/timeline/delayed_start.svg&quot;</span>,
+                    TripPhaseType::DelayedStart =&gt; <span class="string">"system/assets/timeline/delayed_start.svg"</span>,
                 },
             )
             .centered_on(Pt2D::new(x1 + phase_width / <span class="number">2.0</span>, icon_height / <span class="number">2.0</span>)),
@@ -1750,7 +1752,7 @@
         <span class="kw">let </span>(id, center, name) = endpoint(<span class="kw-2">&amp;</span>trip.start, app);
         details
             .warpers
-            .insert(<span class="macro">format!</span>(<span class="string">&quot;jump to start of {}&quot;</span>, trip_id), id);
+            .insert(<span class="macro">format!</span>(<span class="string">"jump to start of {}"</span>, trip_id), id);
 
         details
             .draw_extra
@@ -1763,17 +1765,17 @@
 
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/timeline/start_pos.svg"</span>)
             .image_color(RewriteColor::NoOp, ControlState::Default)
             .tooltip(name)
-            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;jump to start of {}&quot;</span>, trip_id))
+            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"jump to start of {}"</span>, trip_id))
     };
 
     <span class="kw">let </span>goal_btn = {
         <span class="kw">let </span>(id, center, name) = endpoint(<span class="kw-2">&amp;</span>trip.end, app);
         details
             .warpers
-            .insert(<span class="macro">format!</span>(<span class="string">&quot;jump to goal of {}&quot;</span>, trip_id), id);
+            .insert(<span class="macro">format!</span>(<span class="string">"jump to goal of {}"</span>, trip_id), id);
 
         details
             .draw_extra
@@ -1786,10 +1788,10 @@
 
         ctx.style()
             .btn_plain
-            .icon(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+            .icon(<span class="string">"system/assets/timeline/goal_pos.svg"</span>)
             .image_color(RewriteColor::NoOp, ControlState::Default)
             .tooltip(name)
-            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;jump to goal of {}&quot;</span>, trip_id))
+            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"jump to goal of {}"</span>, trip_id))
     };
 
     <span class="kw">let </span>timeline = make_timeline(ctx, app, trip_id, <span class="kw-2">&amp;</span>phases, progress_along_path);
@@ -1798,7 +1800,7 @@
     <span class="kw">for </span>(idx, p) <span class="kw">in </span>phases.into_iter().enumerate() {
         <span class="kw">let </span>color = color_for_trip_phase(app, p.phase_type).alpha(<span class="number">0.7</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>p.path {
-            <span class="comment">// Don&#39;t show the elevation plot for somebody walking to their car
+            <span class="comment">// Don't show the elevation plot for somebody walking to their car
             </span><span class="kw">if </span>((trip.mode == TripMode::Walk || trip.mode == TripMode::Transit)
                 &amp;&amp; p.phase_type == TripPhaseType::Walking)
                 || (trip.mode == TripMode::Bike &amp;&amp; p.phase_type == TripPhaseType::Biking)
@@ -1835,7 +1837,7 @@
         } <span class="kw">else if </span>p.has_path_req {
             path_impossible = <span class="bool-val">true</span>;
         }
-        <span class="comment">// Just fill this in so the indexing doesn&#39;t mess up
+        <span class="comment">// Just fill this in so the indexing doesn't mess up
         </span><span class="kw">if </span>idx == open_trip.cached_routes.len() {
             open_trip.cached_routes.push(<span class="prelude-val">None</span>);
         }
@@ -1860,20 +1862,20 @@
         Widget::row(<span class="macro">vec!</span>[
             <span class="kw">if </span>details.can_jump_to_time {
                 details.time_warpers.insert(
-                    <span class="macro">format!</span>(<span class="string">&quot;jump to {}&quot;</span>, trip.departure),
+                    <span class="macro">format!</span>(<span class="string">"jump to {}"</span>, trip.departure),
                     (trip_id, trip.departure),
                 );
                 ctx.style()
                     .btn_plain
-                    .icon(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
+                    .icon(<span class="string">"system/assets/speed/jump_to_time.svg"</span>)
                     .tooltip({
-                        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;This will jump to &quot;</span>);
-                        txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex(<span class="string">&quot;#F9EC51&quot;</span>)));
-                        txt.add_line(<span class="string">&quot;The simulation will continue, and your score&quot;</span>);
-                        txt.add_line(<span class="string">&quot;will be calculated at this new time.&quot;</span>);
+                        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">"This will jump to "</span>);
+                        txt.append(Line(trip.departure.ampm_tostring()).fg(Color::hex(<span class="string">"#F9EC51"</span>)));
+                        txt.add_line(<span class="string">"The simulation will continue, and your score"</span>);
+                        txt.add_line(<span class="string">"will be calculated at this new time."</span>);
                         txt
                     })
-                    .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;jump to {}&quot;</span>, trip.departure))
+                    .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"jump to {}"</span>, trip.departure))
             } <span class="kw">else </span>{
                 Widget::nothing()
             },
@@ -1881,18 +1883,18 @@
                 <span class="kw">if </span>details.can_jump_to_time {
                     details
                         .time_warpers
-                        .insert(<span class="macro">format!</span>(<span class="string">&quot;jump to {}&quot;</span>, t), (trip_id, t));
+                        .insert(<span class="macro">format!</span>(<span class="string">"jump to {}"</span>, t), (trip_id, t));
                     ctx.style()
                         .btn_plain
-                        .icon(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
+                        .icon(<span class="string">"system/assets/speed/jump_to_time.svg"</span>)
                         .tooltip({
-                            <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;This will jump to &quot;</span>);
-                            txt.append(Line(t.ampm_tostring()).fg(Color::hex(<span class="string">&quot;#F9EC51&quot;</span>)));
-                            txt.add_line(<span class="string">&quot;The simulation will continue, and your score&quot;</span>);
-                            txt.add_line(<span class="string">&quot;will be calculated at this new time.&quot;</span>);
+                            <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">"This will jump to "</span>);
+                            txt.append(Line(t.ampm_tostring()).fg(Color::hex(<span class="string">"#F9EC51"</span>)));
+                            txt.add_line(<span class="string">"The simulation will continue, and your score"</span>);
+                            txt.add_line(<span class="string">"will be calculated at this new time."</span>);
                             txt
                         })
-                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;jump to {}&quot;</span>, t))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">"jump to {}"</span>, t))
                         .align_right()
                 } <span class="kw">else </span>{
                     Widget::nothing()
@@ -1903,7 +1905,7 @@
         ]),
     ];
     <span class="kw">if </span>path_impossible {
-        col.push(<span class="string">&quot;Map edits have disconnected the path taken before&quot;</span>.text_widget(ctx));
+        col.push(<span class="string">"Map edits have disconnected the path taken before"</span>.text_widget(ctx));
     }
     col.extend(elevation);
 
@@ -1936,12 +1938,12 @@
     <span class="comment">// TODO Show roughly where we are in the trip; use distance covered by current path for this
     </span>LinePlot::new_widget(
         ctx,
-        <span class="string">&quot;elevation&quot;</span>,
+        <span class="string">"elevation"</span>,
         <span class="macro">vec!</span>[Series {
             label: <span class="kw">if </span>walking {
-                <span class="string">&quot;Elevation for walking&quot;
+                <span class="string">"Elevation for walking"
             </span>} <span class="kw">else </span>{
-                <span class="string">&quot;Elevation for biking&quot;
+                <span class="string">"Elevation for biking"
             </span>}
             .to_string(),
             color,
@@ -1973,7 +1975,7 @@
                 ID::Intersection(i.id),
                 i.polygon.center(),
                 <span class="macro">format!</span>(
-                    <span class="string">&quot;off map, via {}&quot;</span>,
+                    <span class="string">"off map, via {}"</span>,
                     i.name(app.opts.language.as_ref(), <span class="kw-2">&amp;</span>app.primary.map)
                 ),
             )
@@ -1982,7 +1984,7 @@
             ID::Lane(pos.lane()),
             pos.pt(<span class="kw-2">&amp;</span>app.primary.map),
             <span class="macro">format!</span>(
-                <span class="string">&quot;suddenly appear {} along&quot;</span>,
+                <span class="string">"suddenly appear {} along"</span>,
                 pos.dist_along().to_string(<span class="kw-2">&amp;</span>app.opts.units)
             ),
         ),

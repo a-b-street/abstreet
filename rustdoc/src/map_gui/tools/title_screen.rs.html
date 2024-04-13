@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/title_screen.rs`."><title>title_screen.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/title_screen.rs`."><title>title_screen.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -367,7 +369,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
 <span class="doccomment">/// A title screen shared among all of the A/B Street apps.
-</span><span class="kw">pub struct </span>TitleScreen&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt; {
+</span><span class="kw">pub struct </span>TitleScreen&lt;A: AppLike + <span class="lifetime">'static</span>&gt; {
     current_exe: Executable,
     enter_state: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A, Vec&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;&gt;,
 }
@@ -383,7 +385,7 @@
     LTN,
 }
 
-<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt; TitleScreen&lt;A&gt; {
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">'static</span>&gt; TitleScreen&lt;A&gt; {
     <span class="kw">pub fn </span>new_state(
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
         app: <span class="kw-2">&amp;</span>A,
@@ -391,117 +393,117 @@
         enter_state: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A, Vec&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;&gt;,
     ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
-            Image::from_path(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
+            Image::from_path(<span class="string">"system/assets/pregame/logo.svg"</span>)
                 .untinted()
                 .dims(<span class="number">150.0</span>)
                 .into_widget(ctx),
             Widget::row(<span class="macro">vec!</span>[
                 Widget::col(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Games&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Games"</span>).small_heading().into_widget(ctx),
                     Widget::row(<span class="macro">vec!</span>[
-                        Image::from_path(<span class="string">&quot;system/assets/pregame/tutorial.svg&quot;</span>)
+                        Image::from_path(<span class="string">"system/assets/pregame/tutorial.svg"</span>)
                             .untinted()
                             .dims(<span class="number">100.0</span>)
                             .into_widget(ctx),
                         ctx.style()
                             .btn_outline
-                            .text(<span class="string">&quot;Traffic simulation tutorial&quot;</span>)
+                            .text(<span class="string">"Traffic simulation tutorial"</span>)
                             .hotkey(Key::T)
                             .disabled(<span class="bool-val">true</span>)
-                            .disabled_tooltip(<span class="string">&quot;Tutorial mode currently unmaintained, sorry&quot;</span>)
+                            .disabled_tooltip(<span class="string">"Tutorial mode currently unmaintained, sorry"</span>)
                             .build_def(ctx)
                             .centered_vert(),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        Image::from_path(<span class="string">&quot;system/assets/pregame/challenges.svg&quot;</span>)
+                        Image::from_path(<span class="string">"system/assets/pregame/challenges.svg"</span>)
                             .untinted()
                             .dims(<span class="number">100.0</span>)
                             .into_widget(ctx),
                         ctx.style()
                             .btn_outline
-                            .text(<span class="string">&quot;Traffic simulation challenges&quot;</span>)
-                            .tooltip(<span class="string">&quot;Complete specific objectives in the traffic simulator&quot;</span>)
+                            .text(<span class="string">"Traffic simulation challenges"</span>)
+                            .tooltip(<span class="string">"Complete specific objectives in the traffic simulator"</span>)
                             .build_def(ctx)
                             .centered_vert(),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        Image::from_path(<span class="string">&quot;system/assets/santa/bike1.svg&quot;</span>)
+                        Image::from_path(<span class="string">"system/assets/santa/bike1.svg"</span>)
                             .untinted()
                             .dims(<span class="number">100.0</span>)
                             .into_widget(ctx),
                         ctx.style()
                             .btn_outline
-                            .text(<span class="string">&quot;15-minute Santa&quot;</span>)
-                            .tooltip(<span class="string">&quot;Deliver presents as efficiently as possible&quot;</span>)
+                            .text(<span class="string">"15-minute Santa"</span>)
+                            .tooltip(<span class="string">"Deliver presents as efficiently as possible"</span>)
                             .build_def(ctx)
                             .centered_vert(),
                     ]),
                 ])
                 .section(ctx),
                 Widget::col(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Planning&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Planning"</span>).small_heading().into_widget(ctx),
                     Widget::row(<span class="macro">vec!</span>[
-                        Image::from_path(<span class="string">&quot;system/assets/pregame/sandbox.svg&quot;</span>)
+                        Image::from_path(<span class="string">"system/assets/pregame/sandbox.svg"</span>)
                             .untinted()
                             .dims(<span class="number">100.0</span>)
                             .into_widget(ctx),
                         ctx.style()
                             .btn_outline
-                            .text(<span class="string">&quot;Traffic simulation sandbox&quot;</span>)
+                            .text(<span class="string">"Traffic simulation sandbox"</span>)
                             .hotkey(Key::S)
-                            .tooltip(<span class="string">&quot;Simulate traffic, edit streets, measure effects&quot;</span>)
+                            .tooltip(<span class="string">"Simulate traffic, edit streets, measure effects"</span>)
                             .build_def(ctx)
                             .centered_vert(),
                     ]),
                     Widget::row(<span class="macro">vec!</span>[
-                        Image::from_path(<span class="string">&quot;system/assets/edit/bike.svg&quot;</span>)
+                        Image::from_path(<span class="string">"system/assets/edit/bike.svg"</span>)
                             .color(RewriteColor::ChangeAll(app.cs().bike_trip))
                             .dims(<span class="number">100.0</span>)
                             .into_widget(ctx),
                         ctx.style()
                             .btn_outline
-                            .text(<span class="string">&quot;Ungap the Map&quot;</span>)
-                            .tooltip(<span class="string">&quot;Improve a city&#39;s bike network&quot;</span>)
+                            .text(<span class="string">"Ungap the Map"</span>)
+                            .tooltip(<span class="string">"Improve a city's bike network"</span>)
                             .build_def(ctx)
                             .centered_vert(),
                     ]),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;15-minute neighborhoods&quot;</span>)
-                        .tooltip(<span class="string">&quot;Explore what places residents can easily reach&quot;</span>)
+                        .text(<span class="string">"15-minute neighborhoods"</span>)
+                        .tooltip(<span class="string">"Explore what places residents can easily reach"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;Low traffic neighborhoods&quot;</span>)
-                        .tooltip(<span class="string">&quot;Reduce vehicle shortcuts through residential streets&quot;</span>)
+                        .text(<span class="string">"Low traffic neighborhoods"</span>)
+                        .tooltip(<span class="string">"Reduce vehicle shortcuts through residential streets"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;ActDev&quot;</span>)
-                        .tooltip(<span class="string">&quot;Explore mobility patterns around new residential development&quot;</span>)
+                        .text(<span class="string">"ActDev"</span>)
+                        .tooltip(<span class="string">"Explore mobility patterns around new residential development"</span>)
                         .build_def(ctx),
                 ])
                 .section(ctx),
                 Widget::col(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Other&quot;</span>).small_heading().into_widget(ctx),
+                    Line(<span class="string">"Other"</span>).small_heading().into_widget(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;Community proposals&quot;</span>)
-                        .tooltip(<span class="string">&quot;Try out proposals for changing different cities&quot;</span>)
+                        .text(<span class="string">"Community proposals"</span>)
+                        .tooltip(<span class="string">"Try out proposals for changing different cities"</span>)
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
-                        .text(<span class="string">&quot;Advanced tools&quot;</span>)
+                        .text(<span class="string">"Advanced tools"</span>)
                         .build_def(ctx),
-                    ctx.style().btn_outline.text(<span class="string">&quot;About&quot;</span>).build_def(ctx),
+                    ctx.style().btn_outline.text(<span class="string">"About"</span>).build_def(ctx),
                 ])
                 .section(ctx),
             ]),
             Widget::col(<span class="macro">vec!</span>[
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>)
-                    .build_widget(ctx, <span class="string">&quot;Credits&quot;</span>),
+                    .text(<span class="string">"Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk"</span>)
+                    .build_widget(ctx, <span class="string">"Credits"</span>),
                 built_info::maybe_update(ctx),
             ])
             .centered_horiz()
@@ -539,20 +541,20 @@
     <span class="doccomment">/// Run the given executable with some arguments. On Mac and Linux, this replaces the current
     /// process. On Windows, this launches a new child process and leaves the current alone. On
     /// web, this makes the browser go to a new page.
-    </span><span class="kw">pub fn </span>replace_process&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt;(
+    </span><span class="kw">pub fn </span>replace_process&lt;A: AppLike + <span class="lifetime">'static</span>&gt;(
         <span class="self">self</span>,
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
         app: <span class="kw-2">&amp;</span>A,
         args: Vec&lt;<span class="kw-2">&amp;</span>str&gt;,
     ) -&gt; Transition&lt;A&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>args: Vec&lt;String&gt; = args.into_iter().map(|a| a.to_string()).collect();
-        <span class="comment">// Usually pass in the current map&#39;s path
+        <span class="comment">// Usually pass in the current map's path
         </span><span class="kw">match </span><span class="self">self </span>{
             Executable::Santa =&gt; {}
             Executable::RawMapEditor =&gt; {
                 args.push(abstio::path_raw_map(app.map().get_name()));
                 args.push(<span class="macro">format!</span>(
-                    <span class="string">&quot;--cam={}&quot;</span>,
+                    <span class="string">"--cam={}"</span>,
                     URLManager::get_cam_param(ctx, app.map().get_gps_bounds())
                 ));
             }
@@ -562,19 +564,19 @@
         }
 
         <span class="comment">// On native, end the current process and start another.
-        </span><span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+        </span><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
         </span>{
             <span class="kw">use </span>std::process::Command;
 
             <span class="comment">// TODO find_exe panics; should return error instead
             </span><span class="kw">let </span>binary = <span class="kw">crate</span>::tools::find_exe(<span class="kw">match </span><span class="self">self </span>{
-                Executable::ABStreet =&gt; <span class="string">&quot;game&quot;</span>,
-                Executable::FifteenMin =&gt; <span class="string">&quot;fifteen_min&quot;</span>,
-                Executable::OSMViewer =&gt; <span class="string">&quot;osm_viewer&quot;</span>,
-                Executable::ParkingMapper =&gt; <span class="string">&quot;parking_mapper&quot;</span>,
-                Executable::Santa =&gt; <span class="string">&quot;santa&quot;</span>,
-                Executable::RawMapEditor =&gt; <span class="string">&quot;map_editor&quot;</span>,
-                Executable::LTN =&gt; <span class="string">&quot;ltn&quot;</span>,
+                Executable::ABStreet =&gt; <span class="string">"game"</span>,
+                Executable::FifteenMin =&gt; <span class="string">"fifteen_min"</span>,
+                Executable::OSMViewer =&gt; <span class="string">"osm_viewer"</span>,
+                Executable::ParkingMapper =&gt; <span class="string">"parking_mapper"</span>,
+                Executable::Santa =&gt; <span class="string">"santa"</span>,
+                Executable::RawMapEditor =&gt; <span class="string">"map_editor"</span>,
+                Executable::LTN =&gt; <span class="string">"ltn"</span>,
             });
 
             <span class="comment">// We can only replace the current process on Linux/Mac
@@ -583,7 +585,7 @@
                 <span class="kw">use </span>std::os::unix::process::CommandExt;
                 <span class="kw">let </span>err = Command::new(binary).args(args).exec();
                 <span class="comment">// We only get here if something broke
-                </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[err.to_string()]))
+                </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">"Error"</span>, <span class="macro">vec!</span>[err.to_string()]))
             }
 
             <span class="comment">// On Windows, all we can do is open a new child process. Not sure how to end the
@@ -596,33 +598,33 @@
         }
 
         <span class="comment">// On web, leave the current page and go to another.
-        </span><span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+        </span><span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
         </span>{
             <span class="kw">fn </span>set_href(url: <span class="kw-2">&amp;</span>str) -&gt; anyhow::Result&lt;()&gt; {
-                <span class="kw">let </span>window = web_sys::window().ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
+                <span class="kw">let </span>window = web_sys::window().ok_or(<span class="macro">anyhow!</span>(<span class="string">"no window?"</span>))<span class="question-mark">?</span>;
                 window.location().set_href(url).map_err(|err| {
                     <span class="macro">anyhow!</span>(err
                         .as_string()
-                        .unwrap_or(<span class="string">&quot;window.location.set_href failed&quot;</span>.to_string()))
+                        .unwrap_or(<span class="string">"window.location.set_href failed"</span>.to_string()))
                 })
             }
 
             <span class="kw">let </span>page = <span class="kw">match </span><span class="self">self </span>{
-                Executable::ABStreet =&gt; <span class="string">&quot;abstreet&quot;</span>,
-                Executable::FifteenMin =&gt; <span class="string">&quot;fifteen_min&quot;</span>,
-                Executable::OSMViewer =&gt; <span class="string">&quot;osm_viewer&quot;</span>,
+                Executable::ABStreet =&gt; <span class="string">"abstreet"</span>,
+                Executable::FifteenMin =&gt; <span class="string">"fifteen_min"</span>,
+                Executable::OSMViewer =&gt; <span class="string">"osm_viewer"</span>,
                 <span class="comment">// This only works on native
                 </span>Executable::ParkingMapper =&gt; <span class="macro">unreachable!</span>(),
-                Executable::Santa =&gt; <span class="string">&quot;santa&quot;</span>,
-                Executable::RawMapEditor =&gt; <span class="string">&quot;map_editor&quot;</span>,
-                Executable::LTN =&gt; <span class="string">&quot;ltn&quot;</span>,
+                Executable::Santa =&gt; <span class="string">"santa"</span>,
+                Executable::RawMapEditor =&gt; <span class="string">"map_editor"</span>,
+                Executable::LTN =&gt; <span class="string">"ltn"</span>,
             };
-            <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}.html{}&quot;</span>, page, abstutil::args_to_query_string(args));
+            <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}.html{}"</span>, page, abstutil::args_to_query_string(args));
             <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = set_href(<span class="kw-2">&amp;</span>url) {
                 <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                     ctx,
-                    <span class="string">&quot;Error&quot;</span>,
-                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t redirect to {}: {}&quot;</span>, url, err)],
+                    <span class="string">"Error"</span>,
+                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Couldn't redirect to {}: {}"</span>, url, err)],
                 ));
             }
             Transition::Keep
@@ -630,7 +632,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt; SimpleState&lt;A&gt; <span class="kw">for </span>TitleScreen&lt;A&gt; {
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">'static</span>&gt; SimpleState&lt;A&gt; <span class="kw">for </span>TitleScreen&lt;A&gt; {
     <span class="kw">fn </span>on_click(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         ctx: <span class="kw-2">&amp;mut </span>EventCtx,
@@ -639,45 +641,45 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition&lt;A&gt; {
         <span class="kw">match </span>x {
-            <span class="string">&quot;Traffic simulation tutorial&quot; </span>=&gt; {
-                <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">&quot;--tutorial-intro&quot;</span>])
+            <span class="string">"Traffic simulation tutorial" </span>=&gt; {
+                <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">"--tutorial-intro"</span>])
             }
-            <span class="string">&quot;Traffic simulation challenges&quot; </span>=&gt; {
-                <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">&quot;--challenges&quot;</span>])
+            <span class="string">"Traffic simulation challenges" </span>=&gt; {
+                <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">"--challenges"</span>])
             }
-            <span class="string">&quot;15-minute Santa&quot; </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::Santa, <span class="macro">vec!</span>[]),
-            <span class="string">&quot;Traffic simulation sandbox&quot; </span>=&gt; {
-                <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">&quot;--sandbox&quot;</span>])
+            <span class="string">"15-minute Santa" </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::Santa, <span class="macro">vec!</span>[]),
+            <span class="string">"Traffic simulation sandbox" </span>=&gt; {
+                <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">"--sandbox"</span>])
             }
-            <span class="string">&quot;Community proposals&quot; </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">&quot;--proposals&quot;</span>]),
-            <span class="string">&quot;Ungap the Map&quot; </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">&quot;--ungap&quot;</span>]),
-            <span class="string">&quot;15-minute neighborhoods&quot; </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::FifteenMin, <span class="macro">vec!</span>[]),
-            <span class="string">&quot;Low traffic neighborhoods&quot; </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::LTN, <span class="macro">vec!</span>[]),
-            <span class="string">&quot;ActDev&quot; </span>=&gt; {
-                open_browser(<span class="string">&quot;https://actdev.cyipt.bike&quot;</span>);
+            <span class="string">"Community proposals" </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">"--proposals"</span>]),
+            <span class="string">"Ungap the Map" </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">"--ungap"</span>]),
+            <span class="string">"15-minute neighborhoods" </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::FifteenMin, <span class="macro">vec!</span>[]),
+            <span class="string">"Low traffic neighborhoods" </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::LTN, <span class="macro">vec!</span>[]),
+            <span class="string">"ActDev" </span>=&gt; {
+                open_browser(<span class="string">"https://actdev.cyipt.bike"</span>);
                 Transition::Keep
             }
-            <span class="string">&quot;Advanced tools&quot; </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">&quot;--devtools&quot;</span>]),
-            <span class="string">&quot;About&quot; </span>=&gt; Transition::Push(PopupMsg::new_state(
+            <span class="string">"Advanced tools" </span>=&gt; <span class="self">self</span>.run(ctx, app, Executable::ABStreet, <span class="macro">vec!</span>[<span class="string">"--devtools"</span>]),
+            <span class="string">"About" </span>=&gt; Transition::Push(PopupMsg::new_state(
                 ctx,
-                <span class="string">&quot;About A/B Street&quot;</span>,
+                <span class="string">"About A/B Street"</span>,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;Disclaimer: This software is based on imperfect data, heuristics concocted&quot;</span>,
-                    <span class="string">&quot;under the influence of cold brew, a simplified traffic simulation model,&quot;</span>,
-                    <span class="string">&quot;and a deeply flawed understanding of how much articulated buses can bend&quot;</span>,
-                    <span class="string">&quot;around tight corners. Use this as a conversation starter with your city&quot;</span>,
-                    <span class="string">&quot;government, not a final decision maker. Any resemblance of in-game&quot;</span>,
-                    <span class="string">&quot;characters to real people is probably coincidental, unless of course you&quot;</span>,
-                    <span class="string">&quot;stumble across the elusive \&quot;Dustin Bikelino\&quot;. Have the appropriate&quot;</span>,
-                    <span class="string">&quot;amount of fun.&quot;</span>,
+                    <span class="string">"Disclaimer: This software is based on imperfect data, heuristics concocted"</span>,
+                    <span class="string">"under the influence of cold brew, a simplified traffic simulation model,"</span>,
+                    <span class="string">"and a deeply flawed understanding of how much articulated buses can bend"</span>,
+                    <span class="string">"around tight corners. Use this as a conversation starter with your city"</span>,
+                    <span class="string">"government, not a final decision maker. Any resemblance of in-game"</span>,
+                    <span class="string">"characters to real people is probably coincidental, unless of course you"</span>,
+                    <span class="string">"stumble across the elusive \"Dustin Bikelino\". Have the appropriate"</span>,
+                    <span class="string">"amount of fun."</span>,
                 ],
             )),
-            <span class="string">&quot;Credits&quot; </span>=&gt; {
-                open_browser(<span class="string">&quot;https://a-b-street.github.io/docs/project/team.html&quot;</span>);
+            <span class="string">"Credits" </span>=&gt; {
+                open_browser(<span class="string">"https://a-b-street.github.io/docs/project/team.html"</span>);
                 Transition::Keep
             }
-            <span class="string">&quot;Download the new release&quot; </span>=&gt; {
-                open_browser(<span class="string">&quot;https://github.com/a-b-street/abstreet/releases&quot;</span>);
+            <span class="string">"Download the new release" </span>=&gt; {
+                open_browser(<span class="string">"https://github.com/a-b-street/abstreet/releases"</span>);
                 Transition::Keep
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -685,17 +687,17 @@
     }
 }
 
-<span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
 #[allow(unused, clippy::logic_bug)]
 </span><span class="kw">mod </span>built_info {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="macro">include!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;OUT_DIR&quot;</span>), <span class="string">&quot;/built.rs&quot;</span>));
+    <span class="macro">include!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">"OUT_DIR"</span>), <span class="string">"/built.rs"</span>));
 
     <span class="kw">pub fn </span>maybe_update(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
         <span class="kw">let </span>t = built::util::strptime(BUILT_TIME_UTC);
 
-        <span class="kw">let </span>txt = widgetry::Text::from(<span class="macro">format!</span>(<span class="string">&quot;This version built on {}&quot;</span>, t.date_naive()))
+        <span class="kw">let </span>txt = widgetry::Text::from(<span class="macro">format!</span>(<span class="string">"This version built on {}"</span>, t.date_naive()))
             .into_widget(ctx);
         <span class="comment">// Disable this warning; no promise about a release schedule anymore
         </span><span class="kw">if </span><span class="bool-val">false </span>&amp;&amp; (chrono::Utc::now() - t).num_days() &gt; <span class="number">15 </span>{
@@ -703,7 +705,7 @@
                 txt.centered_vert(),
                 ctx.style()
                     .btn_outline
-                    .text(<span class="string">&quot;Download the new release&quot;</span>)
+                    .text(<span class="string">"Download the new release"</span>)
                     .build_def(ctx),
             ])
         } <span class="kw">else </span>{
@@ -712,7 +714,7 @@
     }
 }
 
-<span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+<span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
 </span><span class="kw">mod </span>built_info {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/predict_impact.rs`."><title>predict_impact.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/predict_impact.rs`."><title>predict_impact.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -522,8 +524,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::render::colors;
 <span class="kw">use crate</span>::{App, Transition};
 
-<span class="comment">// TODO Share structure or pieces with Ungap&#39;s predict mode
-// ... can&#39;t we just produce data of a certain shape, and have a UI pretty tuned for that?
+<span class="comment">// TODO Share structure or pieces with Ungap's predict mode
+// ... can't we just produce data of a certain shape, and have a UI pretty tuned for that?
 
 </span><span class="kw">pub struct </span>ShowImpactResults {
     appwide_panel: AppwidePanel,
@@ -536,7 +538,7 @@
         <span class="kw">if </span>app.per_map.impact.map != map_name {
             <span class="kw">let </span>scenario_name = Scenario::default_scenario_for_map(<span class="kw-2">&amp;</span>map_name);
 
-            <span class="kw">if </span>scenario_name != <span class="string">&quot;home_to_work&quot; </span>{
+            <span class="kw">if </span>scenario_name != <span class="string">"home_to_work" </span>{
                 <span class="kw">return </span>FileLoader::&lt;App, Scenario&gt;::new_state(
                     ctx,
                     abstio::path_scenario(<span class="kw-2">&amp;</span>map_name, <span class="kw-2">&amp;</span>scenario_name),
@@ -548,8 +550,8 @@
                     }),
                 );
             }
-            ctx.loading_screen(<span class="string">&quot;synthesize travel demand model&quot;</span>, |ctx, timer| {
-                <span class="comment">// TODO Argh, this internally uses the map&#39;s pathfinder to estimate mode split.
+            ctx.loading_screen(<span class="string">"synthesize travel demand model"</span>, |ctx, timer| {
+                <span class="comment">// TODO Argh, this internally uses the map's pathfinder to estimate mode split.
                 // Just ignore any edits or pre-existing files.
                 </span>app.per_map.map.keep_pathfinder_despite_edits();
 
@@ -563,7 +565,7 @@
         }
 
         <span class="kw">if </span>app.per_map.impact.map_edit_key != app.per_map.map.get_edits_change_key() {
-            ctx.loading_screen(<span class="string">&quot;recalculate impact&quot;</span>, |ctx, timer| {
+            ctx.loading_screen(<span class="string">"recalculate impact"</span>, |ctx, timer| {
                 <span class="comment">// Avoid a double borrow
                 </span><span class="kw">let </span><span class="kw-2">mut </span>impact = std::mem::replace(<span class="kw-2">&amp;mut </span>app.per_map.impact, Impact::empty(ctx));
                 impact.map_edits_changed(ctx, app, timer);
@@ -572,34 +574,34 @@
         }
 
         <span class="kw">let </span>contents = Widget::col(<span class="macro">vec!</span>[
-            Line(<span class="string">&quot;Impact prediction&quot;</span>).small_heading().into_widget(ctx),
-            Text::from(Line(<span class="string">&quot;This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads&quot;</span>)).wrap_to_pct(ctx, <span class="number">20</span>).into_widget(ctx),
+            Line(<span class="string">"Impact prediction"</span>).small_heading().into_widget(ctx),
+            Text::from(Line(<span class="string">"This tool starts with a travel demand model, calculates the route every trip takes before and after changes, and displays volumes along roads"</span>)).wrap_to_pct(ctx, <span class="number">20</span>).into_widget(ctx),
             Text::from_all(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Red&quot;</span>).fg(Color::RED),
-                    Line(<span class="string">&quot; roads have increased volume, and &quot;</span>),
-                    Line(<span class="string">&quot;green&quot;</span>).fg(Color::GREEN),
-                    Line(<span class="string">&quot; roads have less. Width of the road shows how much baseline traffic it has.&quot;</span>),
+                    Line(<span class="string">"Red"</span>).fg(Color::RED),
+                    Line(<span class="string">" roads have increased volume, and "</span>),
+                    Line(<span class="string">"green"</span>).fg(Color::GREEN),
+                    Line(<span class="string">" roads have less. Width of the road shows how much baseline traffic it has."</span>),
                 ]).wrap_to_pct(ctx, <span class="number">20</span>).into_widget(ctx),
-                Text::from(Line(<span class="string">&quot;Click a road to see changed routes through it.&quot;</span>)).wrap_to_pct(ctx, <span class="number">20</span>).into_widget(ctx),
-                Text::from(Line(<span class="string">&quot;Results may be wrong for various reasons. Interpret carefully.&quot;</span>).bold_body()).wrap_to_pct(ctx, <span class="number">20</span>).into_widget(ctx),
+                Text::from(Line(<span class="string">"Click a road to see changed routes through it."</span>)).wrap_to_pct(ctx, <span class="number">20</span>).into_widget(ctx),
+                Text::from(Line(<span class="string">"Results may be wrong for various reasons. Interpret carefully."</span>).bold_body()).wrap_to_pct(ctx, <span class="number">20</span>).into_widget(ctx),
             <span class="comment">// TODO Dropdown for the scenario, and explain its source/limitations
             </span>app.per_map.impact.filters.to_panel(ctx, app),
             app.per_map
                 .impact
                 .compare_counts
                 .get_panel_widget(ctx)
-                .named(<span class="string">&quot;compare counts&quot;</span>),
+                .named(<span class="string">"compare counts"</span>),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Save before/after counts to files (JSON)&quot;</span>)
+                .text(<span class="string">"Save before/after counts to files (JSON)"</span>)
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Save before/after counts to files (CSV)&quot;</span>)
+                .text(<span class="string">"Save before/after counts to files (CSV)"</span>)
                 .build_def(ctx),
             ctx.style()
                 .btn_outline
-                .text(<span class="string">&quot;Save before/after counts to files (GeoJSON)&quot;</span>)
+                .text(<span class="string">"Save before/after counts to files (GeoJSON)"</span>)
                 .build_def(ctx),
         ]);
         <span class="kw">let </span>appwide_panel = AppwidePanel::new(ctx, app, Mode::Impact);
@@ -615,7 +617,7 @@
 }
 <span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>ShowImpactResults {
     <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
-        <span class="comment">// PreserveState doesn&#39;t matter
+        <span class="comment">// PreserveState doesn't matter
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(t) =
             <span class="self">self</span>.appwide_panel
                 .event(ctx, app, <span class="kw-2">&amp;</span><span class="kw">crate</span>::save::PreserveState::Route, help)
@@ -627,9 +629,9 @@
         }
         <span class="kw">match </span><span class="self">self</span>.left_panel.event(ctx) {
             Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;Save before/after counts to files (JSON)&quot; </span>=&gt; {
-                    <span class="kw">let </span>path1 = <span class="string">&quot;counts_a.json&quot;</span>;
-                    <span class="kw">let </span>path2 = <span class="string">&quot;counts_b.json&quot;</span>;
+                <span class="string">"Save before/after counts to files (JSON)" </span>=&gt; {
+                    <span class="kw">let </span>path1 = <span class="string">"counts_a.json"</span>;
+                    <span class="kw">let </span>path2 = <span class="string">"counts_b.json"</span>;
                     abstio::write_json(
                         path1.to_string(),
                         <span class="kw-2">&amp;</span>app.per_map.impact.compare_counts.counts_a,
@@ -640,29 +642,29 @@
                     );
                     <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
                         ctx,
-                        <span class="string">&quot;Saved&quot;</span>,
-                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Saved {} and {}&quot;</span>, path1, path2)],
+                        <span class="string">"Saved"</span>,
+                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">"Saved {} and {}"</span>, path1, path2)],
                     ));
                 }
-                <span class="string">&quot;Save before/after counts to files (CSV)&quot; </span>=&gt; {
-                    <span class="kw">let </span>path = <span class="string">&quot;before_after_counts.csv&quot;</span>;
+                <span class="string">"Save before/after counts to files (CSV)" </span>=&gt; {
+                    <span class="kw">let </span>path = <span class="string">"before_after_counts.csv"</span>;
                     <span class="kw">let </span>msg = <span class="kw">match </span>export_csv(app)
                         .and_then(|contents| abstio::write_file(path.to_string(), contents))
                     {
-                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Saved {path}&quot;</span>),
-                        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Failed to export: {err}&quot;</span>),
+                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">"Saved {path}"</span>),
+                        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">format!</span>(<span class="string">"Failed to export: {err}"</span>),
                     };
-                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;CSV export&quot;</span>, <span class="macro">vec!</span>[msg]));
+                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">"CSV export"</span>, <span class="macro">vec!</span>[msg]));
                 }
-                <span class="string">&quot;Save before/after counts to files (GeoJSON)&quot; </span>=&gt; {
-                    <span class="kw">let </span>path = <span class="string">&quot;before_after_counts.geojson&quot;</span>;
+                <span class="string">"Save before/after counts to files (GeoJSON)" </span>=&gt; {
+                    <span class="kw">let </span>path = <span class="string">"before_after_counts.geojson"</span>;
                     <span class="kw">let </span>msg = <span class="kw">match </span>export_geojson(app)
                         .and_then(|contents| abstio::write_file(path.to_string(), contents))
                     {
-                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Saved {path}&quot;</span>),
-                        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Failed to export: {err}&quot;</span>),
+                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">format!</span>(<span class="string">"Saved {path}"</span>),
+                        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">format!</span>(<span class="string">"Failed to export: {err}"</span>),
                     };
-                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;GeoJSON export&quot;</span>, <span class="macro">vec!</span>[msg]));
+                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">"GeoJSON export"</span>, <span class="macro">vec!</span>[msg]));
                 }
                 x =&gt; {
                     <span class="comment">// Avoid a double borrow
@@ -670,9 +672,9 @@
                     <span class="kw">let </span>widget = impact
                         .compare_counts
                         .on_click(ctx, app, x)
-                        .expect(<span class="string">&quot;button click didn&#39;t belong to CompareCounts&quot;</span>);
+                        .expect(<span class="string">"button click didn't belong to CompareCounts"</span>);
                     app.per_map.impact = impact;
-                    <span class="self">self</span>.left_panel.replace(ctx, <span class="string">&quot;compare counts&quot;</span>, widget);
+                    <span class="self">self</span>.left_panel.replace(ctx, <span class="string">"compare counts"</span>, widget);
                     <span class="kw">return </span>Transition::Keep;
                 }
             },
@@ -687,7 +689,7 @@
                 <span class="comment">// Avoid a double borrow
                 </span><span class="kw">let </span><span class="kw-2">mut </span>impact = std::mem::replace(<span class="kw-2">&amp;mut </span>app.per_map.impact, Impact::empty(ctx));
                 impact.filters = Filters::from_panel(<span class="kw-2">&amp;</span><span class="self">self</span>.left_panel);
-                ctx.loading_screen(<span class="string">&quot;update filters&quot;</span>, |ctx, timer| {
+                ctx.loading_screen(<span class="string">"update filters"</span>, |ctx, timer| {
                     impact.trips_changed(ctx, app, timer);
                 });
                 app.per_map.impact = impact;
@@ -697,7 +699,7 @@
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = app.per_map.impact.compare_counts.other_event(ctx) {
-            <span class="kw">let </span>results = ctx.loading_screen(<span class="string">&quot;find changed routes&quot;</span>, |<span class="kw">_</span>, timer| {
+            <span class="kw">let </span>results = ctx.loading_screen(<span class="string">"find changed routes"</span>, |<span class="kw">_</span>, timer| {
                 app.per_map.impact.find_changed_routes(app, r, timer)
             });
             <span class="kw">return </span>Transition::Push(ChangedRoutes::new_state(ctx, app, results));
@@ -711,7 +713,7 @@
     }
 
     <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
-        <span class="comment">// Just emphasize roads that&#39;ve changed, so don&#39;t draw the baselayer of roads. Even
+        <span class="comment">// Just emphasize roads that've changed, so don't draw the baselayer of roads. Even
         // buildings are a distraction.
         </span>g.clear(app.cs.void_background);
         g.redraw(<span class="kw-2">&amp;</span>app.per_map.draw_map.boundary_polygon);
@@ -732,8 +734,8 @@
 <span class="kw">impl </span>Filters {
     <span class="kw">fn </span>from_panel(panel: <span class="kw-2">&amp;</span>Panel) -&gt; Filters {
         <span class="kw">let </span>(p1, p2) = (
-            panel.slider(<span class="string">&quot;depart from&quot;</span>).get_percent(),
-            panel.slider(<span class="string">&quot;depart until&quot;</span>).get_percent(),
+            panel.slider(<span class="string">"depart from"</span>).get_percent(),
+            panel.slider(<span class="string">"depart until"</span>).get_percent(),
         );
         <span class="kw">let </span>departure_time = (end_of_day().percent_of(p1), end_of_day().percent_of(p2));
         <span class="kw">let </span>modes = TripMode::all()
@@ -742,31 +744,31 @@
             .collect::&lt;BTreeSet&lt;<span class="kw">_</span>&gt;&gt;();
         Filters {
             modes,
-            include_borders: panel.is_checked(<span class="string">&quot;include borders&quot;</span>),
+            include_borders: panel.is_checked(<span class="string">"include borders"</span>),
             departure_time,
         }
     }
 
     <span class="kw">fn </span>to_panel(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
         Widget::col(<span class="macro">vec!</span>[
-            <span class="string">&quot;Filter trips&quot;</span>.text_widget(ctx),
-            Toggle::switch(ctx, <span class="string">&quot;include borders&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.include_borders),
+            <span class="string">"Filter trips"</span>.text_widget(ctx),
+            Toggle::switch(ctx, <span class="string">"include borders"</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.include_borders),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Departing from:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                <span class="string">"Departing from:"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
                 Slider::area(
                     ctx,
                     <span class="number">0.15 </span>* ctx.canvas.window_width,
                     <span class="self">self</span>.departure_time.<span class="number">0</span>.to_percent(end_of_day()),
-                    <span class="string">&quot;depart from&quot;</span>,
+                    <span class="string">"depart from"</span>,
                 ),
             ]),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Departing until:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                <span class="string">"Departing until:"</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
                 Slider::area(
                     ctx,
                     <span class="number">0.15 </span>* ctx.canvas.window_width,
                     <span class="self">self</span>.departure_time.<span class="number">1</span>.to_percent(end_of_day()),
-                    <span class="string">&quot;depart until&quot;</span>,
+                    <span class="string">"depart until"</span>,
                 ),
             ]),
             checkbox_per_mode(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.modes),
@@ -776,13 +778,13 @@
     }
 }
 
-<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="macro">vec!</span>[
-        <span class="string">&quot;This tool is still experimental.&quot;</span>,
-        <span class="string">&quot;Until better travel demand models are available, we can&#39;t predict where most detours will occur,&quot;</span>,
-        <span class="string">&quot;because we don&#39;t know where trips begin and end.&quot;</span>,
-        <span class="string">&quot;&quot;</span>,
-        <span class="string">&quot;And note this tool doesn&#39;t predict traffic dissipation as people decide to not drive.&quot;</span>,
+        <span class="string">"This tool is still experimental."</span>,
+        <span class="string">"Until better travel demand models are available, we can't predict where most detours will occur,"</span>,
+        <span class="string">"because we don't know where trips begin and end."</span>,
+        <span class="string">""</span>,
+        <span class="string">"And note this tool doesn't predict traffic dissipation as people decide to not drive."</span>,
     ]
 }
 
@@ -803,15 +805,15 @@
         <span class="kw">if </span>paths.is_empty() {
             <span class="kw">return </span>PopupMsg::new_state(
                 ctx,
-                <span class="string">&quot;No changes&quot;</span>,
-                <span class="macro">vec!</span>[<span class="string">&quot;No routes changed near this road&quot;</span>],
+                <span class="string">"No changes"</span>,
+                <span class="macro">vec!</span>[<span class="string">"No routes changed near this road"</span>],
             );
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>state = ChangedRoutes {
             panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
                 Widget::row(<span class="macro">vec!</span>[
-                    Line(<span class="string">&quot;Routes that changed near a road&quot;</span>)
+                    Line(<span class="string">"Routes that changed near a road"</span>)
                         .small_heading()
                         .into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
@@ -820,21 +822,21 @@
                     ctx.style()
                         .btn_prev()
                         .hotkey(Key::LeftArrow)
-                        .build_widget(ctx, <span class="string">&quot;previous&quot;</span>),
-                    <span class="string">&quot;route X/Y&quot;
+                        .build_widget(ctx, <span class="string">"previous"</span>),
+                    <span class="string">"route X/Y"
                         </span>.text_widget(ctx)
-                        .named(<span class="string">&quot;pointer&quot;</span>)
+                        .named(<span class="string">"pointer"</span>)
                         .centered_vert(),
                     ctx.style()
                         .btn_next()
                         .hotkey(Key::RightArrow)
-                        .build_widget(ctx, <span class="string">&quot;next&quot;</span>),
+                        .build_widget(ctx, <span class="string">"next"</span>),
                 ])
                 .evenly_spaced(),
-                Line(<span class="string">&quot;Route before changes&quot;</span>)
+                Line(<span class="string">"Route before changes"</span>)
                     .fg(<span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE)
                     .into_widget(ctx),
-                Line(<span class="string">&quot;Route after changes&quot;</span>)
+                Line(<span class="string">"Route after changes"</span>)
                     .fg(<span class="kw-2">*</span>colors::PLAN_ROUTE_AFTER)
                     .into_widget(ctx),
             ]))
@@ -851,8 +853,8 @@
     <span class="kw">fn </span>recalculate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
         <span class="self">self</span>.panel.replace(
             ctx,
-            <span class="string">&quot;pointer&quot;</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;route {}/{}&quot;</span>, <span class="self">self</span>.current + <span class="number">1</span>, <span class="self">self</span>.paths.len()).text_widget(ctx),
+            <span class="string">"pointer"</span>,
+            <span class="macro">format!</span>(<span class="string">"route {}/{}"</span>, <span class="self">self</span>.current + <span class="number">1</span>, <span class="self">self</span>.paths.len()).text_widget(ctx),
         );
 
         <span class="kw">let </span><span class="kw-2">mut </span>batch = map_gui::tools::draw_overlapping_paths(
@@ -890,16 +892,16 @@
 
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="string">"close" </span>=&gt; {
                     <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;previous&quot; </span>=&gt; {
+                <span class="string">"previous" </span>=&gt; {
                     <span class="kw">if </span><span class="self">self</span>.current != <span class="number">0 </span>{
                         <span class="self">self</span>.current -= <span class="number">1</span>;
                     }
                     <span class="self">self</span>.recalculate(ctx, app);
                 }
-                <span class="string">&quot;next&quot; </span>=&gt; {
+                <span class="string">"next" </span>=&gt; {
                     <span class="kw">if </span><span class="self">self</span>.current != <span class="self">self</span>.paths.len() - <span class="number">1 </span>{
                         <span class="self">self</span>.current += <span class="number">1</span>;
                     }
@@ -975,7 +977,7 @@
 
         <span class="attr">#[derive(Serialize)]
         </span><span class="kw">struct </span>RoadGeoJson {
-            <span class="attr">#[serde(serialize_with = <span class="string">&quot;geojson::ser::serialize_geometry&quot;</span>)]
+            <span class="attr">#[serde(serialize_with = <span class="string">"geojson::ser::serialize_geometry"</span>)]
             </span>geometry: geo::LineString,
             <span class="attr">#[serde(flatten)]
             </span>export_row: ExportRow,

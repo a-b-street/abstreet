@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/parking.rs`."><title>parking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/parking.rs`."><title>parking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../sim/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1102,19 +1104,19 @@
     <span class="kw">fn </span>get_free_offstreet_spots(<span class="kw-2">&amp;</span><span class="self">self</span>, b: BuildingID) -&gt; Vec&lt;ParkingSpot&gt;;
     <span class="kw">fn </span>get_free_lot_spots(<span class="kw-2">&amp;</span><span class="self">self</span>, pl: ParkingLotID) -&gt; Vec&lt;ParkingSpot&gt;;
     <span class="kw">fn </span>reserve_spot(<span class="kw-2">&amp;mut </span><span class="self">self</span>, spot: ParkingSpot, car: CarID);
-    <span class="doccomment">/// Needed when abruptly deleting a car, in case they&#39;re being deleted during their last step.
+    <span class="doccomment">/// Needed when abruptly deleting a car, in case they're being deleted during their last step.
     </span><span class="kw">fn </span>unreserve_spot(<span class="kw-2">&amp;mut </span><span class="self">self</span>, car: CarID);
     <span class="kw">fn </span>remove_parked_car(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p: ParkedCar);
     <span class="kw">fn </span>add_parked_car(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p: ParkedCar);
     <span class="kw">fn </span>get_draw_cars(<span class="kw-2">&amp;</span><span class="self">self</span>, id: LaneID, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;DrawCarInput&gt;;
     <span class="kw">fn </span>get_draw_cars_in_lots(<span class="kw-2">&amp;</span><span class="self">self</span>, id: LaneID, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;DrawCarInput&gt;;
     <span class="kw">fn </span>get_draw_car(<span class="kw-2">&amp;</span><span class="self">self</span>, id: CarID, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;DrawCarInput&gt;;
-    <span class="doccomment">/// There&#39;s no DrawCarInput for cars parked offstreet, so we need this.
+    <span class="doccomment">/// There's no DrawCarInput for cars parked offstreet, so we need this.
     </span><span class="kw">fn </span>canonical_pt(<span class="kw-2">&amp;</span><span class="self">self</span>, id: CarID, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;Pt2D&gt;;
     <span class="kw">fn </span>get_all_draw_cars(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;DrawCarInput&gt;;
     <span class="kw">fn </span>is_free(<span class="kw-2">&amp;</span><span class="self">self</span>, spot: ParkingSpot) -&gt; bool;
     <span class="kw">fn </span>get_car_at_spot(<span class="kw-2">&amp;</span><span class="self">self</span>, spot: ParkingSpot) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ParkedCar&gt;;
-    <span class="doccomment">/// The vehicle&#39;s front is currently at the given driving_pos. Returns all valid spots and their
+    <span class="doccomment">/// The vehicle's front is currently at the given driving_pos. Returns all valid spots and their
     /// driving position.
     </span><span class="kw">fn </span>get_all_free_spots(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1132,8 +1134,8 @@
     <span class="doccomment">/// (Filled, available)
     </span><span class="kw">fn </span>get_all_parking_spots(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (Vec&lt;ParkingSpot&gt;, Vec&lt;ParkingSpot&gt;);
     <span class="doccomment">/// Unrealistically assumes the driver has knowledge of currently free parking spots, even if
-    /// they&#39;re far away. Since they don&#39;t reserve the spot in advance, somebody else can still beat
-    /// them there, producing some nice, realistic churn if there&#39;s too much contention. But
+    /// they're far away. Since they don't reserve the spot in advance, somebody else can still beat
+    /// them there, producing some nice, realistic churn if there's too much contention. But
     /// the implementation has some internal jitter between different vehicles, to discourage
     /// everybody near one spot from all competing for it.
     /// Note the first PathStep is the turn after start, NOT PathStep::Lane(start).
@@ -1158,7 +1160,7 @@
 
 <span class="kw">impl </span>ParkingSimState {
     <span class="doccomment">/// Counterintuitive: any spots located in blackholes are just not represented here. If somebody
-    /// tries to drive from a blackholed spot, they couldn&#39;t reach most places.
+    /// tries to drive from a blackholed spot, they couldn't reach most places.
     </span><span class="kw">pub fn </span>new(map: <span class="kw-2">&amp;</span>Map, infinite: bool, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; ParkingSimState {
         <span class="kw">if </span>infinite {
             ParkingSimState::Infinite(InfiniteParkingSimState::new(map))
@@ -1178,18 +1180,18 @@
 <span class="attr">#[derive(Serialize, Deserialize, Clone)]
 </span><span class="kw">pub struct </span>NormalParkingSimState {
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>parked_cars: BTreeMap&lt;CarID, ParkedCar&gt;,
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>occupants: BTreeMap&lt;ParkingSpot, CarID&gt;,
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>reserved_spots: BTreeMap&lt;ParkingSpot, CarID&gt;,
 
@@ -1197,8 +1199,8 @@
     </span>onstreet_lanes: BTreeMap&lt;LaneID, ParkingLane&gt;,
     <span class="comment">// TODO Really this could be 0, 1, or 2 lanes. Full MultiMap is overkill.
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_multimap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_multimap&quot;
+        serialize_with = <span class="string">"serialize_multimap"</span>,
+        deserialize_with = <span class="string">"deserialize_multimap"
     </span>)]
     </span>driving_to_parking_lanes: MultiMap&lt;LaneID, LaneID&gt;,
 
@@ -1206,16 +1208,16 @@
     </span>num_spots_per_offstreet: BTreeMap&lt;BuildingID, usize&gt;,
     <span class="comment">// Cache dist_along
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_multimap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_multimap&quot;
+        serialize_with = <span class="string">"serialize_multimap"</span>,
+        deserialize_with = <span class="string">"deserialize_multimap"
     </span>)]
     </span>driving_to_offstreet: MultiMap&lt;LaneID, (BuildingID, Distance)&gt;,
 
     <span class="comment">// Parking lots
     </span>num_spots_per_lot: BTreeMap&lt;ParkingLotID, usize&gt;,
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_multimap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_multimap&quot;
+        serialize_with = <span class="string">"serialize_multimap"</span>,
+        deserialize_with = <span class="string">"deserialize_multimap"
     </span>)]
     </span>driving_to_lots: MultiMap&lt;LaneID, ParkingLotID&gt;,
 
@@ -1247,7 +1249,7 @@
         <span class="comment">// This is slow on huge maps
         </span><span class="kw">for </span>(b, pos, num_spots) <span class="kw">in </span>timer
             .parallelize(
-                <span class="string">&quot;setup offstreet parking&quot;</span>,
+                <span class="string">"setup offstreet parking"</span>,
                 map.all_buildings().iter().collect(),
                 |b| {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>((pos, <span class="kw">_</span>)) = b.driving_connection(map) {
@@ -1305,8 +1307,8 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>evicted = Vec::new();
         <span class="kw">for </span>spot <span class="kw">in </span>filled_before {
             <span class="kw">if </span>!avail_after.contains(<span class="kw-2">&amp;</span>spot) {
-                <span class="comment">// If the spot isn&#39;t occupied, it must be reserved; a car is in the process of
-                // parking in it. That&#39;ll be handled below.
+                <span class="comment">// If the spot isn't occupied, it must be reserved; a car is in the process of
+                // parking in it. That'll be handled below.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(car) = <span class="self">self</span>.occupants.remove(<span class="kw-2">&amp;</span>spot) {
                     evicted.push(<span class="self">self</span>.parked_cars.remove(<span class="kw-2">&amp;</span>car).unwrap());
                 }
@@ -1384,10 +1386,10 @@
 
     <span class="kw">fn </span>remove_parked_car(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p: ParkedCar) {
         <span class="kw">if </span><span class="self">self</span>.parked_cars.remove(<span class="kw-2">&amp;</span>p.vehicle.id).is_none() {
-            <span class="macro">panic!</span>(<span class="string">&quot;remove_parked_car {:?} missing from parked_cars&quot;</span>, p);
+            <span class="macro">panic!</span>(<span class="string">"remove_parked_car {:?} missing from parked_cars"</span>, p);
         }
         <span class="kw">if </span><span class="self">self</span>.occupants.remove(<span class="kw-2">&amp;</span>p.spot).is_none() {
-            <span class="macro">panic!</span>(<span class="string">&quot;remove_parked_car {:?} missing from occupants&quot;</span>, p);
+            <span class="macro">panic!</span>(<span class="string">"remove_parked_car {:?} missing from occupants"</span>, p);
         }
         <span class="self">self</span>.events
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
@@ -1638,14 +1640,14 @@
         map: <span class="kw-2">&amp;</span>Map,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;(Vec&lt;PathStep&gt;, ParkingSpot, Position)&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>backrefs: HashMap&lt;LaneID, TurnID&gt; = HashMap::new();
-        <span class="comment">// Don&#39;t travel far.
+        <span class="comment">// Don't travel far.
         // This is a max-heap, so negate all distances. Tie breaker is lane ID, arbitrary but
         // deterministic.
         </span><span class="kw">let </span><span class="kw-2">mut </span>queue: BinaryHeap&lt;(Distance, LaneID)&gt; = BinaryHeap::new();
         queue.push((Distance::ZERO, start));
 
         <span class="comment">// We need a source of randomness between different cars, but it needs to be deterministic
-        // across repeated runs of the exact same simulation. This also shouldn&#39;t be the same
+        // across repeated runs of the exact same simulation. This also shouldn't be the same
         // starting seed for one vehicle across different decisions through the simulation, because
         // then they might always prefer the first or third turn the most or whatever.
         </span><span class="kw">let </span><span class="kw-2">mut </span>rng =
@@ -1653,10 +1655,10 @@
 
         <span class="kw">while </span>!queue.is_empty() {
             <span class="kw">let </span>(dist_so_far, current) = queue.pop().unwrap();
-            <span class="comment">// If the current lane has a spot open, we wouldn&#39;t be asking. This can happen if a spot
-            // opens up on the &#39;start&#39; lane, but behind the car.
+            <span class="comment">// If the current lane has a spot open, we wouldn't be asking. This can happen if a spot
+            // opens up on the 'start' lane, but behind the car.
             </span><span class="kw">if </span>current != start {
-                <span class="comment">// Pick the closest to the start of the lane, since that&#39;s closest to where we came
+                <span class="comment">// Pick the closest to the start of the lane, since that's closest to where we came
                 // from
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>((spot, pos)) = <span class="self">self
                     </span>.get_all_free_spots(Position::start(current), vehicle, target, map)
@@ -1667,7 +1669,7 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>current = current;
                     <span class="kw">loop </span>{
                         <span class="kw">if </span>current == start {
-                            <span class="comment">// Don&#39;t include PathStep::Lane(start)
+                            <span class="comment">// Don't include PathStep::Lane(start)
                             </span>steps.pop();
                             steps.reverse();
                             <span class="kw">return </span><span class="prelude-val">Some</span>((steps, spot, pos));
@@ -1682,13 +1684,13 @@
             <span class="kw">for </span>turn <span class="kw">in </span>map.get_turns_for(current, PathConstraints::Car) {
                 <span class="kw">if let </span>Entry::Vacant(e) = backrefs.entry(turn.id.dst) {
                     <span class="kw">let </span>dist_this_step = turn.geom.length() + map.get_l(current).length();
-                    <span class="comment">// When vehicles search away from the first lane for a spot, don&#39;t all go in
+                    <span class="comment">// When vehicles search away from the first lane for a spot, don't all go in
                     // the same direction! Do this by jittering which turn they explore.
                     // At worst, they consider a route to be 10% of its true length, so somebody
                     // might go up to 10x farther than necessary. From some quick tests, these
-                    // worst cases aren&#39;t happening -- because it&#39;d be unlikely to roll a higher
+                    // worst cases aren't happening -- because it'd be unlikely to roll a higher
                     // number here many times in a row, and if there are only a few lanes away, it
-                    // doesn&#39;t matter that much anyway.
+                    // doesn't matter that much anyway.
                     </span><span class="kw">let </span>jitter = rng.gen_range(<span class="number">0.1</span>..<span class="number">0.9</span>);
                     e.insert(turn.id);
                     <span class="comment">// Remember, keep things negative
@@ -1746,7 +1748,7 @@
         <span class="kw">let </span>driving_lane = <span class="kw">if let </span><span class="prelude-val">Some</span>(l) = map.get_parent(lane.id).parking_to_driving(lane.id) {
             l
         } <span class="kw">else </span>{
-            <span class="macro">error!</span>(<span class="string">&quot;Parking lane {} has no driving lane!&quot;</span>, lane.id);
+            <span class="macro">error!</span>(<span class="string">"Parking lane {} has no driving lane!"</span>, lane.id);
             <span class="kw">return </span><span class="prelude-val">None</span>;
         };
         <span class="kw">if </span>map.get_l(driving_lane).driving_blackhole {
@@ -1758,7 +1760,7 @@
         {
             l
         } <span class="kw">else </span>{
-            <span class="macro">warn!</span>(<span class="string">&quot;Parking lane {} has no sidewalk!&quot;</span>, lane.id);
+            <span class="macro">warn!</span>(<span class="string">"Parking lane {} has no sidewalk!"</span>, lane.id);
             <span class="kw">return </span><span class="prelude-val">None</span>;
         };
 
@@ -1792,30 +1794,30 @@
 /// buildings. Useful for maps without good parking data (which is currently all of them) and
 /// experiments where parking contention skews results and just gets in the way.
 </span><span class="comment">//
-// TODO Reconsider this split implementation. There&#39;s lots of copied code. We can maybe just use
-// NormalParkingSimState with an &#39;infinite: bool&#39; and rethinking num_spots_per_offstreet.
+// TODO Reconsider this split implementation. There's lots of copied code. We can maybe just use
+// NormalParkingSimState with an 'infinite: bool' and rethinking num_spots_per_offstreet.
 </span><span class="attr">#[derive(Serialize, Deserialize, Clone)]
 </span><span class="kw">pub struct </span>InfiniteParkingSimState {
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>parked_cars: BTreeMap&lt;CarID, ParkedCar&gt;,
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>occupants: BTreeMap&lt;ParkingSpot, CarID&gt;,
     <span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+        serialize_with = <span class="string">"serialize_btreemap"</span>,
+        deserialize_with = <span class="string">"deserialize_btreemap"
     </span>)]
     </span>reserved_spots: BTreeMap&lt;ParkingSpot, CarID&gt;,
 
     <span class="comment">// Cache dist_along
     </span><span class="attr">#[serde(
-        serialize_with = <span class="string">&quot;serialize_multimap&quot;</span>,
-        deserialize_with = <span class="string">&quot;deserialize_multimap&quot;
+        serialize_with = <span class="string">"serialize_multimap"</span>,
+        deserialize_with = <span class="string">"deserialize_multimap"
     </span>)]
     </span>driving_to_offstreet: MultiMap&lt;LaneID, (BuildingID, Distance)&gt;,
     <span class="comment">// For an entry b1 -&gt; b2, b1 is blackholed, so instead go park at b2 and walk the rest of the
@@ -1854,7 +1856,7 @@
             blackholes.push(b.id);
         }
 
-        <span class="comment">// For every blackholed building, find a nearby building that isn&#39;t blackholed
+        <span class="comment">// For every blackholed building, find a nearby building that isn't blackholed
         </span><span class="kw">for </span>b <span class="kw">in </span>blackholes {
             <span class="comment">// TODO This is a simple DFS. Could sort by distance.
             </span><span class="kw">let </span><span class="kw-2">mut </span>queue = <span class="macro">vec!</span>[map.find_driving_lane_near_building(b)];
@@ -1880,15 +1882,15 @@
 
     <span class="kw">fn </span>get_free_bldg_spot(<span class="kw-2">&amp;</span><span class="self">self</span>, b: BuildingID) -&gt; ParkingSpot {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(redirect) = <span class="self">self</span>.blackholed_building_redirects.get(<span class="kw-2">&amp;</span>b) {
-            <span class="comment">// This won&#39;t recurse endlessly; the redirect is not a key in
+            <span class="comment">// This won't recurse endlessly; the redirect is not a key in
             // blackholed_building_redirects.
             </span><span class="kw">return </span><span class="self">self</span>.get_free_bldg_spot(<span class="kw-2">*</span>redirect);
         }
 
-        <span class="comment">// As long as the index is unique, it doesn&#39;t matter what it actually is, so optimize for
+        <span class="comment">// As long as the index is unique, it doesn't matter what it actually is, so optimize for
         // initially seeding many cars in one building by starting with the number of cars already
-        // there. As the simulation runs, we&#39;ll wind up skipping some intermediate indices, but it
-        // doesn&#39;t matter.
+        // there. As the simulation runs, we'll wind up skipping some intermediate indices, but it
+        // doesn't matter.
         </span><span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">self
             </span>.num_occupants_per_offstreet
             .get(<span class="kw-2">&amp;</span>b)
@@ -1939,10 +1941,10 @@
     <span class="kw">fn </span>remove_parked_car(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p: ParkedCar) {
         <span class="self">self</span>.parked_cars
             .remove(<span class="kw-2">&amp;</span>p.vehicle.id)
-            .expect(<span class="string">&quot;remove_parked_car missing from parked_cars&quot;</span>);
+            .expect(<span class="string">"remove_parked_car missing from parked_cars"</span>);
         <span class="self">self</span>.occupants
             .remove(<span class="kw-2">&amp;</span>p.spot)
-            .expect(<span class="string">&quot;remove_parked_car missing from occupants&quot;</span>);
+            .expect(<span class="string">"remove_parked_car missing from occupants"</span>);
         <span class="self">self</span>.events
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
 
@@ -2066,7 +2068,7 @@
         <span class="comment">// TODO This impl is copied from NormalParkingSimState. Instead, we already know the
         // redirect... could just path to it.
         </span><span class="kw">let </span><span class="kw-2">mut </span>backrefs: HashMap&lt;LaneID, TurnID&gt; = HashMap::new();
-        <span class="comment">// Don&#39;t travel far.
+        <span class="comment">// Don't travel far.
         // This is a max-heap, so negate all distances. Tie breaker is lane ID, arbitrary but
         // deterministic.
         </span><span class="kw">let </span><span class="kw-2">mut </span>queue: BinaryHeap&lt;(Distance, LaneID)&gt; = BinaryHeap::new();
@@ -2074,10 +2076,10 @@
 
         <span class="kw">while </span>!queue.is_empty() {
             <span class="kw">let </span>(dist_so_far, current) = queue.pop().unwrap();
-            <span class="comment">// If the current lane has a spot open, we wouldn&#39;t be asking. This can happen if a spot
-            // opens up on the &#39;start&#39; lane, but behind the car.
+            <span class="comment">// If the current lane has a spot open, we wouldn't be asking. This can happen if a spot
+            // opens up on the 'start' lane, but behind the car.
             </span><span class="kw">if </span>current != start {
-                <span class="comment">// Pick the closest to the start of the lane, since that&#39;s closest to where we came
+                <span class="comment">// Pick the closest to the start of the lane, since that's closest to where we came
                 // from
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>((spot, pos)) = <span class="self">self
                     </span>.get_all_free_spots(Position::start(current), vehicle, target, map)
@@ -2088,7 +2090,7 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>current = current;
                     <span class="kw">loop </span>{
                         <span class="kw">if </span>current == start {
-                            <span class="comment">// Don&#39;t include PathStep::Lane(start)
+                            <span class="comment">// Don't include PathStep::Lane(start)
                             </span>steps.pop();
                             steps.reverse();
                             <span class="kw">return </span><span class="prelude-val">Some</span>((steps, spot, pos));

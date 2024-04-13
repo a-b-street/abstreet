@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="importer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../importer/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -336,7 +338,7 @@
 <a href="#336" id="336">336</a>
 <a href="#337" id="337">337</a>
 <a href="#338" id="338">338</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka
+</pre></div><pre class="rust"><code><span class="doccomment">//! It's assumed that the importer is run with the current directory as the project repository; aka
 //! `./data/` and `./importer/config` must exist.
 
 </span><span class="comment">// Disable some noisy clippy lints
@@ -374,7 +376,7 @@
     all_cities.retain(|x| x != <span class="kw-2">&amp;</span>CityName::seattle());
     all_cities.insert(<span class="number">0</span>, CityName::seattle());
 
-    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;regenerate all maps&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">"regenerate all maps"</span>);
     <span class="kw">for </span>(cnt, city) <span class="kw">in </span>all_cities.into_iter().enumerate() {
         <span class="kw">if </span>cnt % num_shards == shard_num {
             <span class="kw">let </span>job = Job::full_for_city(city);
@@ -391,12 +393,12 @@
     create_uk_travel_demand_model: bool,
     opts: RawToMapOptions,
 ) {
-    <span class="kw">let </span><span class="kw-2">mut </span>timer = abstutil::Timer::new(<span class="string">&quot;oneshot&quot;</span>);
-    <span class="macro">println!</span>(<span class="string">&quot;- Running convert_osm on {}&quot;</span>, osm_path);
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = abstutil::Timer::new(<span class="string">"oneshot"</span>);
+    <span class="macro">println!</span>(<span class="string">"- Running convert_osm on {}"</span>, osm_path);
     <span class="kw">let </span>name = abstutil::basename(<span class="kw-2">&amp;</span>osm_path);
     <span class="kw">let </span>raw = convert_osm::convert(
         osm_path,
-        MapName::new(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>, <span class="kw-2">&amp;</span>name),
+        MapName::new(<span class="string">"zz"</span>, <span class="string">"oneshot"</span>, <span class="kw-2">&amp;</span>name),
         clip,
         options,
         <span class="kw-2">&amp;mut </span>timer,
@@ -404,31 +406,31 @@
     <span class="comment">// Often helpful to save intermediate representation in case user wants to load into map_editor
     </span>raw.save();
     <span class="kw">let </span>map = map_model::Map::create_from_raw(raw, opts, <span class="kw-2">&amp;mut </span>timer);
-    timer.start(<span class="string">&quot;save map&quot;</span>);
+    timer.start(<span class="string">"save map"</span>);
     map.save();
-    timer.stop(<span class="string">&quot;save map&quot;</span>);
+    timer.stop(<span class="string">"save map"</span>);
 
     <span class="kw">if </span>create_uk_travel_demand_model {
-        timer.start(<span class="string">&quot;generating UK travel demand model&quot;</span>);
+        timer.start(<span class="string">"generating UK travel demand model"</span>);
         uk::generate_scenario(<span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;</span>ImporterConfiguration::load(), <span class="kw-2">&amp;mut </span>timer)
             .<span class="kw">await
             </span>.unwrap();
-        timer.stop(<span class="string">&quot;generating UK travel demand model&quot;</span>);
+        timer.stop(<span class="string">"generating UK travel demand model"</span>);
     }
 
-    <span class="macro">println!</span>(<span class="string">&quot;{} has been created&quot;</span>, map.get_name().path());
+    <span class="macro">println!</span>(<span class="string">"{} has been created"</span>, map.get_name().path());
 }
 
 <span class="doccomment">/// A specification for importing all maps in a single city.
 </span><span class="attr">#[derive(StructOpt)]
 </span><span class="kw">pub struct </span>Job {
-    <span class="attr">#[structopt(long, parse(try_from_str = CityName::parse), default_value = <span class="string">&quot;us/seattle&quot;</span>)]
+    <span class="attr">#[structopt(long, parse(try_from_str = CityName::parse), default_value = <span class="string">"us/seattle"</span>)]
     </span><span class="kw">pub </span>city: CityName,
     <span class="doccomment">/// Download all raw input files, then convert OSM to the intermediate RawMap.
-    </span><span class="attr">#[structopt(long = <span class="string">&quot;--raw&quot;</span>)]
+    </span><span class="attr">#[structopt(long = <span class="string">"--raw"</span>)]
     </span><span class="kw">pub </span>osm_to_raw: bool,
     <span class="doccomment">/// Convert the RawMap to the final Map format.
-    </span><span class="attr">#[structopt(long = <span class="string">&quot;--map&quot;</span>)]
+    </span><span class="attr">#[structopt(long = <span class="string">"--map"</span>)]
     </span><span class="kw">pub </span>raw_to_map: bool,
     <span class="doccomment">/// Download trip demand data, then produce the typical weekday scenario.
     </span><span class="attr">#[structopt(long)]
@@ -458,42 +460,42 @@
             opts: RawToMapOptions::default(),
         };
         <span class="comment">// Only some maps run extra tasks
-        </span><span class="kw">if </span>job.city == CityName::seattle() || job.city.country == <span class="string">&quot;gb&quot; </span>{
+        </span><span class="kw">if </span>job.city == CityName::seattle() || job.city.country == <span class="string">"gb" </span>{
             job.scenario = <span class="bool-val">true</span>;
         }
         <span class="comment">// TODO Autodetect this based on number of maps per city?
-        </span><span class="kw">if </span>job.city == CityName::new(<span class="string">&quot;ch&quot;</span>, <span class="string">&quot;zurich&quot;</span>)
-            || job.city == CityName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;leeds&quot;</span>)
-            || job.city == CityName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>)
-            || job.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;nyc&quot;</span>)
-            || job.city == CityName::new(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;charleville_mezieres&quot;</span>)
-            || job.city == CityName::new(<span class="string">&quot;fr&quot;</span>, <span class="string">&quot;paris&quot;</span>)
-            || job.city == CityName::new(<span class="string">&quot;at&quot;</span>, <span class="string">&quot;salzburg&quot;</span>)
-            || job.city == CityName::new(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>)
-            || job.city == CityName::new(<span class="string">&quot;pt&quot;</span>, <span class="string">&quot;portugal&quot;</span>)
+        </span><span class="kw">if </span>job.city == CityName::new(<span class="string">"ch"</span>, <span class="string">"zurich"</span>)
+            || job.city == CityName::new(<span class="string">"gb"</span>, <span class="string">"leeds"</span>)
+            || job.city == CityName::new(<span class="string">"gb"</span>, <span class="string">"london"</span>)
+            || job.city == CityName::new(<span class="string">"us"</span>, <span class="string">"nyc"</span>)
+            || job.city == CityName::new(<span class="string">"fr"</span>, <span class="string">"charleville_mezieres"</span>)
+            || job.city == CityName::new(<span class="string">"fr"</span>, <span class="string">"paris"</span>)
+            || job.city == CityName::new(<span class="string">"at"</span>, <span class="string">"salzburg"</span>)
+            || job.city == CityName::new(<span class="string">"ir"</span>, <span class="string">"tehran"</span>)
+            || job.city == CityName::new(<span class="string">"pt"</span>, <span class="string">"portugal"</span>)
         {
             job.city_overview = <span class="bool-val">true</span>;
         }
         job
     }
 
-    <span class="doccomment">/// Return the command-line flags that should produce this job. Incomplete -- doesn&#39;t invert
+    <span class="doccomment">/// Return the command-line flags that should produce this job. Incomplete -- doesn't invert
     /// RawToMapOptions
     </span><span class="kw">pub fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;String&gt; {
         <span class="comment">// TODO Can structopt do the inversion?
         </span><span class="kw">let </span><span class="kw-2">mut </span>flags = <span class="macro">vec!</span>[];
-        flags.push(<span class="macro">format!</span>(<span class="string">&quot;--city={}&quot;</span>, <span class="self">self</span>.city.to_path()));
+        flags.push(<span class="macro">format!</span>(<span class="string">"--city={}"</span>, <span class="self">self</span>.city.to_path()));
         <span class="kw">if </span><span class="self">self</span>.osm_to_raw {
-            flags.push(<span class="string">&quot;--raw&quot;</span>.to_string());
+            flags.push(<span class="string">"--raw"</span>.to_string());
         }
         <span class="kw">if </span><span class="self">self</span>.raw_to_map {
-            flags.push(<span class="string">&quot;--map&quot;</span>.to_string());
+            flags.push(<span class="string">"--map"</span>.to_string());
         }
         <span class="kw">if </span><span class="self">self</span>.scenario {
-            flags.push(<span class="string">&quot;--scenario&quot;</span>.to_string());
+            flags.push(<span class="string">"--scenario"</span>.to_string());
         }
         <span class="kw">if </span><span class="self">self</span>.city_overview {
-            flags.push(<span class="string">&quot;--city-overview&quot;</span>.to_string());
+            flags.push(<span class="string">"--city-overview"</span>.to_string());
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>name) = <span class="self">self</span>.only_map {
             flags.push(name.clone());
@@ -501,22 +503,22 @@
         flags
     }
 
-    <span class="kw">pub async fn </span>run(<span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">&#39;_</span>&gt;) {
+    <span class="kw">pub async fn </span>run(<span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">'_</span>&gt;) {
         <span class="kw">if </span>!<span class="self">self</span>.osm_to_raw &amp;&amp; !<span class="self">self</span>.raw_to_map &amp;&amp; !<span class="self">self</span>.scenario &amp;&amp; !<span class="self">self</span>.city_overview {
             <span class="macro">println!</span>(
-                <span class="string">&quot;Nothing to do! Pass some combination of --raw, --map, --scenario, or --city_overview&quot;
+                <span class="string">"Nothing to do! Pass some combination of --raw, --map, --scenario, or --city_overview"
             </span>);
             std::process::exit(<span class="number">1</span>);
         }
 
         <span class="kw">let </span>config = ImporterConfiguration::load();
 
-        timer.start(<span class="macro">format!</span>(<span class="string">&quot;import {}&quot;</span>, <span class="self">self</span>.city.describe()));
+        timer.start(<span class="macro">format!</span>(<span class="string">"import {}"</span>, <span class="self">self</span>.city.describe()));
         <span class="kw">let </span>names = <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = <span class="self">self</span>.only_map {
-            <span class="macro">println!</span>(<span class="string">&quot;- Just working on {}&quot;</span>, n);
+            <span class="macro">println!</span>(<span class="string">"- Just working on {}"</span>, n);
             <span class="macro">vec!</span>[MapName::from_city(<span class="kw-2">&amp;</span><span class="self">self</span>.city, <span class="kw-2">&amp;</span>n)]
         } <span class="kw">else </span>{
-            <span class="macro">println!</span>(<span class="string">&quot;- Working on all {} maps&quot;</span>, <span class="self">self</span>.city.describe());
+            <span class="macro">println!</span>(<span class="string">"- Working on all {} maps"</span>, <span class="self">self</span>.city.describe());
             <span class="self">self</span>.city.list_all_maps_in_city_from_importer_config()
         };
 
@@ -527,7 +529,7 @@
         <span class="kw">let </span>(maybe_popdat, maybe_huge_map, maybe_zoning_parcels) = <span class="kw">if </span><span class="self">self</span>.scenario
             &amp;&amp; <span class="self">self</span>.city == CityName::seattle()
         {
-            timer.start(<span class="string">&quot;ensure_popdat_exists&quot;</span>);
+            timer.start(<span class="string">"ensure_popdat_exists"</span>);
             <span class="kw">let </span>(popdat, huge_map) = seattle::ensure_popdat_exists(
                 timer,
                 <span class="kw-2">&amp;</span>config,
@@ -537,8 +539,8 @@
             .<span class="kw">await</span>;
             <span class="comment">// Just assume --raw has been called...
             </span><span class="kw">let </span>shapes: kml::ExtraShapes =
-                abstio::read_binary(CityName::seattle().input_path(<span class="string">&quot;zoning_parcels.bin&quot;</span>), timer);
-            timer.stop(<span class="string">&quot;ensure_popdat_exists&quot;</span>);
+                abstio::read_binary(CityName::seattle().input_path(<span class="string">"zoning_parcels.bin"</span>), timer);
+            timer.stop(<span class="string">"ensure_popdat_exists"</span>);
             (<span class="prelude-val">Some</span>(popdat), <span class="prelude-val">Some</span>(huge_map), <span class="prelude-val">Some</span>(shapes))
         } <span class="kw">else </span>{
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
@@ -547,23 +549,23 @@
         <span class="kw">for </span>name <span class="kw">in </span>names {
             timer.start(name.describe());
             <span class="kw">if </span><span class="self">self</span>.osm_to_raw
-                &amp;&amp; (!built_raw_huge_seattle || name != MapName::seattle(<span class="string">&quot;huge_seattle&quot;</span>))
+                &amp;&amp; (!built_raw_huge_seattle || name != MapName::seattle(<span class="string">"huge_seattle"</span>))
             {
                 <span class="kw">let </span>raw = utils::osm_to_raw(name.clone(), timer, <span class="kw-2">&amp;</span>config).<span class="kw">await</span>;
 
-                <span class="comment">// The collision data will only cover one part of London, since we don&#39;t have a
+                <span class="comment">// The collision data will only cover one part of London, since we don't have a
                 // region-wide map there yet
-                </span><span class="kw">if </span>name.city == CityName::new(<span class="string">&quot;de&quot;</span>, <span class="string">&quot;berlin&quot;</span>) {
+                </span><span class="kw">if </span>name.city == CityName::new(<span class="string">"de"</span>, <span class="string">"berlin"</span>) {
                     berlin::import_extra_data(<span class="kw-2">&amp;</span>raw, <span class="kw-2">&amp;</span>config, timer).<span class="kw">await</span>;
-                } <span class="kw">else if </span>name == MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;leeds&quot;</span>, <span class="string">&quot;huge&quot;</span>) {
+                } <span class="kw">else if </span>name == MapName::new(<span class="string">"gb"</span>, <span class="string">"leeds"</span>, <span class="string">"huge"</span>) {
                     uk::import_collision_data(<span class="kw-2">&amp;</span>raw, <span class="kw-2">&amp;</span>config, timer).<span class="kw">await</span>;
-                } <span class="kw">else if </span>name == MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>, <span class="string">&quot;camden&quot;</span>) {
+                } <span class="kw">else if </span>name == MapName::new(<span class="string">"gb"</span>, <span class="string">"london"</span>, <span class="string">"camden"</span>) {
                     uk::import_collision_data(<span class="kw-2">&amp;</span>raw, <span class="kw-2">&amp;</span>config, timer).<span class="kw">await</span>;
                 }
             }
 
             <span class="kw">let </span><span class="kw-2">mut </span>maybe_map = <span class="kw">if </span><span class="self">self</span>.raw_to_map {
-                <span class="kw">let </span><span class="kw-2">mut </span>map = <span class="kw">if </span>built_map_huge_seattle &amp;&amp; name == MapName::seattle(<span class="string">&quot;huge_seattle&quot;</span>)
+                <span class="kw">let </span><span class="kw-2">mut </span>map = <span class="kw">if </span>built_map_huge_seattle &amp;&amp; name == MapName::seattle(<span class="string">"huge_seattle"</span>)
                 {
                     map_model::Map::load_synchronously(name.path(), timer)
                 } <span class="kw">else </span>{
@@ -571,14 +573,14 @@
                 };
 
                 <span class="comment">// Another strange step in the pipeline.
-                </span><span class="kw">if </span>name == MapName::new(<span class="string">&quot;de&quot;</span>, <span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;center&quot;</span>) {
+                </span><span class="kw">if </span>name == MapName::new(<span class="string">"de"</span>, <span class="string">"berlin"</span>, <span class="string">"center"</span>) {
                     timer.start(<span class="macro">format!</span>(
-                        <span class="string">&quot;distribute residents from planning areas for {}&quot;</span>,
+                        <span class="string">"distribute residents from planning areas for {}"</span>,
                         name.describe()
                     ));
                     berlin::distribute_residents(<span class="kw-2">&amp;mut </span>map, timer);
                     timer.stop(<span class="macro">format!</span>(
-                        <span class="string">&quot;distribute residents from planning areas for {}&quot;</span>,
+                        <span class="string">"distribute residents from planning areas for {}"</span>,
                         name.describe()
                     ));
 
@@ -594,42 +596,42 @@
 
             <span class="kw">if </span><span class="self">self</span>.scenario {
                 <span class="kw">if </span><span class="self">self</span>.city == CityName::seattle() {
-                    timer.start(<span class="macro">format!</span>(<span class="string">&quot;scenario for {}&quot;</span>, name.describe()));
+                    timer.start(<span class="macro">format!</span>(<span class="string">"scenario for {}"</span>, name.describe()));
                     <span class="kw">let </span>scenario = soundcast::make_scenario(
-                        <span class="string">&quot;weekday&quot;</span>,
+                        <span class="string">"weekday"</span>,
                         maybe_map.as_ref().unwrap(),
                         maybe_popdat.as_ref().unwrap(),
                         maybe_huge_map.as_ref().unwrap(),
                         timer,
                     );
                     scenario.save();
-                    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;scenario for {}&quot;</span>, name.describe()));
+                    timer.stop(<span class="macro">format!</span>(<span class="string">"scenario for {}"</span>, name.describe()));
 
                     <span class="comment">// This is a strange ordering.
-                    </span><span class="kw">if </span>name.map == <span class="string">&quot;downtown&quot;
-                        </span>|| name.map == <span class="string">&quot;qa&quot;
-                        </span>|| name.map == <span class="string">&quot;south_seattle&quot;
-                        </span>|| name.map == <span class="string">&quot;wallingford&quot;
+                    </span><span class="kw">if </span>name.map == <span class="string">"downtown"
+                        </span>|| name.map == <span class="string">"qa"
+                        </span>|| name.map == <span class="string">"south_seattle"
+                        </span>|| name.map == <span class="string">"wallingford"
                     </span>{
-                        timer.start(<span class="macro">format!</span>(<span class="string">&quot;adjust parking for {}&quot;</span>, name.describe()));
+                        timer.start(<span class="macro">format!</span>(<span class="string">"adjust parking for {}"</span>, name.describe()));
                         seattle::adjust_private_parking(maybe_map.as_mut().unwrap(), <span class="kw-2">&amp;</span>scenario);
-                        timer.stop(<span class="macro">format!</span>(<span class="string">&quot;adjust parking for {}&quot;</span>, name.describe()));
+                        timer.stop(<span class="macro">format!</span>(<span class="string">"adjust parking for {}"</span>, name.describe()));
                     }
 
-                    timer.start(<span class="string">&quot;match parcels to buildings&quot;</span>);
+                    timer.start(<span class="string">"match parcels to buildings"</span>);
                     seattle::match_parcels_to_buildings(
                         maybe_map.as_mut().unwrap(),
                         maybe_zoning_parcels.as_ref().unwrap(),
                         timer,
                     );
-                    timer.stop(<span class="string">&quot;match parcels to buildings&quot;</span>);
+                    timer.stop(<span class="string">"match parcels to buildings"</span>);
 
                     <span class="comment">// Even stranger hacks! AFTER generating the scenarios, which requires full
-                    // pathfinding, for a few maps, &quot;minify&quot; them to cut down file size for the
+                    // pathfinding, for a few maps, "minify" them to cut down file size for the
                     // bike network tool.
-                    </span><span class="kw">if </span>name.map == <span class="string">&quot;central_seattle&quot;
-                        </span>|| name.map == <span class="string">&quot;north_seattle&quot;
-                        </span>|| name.map == <span class="string">&quot;south_seattle&quot;
+                    </span><span class="kw">if </span>name.map == <span class="string">"central_seattle"
+                        </span>|| name.map == <span class="string">"north_seattle"
+                        </span>|| name.map == <span class="string">"south_seattle"
                     </span>{
                         <span class="kw">let </span>map = maybe_map.as_mut().unwrap();
                         map.minify(timer);
@@ -637,8 +639,8 @@
                     }
                 }
 
-                <span class="kw">if </span><span class="self">self</span>.city.country == <span class="string">&quot;gb&quot; </span>{
-                    <span class="kw">if </span>name == MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>, <span class="string">&quot;central&quot;</span>) {
+                <span class="kw">if </span><span class="self">self</span>.city.country == <span class="string">"gb" </span>{
+                    <span class="kw">if </span>name == MapName::new(<span class="string">"gb"</span>, <span class="string">"london"</span>, <span class="string">"central"</span>) {
                         <span class="comment">// No scenario for Central London, which has buildings stripped out
                         </span><span class="kw">let </span>map = maybe_map.as_mut().unwrap();
                         map.minify_buildings(timer);
@@ -655,23 +657,23 @@
 
         <span class="kw">if </span><span class="self">self</span>.city_overview {
             timer.start(<span class="macro">format!</span>(
-                <span class="string">&quot;generate city overview for {}&quot;</span>,
+                <span class="string">"generate city overview for {}"</span>,
                 <span class="self">self</span>.city.describe()
             ));
             abstio::write_binary(
                 abstio::path(<span class="macro">format!</span>(
-                    <span class="string">&quot;system/{}/{}/city.bin&quot;</span>,
+                    <span class="string">"system/{}/{}/city.bin"</span>,
                     <span class="self">self</span>.city.country, <span class="self">self</span>.city.city
                 )),
                 <span class="kw-2">&amp;</span>map_model::City::from_individual_maps(<span class="kw-2">&amp;</span><span class="self">self</span>.city, timer),
             );
             timer.stop(<span class="macro">format!</span>(
-                <span class="string">&quot;generate city overview for {}&quot;</span>,
+                <span class="string">"generate city overview for {}"</span>,
                 <span class="self">self</span>.city.describe()
             ));
         }
 
-        timer.stop(<span class="macro">format!</span>(<span class="string">&quot;import {}&quot;</span>, <span class="self">self</span>.city.describe()));
+        timer.stop(<span class="macro">format!</span>(<span class="string">"import {}"</span>, <span class="self">self</span>.city.describe()));
     }
 }
 </code></pre></div></section></main></body></html>

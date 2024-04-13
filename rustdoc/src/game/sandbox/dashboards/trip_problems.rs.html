@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/trip_problems.rs`."><title>trip_problems.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/trip_problems.rs`."><title>trip_problems.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -579,40 +581,40 @@
                 <span class="kw">if </span>lower_bound + <span class="number">1 </span>== upper_bound {
                     Text::from(lower_bound.abs().to_string())
                 } <span class="kw">else if </span>lower_bound.is_negative() {
-                    Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, upper_bound.abs() + <span class="number">1</span>, lower_bound.abs()))
+                    Text::from(<span class="macro">format!</span>(<span class="string">"{}-{}"</span>, upper_bound.abs() + <span class="number">1</span>, lower_bound.abs()))
                 } <span class="kw">else </span>{
-                    Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, lower_bound.abs(), upper_bound.abs() - <span class="number">1</span>))
+                    Text::from(<span class="macro">format!</span>(<span class="string">"{}-{}"</span>, lower_bound.abs(), upper_bound.abs() - <span class="number">1</span>))
                 }
             }),
             tooltip_for_bucket: Box::new(|(t1, t2), (problems1, problems2), count| {
                 <span class="kw">let </span>trip_string = <span class="kw">if </span>count == <span class="number">1 </span>{
-                    <span class="string">&quot;1 trip&quot;</span>.to_string()
+                    <span class="string">"1 trip"</span>.to_string()
                 } <span class="kw">else </span>{
-                    <span class="macro">format!</span>(<span class="string">&quot;{} trips&quot;</span>, prettyprint_usize(count))
+                    <span class="macro">format!</span>(<span class="string">"{} trips"</span>, prettyprint_usize(count))
                 };
                 <span class="kw">let </span>duration_string = <span class="kw">match </span>(t1, t2) {
-                    (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(end)) =&gt; <span class="macro">format!</span>(<span class="string">&quot;shorter than {}&quot;</span>, end),
-                    (<span class="prelude-val">Some</span>(start), <span class="prelude-val">None</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;longer than {}&quot;</span>, start),
-                    (<span class="prelude-val">Some</span>(start), <span class="prelude-val">Some</span>(end)) =&gt; <span class="macro">format!</span>(<span class="string">&quot;between {} and {}&quot;</span>, start, end),
+                    (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(end)) =&gt; <span class="macro">format!</span>(<span class="string">"shorter than {}"</span>, end),
+                    (<span class="prelude-val">Some</span>(start), <span class="prelude-val">None</span>) =&gt; <span class="macro">format!</span>(<span class="string">"longer than {}"</span>, start),
+                    (<span class="prelude-val">Some</span>(start), <span class="prelude-val">Some</span>(end)) =&gt; <span class="macro">format!</span>(<span class="string">"between {} and {}"</span>, start, end),
                     (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
-                        <span class="macro">unreachable!</span>(<span class="string">&quot;at least one end of the duration range must be specified&quot;</span>)
+                        <span class="macro">unreachable!</span>(<span class="string">"at least one end of the duration range must be specified"</span>)
                     }
                 };
-                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, trip_string, duration_string));
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">"{} {}"</span>, trip_string, duration_string));
                 txt.add_line(<span class="kw">match </span>problems1.cmp(<span class="kw-2">&amp;</span><span class="number">0</span>) {
                     std::cmp::Ordering::Equal =&gt; {
-                        <span class="string">&quot;had no change in the number of problems encountered.&quot;</span>.to_string()
+                        <span class="string">"had no change in the number of problems encountered."</span>.to_string()
                     }
                     std::cmp::Ordering::Less =&gt; {
                         <span class="kw">if </span>problems1.abs() == problems2.abs() + <span class="number">1 </span>{
                             <span class="kw">if </span>problems1.abs() == <span class="number">1 </span>{
-                                <span class="string">&quot;encountered 1 fewer problem.&quot;</span>.to_string()
+                                <span class="string">"encountered 1 fewer problem."</span>.to_string()
                             } <span class="kw">else </span>{
-                                <span class="macro">format!</span>(<span class="string">&quot;encountered {} fewer problems.&quot;</span>, problems1.abs())
+                                <span class="macro">format!</span>(<span class="string">"encountered {} fewer problems."</span>, problems1.abs())
                             }
                         } <span class="kw">else </span>{
                             <span class="macro">format!</span>(
-                                <span class="string">&quot;encountered {}-{} fewer problems.&quot;</span>,
+                                <span class="string">"encountered {}-{} fewer problems."</span>,
                                 problems2.abs() + <span class="number">1</span>,
                                 problems1.abs()
                             )
@@ -621,12 +623,12 @@
                     std::cmp::Ordering::Greater =&gt; {
                         <span class="kw">if </span>problems1 == problems2 - <span class="number">1 </span>{
                             <span class="kw">if </span>problems1 == <span class="number">1 </span>{
-                                <span class="string">&quot;encountered 1 more problems.&quot;</span>.to_string()
+                                <span class="string">"encountered 1 more problems."</span>.to_string()
                             } <span class="kw">else </span>{
-                                <span class="macro">format!</span>(<span class="string">&quot;encountered {} more problems.&quot;</span>, problems1,)
+                                <span class="macro">format!</span>(<span class="string">"encountered {} more problems."</span>, problems1,)
                             }
                         } <span class="kw">else </span>{
-                            <span class="macro">format!</span>(<span class="string">&quot;encountered {}-{} more problems.&quot;</span>, problems1, problems2 - <span class="number">1</span>)
+                            <span class="macro">format!</span>(<span class="string">"encountered {}-{} more problems."</span>, problems1, problems2 - <span class="number">1</span>)
                         }
                     }
                 });
@@ -644,7 +646,7 @@
 }
 
 <span class="kw">impl</span>&lt;
-        ID: <span class="lifetime">&#39;static </span>+ CloneableAny + Clone,
+        ID: <span class="lifetime">'static </span>+ CloneableAny + Clone,
         X: Copy + PartialOrd + Display,
         Y: Copy + PartialOrd + Display,
     &gt; Matrix&lt;ID, X, Y&gt;
@@ -712,7 +714,7 @@
                 grid_batch.push(color, rect.clone());
                 grid_batch.append(
                     Text::from(<span class="kw">if </span>count == <span class="number">0 </span>&amp;&amp; is_middle_ybucket {
-                        <span class="string">&quot;-&quot;</span>.to_string()
+                        <span class="string">"-"</span>.to_string()
                     } <span class="kw">else </span>{
                         abbreviated_format(count)
                     })
@@ -801,7 +803,7 @@
                     y_axis_scale.push(ctx.style().text_secondary_color, line);
                 }
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>y_axis_label = Text::from(<span class="string">&quot;More Problems &lt;--------&gt; Fewer Problems&quot;</span>)
+            <span class="kw">let </span><span class="kw-2">mut </span>y_axis_label = Text::from(<span class="string">"More Problems &lt;--------&gt; Fewer Problems"</span>)
                 .change_fg(ctx.style().text_secondary_color)
                 .render(ctx)
                 .rotate(Angle::degrees(-<span class="number">90.0</span>));
@@ -824,7 +826,7 @@
                 <span class="kw">let </span>y1 = <span class="number">0.0</span>;
 
                 x_axis_scale.append(
-                    Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.buckets_x[x]))
+                    Text::from(<span class="macro">format!</span>(<span class="string">"{}"</span>, <span class="self">self</span>.buckets_x[x]))
                         .change_fg(ctx.style().text_secondary_color)
                         .render(ctx)
                         .centered_on(Pt2D::new(x1, y1 + cell_height / <span class="number">2.0</span>)),
@@ -836,7 +838,7 @@
                     .make_polygons(Distance::meters(tick_thickness));
                 x_axis_scale.push(ctx.style().text_secondary_color, line);
             }
-            <span class="kw">let </span>x_axis_label = Text::from(<span class="string">&quot;Short Trips &lt;--------&gt; Long Trips&quot;</span>)
+            <span class="kw">let </span>x_axis_label = Text::from(<span class="string">"Short Trips &lt;--------&gt; Long Trips"</span>)
                 .change_fg(ctx.style().text_secondary_color)
                 .render(ctx)
                 .centered_on(Pt2D::new(
@@ -875,9 +877,9 @@
 <span class="kw">fn </span>bucketize_isizes(max_buckets: usize, pts: <span class="kw-2">&amp;</span>[(TripID, Duration, isize)]) -&gt; Vec&lt;isize&gt; {
     <span class="macro">debug_assert!</span>(
         max_buckets % <span class="number">2 </span>== <span class="number">1</span>,
-        <span class="string">&quot;num_buckets must be odd to have a symmetrical number of buckets around axis&quot;
+        <span class="string">"num_buckets must be odd to have a symmetrical number of buckets around axis"
     </span>);
-    <span class="macro">debug_assert!</span>(max_buckets &gt;= <span class="number">3</span>, <span class="string">&quot;num_buckets must be at least 3&quot;</span>);
+    <span class="macro">debug_assert!</span>(max_buckets &gt;= <span class="number">3</span>, <span class="string">"num_buckets must be at least 3"</span>);
 
     <span class="kw">let </span>positive_buckets = (max_buckets - <span class="number">1</span>) / <span class="number">2</span>;
     <span class="comment">// uniformly sized integer buckets
@@ -903,7 +905,7 @@
         buckets.push(-(i <span class="kw">as </span>isize) * bucket_size);
     }
     buckets.sort_unstable();
-    <span class="macro">debug!</span>(<span class="string">&quot;buckets: {:?}&quot;</span>, buckets);
+    <span class="macro">debug!</span>(<span class="string">"buckets: {:?}"</span>, buckets);
 
     buckets
 }
@@ -929,7 +931,7 @@
         <span class="comment">// there should be an even number of buckets on either side of zero so as to center
         // our x-axis.
         //
-        // there should always be a 0-1 bucket, ensuring that only &#39;0&#39; falls into the zero-bucket.
+        // there should always be a 0-1 bucket, ensuring that only '0' falls into the zero-bucket.
         //
         // all other buckets edges should be evenly spaced from the zero bucket
         </span><span class="macro">assert_eq!</span>(buckets, <span class="macro">vec!</span>[-<span class="number">6</span>, -<span class="number">4</span>, -<span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>])

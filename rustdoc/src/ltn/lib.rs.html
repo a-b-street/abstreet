@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -274,7 +276,7 @@
 <span class="kw">pub mod </span>save;
 
 <span class="kw">pub fn </span>main() {
-    <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;Low traffic neighbourhoods&quot;</span>);
+    <span class="kw">let </span>settings = Settings::new(<span class="string">"Low traffic neighbourhoods"</span>);
     run(settings);
 }
 
@@ -300,7 +302,7 @@
     opts.show_building_driveways = <span class="bool-val">false</span>;
     opts.show_building_outlines = <span class="bool-val">false</span>;
     <span class="comment">// TODO Ideally we would have a better map model in the first place. The next best thing would
-    // be to change these settings based on the map&#39;s country, but that&#39;s a bit tricky to do early
+    // be to change these settings based on the map's country, but that's a bit tricky to do early
     // enough (before map_switched). So for now, assume primary use of this tool is in the UK,
     // where these settings are most appropriate.
     </span>opts.show_stop_signs = <span class="bool-val">false</span>;
@@ -320,7 +322,7 @@
     widgetry::run(settings, <span class="kw">move </span>|ctx| {
         <span class="comment">// This file is small enough to bundle in the build
         </span>ctx.set_texture(
-            <span class="macro">include_bytes!</span>(<span class="string">&quot;../spritesheet.gif&quot;</span>).to_vec(),
+            <span class="macro">include_bytes!</span>(<span class="string">"../spritesheet.gif"</span>).to_vec(),
             (SPRITE_WIDTH, SPRITE_HEIGHT),
             (SPRITE_WIDTH <span class="kw">as </span>f32, SPRITE_HEIGHT <span class="kw">as </span>f32),
         );
@@ -338,7 +340,7 @@
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>name) = args.proposal {
                     <span class="comment">// Remote edits require another intermediate state to load
-                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(id) = name.strip_prefix(<span class="string">&quot;remote/&quot;</span>) {
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(id) = name.strip_prefix(<span class="string">"remote/"</span>) {
                         <span class="macro">vec!</span>[load_remote(ctx, id.to_string(), args.consultation.clone())]
                     } <span class="kw">else </span>{
                         <span class="kw">let </span>popup_state = <span class="kw">crate</span>::save::Proposal::load_from_path(
@@ -365,28 +367,28 @@
 ) -&gt; Vec&lt;Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>states = Vec::new();
     <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>consultation) = consultation {
-        <span class="kw">if </span>app.per_map.map.get_name() != <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
-            <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode not supported on this map&quot;</span>);
+        <span class="kw">if </span>app.per_map.map.get_name() != <span class="kw-2">&amp;</span>MapName::new(<span class="string">"gb"</span>, <span class="string">"bristol"</span>, <span class="string">"east"</span>) {
+            <span class="macro">panic!</span>(<span class="string">"Consultation mode not supported on this map"</span>);
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>consultation_proposal_path = <span class="prelude-val">None</span>;
 
         <span class="kw">let </span>focus_on_street = <span class="kw">match </span>consultation.as_ref() {
-            <span class="string">&quot;pt1&quot; </span>=&gt; <span class="string">&quot;Gregory Street&quot;</span>,
-            <span class="string">&quot;pt2&quot; </span>=&gt; {
+            <span class="string">"pt1" </span>=&gt; <span class="string">"Gregory Street"</span>,
+            <span class="string">"pt2" </span>=&gt; {
                 <span class="comment">// Start from a baked-in proposal with special boundaries
                 </span>consultation_proposal_path = <span class="prelude-val">Some</span>(abstio::path(
-                    <span class="string">&quot;system/ltn_proposals/bristol_beaufort_road.json.gz&quot;</span>,
+                    <span class="string">"system/ltn_proposals/bristol_beaufort_road.json.gz"</span>,
                 ));
-                <span class="string">&quot;Jubilee Road&quot;
+                <span class="string">"Jubilee Road"
             </span>}
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown Bristol consultation mode {consultation}&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Unknown Bristol consultation mode {consultation}"</span>),
         };
 
-        <span class="comment">// If we already loaded something from a saved proposal, then don&#39;t clear anything
+        <span class="comment">// If we already loaded something from a saved proposal, then don't clear anything
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = consultation_proposal_path {
             <span class="kw">if </span><span class="kw">crate</span>::save::Proposal::load_from_path(ctx, app, path.clone()).is_some() {
-                <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode broken; go fix {path} manually&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">"Consultation mode broken; go fix {path} manually"</span>);
             }
             app.per_map.proposals.force_current_to_basemap();
         }
@@ -398,7 +400,7 @@
             .all_roads()
             .iter()
             .find(|r| r.get_name(<span class="prelude-val">None</span>) == focus_on_street)
-            .expect(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Can&#39;t find {focus_on_street}&quot;</span>))
+            .expect(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"Can't find {focus_on_street}"</span>))
             .id;
         <span class="kw">let </span>(neighbourhood, <span class="kw">_</span>) = app
             .partitioning()
@@ -406,7 +408,7 @@
             .iter()
             .find(|(<span class="kw">_</span>, info)| info.block.perimeter.interior.contains(<span class="kw-2">&amp;</span>r))
             .expect(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                <span class="string">&quot;Can&#39;t find neighbourhood containing {focus_on_street}&quot;
+                <span class="string">"Can't find neighbourhood containing {focus_on_street}"
             </span>));
         app.per_map.consultation = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>neighbourhood);
         app.per_map.consultation_id = <span class="prelude-val">Some</span>(consultation.to_string());
@@ -434,7 +436,7 @@
 ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
     <span class="kw">let </span>(<span class="kw">_</span>, outer_progress_rx) = futures_channel::mpsc::channel(<span class="number">1</span>);
     <span class="kw">let </span>(<span class="kw">_</span>, inner_progress_rx) = futures_channel::mpsc::channel(<span class="number">1</span>);
-    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/get-ltn?id={}&quot;</span>, <span class="kw">crate</span>::save::PROPOSAL_HOST_URL, id);
+    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/get-ltn?id={}"</span>, <span class="kw">crate</span>::save::PROPOSAL_HOST_URL, id);
     FutureLoader::&lt;App, Vec&lt;u8&gt;&gt;::new_state(
         ctx,
         Box::pin(<span class="kw">async move </span>{
@@ -444,7 +446,7 @@
         }),
         outer_progress_rx,
         inner_progress_rx,
-        <span class="string">&quot;Downloading proposal&quot;</span>,
+        <span class="string">"Downloading proposal"</span>,
         Box::new(<span class="kw">move </span>|ctx, app, result| {
             <span class="kw">let </span>popup_state = <span class="kw">crate</span>::save::Proposal::load_from_bytes(ctx, app, <span class="kw-2">&amp;</span>id, result);
             Transition::Clear(setup_initial_states(
@@ -457,13 +459,13 @@
     )
 }
 
-<span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+<span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
 </span><span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
 
-<span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
-#[wasm_bindgen(js_name = <span class="string">&quot;run&quot;</span>)]
+<span class="attr">#[cfg(target_arch = <span class="string">"wasm32"</span>)]
+#[wasm_bindgen(js_name = <span class="string">"run"</span>)]
 </span><span class="kw">pub fn </span>run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
-    <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;Low traffic neighbourhoods&quot;</span>)
+    <span class="kw">let </span>settings = Settings::new(<span class="string">"Low traffic neighbourhoods"</span>)
         .root_dom_element_id(root_dom_id)
         .assets_base_url(assets_base_url)
         .assets_are_gzipped(assets_are_gzipped);
@@ -478,7 +480,7 @@
 
 <span class="kw">fn </span>is_private(road: <span class="kw-2">&amp;</span>Road) -&gt; bool {
     <span class="comment">// See https://wiki.openstreetmap.org/wiki/Tag:access%3Dprivate#Relation_to_access=no
-    </span>road.osm_tags.is_any(<span class="string">&quot;access&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;no&quot;</span>, <span class="string">&quot;private&quot;</span>])
+    </span>road.osm_tags.is_any(<span class="string">"access"</span>, <span class="macro">vec!</span>[<span class="string">"no"</span>, <span class="string">"private"</span>])
 }
 
 <span class="kw">fn </span>is_driveable(road: <span class="kw-2">&amp;</span>Road, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
@@ -486,7 +488,7 @@
 }
 
 <span class="comment">// The current partitioning is stored deeply nested in App. For read-only access, we can use a
-// regular helper method. For writing, we can&#39;t, because we&#39;ll get a borrow error -- so instead
+// regular helper method. For writing, we can't, because we'll get a borrow error -- so instead
 // just use macros to make it less annoying to modify
 </span><span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>mut_partitioning {

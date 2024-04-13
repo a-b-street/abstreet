@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/heatmap.rs`."><title>heatmap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/heatmap.rs`."><title>heatmap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../map_gui/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -385,7 +387,7 @@
             radius: <span class="number">3.0</span>,
             smoothing: <span class="bool-val">true</span>,
             contours: <span class="bool-val">true</span>,
-            color_scheme: <span class="string">&quot;Turbo&quot;</span>.to_string(),
+            color_scheme: <span class="string">"Turbo"</span>.to_string(),
         }
     }
 
@@ -393,25 +395,25 @@
         <span class="macro">vec!</span>[
             <span class="comment">// TODO Display the value...
             </span>Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Resolution (meters)&quot;</span>.text_widget(ctx).centered_vert(),
-                Spinner::f64_widget(ctx, <span class="string">&quot;resolution&quot;</span>, (<span class="number">1.0</span>, <span class="number">100.0</span>), <span class="self">self</span>.resolution, <span class="number">1.0</span>)
+                <span class="string">"Resolution (meters)"</span>.text_widget(ctx).centered_vert(),
+                Spinner::f64_widget(ctx, <span class="string">"resolution"</span>, (<span class="number">1.0</span>, <span class="number">100.0</span>), <span class="self">self</span>.resolution, <span class="number">1.0</span>)
                     .align_right(),
             ]),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Radius (resolution multiplier)&quot;
+                <span class="string">"Radius (resolution multiplier)"
                     </span>.text_widget(ctx)
                     .centered_vert(),
-                Spinner::f64_widget(ctx, <span class="string">&quot;radius&quot;</span>, (<span class="number">0.0</span>, <span class="number">10.0</span>), <span class="self">self</span>.radius, <span class="number">1.0</span>).align_right(),
+                Spinner::f64_widget(ctx, <span class="string">"radius"</span>, (<span class="number">0.0</span>, <span class="number">10.0</span>), <span class="self">self</span>.radius, <span class="number">1.0</span>).align_right(),
             ]),
-            Toggle::switch(ctx, <span class="string">&quot;smoothing&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.smoothing),
-            Toggle::switch(ctx, <span class="string">&quot;contours&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.contours),
+            Toggle::switch(ctx, <span class="string">"smoothing"</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.smoothing),
+            Toggle::switch(ctx, <span class="string">"contours"</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.contours),
             Widget::row(<span class="macro">vec!</span>[
-                <span class="string">&quot;Color scheme&quot;</span>.text_widget(ctx).centered_vert(),
+                <span class="string">"Color scheme"</span>.text_widget(ctx).centered_vert(),
                 Widget::dropdown(
                     ctx,
-                    <span class="string">&quot;Color scheme&quot;</span>,
+                    <span class="string">"Color scheme"</span>,
                     <span class="self">self</span>.color_scheme.clone(),
-                    <span class="macro">vec!</span>[<span class="string">&quot;Turbo&quot;</span>, <span class="string">&quot;Inferno&quot;</span>, <span class="string">&quot;Warm&quot;</span>, <span class="string">&quot;Cool&quot;</span>, <span class="string">&quot;Oranges&quot;</span>, <span class="string">&quot;Spectral&quot;</span>]
+                    <span class="macro">vec!</span>[<span class="string">"Turbo"</span>, <span class="string">"Inferno"</span>, <span class="string">"Warm"</span>, <span class="string">"Cool"</span>, <span class="string">"Oranges"</span>, <span class="string">"Spectral"</span>]
                         .into_iter()
                         .map(Choice::string)
                         .collect(),
@@ -423,13 +425,13 @@
 
     <span class="kw">pub fn </span>from_controls(c: <span class="kw-2">&amp;</span>Panel) -&gt; HeatmapOptions {
         <span class="comment">// Did we just change?
-        </span><span class="kw">if </span>c.has_widget(<span class="string">&quot;resolution&quot;</span>) {
+        </span><span class="kw">if </span>c.has_widget(<span class="string">"resolution"</span>) {
             HeatmapOptions {
-                resolution: c.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;resolution&quot;</span>).<span class="number">0</span>,
-                radius: c.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;radius&quot;</span>).<span class="number">0</span>,
-                smoothing: c.is_checked(<span class="string">&quot;smoothing&quot;</span>),
-                contours: c.is_checked(<span class="string">&quot;contours&quot;</span>),
-                color_scheme: c.dropdown_value(<span class="string">&quot;Color scheme&quot;</span>),
+                resolution: c.spinner::&lt;RoundedF64&gt;(<span class="string">"resolution"</span>).<span class="number">0</span>,
+                radius: c.spinner::&lt;RoundedF64&gt;(<span class="string">"radius"</span>).<span class="number">0</span>,
+                smoothing: c.is_checked(<span class="string">"smoothing"</span>),
+                contours: c.is_checked(<span class="string">"contours"</span>),
+                color_scheme: c.dropdown_value(<span class="string">"Color scheme"</span>),
             }
         } <span class="kw">else </span>{
             HeatmapOptions::new()
@@ -448,12 +450,12 @@
     <span class="comment">// 7 colors, 8 labels
     </span><span class="kw">let </span>num_colors = <span class="number">7</span>;
     <span class="kw">let </span>gradient = <span class="kw">match </span>opts.color_scheme.as_ref() {
-        <span class="string">&quot;Turbo&quot; </span>=&gt; colorous::TURBO,
-        <span class="string">&quot;Inferno&quot; </span>=&gt; colorous::INFERNO,
-        <span class="string">&quot;Warm&quot; </span>=&gt; colorous::WARM,
-        <span class="string">&quot;Cool&quot; </span>=&gt; colorous::COOL,
-        <span class="string">&quot;Oranges&quot; </span>=&gt; colorous::ORANGES,
-        <span class="string">&quot;Spectral&quot; </span>=&gt; colorous::SPECTRAL,
+        <span class="string">"Turbo" </span>=&gt; colorous::TURBO,
+        <span class="string">"Inferno" </span>=&gt; colorous::INFERNO,
+        <span class="string">"Warm" </span>=&gt; colorous::WARM,
+        <span class="string">"Cool" </span>=&gt; colorous::COOL,
+        <span class="string">"Oranges" </span>=&gt; colorous::ORANGES,
+        <span class="string">"Spectral" </span>=&gt; colorous::SPECTRAL,
         <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
     };
     <span class="kw">let </span>colors: Vec&lt;Color&gt; = (<span class="number">0</span>..num_colors)
@@ -464,7 +466,7 @@
         .collect();
 
     <span class="kw">if </span>pts.is_empty() {
-        <span class="kw">let </span>labels = std::iter::repeat(<span class="string">&quot;0&quot;</span>.to_string())
+        <span class="kw">let </span>labels = std::iter::repeat(<span class="string">"0"</span>.to_string())
             .take(num_colors + <span class="number">1</span>)
             .collect();
         <span class="kw">return </span>ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>ColorScale(colors), labels);
@@ -542,7 +544,7 @@
     <span class="kw">if </span>opts.contours {
         <span class="kw">let </span>max = distrib.select(Statistic::Max).unwrap() <span class="kw">as </span>f64;
         <span class="kw">let </span><span class="kw-2">mut </span>thresholds: Vec&lt;f64&gt; = (<span class="number">0</span>..=<span class="number">5</span>).map(|i| (i <span class="kw">as </span>f64) / <span class="number">5.0 </span>* max).collect();
-        <span class="comment">// Skip 0; it&#39;ll cover the entire map. But have a low value to distinguish
+        <span class="comment">// Skip 0; it'll cover the entire map. But have a low value to distinguish
         // nothing/something.
         </span>thresholds[<span class="number">0</span>] = <span class="number">0.1</span>;
         <span class="kw">let </span>contour_builder =
@@ -551,7 +553,7 @@
             <span class="kw">let </span>(geometry, threshold) = contour.into_inner();
 
             <span class="kw">let </span>c = gradient.eval_continuous(threshold / max);
-            <span class="comment">// Don&#39;t block the map underneath
+            <span class="comment">// Don't block the map underneath
             </span><span class="kw">let </span>color = Color::rgb(c.r <span class="kw">as </span>usize, c.g <span class="kw">as </span>usize, c.b <span class="kw">as </span>usize).alpha(<span class="number">0.6</span>);
 
             <span class="kw">for </span>geo_poly <span class="kw">in </span>geometry {
@@ -569,7 +571,7 @@
                 <span class="kw">if </span>count &gt; <span class="number">0.0 </span>{
                     <span class="kw">let </span>pct = (count <span class="kw">as </span>f64) / (distrib.select(Statistic::Max).unwrap() <span class="kw">as </span>f64);
                     <span class="kw">let </span>c = gradient.eval_continuous(pct);
-                    <span class="comment">// Don&#39;t block the map underneath
+                    <span class="comment">// Don't block the map underneath
                     </span><span class="kw">let </span>color = Color::rgb(c.r <span class="kw">as </span>usize, c.g <span class="kw">as </span>usize, c.b <span class="kw">as </span>usize).alpha(<span class="number">0.6</span>);
                     batch.push(
                         color,
@@ -581,7 +583,7 @@
         }
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>labels = <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>.to_string()];
+    <span class="kw">let </span><span class="kw-2">mut </span>labels = <span class="macro">vec!</span>[<span class="string">"0"</span>.to_string()];
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..=num_colors {
         <span class="kw">let </span>pct = (i <span class="kw">as </span>f64) / (num_colors <span class="kw">as </span>f64);
         labels.push(
@@ -610,7 +612,7 @@
         }
     }
 
-    <span class="doccomment">/// Calculate the index from a given (x, y). Doesn&#39;t do any bounds checking.
+    <span class="doccomment">/// Calculate the index from a given (x, y). Doesn't do any bounds checking.
     </span><span class="kw">pub fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, x: usize, y: usize) -&gt; usize {
         y * <span class="self">self</span>.width + x
     }
@@ -651,7 +653,7 @@
     // in a 2D grid of costs. Use a 100x100 meter resolution.
     </span><span class="kw">let </span>bounds = map.get_bounds();
     <span class="kw">let </span>resolution_m = <span class="number">100.0</span>;
-    <span class="comment">// The costs we&#39;re storing are currently durations, but the contour crate needs f64, so
+    <span class="comment">// The costs we're storing are currently durations, but the contour crate needs f64, so
     // just store the number of seconds.
     </span><span class="kw">let </span><span class="kw-2">mut </span>grid: Grid&lt;f64&gt; = Grid::new(
         (bounds.width() / resolution_m).ceil() <span class="kw">as </span>usize,
@@ -666,7 +668,7 @@
             ((pt.x() - bounds.min_x) / resolution_m) <span class="kw">as </span>usize,
             ((pt.y() - bounds.min_y) / resolution_m) <span class="kw">as </span>usize,
         );
-        <span class="comment">// Don&#39;t add! If two buildings map to the same cell, we should pick a finer resolution.
+        <span class="comment">// Don't add! If two buildings map to the same cell, we should pick a finer resolution.
         </span>grid.data[idx] = cost.inner_seconds();
     }
 
@@ -674,11 +676,11 @@
     <span class="kw">let </span>contour_builder =
         contour::ContourBuilder::new(grid.width <span class="kw">as </span>u32, grid.height <span class="kw">as </span>u32, smooth);
     <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
-    <span class="comment">// The last feature returned will be larger than the last threshold value. We don&#39;t want to
+    <span class="comment">// The last feature returned will be larger than the last threshold value. We don't want to
     // display that at all. zip() will omit this last pair, since colors.len() ==
     // thresholds.len() - 1.
     //
-    // TODO Actually, this still isn&#39;t working. I think each polygon is everything &gt; the
+    // TODO Actually, this still isn't working. I think each polygon is everything &gt; the
     // threshold, not everything between two thresholds?
     </span><span class="kw">for </span>(contour, color) <span class="kw">in </span>contour_builder
         .contours(<span class="kw-2">&amp;</span>grid.data, thresholds)

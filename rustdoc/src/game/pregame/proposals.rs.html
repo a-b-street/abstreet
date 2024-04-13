@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/pregame/proposals.rs`."><title>proposals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/pregame/proposals.rs`."><title>proposals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -205,11 +207,11 @@
         <span class="kw">let </span><span class="kw-2">mut </span>proposals = HashMap::new();
         <span class="kw">let </span><span class="kw-2">mut </span>tab_buttons = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>current_tab_rows = Vec::new();
-        <span class="comment">// If a proposal has fallen out of date, it&#39;ll be skipped with an error logged. Since these
+        <span class="comment">// If a proposal has fallen out of date, it'll be skipped with an error logged. Since these
         // are under version control, much more likely to notice when they break (or we could add a
         // step to data/regen.sh).
         </span><span class="kw">for </span>(name, edits) <span class="kw">in
-            </span>abstio::load_all_objects::&lt;PermanentMapEdits&gt;(abstio::path(<span class="string">&quot;system/proposals&quot;</span>))
+            </span>abstio::load_all_objects::&lt;PermanentMapEdits&gt;(abstio::path(<span class="string">"system/proposals"</span>))
         {
             <span class="kw">if </span>current == <span class="prelude-val">Some</span>(name.clone()) {
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
@@ -229,7 +231,7 @@
                         ctx.style()
                             .btn_plain
                             .btn()
-                            .label_underlined_text(<span class="string">&quot;Read detailed write-up&quot;</span>)
+                            .label_underlined_text(<span class="string">"Read detailed write-up"</span>)
                             .build_def(ctx)
                             .margin_below(<span class="number">10</span>),
                     );
@@ -237,7 +239,7 @@
                 current_tab_rows.push(
                     ctx.style()
                         .btn_solid_primary
-                        .text(<span class="string">&quot;Try out this proposal&quot;</span>)
+                        .text(<span class="string">"Try out this proposal"</span>)
                         .hotkey(Key::Enter)
                         .build_def(ctx),
                 );
@@ -270,13 +272,13 @@
 
         <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
             Widget::row(<span class="macro">vec!</span>[
-                Line(<span class="string">&quot;Community proposals&quot;</span>).small_heading().into_widget(ctx),
+                Line(<span class="string">"Community proposals"</span>).small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             {
                 <span class="kw">let </span><span class="kw-2">mut </span>txt =
-                    Text::from(<span class="string">&quot;These are proposed changes to Seattle made by community members.&quot;</span>);
-                txt.add_line(<span class="string">&quot;Contact dabreegster@gmail.com to add your idea here!&quot;</span>);
+                    Text::from(<span class="string">"These are proposed changes to Seattle made by community members."</span>);
+                txt.add_line(<span class="string">"Contact dabreegster@gmail.com to add your idea here!"</span>);
                 txt.into_widget(ctx).centered_horiz()
             },
             Widget::custom_row(tab_buttons)
@@ -298,13 +300,13 @@
         <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
     ) -&gt; Transition {
         <span class="kw">match </span>x {
-            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
-            <span class="string">&quot;Try out this proposal&quot; </span>=&gt; launch(
+            <span class="string">"close" </span>=&gt; Transition::Pop,
+            <span class="string">"Try out this proposal" </span>=&gt; launch(
                 ctx,
                 app,
                 <span class="self">self</span>.proposals[<span class="self">self</span>.current.as_ref().unwrap()].clone(),
             ),
-            <span class="string">&quot;Read detailed write-up&quot; </span>=&gt; {
+            <span class="string">"Read detailed write-up" </span>=&gt; {
                 open_browser(
                     <span class="self">self</span>.proposals[<span class="self">self</span>.current.as_ref().unwrap()]
                         .proposal_link
@@ -319,7 +321,7 @@
 }
 
 <span class="kw">fn </span>launch(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, edits: PermanentMapEdits) -&gt; Transition {
-    <span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
     </span>{
         <span class="kw">if </span>!abstio::file_exists(edits.map_name.path()) {
             <span class="kw">return </span>map_gui::tools::prompt_to_download_missing_data(
@@ -336,7 +338,7 @@
         edits.map_name.clone(),
         Box::new(<span class="kw">move </span>|ctx, app| {
             <span class="comment">// Apply edits before setting up the sandbox, for simplicity
-            </span><span class="kw">let </span>maybe_err = ctx.loading_screen(<span class="string">&quot;apply edits&quot;</span>, |ctx, timer| {
+            </span><span class="kw">let </span>maybe_err = ctx.loading_screen(<span class="string">"apply edits"</span>, |ctx, timer| {
                 <span class="kw">match </span>edits.into_edits(<span class="kw-2">&amp;</span>app.primary.map) {
                     <span class="prelude-val">Ok</span>(edits) =&gt; {
                         apply_map_edits(ctx, app, edits);
@@ -349,7 +351,7 @@
             <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = maybe_err {
                 Transition::Replace(PopupMsg::new_state(
                     ctx,
-                    <span class="string">&quot;Can&#39;t load proposal&quot;</span>,
+                    <span class="string">"Can't load proposal"</span>,
                     <span class="macro">vec!</span>[err.to_string()],
                 ))
             } <span class="kw">else </span>{

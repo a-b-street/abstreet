@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/crossings.rs`."><title>crossings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/pages/crossings.rs`."><title>crossings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ltn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../ltn/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -503,10 +505,10 @@
         Box::new(state)
     }
 
-    <span class="kw">pub fn </span>svg_path(ct: CrossingType) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">pub fn </span>svg_path(ct: CrossingType) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span>ct {
-            CrossingType::Signalized =&gt; <span class="string">&quot;system/assets/tools/signalized_crossing.svg&quot;</span>,
-            CrossingType::Unsignalized =&gt; <span class="string">&quot;system/assets/tools/unsignalized_crossing.svg&quot;</span>,
+            CrossingType::Signalized =&gt; <span class="string">"system/assets/tools/signalized_crossing.svg"</span>,
+            CrossingType::Unsignalized =&gt; <span class="string">"system/assets/tools/unsignalized_crossing.svg"</span>,
         }
     }
 
@@ -557,17 +559,17 @@
         }
         <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.bottom_panel.event(ctx) {
             <span class="kw">match </span>x.as_ref() {
-                <span class="string">&quot;signalized crossing&quot; </span>=&gt; {
+                <span class="string">"signalized crossing" </span>=&gt; {
                     app.session.crossing_type = CrossingType::Signalized;
                     <span class="kw">let </span>contents = make_bottom_panel(ctx, app);
                     <span class="self">self</span>.bottom_panel = BottomPanel::new(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel, contents);
                 }
-                <span class="string">&quot;unsignalized crossing&quot; </span>=&gt; {
+                <span class="string">"unsignalized crossing" </span>=&gt; {
                     app.session.crossing_type = CrossingType::Unsignalized;
                     <span class="kw">let </span>contents = make_bottom_panel(ctx, app);
                     <span class="self">self</span>.bottom_panel = BottomPanel::new(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel, contents);
                 }
-                <span class="string">&quot;undo&quot; </span>=&gt; {
+                <span class="string">"undo" </span>=&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>edits = app.per_map.map.get_edits().clone();
                     edits.commands.pop().unwrap();
                     app.apply_edits(edits);
@@ -602,7 +604,7 @@
                 </span><span class="kw">let </span><span class="kw-2">mut </span>edits = map.get_edits().clone();
                 edits.commands.push(map.edit_road_cmd(r, |new| {
                     new.crossings.remove(idx);
-                    <span class="comment">// We don&#39;t need to re-sort
+                    <span class="comment">// We don't need to re-sort
                 </span>}));
                 app.apply_edits(edits);
                 <span class="self">self</span>.update(ctx, app);
@@ -633,10 +635,10 @@
     }
 }
 
-<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
     <span class="macro">vec!</span>[
-        <span class="string">&quot;This shows crossings over main roads.&quot;</span>,
-        <span class="string">&quot;The number of crossings determines the \&quot;porosity\&quot; of areas&quot;</span>,
+        <span class="string">"This shows crossings over main roads."</span>,
+        <span class="string">"The number of crossings determines the \"porosity\" of areas"</span>,
     ]
 }
 
@@ -728,7 +730,7 @@
             world
                 .add(Obj::Crossing(road.id, idx))
                 <span class="comment">// The circles change size based on zoom, but for interaction, just use a fixed
-                // multiple of the road&#39;s width. It&#39;ll be a little weird.
+                // multiple of the road's width. It'll be a little weird.
                 </span>.hitbox(
                     Circle::new(
                         road.center_pts.must_dist_along(crossing.dist).<span class="number">0</span>,
@@ -752,7 +754,7 @@
             .clickable()
             .maybe_tooltip(<span class="kw">if let </span><span class="prelude-val">Some</span>(time) = time_to_nearest_crossing.get(<span class="kw-2">&amp;</span>road.id) {
                 <span class="prelude-val">Some</span>(Text::from(Line(<span class="macro">format!</span>(
-                    <span class="string">&quot;{time} walking to the nearest crossing&quot;
+                    <span class="string">"{time} walking to the nearest crossing"
                 </span>))))
             } <span class="kw">else </span>{
                 <span class="prelude-val">None
@@ -767,8 +769,8 @@
 <span class="kw">fn </span>draw_porosity(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Drawable {
     <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
     <span class="kw">for </span>info <span class="kw">in </span>app.partitioning().all_neighbourhoods().values() {
-        <span class="comment">// I haven&#39;t seen a single road segment with multiple crossings yet. If it happens, it&#39;s
-        // likely just a complex intersection and probably shouldn&#39;t count as multiple.
+        <span class="comment">// I haven't seen a single road segment with multiple crossings yet. If it happens, it's
+        // likely just a complex intersection and probably shouldn't count as multiple.
         </span><span class="kw">let </span>num_crossings = info
             .block
             .perimeter
@@ -791,7 +793,7 @@
 
 <span class="kw">fn </span>make_bottom_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
     <span class="kw">let </span>icon = |ct: CrossingType, key: Key, name: <span class="kw-2">&amp;</span>str| {
-        <span class="kw">let </span>hide_color = Color::hex(<span class="string">&quot;#FDDA06&quot;</span>);
+        <span class="kw">let </span>hide_color = Color::hex(<span class="string">"#FDDA06"</span>);
 
         ctx.style()
             .btn_solid_primary
@@ -809,8 +811,8 @@
             .tooltip_and_disabled({
                 <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
                 txt.append(Line(name));
-                txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
-                txt.append(Line(<span class="string">&quot; a main road to add or remove a crossing&quot;</span>));
+                txt.add_line(Line(<span class="string">"Click"</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">" a main road to add or remove a crossing"</span>));
                 txt
             })
             .build_widget(ctx, name)
@@ -822,18 +824,18 @@
     }
 
     Widget::row(<span class="macro">vec!</span>[
-        icon(CrossingType::Unsignalized, Key::F1, <span class="string">&quot;unsignalized crossing&quot;</span>),
-        icon(CrossingType::Signalized, Key::F2, <span class="string">&quot;signalized crossing&quot;</span>),
+        icon(CrossingType::Unsignalized, Key::F1, <span class="string">"unsignalized crossing"</span>),
+        icon(CrossingType::Signalized, Key::F2, <span class="string">"signalized crossing"</span>),
         Widget::vertical_separator(ctx),
         Widget::row(<span class="macro">vec!</span>[
             ctx.style()
                 .btn_plain
-                .icon(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .icon(<span class="string">"system/assets/tools/undo.svg"</span>)
                 .disabled(app.per_map.map.get_edits().commands.is_empty())
                 .hotkey(lctrl(Key::Z))
-                .build_widget(ctx, <span class="string">&quot;undo&quot;</span>),
+                .build_widget(ctx, <span class="string">"undo"</span>),
             <span class="comment">// TODO Only count new crossings
-            </span><span class="macro">format!</span>(<span class="string">&quot;{total_crossings} crossings&quot;</span>,)
+            </span><span class="macro">format!</span>(<span class="string">"{total_crossings} crossings"</span>,)
                 .text_widget(ctx)
                 .centered_vert(),
         ]),
@@ -898,7 +900,7 @@
         <span class="kw">let </span>road = app.per_map.map.get_r(<span class="kw-2">*</span>r);
         batch.push(color, road.get_thick_polygon());
 
-        <span class="comment">// Color the intersections too, and don&#39;t worry if the colors differ. Just be less weird
+        <span class="comment">// Color the intersections too, and don't worry if the colors differ. Just be less weird
         // looking.
         </span><span class="kw">for </span>i <span class="kw">in </span>[road.src_i, road.dst_i] {
             <span class="kw">if </span>drawn_intersections.contains(<span class="kw-2">&amp;</span>i) {

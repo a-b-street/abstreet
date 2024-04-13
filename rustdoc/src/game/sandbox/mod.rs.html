@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="game" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../../game/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -797,14 +799,14 @@
 }
 
 <span class="kw">impl </span>SandboxMode {
-    <span class="doccomment">/// If you don&#39;t need to chain any transitions after the SandboxMode that rely on its resources
+    <span class="doccomment">/// If you don't need to chain any transitions after the SandboxMode that rely on its resources
     /// being loaded, use this. Otherwise, see `async_new`.
     </span><span class="kw">pub fn </span>simple_new(app: <span class="kw-2">&amp;mut </span>App, mode: GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
         SandboxMode::async_new(app, mode, Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| Vec::new()))
     }
 
     <span class="doccomment">/// This does not immediately initialize anything (like loading the correct map, instantiating
-    /// the scenario, etc). That means if you&#39;re chaining this call with other transitions, you
+    /// the scenario, etc). That means if you're chaining this call with other transitions, you
     /// probably need to defer running them using `finalize`.
     </span><span class="kw">pub fn </span>async_new(
         app: <span class="kw-2">&amp;mut </span>App,
@@ -935,10 +937,10 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>tp) = <span class="self">self</span>.controls.tool_panel {
             <span class="kw">if let </span>Outcome::Clicked(x) = tp.event(ctx) {
                 <span class="kw">match </span>x.as_ref() {
-                    <span class="string">&quot;back&quot; </span>=&gt; {
+                    <span class="string">"back" </span>=&gt; {
                         <span class="kw">return </span>maybe_exit_sandbox(ctx);
                     }
-                    <span class="string">&quot;settings&quot; </span>=&gt; {
+                    <span class="string">"settings" </span>=&gt; {
                         <span class="kw">return </span>Transition::Push(OptionsPanel::new_state(ctx, app));
                     }
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
@@ -1000,13 +1002,13 @@
 <span class="kw">pub fn </span>maybe_exit_sandbox(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Transition {
     Transition::Push(ChooseSomething::new_state(
         ctx,
-        <span class="string">&quot;Are you ready to leave this mode?&quot;</span>,
+        <span class="string">"Are you ready to leave this mode?"</span>,
         <span class="macro">vec!</span>[
-            Choice::string(<span class="string">&quot;keep playing&quot;</span>),
-            Choice::string(<span class="string">&quot;quit to main screen&quot;</span>).key(Key::Q),
+            Choice::string(<span class="string">"keep playing"</span>),
+            Choice::string(<span class="string">"quit to main screen"</span>).key(Key::Q),
         ],
         Box::new(|resp, ctx, app| {
-            <span class="kw">if </span>resp == <span class="string">&quot;keep playing&quot; </span>{
+            <span class="kw">if </span>resp == <span class="string">"keep playing" </span>{
                 <span class="kw">return </span>Transition::Pop;
             }
 
@@ -1016,7 +1018,7 @@
                     Transition::Push(SaveEdits::new_state(
                         ctx,
                         app,
-                        <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
+                        <span class="string">"Do you want to save your proposal first?"</span>,
                         <span class="bool-val">true</span>,
                         <span class="prelude-val">None</span>,
                         Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
@@ -1053,30 +1055,30 @@
             <span class="kw">match </span>id {
                 ID::Intersection(i) =&gt; {
                     <span class="kw">if </span>app.primary.map.get_i(i).is_traffic_signal() {
-                        actions.push((Key::E, <span class="string">&quot;edit traffic signal&quot;</span>.to_string()));
+                        actions.push((Key::E, <span class="string">"edit traffic signal"</span>.to_string()));
                     }
                     <span class="kw">if </span>app.primary.map.get_i(i).is_stop_sign()
                         &amp;&amp; <span class="self">self</span>.gameplay.can_edit_stop_signs()
                     {
-                        actions.push((Key::E, <span class="string">&quot;edit stop sign&quot;</span>.to_string()));
+                        actions.push((Key::E, <span class="string">"edit stop sign"</span>.to_string()));
                     }
                     <span class="kw">if </span>app.opts.dev &amp;&amp; app.primary.sim.num_recorded_trips().is_none() {
-                        actions.push((Key::R, <span class="string">&quot;record traffic here&quot;</span>.to_string()));
+                        actions.push((Key::R, <span class="string">"record traffic here"</span>.to_string()));
                     }
                 }
                 ID::Lane(l) =&gt; {
                     <span class="kw">if </span>!app.primary.map.get_turns_from_lane(l).is_empty() {
-                        actions.push((Key::Z, <span class="string">&quot;explore turns from this lane&quot;</span>.to_string()));
+                        actions.push((Key::Z, <span class="string">"explore turns from this lane"</span>.to_string()));
                     }
                     <span class="kw">if </span><span class="self">self</span>.gameplay.can_edit_roads() &amp;&amp; can_edit_lane(app, l) {
-                        actions.push((Key::E, <span class="string">&quot;edit lane&quot;</span>.to_string()));
+                        actions.push((Key::E, <span class="string">"edit lane"</span>.to_string()));
                     }
                 }
                 ID::Building(b) =&gt; {
                     <span class="kw">if </span>Favorites::contains(app, b) {
-                        actions.push((Key::F, <span class="string">&quot;remove this building from favorites&quot;</span>.to_string()));
+                        actions.push((Key::F, <span class="string">"remove this building from favorites"</span>.to_string()));
                     } <span class="kw">else </span>{
-                        actions.push((Key::F, <span class="string">&quot;add this building to favorites&quot;</span>.to_string()));
+                        actions.push((Key::F, <span class="string">"add this building to favorites"</span>.to_string()));
                     }
                 }
                 <span class="kw">_ </span>=&gt; {}
@@ -1098,7 +1100,7 @@
         close_panel: <span class="kw-2">&amp;mut </span>bool,
     ) -&gt; Transition {
         <span class="kw">match </span>(id, action.as_ref()) {
-            (ID::Intersection(i), <span class="string">&quot;edit traffic signal&quot;</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+            (ID::Intersection(i), <span class="string">"edit traffic signal"</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
                 Transition::Push(EditMode::new_state(ctx, app, <span class="self">self</span>.gameplay.clone())),
                 Transition::Push(TrafficSignalEditor::new_state(
                     ctx,
@@ -1107,7 +1109,7 @@
                     <span class="self">self</span>.gameplay.clone(),
                 )),
             ]),
-            (ID::Intersection(i), <span class="string">&quot;edit stop sign&quot;</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+            (ID::Intersection(i), <span class="string">"edit stop sign"</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
                 Transition::Push(EditMode::new_state(ctx, app, <span class="self">self</span>.gameplay.clone())),
                 Transition::Push(StopSignEditor::new_state(
                     ctx,
@@ -1116,27 +1118,27 @@
                     <span class="self">self</span>.gameplay.clone(),
                 )),
             ]),
-            (ID::Intersection(i), <span class="string">&quot;record traffic here&quot;</span>) =&gt; {
+            (ID::Intersection(i), <span class="string">"record traffic here"</span>) =&gt; {
                 Transition::Push(TrafficRecorder::new_state(ctx, <span class="macro">btreeset! </span>{i}))
             }
-            (ID::Lane(l), <span class="string">&quot;explore turns from this lane&quot;</span>) =&gt; {
+            (ID::Lane(l), <span class="string">"explore turns from this lane"</span>) =&gt; {
                 Transition::Push(turn_explorer::TurnExplorer::new_state(ctx, app, l))
             }
-            (ID::Lane(l), <span class="string">&quot;edit lane&quot;</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+            (ID::Lane(l), <span class="string">"edit lane"</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
                 Transition::Push(EditMode::new_state(ctx, app, <span class="self">self</span>.gameplay.clone())),
                 Transition::Push(RoadEditor::new_state(ctx, app, l)),
             ]),
-            (ID::Building(b), <span class="string">&quot;add this building to favorites&quot;</span>) =&gt; {
+            (ID::Building(b), <span class="string">"add this building to favorites"</span>) =&gt; {
                 Favorites::add(app, b);
                 app.primary.layer = <span class="prelude-val">Some</span>(Box::new(ShowFavorites::new(ctx, app)));
                 Transition::Keep
             }
-            (ID::Building(b), <span class="string">&quot;remove this building from favorites&quot;</span>) =&gt; {
+            (ID::Building(b), <span class="string">"remove this building from favorites"</span>) =&gt; {
                 Favorites::remove(app, b);
                 app.primary.layer = <span class="prelude-val">Some</span>(Box::new(ShowFavorites::new(ctx, app)));
                 Transition::Keep
             }
-            (<span class="kw">_</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>) =&gt; {
+            (<span class="kw">_</span>, <span class="string">"follow (run the simulation)"</span>) =&gt; {
                 <span class="kw-2">*</span>close_panel = <span class="bool-val">false</span>;
                 Transition::ModifyState(Box::new(|state, ctx, app| {
                     <span class="kw">let </span>mode = state.downcast_mut::&lt;SandboxMode&gt;().unwrap();
@@ -1145,7 +1147,7 @@
                     time_panel.resume(ctx, app, SpeedSetting::Realtime);
                 }))
             }
-            (<span class="kw">_</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>) =&gt; {
+            (<span class="kw">_</span>, <span class="string">"unfollow (pause the simulation)"</span>) =&gt; {
                 <span class="kw-2">*</span>close_panel = <span class="bool-val">false</span>;
                 Transition::ModifyState(Box::new(|state, ctx, app| {
                     <span class="kw">let </span>mode = state.downcast_mut::&lt;SandboxMode&gt;().unwrap();
@@ -1172,7 +1174,7 @@
 <span class="comment">// TODO Setting SandboxMode up is quite convoluted, all in order to support asynchronously loading
 // files on the web. Each LoadStage is followed in order, with some optional short-circuiting.
 //
-// Ideally there&#39;d be a much simpler way to express this using Rust&#39;s async, to let the compiler
+// Ideally there'd be a much simpler way to express this using Rust's async, to let the compiler
 // express this state machine for us.
 
 </span><span class="attr">#[allow(clippy::large_enum_variant)]
@@ -1217,7 +1219,7 @@
                 LoadStage::LoadingScenario =&gt; {
                     <span class="comment">// TODO Can we cache the dynamically generated scenarios, like home_to_work, and
                     // avoid regenerating with this call?
-                    </span><span class="kw">match </span>ctx.loading_screen(<span class="string">&quot;load scenario&quot;</span>, |<span class="kw">_</span>, timer| {
+                    </span><span class="kw">match </span>ctx.loading_screen(<span class="string">"load scenario"</span>, |<span class="kw">_</span>, timer| {
                         <span class="self">self</span>.mode.scenario(
                             app,
                             app.primary.current_flags.sim_flags.make_rng(),
@@ -1242,11 +1244,11 @@
                                 Box::pin(future),
                                 outer_progress_rx,
                                 inner_progress_rx,
-                                <span class="string">&quot;Loading Scenario&quot;</span>,
+                                <span class="string">"Loading Scenario"</span>,
                                 Box::new(|<span class="kw">_</span>, <span class="kw">_</span>, scenario| {
                                     <span class="comment">// TODO show error/retry alert?
                                     </span><span class="kw">let </span>scenario =
-                                        scenario.expect(<span class="string">&quot;failed to load scenario from future&quot;</span>);
+                                        scenario.expect(<span class="string">"failed to load scenario from future"</span>);
                                     Transition::Multi(<span class="macro">vec!</span>[
                                         Transition::Pop,
                                         Transition::ModifyState(Box::new(|state, <span class="kw">_</span>, <span class="kw">_</span>| {
@@ -1288,7 +1290,7 @@
                 }
                 LoadStage::GotScenario(<span class="kw-2">mut </span>scenario) =&gt; {
                     <span class="kw">let </span>scenario_name = scenario.scenario_name.clone();
-                    ctx.loading_screen(<span class="string">&quot;instantiate scenario&quot;</span>, |<span class="kw">_</span>, timer| {
+                    ctx.loading_screen(<span class="string">"instantiate scenario"</span>, |<span class="kw">_</span>, timer| {
                         app.primary.scenario = <span class="prelude-val">Some</span>(scenario.clone());
 
                         <span class="comment">// Use the same RNG as we apply scenario modifiers and instantiate the
@@ -1333,7 +1335,7 @@
                     <span class="kw">continue</span>;
                 }
                 LoadStage::LoadingPrebaked(scenario_name) =&gt; {
-                    <span class="comment">// Maybe we&#39;ve already got prebaked data for this map+scenario.
+                    <span class="comment">// Maybe we've already got prebaked data for this map+scenario.
                     </span><span class="kw">if </span>app
                         .has_prebaked()
                         .map(|(m, s)| m == app.primary.map.get_name() &amp;&amp; s == <span class="kw-2">&amp;</span>scenario_name)
@@ -1369,9 +1371,9 @@
                         }
                         <span class="prelude-val">Err</span>(err) =&gt; {
                             <span class="macro">warn!</span>(
-                                <span class="string">&quot;No prebaked simulation results for \&quot;{}\&quot; scenario on {} map. \
-                                 This means trip dashboards can&#39;t compare current times to any \
-                                 kind of baseline: {}&quot;</span>,
+                                <span class="string">"No prebaked simulation results for \"{}\" scenario on {} map. \
+                                 This means trip dashboards can't compare current times to any \
+                                 kind of baseline: {}"</span>,
                                 scenario_name,
                                 app.primary.map.get_name().describe(),
                                 err
