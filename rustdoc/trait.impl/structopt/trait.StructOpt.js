@@ -1,6 +1,6 @@
 (function() {var implementors = {
 "cli":[["impl StructOpt for <a class=\"enum\" href=\"cli/enum.Command.html\" title=\"enum cli::Command\">Command</a>"]],
-"game":[["impl StructOpt for <a class=\"struct\" href=\"game/struct.Args.html\" title=\"struct game::Args\">Args</a>"],["impl StructOpt for <a class=\"struct\" href=\"game/app/struct.Flags.html\" title=\"struct game::app::Flags\">Flags</a>"]],
+"game":[["impl StructOpt for <a class=\"struct\" href=\"game/app/struct.Flags.html\" title=\"struct game::app::Flags\">Flags</a>"],["impl StructOpt for <a class=\"struct\" href=\"game/struct.Args.html\" title=\"struct game::Args\">Args</a>"]],
 "headless":[["impl StructOpt for <a class=\"struct\" href=\"headless/struct.Args.html\" title=\"struct headless::Args\">Args</a>"]],
 "importer":[["impl StructOpt for <a class=\"struct\" href=\"importer/struct.Job.html\" title=\"struct importer::Job\">Job</a>"]],
 "ltn":[["impl StructOpt for <a class=\"struct\" href=\"ltn/struct.Args.html\" title=\"struct ltn::Args\">Args</a>"]],
