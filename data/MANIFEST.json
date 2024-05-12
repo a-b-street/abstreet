@@ -1600,6 +1600,11 @@
       "uncompressed_size_bytes": 1011128,
       "compressed_size_bytes": 1011287
     },
+    "data/input/gb/sheffield/osm/hillsborough.osm.pbf": {
+      "checksum": "e0e15072f04e85fc13eee7c6714d1643",
+      "uncompressed_size_bytes": 949546,
+      "compressed_size_bytes": 949714
+    },
     "data/input/gb/sheffield/osm/woodseats.osm.pbf": {
       "checksum": "082ef0560dc04f804a97008a01e7e7e7",
       "uncompressed_size_bytes": 1194002,
@@ -1614,6 +1619,11 @@
       "checksum": "67fd8477a9b6163c6814e84e93e98672",
       "uncompressed_size_bytes": 6155087,
       "compressed_size_bytes": 1872228
+    },
+    "data/input/gb/sheffield/raw_maps/hillsborough.bin": {
+      "checksum": "0ec15b6793f107f143759e9ec55bbf12",
+      "uncompressed_size_bytes": 5005094,
+      "compressed_size_bytes": 1554452
     },
     "data/input/gb/sheffield/raw_maps/woodseats.bin": {
       "checksum": "e1fee5f8dd46ab78d8239092b037bf7e",
@@ -4705,6 +4715,11 @@
       "uncompressed_size_bytes": 20605436,
       "compressed_size_bytes": 8077905
     },
+    "data/system/gb/sheffield/maps/hillsborough.bin": {
+      "checksum": "7f9e057d65c49949a4db15ba5c6aa4f5",
+      "uncompressed_size_bytes": 15731855,
+      "compressed_size_bytes": 6215408
+    },
     "data/system/gb/sheffield/maps/woodseats.bin": {
       "checksum": "03e617f900fea11c25f67bfff9bef2c9",
       "uncompressed_size_bytes": 15184802,
@@ -4719,6 +4734,11 @@
       "checksum": "73b55e326b3fb61a4ee96538937950f1",
       "uncompressed_size_bytes": 8279793,
       "compressed_size_bytes": 2144138
+    },
+    "data/system/gb/sheffield/scenarios/hillsborough/background.bin": {
+      "checksum": "099ccdc848c2f22ce7af85b418a6f6db",
+      "uncompressed_size_bytes": 8011112,
+      "compressed_size_bytes": 2058472
     },
     "data/system/gb/sheffield/scenarios/woodseats/background.bin": {
       "checksum": "7d6409c0d751356b0de2a7002ae7e69c",
