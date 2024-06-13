@@ -106,6 +106,24 @@ impl VehiclePathfinder {
                 round(cost),
             ));
         }
+
+        if req.exact_start_lane && req.start.lane().road != req.end.lane().road {
+            // We're not allowed to pick any starting lane. If we're starting from the rightmost
+            // lane and the first step might be a left turn from another lane, we need to stop that
+            // from happening. So calculate the valid next steps for this
+            starts.clear();
+            for mvmnt in map.get_movements_for(
+                map.get_l(req.start.lane()).get_directed_parent(),
+                req.constraints,
+            ) {
+                if let Some(cost) =
+                    vehicle_cost(mvmnt.from, mvmnt, req.constraints, &self.params, map)
+                {
+                    starts.push((self.nodes.get(Node::Road(mvmnt.to)), round(cost)));
+                }
+            }
+        }
+
         let (raw_weight, raw_nodes) = self.engine.calculate_path_multiple_sources_and_targets(
             starts,
             vec![(
@@ -117,6 +135,12 @@ impl VehiclePathfinder {
 
         let mut road_steps = Vec::new();
         let mut uber_turns = Vec::new();
+
+        if req.exact_start_lane && req.start.lane().road != req.end.lane().road {
+            // If we started from multiple nodes, add in our actual start
+            road_steps.push(map.get_l(req.start.lane()).get_directed_parent());
+        }
+
         for node in raw_nodes.into_iter().map(|id| self.nodes.translate_id(id)) {
             match node {
                 Node::Road(dr) => {
