@@ -1,0 +1,1 @@
+searchState.loadedDescShard("popgetter", 0, "Clips existing TopoJSON files to the given boundary. All …\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")

@@ -1,0 +1,1 @@
+searchState.loadedDescShard("traffic_seitan", 0, "This is a tool that runs a simulation, constantly …\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")

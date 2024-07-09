@@ -1,5 +1,6 @@
 {
   "name": "ltn",
+  "type": "module",
   "collaborators": [
     "Dustin Carlino <dabreegster@gmail.com>"
   ],
@@ -9,7 +10,7 @@
     "ltn.js",
     "ltn.d.ts"
   ],
-  "module": "ltn.js",
+  "main": "ltn.js",
   "types": "ltn.d.ts",
   "sideEffects": [
     "./snippets/*"
