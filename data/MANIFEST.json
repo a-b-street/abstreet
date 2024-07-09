@@ -1981,14 +1981,14 @@
       "compressed_size_bytes": 15199481
     },
     "data/input/pt/lisbon/osm/center.osm.pbf": {
-      "checksum": "9951657e7abb25ecd1fd5037c2b9e48d",
-      "uncompressed_size_bytes": 2584269,
-      "compressed_size_bytes": 2584622
+      "checksum": "1ba1ec7886db47f70915869b0b1bc21c",
+      "uncompressed_size_bytes": 2548093,
+      "compressed_size_bytes": 2548441
     },
     "data/input/pt/lisbon/raw_maps/center.bin": {
-      "checksum": "27c2eede18f4e33cd9095ac523293046",
-      "uncompressed_size_bytes": 14682641,
-      "compressed_size_bytes": 3801735
+      "checksum": "d48b8afc4c3bc81a11cae88cbb7acefb",
+      "uncompressed_size_bytes": 14618774,
+      "compressed_size_bytes": 3782436
     },
     "data/input/sg/jurong/osm/center.osm.pbf": {
       "checksum": "d992f51f0ff9c88b51376fd07ca20363",
@@ -5136,9 +5136,9 @@
       "compressed_size_bytes": 36963145
     },
     "data/system/pt/lisbon/maps/center.bin": {
-      "checksum": "23387ac69bbc295c712bd050ccb0427a",
-      "uncompressed_size_bytes": 35254168,
-      "compressed_size_bytes": 12729387
+      "checksum": "aa3780a40d328690cfb69c9b97a2b67e",
+      "uncompressed_size_bytes": 35119650,
+      "compressed_size_bytes": 12669423
     },
     "data/system/sg/jurong/maps/center.bin": {
       "checksum": "1f735356c591b716fc724eb6e36ebb69",
