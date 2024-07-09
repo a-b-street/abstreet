@@ -87,6 +87,8 @@
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>abstio::{CityName, MapName};
 <span class="kw">use </span>geom::Distance;
 <span class="kw">use </span>map_model::DrivingSide;
@@ -171,6 +173,8 @@
             <span class="prelude-val">Some</span>(<span class="string">"data/input/shared/elevation/king_county_2016_lidar.tif"</span>.to_string())
         } <span class="kw">else if </span>name.city.country == <span class="string">"gb" </span>{
             <span class="prelude-val">Some</span>(<span class="string">"data/input/shared/elevation/UK-dem-50m-4326.tif"</span>.to_string())
+        } <span class="kw">else if </span>name.city.country == <span class="string">"pt" </span>{
+            <span class="prelude-val">Some</span>(<span class="string">"data/input/shared/elevation/LisboaIST_10m_4326.tif"</span>.to_string())
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>},
