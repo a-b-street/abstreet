@@ -1986,9 +1986,9 @@
       "compressed_size_bytes": 2548441
     },
     "data/input/pt/lisbon/raw_maps/center.bin": {
-      "checksum": "d48b8afc4c3bc81a11cae88cbb7acefb",
+      "checksum": "16dbf977887b0635129d41ae86048194",
       "uncompressed_size_bytes": 14618774,
-      "compressed_size_bytes": 3782436
+      "compressed_size_bytes": 3949465
     },
     "data/input/sg/jurong/osm/center.osm.pbf": {
       "checksum": "d992f51f0ff9c88b51376fd07ca20363",
@@ -2004,6 +2004,11 @@
       "checksum": "ce30e6f7743be7b451e298583c65f99a",
       "uncompressed_size_bytes": 16138801,
       "compressed_size_bytes": 4011139
+    },
+    "data/input/shared/elevation/LisboaIST_10m_4326.tif": {
+      "checksum": "f82923bcdb7b9c964d8f8c1ccf3a9caf",
+      "uncompressed_size_bytes": 9054938,
+      "compressed_size_bytes": 4369346
     },
     "data/input/shared/elevation/UK-dem-50m-4326.tif": {
       "checksum": "7634f42dd3d1f68951f46ae60f543657",
@@ -5136,9 +5141,9 @@
       "compressed_size_bytes": 36963145
     },
     "data/system/pt/lisbon/maps/center.bin": {
-      "checksum": "aa3780a40d328690cfb69c9b97a2b67e",
-      "uncompressed_size_bytes": 35119650,
-      "compressed_size_bytes": 12669423
+      "checksum": "b3f46d4024e165cb928cfa20e403e554",
+      "uncompressed_size_bytes": 35132890,
+      "compressed_size_bytes": 12833643
     },
     "data/system/sg/jurong/maps/center.bin": {
       "checksum": "1f735356c591b716fc724eb6e36ebb69",

@@ -82,6 +82,8 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             Some("data/input/shared/elevation/king_county_2016_lidar.tif".to_string())
         } else if name.city.country == "gb" {
             Some("data/input/shared/elevation/UK-dem-50m-4326.tif".to_string())
+        } else if name.city.country == "pt" {
+            Some("data/input/shared/elevation/LisboaIST_10m_4326.tif".to_string())
         } else {
             None
         },
