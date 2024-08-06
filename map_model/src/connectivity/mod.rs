@@ -1,5 +1,6 @@
 // TODO Possibly these should be methods on Map.
 
+use abstutil::MultiMap;
 use serde::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
@@ -10,7 +11,9 @@ use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
 pub use crate::pathfind::{vehicle_cost, WalkingNode};
-use crate::{BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints};
+use crate::{
+    Building, BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints, RoadID,
+};
 
 mod walking;
 
@@ -57,30 +60,42 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
     (largest_group, disconnected)
 }
 
+fn bldg_to_dir_road(
+    map: &Map,
+    b: &Building,
+    constraints: PathConstraints,
+) -> Option<DirectedRoadID> {
+    let pos = if constraints == PathConstraints::Car {
+        b.driving_connection(map)?.0
+    } else if constraints == PathConstraints::Bike {
+        b.biking_connection(map)?.0
+    } else {
+        return None;
+    };
+    Some(map.get_l(pos.lane()).get_directed_parent())
+}
+
 /// Starting from some initial spot, calculate the cost to all buildings. If a destination isn't
 /// reachable, it won't be included in the results. Ignore results greater than the time_limit
 /// away.
+///
+/// Costs for roads will only be filled out for roads with no buildings along them. The cost will
+/// be the same for the entire road, which may be misleading for long roads.
 pub fn all_vehicle_costs_from(
     map: &Map,
     starts: Vec<Spot>,
     time_limit: Duration,
     constraints: PathConstraints,
-) -> HashMap<BuildingID, Duration> {
+) -> (HashMap<BuildingID, Duration>, HashMap<RoadID, Duration>) {
     assert!(constraints != PathConstraints::Pedestrian);
     // TODO We have a graph of DirectedRoadIDs, but mapping a building to one isn't
     // straightforward. In the common case it'll be fine, but some buildings are isolated from the
     // graph by some sidewalks.
 
-    let mut bldg_to_road = HashMap::new();
+    let mut dir_road_to_bldgs = MultiMap::new();
     for b in map.all_buildings() {
-        if constraints == PathConstraints::Car {
-            if let Some((pos, _)) = b.driving_connection(map) {
-                bldg_to_road.insert(b.id, map.get_l(pos.lane()).get_directed_parent());
-            }
-        } else if constraints == PathConstraints::Bike {
-            if let Some((pos, _)) = b.biking_connection(map) {
-                bldg_to_road.insert(b.id, map.get_l(pos.lane()).get_directed_parent());
-            }
+        if let Some(dr) = bldg_to_dir_road(map, b, constraints) {
+            dir_road_to_bldgs.insert(dr, b.id);
         }
     }
 
@@ -89,7 +104,7 @@ pub fn all_vehicle_costs_from(
     for spot in starts {
         match spot {
             Spot::Building(b_id) => {
-                if let Some(start_road) = bldg_to_road.get(&b_id).cloned() {
+                if let Some(start_road) = bldg_to_dir_road(map, map.get_b(b_id), constraints) {
                     queue.push(PriorityQueueItem {
                         cost: Duration::ZERO,
                         value: start_road,
@@ -120,15 +135,29 @@ pub fn all_vehicle_costs_from(
         }
     }
 
-    let mut cost_per_node: HashMap<DirectedRoadID, Duration> = HashMap::new();
+    let mut visited_nodes = HashSet::new();
+    let mut bldg_results = HashMap::new();
+    let mut road_results = HashMap::new();
+
     while let Some(current) = queue.pop() {
-        if cost_per_node.contains_key(&current.value) {
+        if visited_nodes.contains(&current.value) {
             continue;
         }
         if current.cost > time_limit {
             continue;
         }
-        cost_per_node.insert(current.value, current.cost);
+        visited_nodes.insert(current.value);
+
+        let mut any = false;
+        for b in dir_road_to_bldgs.get(current.value) {
+            any = true;
+            bldg_results.insert(*b, current.cost);
+        }
+        if !any {
+            road_results
+                .entry(current.value.road)
+                .or_insert(current.cost);
+        }
 
         for mvmnt in map.get_movements_for(current.value, constraints) {
             if let Some(cost) =
@@ -142,11 +171,5 @@ pub fn all_vehicle_costs_from(
         }
     }
 
-    let mut results = HashMap::new();
-    for (b, road) in bldg_to_road {
-        if let Some(duration) = cost_per_node.get(&road).cloned() {
-            results.insert(b, duration);
-        }
-    }
-    results
+    (bldg_results, road_results)
 }
