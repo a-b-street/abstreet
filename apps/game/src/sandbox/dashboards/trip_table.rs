@@ -1,4 +1,5 @@
 use std::collections::{BTreeSet, HashMap};
+use std::io::Write;
 
 use abstutil::prettyprint_usize;
 use geom::{Duration, Polygon, Time};
@@ -10,6 +11,7 @@ use widgetry::{
     Color, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, Stash, State, TabController,
     Text, Toggle, Widget,
 };
+use widgetry::tools::PopupMsg;
 
 use super::generic_trip_table::{open_trip_transition, preview_trip};
 use super::selector::RectangularSelector;
@@ -62,6 +64,11 @@ impl TripTable {
         let finished_trips_table = make_table_finished_trips(app);
         let finished_trips_content = Widget::col(vec![
             finished_trips_table.render(ctx, app),
+            ctx.style()
+                .btn_plain
+                .text("Export to CSV")
+                .build_def(ctx)
+                .align_bottom(),
             Filler::square_width(ctx, 0.15)
                 .named("preview")
                 .centered_horiz(),
@@ -123,6 +130,16 @@ impl State<App> for TripTable {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => {
+                if x == "Export to CSV" {
+                    return Transition::Push(match export_trip_table(app) {
+                        Ok(path) => PopupMsg::new_state(
+                            ctx,
+                            "Data exported",
+                            vec![format!("Data exported to {}", path)],
+                        ),
+                        Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
+                    });
+                }
                 if self.table_tabs.active_tab_idx() == 0 && self.finished_trips_table.clicked(&x) {
                     self.finished_trips_table
                         .replace_render(ctx, app, &mut self.panel);
@@ -697,4 +714,38 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
     }
 
     table
+}
+
+
+fn export_trip_table(app: &App) -> Result<String, anyhow::Error> {
+    let (finished, _) = produce_raw_data(app);
+    let path = format!(
+        "trip_table_{}_{}.csv",
+        app.primary.map.get_name().as_filename(),
+        app.primary.sim.time().as_filename()
+    );
+    
+    let mut out = std::io::Cursor::new(Vec::new());
+    // Write header
+    writeln!(
+        out,
+        "id,mode,modified,departure,duration,waiting_time,percent_waiting,duration_before"
+    )?;
+    
+    for trip in finished {
+        writeln!(
+            out,
+            "{},{:?},{},{},{},{},{},{}",
+            trip.id.0,
+            trip.mode,
+            trip.modified,
+            trip.departure,
+            trip.duration_after.inner_seconds(),
+            trip.waiting.inner_seconds(),
+            trip.percent_waiting,
+            trip.duration_before.inner_seconds()
+        )?;
+    }
+    
+    abstio::write_file(path, String::from_utf8(out.into_inner())?).map_err(anyhow::Error::from)
 }
