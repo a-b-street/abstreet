@@ -7,11 +7,11 @@ use map_gui::tools::{checkbox_per_mode, color_for_mode};
 use sim::TripID;
 use synthpop::{TripEndpoint, TripMode};
 use widgetry::table::{Col, Filter, Table};
+use widgetry::tools::PopupMsg;
 use widgetry::{
     Color, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, Stash, State, TabController,
     Text, Toggle, Widget,
 };
-use widgetry::tools::PopupMsg;
 
 use super::generic_trip_table::{open_trip_transition, preview_trip};
 use super::selector::RectangularSelector;
@@ -137,7 +137,9 @@ impl State<App> for TripTable {
                             "Data exported",
                             vec![format!("Data exported to {}", path)],
                         ),
-                        Err(err) => PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()]),
+                        Err(err) => {
+                            PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()])
+                        }
                     });
                 }
                 if self.table_tabs.active_tab_idx() == 0 && self.finished_trips_table.clicked(&x) {
@@ -716,22 +718,20 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
     table
 }
 
-
-fn export_trip_table(app: &App) -> Result<String, anyhow::Error> {
+fn export_trip_table(app: &App) -> anyhow::Result<String> {
     let (finished, _) = produce_raw_data(app);
     let path = format!(
         "trip_table_{}_{}.csv",
         app.primary.map.get_name().as_filename(),
         app.primary.sim.time().as_filename()
     );
-    
+
     let mut out = std::io::Cursor::new(Vec::new());
-    // Write header
     writeln!(
         out,
         "id,mode,modified,departure,duration,waiting_time,percent_waiting,duration_before"
     )?;
-    
+
     for trip in finished {
         writeln!(
             out,
@@ -746,6 +746,6 @@ fn export_trip_table(app: &App) -> Result<String, anyhow::Error> {
             trip.duration_before.inner_seconds()
         )?;
     }
-    
+
     abstio::write_file(path, String::from_utf8(out.into_inner())?).map_err(anyhow::Error::from)
 }
