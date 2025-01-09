@@ -14,7 +14,6 @@ pub fn main() {
     run(settings);
 }
 
-
 fn run(mut settings: Settings) {
     abstutil::logger::setup();
     settings = settings.read_svg(Box::new(abstio::slurp_bytes));
@@ -60,7 +59,7 @@ impl Demo {
     where
         F: Fn(usize) -> usize,
     {
-        Series{
+        Series {
             label: label.to_string(),
             color,
             pts: (0..(self.elapsed.inner_seconds() as usize))
