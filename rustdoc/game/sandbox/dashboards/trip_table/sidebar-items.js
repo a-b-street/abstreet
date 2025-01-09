@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["make_table_cancelled_trips","make_table_finished_trips","make_table_unfinished_trips","produce_raw_data"],"struct":["CancelledTrip","Filters","FinishedTrip","TripTable","UnfinishedTrip"]};
+window.SIDEBAR_ITEMS = {"fn":["export_trip_table","make_table_cancelled_trips","make_table_finished_trips","make_table_unfinished_trips","produce_raw_data"],"struct":["CancelledTrip","Filters","FinishedTrip","TripTable","UnfinishedTrip"]};

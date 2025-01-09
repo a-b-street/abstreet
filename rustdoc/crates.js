@@ -1,1 +1,2 @@
 window.ALL_CRATES = ["abstio","abstutil","blockfinding","cli","collisions","convert_osm","fifteen_min","game","headless","importer","kml","ltn","map_editor","map_gui","map_model","osm_viewer","parking_mapper","piggyback","popdat","popgetter","raw_map","santa","sim","synthpop","tests","traffic_seitan","updater","widgetry","widgetry_demo"];
+//{"start":21,"fragment_lengths":[8,11,15,6,13,14,14,7,11,11,6,6,13,10,12,13,17,12,9,12,10,8,6,11,8,17,10,11,16]}

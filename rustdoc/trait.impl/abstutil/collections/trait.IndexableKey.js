@@ -1,3 +1,9 @@
-(function() {var implementors = {
-"sim":[["impl <a class=\"trait\" href=\"abstutil/collections/trait.IndexableKey.html\" title=\"trait abstutil::collections::IndexableKey\">IndexableKey</a> for <a class=\"struct\" href=\"sim/struct.CarID.html\" title=\"struct sim::CarID\">CarID</a>"],["impl <a class=\"trait\" href=\"abstutil/collections/trait.IndexableKey.html\" title=\"trait abstutil::collections::IndexableKey\">IndexableKey</a> for <a class=\"struct\" href=\"sim/struct.PedestrianID.html\" title=\"struct sim::PedestrianID\">PedestrianID</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {
+    var implementors = Object.fromEntries([["sim",[["impl IndexableKey for <a class=\"struct\" href=\"sim/struct.CarID.html\" title=\"struct sim::CarID\">CarID</a>"],["impl IndexableKey for <a class=\"struct\" href=\"sim/struct.PedestrianID.html\" title=\"struct sim::PedestrianID\">PedestrianID</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[260]}
