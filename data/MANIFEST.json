@@ -2370,6 +2370,11 @@
       "uncompressed_size_bytes": 43798070,
       "compressed_size_bytes": 43750778
     },
+    "data/input/shared/geofabrik/north-america/us/texas-latest.osm.pbf": {
+      "checksum": "b3b7d449694f405f8bc69d14dac7ed6f",
+      "uncompressed_size_bytes": 628236576,
+      "compressed_size_bytes": 627410323
+    },
     "data/input/shared/geofabrik/north-america/us/washington-latest.osm.pbf": {
       "checksum": "3f178c2f93bb057b261dcf90dffaa002",
       "uncompressed_size_bytes": 251514228,
@@ -2464,6 +2469,16 @@
       "checksum": "cace525eda937e80d183addf252fad5e",
       "uncompressed_size_bytes": 14359318,
       "compressed_size_bytes": 3939467
+    },
+    "data/input/us/houston/osm/montrose.osm.pbf": {
+      "checksum": "25759976ee41132bdac78721ed5b7e5a",
+      "uncompressed_size_bytes": 2545062,
+      "compressed_size_bytes": 2545472
+    },
+    "data/input/us/houston/raw_maps/montrose.bin": {
+      "checksum": "dd1e8081fda5782b7acc88034c1b24e4",
+      "uncompressed_size_bytes": 17629167,
+      "compressed_size_bytes": 4743671
     },
     "data/input/us/lynnwood/osm/hazelwood.osm.pbf": {
       "checksum": "6c3b1d32d3cb70fcf275cd989fff724c",
@@ -5179,6 +5194,11 @@
       "checksum": "9e72059112dd9f1b2531349a7deb6201",
       "uncompressed_size_bytes": 52801639,
       "compressed_size_bytes": 20570857
+    },
+    "data/system/us/houston/maps/montrose.bin": {
+      "checksum": "ab0cac8a2d29cbbfa6dc913420e19355",
+      "uncompressed_size_bytes": 60797468,
+      "compressed_size_bytes": 23163807
     },
     "data/system/us/lynnwood/maps/hazelwood.bin": {
       "checksum": "7d556d7a4f062c2da99b24e129661f39",
