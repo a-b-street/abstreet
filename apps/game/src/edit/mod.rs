@@ -14,6 +14,7 @@ use widgetry::{
     Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
 };
 
+pub use self::buildings::BuildingEditor;
 pub use self::roads::RoadEditor;
 pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
@@ -24,6 +25,7 @@ use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
+mod buildings;
 mod crosswalks;
 mod multiple_roads;
 mod roads;
@@ -784,6 +786,10 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
             app.primary.draw_map.get_pl(pl).clear_rendering();
         }
 
+        for b in effects.changed_buildings {
+            app.primary.draw_map.recreate_building(b, &app.primary.map);
+        }
+
         if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
             app.primary.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
         }
@@ -940,6 +946,7 @@ fn cmd_to_id(cmd: &EditCmd) -> Option<ID> {
         EditCmd::ChangeRoad { r, .. } => Some(ID::Road(*r)),
         EditCmd::ChangeIntersection { i, .. } => Some(ID::Intersection(*i)),
         EditCmd::ChangeRouteSchedule { .. } => None,
+        EditCmd::ChangeBuilding { b, .. } => Some(ID::Building(*b)),
     }
 }
 
