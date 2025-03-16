@@ -27,7 +27,7 @@ The project works anywhere in the world, thanks to
 As of January 2024, development of the tools above has slowed down, because
 newer tools are being developed in other repositories. Please also check out:
 
-- [Severance Snape](https://dabreegster.github.io/severance_snape) to explore
+- [Severance Snape](https://a-b-street.github.io/severance_snape/) to explore
   how far walking routes detour to cross big roads
 - [od2net](https://github.com/Urban-Analytics-Technology-Platform/od2net) to
   calculate the most important roads to prioritize for cycling
