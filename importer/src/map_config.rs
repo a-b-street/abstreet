@@ -74,6 +74,8 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
             Some("https://github.com/transitland/gtfs-archives-not-hosted-elsewhere/blob/master/sao-paulo-sptrans.zip?raw=true".to_string())
         } else if name.city == CityName::new("fr", "brest") {
             Some("https://ratpdev-mosaic-prod-bucket-raw.s3-eu-west-1.amazonaws.com/11/exports/1/gtfs.zip".to_string())
+        } else if name.city == CityName::new("no", "kristiansand") {
+            Some("https://storage.googleapis.com/marduk-production/outbound/gtfs/rb_akt-aggregated-gtfs.zip".to_string())
         } else {
             None
         },
