@@ -206,6 +206,13 @@ impl DrawBuilding {
         }
     }
 
+    pub fn new_empty(id: BuildingID) -> DrawBuilding {
+        DrawBuilding {
+            id,
+            label: RefCell::new(None),
+        }
+    }
+
     pub fn clear_rendering(&mut self) {
         *self.label.borrow_mut() = None;
     }
