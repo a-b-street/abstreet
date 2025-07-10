@@ -35,6 +35,7 @@ pub struct Intersection {
     pub id: IntersectionID,
     /// This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
     pub polygon: Polygon,
+    #[serde(skip_serializing, skip_deserializing)]
     pub turns: Vec<Turn>,
     pub elevation: Distance,
 
