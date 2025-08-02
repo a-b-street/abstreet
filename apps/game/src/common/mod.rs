@@ -10,7 +10,7 @@ use widgetry::{
 
 pub use self::route_sketcher::RouteSketcher;
 pub use self::select::RoadSelector;
-pub use self::warp::{warp_to_id, Warping};
+pub use self::warp::{inner_warp_to_id, warp_to_id, Warping};
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
