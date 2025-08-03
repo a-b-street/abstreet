@@ -17,9 +17,9 @@ use map_model::{Map, MapEdits};
 use sim::Sim;
 use synthpop::Scenario;
 use widgetry::tools::{FutureLoader, PopupMsg, URLManager};
-use widgetry::{EventCtx, Settings, State, Transition};
+use widgetry::{EventCtx, GfxCtx, Settings, State};
 
-use crate::app::{App, Flags, PerMap};
+use crate::app::{App, Flags, PerMap, Transition};
 use crate::common::jump_to_time_upon_startup;
 use crate::id::ID;
 use crate::pregame::TitleScreen;
@@ -111,6 +111,12 @@ struct Args {
     /// Start on a particular tutorial stage
     #[structopt(long)]
     tutorial: Option<usize>,
+    /// Start with a specific layer enabled. Example: steep_streets
+    #[structopt(long)]
+    layer: Option<String>,
+    /// Start with a specific info panel open. Example: b42 for building 42
+    #[structopt(long)]
+    info: Option<String>,
     /// Start in ActDev mode for a particular site name.
     #[structopt(long)]
     actdev: Option<String>,
@@ -131,6 +137,8 @@ struct Setup {
     start_time: Option<Duration>,
     diff_map: Option<String>,
     mode: Mode,
+    start_with_layer: Option<String>,
+    start_with_info_panel: Option<String>,
 }
 
 // TODO Switch to explicit enum subcommands, each of which includes precisely the set of common
@@ -175,6 +183,8 @@ fn run(mut settings: Settings) {
         center_camera: args.cam,
         start_time: args.start_time,
         diff_map: args.diff_map,
+        start_with_layer: args.layer,
+        start_with_info_panel: args.info,
         mode: if args.tutorial_intro {
             Mode::TutorialIntro
         } else if args.challenges {
@@ -513,6 +523,35 @@ fn finish_app_setup(
         return vec![TitleScreen::new_state(ctx, app)];
     }
 
+    // Handle layer parameter before creating the state
+    if let Some(layer_name) = setup.start_with_layer {
+        match layer_name.as_str() {
+            "steep_streets" => {
+                app.primary.layer = Some(Box::new(layer::elevation::SteepStreets::new(ctx, app)));
+            }
+            "elevation" => {
+                app.primary.layer = Some(Box::new(layer::elevation::ElevationContours::new(ctx, app)));
+            }
+            "map_edits" => {
+                app.primary.layer = Some(Box::new(layer::map::Static::edits(ctx, app)));
+            }
+            "no_sidewalks" => {
+                app.primary.layer = Some(Box::new(layer::map::Static::no_sidewalks(ctx, app)));
+            }
+            "parking_occupancy" => {
+                // Parking occupancy layer - skipping for now as it needs more parameters
+                warn!("parking_occupancy layer not implemented in URL parameters yet");
+            }
+            "transit_network" => {
+                // Transit network layer - showing all routes, buses, and trains by default
+                app.primary.layer = Some(Box::new(layer::transit::TransitNetwork::new(ctx, app, true, true, true)));
+            }
+            _ => {
+                warn!("Unknown layer: {}", layer_name);
+            }
+        }
+    }
+
     let state = if let Some(ss) = savestate {
         app.primary.sim = ss;
         SandboxMode::start_from_savestate(app)
@@ -581,7 +620,33 @@ fn finish_app_setup(
             }
         }
     };
-    vec![TitleScreen::new_state(ctx, app), state]
+    
+    let mut states = vec![TitleScreen::new_state(ctx, app), state];
+    
+    // Handle info panel parameter - needs to be done after the state is created
+    if let Some(info_id) = setup.start_with_info_panel {
+        states.push(Box::new(InitialInfoPanel { info_id }));
+    }
+    
+    states
+}
+
+struct InitialInfoPanel {
+    info_id: String,
+}
+
+impl State<App> for InitialInfoPanel {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match crate::common::inner_warp_to_id(ctx, app, &self.info_id) {
+            Some(t) => t,
+            None => {
+                warn!("Invalid info ID: {}", self.info_id);
+                Transition::Pop
+            }
+        }
+    }
+    
+    fn draw(&self, _: &mut GfxCtx, _: &App) {}
 }
 
 #[cfg(target_arch = "wasm32")]

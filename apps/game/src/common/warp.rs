@@ -163,7 +163,7 @@ pub fn warp_to_id(ctx: &mut EventCtx, app: &mut App, input: &str) -> Transition 
     }
 }
 
-fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transition> {
+pub fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Transition> {
     if line.is_empty() {
         return None;
     }
