@@ -296,6 +296,9 @@ impl Scheduler {
 }
 
 #[cfg(test)]
+mod comprehensive_tests;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::{CarID, PedestrianID, VehicleType};
