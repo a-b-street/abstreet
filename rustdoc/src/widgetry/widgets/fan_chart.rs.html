@@ -1,473 +1,236 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/fan_chart.rs`."><title>fan_chart.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0 (4d91de4e4 2025-02-17)" data-channel="1.85.0" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">widgetry/widgets/</div>fan_chart.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
-<a href="#1" id="1">1</a>
-<a href="#2" id="2">2</a>
-<a href="#3" id="3">3</a>
-<a href="#4" id="4">4</a>
-<a href="#5" id="5">5</a>
-<a href="#6" id="6">6</a>
-<a href="#7" id="7">7</a>
-<a href="#8" id="8">8</a>
-<a href="#9" id="9">9</a>
-<a href="#10" id="10">10</a>
-<a href="#11" id="11">11</a>
-<a href="#12" id="12">12</a>
-<a href="#13" id="13">13</a>
-<a href="#14" id="14">14</a>
-<a href="#15" id="15">15</a>
-<a href="#16" id="16">16</a>
-<a href="#17" id="17">17</a>
-<a href="#18" id="18">18</a>
-<a href="#19" id="19">19</a>
-<a href="#20" id="20">20</a>
-<a href="#21" id="21">21</a>
-<a href="#22" id="22">22</a>
-<a href="#23" id="23">23</a>
-<a href="#24" id="24">24</a>
-<a href="#25" id="25">25</a>
-<a href="#26" id="26">26</a>
-<a href="#27" id="27">27</a>
-<a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
-<a href="#31" id="31">31</a>
-<a href="#32" id="32">32</a>
-<a href="#33" id="33">33</a>
-<a href="#34" id="34">34</a>
-<a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
-<a href="#38" id="38">38</a>
-<a href="#39" id="39">39</a>
-<a href="#40" id="40">40</a>
-<a href="#41" id="41">41</a>
-<a href="#42" id="42">42</a>
-<a href="#43" id="43">43</a>
-<a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a>
-<a href="#47" id="47">47</a>
-<a href="#48" id="48">48</a>
-<a href="#49" id="49">49</a>
-<a href="#50" id="50">50</a>
-<a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
-<a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a></pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
-
-<span class="kw">use </span>geom::{
-    Angle, Distance, Duration, HgramValue, Histogram, PolyLine, Pt2D, Statistic, Tessellation,
-    Time, UnitFmt,
-};
-
-<span class="kw">use </span><span class="kw">crate</span>::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions};
-<span class="kw">use crate</span>::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Series, Text, TextExt,
-    Widget, WidgetImpl, WidgetOutput,
-};
-
-<span class="comment">// The X is always time
-</span><span class="kw">pub struct </span>FanChart {
-    draw: Drawable,
-
-    top_left: ScreenPt,
-    dims: ScreenDims,
-}
-
-<span class="kw">impl </span>FanChart {
-    <span class="kw">pub fn </span>new_widget&lt;Y: Axis&lt;Y&gt; + HgramValue&lt;Y&gt;&gt;(
-        ctx: <span class="kw-2">&amp;</span>EventCtx,
-        <span class="kw-2">mut </span>series: Vec&lt;Series&lt;Time, Y&gt;&gt;,
-        opts: PlotOptions&lt;Time, Y&gt;,
-        unit_fmt: UnitFmt,
-    ) -&gt; Widget {
-        <span class="kw">let </span>legend = make_legend(ctx, <span class="kw-2">&amp;</span>series, <span class="kw-2">&amp;</span>opts);
-        series.retain(|s| !opts.disabled.contains(<span class="kw-2">&amp;</span>s.label));
-
-        <span class="comment">// TODO Refactor this part with LinePlot too
-        // Assume min_x is Time::START_OF_DAY and min_y is Y::zero()
-        </span><span class="kw">let </span>max_x = opts.max_x.unwrap_or_else(|| {
-            series
-                .iter()
-                .map(|s| {
-                    s.pts
-                        .iter()
-                        .map(|(t, <span class="kw">_</span>)| <span class="kw-2">*</span>t)
-                        .max()
-                        .unwrap_or(Time::START_OF_DAY)
-                })
-                .max()
-                .unwrap_or(Time::START_OF_DAY)
-        });
-        <span class="kw">let </span>max_y = opts.max_y.unwrap_or_else(|| {
-            series
-                .iter()
-                .map(|s| {
-                    s.pts
-                        .iter()
-                        .map(|(<span class="kw">_</span>, value)| <span class="kw-2">*</span>value)
-                        .max()
-                        .unwrap_or_else(Y::zero)
-                })
-                .max()
-                .unwrap_or_else(Y::zero)
-        });
-
-        <span class="comment">// TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
-        // container.
-        </span><span class="kw">let </span>width = <span class="number">0.22 </span>* ctx.canvas.window_width;
-        <span class="kw">let </span>height = <span class="number">0.2 </span>* ctx.canvas.window_height;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
-        <span class="comment">// Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
-        // the range.
-        // TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid
-        // lines.
-        </span>{
-            <span class="kw">let </span>order_of_mag = <span class="number">10.0_f64</span>.powf(max_y.to_f64().log10().ceil());
-            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
-                <span class="kw">let </span>y = max_y.from_f64(order_of_mag / <span class="number">10.0 </span>* (i <span class="kw">as </span>f64));
-                <span class="kw">let </span>pct = y.to_percent(max_y);
-                <span class="kw">if </span>pct &gt; <span class="number">1.0 </span>{
-                    <span class="kw">break</span>;
-                }
-                batch.push(
-                    Color::hex(<span class="string">"#7C7C7C"</span>),
-                    PolyLine::must_new(<span class="macro">vec!</span>[
-                        Pt2D::new(<span class="number">0.0</span>, (<span class="number">1.0 </span>- pct) * height),
-                        Pt2D::new(width, (<span class="number">1.0 </span>- pct) * height),
-                    ])
-                    .make_polygons(Distance::meters(<span class="number">1.0</span>)),
-                );
-            }
-        }
-        <span class="comment">// X axis grid
-        </span><span class="kw">if </span>max_x != Time::START_OF_DAY {
-            <span class="kw">let </span>order_of_mag = <span class="number">10.0_f64</span>.powf(max_x.inner_seconds().log10().ceil());
-            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
-                <span class="kw">let </span>x = Time::START_OF_DAY + Duration::seconds(order_of_mag / <span class="number">10.0 </span>* (i <span class="kw">as </span>f64));
-                <span class="kw">let </span>pct = x.to_percent(max_x);
-                <span class="kw">if </span>pct &gt; <span class="number">1.0 </span>{
-                    <span class="kw">break</span>;
-                }
-                batch.push(
-                    Color::hex(<span class="string">"#7C7C7C"</span>),
-                    PolyLine::must_new(<span class="macro">vec!</span>[
-                        Pt2D::new(pct * width, <span class="number">0.0</span>),
-                        Pt2D::new(pct * width, height),
-                    ])
-                    .make_polygons(Distance::meters(<span class="number">1.0</span>)),
-                );
-            }
-        }
-
-        <span class="kw">let </span>transform = |input: Vec&lt;(Time, Y)&gt;| {
-            <span class="comment">// TODO Copied from LinePlot...
-            </span><span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
-            <span class="kw">for </span>(t, y) <span class="kw">in </span>input {
-                <span class="kw">let </span>percent_x = t.to_percent(max_x);
-                <span class="kw">let </span>percent_y = y.to_percent(max_y);
-                pts.push(Pt2D::new(
-                    percent_x * width,
-                    <span class="comment">// Y inversion! :D
-                    </span>(<span class="number">1.0 </span>- percent_y) * height,
-                ));
-            }
-            pts.dedup();
-            pts
-        };
-
-        <span class="kw">for </span>s <span class="kw">in </span>series {
-            <span class="kw">if </span>s.pts.len() &lt; <span class="number">2 </span>{
-                <span class="kw">continue</span>;
-            }
-            <span class="kw">let </span>(p50, p90, <span class="kw-2">mut </span>p99) = slidey_window(s.pts, Duration::hours(<span class="number">1</span>));
-
-            <span class="comment">// Make a band between p50 and p99
-            </span><span class="kw">let </span><span class="kw-2">mut </span>band = transform(p50);
-            p99.reverse();
-            band.extend(transform(p99));
-            band.push(band[<span class="number">0</span>]);
-            batch.push(s.color.alpha(<span class="number">0.5</span>), Tessellation::from_ring(band));
-
-            batch.push(
-                s.color,
-                thick_lineseries(transform(p90), Distance::meters(<span class="number">5.0</span>)),
-            );
-        }
-
-        <span class="kw">let </span>plot = FanChart {
-            draw: ctx.upload(batch),
-
-            top_left: ScreenPt::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
-            dims: ScreenDims::new(width, height),
-        };
-
-        <span class="kw">let </span>num_x_labels = <span class="number">3</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>row = Vec::new();
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_x_labels {
-            <span class="kw">let </span>percent_x = (i <span class="kw">as </span>f64) / ((num_x_labels - <span class="number">1</span>) <span class="kw">as </span>f64);
-            <span class="kw">let </span>t = max_x.percent_of(percent_x);
-            <span class="comment">// TODO Need ticks now to actually see where this goes
-            </span><span class="kw">let </span>batch = Text::from(t.to_string())
-                .render(ctx)
-                .rotate(Angle::degrees(-<span class="number">15.0</span>))
-                .autocrop();
-            row.push(batch.into_widget(ctx));
-        }
-        <span class="kw">let </span>x_axis = Widget::custom_row(row).padding(<span class="number">10</span>).evenly_spaced();
-
-        <span class="kw">let </span>num_y_labels = <span class="number">4</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_y_labels {
-            <span class="kw">let </span>percent_y = (i <span class="kw">as </span>f64) / ((num_y_labels - <span class="number">1</span>) <span class="kw">as </span>f64);
-            col.push(
-                max_y
-                    .from_percent(percent_y)
-                    .prettyprint(<span class="kw-2">&amp;</span>unit_fmt)
-                    .text_widget(ctx),
-            );
-        }
-        col.reverse();
-        <span class="kw">let </span>y_axis = Widget::custom_col(col).padding(<span class="number">10</span>).evenly_spaced();
-
-        <span class="comment">// Don't let the x-axis fill the parent container
-        </span>Widget::custom_col(<span class="macro">vec!</span>[
-            legend.margin_below(<span class="number">10</span>),
-            Widget::custom_row(<span class="macro">vec!</span>[y_axis, Widget::new(Box::new(plot))]),
-            x_axis,
-        ])
-        .container()
-    }
-}
-
-<span class="kw">impl </span>WidgetImpl <span class="kw">for </span>FanChart {
-    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
-        <span class="self">self</span>.dims
-    }
-
-    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
-        <span class="self">self</span>.top_left = top_left;
-    }
-
-    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>WidgetOutput) {}
-
-    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
-        g.redraw_at(<span class="self">self</span>.top_left, <span class="kw-2">&amp;</span><span class="self">self</span>.draw);
-    }
-}
-
-<span class="comment">// Returns (P50, P90, P99)
-</span><span class="kw">fn </span>slidey_window&lt;Y: HgramValue&lt;Y&gt;&gt;(
-    input: Vec&lt;(Time, Y)&gt;,
-    window_size: Duration,
-) -&gt; (Vec&lt;(Time, Y)&gt;, Vec&lt;(Time, Y)&gt;, Vec&lt;(Time, Y)&gt;) {
-    <span class="kw">let </span><span class="kw-2">mut </span>p50: Vec&lt;(Time, Y)&gt; = Vec::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>p90: Vec&lt;(Time, Y)&gt; = Vec::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>p99: Vec&lt;(Time, Y)&gt; = Vec::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>window: VecDeque&lt;(Time, Y)&gt; = VecDeque::new();
-    <span class="kw">let </span><span class="kw-2">mut </span>hgram = Histogram::new();
-
-    <span class="kw">let </span><span class="kw-2">mut </span>last_sample = Time::START_OF_DAY;
-
-    <span class="kw">for </span>(t, value) <span class="kw">in </span>input {
-        window.push_back((t, value));
-        hgram.add(value);
-
-        <span class="kw">if </span>t - last_sample &gt; Duration::minutes(<span class="number">1</span>) {
-            p50.push((t, hgram.select(Statistic::P50).unwrap()));
-            p90.push((t, hgram.select(Statistic::P90).unwrap()));
-            p99.push((t, hgram.select(Statistic::P99).unwrap()));
-            last_sample = t;
-        }
-
-        <span class="kw">while </span>!window.is_empty() &amp;&amp; t - window.front().unwrap().<span class="number">0 </span>&gt; window_size {
-            <span class="kw">let </span>(<span class="kw">_</span>, old_value) = window.pop_front().unwrap();
-            hgram.remove(old_value);
-        }
-    }
-
-    (p50, p90, p99)
-}
-</code></pre></div></section></main></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/fan_chart.rs`."><title>fan_chart.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="widgetry" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">widgetry/widgets/</div>fan_chart.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::collections::VecDeque;
+<a href=#2 id=2 data-nosnippet>2</a>
+<a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>geom::{
+<a href=#4 id=4 data-nosnippet>4</a>    Angle, Distance, Duration, HgramValue, Histogram, PolyLine, Pt2D, Statistic, Tessellation,
+<a href=#5 id=5 data-nosnippet>5</a>    Time, UnitFmt,
+<a href=#6 id=6 data-nosnippet>6</a>};
+<a href=#7 id=7 data-nosnippet>7</a>
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span><span class="kw">crate</span>::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions};
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use crate</span>::{
+<a href=#10 id=10 data-nosnippet>10</a>    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, Series, Text, TextExt,
+<a href=#11 id=11 data-nosnippet>11</a>    Widget, WidgetImpl, WidgetOutput,
+<a href=#12 id=12 data-nosnippet>12</a>};
+<a href=#13 id=13 data-nosnippet>13</a>
+<a href=#14 id=14 data-nosnippet>14</a><span class="comment">// The X is always time
+<a href=#15 id=15 data-nosnippet>15</a></span><span class="kw">pub struct </span>FanChart {
+<a href=#16 id=16 data-nosnippet>16</a>    draw: Drawable,
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a>    top_left: ScreenPt,
+<a href=#19 id=19 data-nosnippet>19</a>    dims: ScreenDims,
+<a href=#20 id=20 data-nosnippet>20</a>}
+<a href=#21 id=21 data-nosnippet>21</a>
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">impl </span>FanChart {
+<a href=#23 id=23 data-nosnippet>23</a>    <span class="kw">pub fn </span>new_widget&lt;Y: Axis&lt;Y&gt; + HgramValue&lt;Y&gt;&gt;(
+<a href=#24 id=24 data-nosnippet>24</a>        ctx: <span class="kw-2">&amp;</span>EventCtx,
+<a href=#25 id=25 data-nosnippet>25</a>        <span class="kw-2">mut </span>series: Vec&lt;Series&lt;Time, Y&gt;&gt;,
+<a href=#26 id=26 data-nosnippet>26</a>        opts: PlotOptions&lt;Time, Y&gt;,
+<a href=#27 id=27 data-nosnippet>27</a>        unit_fmt: UnitFmt,
+<a href=#28 id=28 data-nosnippet>28</a>    ) -&gt; Widget {
+<a href=#29 id=29 data-nosnippet>29</a>        <span class="kw">let </span>legend = make_legend(ctx, <span class="kw-2">&amp;</span>series, <span class="kw-2">&amp;</span>opts);
+<a href=#30 id=30 data-nosnippet>30</a>        series.retain(|s| !opts.disabled.contains(<span class="kw-2">&amp;</span>s.label));
+<a href=#31 id=31 data-nosnippet>31</a>
+<a href=#32 id=32 data-nosnippet>32</a>        <span class="comment">// TODO Refactor this part with LinePlot too
+<a href=#33 id=33 data-nosnippet>33</a>        // Assume min_x is Time::START_OF_DAY and min_y is Y::zero()
+<a href=#34 id=34 data-nosnippet>34</a>        </span><span class="kw">let </span>max_x = opts.max_x.unwrap_or_else(|| {
+<a href=#35 id=35 data-nosnippet>35</a>            series
+<a href=#36 id=36 data-nosnippet>36</a>                .iter()
+<a href=#37 id=37 data-nosnippet>37</a>                .map(|s| {
+<a href=#38 id=38 data-nosnippet>38</a>                    s.pts
+<a href=#39 id=39 data-nosnippet>39</a>                        .iter()
+<a href=#40 id=40 data-nosnippet>40</a>                        .map(|(t, <span class="kw">_</span>)| <span class="kw-2">*</span>t)
+<a href=#41 id=41 data-nosnippet>41</a>                        .max()
+<a href=#42 id=42 data-nosnippet>42</a>                        .unwrap_or(Time::START_OF_DAY)
+<a href=#43 id=43 data-nosnippet>43</a>                })
+<a href=#44 id=44 data-nosnippet>44</a>                .max()
+<a href=#45 id=45 data-nosnippet>45</a>                .unwrap_or(Time::START_OF_DAY)
+<a href=#46 id=46 data-nosnippet>46</a>        });
+<a href=#47 id=47 data-nosnippet>47</a>        <span class="kw">let </span>max_y = opts.max_y.unwrap_or_else(|| {
+<a href=#48 id=48 data-nosnippet>48</a>            series
+<a href=#49 id=49 data-nosnippet>49</a>                .iter()
+<a href=#50 id=50 data-nosnippet>50</a>                .map(|s| {
+<a href=#51 id=51 data-nosnippet>51</a>                    s.pts
+<a href=#52 id=52 data-nosnippet>52</a>                        .iter()
+<a href=#53 id=53 data-nosnippet>53</a>                        .map(|(<span class="kw">_</span>, value)| <span class="kw-2">*</span>value)
+<a href=#54 id=54 data-nosnippet>54</a>                        .max()
+<a href=#55 id=55 data-nosnippet>55</a>                        .unwrap_or_else(Y::zero)
+<a href=#56 id=56 data-nosnippet>56</a>                })
+<a href=#57 id=57 data-nosnippet>57</a>                .max()
+<a href=#58 id=58 data-nosnippet>58</a>                .unwrap_or_else(Y::zero)
+<a href=#59 id=59 data-nosnippet>59</a>        });
+<a href=#60 id=60 data-nosnippet>60</a>
+<a href=#61 id=61 data-nosnippet>61</a>        <span class="comment">// TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
+<a href=#62 id=62 data-nosnippet>62</a>        // container.
+<a href=#63 id=63 data-nosnippet>63</a>        </span><span class="kw">let </span>width = <span class="number">0.22 </span>* ctx.canvas.window_width;
+<a href=#64 id=64 data-nosnippet>64</a>        <span class="kw">let </span>height = <span class="number">0.2 </span>* ctx.canvas.window_height;
+<a href=#65 id=65 data-nosnippet>65</a>
+<a href=#66 id=66 data-nosnippet>66</a>        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+<a href=#67 id=67 data-nosnippet>67</a>        <span class="comment">// Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
+<a href=#68 id=68 data-nosnippet>68</a>        // the range.
+<a href=#69 id=69 data-nosnippet>69</a>        // TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid
+<a href=#70 id=70 data-nosnippet>70</a>        // lines.
+<a href=#71 id=71 data-nosnippet>71</a>        </span>{
+<a href=#72 id=72 data-nosnippet>72</a>            <span class="kw">let </span>order_of_mag = <span class="number">10.0_f64</span>.powf(max_y.to_f64().log10().ceil());
+<a href=#73 id=73 data-nosnippet>73</a>            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
+<a href=#74 id=74 data-nosnippet>74</a>                <span class="kw">let </span>y = max_y.from_f64(order_of_mag / <span class="number">10.0 </span>* (i <span class="kw">as </span>f64));
+<a href=#75 id=75 data-nosnippet>75</a>                <span class="kw">let </span>pct = y.to_percent(max_y);
+<a href=#76 id=76 data-nosnippet>76</a>                <span class="kw">if </span>pct &gt; <span class="number">1.0 </span>{
+<a href=#77 id=77 data-nosnippet>77</a>                    <span class="kw">break</span>;
+<a href=#78 id=78 data-nosnippet>78</a>                }
+<a href=#79 id=79 data-nosnippet>79</a>                batch.push(
+<a href=#80 id=80 data-nosnippet>80</a>                    Color::hex(<span class="string">"#7C7C7C"</span>),
+<a href=#81 id=81 data-nosnippet>81</a>                    PolyLine::must_new(<span class="macro">vec!</span>[
+<a href=#82 id=82 data-nosnippet>82</a>                        Pt2D::new(<span class="number">0.0</span>, (<span class="number">1.0 </span>- pct) * height),
+<a href=#83 id=83 data-nosnippet>83</a>                        Pt2D::new(width, (<span class="number">1.0 </span>- pct) * height),
+<a href=#84 id=84 data-nosnippet>84</a>                    ])
+<a href=#85 id=85 data-nosnippet>85</a>                    .make_polygons(Distance::meters(<span class="number">1.0</span>)),
+<a href=#86 id=86 data-nosnippet>86</a>                );
+<a href=#87 id=87 data-nosnippet>87</a>            }
+<a href=#88 id=88 data-nosnippet>88</a>        }
+<a href=#89 id=89 data-nosnippet>89</a>        <span class="comment">// X axis grid
+<a href=#90 id=90 data-nosnippet>90</a>        </span><span class="kw">if </span>max_x != Time::START_OF_DAY {
+<a href=#91 id=91 data-nosnippet>91</a>            <span class="kw">let </span>order_of_mag = <span class="number">10.0_f64</span>.powf(max_x.inner_seconds().log10().ceil());
+<a href=#92 id=92 data-nosnippet>92</a>            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
+<a href=#93 id=93 data-nosnippet>93</a>                <span class="kw">let </span>x = Time::START_OF_DAY + Duration::seconds(order_of_mag / <span class="number">10.0 </span>* (i <span class="kw">as </span>f64));
+<a href=#94 id=94 data-nosnippet>94</a>                <span class="kw">let </span>pct = x.to_percent(max_x);
+<a href=#95 id=95 data-nosnippet>95</a>                <span class="kw">if </span>pct &gt; <span class="number">1.0 </span>{
+<a href=#96 id=96 data-nosnippet>96</a>                    <span class="kw">break</span>;
+<a href=#97 id=97 data-nosnippet>97</a>                }
+<a href=#98 id=98 data-nosnippet>98</a>                batch.push(
+<a href=#99 id=99 data-nosnippet>99</a>                    Color::hex(<span class="string">"#7C7C7C"</span>),
+<a href=#100 id=100 data-nosnippet>100</a>                    PolyLine::must_new(<span class="macro">vec!</span>[
+<a href=#101 id=101 data-nosnippet>101</a>                        Pt2D::new(pct * width, <span class="number">0.0</span>),
+<a href=#102 id=102 data-nosnippet>102</a>                        Pt2D::new(pct * width, height),
+<a href=#103 id=103 data-nosnippet>103</a>                    ])
+<a href=#104 id=104 data-nosnippet>104</a>                    .make_polygons(Distance::meters(<span class="number">1.0</span>)),
+<a href=#105 id=105 data-nosnippet>105</a>                );
+<a href=#106 id=106 data-nosnippet>106</a>            }
+<a href=#107 id=107 data-nosnippet>107</a>        }
+<a href=#108 id=108 data-nosnippet>108</a>
+<a href=#109 id=109 data-nosnippet>109</a>        <span class="kw">let </span>transform = |input: Vec&lt;(Time, Y)&gt;| {
+<a href=#110 id=110 data-nosnippet>110</a>            <span class="comment">// TODO Copied from LinePlot...
+<a href=#111 id=111 data-nosnippet>111</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+<a href=#112 id=112 data-nosnippet>112</a>            <span class="kw">for </span>(t, y) <span class="kw">in </span>input {
+<a href=#113 id=113 data-nosnippet>113</a>                <span class="kw">let </span>percent_x = t.to_percent(max_x);
+<a href=#114 id=114 data-nosnippet>114</a>                <span class="kw">let </span>percent_y = y.to_percent(max_y);
+<a href=#115 id=115 data-nosnippet>115</a>                pts.push(Pt2D::new(
+<a href=#116 id=116 data-nosnippet>116</a>                    percent_x * width,
+<a href=#117 id=117 data-nosnippet>117</a>                    <span class="comment">// Y inversion! :D
+<a href=#118 id=118 data-nosnippet>118</a>                    </span>(<span class="number">1.0 </span>- percent_y) * height,
+<a href=#119 id=119 data-nosnippet>119</a>                ));
+<a href=#120 id=120 data-nosnippet>120</a>            }
+<a href=#121 id=121 data-nosnippet>121</a>            pts.dedup();
+<a href=#122 id=122 data-nosnippet>122</a>            pts
+<a href=#123 id=123 data-nosnippet>123</a>        };
+<a href=#124 id=124 data-nosnippet>124</a>
+<a href=#125 id=125 data-nosnippet>125</a>        <span class="kw">for </span>s <span class="kw">in </span>series {
+<a href=#126 id=126 data-nosnippet>126</a>            <span class="kw">if </span>s.pts.len() &lt; <span class="number">2 </span>{
+<a href=#127 id=127 data-nosnippet>127</a>                <span class="kw">continue</span>;
+<a href=#128 id=128 data-nosnippet>128</a>            }
+<a href=#129 id=129 data-nosnippet>129</a>            <span class="kw">let </span>(p50, p90, <span class="kw-2">mut </span>p99) = slidey_window(s.pts, Duration::hours(<span class="number">1</span>));
+<a href=#130 id=130 data-nosnippet>130</a>
+<a href=#131 id=131 data-nosnippet>131</a>            <span class="comment">// Make a band between p50 and p99
+<a href=#132 id=132 data-nosnippet>132</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>band = transform(p50);
+<a href=#133 id=133 data-nosnippet>133</a>            p99.reverse();
+<a href=#134 id=134 data-nosnippet>134</a>            band.extend(transform(p99));
+<a href=#135 id=135 data-nosnippet>135</a>            band.push(band[<span class="number">0</span>]);
+<a href=#136 id=136 data-nosnippet>136</a>            batch.push(s.color.alpha(<span class="number">0.5</span>), Tessellation::from_ring(band));
+<a href=#137 id=137 data-nosnippet>137</a>
+<a href=#138 id=138 data-nosnippet>138</a>            batch.push(
+<a href=#139 id=139 data-nosnippet>139</a>                s.color,
+<a href=#140 id=140 data-nosnippet>140</a>                thick_lineseries(transform(p90), Distance::meters(<span class="number">5.0</span>)),
+<a href=#141 id=141 data-nosnippet>141</a>            );
+<a href=#142 id=142 data-nosnippet>142</a>        }
+<a href=#143 id=143 data-nosnippet>143</a>
+<a href=#144 id=144 data-nosnippet>144</a>        <span class="kw">let </span>plot = FanChart {
+<a href=#145 id=145 data-nosnippet>145</a>            draw: ctx.upload(batch),
+<a href=#146 id=146 data-nosnippet>146</a>
+<a href=#147 id=147 data-nosnippet>147</a>            top_left: ScreenPt::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+<a href=#148 id=148 data-nosnippet>148</a>            dims: ScreenDims::new(width, height),
+<a href=#149 id=149 data-nosnippet>149</a>        };
+<a href=#150 id=150 data-nosnippet>150</a>
+<a href=#151 id=151 data-nosnippet>151</a>        <span class="kw">let </span>num_x_labels = <span class="number">3</span>;
+<a href=#152 id=152 data-nosnippet>152</a>        <span class="kw">let </span><span class="kw-2">mut </span>row = Vec::new();
+<a href=#153 id=153 data-nosnippet>153</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_x_labels {
+<a href=#154 id=154 data-nosnippet>154</a>            <span class="kw">let </span>percent_x = (i <span class="kw">as </span>f64) / ((num_x_labels - <span class="number">1</span>) <span class="kw">as </span>f64);
+<a href=#155 id=155 data-nosnippet>155</a>            <span class="kw">let </span>t = max_x.percent_of(percent_x);
+<a href=#156 id=156 data-nosnippet>156</a>            <span class="comment">// TODO Need ticks now to actually see where this goes
+<a href=#157 id=157 data-nosnippet>157</a>            </span><span class="kw">let </span>batch = Text::from(t.to_string())
+<a href=#158 id=158 data-nosnippet>158</a>                .render(ctx)
+<a href=#159 id=159 data-nosnippet>159</a>                .rotate(Angle::degrees(-<span class="number">15.0</span>))
+<a href=#160 id=160 data-nosnippet>160</a>                .autocrop();
+<a href=#161 id=161 data-nosnippet>161</a>            row.push(batch.into_widget(ctx));
+<a href=#162 id=162 data-nosnippet>162</a>        }
+<a href=#163 id=163 data-nosnippet>163</a>        <span class="kw">let </span>x_axis = Widget::custom_row(row).padding(<span class="number">10</span>).evenly_spaced();
+<a href=#164 id=164 data-nosnippet>164</a>
+<a href=#165 id=165 data-nosnippet>165</a>        <span class="kw">let </span>num_y_labels = <span class="number">4</span>;
+<a href=#166 id=166 data-nosnippet>166</a>        <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
+<a href=#167 id=167 data-nosnippet>167</a>        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_y_labels {
+<a href=#168 id=168 data-nosnippet>168</a>            <span class="kw">let </span>percent_y = (i <span class="kw">as </span>f64) / ((num_y_labels - <span class="number">1</span>) <span class="kw">as </span>f64);
+<a href=#169 id=169 data-nosnippet>169</a>            col.push(
+<a href=#170 id=170 data-nosnippet>170</a>                max_y
+<a href=#171 id=171 data-nosnippet>171</a>                    .from_percent(percent_y)
+<a href=#172 id=172 data-nosnippet>172</a>                    .prettyprint(<span class="kw-2">&amp;</span>unit_fmt)
+<a href=#173 id=173 data-nosnippet>173</a>                    .text_widget(ctx),
+<a href=#174 id=174 data-nosnippet>174</a>            );
+<a href=#175 id=175 data-nosnippet>175</a>        }
+<a href=#176 id=176 data-nosnippet>176</a>        col.reverse();
+<a href=#177 id=177 data-nosnippet>177</a>        <span class="kw">let </span>y_axis = Widget::custom_col(col).padding(<span class="number">10</span>).evenly_spaced();
+<a href=#178 id=178 data-nosnippet>178</a>
+<a href=#179 id=179 data-nosnippet>179</a>        <span class="comment">// Don't let the x-axis fill the parent container
+<a href=#180 id=180 data-nosnippet>180</a>        </span>Widget::custom_col(<span class="macro">vec!</span>[
+<a href=#181 id=181 data-nosnippet>181</a>            legend.margin_below(<span class="number">10</span>),
+<a href=#182 id=182 data-nosnippet>182</a>            Widget::custom_row(<span class="macro">vec!</span>[y_axis, Widget::new(Box::new(plot))]),
+<a href=#183 id=183 data-nosnippet>183</a>            x_axis,
+<a href=#184 id=184 data-nosnippet>184</a>        ])
+<a href=#185 id=185 data-nosnippet>185</a>        .container()
+<a href=#186 id=186 data-nosnippet>186</a>    }
+<a href=#187 id=187 data-nosnippet>187</a>}
+<a href=#188 id=188 data-nosnippet>188</a>
+<a href=#189 id=189 data-nosnippet>189</a><span class="kw">impl </span>WidgetImpl <span class="kw">for </span>FanChart {
+<a href=#190 id=190 data-nosnippet>190</a>    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="self">self</span>.dims
+<a href=#192 id=192 data-nosnippet>192</a>    }
+<a href=#193 id=193 data-nosnippet>193</a>
+<a href=#194 id=194 data-nosnippet>194</a>    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+<a href=#195 id=195 data-nosnippet>195</a>        <span class="self">self</span>.top_left = top_left;
+<a href=#196 id=196 data-nosnippet>196</a>    }
+<a href=#197 id=197 data-nosnippet>197</a>
+<a href=#198 id=198 data-nosnippet>198</a>    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>WidgetOutput) {}
+<a href=#199 id=199 data-nosnippet>199</a>
+<a href=#200 id=200 data-nosnippet>200</a>    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+<a href=#201 id=201 data-nosnippet>201</a>        g.redraw_at(<span class="self">self</span>.top_left, <span class="kw-2">&amp;</span><span class="self">self</span>.draw);
+<a href=#202 id=202 data-nosnippet>202</a>    }
+<a href=#203 id=203 data-nosnippet>203</a>}
+<a href=#204 id=204 data-nosnippet>204</a>
+<a href=#205 id=205 data-nosnippet>205</a><span class="comment">// Returns (P50, P90, P99)
+<a href=#206 id=206 data-nosnippet>206</a></span><span class="kw">fn </span>slidey_window&lt;Y: HgramValue&lt;Y&gt;&gt;(
+<a href=#207 id=207 data-nosnippet>207</a>    input: Vec&lt;(Time, Y)&gt;,
+<a href=#208 id=208 data-nosnippet>208</a>    window_size: Duration,
+<a href=#209 id=209 data-nosnippet>209</a>) -&gt; (Vec&lt;(Time, Y)&gt;, Vec&lt;(Time, Y)&gt;, Vec&lt;(Time, Y)&gt;) {
+<a href=#210 id=210 data-nosnippet>210</a>    <span class="kw">let </span><span class="kw-2">mut </span>p50: Vec&lt;(Time, Y)&gt; = Vec::new();
+<a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">let </span><span class="kw-2">mut </span>p90: Vec&lt;(Time, Y)&gt; = Vec::new();
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="kw">let </span><span class="kw-2">mut </span>p99: Vec&lt;(Time, Y)&gt; = Vec::new();
+<a href=#213 id=213 data-nosnippet>213</a>    <span class="kw">let </span><span class="kw-2">mut </span>window: VecDeque&lt;(Time, Y)&gt; = VecDeque::new();
+<a href=#214 id=214 data-nosnippet>214</a>    <span class="kw">let </span><span class="kw-2">mut </span>hgram = Histogram::new();
+<a href=#215 id=215 data-nosnippet>215</a>
+<a href=#216 id=216 data-nosnippet>216</a>    <span class="kw">let </span><span class="kw-2">mut </span>last_sample = Time::START_OF_DAY;
+<a href=#217 id=217 data-nosnippet>217</a>
+<a href=#218 id=218 data-nosnippet>218</a>    <span class="kw">for </span>(t, value) <span class="kw">in </span>input {
+<a href=#219 id=219 data-nosnippet>219</a>        window.push_back((t, value));
+<a href=#220 id=220 data-nosnippet>220</a>        hgram.add(value);
+<a href=#221 id=221 data-nosnippet>221</a>
+<a href=#222 id=222 data-nosnippet>222</a>        <span class="kw">if </span>t - last_sample &gt; Duration::minutes(<span class="number">1</span>) {
+<a href=#223 id=223 data-nosnippet>223</a>            p50.push((t, hgram.select(Statistic::P50).unwrap()));
+<a href=#224 id=224 data-nosnippet>224</a>            p90.push((t, hgram.select(Statistic::P90).unwrap()));
+<a href=#225 id=225 data-nosnippet>225</a>            p99.push((t, hgram.select(Statistic::P99).unwrap()));
+<a href=#226 id=226 data-nosnippet>226</a>            last_sample = t;
+<a href=#227 id=227 data-nosnippet>227</a>        }
+<a href=#228 id=228 data-nosnippet>228</a>
+<a href=#229 id=229 data-nosnippet>229</a>        <span class="kw">while </span>!window.is_empty() &amp;&amp; t - window.front().unwrap().<span class="number">0 </span>&gt; window_size {
+<a href=#230 id=230 data-nosnippet>230</a>            <span class="kw">let </span>(<span class="kw">_</span>, old_value) = window.pop_front().unwrap();
+<a href=#231 id=231 data-nosnippet>231</a>            hgram.remove(old_value);
+<a href=#232 id=232 data-nosnippet>232</a>        }
+<a href=#233 id=233 data-nosnippet>233</a>    }
+<a href=#234 id=234 data-nosnippet>234</a>
+<a href=#235 id=235 data-nosnippet>235</a>    (p50, p90, p99)
+<a href=#236 id=236 data-nosnippet>236</a>}</code></pre></div></section></main></body></html>

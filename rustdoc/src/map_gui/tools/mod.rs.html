@@ -1,963 +1,481 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0 (4d91de4e4 2025-02-17)" data-channel="1.85.0" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">map_gui/tools/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
-<a href="#1" id="1">1</a>
-<a href="#2" id="2">2</a>
-<a href="#3" id="3">3</a>
-<a href="#4" id="4">4</a>
-<a href="#5" id="5">5</a>
-<a href="#6" id="6">6</a>
-<a href="#7" id="7">7</a>
-<a href="#8" id="8">8</a>
-<a href="#9" id="9">9</a>
-<a href="#10" id="10">10</a>
-<a href="#11" id="11">11</a>
-<a href="#12" id="12">12</a>
-<a href="#13" id="13">13</a>
-<a href="#14" id="14">14</a>
-<a href="#15" id="15">15</a>
-<a href="#16" id="16">16</a>
-<a href="#17" id="17">17</a>
-<a href="#18" id="18">18</a>
-<a href="#19" id="19">19</a>
-<a href="#20" id="20">20</a>
-<a href="#21" id="21">21</a>
-<a href="#22" id="22">22</a>
-<a href="#23" id="23">23</a>
-<a href="#24" id="24">24</a>
-<a href="#25" id="25">25</a>
-<a href="#26" id="26">26</a>
-<a href="#27" id="27">27</a>
-<a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
-<a href="#31" id="31">31</a>
-<a href="#32" id="32">32</a>
-<a href="#33" id="33">33</a>
-<a href="#34" id="34">34</a>
-<a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
-<a href="#38" id="38">38</a>
-<a href="#39" id="39">39</a>
-<a href="#40" id="40">40</a>
-<a href="#41" id="41">41</a>
-<a href="#42" id="42">42</a>
-<a href="#43" id="43">43</a>
-<a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a>
-<a href="#47" id="47">47</a>
-<a href="#48" id="48">48</a>
-<a href="#49" id="49">49</a>
-<a href="#50" id="50">50</a>
-<a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
-<a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
-<a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
-<a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
-<a href="#284" id="284">284</a>
-<a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
-<a href="#288" id="288">288</a>
-<a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
-<a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
-<a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-<a href="#297" id="297">297</a>
-<a href="#298" id="298">298</a>
-<a href="#299" id="299">299</a>
-<a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
-<a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
-<a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
-<a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
-<a href="#422" id="422">422</a>
-<a href="#423" id="423">423</a>
-<a href="#424" id="424">424</a>
-<a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
-<a href="#429" id="429">429</a>
-<a href="#430" id="430">430</a>
-<a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
-<a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a></pre></div><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that're useful for applications built to display maps.
-
-</span><span class="kw">use </span>std::collections::BTreeSet;
-
-<span class="kw">use </span>abstio::MapName;
-<span class="kw">use </span>geom::Polygon;
-<span class="kw">use </span>map_model::{IntersectionID, Map, RoadID};
-<span class="kw">use </span>widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Text, Widget};
-
-<span class="kw">pub use </span><span class="self">self</span>::camera::{CameraState, DefaultMap};
-<span class="kw">pub use </span><span class="self">self</span>::city_picker::CityPicker;
-<span class="kw">pub use </span><span class="self">self</span>::colors::{ColorDiscrete, ColorNetwork};
-<span class="kw">pub use </span><span class="self">self</span>::draw_overlapping_paths::draw_overlapping_paths;
-<span class="kw">pub use </span><span class="self">self</span>::heatmap::{draw_isochrone, make_heatmap, Grid, HeatmapOptions};
-<span class="kw">pub use </span><span class="self">self</span>::icons::{goal_marker, start_marker};
-<span class="kw">pub use </span><span class="self">self</span>::labels::{DrawRoadLabels, DrawSimpleRoadLabels};
-<span class="kw">pub use </span><span class="self">self</span>::minimap::{Minimap, MinimapControls};
-<span class="kw">pub use </span><span class="self">self</span>::navigate::Navigator;
-<span class="kw">pub use </span><span class="self">self</span>::polygon::EditPolygon;
-<span class="kw">pub use </span><span class="self">self</span>::title_screen::{Executable, TitleScreen};
-<span class="kw">pub use </span><span class="self">self</span>::trip_files::{TripManagement, TripManagementState};
-<span class="kw">pub use </span><span class="self">self</span>::ui::{
-    checkbox_per_mode, cmp_count, cmp_dist, cmp_duration, color_for_mode, percentage_bar,
-    FilePicker, FileSaver, FileSaverContents,
-};
-<span class="kw">pub use </span><span class="self">self</span>::waypoints::{InputWaypoints, WaypointID};
-<span class="kw">use </span><span class="kw">crate</span>::AppLike;
-
-<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
-</span><span class="kw">pub use </span><span class="self">self</span>::command::RunCommand;
-<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
-</span><span class="kw">pub use </span><span class="self">self</span>::updater::prompt_to_download_missing_data;
-
-<span class="kw">mod </span>camera;
-<span class="kw">mod </span>city_picker;
-<span class="kw">mod </span>colors;
-<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
-</span><span class="kw">mod </span>command;
-<span class="kw">pub mod </span>compare_counts;
-<span class="kw">mod </span>draw_overlapping_paths;
-<span class="kw">mod </span>heatmap;
-<span class="kw">mod </span>icons;
-<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
-</span><span class="kw">mod </span>importer;
-<span class="kw">mod </span>labels;
-<span class="kw">mod </span>minimap;
-<span class="kw">mod </span>navigate;
-<span class="kw">mod </span>polygon;
-<span class="kw">mod </span>title_screen;
-<span class="kw">mod </span>trip_files;
-<span class="kw">mod </span>ui;
-<span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
-</span><span class="kw">mod </span>updater;
-<span class="kw">mod </span>waypoints;
-
-<span class="comment">// Update this ___before___ pushing the commit with "[rebuild] [release]".
-</span><span class="kw">const </span>NEXT_RELEASE: <span class="kw-2">&amp;</span>str = <span class="string">"0.3.50"</span>;
-
-<span class="doccomment">/// Returns the version of A/B Street to link to. When building for a release, this points to that
-/// new release. Otherwise it points to the current dev version.
-</span><span class="kw">pub fn </span>version() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
-    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"release_s3"</span>) {
-        NEXT_RELEASE
-    } <span class="kw">else </span>{
-        <span class="string">"dev"
-    </span>}
-}
-
-<span class="comment">// TODO This is A/B Street specific
-</span><span class="kw">pub fn </span>loading_tips() -&gt; Text {
-    Text::from_multiline(<span class="macro">vec!</span>[
-        Line(<span class="string">"Have you tried..."</span>),
-        Line(<span class="string">""</span>),
-        Line(<span class="string">"- simulating cities in Britain, Taiwan, Poland, and more?"</span>),
-        Line(<span class="string">"- the 15-minute neighborhood tool?"</span>),
-        Line(<span class="string">"- exploring all of the map layers?"</span>),
-        Line(<span class="string">"- playing 15-minute Santa, our arcade game spin-off?"</span>),
-    ])
-}
-
-<span class="doccomment">/// Make it clear the map can't be interacted with right now.
-</span><span class="kw">pub fn </span>grey_out_map(g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
-    g.fork_screenspace();
-    <span class="comment">// TODO - OSD height
-    </span>g.draw_polygon(
-        app.cs().fade_map_dark,
-        Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
-    );
-    g.unfork();
-}
-
-<span class="comment">// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
-</span><span class="kw">pub fn </span>nice_map_name(name: <span class="kw-2">&amp;</span>MapName) -&gt; <span class="kw-2">&amp;</span>str {
-    <span class="kw">match </span>name.city.country.as_ref() {
-        <span class="string">"au" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"melbourne"</span>, <span class="string">"brunswick"</span>) =&gt; <span class="string">"Melbourne (Brunswick)"</span>,
-            (<span class="string">"melbourne"</span>, <span class="string">"dandenong"</span>) =&gt; <span class="string">"Melbourne (Dandenong)"</span>,
-            (<span class="string">"melbourne"</span>, <span class="string">"maribyrnong"</span>) =&gt; <span class="string">"Melbourne (Maribyrnong)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"at" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"salzburg"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Salzburg (north)"</span>,
-            (<span class="string">"salzburg"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"Salzburg (south)"</span>,
-            (<span class="string">"salzburg"</span>, <span class="string">"east"</span>) =&gt; <span class="string">"Salzburg (east)"</span>,
-            (<span class="string">"salzburg"</span>, <span class="string">"west"</span>) =&gt; <span class="string">"Salzburg (west)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"br" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"sao_paulo"</span>, <span class="string">"aricanduva"</span>) =&gt; <span class="string">"São Paulo (Avenue Aricanduva)"</span>,
-            (<span class="string">"sao_paulo"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"São Paulo (city center)"</span>,
-            (<span class="string">"sao_paulo"</span>, <span class="string">"sao_miguel_paulista"</span>) =&gt; <span class="string">"São Miguel Paulista"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"ca" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"montreal"</span>, <span class="string">"plateau"</span>) =&gt; <span class="string">"Montréal (Plateau)"</span>,
-            (<span class="string">"toronto"</span>, <span class="string">"dufferin"</span>) =&gt; <span class="string">"Toronto (Dufferin)"</span>,
-            (<span class="string">"toronto"</span>, <span class="string">"sw"</span>) =&gt; <span class="string">"Toronto (southwest)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"ch" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"geneva"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Geneva"</span>,
-            (<span class="string">"zurich"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Zürich (city center)"</span>,
-            (<span class="string">"zurich"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Zürich (north)"</span>,
-            (<span class="string">"zurich"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"Zürich (south)"</span>,
-            (<span class="string">"zurich"</span>, <span class="string">"east"</span>) =&gt; <span class="string">"Zürich (east)"</span>,
-            (<span class="string">"zurich"</span>, <span class="string">"west"</span>) =&gt; <span class="string">"Zürich (west)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"cl" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"santiago"</span>, <span class="string">"bellavista"</span>) =&gt; <span class="string">"Bellavista (Santiago)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"cz" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"frytek_mistek"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Frýdek-Místek (entire area)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"de" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"berlin"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Berlin (city center)"</span>,
-            (<span class="string">"berlin"</span>, <span class="string">"neukolln"</span>) =&gt; <span class="string">"Berlin-Neukölln"</span>,
-            (<span class="string">"bonn"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bonn (city center)"</span>,
-            (<span class="string">"bonn"</span>, <span class="string">"nordstadt"</span>) =&gt; <span class="string">"Bonn (Nordstadt)"</span>,
-            (<span class="string">"bonn"</span>, <span class="string">"venusberg"</span>) =&gt; <span class="string">"Bonn (Venusberg)"</span>,
-            (<span class="string">"rostock"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Rostock"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"fr" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"brest"</span>, <span class="string">"city"</span>) =&gt; <span class="string">"Brest"</span>,
-            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur1"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 1)"</span>,
-            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur2"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 2)"</span>,
-            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur3"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 3)"</span>,
-            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur4"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 4)"</span>,
-            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur5"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 5)"</span>,
-            (<span class="string">"lyon"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Lyon"</span>,
-            (<span class="string">"paris"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Paris (city center)"</span>,
-            (<span class="string">"paris"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Paris (north)"</span>,
-            (<span class="string">"paris"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"Paris (south)"</span>,
-            (<span class="string">"paris"</span>, <span class="string">"east"</span>) =&gt; <span class="string">"Paris (east)"</span>,
-            (<span class="string">"paris"</span>, <span class="string">"west"</span>) =&gt; <span class="string">"Paris (west)"</span>,
-            (<span class="string">"strasbourg"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Strasbourg (center)"</span>,
-            (<span class="string">"strasbourg"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Strasbourg (north)"</span>,
-            (<span class="string">"strasbourg"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"Strasbourg (south)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"gb" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"allerton_bywater"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Allerton Bywater"</span>,
-            (<span class="string">"ashton_park"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Ashton Park"</span>,
-            (<span class="string">"aylesbury"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Aylesbury"</span>,
-            (<span class="string">"aylesham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Aylesham"</span>,
-            (<span class="string">"bailrigg"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bailrigg (Lancaster)"</span>,
-            (<span class="string">"bath_riverside"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bath Riverside"</span>,
-            (<span class="string">"bicester"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bicester"</span>,
-            (<span class="string">"birmingham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Birmingham"</span>,
-            (<span class="string">"bournemouth"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bournemouth"</span>,
-            (<span class="string">"bradford"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bradford"</span>,
-            (<span class="string">"brighton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Brighton"</span>,
-            (<span class="string">"brighton"</span>, <span class="string">"shoreham_by_sea"</span>) =&gt; <span class="string">"Shoreham-by-Sea"</span>,
-            (<span class="string">"bristol"</span>, <span class="string">"east"</span>) =&gt; <span class="string">"East Bristol"</span>,
-            (<span class="string">"bristol"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"South Bristol"</span>,
-            (<span class="string">"burnley"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Burnley"</span>,
-            (<span class="string">"cambridge"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"North Cambridge"</span>,
-            (<span class="string">"cardiff"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Cardiff"</span>,
-            (<span class="string">"castlemead"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Castlemead"</span>,
-            (<span class="string">"chapelford"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Chapelford (Cheshire)"</span>,
-            (<span class="string">"chapeltown_cohousing"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Chapeltown Cohousing"</span>,
-            (<span class="string">"chichester"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Chichester"</span>,
-            (<span class="string">"chorlton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Chorlton"</span>,
-            (<span class="string">"clackers_brook"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Clackers Brook"</span>,
-            (<span class="string">"cricklewood"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Cricklewood"</span>,
-            (<span class="string">"culm"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Culm"</span>,
-            (<span class="string">"derby"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Derby"</span>,
-            (<span class="string">"dickens_heath"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Dickens Heath"</span>,
-            (<span class="string">"didcot"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Didcot (Harwell)"</span>,
-            (<span class="string">"dunton_hills"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Dunton Hills"</span>,
-            (<span class="string">"ebbsfleet"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Ebbsfleet (Dartford)"</span>,
-            (<span class="string">"edinburgh"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Edinburgh"</span>,
-            (<span class="string">"exeter_red_cow_village"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Exeter Red Cow Village"</span>,
-            (<span class="string">"glenrothes"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Glenrothes (Scotland)"</span>,
-            (<span class="string">"great_kneighton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Great Kneighton (Cambridge)"</span>,
-            (<span class="string">"halsnhead"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Halsnead"</span>,
-            (<span class="string">"hampton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Hampton"</span>,
-            (<span class="string">"inverness"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Inverness"</span>,
-            (<span class="string">"kergilliack"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Kergilliack"</span>,
-            (<span class="string">"keighley"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Keighley"</span>,
-            (<span class="string">"kidbrooke_village"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Kidbrooke Village"</span>,
-            (<span class="string">"lcid"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Leeds Climate Innovation District"</span>,
-            (<span class="string">"leeds"</span>, <span class="string">"central"</span>) =&gt; <span class="string">"Leeds (city center)"</span>,
-            (<span class="string">"leeds"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Leeds (entire area inside motorways)"</span>,
-            (<span class="string">"leeds"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"North Leeds"</span>,
-            (<span class="string">"leeds"</span>, <span class="string">"west"</span>) =&gt; <span class="string">"West Leeds"</span>,
-            (<span class="string">"lockleaze"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Lockleaze"</span>,
-            (<span class="string">"london"</span>, <span class="string">"camden"</span>) =&gt; <span class="string">"Camden"</span>,
-            (<span class="string">"london"</span>, <span class="string">"central"</span>) =&gt; <span class="string">"Central London"</span>,
-            (<span class="string">"london"</span>, <span class="string">"hackney"</span>) =&gt; <span class="string">"Hackney"</span>,
-            (<span class="string">"london"</span>, <span class="string">"kennington"</span>) =&gt; <span class="string">"Kennington (London)"</span>,
-            (<span class="string">"london"</span>, <span class="string">"kingston_upon_thames"</span>) =&gt; <span class="string">"Kingston upon Thames"</span>,
-            (<span class="string">"london"</span>, <span class="string">"southwark"</span>) =&gt; <span class="string">"Southwark"</span>,
-            (<span class="string">"long_marston"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Long Marston (Stratford)"</span>,
-            (<span class="string">"manchester"</span>, <span class="string">"levenshulme"</span>) =&gt; <span class="string">"Levenshulme (Manchester)"</span>,
-            (<span class="string">"manchester"</span>, <span class="string">"stockport"</span>) =&gt; <span class="string">"Stockport"</span>,
-            (<span class="string">"marsh_barton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Marsh Barton"</span>,
-            (<span class="string">"micklefield"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Micklefield"</span>,
-            (<span class="string">"newborough_road"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Newborough Road"</span>,
-            (<span class="string">"newcastle_great_park"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Newcastle Great Park"</span>,
-            (<span class="string">"newcastle_upon_tyne"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Newcastle upon Tyne"</span>,
-            (<span class="string">"nottingham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Nottingham (city center)"</span>,
-            (<span class="string">"nottingham"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Nottingham (entire area)"</span>,
-            (<span class="string">"nottingham"</span>, <span class="string">"stapleford"</span>) =&gt; <span class="string">"Stapleford"</span>,
-            (<span class="string">"northwick_park"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Northwick Park"</span>,
-            (<span class="string">"oxford"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Oxford"</span>,
-            (<span class="string">"poundbury"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Poundbury"</span>,
-            (<span class="string">"priors_hall"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Priors Hall"</span>,
-            (<span class="string">"sheffield"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Sheffield"</span>,
-            (<span class="string">"sheffield"</span>, <span class="string">"darnall"</span>) =&gt; <span class="string">"Darnall"</span>,
-            (<span class="string">"st_albans"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"St Albans"</span>,
-            (<span class="string">"taunton_firepool"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Taunton Firepool"</span>,
-            (<span class="string">"taunton_garden"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Taunton Garden"</span>,
-            (<span class="string">"tresham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tresham"</span>,
-            (<span class="string">"trumpington_meadows"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Trumpington Meadows"</span>,
-            (<span class="string">"tyersal_lane"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tyersal Lane"</span>,
-            (<span class="string">"upton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Upton"</span>,
-            (<span class="string">"water_lane"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Water Lane"</span>,
-            (<span class="string">"wichelstowe"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Wichelstowe"</span>,
-            (<span class="string">"wixams"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Wixams"</span>,
-            (<span class="string">"wokingham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Wokingham"</span>,
-            (<span class="string">"wynyard"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Wynyard"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"hk" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"kowloon"</span>, <span class="string">"tsim_sha_tsui"</span>) =&gt; <span class="string">"Tsim Sha Tsui"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"il" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"tel_aviv"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tel Aviv (city center)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"in" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"pune"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Pune"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"ir" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"tehran"</span>, <span class="string">"parliament"</span>) =&gt; <span class="string">"Tehran (near Parliament)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"jp" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"hiroshima"</span>, <span class="string">"uni"</span>) =&gt; <span class="string">"Hiroshima University"</span>,
-            (<span class="string">"tokyo"</span>, <span class="string">"shibuya"</span>) =&gt; <span class="string">"Shibuya"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"kr" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"seoul"</span>, <span class="string">"itaewon_dong"</span>) =&gt; <span class="string">"Itaewon Dong"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"ly" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"tripoli"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tripoli"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"nl" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"groningen"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Groningen (city center)"</span>,
-            (<span class="string">"groningen"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Groningen (entire area)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"nz" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"auckland"</span>, <span class="string">"mangere"</span>) =&gt; <span class="string">"Māngere (Auckland)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"pl" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"krakow"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Kraków (city center)"</span>,
-            (<span class="string">"warsaw"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Warsaw (city center)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"pt" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"lisbon"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Lisbon (city center)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"sg" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"jurong"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Jurong"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"tw" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"keelung"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Keelung"</span>,
-            (<span class="string">"taipei"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Taipei (city center)"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="string">"us" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
-            (<span class="string">"anchorage"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Anchorage"</span>,
-            (<span class="string">"bellevue"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Bellevue"</span>,
-            (<span class="string">"beltsville"</span>, <span class="string">"i495"</span>) =&gt; <span class="string">"I-495 in Beltsville, MD"</span>,
-            (<span class="string">"detroit"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Detroit"</span>,
-            (<span class="string">"lynnwood"</span>, <span class="string">"hazelwood"</span>) =&gt; <span class="string">"Lynnwood, WA"</span>,
-            (<span class="string">"milwaukee"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Downtown Milwaukee"</span>,
-            (<span class="string">"milwaukee"</span>, <span class="string">"oak_creek"</span>) =&gt; <span class="string">"Oak Creek"</span>,
-            (<span class="string">"missoula"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Missoula"</span>,
-            (<span class="string">"mt_vernon"</span>, <span class="string">"burlington"</span>) =&gt; <span class="string">"Burlington"</span>,
-            (<span class="string">"mt_vernon"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Mt. Vernon"</span>,
-            (<span class="string">"new_haven"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"New Haven"</span>,
-            (<span class="string">"nyc"</span>, <span class="string">"fordham"</span>) =&gt; <span class="string">"Fordham"</span>,
-            (<span class="string">"nyc"</span>, <span class="string">"lower_manhattan"</span>) =&gt; <span class="string">"Lower Manhattan"</span>,
-            (<span class="string">"nyc"</span>, <span class="string">"midtown_manhattan"</span>) =&gt; <span class="string">"Midtown Manhattan"</span>,
-            (<span class="string">"nyc"</span>, <span class="string">"downtown_brooklyn"</span>) =&gt; <span class="string">"Downtown Brooklyn"</span>,
-            (<span class="string">"phoenix"</span>, <span class="string">"gilbert"</span>) =&gt; <span class="string">"Gilbert"</span>,
-            (<span class="string">"phoenix"</span>, <span class="string">"tempe"</span>) =&gt; <span class="string">"Tempe"</span>,
-            (<span class="string">"providence"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Providence"</span>,
-            (<span class="string">"san_francisco"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"San Francisco"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"arboretum"</span>) =&gt; <span class="string">"Arboretum"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"central_seattle"</span>) =&gt; <span class="string">"Central Seattle"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Downtown Seattle"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"huge_seattle"</span>) =&gt; <span class="string">"Seattle (entire area)"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"lakeslice"</span>) =&gt; <span class="string">"Lake Washington corridor"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"montlake"</span>) =&gt; <span class="string">"Montlake and Eastlake"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"north_seattle"</span>) =&gt; <span class="string">"North Seattle"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"phinney"</span>) =&gt; <span class="string">"Phinney Ridge"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"qa"</span>) =&gt; <span class="string">"Queen Anne"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"slu"</span>) =&gt; <span class="string">"South Lake Union"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"south_seattle"</span>) =&gt; <span class="string">"South Seattle"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"udistrict_ravenna"</span>) =&gt; <span class="string">"University District"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"wallingford"</span>) =&gt; <span class="string">"Wallingford"</span>,
-            (<span class="string">"seattle"</span>, <span class="string">"west_seattle"</span>) =&gt; <span class="string">"West Seattle"</span>,
-            (<span class="string">"tucson"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tucson"</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-        },
-        <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
-    }
-}
-
-<span class="kw">pub fn </span>nice_country_name(code: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span>str {
-    <span class="comment">// If you add something here, please also add the flag to data/system/assets/flags.
-    // https://github.com/hampusborgos/country-flags/tree/main/svg
-    </span><span class="kw">match </span>code {
-        <span class="string">"au" </span>=&gt; <span class="string">"Australia"</span>,
-        <span class="string">"at" </span>=&gt; <span class="string">"Austria"</span>,
-        <span class="string">"br" </span>=&gt; <span class="string">"Brazil"</span>,
-        <span class="string">"ca" </span>=&gt; <span class="string">"Canada"</span>,
-        <span class="string">"ch" </span>=&gt; <span class="string">"Switzerland"</span>,
-        <span class="string">"cl" </span>=&gt; <span class="string">"Chile"</span>,
-        <span class="string">"cz" </span>=&gt; <span class="string">"Czech Republic"</span>,
-        <span class="string">"de" </span>=&gt; <span class="string">"Germany"</span>,
-        <span class="string">"fr" </span>=&gt; <span class="string">"France"</span>,
-        <span class="string">"gb" </span>=&gt; <span class="string">"Great Britain"</span>,
-        <span class="string">"il" </span>=&gt; <span class="string">"Israel"</span>,
-        <span class="string">"in" </span>=&gt; <span class="string">"India"</span>,
-        <span class="string">"ir" </span>=&gt; <span class="string">"Iran"</span>,
-        <span class="string">"hk" </span>=&gt; <span class="string">"Hong Kong"</span>,
-        <span class="string">"jp" </span>=&gt; <span class="string">"Japan"</span>,
-        <span class="string">"kr" </span>=&gt; <span class="string">"South Korea"</span>,
-        <span class="string">"ly" </span>=&gt; <span class="string">"Libya"</span>,
-        <span class="string">"nl" </span>=&gt; <span class="string">"Netherlands"</span>,
-        <span class="string">"nz" </span>=&gt; <span class="string">"New Zealand"</span>,
-        <span class="string">"pl" </span>=&gt; <span class="string">"Poland"</span>,
-        <span class="string">"pt" </span>=&gt; <span class="string">"Portugal"</span>,
-        <span class="string">"sg" </span>=&gt; <span class="string">"Singapore"</span>,
-        <span class="string">"tw" </span>=&gt; <span class="string">"Taiwan"</span>,
-        <span class="string">"us" </span>=&gt; <span class="string">"United States of America"</span>,
-        <span class="kw">_ </span>=&gt; code,
-    }
-}
-
-<span class="doccomment">/// Returns the path to an executable. Native-only.
-</span><span class="kw">pub fn </span>find_exe(cmd: <span class="kw-2">&amp;</span>str) -&gt; String {
-    <span class="kw">let </span><span class="kw-2">mut </span>directories = Vec::new();
-    <span class="comment">// Some cargo configurations explicitly use a platform-specific directory
-    </span><span class="kw">for </span>arch <span class="kw">in </span>[<span class="string">"x86_64-unknown-linux-gnu"</span>, <span class="string">""</span>] {
-        <span class="comment">// When running from source, prefer release builds, but fallback to debug. This might be
-        // confusing when developing and not recompiling in release mode.
-        </span><span class="kw">for </span>mode <span class="kw">in </span>[<span class="string">"release"</span>, <span class="string">"debug"</span>] {
-            <span class="kw">for </span>relative_dir <span class="kw">in </span>[<span class="string">"."</span>, <span class="string">".."</span>, <span class="string">"../.."</span>] {
-                directories.push(
-                    std::path::Path::new(relative_dir)
-                        .join(<span class="string">"target"</span>)
-                        .join(arch)
-                        .join(mode)
-                        .display()
-                        .to_string(),
-                );
-            }
-        }
-    }
-    <span class="comment">// When running from the .zip release
-    </span>directories.push(<span class="string">"./binaries"</span>.to_string());
-
-    <span class="kw">for </span>dir <span class="kw">in </span>directories {
-        <span class="comment">// Apparently std::path on Windows doesn't do any of this correction. We could build up a
-        // PathBuf properly, I guess
-        </span><span class="kw">let </span>path = <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
-            <span class="macro">format!</span>(<span class="string">"{}/{}.exe"</span>, dir, cmd).replace(<span class="string">"/"</span>, <span class="string">"\\"</span>)
-        } <span class="kw">else </span>{
-            <span class="macro">format!</span>(<span class="string">"{}/{}"</span>, dir, cmd)
-        };
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(metadata) = fs_err::metadata(<span class="kw-2">&amp;</span>path) {
-            <span class="kw">if </span>metadata.is_file() {
-                <span class="kw">return </span>path;
-            } <span class="kw">else </span>{
-                <span class="macro">debug!</span>(
-                    <span class="string">"found matching path: {}/{} but it's not a file."</span>,
-                    <span class="kw-2">&amp;</span>path, cmd
-                );
-            }
-        }
-    }
-    <span class="macro">panic!</span>(<span class="string">"Couldn't find the {} executable. Is it built?"</span>, cmd);
-}
-
-<span class="doccomment">/// A button to change maps, with default keybindings
-</span><span class="kw">pub fn </span>change_map_btn(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; Widget {
-    ctx.style()
-        .btn_popup_icon_text(
-            <span class="string">"system/assets/tools/map.svg"</span>,
-            nice_map_name(app.map().get_name()),
-        )
-        .hotkey(lctrl(Key::L))
-        .build_widget(ctx, <span class="string">"change map"</span>)
-}
-
-<span class="doccomment">/// A button to return to the title screen
-</span><span class="kw">pub fn </span>home_btn(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
-    ctx.style()
-        .btn_plain
-        .btn()
-        .image_path(<span class="string">"system/assets/pregame/logo.svg"</span>)
-        .image_dims(<span class="number">50.0</span>)
-        .build_widget(ctx, <span class="string">"Home"</span>)
-}
-
-<span class="doccomment">/// A standard way to group a home button back to the title screen, the title of the current app,
-/// and a button to change maps. Callers must handle the `change map` and `home` click events.
-</span><span class="kw">pub fn </span>app_header(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, title: <span class="kw-2">&amp;</span>str) -&gt; Widget {
-    Widget::col(<span class="macro">vec!</span>[
-        Widget::row(<span class="macro">vec!</span>[
-            home_btn(ctx),
-            Line(title).small_heading().into_widget(ctx).centered_vert(),
-        ]),
-        change_map_btn(ctx, app),
-    ])
-}
-
-<span class="kw">pub fn </span>intersections_from_roads(roads: <span class="kw-2">&amp;</span>BTreeSet&lt;RoadID&gt;, map: <span class="kw-2">&amp;</span>Map) -&gt; BTreeSet&lt;IntersectionID&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>results = BTreeSet::new();
-    <span class="kw">for </span>r <span class="kw">in </span>roads {
-        <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>r);
-        <span class="kw">for </span>i <span class="kw">in </span>[r.src_i, r.dst_i] {
-            <span class="kw">if </span>results.contains(<span class="kw-2">&amp;</span>i) {
-                <span class="kw">continue</span>;
-            }
-            <span class="kw">if </span>map.get_i(i).roads.iter().all(|r| roads.contains(r)) {
-                results.insert(i);
-            }
-        }
-    }
-    results
-}
-
-<span class="doccomment">/// Modify the current URL to set the first free parameter to the current map name.
-</span><span class="kw">pub fn </span>update_url_map_name(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
-    widgetry::tools::URLManager::update_url_free_param(
-        app.map()
-            .get_name()
-            .path()
-            .strip_prefix(<span class="kw-2">&amp;</span>abstio::path(<span class="string">""</span>))
-            .unwrap()
-            .to_string(),
-    );
-}
-</code></pre></div></section></main></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="map_gui" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">map_gui/tools/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Assorted tools and UI states that're useful for applications built to display maps.
+<a href=#2 id=2 data-nosnippet>2</a>
+<a href=#3 id=3 data-nosnippet>3</a></span><span class="kw">use </span>std::collections::BTreeSet;
+<a href=#4 id=4 data-nosnippet>4</a>
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>abstio::MapName;
+<a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span>geom::Polygon;
+<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>map_model::{IntersectionID, Map, RoadID};
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Text, Widget};
+<a href=#9 id=9 data-nosnippet>9</a>
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">pub use </span><span class="self">self</span>::camera::{CameraState, DefaultMap};
+<a href=#11 id=11 data-nosnippet>11</a><span class="kw">pub use </span><span class="self">self</span>::city_picker::CityPicker;
+<a href=#12 id=12 data-nosnippet>12</a><span class="kw">pub use </span><span class="self">self</span>::colors::{ColorDiscrete, ColorNetwork};
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">pub use </span><span class="self">self</span>::draw_overlapping_paths::draw_overlapping_paths;
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">pub use </span><span class="self">self</span>::heatmap::{draw_isochrone, make_heatmap, Grid, HeatmapOptions};
+<a href=#15 id=15 data-nosnippet>15</a><span class="kw">pub use </span><span class="self">self</span>::icons::{goal_marker, start_marker};
+<a href=#16 id=16 data-nosnippet>16</a><span class="kw">pub use </span><span class="self">self</span>::labels::{DrawRoadLabels, DrawSimpleRoadLabels};
+<a href=#17 id=17 data-nosnippet>17</a><span class="kw">pub use </span><span class="self">self</span>::minimap::{Minimap, MinimapControls};
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">pub use </span><span class="self">self</span>::navigate::Navigator;
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">pub use </span><span class="self">self</span>::polygon::EditPolygon;
+<a href=#20 id=20 data-nosnippet>20</a><span class="kw">pub use </span><span class="self">self</span>::title_screen::{Executable, TitleScreen};
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">pub use </span><span class="self">self</span>::trip_files::{TripManagement, TripManagementState};
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">pub use </span><span class="self">self</span>::ui::{
+<a href=#23 id=23 data-nosnippet>23</a>    checkbox_per_mode, cmp_count, cmp_dist, cmp_duration, color_for_mode, percentage_bar,
+<a href=#24 id=24 data-nosnippet>24</a>    FilePicker, FileSaver, FileSaverContents,
+<a href=#25 id=25 data-nosnippet>25</a>};
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">pub use </span><span class="self">self</span>::waypoints::{InputWaypoints, WaypointID};
+<a href=#27 id=27 data-nosnippet>27</a><span class="kw">use </span><span class="kw">crate</span>::AppLike;
+<a href=#28 id=28 data-nosnippet>28</a>
+<a href=#29 id=29 data-nosnippet>29</a><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
+<a href=#30 id=30 data-nosnippet>30</a></span><span class="kw">pub use </span><span class="self">self</span>::command::RunCommand;
+<a href=#31 id=31 data-nosnippet>31</a><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
+<a href=#32 id=32 data-nosnippet>32</a></span><span class="kw">pub use </span><span class="self">self</span>::updater::prompt_to_download_missing_data;
+<a href=#33 id=33 data-nosnippet>33</a>
+<a href=#34 id=34 data-nosnippet>34</a><span class="kw">mod </span>camera;
+<a href=#35 id=35 data-nosnippet>35</a><span class="kw">mod </span>city_picker;
+<a href=#36 id=36 data-nosnippet>36</a><span class="kw">mod </span>colors;
+<a href=#37 id=37 data-nosnippet>37</a><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
+<a href=#38 id=38 data-nosnippet>38</a></span><span class="kw">mod </span>command;
+<a href=#39 id=39 data-nosnippet>39</a><span class="kw">pub mod </span>compare_counts;
+<a href=#40 id=40 data-nosnippet>40</a><span class="kw">mod </span>draw_overlapping_paths;
+<a href=#41 id=41 data-nosnippet>41</a><span class="kw">mod </span>heatmap;
+<a href=#42 id=42 data-nosnippet>42</a><span class="kw">mod </span>icons;
+<a href=#43 id=43 data-nosnippet>43</a><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
+<a href=#44 id=44 data-nosnippet>44</a></span><span class="kw">mod </span>importer;
+<a href=#45 id=45 data-nosnippet>45</a><span class="kw">mod </span>labels;
+<a href=#46 id=46 data-nosnippet>46</a><span class="kw">mod </span>minimap;
+<a href=#47 id=47 data-nosnippet>47</a><span class="kw">mod </span>navigate;
+<a href=#48 id=48 data-nosnippet>48</a><span class="kw">mod </span>polygon;
+<a href=#49 id=49 data-nosnippet>49</a><span class="kw">mod </span>title_screen;
+<a href=#50 id=50 data-nosnippet>50</a><span class="kw">mod </span>trip_files;
+<a href=#51 id=51 data-nosnippet>51</a><span class="kw">mod </span>ui;
+<a href=#52 id=52 data-nosnippet>52</a><span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
+<a href=#53 id=53 data-nosnippet>53</a></span><span class="kw">mod </span>updater;
+<a href=#54 id=54 data-nosnippet>54</a><span class="kw">mod </span>waypoints;
+<a href=#55 id=55 data-nosnippet>55</a>
+<a href=#56 id=56 data-nosnippet>56</a><span class="comment">// Update this ___before___ pushing the commit with "[rebuild] [release]".
+<a href=#57 id=57 data-nosnippet>57</a></span><span class="kw">const </span>NEXT_RELEASE: <span class="kw-2">&amp;</span>str = <span class="string">"0.3.50"</span>;
+<a href=#58 id=58 data-nosnippet>58</a>
+<a href=#59 id=59 data-nosnippet>59</a><span class="doccomment">/// Returns the version of A/B Street to link to. When building for a release, this points to that
+<a href=#60 id=60 data-nosnippet>60</a>/// new release. Otherwise it points to the current dev version.
+<a href=#61 id=61 data-nosnippet>61</a></span><span class="kw">pub fn </span>version() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+<a href=#62 id=62 data-nosnippet>62</a>    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"release_s3"</span>) {
+<a href=#63 id=63 data-nosnippet>63</a>        NEXT_RELEASE
+<a href=#64 id=64 data-nosnippet>64</a>    } <span class="kw">else </span>{
+<a href=#65 id=65 data-nosnippet>65</a>        <span class="string">"dev"
+<a href=#66 id=66 data-nosnippet>66</a>    </span>}
+<a href=#67 id=67 data-nosnippet>67</a>}
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a><span class="comment">// TODO This is A/B Street specific
+<a href=#70 id=70 data-nosnippet>70</a></span><span class="kw">pub fn </span>loading_tips() -&gt; Text {
+<a href=#71 id=71 data-nosnippet>71</a>    Text::from_multiline(<span class="macro">vec!</span>[
+<a href=#72 id=72 data-nosnippet>72</a>        Line(<span class="string">"Have you tried..."</span>),
+<a href=#73 id=73 data-nosnippet>73</a>        Line(<span class="string">""</span>),
+<a href=#74 id=74 data-nosnippet>74</a>        Line(<span class="string">"- simulating cities in Britain, Taiwan, Poland, and more?"</span>),
+<a href=#75 id=75 data-nosnippet>75</a>        Line(<span class="string">"- the 15-minute neighborhood tool?"</span>),
+<a href=#76 id=76 data-nosnippet>76</a>        Line(<span class="string">"- exploring all of the map layers?"</span>),
+<a href=#77 id=77 data-nosnippet>77</a>        Line(<span class="string">"- playing 15-minute Santa, our arcade game spin-off?"</span>),
+<a href=#78 id=78 data-nosnippet>78</a>    ])
+<a href=#79 id=79 data-nosnippet>79</a>}
+<a href=#80 id=80 data-nosnippet>80</a>
+<a href=#81 id=81 data-nosnippet>81</a><span class="doccomment">/// Make it clear the map can't be interacted with right now.
+<a href=#82 id=82 data-nosnippet>82</a></span><span class="kw">pub fn </span>grey_out_map(g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
+<a href=#83 id=83 data-nosnippet>83</a>    g.fork_screenspace();
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="comment">// TODO - OSD height
+<a href=#85 id=85 data-nosnippet>85</a>    </span>g.draw_polygon(
+<a href=#86 id=86 data-nosnippet>86</a>        app.cs().fade_map_dark,
+<a href=#87 id=87 data-nosnippet>87</a>        Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+<a href=#88 id=88 data-nosnippet>88</a>    );
+<a href=#89 id=89 data-nosnippet>89</a>    g.unfork();
+<a href=#90 id=90 data-nosnippet>90</a>}
+<a href=#91 id=91 data-nosnippet>91</a>
+<a href=#92 id=92 data-nosnippet>92</a><span class="comment">// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
+<a href=#93 id=93 data-nosnippet>93</a></span><span class="kw">pub fn </span>nice_map_name(name: <span class="kw-2">&amp;</span>MapName) -&gt; <span class="kw-2">&amp;</span>str {
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="kw">match </span>name.city.country.as_ref() {
+<a href=#95 id=95 data-nosnippet>95</a>        <span class="string">"au" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#96 id=96 data-nosnippet>96</a>            (<span class="string">"melbourne"</span>, <span class="string">"brunswick"</span>) =&gt; <span class="string">"Melbourne (Brunswick)"</span>,
+<a href=#97 id=97 data-nosnippet>97</a>            (<span class="string">"melbourne"</span>, <span class="string">"dandenong"</span>) =&gt; <span class="string">"Melbourne (Dandenong)"</span>,
+<a href=#98 id=98 data-nosnippet>98</a>            (<span class="string">"melbourne"</span>, <span class="string">"maribyrnong"</span>) =&gt; <span class="string">"Melbourne (Maribyrnong)"</span>,
+<a href=#99 id=99 data-nosnippet>99</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#100 id=100 data-nosnippet>100</a>        },
+<a href=#101 id=101 data-nosnippet>101</a>        <span class="string">"at" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#102 id=102 data-nosnippet>102</a>            (<span class="string">"salzburg"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Salzburg (north)"</span>,
+<a href=#103 id=103 data-nosnippet>103</a>            (<span class="string">"salzburg"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"Salzburg (south)"</span>,
+<a href=#104 id=104 data-nosnippet>104</a>            (<span class="string">"salzburg"</span>, <span class="string">"east"</span>) =&gt; <span class="string">"Salzburg (east)"</span>,
+<a href=#105 id=105 data-nosnippet>105</a>            (<span class="string">"salzburg"</span>, <span class="string">"west"</span>) =&gt; <span class="string">"Salzburg (west)"</span>,
+<a href=#106 id=106 data-nosnippet>106</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#107 id=107 data-nosnippet>107</a>        },
+<a href=#108 id=108 data-nosnippet>108</a>        <span class="string">"br" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#109 id=109 data-nosnippet>109</a>            (<span class="string">"sao_paulo"</span>, <span class="string">"aricanduva"</span>) =&gt; <span class="string">"São Paulo (Avenue Aricanduva)"</span>,
+<a href=#110 id=110 data-nosnippet>110</a>            (<span class="string">"sao_paulo"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"São Paulo (city center)"</span>,
+<a href=#111 id=111 data-nosnippet>111</a>            (<span class="string">"sao_paulo"</span>, <span class="string">"sao_miguel_paulista"</span>) =&gt; <span class="string">"São Miguel Paulista"</span>,
+<a href=#112 id=112 data-nosnippet>112</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#113 id=113 data-nosnippet>113</a>        },
+<a href=#114 id=114 data-nosnippet>114</a>        <span class="string">"ca" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#115 id=115 data-nosnippet>115</a>            (<span class="string">"montreal"</span>, <span class="string">"plateau"</span>) =&gt; <span class="string">"Montréal (Plateau)"</span>,
+<a href=#116 id=116 data-nosnippet>116</a>            (<span class="string">"toronto"</span>, <span class="string">"dufferin"</span>) =&gt; <span class="string">"Toronto (Dufferin)"</span>,
+<a href=#117 id=117 data-nosnippet>117</a>            (<span class="string">"toronto"</span>, <span class="string">"sw"</span>) =&gt; <span class="string">"Toronto (southwest)"</span>,
+<a href=#118 id=118 data-nosnippet>118</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#119 id=119 data-nosnippet>119</a>        },
+<a href=#120 id=120 data-nosnippet>120</a>        <span class="string">"ch" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#121 id=121 data-nosnippet>121</a>            (<span class="string">"geneva"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Geneva"</span>,
+<a href=#122 id=122 data-nosnippet>122</a>            (<span class="string">"zurich"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Zürich (city center)"</span>,
+<a href=#123 id=123 data-nosnippet>123</a>            (<span class="string">"zurich"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Zürich (north)"</span>,
+<a href=#124 id=124 data-nosnippet>124</a>            (<span class="string">"zurich"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"Zürich (south)"</span>,
+<a href=#125 id=125 data-nosnippet>125</a>            (<span class="string">"zurich"</span>, <span class="string">"east"</span>) =&gt; <span class="string">"Zürich (east)"</span>,
+<a href=#126 id=126 data-nosnippet>126</a>            (<span class="string">"zurich"</span>, <span class="string">"west"</span>) =&gt; <span class="string">"Zürich (west)"</span>,
+<a href=#127 id=127 data-nosnippet>127</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#128 id=128 data-nosnippet>128</a>        },
+<a href=#129 id=129 data-nosnippet>129</a>        <span class="string">"cl" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#130 id=130 data-nosnippet>130</a>            (<span class="string">"santiago"</span>, <span class="string">"bellavista"</span>) =&gt; <span class="string">"Bellavista (Santiago)"</span>,
+<a href=#131 id=131 data-nosnippet>131</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#132 id=132 data-nosnippet>132</a>        },
+<a href=#133 id=133 data-nosnippet>133</a>        <span class="string">"cz" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#134 id=134 data-nosnippet>134</a>            (<span class="string">"frytek_mistek"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Frýdek-Místek (entire area)"</span>,
+<a href=#135 id=135 data-nosnippet>135</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#136 id=136 data-nosnippet>136</a>        },
+<a href=#137 id=137 data-nosnippet>137</a>        <span class="string">"de" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#138 id=138 data-nosnippet>138</a>            (<span class="string">"berlin"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Berlin (city center)"</span>,
+<a href=#139 id=139 data-nosnippet>139</a>            (<span class="string">"berlin"</span>, <span class="string">"neukolln"</span>) =&gt; <span class="string">"Berlin-Neukölln"</span>,
+<a href=#140 id=140 data-nosnippet>140</a>            (<span class="string">"bonn"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bonn (city center)"</span>,
+<a href=#141 id=141 data-nosnippet>141</a>            (<span class="string">"bonn"</span>, <span class="string">"nordstadt"</span>) =&gt; <span class="string">"Bonn (Nordstadt)"</span>,
+<a href=#142 id=142 data-nosnippet>142</a>            (<span class="string">"bonn"</span>, <span class="string">"venusberg"</span>) =&gt; <span class="string">"Bonn (Venusberg)"</span>,
+<a href=#143 id=143 data-nosnippet>143</a>            (<span class="string">"rostock"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Rostock"</span>,
+<a href=#144 id=144 data-nosnippet>144</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#145 id=145 data-nosnippet>145</a>        },
+<a href=#146 id=146 data-nosnippet>146</a>        <span class="string">"fr" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#147 id=147 data-nosnippet>147</a>            (<span class="string">"brest"</span>, <span class="string">"city"</span>) =&gt; <span class="string">"Brest"</span>,
+<a href=#148 id=148 data-nosnippet>148</a>            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur1"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 1)"</span>,
+<a href=#149 id=149 data-nosnippet>149</a>            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur2"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 2)"</span>,
+<a href=#150 id=150 data-nosnippet>150</a>            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur3"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 3)"</span>,
+<a href=#151 id=151 data-nosnippet>151</a>            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur4"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 4)"</span>,
+<a href=#152 id=152 data-nosnippet>152</a>            (<span class="string">"charleville_mezieres"</span>, <span class="string">"secteur5"</span>) =&gt; <span class="string">"Charleville-Mézières (secteur 5)"</span>,
+<a href=#153 id=153 data-nosnippet>153</a>            (<span class="string">"lyon"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Lyon"</span>,
+<a href=#154 id=154 data-nosnippet>154</a>            (<span class="string">"paris"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Paris (city center)"</span>,
+<a href=#155 id=155 data-nosnippet>155</a>            (<span class="string">"paris"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Paris (north)"</span>,
+<a href=#156 id=156 data-nosnippet>156</a>            (<span class="string">"paris"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"Paris (south)"</span>,
+<a href=#157 id=157 data-nosnippet>157</a>            (<span class="string">"paris"</span>, <span class="string">"east"</span>) =&gt; <span class="string">"Paris (east)"</span>,
+<a href=#158 id=158 data-nosnippet>158</a>            (<span class="string">"paris"</span>, <span class="string">"west"</span>) =&gt; <span class="string">"Paris (west)"</span>,
+<a href=#159 id=159 data-nosnippet>159</a>            (<span class="string">"strasbourg"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Strasbourg (center)"</span>,
+<a href=#160 id=160 data-nosnippet>160</a>            (<span class="string">"strasbourg"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Strasbourg (north)"</span>,
+<a href=#161 id=161 data-nosnippet>161</a>            (<span class="string">"strasbourg"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"Strasbourg (south)"</span>,
+<a href=#162 id=162 data-nosnippet>162</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#163 id=163 data-nosnippet>163</a>        },
+<a href=#164 id=164 data-nosnippet>164</a>        <span class="string">"gb" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#165 id=165 data-nosnippet>165</a>            (<span class="string">"allerton_bywater"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Allerton Bywater"</span>,
+<a href=#166 id=166 data-nosnippet>166</a>            (<span class="string">"ashton_park"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Ashton Park"</span>,
+<a href=#167 id=167 data-nosnippet>167</a>            (<span class="string">"aylesbury"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Aylesbury"</span>,
+<a href=#168 id=168 data-nosnippet>168</a>            (<span class="string">"aylesham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Aylesham"</span>,
+<a href=#169 id=169 data-nosnippet>169</a>            (<span class="string">"bailrigg"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bailrigg (Lancaster)"</span>,
+<a href=#170 id=170 data-nosnippet>170</a>            (<span class="string">"bath_riverside"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bath Riverside"</span>,
+<a href=#171 id=171 data-nosnippet>171</a>            (<span class="string">"bicester"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bicester"</span>,
+<a href=#172 id=172 data-nosnippet>172</a>            (<span class="string">"birmingham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Birmingham"</span>,
+<a href=#173 id=173 data-nosnippet>173</a>            (<span class="string">"bournemouth"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bournemouth"</span>,
+<a href=#174 id=174 data-nosnippet>174</a>            (<span class="string">"bradford"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Bradford"</span>,
+<a href=#175 id=175 data-nosnippet>175</a>            (<span class="string">"brighton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Brighton"</span>,
+<a href=#176 id=176 data-nosnippet>176</a>            (<span class="string">"brighton"</span>, <span class="string">"shoreham_by_sea"</span>) =&gt; <span class="string">"Shoreham-by-Sea"</span>,
+<a href=#177 id=177 data-nosnippet>177</a>            (<span class="string">"bristol"</span>, <span class="string">"east"</span>) =&gt; <span class="string">"East Bristol"</span>,
+<a href=#178 id=178 data-nosnippet>178</a>            (<span class="string">"bristol"</span>, <span class="string">"south"</span>) =&gt; <span class="string">"South Bristol"</span>,
+<a href=#179 id=179 data-nosnippet>179</a>            (<span class="string">"burnley"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Burnley"</span>,
+<a href=#180 id=180 data-nosnippet>180</a>            (<span class="string">"cambridge"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"North Cambridge"</span>,
+<a href=#181 id=181 data-nosnippet>181</a>            (<span class="string">"cardiff"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"Cardiff"</span>,
+<a href=#182 id=182 data-nosnippet>182</a>            (<span class="string">"castlemead"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Castlemead"</span>,
+<a href=#183 id=183 data-nosnippet>183</a>            (<span class="string">"chapelford"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Chapelford (Cheshire)"</span>,
+<a href=#184 id=184 data-nosnippet>184</a>            (<span class="string">"chapeltown_cohousing"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Chapeltown Cohousing"</span>,
+<a href=#185 id=185 data-nosnippet>185</a>            (<span class="string">"chichester"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Chichester"</span>,
+<a href=#186 id=186 data-nosnippet>186</a>            (<span class="string">"chorlton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Chorlton"</span>,
+<a href=#187 id=187 data-nosnippet>187</a>            (<span class="string">"clackers_brook"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Clackers Brook"</span>,
+<a href=#188 id=188 data-nosnippet>188</a>            (<span class="string">"cricklewood"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Cricklewood"</span>,
+<a href=#189 id=189 data-nosnippet>189</a>            (<span class="string">"culm"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Culm"</span>,
+<a href=#190 id=190 data-nosnippet>190</a>            (<span class="string">"derby"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Derby"</span>,
+<a href=#191 id=191 data-nosnippet>191</a>            (<span class="string">"dickens_heath"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Dickens Heath"</span>,
+<a href=#192 id=192 data-nosnippet>192</a>            (<span class="string">"didcot"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Didcot (Harwell)"</span>,
+<a href=#193 id=193 data-nosnippet>193</a>            (<span class="string">"dunton_hills"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Dunton Hills"</span>,
+<a href=#194 id=194 data-nosnippet>194</a>            (<span class="string">"ebbsfleet"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Ebbsfleet (Dartford)"</span>,
+<a href=#195 id=195 data-nosnippet>195</a>            (<span class="string">"edinburgh"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Edinburgh"</span>,
+<a href=#196 id=196 data-nosnippet>196</a>            (<span class="string">"exeter_red_cow_village"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Exeter Red Cow Village"</span>,
+<a href=#197 id=197 data-nosnippet>197</a>            (<span class="string">"glenrothes"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Glenrothes (Scotland)"</span>,
+<a href=#198 id=198 data-nosnippet>198</a>            (<span class="string">"great_kneighton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Great Kneighton (Cambridge)"</span>,
+<a href=#199 id=199 data-nosnippet>199</a>            (<span class="string">"halsnhead"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Halsnead"</span>,
+<a href=#200 id=200 data-nosnippet>200</a>            (<span class="string">"hampton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Hampton"</span>,
+<a href=#201 id=201 data-nosnippet>201</a>            (<span class="string">"inverness"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Inverness"</span>,
+<a href=#202 id=202 data-nosnippet>202</a>            (<span class="string">"kergilliack"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Kergilliack"</span>,
+<a href=#203 id=203 data-nosnippet>203</a>            (<span class="string">"keighley"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Keighley"</span>,
+<a href=#204 id=204 data-nosnippet>204</a>            (<span class="string">"kidbrooke_village"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Kidbrooke Village"</span>,
+<a href=#205 id=205 data-nosnippet>205</a>            (<span class="string">"lcid"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Leeds Climate Innovation District"</span>,
+<a href=#206 id=206 data-nosnippet>206</a>            (<span class="string">"leeds"</span>, <span class="string">"central"</span>) =&gt; <span class="string">"Leeds (city center)"</span>,
+<a href=#207 id=207 data-nosnippet>207</a>            (<span class="string">"leeds"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Leeds (entire area inside motorways)"</span>,
+<a href=#208 id=208 data-nosnippet>208</a>            (<span class="string">"leeds"</span>, <span class="string">"north"</span>) =&gt; <span class="string">"North Leeds"</span>,
+<a href=#209 id=209 data-nosnippet>209</a>            (<span class="string">"leeds"</span>, <span class="string">"west"</span>) =&gt; <span class="string">"West Leeds"</span>,
+<a href=#210 id=210 data-nosnippet>210</a>            (<span class="string">"lockleaze"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Lockleaze"</span>,
+<a href=#211 id=211 data-nosnippet>211</a>            (<span class="string">"london"</span>, <span class="string">"camden"</span>) =&gt; <span class="string">"Camden"</span>,
+<a href=#212 id=212 data-nosnippet>212</a>            (<span class="string">"london"</span>, <span class="string">"central"</span>) =&gt; <span class="string">"Central London"</span>,
+<a href=#213 id=213 data-nosnippet>213</a>            (<span class="string">"london"</span>, <span class="string">"hackney"</span>) =&gt; <span class="string">"Hackney"</span>,
+<a href=#214 id=214 data-nosnippet>214</a>            (<span class="string">"london"</span>, <span class="string">"kennington"</span>) =&gt; <span class="string">"Kennington (London)"</span>,
+<a href=#215 id=215 data-nosnippet>215</a>            (<span class="string">"london"</span>, <span class="string">"kingston_upon_thames"</span>) =&gt; <span class="string">"Kingston upon Thames"</span>,
+<a href=#216 id=216 data-nosnippet>216</a>            (<span class="string">"london"</span>, <span class="string">"southwark"</span>) =&gt; <span class="string">"Southwark"</span>,
+<a href=#217 id=217 data-nosnippet>217</a>            (<span class="string">"long_marston"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Long Marston (Stratford)"</span>,
+<a href=#218 id=218 data-nosnippet>218</a>            (<span class="string">"manchester"</span>, <span class="string">"levenshulme"</span>) =&gt; <span class="string">"Levenshulme (Manchester)"</span>,
+<a href=#219 id=219 data-nosnippet>219</a>            (<span class="string">"manchester"</span>, <span class="string">"stockport"</span>) =&gt; <span class="string">"Stockport"</span>,
+<a href=#220 id=220 data-nosnippet>220</a>            (<span class="string">"marsh_barton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Marsh Barton"</span>,
+<a href=#221 id=221 data-nosnippet>221</a>            (<span class="string">"micklefield"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Micklefield"</span>,
+<a href=#222 id=222 data-nosnippet>222</a>            (<span class="string">"newborough_road"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Newborough Road"</span>,
+<a href=#223 id=223 data-nosnippet>223</a>            (<span class="string">"newcastle_great_park"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Newcastle Great Park"</span>,
+<a href=#224 id=224 data-nosnippet>224</a>            (<span class="string">"newcastle_upon_tyne"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Newcastle upon Tyne"</span>,
+<a href=#225 id=225 data-nosnippet>225</a>            (<span class="string">"nottingham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Nottingham (city center)"</span>,
+<a href=#226 id=226 data-nosnippet>226</a>            (<span class="string">"nottingham"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Nottingham (entire area)"</span>,
+<a href=#227 id=227 data-nosnippet>227</a>            (<span class="string">"nottingham"</span>, <span class="string">"stapleford"</span>) =&gt; <span class="string">"Stapleford"</span>,
+<a href=#228 id=228 data-nosnippet>228</a>            (<span class="string">"northwick_park"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Northwick Park"</span>,
+<a href=#229 id=229 data-nosnippet>229</a>            (<span class="string">"oxford"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Oxford"</span>,
+<a href=#230 id=230 data-nosnippet>230</a>            (<span class="string">"poundbury"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Poundbury"</span>,
+<a href=#231 id=231 data-nosnippet>231</a>            (<span class="string">"priors_hall"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Priors Hall"</span>,
+<a href=#232 id=232 data-nosnippet>232</a>            (<span class="string">"sheffield"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Sheffield"</span>,
+<a href=#233 id=233 data-nosnippet>233</a>            (<span class="string">"sheffield"</span>, <span class="string">"darnall"</span>) =&gt; <span class="string">"Darnall"</span>,
+<a href=#234 id=234 data-nosnippet>234</a>            (<span class="string">"st_albans"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"St Albans"</span>,
+<a href=#235 id=235 data-nosnippet>235</a>            (<span class="string">"taunton_firepool"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Taunton Firepool"</span>,
+<a href=#236 id=236 data-nosnippet>236</a>            (<span class="string">"taunton_garden"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Taunton Garden"</span>,
+<a href=#237 id=237 data-nosnippet>237</a>            (<span class="string">"tresham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tresham"</span>,
+<a href=#238 id=238 data-nosnippet>238</a>            (<span class="string">"trumpington_meadows"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Trumpington Meadows"</span>,
+<a href=#239 id=239 data-nosnippet>239</a>            (<span class="string">"tyersal_lane"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tyersal Lane"</span>,
+<a href=#240 id=240 data-nosnippet>240</a>            (<span class="string">"upton"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Upton"</span>,
+<a href=#241 id=241 data-nosnippet>241</a>            (<span class="string">"water_lane"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Water Lane"</span>,
+<a href=#242 id=242 data-nosnippet>242</a>            (<span class="string">"wichelstowe"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Wichelstowe"</span>,
+<a href=#243 id=243 data-nosnippet>243</a>            (<span class="string">"wixams"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Wixams"</span>,
+<a href=#244 id=244 data-nosnippet>244</a>            (<span class="string">"wokingham"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Wokingham"</span>,
+<a href=#245 id=245 data-nosnippet>245</a>            (<span class="string">"wynyard"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Wynyard"</span>,
+<a href=#246 id=246 data-nosnippet>246</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#247 id=247 data-nosnippet>247</a>        },
+<a href=#248 id=248 data-nosnippet>248</a>        <span class="string">"hk" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#249 id=249 data-nosnippet>249</a>            (<span class="string">"kowloon"</span>, <span class="string">"tsim_sha_tsui"</span>) =&gt; <span class="string">"Tsim Sha Tsui"</span>,
+<a href=#250 id=250 data-nosnippet>250</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#251 id=251 data-nosnippet>251</a>        },
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="string">"il" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#253 id=253 data-nosnippet>253</a>            (<span class="string">"tel_aviv"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tel Aviv (city center)"</span>,
+<a href=#254 id=254 data-nosnippet>254</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#255 id=255 data-nosnippet>255</a>        },
+<a href=#256 id=256 data-nosnippet>256</a>        <span class="string">"in" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#257 id=257 data-nosnippet>257</a>            (<span class="string">"pune"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Pune"</span>,
+<a href=#258 id=258 data-nosnippet>258</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#259 id=259 data-nosnippet>259</a>        },
+<a href=#260 id=260 data-nosnippet>260</a>        <span class="string">"ir" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#261 id=261 data-nosnippet>261</a>            (<span class="string">"tehran"</span>, <span class="string">"parliament"</span>) =&gt; <span class="string">"Tehran (near Parliament)"</span>,
+<a href=#262 id=262 data-nosnippet>262</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#263 id=263 data-nosnippet>263</a>        },
+<a href=#264 id=264 data-nosnippet>264</a>        <span class="string">"jp" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#265 id=265 data-nosnippet>265</a>            (<span class="string">"hiroshima"</span>, <span class="string">"uni"</span>) =&gt; <span class="string">"Hiroshima University"</span>,
+<a href=#266 id=266 data-nosnippet>266</a>            (<span class="string">"tokyo"</span>, <span class="string">"shibuya"</span>) =&gt; <span class="string">"Shibuya"</span>,
+<a href=#267 id=267 data-nosnippet>267</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#268 id=268 data-nosnippet>268</a>        },
+<a href=#269 id=269 data-nosnippet>269</a>        <span class="string">"kr" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#270 id=270 data-nosnippet>270</a>            (<span class="string">"seoul"</span>, <span class="string">"itaewon_dong"</span>) =&gt; <span class="string">"Itaewon Dong"</span>,
+<a href=#271 id=271 data-nosnippet>271</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#272 id=272 data-nosnippet>272</a>        },
+<a href=#273 id=273 data-nosnippet>273</a>        <span class="string">"ly" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#274 id=274 data-nosnippet>274</a>            (<span class="string">"tripoli"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tripoli"</span>,
+<a href=#275 id=275 data-nosnippet>275</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#276 id=276 data-nosnippet>276</a>        },
+<a href=#277 id=277 data-nosnippet>277</a>        <span class="string">"nl" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#278 id=278 data-nosnippet>278</a>            (<span class="string">"groningen"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Groningen (city center)"</span>,
+<a href=#279 id=279 data-nosnippet>279</a>            (<span class="string">"groningen"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Groningen (entire area)"</span>,
+<a href=#280 id=280 data-nosnippet>280</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#281 id=281 data-nosnippet>281</a>        },
+<a href=#282 id=282 data-nosnippet>282</a>        <span class="string">"nz" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#283 id=283 data-nosnippet>283</a>            (<span class="string">"auckland"</span>, <span class="string">"mangere"</span>) =&gt; <span class="string">"Māngere (Auckland)"</span>,
+<a href=#284 id=284 data-nosnippet>284</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#285 id=285 data-nosnippet>285</a>        },
+<a href=#286 id=286 data-nosnippet>286</a>        <span class="string">"pl" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#287 id=287 data-nosnippet>287</a>            (<span class="string">"krakow"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Kraków (city center)"</span>,
+<a href=#288 id=288 data-nosnippet>288</a>            (<span class="string">"warsaw"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Warsaw (city center)"</span>,
+<a href=#289 id=289 data-nosnippet>289</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#290 id=290 data-nosnippet>290</a>        },
+<a href=#291 id=291 data-nosnippet>291</a>        <span class="string">"pt" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#292 id=292 data-nosnippet>292</a>            (<span class="string">"lisbon"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Lisbon (city center)"</span>,
+<a href=#293 id=293 data-nosnippet>293</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#294 id=294 data-nosnippet>294</a>        },
+<a href=#295 id=295 data-nosnippet>295</a>        <span class="string">"sg" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#296 id=296 data-nosnippet>296</a>            (<span class="string">"jurong"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Jurong"</span>,
+<a href=#297 id=297 data-nosnippet>297</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#298 id=298 data-nosnippet>298</a>        },
+<a href=#299 id=299 data-nosnippet>299</a>        <span class="string">"tw" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#300 id=300 data-nosnippet>300</a>            (<span class="string">"keelung"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Keelung"</span>,
+<a href=#301 id=301 data-nosnippet>301</a>            (<span class="string">"taipei"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Taipei (city center)"</span>,
+<a href=#302 id=302 data-nosnippet>302</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#303 id=303 data-nosnippet>303</a>        },
+<a href=#304 id=304 data-nosnippet>304</a>        <span class="string">"us" </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
+<a href=#305 id=305 data-nosnippet>305</a>            (<span class="string">"anchorage"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Anchorage"</span>,
+<a href=#306 id=306 data-nosnippet>306</a>            (<span class="string">"bellevue"</span>, <span class="string">"huge"</span>) =&gt; <span class="string">"Bellevue"</span>,
+<a href=#307 id=307 data-nosnippet>307</a>            (<span class="string">"beltsville"</span>, <span class="string">"i495"</span>) =&gt; <span class="string">"I-495 in Beltsville, MD"</span>,
+<a href=#308 id=308 data-nosnippet>308</a>            (<span class="string">"detroit"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Detroit"</span>,
+<a href=#309 id=309 data-nosnippet>309</a>            (<span class="string">"lynnwood"</span>, <span class="string">"hazelwood"</span>) =&gt; <span class="string">"Lynnwood, WA"</span>,
+<a href=#310 id=310 data-nosnippet>310</a>            (<span class="string">"milwaukee"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Downtown Milwaukee"</span>,
+<a href=#311 id=311 data-nosnippet>311</a>            (<span class="string">"milwaukee"</span>, <span class="string">"oak_creek"</span>) =&gt; <span class="string">"Oak Creek"</span>,
+<a href=#312 id=312 data-nosnippet>312</a>            (<span class="string">"missoula"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Missoula"</span>,
+<a href=#313 id=313 data-nosnippet>313</a>            (<span class="string">"mt_vernon"</span>, <span class="string">"burlington"</span>) =&gt; <span class="string">"Burlington"</span>,
+<a href=#314 id=314 data-nosnippet>314</a>            (<span class="string">"mt_vernon"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Mt. Vernon"</span>,
+<a href=#315 id=315 data-nosnippet>315</a>            (<span class="string">"new_haven"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"New Haven"</span>,
+<a href=#316 id=316 data-nosnippet>316</a>            (<span class="string">"nyc"</span>, <span class="string">"fordham"</span>) =&gt; <span class="string">"Fordham"</span>,
+<a href=#317 id=317 data-nosnippet>317</a>            (<span class="string">"nyc"</span>, <span class="string">"lower_manhattan"</span>) =&gt; <span class="string">"Lower Manhattan"</span>,
+<a href=#318 id=318 data-nosnippet>318</a>            (<span class="string">"nyc"</span>, <span class="string">"midtown_manhattan"</span>) =&gt; <span class="string">"Midtown Manhattan"</span>,
+<a href=#319 id=319 data-nosnippet>319</a>            (<span class="string">"nyc"</span>, <span class="string">"downtown_brooklyn"</span>) =&gt; <span class="string">"Downtown Brooklyn"</span>,
+<a href=#320 id=320 data-nosnippet>320</a>            (<span class="string">"phoenix"</span>, <span class="string">"gilbert"</span>) =&gt; <span class="string">"Gilbert"</span>,
+<a href=#321 id=321 data-nosnippet>321</a>            (<span class="string">"phoenix"</span>, <span class="string">"tempe"</span>) =&gt; <span class="string">"Tempe"</span>,
+<a href=#322 id=322 data-nosnippet>322</a>            (<span class="string">"providence"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Providence"</span>,
+<a href=#323 id=323 data-nosnippet>323</a>            (<span class="string">"san_francisco"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"San Francisco"</span>,
+<a href=#324 id=324 data-nosnippet>324</a>            (<span class="string">"seattle"</span>, <span class="string">"arboretum"</span>) =&gt; <span class="string">"Arboretum"</span>,
+<a href=#325 id=325 data-nosnippet>325</a>            (<span class="string">"seattle"</span>, <span class="string">"central_seattle"</span>) =&gt; <span class="string">"Central Seattle"</span>,
+<a href=#326 id=326 data-nosnippet>326</a>            (<span class="string">"seattle"</span>, <span class="string">"downtown"</span>) =&gt; <span class="string">"Downtown Seattle"</span>,
+<a href=#327 id=327 data-nosnippet>327</a>            (<span class="string">"seattle"</span>, <span class="string">"huge_seattle"</span>) =&gt; <span class="string">"Seattle (entire area)"</span>,
+<a href=#328 id=328 data-nosnippet>328</a>            (<span class="string">"seattle"</span>, <span class="string">"lakeslice"</span>) =&gt; <span class="string">"Lake Washington corridor"</span>,
+<a href=#329 id=329 data-nosnippet>329</a>            (<span class="string">"seattle"</span>, <span class="string">"montlake"</span>) =&gt; <span class="string">"Montlake and Eastlake"</span>,
+<a href=#330 id=330 data-nosnippet>330</a>            (<span class="string">"seattle"</span>, <span class="string">"north_seattle"</span>) =&gt; <span class="string">"North Seattle"</span>,
+<a href=#331 id=331 data-nosnippet>331</a>            (<span class="string">"seattle"</span>, <span class="string">"phinney"</span>) =&gt; <span class="string">"Phinney Ridge"</span>,
+<a href=#332 id=332 data-nosnippet>332</a>            (<span class="string">"seattle"</span>, <span class="string">"qa"</span>) =&gt; <span class="string">"Queen Anne"</span>,
+<a href=#333 id=333 data-nosnippet>333</a>            (<span class="string">"seattle"</span>, <span class="string">"slu"</span>) =&gt; <span class="string">"South Lake Union"</span>,
+<a href=#334 id=334 data-nosnippet>334</a>            (<span class="string">"seattle"</span>, <span class="string">"south_seattle"</span>) =&gt; <span class="string">"South Seattle"</span>,
+<a href=#335 id=335 data-nosnippet>335</a>            (<span class="string">"seattle"</span>, <span class="string">"udistrict_ravenna"</span>) =&gt; <span class="string">"University District"</span>,
+<a href=#336 id=336 data-nosnippet>336</a>            (<span class="string">"seattle"</span>, <span class="string">"wallingford"</span>) =&gt; <span class="string">"Wallingford"</span>,
+<a href=#337 id=337 data-nosnippet>337</a>            (<span class="string">"seattle"</span>, <span class="string">"west_seattle"</span>) =&gt; <span class="string">"West Seattle"</span>,
+<a href=#338 id=338 data-nosnippet>338</a>            (<span class="string">"tucson"</span>, <span class="string">"center"</span>) =&gt; <span class="string">"Tucson"</span>,
+<a href=#339 id=339 data-nosnippet>339</a>            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#340 id=340 data-nosnippet>340</a>        },
+<a href=#341 id=341 data-nosnippet>341</a>        <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
+<a href=#342 id=342 data-nosnippet>342</a>    }
+<a href=#343 id=343 data-nosnippet>343</a>}
+<a href=#344 id=344 data-nosnippet>344</a>
+<a href=#345 id=345 data-nosnippet>345</a><span class="kw">pub fn </span>nice_country_name(code: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span>str {
+<a href=#346 id=346 data-nosnippet>346</a>    <span class="comment">// If you add something here, please also add the flag to data/system/assets/flags.
+<a href=#347 id=347 data-nosnippet>347</a>    // https://github.com/hampusborgos/country-flags/tree/main/svg
+<a href=#348 id=348 data-nosnippet>348</a>    </span><span class="kw">match </span>code {
+<a href=#349 id=349 data-nosnippet>349</a>        <span class="string">"au" </span>=&gt; <span class="string">"Australia"</span>,
+<a href=#350 id=350 data-nosnippet>350</a>        <span class="string">"at" </span>=&gt; <span class="string">"Austria"</span>,
+<a href=#351 id=351 data-nosnippet>351</a>        <span class="string">"br" </span>=&gt; <span class="string">"Brazil"</span>,
+<a href=#352 id=352 data-nosnippet>352</a>        <span class="string">"ca" </span>=&gt; <span class="string">"Canada"</span>,
+<a href=#353 id=353 data-nosnippet>353</a>        <span class="string">"ch" </span>=&gt; <span class="string">"Switzerland"</span>,
+<a href=#354 id=354 data-nosnippet>354</a>        <span class="string">"cl" </span>=&gt; <span class="string">"Chile"</span>,
+<a href=#355 id=355 data-nosnippet>355</a>        <span class="string">"cz" </span>=&gt; <span class="string">"Czech Republic"</span>,
+<a href=#356 id=356 data-nosnippet>356</a>        <span class="string">"de" </span>=&gt; <span class="string">"Germany"</span>,
+<a href=#357 id=357 data-nosnippet>357</a>        <span class="string">"fr" </span>=&gt; <span class="string">"France"</span>,
+<a href=#358 id=358 data-nosnippet>358</a>        <span class="string">"gb" </span>=&gt; <span class="string">"Great Britain"</span>,
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="string">"il" </span>=&gt; <span class="string">"Israel"</span>,
+<a href=#360 id=360 data-nosnippet>360</a>        <span class="string">"in" </span>=&gt; <span class="string">"India"</span>,
+<a href=#361 id=361 data-nosnippet>361</a>        <span class="string">"ir" </span>=&gt; <span class="string">"Iran"</span>,
+<a href=#362 id=362 data-nosnippet>362</a>        <span class="string">"hk" </span>=&gt; <span class="string">"Hong Kong"</span>,
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="string">"jp" </span>=&gt; <span class="string">"Japan"</span>,
+<a href=#364 id=364 data-nosnippet>364</a>        <span class="string">"kr" </span>=&gt; <span class="string">"South Korea"</span>,
+<a href=#365 id=365 data-nosnippet>365</a>        <span class="string">"ly" </span>=&gt; <span class="string">"Libya"</span>,
+<a href=#366 id=366 data-nosnippet>366</a>        <span class="string">"nl" </span>=&gt; <span class="string">"Netherlands"</span>,
+<a href=#367 id=367 data-nosnippet>367</a>        <span class="string">"nz" </span>=&gt; <span class="string">"New Zealand"</span>,
+<a href=#368 id=368 data-nosnippet>368</a>        <span class="string">"pl" </span>=&gt; <span class="string">"Poland"</span>,
+<a href=#369 id=369 data-nosnippet>369</a>        <span class="string">"pt" </span>=&gt; <span class="string">"Portugal"</span>,
+<a href=#370 id=370 data-nosnippet>370</a>        <span class="string">"sg" </span>=&gt; <span class="string">"Singapore"</span>,
+<a href=#371 id=371 data-nosnippet>371</a>        <span class="string">"tw" </span>=&gt; <span class="string">"Taiwan"</span>,
+<a href=#372 id=372 data-nosnippet>372</a>        <span class="string">"us" </span>=&gt; <span class="string">"United States of America"</span>,
+<a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">_ </span>=&gt; code,
+<a href=#374 id=374 data-nosnippet>374</a>    }
+<a href=#375 id=375 data-nosnippet>375</a>}
+<a href=#376 id=376 data-nosnippet>376</a>
+<a href=#377 id=377 data-nosnippet>377</a><span class="doccomment">/// Returns the path to an executable. Native-only.
+<a href=#378 id=378 data-nosnippet>378</a></span><span class="kw">pub fn </span>find_exe(cmd: <span class="kw-2">&amp;</span>str) -&gt; String {
+<a href=#379 id=379 data-nosnippet>379</a>    <span class="kw">let </span><span class="kw-2">mut </span>directories = Vec::new();
+<a href=#380 id=380 data-nosnippet>380</a>    <span class="comment">// Some cargo configurations explicitly use a platform-specific directory
+<a href=#381 id=381 data-nosnippet>381</a>    </span><span class="kw">for </span>arch <span class="kw">in </span>[<span class="string">"x86_64-unknown-linux-gnu"</span>, <span class="string">""</span>] {
+<a href=#382 id=382 data-nosnippet>382</a>        <span class="comment">// When running from source, prefer release builds, but fallback to debug. This might be
+<a href=#383 id=383 data-nosnippet>383</a>        // confusing when developing and not recompiling in release mode.
+<a href=#384 id=384 data-nosnippet>384</a>        </span><span class="kw">for </span>mode <span class="kw">in </span>[<span class="string">"release"</span>, <span class="string">"debug"</span>] {
+<a href=#385 id=385 data-nosnippet>385</a>            <span class="kw">for </span>relative_dir <span class="kw">in </span>[<span class="string">"."</span>, <span class="string">".."</span>, <span class="string">"../.."</span>] {
+<a href=#386 id=386 data-nosnippet>386</a>                directories.push(
+<a href=#387 id=387 data-nosnippet>387</a>                    std::path::Path::new(relative_dir)
+<a href=#388 id=388 data-nosnippet>388</a>                        .join(<span class="string">"target"</span>)
+<a href=#389 id=389 data-nosnippet>389</a>                        .join(arch)
+<a href=#390 id=390 data-nosnippet>390</a>                        .join(mode)
+<a href=#391 id=391 data-nosnippet>391</a>                        .display()
+<a href=#392 id=392 data-nosnippet>392</a>                        .to_string(),
+<a href=#393 id=393 data-nosnippet>393</a>                );
+<a href=#394 id=394 data-nosnippet>394</a>            }
+<a href=#395 id=395 data-nosnippet>395</a>        }
+<a href=#396 id=396 data-nosnippet>396</a>    }
+<a href=#397 id=397 data-nosnippet>397</a>    <span class="comment">// When running from the .zip release
+<a href=#398 id=398 data-nosnippet>398</a>    </span>directories.push(<span class="string">"./binaries"</span>.to_string());
+<a href=#399 id=399 data-nosnippet>399</a>
+<a href=#400 id=400 data-nosnippet>400</a>    <span class="kw">for </span>dir <span class="kw">in </span>directories {
+<a href=#401 id=401 data-nosnippet>401</a>        <span class="comment">// Apparently std::path on Windows doesn't do any of this correction. We could build up a
+<a href=#402 id=402 data-nosnippet>402</a>        // PathBuf properly, I guess
+<a href=#403 id=403 data-nosnippet>403</a>        </span><span class="kw">let </span>path = <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
+<a href=#404 id=404 data-nosnippet>404</a>            <span class="macro">format!</span>(<span class="string">"{}/{}.exe"</span>, dir, cmd).replace(<span class="string">"/"</span>, <span class="string">"\\"</span>)
+<a href=#405 id=405 data-nosnippet>405</a>        } <span class="kw">else </span>{
+<a href=#406 id=406 data-nosnippet>406</a>            <span class="macro">format!</span>(<span class="string">"{}/{}"</span>, dir, cmd)
+<a href=#407 id=407 data-nosnippet>407</a>        };
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="kw">if let </span><span class="prelude-val">Ok</span>(metadata) = fs_err::metadata(<span class="kw-2">&amp;</span>path) {
+<a href=#409 id=409 data-nosnippet>409</a>            <span class="kw">if </span>metadata.is_file() {
+<a href=#410 id=410 data-nosnippet>410</a>                <span class="kw">return </span>path;
+<a href=#411 id=411 data-nosnippet>411</a>            } <span class="kw">else </span>{
+<a href=#412 id=412 data-nosnippet>412</a>                <span class="macro">debug!</span>(
+<a href=#413 id=413 data-nosnippet>413</a>                    <span class="string">"found matching path: {}/{} but it's not a file."</span>,
+<a href=#414 id=414 data-nosnippet>414</a>                    <span class="kw-2">&amp;</span>path, cmd
+<a href=#415 id=415 data-nosnippet>415</a>                );
+<a href=#416 id=416 data-nosnippet>416</a>            }
+<a href=#417 id=417 data-nosnippet>417</a>        }
+<a href=#418 id=418 data-nosnippet>418</a>    }
+<a href=#419 id=419 data-nosnippet>419</a>    <span class="macro">panic!</span>(<span class="string">"Couldn't find the {} executable. Is it built?"</span>, cmd);
+<a href=#420 id=420 data-nosnippet>420</a>}
+<a href=#421 id=421 data-nosnippet>421</a>
+<a href=#422 id=422 data-nosnippet>422</a><span class="doccomment">/// A button to change maps, with default keybindings
+<a href=#423 id=423 data-nosnippet>423</a></span><span class="kw">pub fn </span>change_map_btn(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; Widget {
+<a href=#424 id=424 data-nosnippet>424</a>    ctx.style()
+<a href=#425 id=425 data-nosnippet>425</a>        .btn_popup_icon_text(
+<a href=#426 id=426 data-nosnippet>426</a>            <span class="string">"system/assets/tools/map.svg"</span>,
+<a href=#427 id=427 data-nosnippet>427</a>            nice_map_name(app.map().get_name()),
+<a href=#428 id=428 data-nosnippet>428</a>        )
+<a href=#429 id=429 data-nosnippet>429</a>        .hotkey(lctrl(Key::L))
+<a href=#430 id=430 data-nosnippet>430</a>        .build_widget(ctx, <span class="string">"change map"</span>)
+<a href=#431 id=431 data-nosnippet>431</a>}
+<a href=#432 id=432 data-nosnippet>432</a>
+<a href=#433 id=433 data-nosnippet>433</a><span class="doccomment">/// A button to return to the title screen
+<a href=#434 id=434 data-nosnippet>434</a></span><span class="kw">pub fn </span>home_btn(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+<a href=#435 id=435 data-nosnippet>435</a>    ctx.style()
+<a href=#436 id=436 data-nosnippet>436</a>        .btn_plain
+<a href=#437 id=437 data-nosnippet>437</a>        .btn()
+<a href=#438 id=438 data-nosnippet>438</a>        .image_path(<span class="string">"system/assets/pregame/logo.svg"</span>)
+<a href=#439 id=439 data-nosnippet>439</a>        .image_dims(<span class="number">50.0</span>)
+<a href=#440 id=440 data-nosnippet>440</a>        .build_widget(ctx, <span class="string">"Home"</span>)
+<a href=#441 id=441 data-nosnippet>441</a>}
+<a href=#442 id=442 data-nosnippet>442</a>
+<a href=#443 id=443 data-nosnippet>443</a><span class="doccomment">/// A standard way to group a home button back to the title screen, the title of the current app,
+<a href=#444 id=444 data-nosnippet>444</a>/// and a button to change maps. Callers must handle the `change map` and `home` click events.
+<a href=#445 id=445 data-nosnippet>445</a></span><span class="kw">pub fn </span>app_header(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, title: <span class="kw-2">&amp;</span>str) -&gt; Widget {
+<a href=#446 id=446 data-nosnippet>446</a>    Widget::col(<span class="macro">vec!</span>[
+<a href=#447 id=447 data-nosnippet>447</a>        Widget::row(<span class="macro">vec!</span>[
+<a href=#448 id=448 data-nosnippet>448</a>            home_btn(ctx),
+<a href=#449 id=449 data-nosnippet>449</a>            Line(title).small_heading().into_widget(ctx).centered_vert(),
+<a href=#450 id=450 data-nosnippet>450</a>        ]),
+<a href=#451 id=451 data-nosnippet>451</a>        change_map_btn(ctx, app),
+<a href=#452 id=452 data-nosnippet>452</a>    ])
+<a href=#453 id=453 data-nosnippet>453</a>}
+<a href=#454 id=454 data-nosnippet>454</a>
+<a href=#455 id=455 data-nosnippet>455</a><span class="kw">pub fn </span>intersections_from_roads(roads: <span class="kw-2">&amp;</span>BTreeSet&lt;RoadID&gt;, map: <span class="kw-2">&amp;</span>Map) -&gt; BTreeSet&lt;IntersectionID&gt; {
+<a href=#456 id=456 data-nosnippet>456</a>    <span class="kw">let </span><span class="kw-2">mut </span>results = BTreeSet::new();
+<a href=#457 id=457 data-nosnippet>457</a>    <span class="kw">for </span>r <span class="kw">in </span>roads {
+<a href=#458 id=458 data-nosnippet>458</a>        <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>r);
+<a href=#459 id=459 data-nosnippet>459</a>        <span class="kw">for </span>i <span class="kw">in </span>[r.src_i, r.dst_i] {
+<a href=#460 id=460 data-nosnippet>460</a>            <span class="kw">if </span>results.contains(<span class="kw-2">&amp;</span>i) {
+<a href=#461 id=461 data-nosnippet>461</a>                <span class="kw">continue</span>;
+<a href=#462 id=462 data-nosnippet>462</a>            }
+<a href=#463 id=463 data-nosnippet>463</a>            <span class="kw">if </span>map.get_i(i).roads.iter().all(|r| roads.contains(r)) {
+<a href=#464 id=464 data-nosnippet>464</a>                results.insert(i);
+<a href=#465 id=465 data-nosnippet>465</a>            }
+<a href=#466 id=466 data-nosnippet>466</a>        }
+<a href=#467 id=467 data-nosnippet>467</a>    }
+<a href=#468 id=468 data-nosnippet>468</a>    results
+<a href=#469 id=469 data-nosnippet>469</a>}
+<a href=#470 id=470 data-nosnippet>470</a>
+<a href=#471 id=471 data-nosnippet>471</a><span class="doccomment">/// Modify the current URL to set the first free parameter to the current map name.
+<a href=#472 id=472 data-nosnippet>472</a></span><span class="kw">pub fn </span>update_url_map_name(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
+<a href=#473 id=473 data-nosnippet>473</a>    widgetry::tools::URLManager::update_url_free_param(
+<a href=#474 id=474 data-nosnippet>474</a>        app.map()
+<a href=#475 id=475 data-nosnippet>475</a>            .get_name()
+<a href=#476 id=476 data-nosnippet>476</a>            .path()
+<a href=#477 id=477 data-nosnippet>477</a>            .strip_prefix(<span class="kw-2">&amp;</span>abstio::path(<span class="string">""</span>))
+<a href=#478 id=478 data-nosnippet>478</a>            .unwrap()
+<a href=#479 id=479 data-nosnippet>479</a>            .to_string(),
+<a href=#480 id=480 data-nosnippet>480</a>    );
+<a href=#481 id=481 data-nosnippet>481</a>}</code></pre></div></section></main></body></html>

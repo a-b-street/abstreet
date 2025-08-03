@@ -1,175 +1,87 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/prebake.rs`."><title>prebake.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.85.0 (4d91de4e4 2025-02-17)" data-channel="1.85.0" data-search-js="search-75f5ac3e.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">sim/</div>prebake.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
-<a href="#1" id="1">1</a>
-<a href="#2" id="2">2</a>
-<a href="#3" id="3">3</a>
-<a href="#4" id="4">4</a>
-<a href="#5" id="5">5</a>
-<a href="#6" id="6">6</a>
-<a href="#7" id="7">7</a>
-<a href="#8" id="8">8</a>
-<a href="#9" id="9">9</a>
-<a href="#10" id="10">10</a>
-<a href="#11" id="11">11</a>
-<a href="#12" id="12">12</a>
-<a href="#13" id="13">13</a>
-<a href="#14" id="14">14</a>
-<a href="#15" id="15">15</a>
-<a href="#16" id="16">16</a>
-<a href="#17" id="17">17</a>
-<a href="#18" id="18">18</a>
-<a href="#19" id="19">19</a>
-<a href="#20" id="20">20</a>
-<a href="#21" id="21">21</a>
-<a href="#22" id="22">22</a>
-<a href="#23" id="23">23</a>
-<a href="#24" id="24">24</a>
-<a href="#25" id="25">25</a>
-<a href="#26" id="26">26</a>
-<a href="#27" id="27">27</a>
-<a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
-<a href="#31" id="31">31</a>
-<a href="#32" id="32">32</a>
-<a href="#33" id="33">33</a>
-<a href="#34" id="34">34</a>
-<a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
-<a href="#38" id="38">38</a>
-<a href="#39" id="39">39</a>
-<a href="#40" id="40">40</a>
-<a href="#41" id="41">41</a>
-<a href="#42" id="42">42</a>
-<a href="#43" id="43">43</a>
-<a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a>
-<a href="#47" id="47">47</a>
-<a href="#48" id="48">48</a>
-<a href="#49" id="49">49</a>
-<a href="#50" id="50">50</a>
-<a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
-<a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a></pre></div><pre class="rust"><code><span class="kw">use </span>serde::Serialize;
-
-<span class="kw">use crate</span>::{AlertHandler, Sim, SimFlags, SimOptions};
-<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
-<span class="kw">use </span>geom::{Duration, Time};
-<span class="kw">use </span>map_model::Map;
-<span class="kw">use </span>synthpop::Scenario;
-
-<span class="doccomment">/// Simulate a curated list of scenarios to completion, and save the analytics as "prebaked
-/// results," to later compare simulation metrics against the baseline without map edits.
-</span><span class="kw">pub fn </span>prebake(map: <span class="kw-2">&amp;</span>Map, scenario: Scenario, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; PrebakeSummary {
-    timer.start(<span class="macro">format!</span>(
-        <span class="string">"prebake for {} / {}"</span>,
-        scenario.map_name.describe(),
-        scenario.scenario_name
-    ));
-
-    <span class="kw">let </span><span class="kw-2">mut </span>opts = SimOptions::new(<span class="string">"prebaked"</span>);
-    opts.alerts = AlertHandler::Silence;
-    <span class="kw">let </span><span class="kw-2">mut </span>sim = Sim::new(map, opts);
-    <span class="comment">// Bit of an abuse of this, but just need to fix the rng seed.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = SimFlags::for_test(<span class="string">"prebaked"</span>).make_rng();
-    sim.instantiate(<span class="kw-2">&amp;</span>scenario, map, <span class="kw-2">&amp;mut </span>rng, timer);
-
-    <span class="comment">// Run until a few hours after the end of the day. Some trips start close to midnight, and we
-    // want prebaked data for them too.
-    </span>sim.timed_step(
-        map,
-        sim.get_end_of_day() - Time::START_OF_DAY + Duration::hours(<span class="number">3</span>),
-        <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
-        timer,
-    );
-    abstio::write_binary(
-        abstio::path_prebaked_results(<span class="kw-2">&amp;</span>scenario.map_name, <span class="kw-2">&amp;</span>scenario.scenario_name),
-        sim.get_analytics(),
-    );
-    <span class="comment">// TODO Remove the num_agents check once transit isn't as broken. In sao_miguel_paulista,
-    // people wait for a bus that stops running at midnight.
-    </span><span class="kw">if </span>!sim.is_done() &amp;&amp; sim.num_agents().sum() &gt; <span class="number">200 </span>{
-        <span class="macro">panic!</span>(
-            <span class="string">"It's {} and there are still {} agents left in {}. Gridlock likely..."</span>,
-            sim.time(),
-            prettyprint_usize(sim.num_agents().sum()),
-            scenario.map_name.describe()
-        );
-    }
-    timer.stop(<span class="macro">format!</span>(
-        <span class="string">"prebake for {} / {}"</span>,
-        scenario.map_name.describe(),
-        scenario.scenario_name
-    ));
-
-    PrebakeSummary::new(<span class="kw-2">&amp;</span>sim, <span class="kw-2">&amp;</span>scenario)
-}
-
-<span class="attr">#[derive(Debug, Serialize)]
-</span><span class="kw">pub struct </span>PrebakeSummary {
-    <span class="kw">pub </span>map: String,
-    <span class="kw">pub </span>scenario: String,
-    <span class="kw">pub </span>finished_trips: usize,
-    <span class="kw">pub </span>cancelled_trips: usize,
-    <span class="kw">pub </span>total_trip_duration_seconds: f64,
-}
-
-<span class="kw">impl </span>PrebakeSummary {
-    <span class="kw">pub fn </span>new(sim: <span class="kw-2">&amp;</span>Sim, scenario: <span class="kw-2">&amp;</span>Scenario) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>finished_trips = <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>cancelled_trips = <span class="number">0</span>;
-        <span class="comment">// Use f64 seconds, since a serialized Duration has a low cap.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>total_trip_duration_seconds = <span class="number">0.0</span>;
-        <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, maybe_duration) <span class="kw">in </span><span class="kw-2">&amp;</span>sim.get_analytics().finished_trips {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(dt) = maybe_duration {
-                finished_trips += <span class="number">1</span>;
-                total_trip_duration_seconds += dt.inner_seconds();
-            } <span class="kw">else </span>{
-                cancelled_trips += <span class="number">1</span>;
-            }
-        }
-        <span class="self">Self </span>{
-            map: scenario.map_name.describe(),
-            scenario: scenario.scenario_name.clone(),
-            finished_trips,
-            cancelled_trips,
-            total_trip_duration_seconds,
-        }
-    }
-}
-</code></pre></div></section></main></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/prebake.rs`."><title>prebake.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sim" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-4e99c027.js"></script><script defer src="../../static.files/src-script-63605ae7.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">sim/</div>prebake.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>serde::Serialize;
+<a href=#2 id=2 data-nosnippet>2</a>
+<a href=#3 id=3 data-nosnippet>3</a><span class="kw">use crate</span>::{AlertHandler, Sim, SimFlags, SimOptions};
+<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>geom::{Duration, Time};
+<a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span>map_model::Map;
+<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>synthpop::Scenario;
+<a href=#8 id=8 data-nosnippet>8</a>
+<a href=#9 id=9 data-nosnippet>9</a><span class="doccomment">/// Simulate a curated list of scenarios to completion, and save the analytics as "prebaked
+<a href=#10 id=10 data-nosnippet>10</a>/// results," to later compare simulation metrics against the baseline without map edits.
+<a href=#11 id=11 data-nosnippet>11</a></span><span class="kw">pub fn </span>prebake(map: <span class="kw-2">&amp;</span>Map, scenario: Scenario, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; PrebakeSummary {
+<a href=#12 id=12 data-nosnippet>12</a>    timer.start(<span class="macro">format!</span>(
+<a href=#13 id=13 data-nosnippet>13</a>        <span class="string">"prebake for {} / {}"</span>,
+<a href=#14 id=14 data-nosnippet>14</a>        scenario.map_name.describe(),
+<a href=#15 id=15 data-nosnippet>15</a>        scenario.scenario_name
+<a href=#16 id=16 data-nosnippet>16</a>    ));
+<a href=#17 id=17 data-nosnippet>17</a>
+<a href=#18 id=18 data-nosnippet>18</a>    <span class="kw">let </span><span class="kw-2">mut </span>opts = SimOptions::new(<span class="string">"prebaked"</span>);
+<a href=#19 id=19 data-nosnippet>19</a>    opts.alerts = AlertHandler::Silence;
+<a href=#20 id=20 data-nosnippet>20</a>    <span class="kw">let </span><span class="kw-2">mut </span>sim = Sim::new(map, opts);
+<a href=#21 id=21 data-nosnippet>21</a>    <span class="comment">// Bit of an abuse of this, but just need to fix the rng seed.
+<a href=#22 id=22 data-nosnippet>22</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = SimFlags::for_test(<span class="string">"prebaked"</span>).make_rng();
+<a href=#23 id=23 data-nosnippet>23</a>    sim.instantiate(<span class="kw-2">&amp;</span>scenario, map, <span class="kw-2">&amp;mut </span>rng, timer);
+<a href=#24 id=24 data-nosnippet>24</a>
+<a href=#25 id=25 data-nosnippet>25</a>    <span class="comment">// Run until a few hours after the end of the day. Some trips start close to midnight, and we
+<a href=#26 id=26 data-nosnippet>26</a>    // want prebaked data for them too.
+<a href=#27 id=27 data-nosnippet>27</a>    </span>sim.timed_step(
+<a href=#28 id=28 data-nosnippet>28</a>        map,
+<a href=#29 id=29 data-nosnippet>29</a>        sim.get_end_of_day() - Time::START_OF_DAY + Duration::hours(<span class="number">3</span>),
+<a href=#30 id=30 data-nosnippet>30</a>        <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
+<a href=#31 id=31 data-nosnippet>31</a>        timer,
+<a href=#32 id=32 data-nosnippet>32</a>    );
+<a href=#33 id=33 data-nosnippet>33</a>    abstio::write_binary(
+<a href=#34 id=34 data-nosnippet>34</a>        abstio::path_prebaked_results(<span class="kw-2">&amp;</span>scenario.map_name, <span class="kw-2">&amp;</span>scenario.scenario_name),
+<a href=#35 id=35 data-nosnippet>35</a>        sim.get_analytics(),
+<a href=#36 id=36 data-nosnippet>36</a>    );
+<a href=#37 id=37 data-nosnippet>37</a>    <span class="comment">// TODO Remove the num_agents check once transit isn't as broken. In sao_miguel_paulista,
+<a href=#38 id=38 data-nosnippet>38</a>    // people wait for a bus that stops running at midnight.
+<a href=#39 id=39 data-nosnippet>39</a>    </span><span class="kw">if </span>!sim.is_done() &amp;&amp; sim.num_agents().sum() &gt; <span class="number">200 </span>{
+<a href=#40 id=40 data-nosnippet>40</a>        <span class="macro">panic!</span>(
+<a href=#41 id=41 data-nosnippet>41</a>            <span class="string">"It's {} and there are still {} agents left in {}. Gridlock likely..."</span>,
+<a href=#42 id=42 data-nosnippet>42</a>            sim.time(),
+<a href=#43 id=43 data-nosnippet>43</a>            prettyprint_usize(sim.num_agents().sum()),
+<a href=#44 id=44 data-nosnippet>44</a>            scenario.map_name.describe()
+<a href=#45 id=45 data-nosnippet>45</a>        );
+<a href=#46 id=46 data-nosnippet>46</a>    }
+<a href=#47 id=47 data-nosnippet>47</a>    timer.stop(<span class="macro">format!</span>(
+<a href=#48 id=48 data-nosnippet>48</a>        <span class="string">"prebake for {} / {}"</span>,
+<a href=#49 id=49 data-nosnippet>49</a>        scenario.map_name.describe(),
+<a href=#50 id=50 data-nosnippet>50</a>        scenario.scenario_name
+<a href=#51 id=51 data-nosnippet>51</a>    ));
+<a href=#52 id=52 data-nosnippet>52</a>
+<a href=#53 id=53 data-nosnippet>53</a>    PrebakeSummary::new(<span class="kw-2">&amp;</span>sim, <span class="kw-2">&amp;</span>scenario)
+<a href=#54 id=54 data-nosnippet>54</a>}
+<a href=#55 id=55 data-nosnippet>55</a>
+<a href=#56 id=56 data-nosnippet>56</a><span class="attr">#[derive(Debug, Serialize)]
+<a href=#57 id=57 data-nosnippet>57</a></span><span class="kw">pub struct </span>PrebakeSummary {
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="kw">pub </span>map: String,
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">pub </span>scenario: String,
+<a href=#60 id=60 data-nosnippet>60</a>    <span class="kw">pub </span>finished_trips: usize,
+<a href=#61 id=61 data-nosnippet>61</a>    <span class="kw">pub </span>cancelled_trips: usize,
+<a href=#62 id=62 data-nosnippet>62</a>    <span class="kw">pub </span>total_trip_duration_seconds: f64,
+<a href=#63 id=63 data-nosnippet>63</a>}
+<a href=#64 id=64 data-nosnippet>64</a>
+<a href=#65 id=65 data-nosnippet>65</a><span class="kw">impl </span>PrebakeSummary {
+<a href=#66 id=66 data-nosnippet>66</a>    <span class="kw">pub fn </span>new(sim: <span class="kw-2">&amp;</span>Sim, scenario: <span class="kw-2">&amp;</span>Scenario) -&gt; <span class="self">Self </span>{
+<a href=#67 id=67 data-nosnippet>67</a>        <span class="kw">let </span><span class="kw-2">mut </span>finished_trips = <span class="number">0</span>;
+<a href=#68 id=68 data-nosnippet>68</a>        <span class="kw">let </span><span class="kw-2">mut </span>cancelled_trips = <span class="number">0</span>;
+<a href=#69 id=69 data-nosnippet>69</a>        <span class="comment">// Use f64 seconds, since a serialized Duration has a low cap.
+<a href=#70 id=70 data-nosnippet>70</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>total_trip_duration_seconds = <span class="number">0.0</span>;
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, maybe_duration) <span class="kw">in </span><span class="kw-2">&amp;</span>sim.get_analytics().finished_trips {
+<a href=#72 id=72 data-nosnippet>72</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(dt) = maybe_duration {
+<a href=#73 id=73 data-nosnippet>73</a>                finished_trips += <span class="number">1</span>;
+<a href=#74 id=74 data-nosnippet>74</a>                total_trip_duration_seconds += dt.inner_seconds();
+<a href=#75 id=75 data-nosnippet>75</a>            } <span class="kw">else </span>{
+<a href=#76 id=76 data-nosnippet>76</a>                cancelled_trips += <span class="number">1</span>;
+<a href=#77 id=77 data-nosnippet>77</a>            }
+<a href=#78 id=78 data-nosnippet>78</a>        }
+<a href=#79 id=79 data-nosnippet>79</a>        <span class="self">Self </span>{
+<a href=#80 id=80 data-nosnippet>80</a>            map: scenario.map_name.describe(),
+<a href=#81 id=81 data-nosnippet>81</a>            scenario: scenario.scenario_name.clone(),
+<a href=#82 id=82 data-nosnippet>82</a>            finished_trips,
+<a href=#83 id=83 data-nosnippet>83</a>            cancelled_trips,
+<a href=#84 id=84 data-nosnippet>84</a>            total_trip_duration_seconds,
+<a href=#85 id=85 data-nosnippet>85</a>        }
+<a href=#86 id=86 data-nosnippet>86</a>    }
+<a href=#87 id=87 data-nosnippet>87</a>}</code></pre></div></section></main></body></html>

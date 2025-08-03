@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Mode"],"fn":["continue_app_setup","finish_app_setup","main","run","setup_app"],"mod":["app","challenges","common","debug","devtools","edit","id","info","layer","pregame","render","sandbox","ungap"],"struct":["Args","Setup"]};
+window.SIDEBAR_ITEMS = {"enum":["Mode"],"fn":["continue_app_setup","finish_app_setup","main","run","setup_app"],"mod":["app","challenges","common","debug","devtools","edit","id","info","layer","pregame","render","sandbox","ungap"],"struct":["Args","InitialInfoPanel","Setup"]};
