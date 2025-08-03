@@ -109,7 +109,16 @@ pub(crate) struct Scheduler {
     delta_times: Histogram<Duration>,
     #[serde(skip_serializing, skip_deserializing)]
     cmd_type_counts: Counter<SimpleCommandType>,
+    
+    // New fields for cleanup optimization
+    #[serde(skip_serializing, skip_deserializing)]
+    stale_entries: usize,
+    #[serde(skip_serializing, skip_deserializing)]
+    operations_since_cleanup: usize,
 }
+
+const CLEANUP_THRESHOLD: usize = 10000;  // Clean up after this many operations
+const STALE_RATIO_THRESHOLD: f64 = 0.3;  // Clean up if more than 30% of entries are stale
 
 impl Scheduler {
     pub fn new() -> Scheduler {
@@ -120,6 +129,8 @@ impl Scheduler {
             last_time: Time::START_OF_DAY,
             delta_times: Histogram::new(),
             cmd_type_counts: Counter::new(),
+            stale_entries: 0,
+            operations_since_cleanup: 0,
         }
     }
 
@@ -152,6 +163,9 @@ impl Scheduler {
                 );
             }
         }
+        
+        self.operations_since_cleanup += 1;
+        self.maybe_cleanup();
     }
 
     pub fn update(&mut self, new_time: Time, cmd: Command) {
@@ -168,6 +182,8 @@ impl Scheduler {
         // It's fine if a previous command hasn't actually been scheduled.
         if let Some((existing_cmd, _)) = self.queued_commands.get(&cmd_type) {
             assert_eq!(cmd, *existing_cmd);
+            // If there was a previous command, it's now stale
+            self.stale_entries += 1;
         }
         self.queued_commands
             .insert(cmd_type.clone(), (cmd, new_time));
@@ -175,11 +191,19 @@ impl Scheduler {
             cost: new_time,
             value: cmd_type,
         });
+        
+        self.operations_since_cleanup += 1;
+        self.maybe_cleanup();
     }
 
     pub fn cancel(&mut self, cmd: Command) {
         // It's fine if a previous command hasn't actually been scheduled.
-        self.queued_commands.remove(&cmd.to_type());
+        if self.queued_commands.remove(&cmd.to_type()).is_some() {
+            self.stale_entries += 1;
+        }
+        
+        self.operations_since_cleanup += 1;
+        self.maybe_cleanup();
     }
 
     /// This next command might've actually been rescheduled to a later time; the caller won't know
@@ -199,19 +223,25 @@ impl Scheduler {
     // TODO Above description is a little vague. This should be used with peek_next_time in a
     // particular way...
     pub fn get_next(&mut self) -> Option<Command> {
-        let item = self.items.pop().unwrap();
-        self.latest_time = item.cost;
-        match self.queued_commands.entry(item.value) {
-            Entry::Vacant(_) => {
-                // Command was cancelled
-                None
-            }
-            Entry::Occupied(occupied) => {
-                // Command was re-scheduled for later.
-                if occupied.get().1 > item.cost {
-                    return None;
+        loop {
+            let item = self.items.pop()?;
+            match self.queued_commands.entry(item.value) {
+                Entry::Vacant(_) => {
+                    // Command was cancelled, this is a stale entry
+                    self.stale_entries = self.stale_entries.saturating_sub(1);
+                    continue;
                 }
-                Some(occupied.remove().0)
+                Entry::Occupied(occupied) => {
+                    // Command was re-scheduled for later.
+                    if occupied.get().1 > item.cost {
+                        self.stale_entries = self.stale_entries.saturating_sub(1);
+                        continue;
+                    }
+                    // Only update latest_time for valid commands
+                    self.latest_time = item.cost;
+                    self.operations_since_cleanup += 1;
+                    return Some(occupied.remove().0);
+                }
             }
         }
     }
@@ -219,11 +249,130 @@ impl Scheduler {
     pub fn describe_stats(&self) -> Vec<String> {
         let mut stats = vec![
             format!("delta times for events: {}", self.delta_times.describe()),
+            format!("heap size: {}, active commands: {}, stale entries: {}", 
+                    self.items.len(), self.queued_commands.len(), self.stale_entries),
             "count for each command type:".to_string(),
         ];
         for (cmd, cnt) in self.cmd_type_counts.borrow() {
             stats.push(format!("{:?}: {}", cmd, abstutil::prettyprint_usize(*cnt)));
         }
         stats
+    }
+    
+    /// Check if we should clean up stale entries
+    fn maybe_cleanup(&mut self) {
+        let should_cleanup = self.operations_since_cleanup >= CLEANUP_THRESHOLD ||
+            (self.stale_entries > 100 && 
+             self.stale_entries as f64 / self.items.len().max(1) as f64 > STALE_RATIO_THRESHOLD);
+        
+        if should_cleanup {
+            self.cleanup();
+        }
+    }
+    
+    /// Remove stale entries from the heap
+    fn cleanup(&mut self) {
+        let old_size = self.items.len();
+        
+        // Rebuild the heap with only valid entries
+        let valid_items: Vec<_> = self.items
+            .drain()
+            .filter(|item| {
+                self.queued_commands.get(&item.value)
+                    .map(|(_, time)| *time == item.cost)
+                    .unwrap_or(false)
+            })
+            .collect();
+        
+        self.items = BinaryHeap::from(valid_items);
+        self.stale_entries = 0;
+        self.operations_since_cleanup = 0;
+        
+        let removed = old_size - self.items.len();
+        if removed > 0 {
+            log::debug!("Scheduler cleanup: removed {} stale entries", removed);
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{CarID, PedestrianID, VehicleType};
+    use geom::{Duration, Time};
+    use std::time::Instant;
+
+    #[test]
+    fn test_scheduler_performance() {
+        println!("\nRunning scheduler performance test...");
+        
+        // Run with different sizes to see scaling
+        let test_sizes = vec![10_000, 50_000, 100_000];
+        
+        for size in test_sizes {
+            println!("\nTesting with {} operations:", size);
+            let duration = benchmark_scheduler(size);
+            println!("  Time: {:?}", duration);
+        }
+    }
+
+    fn benchmark_scheduler(num_operations: usize) -> std::time::Duration {
+        let start = Instant::now();
+        
+        let mut scheduler = Scheduler::new();
+        
+        // Push initial commands
+        for i in 0..num_operations {
+            let time = Time::START_OF_DAY + Duration::seconds(i as f64 / 100.0);
+            
+            let cmd = match i % 4 {
+                0 => Command::UpdateCar(CarID { 
+                    id: i, 
+                    vehicle_type: VehicleType::Car 
+                }),
+                1 => Command::UpdatePed(PedestrianID(i)),
+                2 => Command::UpdateIntersection(map_model::IntersectionID(i)),
+                _ => Command::UpdateIntersection(map_model::IntersectionID(i + 1000000)),  // Ensure unique IDs
+            };
+            
+            scheduler.push(time, cmd);
+        }
+        
+        // Simulate 20% updates (rescheduling)
+        let num_updates = num_operations / 5;
+        for i in 0..num_updates {
+            let cmd_id = i * 5;
+            let new_time = Time::START_OF_DAY + Duration::seconds((cmd_id as f64 / 100.0) + 1.0);
+            
+            let cmd = match cmd_id % 4 {
+                0 => Command::UpdateCar(CarID { 
+                    id: cmd_id, 
+                    vehicle_type: VehicleType::Car 
+                }),
+                1 => Command::UpdatePed(PedestrianID(cmd_id)),
+                2 => Command::UpdateIntersection(map_model::IntersectionID(cmd_id)),
+                _ => Command::UpdateIntersection(map_model::IntersectionID(cmd_id + 1000000)),  // Ensure unique IDs
+            };
+            
+            scheduler.update(new_time, cmd);
+        }
+        
+        // Pop all commands
+        let mut count = 0;
+        while scheduler.peek_next_time().is_some() {
+            if let Some(_) = scheduler.get_next() {
+                count += 1;
+            }
+        }
+        
+        println!("  Processed {} commands", count);
+        
+        // Print stats
+        let stats = scheduler.describe_stats();
+        for stat in stats.iter().take(2) {
+            println!("  {}", stat);
+        }
+        
+        start.elapsed()
     }
 }
