@@ -73,13 +73,16 @@ pub struct TransitRoute {
 
 impl TransitRoute {
     fn all_path_requests(&self, map: &Map) -> Vec<PathRequest> {
-        let mut steps = vec![PathRequest::vehicle(
+        // Use vehicle_exact_pos so the bus doesn't warp from the lane next to a stop directly to a
+        // turn lane
+
+        let mut steps = vec![PathRequest::vehicle_exact_pos(
             Position::start(self.start),
             map.get_ts(self.stops[0]).driving_pos,
             self.route_type,
         )];
         for pair in self.stops.windows(2) {
-            steps.push(PathRequest::vehicle(
+            steps.push(PathRequest::vehicle_exact_pos(
                 map.get_ts(pair[0]).driving_pos,
                 map.get_ts(pair[1]).driving_pos,
                 self.route_type,
@@ -88,14 +91,14 @@ impl TransitRoute {
 
         let last_stop_pos = map.get_ts(*self.stops.last().unwrap()).driving_pos;
         if let Some(end) = self.end_border {
-            steps.push(PathRequest::vehicle(
+            steps.push(PathRequest::vehicle_exact_pos(
                 last_stop_pos,
                 Position::end(end, map),
                 self.route_type,
             ));
         } else {
             // Drive to the end of the lane with the last stop
-            steps.push(PathRequest::vehicle(
+            steps.push(PathRequest::vehicle_exact_pos(
                 last_stop_pos,
                 Position::end(last_stop_pos.lane(), map),
                 self.route_type,

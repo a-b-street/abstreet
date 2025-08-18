@@ -581,6 +581,7 @@ pub struct PathRequest {
     // TODO It's assumed this lane is on the same directed road as `start`, but this isn't
     // enforced!
     pub(crate) alt_start: Option<(Position, Duration)>,
+    pub(crate) exact_start_lane: bool,
 }
 
 impl fmt::Display for PathRequest {
@@ -634,6 +635,7 @@ impl PathRequest {
                 end,
                 constraints,
                 alt_start: None,
+                exact_start_lane: false,
             })
         }
     }
@@ -645,17 +647,37 @@ impl PathRequest {
             end,
             constraints: PathConstraints::Pedestrian,
             alt_start: None,
+            exact_start_lane: false,
         }
     }
 
     /// The caller must pass in two valid positions for the vehicle type. This isn't verified. No
-    /// off-side turns from driveways happen; the exact start position is used.
+    /// off-side turns from driveways happen; the exact start position (or another lane on the same
+    /// side of the road) is used.
     pub fn vehicle(start: Position, end: Position, constraints: PathConstraints) -> PathRequest {
         PathRequest {
             start,
             end,
             constraints,
             alt_start: None,
+            exact_start_lane: false,
+        }
+    }
+
+    /// The caller must pass in two valid positions for the vehicle type. This isn't verified. No
+    /// off-side turns from driveways or lane-changing on the start road happens; the exact
+    /// positions are used.
+    pub fn vehicle_exact_pos(
+        start: Position,
+        end: Position,
+        constraints: PathConstraints,
+    ) -> PathRequest {
+        PathRequest {
+            start,
+            end,
+            constraints,
+            alt_start: None,
+            exact_start_lane: true,
         }
     }
 
@@ -692,6 +714,7 @@ impl PathRequest {
             end,
             constraints,
             alt_start,
+            exact_start_lane: false,
         }
     }
 
@@ -710,6 +733,7 @@ impl PathRequest {
             end,
             constraints,
             alt_start: None,
+            exact_start_lane: false,
         })
     }
 
