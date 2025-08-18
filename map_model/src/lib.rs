@@ -48,8 +48,8 @@ pub use raw_map::{Amenity, AmenityType, AreaType, CrossingType, ExtraPOI, ExtraP
 
 pub use crate::city::City;
 pub use crate::edits::{
-    EditCmd, EditEffects, EditIntersection, EditIntersectionControl, EditRoad, MapEdits,
-    PermanentMapEdits,
+    EditBuilding, EditCmd, EditEffects, EditIntersection, EditIntersectionControl, EditRoad,
+    MapEdits, PermanentMapEdits,
 };
 
 pub use crate::make::RawToMapOptions;
