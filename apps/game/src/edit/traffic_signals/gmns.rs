@@ -159,7 +159,7 @@ pub fn import_all(
 
     PopupMsg::new_state(
         ctx,
-        &format!("Import from {}", path),
+        &format!("Import from {}", abstutil::basename(path)),
         vec![
             format!("{} traffic signals successfully imported", successes),
             format!("{} intersections without any data", failures_no_match),

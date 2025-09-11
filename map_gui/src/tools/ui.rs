@@ -36,7 +36,8 @@ impl FilePicker {
                 }
                 // Can't get map() or and_then() to work with async
                 let result = if let Some(handle) = builder.pick_file().await {
-                    Some((handle.file_name(), handle.read().await))
+                    let path = handle.path().to_string_lossy().into_owned();
+                    Some((path, handle.read().await))
                 } else {
                     None
                 };
