@@ -189,7 +189,12 @@ fn load_picker_ui(
                     Box::new(move |ctx, app, maybe_file| {
                         match maybe_file {
                             Ok(Some((path, bytes))) => {
-                                match Proposal::load_from_bytes(ctx, app, &path, Ok(bytes)) {
+                                match Proposal::load_from_bytes(
+                                    ctx,
+                                    app,
+                                    &abstutil::basename(&path),
+                                    Ok(bytes),
+                                ) {
                                     Some(err_state) => Transition::Replace(err_state),
                                     None => preserve_state.switch_to_state(ctx, app),
                                 }

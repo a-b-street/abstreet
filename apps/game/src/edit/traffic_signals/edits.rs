@@ -202,7 +202,7 @@ pub fn edit_entire_signal(
         .session
         .last_gmns_timing_csv
         .as_ref()
-        .map(|(path, _)| format!("import from GMNS {}", path));
+        .map(|(path, _)| format!("import from GMNS {}", abstutil::basename(path)));
     let gmns_all = "import all traffic signals from a new GMNS timing.csv";
 
     let mut choices = vec![use_template.to_string()];
