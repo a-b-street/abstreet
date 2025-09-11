@@ -65,11 +65,14 @@ fn parse_trips(csv_path: String) -> Result<Vec<ExternalPerson>> {
 fn parse_linestring(input: &str) -> Option<(LonLat, LonLat)> {
     // Input is something like LINESTRING(-122.3245062 47.6456213,-122.3142029 47.6675654)
     let mut nums = Vec::new();
-    for x in input
+    let input = input
+        .trim()
         .strip_prefix("LINESTRING(")?
         .strip_suffix(')')?
         .split(&[' ', ','][..])
-    {
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty());
+    for x in input {
         nums.push(x.parse::<f64>().ok()?);
     }
     if nums.len() != 4 {
@@ -90,4 +93,40 @@ struct Record {
     agent_type: String,
     geometry: String,
     departure_time: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_linestring() {
+        let inputs = vec![
+            "LINESTRING(-122.3245062 47.6456213,-122.3142029 47.6675654)",
+            " LINESTRING( -122.3245062   47.6456213 , -122.3142029  47.6675654 )  ",
+            "LINESTRING(-122.3245062,47.6456213,-122.3142029,47.6675654)",
+            "LINESTRING(-122.3245062 47.6456213 -122.3142029 47.6675654)",
+        ];
+        for input in inputs {
+            let (o, d) = parse_linestring(input).unwrap();
+            assert_eq!(o, LonLat::new(-122.3245062, 47.6456213));
+            assert_eq!(d, LonLat::new(-122.3142029, 47.6675654));
+        }
+    }
+    #[test]
+    fn test_parse_linestring_fail() {
+        let inputs = vec![
+            "LINESTRING(-122.3245062 47.6456213,-122.3142029)",
+            "LINESTRING(-122.3245062 47.6456213, ,-122.3142029)",
+            "LINESTRING(-122.3245062 47.6456213,-122.3142029 47.6675654,0)",
+            "LINESTRING()",
+            "LINESTRING( -122.3245062 47.6456213 , -122.3142029 47.6675654 ",
+            "LINESTR(-122.3245062 47.6456213,-122.3142029 47.6675654)",
+            "",
+            "-122.3245062 47.6456213 -122.3142029 47.6675654",
+        ];
+        for input in inputs {
+            assert_eq!(parse_linestring(input), None);
+        }
+    }
 }
