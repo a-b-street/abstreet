@@ -63,6 +63,7 @@ impl FromAmenity {
             batch.append(draw_isochrone(
                 &app.map,
                 &border_isochrone.time_to_reach_building,
+                &border_isochrone.time_to_reach_empty_road,
                 &border_isochrone.thresholds,
                 &border_isochrone.colors,
             ));
@@ -71,6 +72,7 @@ impl FromAmenity {
         batch.append(draw_isochrone(
             &app.map,
             &isochrone.time_to_reach_building,
+            &isochrone.time_to_reach_empty_road,
             &isochrone.thresholds,
             &isochrone.colors,
         ));

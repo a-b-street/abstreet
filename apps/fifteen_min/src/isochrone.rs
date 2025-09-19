@@ -6,7 +6,7 @@ use geom::Duration;
 use map_gui::tools::draw_isochrone;
 use map_model::{
     connectivity, AmenityType, BuildingID, BuildingType, IntersectionID, LaneType, Map, Path,
-    PathConstraints, PathRequest,
+    PathConstraints, PathRequest, RoadID,
 };
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::{Color, EventCtx};
@@ -27,6 +27,7 @@ pub struct Isochrone {
     pub colors: Vec<Color>,
     /// How far away is each building from the start?
     pub time_to_reach_building: HashMap<BuildingID, Duration>,
+    pub time_to_reach_empty_road: HashMap<RoadID, Duration>,
     /// Per category of amenity, what buildings have that?
     pub amenities_reachable: MultiMap<AmenityType, BuildingID>,
     /// How many people live in the returned area, according to estimates included in the map (from
@@ -60,9 +61,14 @@ pub enum MovementOptions {
 }
 
 impl MovementOptions {
-    /// Calculate the quickest time to reach buildings across the map from any of the starting
-    /// points, subject to the walking/biking settings configured in these Options.
-    pub fn times_from(self, map: &Map, starts: Vec<Spot>) -> HashMap<BuildingID, Duration> {
+    /// Calculate the quickest time to reach buildings (and roads without buildings) across the map
+    /// from any of the starting points, subject to the walking/biking settings configured in these
+    /// Options.
+    pub fn times_from(
+        self,
+        map: &Map,
+        starts: Vec<Spot>,
+    ) -> (HashMap<BuildingID, Duration>, HashMap<RoadID, Duration>) {
         match self {
             MovementOptions::Walking(opts) => {
                 connectivity::all_walking_costs_from(map, starts, Duration::minutes(15), opts)
@@ -85,10 +91,12 @@ impl Isochrone {
         options: Options,
     ) -> Isochrone {
         let spot_starts = start.iter().map(|b_id| Spot::Building(*b_id)).collect();
-        let time_to_reach_building = options.movement.clone().times_from(&app.map, spot_starts);
+        let (time_to_reach_building, time_to_reach_empty_road) =
+            options.movement.clone().times_from(&app.map, spot_starts);
 
         let mut amenities_reachable = MultiMap::new();
         let mut population = 0;
+        // TODO We could return all reachable roads and simplify this
         let mut all_roads = HashSet::new();
         for b in time_to_reach_building.keys() {
             let bldg = app.map.get_b(*b);
@@ -133,6 +141,7 @@ impl Isochrone {
             thresholds,
             colors,
             time_to_reach_building,
+            time_to_reach_empty_road,
             amenities_reachable,
             population,
             onstreet_parking_spots,
@@ -141,6 +150,7 @@ impl Isochrone {
         i.draw = ToggleZoomedBuilder::from(draw_isochrone(
             &app.map,
             &i.time_to_reach_building,
+            &i.time_to_reach_empty_road,
             &i.thresholds,
             &i.colors,
         ))
@@ -182,6 +192,7 @@ pub struct BorderIsochrone {
     pub colors: Vec<Color>,
     /// How far away is each building from the start?
     pub time_to_reach_building: HashMap<BuildingID, Duration>,
+    pub time_to_reach_empty_road: HashMap<RoadID, Duration>,
 }
 
 impl BorderIsochrone {
@@ -192,7 +203,8 @@ impl BorderIsochrone {
         options: Options,
     ) -> BorderIsochrone {
         let spot_starts = start.iter().map(|i_id| Spot::Border(*i_id)).collect();
-        let time_to_reach_building = options.movement.clone().times_from(&app.map, spot_starts);
+        let (time_to_reach_building, time_to_reach_empty_road) =
+            options.movement.clone().times_from(&app.map, spot_starts);
 
         // Generate a single polygon showing 15 minutes from the border
         let thresholds = vec![0.1, Duration::minutes(15).inner_seconds()];
@@ -207,11 +219,13 @@ impl BorderIsochrone {
             thresholds,
             colors,
             time_to_reach_building,
+            time_to_reach_empty_road,
         };
 
         i.draw = ToggleZoomedBuilder::from(draw_isochrone(
             &app.map,
             &i.time_to_reach_building,
+            &i.time_to_reach_empty_road,
             &i.thresholds,
             &i.colors,
         ))

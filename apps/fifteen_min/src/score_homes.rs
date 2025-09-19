@@ -149,7 +149,7 @@ fn score_houses_by_one_match(
             (
                 category,
                 stores,
-                movement_opts.clone().times_from(map, spots),
+                movement_opts.clone().times_from(map, spots).0,
             )
         })
     {
