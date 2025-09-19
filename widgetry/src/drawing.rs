@@ -257,6 +257,7 @@ pub struct Prerender {
     pub(crate) assets: Assets,
     pub(crate) num_uploads: Cell<usize>,
     pub(crate) scale_factor: Cell<f64>,
+    pub(crate) surface_is_ready: Cell<bool>,
 }
 
 impl Prerender {
@@ -292,7 +293,22 @@ impl Prerender {
     }
 
     pub(crate) fn window_resized(&self, new_size: ScreenDims) {
+        if new_size.width <= 0.0 || new_size.height <= 0.0 {
+            if self.surface_is_ready.replace(false) {
+                debug!("Suspending redraws while window size is {:?}", new_size);
+            }
+            return;
+        }
+
+        if !self.surface_is_ready.replace(true) {
+            debug!("Resuming redraws after window size became {:?}", new_size);
+        }
+
         self.inner.window_resized(new_size, self.get_scale_factor())
+    }
+
+    pub(crate) fn surface_ready(&self) -> bool {
+        self.surface_is_ready.get()
     }
 
     pub fn assets_base_url(&self) -> Option<&str> {

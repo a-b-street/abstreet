@@ -289,6 +289,9 @@ impl<'a> LoadingScreen<'a> {
         if elapsed_seconds(self.last_drawn) < 0.5 {
             return;
         }
+        if !self.prerender.surface_ready() {
+            return;
+        }
         self.last_drawn = Instant::now();
         let mut ctx = EventCtx {
             fake_mouseover: true,

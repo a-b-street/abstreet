@@ -79,8 +79,15 @@ impl<A: 'static + SharedAppState> State<A> {
                     inner_size
                 );
                 prerender.window_resized(inner_size);
-                self.canvas.window_width = inner_size.width;
-                self.canvas.window_height = inner_size.height;
+                if inner_size.width > 0.0 && inner_size.height > 0.0 {
+                    self.canvas.window_width = inner_size.width;
+                    self.canvas.window_height = inner_size.height;
+                } else {
+                    debug!(
+                        "Window size {:?} indicates rendering should be suspended",
+                        inner_size
+                    );
+                }
             }
 
             if let Event::KeyPress(key) = input.event {
@@ -156,6 +163,10 @@ impl<A: 'static + SharedAppState> State<A> {
 
     /// Returns naming hint. Logically consumes the number of uploads.
     pub(crate) fn draw(&mut self, prerender: &Prerender, screenshot: bool) -> Option<String> {
+        if !prerender.surface_ready() {
+            return None;
+        }
+
         let mut g = GfxCtx::new(prerender, &self.canvas, &self.style, screenshot);
 
         self.canvas.start_drawing();
@@ -345,6 +356,7 @@ pub fn run<
         num_uploads: Cell::new(0),
         inner: prerender_innards,
         scale_factor: Cell::new(settings.scale_factor.unwrap_or(monitor_scale_factor)),
+        surface_is_ready: Cell::new(true),
     };
     if let Some(min_width) = settings.require_minimum_width {
         let initial_size = prerender.window_size();

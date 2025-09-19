@@ -182,6 +182,7 @@ impl RenderOnly {
             num_uploads: Cell::new(0),
             inner: prerender_innards,
             scale_factor: Cell::new(settings.scale_factor.unwrap_or(1.0)),
+            surface_is_ready: Cell::new(true),
         };
         let canvas = Canvas::new(initial_size, settings.canvas_settings);
 
