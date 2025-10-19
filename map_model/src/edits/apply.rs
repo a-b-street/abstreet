@@ -45,6 +45,7 @@ impl Map {
             deleted_turns: BTreeSet::new(),
             changed_parking_lots: BTreeSet::new(),
             modified_lanes: BTreeSet::new(),
+            changed_buildings: BTreeSet::new(),
         };
 
         // Short-circuit to avoid marking pathfinder_dirty
@@ -273,6 +274,13 @@ impl EditCmd {
             EditCmd::ChangeRouteSchedule { id, new, .. } => {
                 map.transit_routes[id.0].spawn_times = new.clone();
             }
+            EditCmd::ChangeBuilding { b, ref new, .. } => {
+                let old_state = map.get_b_edit(*b);
+                if old_state == new.clone() {
+                    return;
+                }
+                map.buildings[b.0].parking = new.parking.clone()
+            }
         }
     }
 
@@ -290,6 +298,11 @@ impl EditCmd {
             },
             EditCmd::ChangeRouteSchedule { id, old, new } => EditCmd::ChangeRouteSchedule {
                 id,
+                old: new,
+                new: old,
+            },
+            EditCmd::ChangeBuilding { b, old, new } => EditCmd::ChangeBuilding {
+                b,
                 old: new,
                 new: old,
             },
