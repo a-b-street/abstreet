@@ -201,6 +201,9 @@ impl PathV2 {
         // allow starting from any lane on the same side of the road. Since petgraph can only start
         // from a single node and since we want to prefer the originally requested lane anyway,
         // create a virtual start node and connect it to all possible starting lanes.
+        //
+        // Note if request.exact_start_lane is true, the v2 path will always be valid for the given
+        // starting lane.
         let virtual_start_node = LaneID {
             road: RoadID(map.all_roads().len()),
             offset: 0,
@@ -217,9 +220,6 @@ impl PathV2 {
             // At the simulation layer, we may need to block intermediate lanes to exit a driveway,
             // so reflect that cost here. The high cost should only be worth it when the v2 path
             // requires that up-front turn from certain lanes.
-            //
-            // TODO This is only valid if we were leaving from a driveway! This is making some
-            // buses warp after making a stop.
             let idx_dist = (start_lane_idx - (l.offset as isize)).abs();
             let cost = 100 * idx_dist as usize;
             let fake_turn = TurnID {
@@ -228,6 +228,11 @@ impl PathV2 {
                 src: virtual_start_node,
                 dst: virtual_start_node,
             };
+            // Just in case, make sure the path only starts at the exact lane specified
+            if self.req.exact_start_lane && idx_dist != 0 {
+                continue;
+            }
+
             graph.add_edge(virtual_start_node, l, fake_turn);
         }
 
