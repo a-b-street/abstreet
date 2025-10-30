@@ -279,6 +279,10 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("groningen", "huge") => "Groningen (entire area)",
             _ => &name.map,
         },
+        "no" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("kristiansand", "kristiansand") => "Kristiansand",
+            _ => &name.map,
+        },
         "nz" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("auckland", "mangere") => "Māngere (Auckland)",
             _ => &name.map,
