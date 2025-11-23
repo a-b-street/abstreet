@@ -37,8 +37,8 @@ def main():
 
     # Modify one traffic signal, doubling the duration of its second stage
     print('Modify a traffic signal')
-    ts = requests.get(api + '/traffic-signals/get', params={'id': 67}).json()
-    ts['stages'][1]['stage_type']['Fixed'] *= 2
+    ts = requests.get(api + '/traffic-signals/get', params={'id': 48}).json()
+    ts['plans'][0]['stages'][1]['stage_type']['Fixed'] *= 2
     # Also start a new person, just to demonstrate the API
     if False:
         person = {
@@ -106,9 +106,9 @@ def run_experiment():
                        params={'t': hours_to_sim}).text)
     raw_trips = requests.get(api + '/data/get-finished-trips').json()
     raw_delays = requests.get(api + '/traffic-signals/get-delays',
-                              params={'id': 67, 't1': '00:00:00', 't2': hours_to_sim}).json()
+                              params={'id': 48, 't1': '00:00:00', 't2': hours_to_sim}).json()
     raw_thruput = requests.get(
-        api + '/traffic-signals/get-cumulative-thruput', params={'id': 67}).json()
+        api + '/traffic-signals/get-cumulative-thruput', params={'id': 48}).json()
 
     # Map trip ID to the duration (in seconds) of the trip. Filter out
     # cancelled trips.

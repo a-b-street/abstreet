@@ -30,7 +30,7 @@ use abstio::MapName;
 use abstutil::{serialize_btreemap, Timer};
 use geom::{Distance, Duration, FindClosest, LonLat, Time};
 use map_model::{
-    CompressedMovementID, ControlTrafficSignal, EditIntersectionControl, IntersectionID, Map,
+    osm, perma_traffic_signal, CompressedMovementID, EditIntersectionControl, IntersectionID, Map,
     MovementID, PermanentMapEdits, RoadID, TurnID,
 };
 use sim::{
@@ -215,20 +215,20 @@ fn handle_command(
         "/traffic-signals/get" => {
             let i = IntersectionID(get("id")?.parse::<usize>()?);
             if let Some(ts) = map.maybe_get_traffic_signal(i) {
-                Ok(abstutil::to_json(ts))
+                Ok(abstutil::to_json(&ts.export(map)))
             } else {
                 bail!("{} isn't a traffic signal", i)
             }
         }
         "/traffic-signals/set" => {
-            let ts: ControlTrafficSignal = abstutil::from_json(body)?;
-            let id = ts.id;
+            let perma: perma_traffic_signal::TrafficSignal = abstutil::from_json(body)?;
+            let id = map.find_i_by_osm_id(osm::NodeID(perma.intersection_osm_node_id))?;
 
             // incremental_edit_traffic_signal is the cheap option, but since we may need to call
             // get-edits later, go through the proper flow.
             let mut edits = map.get_edits().clone();
             edits.commands.push(map.edit_intersection_cmd(id, |new| {
-                new.control = EditIntersectionControl::TrafficSignal(ts.export(map));
+                new.control = EditIntersectionControl::TrafficSignal(perma.clone());
             }));
             map.must_apply_edits(edits, &mut Timer::throwaway());
             map.recalculate_pathfinding_after_edits(&mut Timer::throwaway());
