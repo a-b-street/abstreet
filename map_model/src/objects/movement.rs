@@ -183,6 +183,44 @@ impl Movement {
     }
 }
 
+// fn movement_geom(
+//     polylines: Vec<&PolyLine>,
+//     from: DirectedRoadID,
+//     to: DirectedRoadID,
+// ) -> Result<PolyLine> {
+//     let num_pts = polylines[0].points().len();
+//     for pl in &polylines {
+//         if num_pts != pl.points().len() {
+//             // Kiiiiinda spammy
+//             if false {
+//                 warn!(
+//                     "Movement between {} and {} can't make nice geometry",
+//                     from, to
+//                 );
+//             }
+//             return Ok(polylines[0].clone());
+//         }
+//     }
+
+//     let mut pts = Vec::new();
+//     for idx in 0..num_pts {
+//         pts.push(Pt2D::center(
+//             &polylines
+//                 .iter()
+//                 .map(|pl| pl.points()[idx])
+//                 .collect::<Vec<_>>(),
+//         ));
+//     }
+//     // Remove all duplicate points, not just consecutive ones
+//     let mut deduped_pts = Vec::new();
+//     for pt in pts {
+//         if !deduped_pts.contains(&pt) {
+//             deduped_pts.push(pt);
+//         }
+//     }
+//     PolyLine::deduping_new(deduped_pts)
+// }
+
 fn movement_geom(
     polylines: Vec<&PolyLine>,
     from: DirectedRoadID,
@@ -211,7 +249,28 @@ fn movement_geom(
                 .collect::<Vec<_>>(),
         ));
     }
-    PolyLine::deduping_new(pts)
+    
+    // Remove duplicate points (including non-adjacent duplicates)
+    // Use a small epsilon for floating point comparison
+    let epsilon = Distance::meters(0.01); // 1cm tolerance
+    let mut deduped_pts = Vec::new();
+    
+    for pt in pts {
+        let is_duplicate = deduped_pts.iter().any(|existing_pt: &Pt2D| {
+            existing_pt.dist_to(pt) < epsilon
+        });
+        
+        if !is_duplicate {
+            deduped_pts.push(pt);
+        }
+    }
+    
+    // Ensure we have at least 2 points for a valid polyline
+    if deduped_pts.len() < 2 {
+        return Ok(polylines[0].clone());
+    }
+    
+    PolyLine::deduping_new(deduped_pts)
 }
 
 impl MovementID {
