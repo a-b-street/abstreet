@@ -27,6 +27,7 @@ mod parking_lots;
 pub mod traffic_signals;
 pub mod transit;
 pub mod turns;
+pub mod merge_candidates;
 mod walking_turns;
 
 /// Options for converting RawMaps to Maps.
@@ -43,6 +44,7 @@ pub struct RawToMapOptions {
 
 impl Map {
     pub fn create_from_raw(mut raw: RawMap, opts: RawToMapOptions, timer: &mut Timer) -> Map {
+        crate::make::merge_candidates::detect_merge_candidates(&mut raw.streets, Default::default());
         raw.streets
             .apply_transformations(Transformation::abstreet(), timer);
 
