@@ -32,16 +32,7 @@ pub fn make_all_buildings(
     }
 
     let sidewalk_buffer = Distance::meters(7.5);
-    let sidewalk_pts = match_points_to_lanes(
-        map,
-        query,
-        |l| l.is_walkable(),
-        // Don't put connections too close to intersections
-        sidewalk_buffer,
-        // Try not to skip any buildings, but more than 1km from a sidewalk is a little much
-        Distance::meters(1000.0),
-        timer,
-    );
+    let sidewalk_pts = crate::make::buildings_resilient::snap_buildings_resilient(map, query, timer);
 
     let mut results = Vec::new();
     timer.start_iter("match buildings to sidewalks", center_per_bldg.len());
