@@ -15,6 +15,7 @@ use raw_map::{CrossingType, ExtraRoadData, RawMap};
 
 mod elevation;
 mod extract;
+mod geom_repair;
 mod gtfs;
 mod parking;
 

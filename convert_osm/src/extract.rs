@@ -126,7 +126,7 @@ pub fn extract_osm(
         // All the other cases we care about are areas.
         let mut deduped = way.pts.clone();
         deduped.dedup();
-        let polygon = if let Ok(ring) = Ring::new(deduped) {
+        let polygon = if let Some(ring) = crate::geom_repair::build_ring_resilient(deduped, "buildings") {
             ring.into_polygon()
         } else {
             continue;
