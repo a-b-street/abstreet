@@ -27,6 +27,7 @@ mod parking_lots;
 pub mod traffic_signals;
 pub mod transit;
 pub mod turns;
+pub mod turns_resilient;
 mod walking_turns;
 
 /// Options for converting RawMaps to Maps.
