@@ -172,7 +172,7 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
             let turn_type = turn_type_from_lane_geom(src, dst, i, map);
 
             let geom = curvey_turn(src, dst, i)
-                .unwrap_or_else(|_| PolyLine::must_new(vec![src.last_pt(), dst.first_pt()]));
+                .unwrap_or_else(|_| super::turns_resilient::safe_straight_line(src.last_pt(), dst.first_pt()));
 
             turns.push(Turn {
                 id: TurnID {
