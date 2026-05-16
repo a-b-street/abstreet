@@ -12,6 +12,7 @@ use osm2streets::{osm, MapConfig, Road, RoadID};
 use raw_map::{CrossingType, ExtraRoadData, RawMap};
 
 mod elevation;
+mod clip_resilient;
 mod extract;
 mod gtfs;
 mod parking;
@@ -102,7 +103,7 @@ pub fn convert(
     map.bus_routes_on_roads = extract.bus_routes_on_roads;
     map.extra_pois = extract.extra_pois;
 
-    clip_map(&mut map, timer);
+    crate::clip_resilient::clip_map_resilient(&mut map, timer);
 
     for i in map.streets.intersections.keys() {
         map.elevation_per_intersection.insert(*i, Distance::ZERO);
